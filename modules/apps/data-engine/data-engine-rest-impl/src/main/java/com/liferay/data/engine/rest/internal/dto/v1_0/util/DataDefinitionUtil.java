@@ -43,7 +43,7 @@ public class DataDefinitionUtil {
 				dataDefinitionRules = JSONUtil.toArray(
 					jsonObject.getJSONArray("rules"),
 					ruleJSONObject -> _toDataDefinitionRule(ruleJSONObject),
-					DataDefinitionField.class);
+					DataDefinitionRule.class);
 				dateCreated = ddmStructure.getCreateDate();
 				dateModified = ddmStructure.getModifiedDate();
 				description = LocalizedValueUtil.toLocalizedValues(
