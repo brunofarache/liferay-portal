@@ -116,33 +116,39 @@ public class DataLayoutRenderer {
 	}
 
 	private static FieldType _getFieldType(
-		String fieldTypeName, HttpServletRequest httpServletRequest,
+		DataDefinitionField dataDefinitionField,
+		HttpServletRequest httpServletRequest,
 		HttpServletResponse httpServletResponse, SoyDataFactory soyFactory) {
 
-		FieldType fieldType = null;
+		String fieldTypeName = dataDefinitionField.getFieldType();
 
 		if (StringUtils.equals(fieldTypeName, "captcha")) {
-			fieldType = new CaptchaFieldType(
-				httpServletRequest, httpServletResponse, soyFactory);
+			return new CaptchaFieldType(
+				dataDefinitionField, httpServletRequest, httpServletResponse,
+				soyFactory);
 		}
 		else if (StringUtils.equals(fieldTypeName, "checkbox")) {
-			fieldType = new CheckboxFieldType(
-				httpServletRequest, httpServletResponse, soyFactory);
+			return new CheckboxFieldType(
+				dataDefinitionField, httpServletRequest, httpServletResponse,
+				soyFactory);
 		}
 		else if (StringUtils.equals(fieldTypeName, "checkbox_multiple")) {
-			fieldType = new CheckboxMultipleFieldType(
-				httpServletRequest, httpServletResponse, soyFactory);
+			return new CheckboxMultipleFieldType(
+				dataDefinitionField, httpServletRequest, httpServletResponse,
+				soyFactory);
 		}
 		else if (StringUtils.equals(fieldTypeName, "date")) {
-			fieldType = new DateFieldType(
-				httpServletRequest, httpServletResponse, soyFactory);
+			return new DateFieldType(
+				dataDefinitionField, httpServletRequest, httpServletResponse,
+				soyFactory);
 		}
 		else if (StringUtils.equals(fieldTypeName, "editor")) {
-			fieldType = new EditorFieldType(
-				httpServletRequest, httpServletResponse, soyFactory);
+			return new EditorFieldType(
+				dataDefinitionField, httpServletRequest, httpServletResponse,
+				soyFactory);
 		}
 
-		return fieldType;
+		return null;
 	}
 
 	private List<Object> _createDataLayoutColumnsContexts(
@@ -244,14 +250,11 @@ public class DataLayoutRenderer {
 				fieldName);
 
 			FieldType fieldType = _getFieldType(
-				dataDefinitionField.getFieldType(), httpServletRequest,
-				httpServletResponse, soyDataFactory);
+				dataDefinitionField, httpServletRequest, httpServletResponse,
+				soyDataFactory);
 
 			if (fieldType != null) {
-				Map<String, Object> fieldTypeContext = new HashMap<>();
-
-				fieldType.includeContext(fieldTypeContext, dataDefinitionField);
-				fieldTypesContexts.add(fieldTypeContext);
+				fieldTypesContexts.add(fieldType.createContext());
 			}
 		}
 

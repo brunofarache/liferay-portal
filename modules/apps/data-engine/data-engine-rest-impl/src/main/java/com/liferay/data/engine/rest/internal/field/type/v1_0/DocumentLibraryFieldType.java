@@ -53,12 +53,14 @@ import org.apache.commons.lang.StringUtils;
 public class DocumentLibraryFieldType extends FieldType {
 
 	public DocumentLibraryFieldType(
-		DLAppService dlAppService, Html html,
-		HttpServletRequest httpServletRequest,
+		DataDefinitionField dataDefinitionField, DLAppService dlAppService,
+		Html html, HttpServletRequest httpServletRequest,
 		HttpServletResponse httpServletResponse, Portal portal,
 		SoyDataFactory soyDataFactory) {
 
-		super(httpServletRequest, httpServletResponse, soyDataFactory);
+		super(
+			dataDefinitionField, httpServletRequest, httpServletResponse,
+			soyDataFactory);
 
 		this.dlAppService = dlAppService;
 		this.html = html;
@@ -118,9 +120,7 @@ public class DocumentLibraryFieldType extends FieldType {
 	}
 
 	@Override
-	protected void doIncludeContext(
-		Map<String, Object> context, DataDefinitionField dataDefinitionField) {
-
+	protected void addContext(Map<String, Object> context) {
 		if (!StringUtils.isEmpty(
 				CustomPropertyUtil.getString(
 					dataDefinitionField.getCustomProperties(), "value"))) {

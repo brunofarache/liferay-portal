@@ -30,11 +30,14 @@ import javax.servlet.http.HttpServletResponse;
 public class DateFieldType extends FieldType {
 
 	public DateFieldType(
+		DataDefinitionField dataDefinitionField,
 		HttpServletRequest httpServletRequest,
 		HttpServletResponse httpServletResponse,
 		SoyDataFactory soyDataFactory) {
 
-		super(httpServletRequest, httpServletResponse, soyDataFactory);
+		super(
+			dataDefinitionField, httpServletRequest, httpServletResponse,
+			soyDataFactory);
 	}
 
 	public DataDefinitionField deserialize(JSONObject jsonObject)
@@ -61,9 +64,7 @@ public class DateFieldType extends FieldType {
 	}
 
 	@Override
-	protected void doIncludeContext(
-		Map<String, Object> context, DataDefinitionField dataDefinitionField) {
-
+	protected void addContext(Map<String, Object> context) {
 		context.put(
 			"predefinedValue",
 			LocalizedValueUtil.getLocalizedValue(
