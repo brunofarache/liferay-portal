@@ -23,11 +23,15 @@ import com.liferay.data.engine.rest.dto.v1_0.DataLayoutRow;
 import com.liferay.data.engine.rest.internal.dto.v1_0.util.DataDefinitionUtil;
 import com.liferay.data.engine.rest.internal.dto.v1_0.util.DataLayoutUtil;
 import com.liferay.data.engine.rest.internal.dto.v1_0.util.LocalizedValueUtil;
-import com.liferay.data.engine.rest.internal.field.type.v1_0.util.FieldTypeUtil;
+import com.liferay.data.engine.rest.internal.field.type.v1_0.CaptchaFieldType;
+import com.liferay.data.engine.rest.internal.field.type.v1_0.CheckboxFieldType;
+import com.liferay.data.engine.rest.internal.field.type.v1_0.CheckboxMultipleFieldType;
+import com.liferay.data.engine.rest.internal.field.type.v1_0.DateFieldType;
+import com.liferay.data.engine.rest.internal.field.type.v1_0.EditorFieldType;
+import com.liferay.data.engine.rest.internal.field.type.v1_0.FieldType;
 import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
 import com.liferay.dynamic.data.mapping.model.DDMStructureVersion;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalService;
-import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureVersionLocalService;
 import com.liferay.frontend.js.loader.modules.extender.npm.NPMResolver;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
@@ -52,6 +56,8 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * @author Marcela Cunha
  */
@@ -60,11 +66,10 @@ public class DataLayoutRenderer {
 	public String render(
 			Long dataLayoutId,
 			DDMStructureLayoutLocalService ddmStructureLayoutLocalService,
-			DDMStructureLocalService ddmStructureLocalService,
 			DDMStructureVersionLocalService ddmStructureVersionLocalService,
 			HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse, NPMResolver npmResolver,
-			boolean readOnly, SoyComponentRenderer soyComponentRenderer,
+			SoyComponentRenderer soyComponentRenderer,
 			SoyDataFactory soyDataFactory)
 		throws Exception {
 
@@ -92,7 +97,7 @@ public class DataLayoutRenderer {
 					DataDefinitionUtil.toDataDefinition(
 						ddmStructureVersion.getStructure())),
 				dataLayout.getDataLayoutPages(), httpServletRequest,
-				httpServletResponse, readOnly, soyDataFactory));
+				httpServletResponse, soyDataFactory));
 
 		context.put("paginationMode", dataLayout.getPaginationMode());
 
@@ -110,11 +115,41 @@ public class DataLayoutRenderer {
 		return writer.toString();
 	}
 
+	private static FieldType _getFieldType(
+		String fieldTypeName, HttpServletRequest httpServletRequest,
+		HttpServletResponse httpServletResponse, SoyDataFactory soyFactory) {
+
+		FieldType fieldType = null;
+
+		if (StringUtils.equals(fieldTypeName, "captcha")) {
+			fieldType = new CaptchaFieldType(
+				httpServletRequest, httpServletResponse, soyFactory);
+		}
+		else if (StringUtils.equals(fieldTypeName, "checkbox")) {
+			fieldType = new CheckboxFieldType(
+				httpServletRequest, httpServletResponse, soyFactory);
+		}
+		else if (StringUtils.equals(fieldTypeName, "checkbox_multiple")) {
+			fieldType = new CheckboxMultipleFieldType(
+				httpServletRequest, httpServletResponse, soyFactory);
+		}
+		else if (StringUtils.equals(fieldTypeName, "date")) {
+			fieldType = new DateFieldType(
+				httpServletRequest, httpServletResponse, soyFactory);
+		}
+		else if (StringUtils.equals(fieldTypeName, "editor")) {
+			fieldType = new EditorFieldType(
+				httpServletRequest, httpServletResponse, soyFactory);
+		}
+
+		return fieldType;
+	}
+
 	private List<Object> _createDataLayoutColumnsContext(
 		Map<String, DataDefinitionField> dataDefinitionFields,
 		DataLayoutColumn[] dataLayoutColumns,
 		HttpServletRequest httpServletRequest,
-		HttpServletResponse httpServletResponse, boolean readOnly,
+		HttpServletResponse httpServletResponse,
 		SoyDataFactory soyDataFactory) {
 
 		List<Object> dataLayoutColumnsContexts = new ArrayList<>();
@@ -126,8 +161,7 @@ public class DataLayoutRenderer {
 				"fields",
 				_createFieldTypesContexts(
 					dataDefinitionFields, dataLayoutColumn.getFieldNames(),
-					httpServletRequest, httpServletResponse, readOnly,
-					soyDataFactory));
+					httpServletRequest, httpServletResponse, soyDataFactory));
 			dataLayoutColumnsContext.put(
 				"size", dataLayoutColumn.getColumnSize());
 
@@ -140,7 +174,7 @@ public class DataLayoutRenderer {
 	private List<Object> _createDataLayoutPagesContexts(
 		Map<String, DataDefinitionField> dataDefinitionFields,
 		DataLayoutPage[] dataLayoutPages, HttpServletRequest httpServletRequest,
-		HttpServletResponse httpServletResponse, boolean readOnly,
+		HttpServletResponse httpServletResponse,
 		SoyDataFactory soyDataFactory) {
 
 		List<Object> dataLayoutPagesContexts = new ArrayList<>();
@@ -159,8 +193,7 @@ public class DataLayoutRenderer {
 				"rows",
 				_createDataLayoutRowsContexts(
 					dataDefinitionFields, dataLayoutPage.getDataLayoutRows(),
-					httpServletRequest, httpServletResponse, readOnly,
-					soyDataFactory));
+					httpServletRequest, httpServletResponse, soyDataFactory));
 
 			dataLayoutPageContext.put(
 				"title",
@@ -178,7 +211,7 @@ public class DataLayoutRenderer {
 	private List<Object> _createDataLayoutRowsContexts(
 		Map<String, DataDefinitionField> dataDefinitionFields,
 		DataLayoutRow[] dataLayoutRows, HttpServletRequest httpServletRequest,
-		HttpServletResponse httpServletResponse, boolean readOnly,
+		HttpServletResponse httpServletResponse,
 		SoyDataFactory soyDataFactory) {
 
 		List<Object> dataLayoutRowsContexts = new ArrayList<>();
@@ -190,8 +223,7 @@ public class DataLayoutRenderer {
 				"columns",
 				_createDataLayoutColumnsContext(
 					dataDefinitionFields, dataLayoutRow.getDataLayoutColums(),
-					httpServletRequest, httpServletResponse, readOnly,
-					soyDataFactory));
+					httpServletRequest, httpServletResponse, soyDataFactory));
 
 			dataLayoutRowsContexts.add(dataLayoutRowContext);
 		}
@@ -202,7 +234,7 @@ public class DataLayoutRenderer {
 	private List<Object> _createFieldTypesContexts(
 		Map<String, DataDefinitionField> dataDefinitionFields,
 		String[] fieldNames, HttpServletRequest httpServletRequest,
-		HttpServletResponse httpServletResponse, boolean readOnly,
+		HttpServletResponse httpServletResponse,
 		SoyDataFactory soyDataFactory) {
 
 		List<Object> fieldTypesContexts = new ArrayList<>();
@@ -213,12 +245,14 @@ public class DataLayoutRenderer {
 
 			Map<String, Object> fieldTypeContext = new HashMap<>();
 
-			FieldTypeUtil.includeFieldTypeContext(
-				dataDefinitionField, dataDefinitionField.getFieldType(),
-				fieldTypeContext, httpServletRequest, httpServletResponse,
-				readOnly, soyDataFactory);
+			FieldType fieldType = _getFieldType(
+				dataDefinitionField.getFieldType(), httpServletRequest,
+				httpServletResponse, soyDataFactory);
 
-			fieldTypesContexts.add(fieldTypeContext);
+			if (fieldType != null) {
+				fieldType.includeContext(fieldTypeContext, dataDefinitionField);
+				fieldTypesContexts.add(fieldTypeContext);
+			}
 		}
 
 		return fieldTypesContexts;

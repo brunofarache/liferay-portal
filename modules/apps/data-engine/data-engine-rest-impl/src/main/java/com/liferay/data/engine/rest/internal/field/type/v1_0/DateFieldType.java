@@ -17,6 +17,7 @@ package com.liferay.data.engine.rest.internal.field.type.v1_0;
 import com.liferay.data.engine.rest.dto.v1_0.DataDefinitionField;
 import com.liferay.data.engine.rest.internal.dto.v1_0.util.LocalizedValueUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.template.soy.data.SoyDataFactory;
 
 import java.util.Map;
 
@@ -28,20 +29,12 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class DateFieldType extends FieldType {
 
-	public static void includeContext(
-		Map<String, Object> context, DataDefinitionField dataDefinitionField,
+	public DateFieldType(
 		HttpServletRequest httpServletRequest,
-		HttpServletResponse httpServletResponse, boolean readOnly) {
+		HttpServletResponse httpServletResponse,
+		SoyDataFactory soyDataFactory) {
 
-		FieldType.includeContext(
-			context, dataDefinitionField, httpServletRequest,
-			httpServletResponse, readOnly);
-
-		context.put(
-			"predefinedValue",
-			LocalizedValueUtil.getLocalizedValue(
-				httpServletRequest.getLocale(),
-				dataDefinitionField.getDefaultValue()));
+		super(httpServletRequest, httpServletResponse, soyDataFactory);
 	}
 
 	public DataDefinitionField deserialize(JSONObject jsonObject)
@@ -64,6 +57,17 @@ public class DateFieldType extends FieldType {
 		return jsonObject.put(
 			"predefinedValue",
 			LocalizedValueUtil.toJSONObject(
+				dataDefinitionField.getDefaultValue()));
+	}
+
+	@Override
+	protected void doIncludeContext(
+		Map<String, Object> context, DataDefinitionField dataDefinitionField) {
+
+		context.put(
+			"predefinedValue",
+			LocalizedValueUtil.getLocalizedValue(
+				httpServletRequest.getLocale(),
 				dataDefinitionField.getDefaultValue()));
 	}
 

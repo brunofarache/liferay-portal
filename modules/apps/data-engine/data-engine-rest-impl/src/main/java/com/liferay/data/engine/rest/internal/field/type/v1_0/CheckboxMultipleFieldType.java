@@ -20,6 +20,7 @@ import com.liferay.data.engine.rest.internal.field.type.v1_0.util.CustomProperty
 import com.liferay.data.engine.rest.internal.field.type.v1_0.util.DataFieldOptionUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.template.soy.data.SoyDataFactory;
 
 import java.util.Map;
 
@@ -31,39 +32,12 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class CheckboxMultipleFieldType extends FieldType {
 
-	public static void includeContext(
-		Map<String, Object> context, DataDefinitionField dataDefinitionField,
+	public CheckboxMultipleFieldType(
 		HttpServletRequest httpServletRequest,
-		HttpServletResponse httpServletResponse, boolean readOnly) {
+		HttpServletResponse httpServletResponse,
+		SoyDataFactory soyDataFactory) {
 
-		FieldType.includeContext(
-			context, dataDefinitionField, httpServletRequest,
-			httpServletResponse, readOnly);
-
-		context.put(
-			"inline",
-			CustomPropertyUtil.getBoolean(
-				dataDefinitionField.getCustomProperties(), "inline", false));
-		context.put(
-			"options",
-			DataFieldOptionUtil.toDataFieldOptions(
-				CustomPropertyUtil.getDataFieldOptions(
-					dataDefinitionField.getCustomProperties(), "options"),
-				LanguageUtil.getLanguageId(httpServletRequest)));
-		context.put(
-			"predefinedValue",
-			LocalizedValueUtil.getLocalizedValue(
-				httpServletRequest.getLocale(),
-				dataDefinitionField.getDefaultValue()));
-		context.put(
-			"showAsSwitcher",
-			CustomPropertyUtil.getBoolean(
-				dataDefinitionField.getCustomProperties(), "showAsSwitcher",
-				false));
-		context.put(
-			"value",
-			CustomPropertyUtil.getString(
-				dataDefinitionField.getCustomProperties(), "value", "[]"));
+		super(httpServletRequest, httpServletResponse, soyDataFactory);
 	}
 
 	public DataDefinitionField deserialize(JSONObject jsonObject)
@@ -115,6 +89,36 @@ public class CheckboxMultipleFieldType extends FieldType {
 				dataDefinitionField.getCustomProperties(), "showAsSwitcher",
 				false)
 		);
+	}
+
+	@Override
+	protected void doIncludeContext(
+		Map<String, Object> context, DataDefinitionField dataDefinitionField) {
+
+		context.put(
+			"inline",
+			CustomPropertyUtil.getBoolean(
+				dataDefinitionField.getCustomProperties(), "inline", false));
+		context.put(
+			"options",
+			DataFieldOptionUtil.toDataFieldOptions(
+				CustomPropertyUtil.getDataFieldOptions(
+					dataDefinitionField.getCustomProperties(), "options"),
+				LanguageUtil.getLanguageId(httpServletRequest)));
+		context.put(
+			"predefinedValue",
+			LocalizedValueUtil.getLocalizedValue(
+				httpServletRequest.getLocale(),
+				dataDefinitionField.getDefaultValue()));
+		context.put(
+			"showAsSwitcher",
+			CustomPropertyUtil.getBoolean(
+				dataDefinitionField.getCustomProperties(), "showAsSwitcher",
+				false));
+		context.put(
+			"value",
+			CustomPropertyUtil.getString(
+				dataDefinitionField.getCustomProperties(), "value", "[]"));
 	}
 
 }
