@@ -145,7 +145,7 @@ public class DataLayoutRenderer {
 		return fieldType;
 	}
 
-	private List<Object> _createDataLayoutColumnsContext(
+	private List<Object> _createDataLayoutColumnsContexts(
 		Map<String, DataDefinitionField> dataDefinitionFields,
 		DataLayoutColumn[] dataLayoutColumns,
 		HttpServletRequest httpServletRequest,
@@ -221,7 +221,7 @@ public class DataLayoutRenderer {
 
 			dataLayoutRowContext.put(
 				"columns",
-				_createDataLayoutColumnsContext(
+				_createDataLayoutColumnsContexts(
 					dataDefinitionFields, dataLayoutRow.getDataLayoutColums(),
 					httpServletRequest, httpServletResponse, soyDataFactory));
 
@@ -243,13 +243,13 @@ public class DataLayoutRenderer {
 			DataDefinitionField dataDefinitionField = dataDefinitionFields.get(
 				fieldName);
 
-			Map<String, Object> fieldTypeContext = new HashMap<>();
-
 			FieldType fieldType = _getFieldType(
 				dataDefinitionField.getFieldType(), httpServletRequest,
 				httpServletResponse, soyDataFactory);
 
 			if (fieldType != null) {
+				Map<String, Object> fieldTypeContext = new HashMap<>();
+
 				fieldType.includeContext(fieldTypeContext, dataDefinitionField);
 				fieldTypesContexts.add(fieldTypeContext);
 			}
