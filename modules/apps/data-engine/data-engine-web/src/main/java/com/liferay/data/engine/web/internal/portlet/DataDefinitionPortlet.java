@@ -28,7 +28,7 @@ import org.osgi.service.component.annotations.Component;
 	immediate = true,
 	property = {
 		"com.liferay.portlet.add-default-resource=true",
-		"com.liferay.portlet.display-category=category.hidden",
+		"com.liferay.portlet.display-category=category.sample",
 		"com.liferay.portlet.use-default-template=true",
 		"javax.portlet.expiration-cache=0",
 		"javax.portlet.init-param.template-path=/META-INF/resources/",
