@@ -1,8 +1,9 @@
 {
 	"dependencies": {
-		"axios": "^0.19.0",
-		"react": "^16.6.3",
 		"@clayui/table": "^3.0.0",
+		"axios": "^0.19.0",
+		"moment": "^2.24.0",
+		"react": "^16.6.3",
 		"react-dom": "^16.6.3"
 	},
 	"description": "",

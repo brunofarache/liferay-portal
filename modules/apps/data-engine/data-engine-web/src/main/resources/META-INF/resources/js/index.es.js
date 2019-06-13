@@ -1,7 +1,8 @@
 import axios from 'axios';
+import ClayTable from '@clayui/table';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ClayTable from '@clayui/table';
+import moment from 'moment';
 
 class CustomObjectsTable extends React.Component {
 	state = {
@@ -50,8 +51,8 @@ class CustomObjectsTable extends React.Component {
 					{customObjects.map((customObject) => (
 						<ClayTable.Row>
 							<ClayTable.Cell headingTitle>{customObject.name.en_US}</ClayTable.Cell>
-							<ClayTable.Cell>{customObject.dateCreated}</ClayTable.Cell>
-							<ClayTable.Cell>{customObject.dateModified}</ClayTable.Cell>
+							<ClayTable.Cell>{moment(customObject.dateCreated).fromNow()}</ClayTable.Cell>
+							<ClayTable.Cell>{moment(customObject.dateModified).fromNow()}</ClayTable.Cell>
 						</ClayTable.Row>
 					))}
 				</ClayTable.Body>
