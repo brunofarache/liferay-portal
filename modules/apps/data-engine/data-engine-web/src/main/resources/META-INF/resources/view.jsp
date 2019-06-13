@@ -19,8 +19,6 @@
 <div id="<portlet:namespace />root">
 </div>
 
-<%= npmResolvedPackageName %>
-
 <aui:script require='<%= npmResolvedPackageName + "/js/index.es as bootstrapRequire" %>'>
 	bootstrapRequire.default(
 		'<portlet:namespace />',
