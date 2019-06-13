@@ -1,0 +1,24 @@
+{
+	"dependencies": {
+		"react": "^16.6.3",
+		"@clayui/table": "^3.0.0",
+		"react-dom": "^16.6.3"
+	},
+	"description": "",
+	"devDependencies": {
+		"@babel/preset-react": "^7.0.0",
+		"liferay-npm-scripts": "^2.2.0"
+	},
+	"main": "js/index.es.js",
+	"name": "data-engine-web",
+	"private": true,
+	"scripts": {
+		"build": "liferay-npm-scripts build",
+		"csf": "liferay-npm-scripts format",
+		"format": "liferay-npm-scripts format",
+		"test": "env TZ=utc liferay-npm-scripts test",
+		"test:watch": "env TZ=utc liferay-npm-scripts test --watch",
+		"watch": "liferay-npm-scripts webpack --watch"
+	},
+	"version": "1.0.0"
+}
