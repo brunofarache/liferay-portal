@@ -1,4 +1,5 @@
 import axios from 'axios';
+import ClayPagination from '@clayui/pagination';
 import ClayTable from '@clayui/table';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -21,9 +22,7 @@ class CustomObjectsTable extends React.Component {
 			})
 			.then((response) => response.data.items)
 			.then((customObjects) => this.setState({customObjects}))
-			.catch((error) => {
-				console.log(error);
-			});
+			.catch((error) => console.log(error));
 	}
 
 	render() {
@@ -61,8 +60,21 @@ class CustomObjectsTable extends React.Component {
 	}
 }
 
+class Pagination extends React.Component {
+	render() {
+		return (
+			<ClayPagination
+				activePage={6}
+				ellipsisBuffer={2}
+				totalPages={11}
+				spritemap={`${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`}
+			/>
+		);
+	}
+}
+
 export default function(namespace) {
 	const container = document.getElementById(`${namespace}root`);
 
-	ReactDOM.render(<CustomObjectsTable />, container);
+	ReactDOM.render(<Pagination />, container);
 }

@@ -1,10 +1,18 @@
 {
 	"dependencies": {
+		"@clayui/button": "^3.0.0",
+		"@clayui/checkbox": "^3.0.0",
+		"@clayui/drop-down": "^3.0.0",
+		"@clayui/icon": "^3.0.0",
+		"@clayui/pagination": "^3.0.0",
+		"@clayui/radio-group": "^3.0.0",
+		"@clayui/shared": "^3.0.0",
 		"@clayui/table": "^3.0.0",
 		"axios": "^0.19.0",
 		"moment": "^2.24.0",
 		"react": "^16.6.3",
-		"react-dom": "^16.6.3"
+		"react-dom": "^16.6.3",
+		"warning": "4.0.3"
 	},
 	"description": "",
 	"devDependencies": {
