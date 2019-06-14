@@ -5,7 +5,21 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import moment from 'moment';
 
-class CustomObjectsTable extends React.Component {
+class Pagination extends React.Component {
+	render() {
+		return (
+			<ClayPagination
+				activePage={this.props.page}
+				ellipsisBuffer={0}
+				onPageChange={this.props.onPageChange}
+				spritemap={`${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`}
+				totalPages={3}
+			/>
+		);
+	}
+}
+
+class Table extends React.Component {
 	state = {
 		customObjects: []
 	}
@@ -17,7 +31,9 @@ class CustomObjectsTable extends React.Component {
 			`/sites/${Liferay.ThemeDisplay.getScopeGroupIdOrLiveGroupId()}/data-definitions`,
 			{
 				params: {
-					['p_auth']: Liferay.authToken
+					['p_auth']: Liferay.authToken,
+					page: this.props.page,
+					pageSize: 2
 				}
 			})
 			.then((response) => response.data.items)
@@ -60,15 +76,23 @@ class CustomObjectsTable extends React.Component {
 	}
 }
 
-class Pagination extends React.Component {
+class SearchContainer extends React.Component {
+	state = {
+		page: 1
+	}
+
+	onPageChange = (page) => {
+		this.setState({page});
+	}
+
 	render() {
+		const { page } = this.state;
+
 		return (
-			<ClayPagination
-				activePage={6}
-				ellipsisBuffer={2}
-				totalPages={11}
-				spritemap={`${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`}
-			/>
+			<div>
+				<Table page={page} key={page} />
+				<Pagination page={page} onPageChange={this.onPageChange} />
+			</div>
 		);
 	}
 }
@@ -76,5 +100,5 @@ class Pagination extends React.Component {
 export default function(namespace) {
 	const container = document.getElementById(`${namespace}root`);
 
-	ReactDOM.render(<Pagination />, container);
+	ReactDOM.render(<SearchContainer />, container);
 }
