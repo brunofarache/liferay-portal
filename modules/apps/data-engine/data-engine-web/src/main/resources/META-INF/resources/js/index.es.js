@@ -69,7 +69,8 @@ class Table extends React.Component {
 
 class SearchContainer extends React.Component {
 	state = {
-		items: []
+		items: [],
+		totalPages: 1
 	}
 
 	query = (page) => {
@@ -84,8 +85,8 @@ class SearchContainer extends React.Component {
 					pageSize
 				}
 			})
-			.then((response) => response.data.items)
-			.then((items) => this.setState({items}))
+			.then((response) => [response.data.items, response.data.lastPage])
+			.then(([items, totalPages]) => this.setState({items, totalPages}))
 			.catch((error) => console.log(error));
 	}
 
@@ -94,12 +95,12 @@ class SearchContainer extends React.Component {
 	}
 
 	render() {
-		const { items } = this.state;
+		const { items, totalPages } = this.state;
 
 		return (
 			<div>
 				<Table items={items} />
-				<Pagination onPageChange={this.query} totalPages={3} />
+				<Pagination onPageChange={this.query} totalPages={totalPages} />
 			</div>
 		);
 	}
