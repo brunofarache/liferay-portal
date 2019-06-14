@@ -6,43 +6,34 @@ import ReactDOM from 'react-dom';
 import moment from 'moment';
 
 class Pagination extends React.Component {
+	state = {
+		page: 1
+	}
+
+	handleOnPageChange = (page) => {
+		this.setState({page});
+		this.props.onPageChange(page);
+	}
+
 	render() {
+		const { totalPages } = this.props;
+		const { page } = this.state;
+
 		return (
 			<ClayPagination
-				activePage={this.props.page}
+				activePage={page}
 				ellipsisBuffer={0}
-				onPageChange={this.props.onPageChange}
+				onPageChange={this.handleOnPageChange}
 				spritemap={`${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`}
-				totalPages={3}
+				totalPages={totalPages}
 			/>
 		);
 	}
 }
 
 class Table extends React.Component {
-	state = {
-		customObjects: []
-	}
-
-	componentDidMount() {
-		axios.defaults.baseURL = '/o/data-engine/v1.0';
-
-		axios.get(
-			`/sites/${Liferay.ThemeDisplay.getScopeGroupIdOrLiveGroupId()}/data-definitions`,
-			{
-				params: {
-					['p_auth']: Liferay.authToken,
-					page: this.props.page,
-					pageSize: 2
-				}
-			})
-			.then((response) => response.data.items)
-			.then((customObjects) => this.setState({customObjects}))
-			.catch((error) => console.log(error));
-	}
-
 	render() {
-		const { customObjects } = this.state;
+		const { items } = this.props;
 
 		return (
 			<ClayTable>
@@ -63,11 +54,11 @@ class Table extends React.Component {
 					<ClayTable.Row divider>
 						<ClayTable.Cell colSpan={3}>{'Custom Objects'}</ClayTable.Cell>
 					</ClayTable.Row>
-					{customObjects.map((customObject) => (
+					{items.map((item) => (
 						<ClayTable.Row>
-							<ClayTable.Cell headingTitle>{customObject.name.en_US}</ClayTable.Cell>
-							<ClayTable.Cell>{moment(customObject.dateCreated).fromNow()}</ClayTable.Cell>
-							<ClayTable.Cell>{moment(customObject.dateModified).fromNow()}</ClayTable.Cell>
+							<ClayTable.Cell headingTitle>{item.name.en_US}</ClayTable.Cell>
+							<ClayTable.Cell>{moment(item.dateCreated).fromNow()}</ClayTable.Cell>
+							<ClayTable.Cell>{moment(item.dateModified).fromNow()}</ClayTable.Cell>
 						</ClayTable.Row>
 					))}
 				</ClayTable.Body>
@@ -78,20 +69,37 @@ class Table extends React.Component {
 
 class SearchContainer extends React.Component {
 	state = {
-		page: 1
+		items: []
 	}
 
-	onPageChange = (page) => {
-		this.setState({page});
+	query = (page) => {
+		axios.defaults.baseURL = '/o/data-engine/v1.0';
+
+		axios.get(
+			`/sites/${Liferay.ThemeDisplay.getScopeGroupIdOrLiveGroupId()}/data-definitions`,
+			{
+				params: {
+					['p_auth']: Liferay.authToken,
+					page: page,
+					pageSize: 2
+				}
+			})
+			.then((response) => response.data.items)
+			.then((items) => this.setState({items}))
+			.catch((error) => console.log(error));
+	}
+
+	componentDidMount() {
+		this.query(1);
 	}
 
 	render() {
-		const { page } = this.state;
+		const { items } = this.state;
 
 		return (
 			<div>
-				<Table page={page} key={page} />
-				<Pagination page={page} onPageChange={this.onPageChange} />
+				<Table items={items} />
+				<Pagination onPageChange={this.query} totalPages={3} />
 			</div>
 		);
 	}
