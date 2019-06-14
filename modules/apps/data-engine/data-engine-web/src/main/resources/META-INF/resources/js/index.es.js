@@ -73,15 +73,15 @@ class SearchContainer extends React.Component {
 	}
 
 	query = (page) => {
-		axios.defaults.baseURL = '/o/data-engine/v1.0';
+		const { endpoint, pageSize } = this.props;
 
 		axios.get(
-			`/sites/${Liferay.ThemeDisplay.getScopeGroupIdOrLiveGroupId()}/data-definitions`,
+			endpoint,
 			{
 				params: {
 					['p_auth']: Liferay.authToken,
-					page: page,
-					pageSize: 2
+					page,
+					pageSize
 				}
 			})
 			.then((response) => response.data.items)
@@ -107,6 +107,8 @@ class SearchContainer extends React.Component {
 
 export default function(namespace) {
 	const container = document.getElementById(`${namespace}root`);
+	const baseURL = '/o/data-engine/v1.0';
+	const endpoint = `${baseURL}/sites/${Liferay.ThemeDisplay.getScopeGroupIdOrLiveGroupId()}/data-definitions`;
 
-	ReactDOM.render(<SearchContainer />, container);
+	ReactDOM.render(<SearchContainer endpoint={endpoint} pageSize={2} />, container);
 }
