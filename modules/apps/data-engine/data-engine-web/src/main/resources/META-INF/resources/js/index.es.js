@@ -9,33 +9,6 @@ import moment from 'moment';
 
 const spritemap = `${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`;
 
-class DropDownItem extends React.Component {
-	handleOnDelete = () => {
-		const { id } = this.props;
-		const baseURL = '/o/data-engine/v1.0';
-		const endpoint = `${baseURL}/data-definitions/${id}`;
-
-		axios.delete(
-			endpoint,
-			{
-				params: {
-					['p_auth']: Liferay.authToken
-				}
-			})
-			.then((response) => console.log(response))
-			.catch((error) => console.log(error));
-	}
-
-	render() {
-		const { label } = this.props;
-
-		return (
-			<ClayDropDown.Item onClick={this.handleOnDelete}>
-				{label}
-			</ClayDropDown.Item>
-		);
-	}
-}
 class DropDownWithState extends React.Component {
 	state = {
 		active: false
@@ -83,7 +56,7 @@ class Pagination extends React.Component {
 
 class Table extends React.Component {
 	render() {
-		const { items } = this.props;
+		const { items, onDeleteItem } = this.props;
 
 		return (
 			<ClayTable>
@@ -115,7 +88,9 @@ class Table extends React.Component {
 							<ClayTable.Cell>
 								<DropDownWithState>
 									<ClayDropDown.ItemList>
-										<DropDownItem label={'Delete'} id={item.id} />
+										<ClayDropDown.Item onClick={() => onDeleteItem(item.id)}>
+											{'Delete'}
+										</ClayDropDown.Item>
 									</ClayDropDown.ItemList>
 								</DropDownWithState>
 							</ClayTable.Cell>
@@ -129,12 +104,30 @@ class Table extends React.Component {
 
 class SearchContainer extends React.Component {
 	state = {
+		currentPage: 1,
 		items: [],
 		totalPages: 1
 	}
 
+	onDeleteItem = (id) => {
+		const baseURL = '/o/data-engine/v1.0';
+		const endpoint = `${baseURL}/data-definitions/${id}`;
+
+		axios.delete(
+			endpoint,
+			{
+				params: {
+					['p_auth']: Liferay.authToken
+				}
+			})
+			.then(() => this.query(this.state.currentPage))
+			.catch((error) => console.log(error));
+	}
+
 	query = (page) => {
 		const { endpoint, pageSize } = this.props;
+
+		this.setState({ currentPage: page });
 
 		axios.get(
 			endpoint,
@@ -159,7 +152,7 @@ class SearchContainer extends React.Component {
 
 		return (
 			<div>
-				<Table items={items} />
+				<Table items={items} onDeleteItem={this.onDeleteItem} />
 				<Pagination onPageChange={this.query} totalPages={totalPages} />
 			</div>
 		);
