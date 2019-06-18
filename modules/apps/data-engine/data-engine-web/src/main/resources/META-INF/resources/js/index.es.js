@@ -1,9 +1,32 @@
 import axios from 'axios';
+import ClayDropDown, { Align } from '@clayui/drop-down';
+import ClayIcon from '@clayui/icon';
 import ClayPagination from '@clayui/pagination';
 import ClayTable from '@clayui/table';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import moment from 'moment';
+
+const spritemap = `${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`;
+
+class DropDownWithState extends React.Component {
+	state = {
+		active: false
+	}
+
+	render() {
+		return (
+			<ClayDropDown
+				active={this.state.active}
+				alignmentPosition={Align.RightCenter}
+				onActiveChange={newVal => this.setState({active: newVal})}
+				trigger={<ClayIcon spritemap={spritemap} symbol="ellipsis-v" />}
+			>
+				{this.props.children}
+			</ClayDropDown>
+		);
+	}
+}
 
 class Pagination extends React.Component {
 	state = {
@@ -24,7 +47,7 @@ class Pagination extends React.Component {
 				activePage={page}
 				ellipsisBuffer={0}
 				onPageChange={this.handleOnPageChange}
-				spritemap={`${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`}
+				spritemap={spritemap}
 				totalPages={totalPages}
 			/>
 		);
@@ -48,17 +71,29 @@ class Table extends React.Component {
 						<ClayTable.Cell headingCell headingTitle>
 							{'Modified Date'}
 						</ClayTable.Cell>
+						<ClayTable.Cell headingCell headingTitle>
+							{''}
+						</ClayTable.Cell>
 					</ClayTable.Row>
 				</ClayTable.Head>
 				<ClayTable.Body>
 					<ClayTable.Row divider>
-						<ClayTable.Cell colSpan={3}>{'Custom Objects'}</ClayTable.Cell>
+						<ClayTable.Cell colSpan={4}>{'Custom Objects'}</ClayTable.Cell>
 					</ClayTable.Row>
-					{items.map((item) => (
+					{items.map((item, i) => (
 						<ClayTable.Row>
 							<ClayTable.Cell headingTitle>{item.name.en_US}</ClayTable.Cell>
 							<ClayTable.Cell>{moment(item.dateCreated).fromNow()}</ClayTable.Cell>
 							<ClayTable.Cell>{moment(item.dateModified).fromNow()}</ClayTable.Cell>
+							<ClayTable.Cell>
+								<DropDownWithState>
+									<ClayDropDown.ItemList>
+										<ClayDropDown.Item onClick={() => alert('hahah')}>
+											Delete
+										</ClayDropDown.Item>
+									</ClayDropDown.ItemList>
+								</DropDownWithState>
+							</ClayTable.Cell>
 						</ClayTable.Row>
 					))}
 				</ClayTable.Body>
@@ -111,5 +146,5 @@ export default function(namespace) {
 	const baseURL = '/o/data-engine/v1.0';
 	const endpoint = `${baseURL}/sites/${Liferay.ThemeDisplay.getScopeGroupIdOrLiveGroupId()}/data-definitions`;
 
-	ReactDOM.render(<SearchContainer endpoint={endpoint} pageSize={2} />, container);
+	ReactDOM.render(<SearchContainer endpoint={endpoint} pageSize={3} />, container);
 }
