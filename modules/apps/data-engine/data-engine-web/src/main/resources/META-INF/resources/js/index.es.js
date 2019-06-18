@@ -9,6 +9,33 @@ import moment from 'moment';
 
 const spritemap = `${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`;
 
+class DropDownItem extends React.Component {
+	handleOnDelete = () => {
+		const { id } = this.props;
+		const baseURL = '/o/data-engine/v1.0';
+		const endpoint = `${baseURL}/data-definitions/${id}`;
+
+		axios.delete(
+			endpoint,
+			{
+				params: {
+					['p_auth']: Liferay.authToken
+				}
+			})
+			.then((response) => console.log(response))
+			.catch((error) => console.log(error));
+	}
+
+	render() {
+		const { label } = this.props;
+
+		return (
+			<ClayDropDown.Item onClick={this.handleOnDelete}>
+				{label}
+			</ClayDropDown.Item>
+		);
+	}
+}
 class DropDownWithState extends React.Component {
 	state = {
 		active: false
@@ -88,9 +115,7 @@ class Table extends React.Component {
 							<ClayTable.Cell>
 								<DropDownWithState>
 									<ClayDropDown.ItemList>
-										<ClayDropDown.Item onClick={() => alert('hahah')}>
-											Delete
-										</ClayDropDown.Item>
+										<DropDownItem label={'Delete'} id={item.id} />
 									</ClayDropDown.ItemList>
 								</DropDownWithState>
 							</ClayTable.Cell>
