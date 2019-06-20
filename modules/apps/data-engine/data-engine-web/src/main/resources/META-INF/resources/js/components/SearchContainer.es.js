@@ -1,18 +1,24 @@
 import axios from 'axios';
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import Pagination from './Pagination.es';
 import SearchInput from './SearchInput.es';
 import Table from './Table.es';
 
-export default class SearchContainer extends Component {
-	state = {
-        currentPage: 1,
-        keywords: '',
+export default function SearchContainer(props) {
+	useEffect(
+		() => {
+			query(1);
+		},
+		[]
+	);
+
+	const [state, setState] = useState({
+		currentPage: 1,
 		items: [],
 		totalPages: 1
-	}
+	});
 
-	onDeleteItem = (id) => {
+	const onDeleteItem = (id) => {
 		const baseURL = '/o/data-engine/v1.0';
 		const endpoint = `${baseURL}/data-definitions/${id}`;
 
@@ -23,12 +29,12 @@ export default class SearchContainer extends Component {
 					['p_auth']: Liferay.authToken
 				}
 			})
-			.then(() => this.query(this.state.currentPage))
+			.then(() => query(state.currentPage))
 			.catch((error) => console.log(error));
     }
     
-	query = (page, keywords = '') => {
-        const { endpoint, pageSize } = this.props;
+	const query = (page, keywords = '') => {
+        const { endpoint, pageSize } = props;
 
 		axios.get(
 			endpoint,
@@ -41,24 +47,16 @@ export default class SearchContainer extends Component {
 				}
 			})
 			.then((response) => [response.data.items, response.data.lastPage])
-			.then(([items, totalPages]) => this.setState({currentPage: page, items, totalPages}))
+			.then(([items, totalPages]) => setState({currentPage: page, items, totalPages}))
 			.catch((error) => console.log(error));
 	}
 
-	componentDidMount() {
-		this.query(1);
-	}
-
-	render() {
-		const { items, totalPages } = this.state;
-
-		return (
-			<div>
-                <SearchInput onSearch={this.query} />
-                <br />
-				<Table items={items} onDeleteItem={this.onDeleteItem} />
-				<Pagination onPageChange={this.query} totalPages={totalPages} />
-			</div>
-		);
-	}
+	return (
+		<div>
+			<SearchInput onSearch={query} />
+			<br />
+			<Table items={state.items} onDeleteItem={onDeleteItem} />
+			<Pagination onPageChange={query} totalPages={state.totalPages} />
+		</div>
+	);
 }
