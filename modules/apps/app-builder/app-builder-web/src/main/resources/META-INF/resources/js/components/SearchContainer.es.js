@@ -1,4 +1,3 @@
-<%--
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
@@ -12,17 +11,31 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
---%>
 
-<%@ include file="/init.jsp" %>
+import axios from 'axios';
+import React, {useEffect, useState} from 'react';
+import Table from './Table.es';
 
-<%
-String appBuilderRootElementId = renderResponse.getNamespace() + "-app-builder-root";
-%>
+export default function SearchContainer(props) {
+	const [state, setState] = useState({
+		items: []
+	});
 
-<div id="<%= appBuilderRootElementId %>">
-</div>
+	useEffect(() => {
+		const {endpoint, formatter, pageSize} = props;
 
-<aui:script require='<%= npmResolvedPackageName + "/js/index.es as AppBuilder" %>'>
-	AppBuilder.default('<%= appBuilderRootElementId %>');
-</aui:script>
+		axios
+			.get(endpoint, {
+				params: {
+					['p_auth']: Liferay.authToken,
+					page: 1,
+					keywords: '',
+					pageSize
+				}
+			})
+			.then(response => formatter(response.data.items))
+			.then(items => setState({items}));
+	}, [props]);
+
+	return <Table columns={props.columns} rows={state.items} />;
+}

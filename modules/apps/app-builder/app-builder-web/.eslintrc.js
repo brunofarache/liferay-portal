@@ -1,4 +1,3 @@
-<%--
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
@@ -12,17 +11,7 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
---%>
 
-<%@ include file="/init.jsp" %>
-
-<%
-String appBuilderRootElementId = renderResponse.getNamespace() + "-app-builder-root";
-%>
-
-<div id="<%= appBuilderRootElementId %>">
-</div>
-
-<aui:script require='<%= npmResolvedPackageName + "/js/index.es as AppBuilder" %>'>
-	AppBuilder.default('<%= appBuilderRootElementId %>');
-</aui:script>
+module.exports = {
+	extends: ['liferay/react']
+};
