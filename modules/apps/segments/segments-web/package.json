@@ -19,7 +19,6 @@
 	},
 	"description": "",
 	"devDependencies": {
-		"@babel/preset-react": "^7.0.0",
 		"babel-plugin-module-resolver": "^3.2.0",
 		"clay-css": "2.16.0",
 		"css-loader": "^2.0.1",
