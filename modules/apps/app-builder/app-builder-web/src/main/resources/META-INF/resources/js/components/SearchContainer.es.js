@@ -14,7 +14,7 @@
 
 import {list} from '../utils/client.es';
 import Pagination from './Pagination.es';
-import React, {useEffect, useState} from 'react';
+import React, {Fragment, useEffect, useState} from 'react';
 import Table from './Table.es';
 
 export default function SearchContainer(props) {
@@ -45,13 +45,13 @@ export default function SearchContainer(props) {
 	}, [props]);
 
 	return (
-		<>
+		<Fragment>
 			<Table columns={props.columns} rows={state.items} />
 			<Pagination
 				currentPage={state.currentPage}
 				onPageChange={onPageChange}
 				totalPages={state.totalPages}
 			/>
-		</>
+		</Fragment>
 	);
 }
