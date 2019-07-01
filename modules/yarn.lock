@@ -868,7 +868,7 @@
     "@clayui/shared" "^3.0.0-milestone.1"
     classnames "^2.2.6"
 
-"@clayui/pagination@3.0.0-milestone.1":
+"@clayui/pagination@3.0.0-milestone.1", "@clayui/pagination@^3.0.0-milestone.1":
   version "3.0.0-milestone.1"
   resolved "https://registry.yarnpkg.com/@clayui/pagination/-/pagination-3.0.0-milestone.1.tgz#6dae301dd129a80be1a1df6389d4e0c65e3756ea"
   integrity sha512-6istEhZH8nzPlrnOTZ5/W3Crar/DbKQ7A00ahWk2D/btDP21BKOW2loeCRApHFLVIsh2rYD51KTqtHBSSrO4KQ==

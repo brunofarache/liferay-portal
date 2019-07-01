@@ -12,29 +12,46 @@
  * details.
  */
 
-import axios from 'axios';
+import {list} from '../utils/client.es';
+import Pagination from './Pagination.es';
 import React, {useEffect, useState} from 'react';
 import Table from './Table.es';
 
 export default function SearchContainer(props) {
 	const [state, setState] = useState({
-		items: []
+		currentPage: 1,
+		items: [],
+		totalPages: 1
 	});
 
-	useEffect(() => {
-		const {endpoint, formatter, pageSize} = props;
-
-		axios
-			.get(endpoint, {
-				params: {
-					['p_auth']: Liferay.authToken,
-					page: 1,
-					keywords: '',
-					pageSize
-				}
+	const onPageChange = page => {
+		list(props.endpoint, page).then(({items, totalPages}) =>
+			setState({
+				currentPage: page,
+				items: props.formatter(items),
+				totalPages
 			})
-			.then(({data: {items}}) => setState({items: formatter(items)}));
+		);
+	};
+
+	useEffect(() => {
+		list(props.endpoint, 1).then(({items, totalPages}) =>
+			setState({
+				currentPage: 1,
+				items: props.formatter(items),
+				totalPages
+			})
+		);
 	}, [props]);
 
-	return <Table columns={props.columns} rows={state.items} />;
+	return (
+		<>
+			<Table columns={props.columns} rows={state.items} />
+			<Pagination
+				currentPage={state.currentPage}
+				onPageChange={onPageChange}
+				totalPages={state.totalPages}
+			/>
+		</>
+	);
 }

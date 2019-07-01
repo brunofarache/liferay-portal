@@ -44,7 +44,6 @@ function AppBuilder() {
 			columns={columns}
 			endpoint={endpoint}
 			formatter={formatter}
-			pageSize={10}
 		/>
 	);
 }
