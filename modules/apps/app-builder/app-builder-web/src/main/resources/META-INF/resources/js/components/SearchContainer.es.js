@@ -12,45 +12,61 @@
  * details.
  */
 
-import {list} from '../utils/client.es';
+import PageSize from './PageSize.es';
 import Pagination from './Pagination.es';
-import React, {Fragment, useEffect, useState} from 'react';
+import React, {Fragment, useState} from 'react';
 import Table from './Table.es';
+import {useResource} from '@clayui/data-provider';
 
 export default function SearchContainer(props) {
+	const {columns, endpoint, formatter} = props;
+
 	const [state, setState] = useState({
-		currentPage: 1,
-		items: [],
-		totalPages: 1
+		page: 1,
+		pageSize: 20
 	});
 
-	const onPageChange = page => {
-		list(props.endpoint, page).then(({items, totalPages}) =>
-			setState({
-				currentPage: page,
-				items: props.formatter(items),
-				totalPages
-			})
-		);
-	};
+	const {page, pageSize} = state;
 
-	useEffect(() => {
-		list(props.endpoint, 1).then(({items, totalPages}) =>
-			setState({
-				currentPage: 1,
-				items: props.formatter(items),
-				totalPages
-			})
-		);
-	}, [props]);
+	const result = useResource({
+		link: endpoint,
+		variables: {
+			p_auth: Liferay.authToken,
+			...state
+		}
+	});
+
+	let items = [],
+		totalCount = 0,
+		totalPages = 1;
+
+	if (result) {
+		const {resource} = result;
+
+		if (resource) {
+			({items, totalCount, lastPage: totalPages} = resource);
+		}
+	}
 
 	return (
 		<Fragment>
-			<Table columns={props.columns} rows={state.items} />
+			<Table columns={columns} rows={formatter(items)} />
+			<PageSize
+				itemsCount={items.length}
+				onPageSizeChange={pageSize => setState({page: 1, pageSize})}
+				page={page}
+				pageSize={pageSize}
+				totalCount={totalCount}
+			/>
 			<Pagination
-				currentPage={state.currentPage}
-				onPageChange={onPageChange}
-				totalPages={state.totalPages}
+				page={page}
+				onPageChange={page =>
+					setState(prevState => ({
+						page,
+						pageSize: prevState.pageSize
+					}))
+				}
+				totalPages={totalPages}
 			/>
 		</Fragment>
 	);

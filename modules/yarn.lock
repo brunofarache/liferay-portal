@@ -766,7 +766,7 @@
   resolved "https://registry.yarnpkg.com/@clayui/css/-/css-3.0.0-milestone.1.tgz#81ece0edff4c6ce24689b93c0afca8eac97b6a64"
   integrity sha512-YWVA6Pu802P0+9n1dwVwh3Q3/8sFSC99u+2MlGS878CR/pWTVKC3uoEamR6iT/sojQc7ZAo+T7OXwZkFupATGQ==
 
-"@clayui/data-provider@3.0.0-milestone.1":
+"@clayui/data-provider@3.0.0-milestone.1", "@clayui/data-provider@^3.0.0-milestone.1":
   version "3.0.0-milestone.1"
   resolved "https://registry.yarnpkg.com/@clayui/data-provider/-/data-provider-3.0.0-milestone.1.tgz#62622b72b134e93d2a6c06268e86dca2524bfa72"
   integrity sha512-kxvkMK9rd2hRlRFPHI4DoBWEWRs9yIpjvYAGRKxO0fbKS7pacBRCVtMa1RMI3IeqqpDXPYPtO8IoZlOL3ZoXew==
