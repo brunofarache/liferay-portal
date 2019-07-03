@@ -1105,7 +1105,8 @@ public interface DDMStructureLocalService
 			ServiceContext serviceContext)
 		throws PortalException;
 
-	public DDMStructure updateStructure(
+	@Indexable(type = IndexableType.REINDEX)
+	public DDMStructure  updateStructure(
 			long userId, long structureId, long parentStructureId,
 			Map<Locale, String> nameMap, Map<Locale, String> descriptionMap,
 			String definition, ServiceContext serviceContext)
