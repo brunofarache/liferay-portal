@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -42,6 +43,7 @@ import org.junit.runner.RunWith;
 public class DataDefinitionResourceTest
 	extends BaseDataDefinitionResourceTestCase {
 
+	@Ignore
 	@Override
 	@Test
 	public void testGetSiteDataDefinitionsPage() throws Exception {
