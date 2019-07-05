@@ -39,6 +39,10 @@ function AppBuilder() {
 		}
 	];
 
+	const emptyState = {
+		message: Liferay.Language.get('there-are-no-custom-objects-yet')
+	};
+
 	const endpoint = `/o/data-engine/v1.0/sites/${Liferay.ThemeDisplay.getCompanyGroupId()}/data-definitions`;
 
 	const formatter = items =>
@@ -53,6 +57,7 @@ function AppBuilder() {
 		<SearchContainer
 			actions={actions}
 			columns={columns}
+			emptyState={emptyState}
 			endpoint={endpoint}
 			formatter={formatter}
 		/>
