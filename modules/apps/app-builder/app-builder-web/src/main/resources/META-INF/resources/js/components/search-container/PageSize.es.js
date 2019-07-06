@@ -12,8 +12,8 @@
  * details.
  */
 
-import ClayIcon from '@clayui/icon';
 import ClayDropDown, {Align} from '@clayui/drop-down';
+import ClayIcon from '@clayui/icon';
 import React, {Fragment, useState} from 'react';
 import {sub} from '../../utils/lang.es';
 
@@ -60,11 +60,13 @@ export default function PageSize(props) {
 				</ItemList>
 			</ClayDropDown>
 
-			{sub(Liferay.Language.get('showing-x-to-x-of-x-entries'), [
-				firstEntry,
-				lastEntry,
-				totalCount
-			])}
+			<p className='pagination-results'>
+				{sub(Liferay.Language.get('showing-x-to-x-of-x-entries'), [
+					firstEntry,
+					lastEntry,
+					totalCount
+				])}
+			</p>
 		</Fragment>
 	);
 }

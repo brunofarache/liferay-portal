@@ -15,15 +15,23 @@
 import React from 'react';
 
 export default function EmptyState(props) {
-	const {message, title} = props;
+	const {description, title} = props;
 
 	return (
-		<div className={'sheet taglib-empty-result-message'}>
-			<div className={'taglib-empty-result-message-header'} />
+		<div className='taglib-empty-result-message'>
+			<div className='text-center'>
+				<div className='taglib-empty-state' />
 
-			{title && <h3 className='text-center'>{title}</h3>}
+				{title && (
+					<h1 className='taglib-empty-result-message-title'>
+						{title}
+					</h1>
+				)}
 
-			<div className='sheet-text text-center'>{message}</div>
+				<p className='taglib-empty-result-message-description'>
+					{description}
+				</p>
+			</div>
 		</div>
 	);
 }

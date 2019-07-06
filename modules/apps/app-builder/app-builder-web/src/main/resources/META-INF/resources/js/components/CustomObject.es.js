@@ -39,7 +39,10 @@ export default function CustomObject(props) {
 	];
 
 	const emptyState = {
-		message: Liferay.Language.get('there-are-no-form-views-yet')
+		title: Liferay.Language.get('no-form-views-yet'),
+		description: Liferay.Language.get(
+			'create-one-or-more-forms-to-display-the-data-held-in-your-data-object'
+		)
 	};
 
 	const endpoint = `/o/data-engine/v1.0/data-definitions/${props.match.params.dataDefinitionId}/data-layouts`;

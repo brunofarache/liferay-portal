@@ -15,7 +15,7 @@
 import EmptyState from './EmptyState.es';
 import PageSize from './PageSize.es';
 import Pagination from './Pagination.es';
-import React, {Fragment, useState} from 'react';
+import React, {useState} from 'react';
 import Table from './Table.es';
 import {useResource} from '@clayui/data-provider';
 
@@ -68,31 +68,37 @@ export default function SearchContainer(props) {
 	}
 
 	return (
-		<Fragment>
+		<div className='lfr-search-container-wrapper'>
 			<Table
 				actions={actions}
 				columns={columns}
 				rows={formatter(items)}
 			/>
 
-			<PageSize
-				itemsCount={items.length}
-				onPageSizeChange={pageSize => setState({page: 1, pageSize})}
-				page={page}
-				pageSize={pageSize}
-				totalCount={totalCount}
-			/>
+			<div className='taglib-search-iterator-page-iterator-bottom'>
+				<div className='pagination-bar'>
+					<PageSize
+						itemsCount={items.length}
+						onPageSizeChange={pageSize =>
+							setState({page: 1, pageSize})
+						}
+						page={page}
+						pageSize={pageSize}
+						totalCount={totalCount}
+					/>
 
-			<Pagination
-				page={page}
-				onPageChange={page =>
-					setState(prevState => ({
-						page,
-						pageSize: prevState.pageSize
-					}))
-				}
-				totalPages={totalPages}
-			/>
-		</Fragment>
+					<Pagination
+						page={page}
+						onPageChange={page =>
+							setState(prevState => ({
+								page,
+								pageSize: prevState.pageSize
+							}))
+						}
+						totalPages={totalPages}
+					/>
+				</div>
+			</div>
+		</div>
 	);
 }

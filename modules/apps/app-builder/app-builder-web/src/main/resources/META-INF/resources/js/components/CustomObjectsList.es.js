@@ -40,7 +40,10 @@ export default function CustomObjectsList() {
 	];
 
 	const emptyState = {
-		message: Liferay.Language.get('there-are-no-custom-objects-yet')
+		title: Liferay.Language.get('no-custom-objects-yet'),
+		description: Liferay.Language.get(
+			'custom-objects-define-the-types-of-data-your-business-application-needs'
+		)
 	};
 
 	const endpoint = `/o/data-engine/v1.0/sites/${Liferay.ThemeDisplay.getCompanyGroupId()}/data-definitions`;

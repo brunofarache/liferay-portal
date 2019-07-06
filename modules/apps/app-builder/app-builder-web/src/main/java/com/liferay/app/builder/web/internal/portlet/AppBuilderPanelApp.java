@@ -37,12 +37,12 @@ public class AppBuilderPanelApp extends BasePanelApp {
 
 	@Override
 	public String getPortletId() {
-		return AppBuilderPortletKeys.APP_BUILDER;
+		return AppBuilderPortletKeys.CUSTOM_OBJECTS;
 	}
 
 	@Override
 	@Reference(
-		target = "(javax.portlet.name=" + AppBuilderPortletKeys.APP_BUILDER + ")",
+		target = "(javax.portlet.name=" + AppBuilderPortletKeys.CUSTOM_OBJECTS + ")",
 		unbind = "-"
 	)
 	public void setPortlet(Portlet portlet) {

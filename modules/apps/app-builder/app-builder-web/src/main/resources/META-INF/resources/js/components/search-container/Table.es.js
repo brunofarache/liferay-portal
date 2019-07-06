@@ -22,36 +22,47 @@ export default function Table(props) {
 	const {actions, columns, rows} = props;
 
 	return (
-		<ClayTable>
-			<Head>
-				<Row>
-					{columns.map((column, index) => (
-						<Cell
-							key={index}
-							expanded={index === 0}
-							headingCell
-							headingTitle
-						>
-							{Object.values(column)[0]}
-						</Cell>
-					))}
-					{actions.length > 0 && <Cell>{''}</Cell>}
-				</Row>
-			</Head>
-			<Body>
-				{rows.map(row => (
-					<Row key={row.id}>
+		<div className='table-responsive'>
+			<ClayTable hover={false} responsive={false}>
+				<Head>
+					<Row>
 						{columns.map((column, index) => (
-							<Cell key={index} headingTitle={index === 0}>
-								{row[Object.keys(column)[0]]}
+							<Cell
+								key={index}
+								className={
+									index > 0 && 'table-cell-expand-smaller'
+								}
+								expanded={index === 0}
+								headingCell
+							>
+								{Object.values(column)[0]}
 							</Cell>
 						))}
-						<Cell>
-							<DropDown actions={actions} row={row} />
-						</Cell>
+						{actions.length > 0 && <Cell>{''}</Cell>}
 					</Row>
-				))}
-			</Body>
-		</ClayTable>
+				</Head>
+				<Body>
+					{rows.map(row => (
+						<Row key={row.id}>
+							{columns.map((column, index) => (
+								<Cell
+									key={index}
+									className={
+										index > 0 && 'table-cell-expand-smaller'
+									}
+									expanded={index === 0}
+									headingTitle={index === 0}
+								>
+									{row[Object.keys(column)[0]]}
+								</Cell>
+							))}
+							<Cell>
+								<DropDown actions={actions} row={row} />
+							</Cell>
+						</Row>
+					))}
+				</Body>
+			</ClayTable>
+		</div>
 	);
 }

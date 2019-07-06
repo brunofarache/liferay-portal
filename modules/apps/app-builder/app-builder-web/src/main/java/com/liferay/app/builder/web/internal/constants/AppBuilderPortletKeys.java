@@ -19,10 +19,10 @@ package com.liferay.app.builder.web.internal.constants;
  */
 public class AppBuilderPortletKeys {
 
-	public static final String APP_BUILDER =
-		"com_liferay_app_builder_web_internal_portlet_AppBuilderPortlet";
-
 	public static final String CONTROL_PANEL_APP_BUILDER =
 		"control_panel.app_builder";
+
+	public static final String CUSTOM_OBJECTS =
+		"com_liferay_app_builder_web_internal_portlet_CustomObjectsPortlet";
 
 }
