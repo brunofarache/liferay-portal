@@ -12,6 +12,7 @@
  * details.
  */
 
+import ClayLoadingIndicator from '@clayui/loading-indicator';
 import EmptyState from './EmptyState.es';
 import PageSize from './PageSize.es';
 import Pagination from './Pagination.es';
@@ -22,6 +23,8 @@ import {useResource} from '@clayui/data-provider';
 export default function SearchContainer(props) {
 	const {columns, emptyState, endpoint, formatter} = props;
 
+	const [loading, setLoading] = useState(true);
+
 	const [state, setState] = useState({
 		page: 1,
 		pageSize: 20
@@ -29,11 +32,16 @@ export default function SearchContainer(props) {
 
 	const {resource, refetch} = useResource({
 		link: endpoint,
+		onNetworkStatusChange: status => setLoading(status < 4),
 		variables: {
 			p_auth: Liferay.authToken,
 			...state
 		}
 	});
+
+	if (loading) {
+		return <ClayLoadingIndicator />;
+	}
 
 	let items = [];
 	let totalCount = 0;
@@ -45,16 +53,20 @@ export default function SearchContainer(props) {
 
 	const {page, pageSize} = state;
 
+	const goBackPage = () => {
+		setLoading(true);
+		setState(prevState => ({
+			...prevState,
+			page: prevState.page - 1
+		}));
+	};
+
 	const actions = props.actions.map(action => ({
 		...action,
 		callback: row => {
 			action.callback(row).then(() => {
 				if (page > 1 && items.length === 1) {
-					setState(prevState => ({
-						...prevState,
-						page: prevState.page - 1
-					}));
-
+					goBackPage();
 					return;
 				}
 
@@ -79,9 +91,14 @@ export default function SearchContainer(props) {
 				<div className='pagination-bar'>
 					<PageSize
 						itemsCount={items.length}
-						onPageSizeChange={pageSize =>
-							setState({page: 1, pageSize})
-						}
+						onPageSizeChange={pageSize => {
+							setLoading(true);
+							setState(prevState => ({
+								...prevState,
+								page: 1,
+								pageSize
+							}));
+						}}
 						page={page}
 						pageSize={pageSize}
 						totalCount={totalCount}
@@ -89,12 +106,13 @@ export default function SearchContainer(props) {
 
 					<Pagination
 						page={page}
-						onPageChange={page =>
+						onPageChange={page => {
+							setLoading(true);
 							setState(prevState => ({
-								page,
-								pageSize: prevState.pageSize
-							}))
-						}
+								...prevState,
+								page
+							}));
+						}}
 						totalPages={totalPages}
 					/>
 				</div>
