@@ -16,7 +16,7 @@ import ClayLoadingIndicator from '@clayui/loading-indicator';
 import EmptyState from './EmptyState.es';
 import PageSize from './PageSize.es';
 import Pagination from './Pagination.es';
-import React, {useState} from 'react';
+import React, {Fragment, useState} from 'react';
 import Table from './Table.es';
 import {useResource} from '@clayui/data-provider';
 
@@ -80,7 +80,7 @@ export default function SearchContainer(props) {
 	}
 
 	return (
-		<div className='lfr-search-container-wrapper'>
+		<Fragment>
 			<Table
 				actions={actions}
 				columns={columns}
@@ -92,6 +92,10 @@ export default function SearchContainer(props) {
 					<PageSize
 						itemsCount={items.length}
 						onPageSizeChange={pageSize => {
+							if (state.pageSize === pageSize) {
+								return;
+							}
+
 							setLoading(true);
 							setState(prevState => ({
 								...prevState,
@@ -107,6 +111,10 @@ export default function SearchContainer(props) {
 					<Pagination
 						page={page}
 						onPageChange={page => {
+							if (state.page === page) {
+								return;
+							}
+
 							setLoading(true);
 							setState(prevState => ({
 								...prevState,
@@ -117,6 +125,6 @@ export default function SearchContainer(props) {
 					/>
 				</div>
 			</div>
-		</div>
+		</Fragment>
 	);
 }
