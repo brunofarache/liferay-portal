@@ -12,47 +12,24 @@
  * details.
  */
 
-import {waitForElementToBeRemoved} from '@testing-library/dom';
-
 import {cleanup, render} from 'react-testing-library';
+import {disableActWarnings, restoreConsole} from '../../utils';
 import SearchContainer from '../../../../src/main/resources/META-INF/resources/js/components/search-container/SearchContainer.es';
 import React from 'react';
+import {waitForElementToBeRemoved} from '@testing-library/dom';
 
 describe('SearchContainer', () => {
 	afterEach(cleanup);
 
-	// this is just a little hack to silence a warning that we'll get until react
-	// fixes this: https://github.com/facebook/react/pull/14853
-	// https://github.com/testing-library/react-testing-library/issues/281
-	// eslint-disable-next-line no-console
-	const originalError = console.error;
-	// eslint-disable-next-line no-console
-	const originalWarn = console.warn;
+	let originalError;
+	let originalWarn;
+
 	beforeAll(() => {
-		// eslint-disable-next-line no-console
-		console.error = (...args) => {
-			if (
-				/Warning.*not wrapped in act/.test(args[0]) ||
-				/DataProvider: Error making/.test(args[0])
-			) {
-				return;
-			}
-			originalError.call(console, ...args);
-		};
-		// eslint-disable-next-line no-console
-		console.warn = (...args) => {
-			if (/DataProvider: Trying/.test(args[0])) {
-				return;
-			}
-			originalWarn.call(console, ...args);
-		};
+		[originalError, originalWarn] = disableActWarnings();
 	});
 
 	afterAll(() => {
-		// eslint-disable-next-line no-console
-		console.error = originalError;
-		// eslint-disable-next-line no-console
-		console.warn = originalWarn;
+		restoreConsole(originalError, originalWarn);
 	});
 
 	const items = [
@@ -102,7 +79,7 @@ describe('SearchContainer', () => {
 		const formatter = items => items;
 		const endpoint = '/endpoint';
 
-		const {debug, queryAllByTestId} = render(
+		const {queryAllByTestId} = render(
 			<SearchContainer
 				actions={actions}
 				columns={columns}
@@ -117,7 +94,5 @@ describe('SearchContainer', () => {
 		);
 
 		expect(queryAllByTestId('row').length).toBe(1);
-
-		debug();
 	});
 });
