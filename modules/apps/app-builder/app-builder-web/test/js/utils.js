@@ -12,7 +12,7 @@
  * details.
  */
 
- // workaround for: https://github.com/facebook/react/pull/14853
+// workaround for: https://github.com/facebook/react/pull/14853
 export const disableActWarnings = () => {
 	// eslint-disable-next-line no-console
 	const originalError = console.error;

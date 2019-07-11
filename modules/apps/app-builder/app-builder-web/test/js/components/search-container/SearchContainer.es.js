@@ -12,13 +12,21 @@
  * details.
  */
 
+import {
+	ACTIONS,
+	COLUMNS,
+	EMPTY_STATE,
+	ENDPOINT,
+	FORMATTER,
+	RESPONSES
+} from '../../constants';
 import {cleanup, render} from 'react-testing-library';
 import {disableActWarnings, restoreConsole} from '../../utils';
 import SearchContainer from '../../../../src/main/resources/META-INF/resources/js/components/search-container/SearchContainer.es';
 import React from 'react';
 import {waitForElementToBeRemoved} from '@testing-library/dom';
 
-describe('SearchContainer', () => {
+const setup = () => {
 	afterEach(cleanup);
 
 	let originalError;
@@ -31,61 +39,21 @@ describe('SearchContainer', () => {
 	afterAll(() => {
 		restoreConsole(originalError, originalWarn);
 	});
+};
 
-	const items = [
-		{
-			id: 1,
-			name: 'Name',
-			dateCreated: 'Today',
-			dateModified: 'Today'
-		}
-	];
+describe('SearchContainer', () => {
+	setup();
 
-	const response = {
-		items,
-		lastPage: 1,
-		page: 1,
-		pageSize: 1,
-		totalCount: 1
-	};
-
-	fetch.mockResponse(JSON.stringify(response));
-
-	it('renders with empty state', async () => {
-		const actions = [
-			{
-				name: 'Delete',
-				callback: () => {}
-			}
-		];
-
-		const columns = [
-			{
-				name: 'Name'
-			},
-			{
-				dateCreated: 'Created Date'
-			},
-			{
-				dateModified: 'Modified Date'
-			}
-		];
-
-		const emptyState = {
-			title: 'title',
-			description: 'description'
-		};
-
-		const formatter = items => items;
-		const endpoint = '/endpoint';
+	it('renders with one item', async () => {
+		fetch.mockResponse(JSON.stringify(RESPONSES.ONE));
 
 		const {queryAllByTestId} = render(
 			<SearchContainer
-				actions={actions}
-				columns={columns}
-				emptyState={emptyState}
-				endpoint={endpoint}
-				formatter={formatter}
+				actions={ACTIONS}
+				columns={COLUMNS}
+				emptyState={EMPTY_STATE}
+				endpoint={ENDPOINT}
+				formatter={FORMATTER}
 			/>
 		);
 
