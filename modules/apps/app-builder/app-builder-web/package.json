@@ -13,13 +13,27 @@
 		"react-router-dom": "^5.0.1"
 	},
 	"description": "",
+	"jest": {
+		"setupFiles": [
+			"./test/js/setup.js"
+		],
+		"testPathIgnorePatterns": [
+			"<rootDir>/test/js/[^/]+\\.js"
+		]
+	},
 	"main": "js/index.es.js",
 	"name": "app-builder-web",
 	"private": true,
 	"scripts": {
 		"build": "liferay-npm-scripts build",
 		"checkFormat": "liferay-npm-scripts check",
-		"format": "liferay-npm-scripts fix"
+		"format": "liferay-npm-scripts fix",
+		"test": "env TZ=utc liferay-npm-scripts test",
+		"test:watch": "env TZ=utc liferay-npm-scripts test --watch"
 	},
-	"version": "1.0.0"
+	"version": "1.0.0",
+	"devDependencies": {
+		"@testing-library/react": "^8.0.4",
+		"jest-fetch-mock": "^2.1.2"
+	}
 }

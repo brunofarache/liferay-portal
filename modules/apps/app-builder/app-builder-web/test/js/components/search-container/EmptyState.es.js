@@ -19,7 +19,7 @@ import {cleanup, render} from 'react-testing-library';
 describe('EmptyState', () => {
 	afterEach(cleanup);
 
-	it('renders with title and a description', () => {
+	it('renders', () => {
 		const {queryByText} = render(
 			<EmptyState title='title' description='description' />
 		);
@@ -28,7 +28,7 @@ describe('EmptyState', () => {
 		expect(queryByText('description')).toBeTruthy();
 	});
 
-	it('renders with no title and a description', () => {
+	it('renders without title', () => {
 		const {queryByText} = render(<EmptyState description='description' />);
 
 		expect(queryByText('title')).toBeNull();

@@ -43,7 +43,7 @@ export default function Table(props) {
 				</Head>
 				<Body>
 					{rows.map(row => (
-						<Row key={row.id}>
+						<Row key={row.id} data-testid='row'>
 							{columns.map((column, index) => (
 								<Cell
 									key={index}
