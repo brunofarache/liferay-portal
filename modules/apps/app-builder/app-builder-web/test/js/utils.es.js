@@ -12,17 +12,25 @@
  * details.
  */
 
-const getURL = (path, params = {['p_auth']: Liferay.authToken}) => {
-	const uri = new URL(`${window.location.origin}${path}`);
-	const keys = Object.keys(params);
+// workaround for: https://github.com/facebook/react/pull/14853
+export const disableActWarnings = () => {
+	// eslint-disable-next-line no-console
+	const originalError = console.error;
 
-	keys.forEach(key => uri.searchParams.set(key, params[key]));
+	// eslint-disable-next-line no-console
+	console.error = (...args) => {
+		if (/Warning.*not wrapped in act/.test(args[0])) {
+			return;
+		}
 
-	return uri.toString();
+		originalError.call(console, ...args);
+	};
+
+	return [originalError];
 };
 
-export const deleteItem = endpoint => {
-	return fetch(getURL(endpoint), {
-		method: 'DELETE'
-	});
+export const restoreConsole = originalError => {
+	// eslint-disable-next-line no-console
+	console.error = originalError;
+	// eslint-disable-next-line no-console
 };

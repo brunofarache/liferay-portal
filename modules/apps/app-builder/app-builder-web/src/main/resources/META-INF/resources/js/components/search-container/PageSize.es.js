@@ -15,7 +15,7 @@
 import ClayDropDown, {Align} from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
 import React, {Fragment, useState} from 'react';
-import {sub} from '../../utils/lang.es';
+import lang from '../../utils/lang.es';
 
 const {Item, ItemList} = ClayDropDown;
 
@@ -61,7 +61,7 @@ export default function PageSize(props) {
 			</ClayDropDown>
 
 			<p className='pagination-results'>
-				{sub(Liferay.Language.get('showing-x-to-x-of-x-entries'), [
+				{lang.sub(Liferay.Language.get('showing-x-to-x-of-x-entries'), [
 					firstEntry,
 					lastEntry,
 					totalCount
