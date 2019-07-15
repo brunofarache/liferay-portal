@@ -95,6 +95,9 @@ public class DataLayoutResourceImpl
 					"page-size-is-greater-than-x", 250));
 		}
 
+		DDMStructure ddmStructure = _ddmStructureLocalService.getStructure(
+			dataDefinitionId);
+
 		if (ArrayUtil.isEmpty(sorts)) {
 			sorts = new Sort[] {
 				new Sort(
@@ -102,9 +105,6 @@ public class DataLayoutResourceImpl
 					Sort.STRING_TYPE, true)
 			};
 		}
-
-		DDMStructure ddmStructure = _ddmStructureLocalService.getStructure(
-			dataDefinitionId);
 
 		return SearchUtil.search(
 			booleanQuery -> {
@@ -143,10 +143,8 @@ public class DataLayoutResourceImpl
 	}
 
 	@Override
-	public EntityModel getEntityModel(MultivaluedMap multivaluedMap)
-		throws Exception {
-
-		return _entityModel;
+	public EntityModel getEntityModel(MultivaluedMap multivaluedMap) {
+		return new DataLayoutEntityModel();
 	}
 
 	@Override
@@ -384,8 +382,6 @@ public class DataLayoutResourceImpl
 
 		return dataLayout;
 	}
-
-	private static final EntityModel _entityModel = new DataLayoutEntityModel();
 
 	@Reference
 	private DDMStructureLayoutLocalService _ddmStructureLayoutLocalService;

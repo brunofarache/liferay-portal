@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -42,40 +41,6 @@ import org.junit.runner.RunWith;
 @RunWith(Arquillian.class)
 public class DataDefinitionResourceTest
 	extends BaseDataDefinitionResourceTestCase {
-
-	@Ignore
-	@Override
-	@Test
-	public void testGetSiteDataDefinitionsPage() throws Exception {
-		super.testGetSiteDataDefinitionsPage();
-
-		Page<DataDefinition> page =
-			dataDefinitionResource.getSiteDataDefinitionsPage(
-				testGetSiteDataDefinitionsPage_getSiteId(), "definition",
-				Pagination.of(1, 2), null);
-
-		Assert.assertEquals(0, page.getTotalCount());
-
-		_testGetSiteDataDefinitionsPage("!@#description", "!@#d", "name");
-		_testGetSiteDataDefinitionsPage(
-			"DeFiNiTiON dEsCrIpTiOn", "DEFINITION", "name");
-		_testGetSiteDataDefinitionsPage(
-			"abcdefghijklmnopqrstuvwxyz0123456789",
-			"abcdefghijklmnopqrstuvwxyz0123456789", "definition");
-		_testGetSiteDataDefinitionsPage(
-			"definition description", "descr", "name");
-		_testGetSiteDataDefinitionsPage(
-			"description name", "description name", "definition");
-		_testGetSiteDataDefinitionsPage("description", "!@#n", "!@#name");
-		_testGetSiteDataDefinitionsPage(
-			"description", "DEFINITION", "DeFiNiTiON NaMe");
-		_testGetSiteDataDefinitionsPage(
-			"description", "definition name", "definition name");
-		_testGetSiteDataDefinitionsPage(
-			"description", "nam", "definition name");
-		_testGetSiteDataDefinitionsPage("description", "π€†", "π€† name");
-		_testGetSiteDataDefinitionsPage("π€† description", "π€†", "name");
-	}
 
 	@Override
 	public void testPostDataDefinitionDataDefinitionPermission()
@@ -110,6 +75,32 @@ public class DataDefinitionResourceTest
 					roleNames = new String[] {role.getName()};
 				}
 			});
+	}
+
+	@Test
+	public void testSearchDataDefinitions() throws Exception {
+		Page<DataDefinition> page =
+			dataDefinitionResource.getSiteDataDefinitionsPage(
+				testGetSiteDataDefinitionsPage_getSiteId(), "definition",
+				Pagination.of(1, 2), null);
+
+		Assert.assertEquals(0, page.getTotalCount());
+
+		_searchDataDefinitions("!@#description", "!@#d", "name");
+		_searchDataDefinitions("DeFiNiTiON dEsCrIpTiOn", "DEFINITION", "name");
+		_searchDataDefinitions(
+			"abcdefghijklmnopqrstuvwxyz0123456789",
+			"abcdefghijklmnopqrstuvwxyz0123456789", "definition");
+		_searchDataDefinitions("definition description", "descr", "name");
+		_searchDataDefinitions(
+			"description name", "description name", "definition");
+		_searchDataDefinitions("description", "!@#n", "!@#name");
+		_searchDataDefinitions("description", "DEFINITION", "DeFiNiTiON NaMe");
+		_searchDataDefinitions(
+			"description", "definition name", "definition name");
+		_searchDataDefinitions("description", "nam", "definition name");
+		_searchDataDefinitions("description", "π€†", "π€† name");
+		_searchDataDefinitions("π€† description", "π€†", "name");
 	}
 
 	@Override
@@ -200,7 +191,7 @@ public class DataDefinitionResourceTest
 		return dataDefinition;
 	}
 
-	private void _testGetSiteDataDefinitionsPage(
+	private void _searchDataDefinitions(
 			String description, String keywords, String name)
 		throws Exception {
 

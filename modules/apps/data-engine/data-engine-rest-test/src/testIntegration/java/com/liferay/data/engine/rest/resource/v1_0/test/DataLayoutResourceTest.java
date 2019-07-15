@@ -28,7 +28,6 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -45,51 +44,6 @@ public class DataLayoutResourceTest extends BaseDataLayoutResourceTestCase {
 		_ddmStructure = DataDefinitionTestUtil.addDDMStructure(testGroup);
 		_irrelevantDDMStructure = DataDefinitionTestUtil.addDDMStructure(
 			irrelevantGroup);
-	}
-
-	@Ignore
-	@Override
-	@Test
-	public void testGetDataDefinitionDataLayoutsPage() throws Exception {
-		super.testGetDataDefinitionDataLayoutsPage();
-
-		Page<DataLayout> page =
-			dataLayoutResource.getDataDefinitionDataLayoutsPage(
-				testGetDataDefinitionDataLayoutsPage_getDataDefinitionId(),
-				"layout", Pagination.of(1, 2), null);
-
-		Assert.assertEquals(0, page.getTotalCount());
-
-		_testGetDataDefinitionDataLayoutsPage("!@#l", "!@#layout");
-		_testGetDataDefinitionDataLayoutsPage("FORM", "FoRmSLaYoUt");
-		_testGetDataDefinitionDataLayoutsPage(
-			"abcdefghijklmnopqrstuvwxyz0123456789",
-			"abcdefghijklmnopqrstuvwxyz0123456789");
-		_testGetDataDefinitionDataLayoutsPage("form layout", "form layout");
-		_testGetDataDefinitionDataLayoutsPage("layo", "form layout");
-		_testGetDataDefinitionDataLayoutsPage("π€† layout", "π€† layout");
-	}
-
-	@Ignore
-	@Override
-	@Test
-	public void testGetSiteDataLayoutPage() throws Exception {
-		super.testGetSiteDataLayoutPage();
-
-		Page<DataLayout> page = dataLayoutResource.getSiteDataLayoutPage(
-			testGetSiteDataLayoutPage_getSiteId(), "form layout",
-			Pagination.of(1, 2), null);
-
-		Assert.assertEquals(0, page.getTotalCount());
-
-		_testGetSiteDataLayoutPage("!@#la", "!@#layout");
-		_testGetSiteDataLayoutPage("FORM", "FoRmSLaYoUt");
-		_testGetSiteDataLayoutPage(
-			"abcdefghijklmnopqrstuvwxyz0123456789",
-			"abcdefghijklmnopqrstuvwxyz0123456789");
-		_testGetSiteDataLayoutPage("form layout", "form layout");
-		_testGetSiteDataLayoutPage("layo", "form layout");
-		_testGetSiteDataLayoutPage("π€†", "π€† layout");
 	}
 
 	@Override
@@ -109,6 +63,43 @@ public class DataLayoutResourceTest extends BaseDataLayoutResourceTestCase {
 			assertEquals(randomDataLayout, postDataLayout);
 			assertValid(postDataLayout);
 		}
+	}
+
+	@Test
+	public void testSearchDataDefinitionDataLayouts() throws Exception {
+		Page<DataLayout> page =
+			dataLayoutResource.getDataDefinitionDataLayoutsPage(
+				testGetDataDefinitionDataLayoutsPage_getDataDefinitionId(),
+				"layout", Pagination.of(1, 2), null);
+
+		Assert.assertEquals(0, page.getTotalCount());
+
+		_searchDataDefinitionDataLayouts("!@#l", "!@#layout");
+		_searchDataDefinitionDataLayouts("FORM", "FoRmSLaYoUt");
+		_searchDataDefinitionDataLayouts(
+			"abcdefghijklmnopqrstuvwxyz0123456789",
+			"abcdefghijklmnopqrstuvwxyz0123456789");
+		_searchDataDefinitionDataLayouts("form layout", "form layout");
+		_searchDataDefinitionDataLayouts("layo", "form layout");
+		_searchDataDefinitionDataLayouts("π€† layout", "π€† layout");
+	}
+
+	@Test
+	public void testSearchSiteDataLayouts() throws Exception {
+		Page<DataLayout> page = dataLayoutResource.getSiteDataLayoutPage(
+			testGetSiteDataLayoutPage_getSiteId(), "form layout",
+			Pagination.of(1, 2), null);
+
+		Assert.assertEquals(0, page.getTotalCount());
+
+		_searchSiteDataLayouts("!@#la", "!@#layout");
+		_searchSiteDataLayouts("FORM", "FoRmSLaYoUt");
+		_searchSiteDataLayouts(
+			"abcdefghijklmnopqrstuvwxyz0123456789",
+			"abcdefghijklmnopqrstuvwxyz0123456789");
+		_searchSiteDataLayouts("form layout", "form layout");
+		_searchSiteDataLayouts("layo", "form layout");
+		_searchSiteDataLayouts("π€†", "π€† layout");
 	}
 
 	@Override
@@ -197,8 +188,7 @@ public class DataLayoutResourceTest extends BaseDataLayoutResourceTestCase {
 		return dataLayout;
 	}
 
-	private void _testGetDataDefinitionDataLayoutsPage(
-			String keywords, String name)
+	private void _searchDataDefinitionDataLayouts(String keywords, String name)
 		throws Exception {
 
 		Long dataDefinitionId =
@@ -221,7 +211,7 @@ public class DataLayoutResourceTest extends BaseDataLayoutResourceTestCase {
 		dataLayoutResource.deleteDataLayout(dataLayout.getId());
 	}
 
-	private void _testGetSiteDataLayoutPage(String keywords, String name)
+	private void _searchSiteDataLayouts(String keywords, String name)
 		throws Exception {
 
 		Long siteId = testGetSiteDataLayoutPage_getSiteId();
