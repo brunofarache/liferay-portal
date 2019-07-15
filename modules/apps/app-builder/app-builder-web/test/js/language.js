@@ -12,17 +12,33 @@
  * details.
  */
 
-const getURL = (path, params = {['p_auth']: Liferay.authToken}) => {
-	const uri = new URL(`${window.location.origin}${path}`);
-	const keys = Object.keys(params);
+var fs = require('fs').promises;
 
-	keys.forEach(key => uri.searchParams.set(key, params[key]));
-
-	return uri.toString();
+const portalLanguage = {
+	'showing-x-to-x-of-x-entries': 'Showing {0} to {1} of {2} entries.'
 };
 
-export const deleteItem = endpoint => {
-	return fetch(getURL(endpoint), {
-		method: 'DELETE'
+export const mockLanguage = async () => {
+	const data = await fs.readFile(
+		'./src/main/resources/content/Language.properties'
+	);
+
+	const file = data.toString();
+	const portletLanguage = {};
+
+	file.split(/\r?\n/).forEach(line => {
+		const [key, value] = line.split('=');
+		portletLanguage[key] = value;
 	});
+
+	const language = {
+		...portalLanguage,
+		...portletLanguage
+	};
+
+	window.Liferay.Language = {
+		get: key => (language[key] ? language[key] : key)
+	};
+
+	return language;
 };
