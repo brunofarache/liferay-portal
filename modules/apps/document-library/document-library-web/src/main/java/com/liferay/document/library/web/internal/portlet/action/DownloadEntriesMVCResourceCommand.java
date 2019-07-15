@@ -78,7 +78,12 @@ public class DownloadEntriesMVCResourceCommand implements MVCResourceCommand {
 			String resourceID = GetterUtil.getString(
 				resourceRequest.getResourceID());
 
-			if (resourceID.equals("/document_library/download_folder")) {
+			boolean selectAll = ParamUtil.getBoolean(
+				resourceRequest, "selectAll");
+
+			if (selectAll ||
+				resourceID.equals("/document_library/download_folder")) {
+
 				downloadFolder(resourceRequest, resourceResponse);
 			}
 			else {
@@ -117,8 +122,9 @@ public class DownloadEntriesMVCResourceCommand implements MVCResourceCommand {
 
 				return;
 			}
-			else if ((fileEntries.size() == 1) && fileShortcuts.isEmpty() &&
-					 folders.isEmpty()) {
+
+			if ((fileEntries.size() == 1) && fileShortcuts.isEmpty() &&
+				folders.isEmpty()) {
 
 				FileEntry fileEntry = fileEntries.get(0);
 

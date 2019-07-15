@@ -14,28 +14,28 @@
 
 package com.liferay.portal.search.searcher;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.search.aggregation.AggregationResult;
+import com.liferay.portal.search.groupby.GroupByResponse;
 import com.liferay.portal.search.hits.SearchHits;
 import com.liferay.portal.search.stats.StatsResponse;
 
+import java.util.List;
 import java.util.Map;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
- * Builds a search response with the results of a search.
- *
- * <p/>
- *
- * Use is intended for the Liferay Search Framework only.
+ * Builds a search response with the results of a search. This interface's usage
+ * is intended for the Liferay Search Framework only.
  *
  * @author André de Oliveira
- *
- * @review
  */
 @ProviderType
 public interface SearchResponseBuilder {
+
+	public SearchResponseBuilder addFederatedSearchResponse(
+		SearchResponse searchResponse);
 
 	public SearchResponseBuilder aggregationResultsMap(
 		Map<String, AggregationResult> aggregationResultsMap);
@@ -44,10 +44,23 @@ public interface SearchResponseBuilder {
 	 * Builds the search response.
 	 *
 	 * @return the search response
+	 */
+	public SearchResponse build();
+
+	public SearchResponseBuilder count(long count);
+
+	public SearchResponseBuilder federatedSearchKey(String key);
+
+	/**
+	 * Sets the list of top hits aggregations.
+	 *
+	 * @param groupByResponses the list of top hits aggregations.
+	 * @return the same builder
 	 *
 	 * @review
 	 */
-	public SearchResponse build();
+	public SearchResponseBuilder groupByResponses(
+		List<GroupByResponse> groupByResponses);
 
 	public SearchResponseBuilder hits(Hits hits);
 
@@ -56,33 +69,29 @@ public interface SearchResponseBuilder {
 	/**
 	 * Sets the request string submitted to the search engine.
 	 *
-	 * @param requestString the request string in search engine form
-	 * @return the same builder
-	 *
-	 * @review
+	 * @param  requestString the request string, as returned by the search
+	 *         engine
+	 * @return the search response builder
 	 */
 	public SearchResponseBuilder requestString(String requestString);
 
 	/**
-	 * Returns the response string returned by the search engine.
+	 * Returns the response string from the search engine.
 	 *
-	 * @param responseString the response string in search engine form
-	 * @return the same builder
-	 *
-	 * @review
+	 * @param  responseString the response string formatted by the search engine
+	 * @return the search response builder
 	 */
 	public SearchResponseBuilder responseString(String responseString);
 
 	public SearchResponseBuilder searchHits(SearchHits searchHits);
 
 	/**
-	 * Sets the map containg the metrics aggregations computed by the search
+	 * Sets the map containing the metrics aggregations computed by the search
 	 * engine.
 	 *
-	 * @param statsResults the map containg the metrics aggregations per field
-	 * @return the same builder
-	 *
-	 * @review
+	 * @param  statsResponseMap the map containing the metrics aggregations per
+	 *         field
+	 * @return the search response builder
 	 */
 	public SearchResponseBuilder statsResponseMap(
 		Map<String, StatsResponse> statsResponseMap);

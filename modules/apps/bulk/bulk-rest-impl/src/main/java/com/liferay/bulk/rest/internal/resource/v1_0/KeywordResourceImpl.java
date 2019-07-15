@@ -31,18 +31,16 @@ import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.BaseModelPermissionCheckerUtil;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
-import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.vulcan.pagination.Page;
 
 import java.io.Serializable;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Stream;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.ws.rs.core.Context;
 
@@ -60,18 +58,40 @@ import org.osgi.service.component.annotations.ServiceScope;
 public class KeywordResourceImpl extends BaseKeywordResourceImpl {
 
 	@Override
-	public boolean patchKeywordBatch(KeywordBulkSelection keywordBulkSelection)
+	public void patchKeywordBatch(KeywordBulkSelection keywordBulkSelection)
 		throws Exception {
 
 		_update(true, keywordBulkSelection);
-
-		return true;
 	}
 
 	@Override
-	public Page<Keyword> postKeywordCommonPage(
+	public Page<Keyword> postKeywordsCommonPage(
 			DocumentBulkSelection documentSelection)
 		throws Exception {
+
+		return Page.of(
+			transform(
+				_getAssetTagNames(
+					documentSelection,
+					PermissionCheckerFactoryUtil.create(_user)),
+				this::_toTag));
+	}
+
+	@Override
+	public void putKeywordBatch(KeywordBulkSelection keywordBulkSelection)
+		throws Exception {
+
+		_update(false, keywordBulkSelection);
+	}
+
+	private Set<String> _getAssetTagNames(
+			DocumentBulkSelection documentSelection,
+			PermissionChecker permissionChecker)
+		throws Exception {
+
+		Set<String> assetTagNames = new HashSet<>();
+
+		AtomicBoolean flag = new AtomicBoolean(true);
 
 		BulkSelection<?> bulkSelection = _documentBulkSelectionFactory.create(
 			documentSelection);
@@ -79,47 +99,31 @@ public class KeywordResourceImpl extends BaseKeywordResourceImpl {
 		BulkSelection<AssetEntry> assetEntryBulkSelection =
 			bulkSelection.toAssetEntryBulkSelection();
 
-		Stream<AssetEntry> stream = assetEntryBulkSelection.stream();
+		assetEntryBulkSelection.forEach(
+			assetEntry -> {
+				if (BaseModelPermissionCheckerUtil.containsBaseModelPermission(
+						permissionChecker, assetEntry.getGroupId(),
+						assetEntry.getClassName(), assetEntry.getClassPK(),
+						ActionKeys.UPDATE)) {
 
-		return Page.of(
-			transform(
-				new ArrayList<>(
-					stream.map(
-						_getAssetTagNamesFunction(
-							PermissionCheckerFactoryUtil.create(_user))
-					).reduce(
-						SetUtil::intersect
-					).orElse(
-						new HashSet<>()
-					)),
-				this::_toTag));
-	}
+					String[] assetEntryAssetTagNames =
+						_assetTagLocalService.getTagNames(
+							assetEntry.getClassName(), assetEntry.getClassPK());
 
-	@Override
-	public boolean putKeywordBatch(KeywordBulkSelection keywordBulkSelection)
-		throws Exception {
+					if (flag.get()) {
+						flag.set(false);
 
-		_update(false, keywordBulkSelection);
+						Collections.addAll(
+							assetTagNames, assetEntryAssetTagNames);
+					}
+					else {
+						assetTagNames.retainAll(
+							Arrays.asList(assetEntryAssetTagNames));
+					}
+				}
+			});
 
-		return true;
-	}
-
-	private Function<AssetEntry, Set<String>> _getAssetTagNamesFunction(
-		PermissionChecker permissionChecker) {
-
-		return assetEntry -> {
-			if (!BaseModelPermissionCheckerUtil.containsBaseModelPermission(
-					permissionChecker, assetEntry.getGroupId(),
-					assetEntry.getClassName(), assetEntry.getClassPK(),
-					ActionKeys.UPDATE)) {
-
-				return Collections.emptySet();
-			}
-
-			return SetUtil.fromArray(
-				_assetTagLocalService.getTagNames(
-					assetEntry.getClassName(), assetEntry.getClassPK()));
-		};
+		return assetTagNames;
 	}
 
 	private Keyword _toTag(String assetTagName) {

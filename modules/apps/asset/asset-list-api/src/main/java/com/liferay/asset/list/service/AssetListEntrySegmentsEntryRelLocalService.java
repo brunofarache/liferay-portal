@@ -14,9 +14,6 @@
 
 package com.liferay.asset.list.service;
 
-import aQute.bnd.annotation.ProviderType;
-
-import com.liferay.asset.list.model.AssetListEntry;
 import com.liferay.asset.list.model.AssetListEntrySegmentsEntryRel;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
@@ -42,6 +39,8 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import java.io.Serializable;
 
 import java.util.List;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service interface for AssetListEntrySegmentsEntryRel. Methods of this
@@ -93,11 +92,6 @@ public interface AssetListEntrySegmentsEntryRelLocalService
 	public AssetListEntrySegmentsEntryRel createAssetListEntrySegmentsEntryRel(
 		long assetListEntrySegmentsEntryRelId);
 
-	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
-	public AssetListEntrySegmentsEntryRel deleteAssetListEntrySegmentsEntryRel(
-			AssetListEntry assetListEntry)
-		throws PortalException;
-
 	/**
 	 * Deletes the asset list entry segments entry rel from the database. Also notifies the appropriate model listeners.
 	 *
@@ -120,6 +114,7 @@ public interface AssetListEntrySegmentsEntryRelLocalService
 			long assetListEntrySegmentsEntryRelId)
 		throws PortalException;
 
+	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
 	public void deleteAssetListEntrySegmentsEntryRel(
 			long assetListEntryId, long segmentsEntryId)
 		throws PortalException;

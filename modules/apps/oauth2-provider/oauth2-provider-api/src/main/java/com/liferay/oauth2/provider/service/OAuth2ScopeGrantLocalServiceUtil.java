@@ -14,8 +14,7 @@
 
 package com.liferay.oauth2.provider.service;
 
-import aQute.bnd.annotation.ProviderType;
-
+import org.osgi.annotation.versioning.ProviderType;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.util.tracker.ServiceTracker;
@@ -114,6 +113,19 @@ public class OAuth2ScopeGrantLocalServiceUtil {
 		return getService().createOAuth2ScopeGrant(
 			companyId, oAuth2ApplicationScopeAliasesId, applicationName,
 			bundleSymbolicName, scope);
+	}
+
+	public static com.liferay.oauth2.provider.model.OAuth2ScopeGrant
+			createOAuth2ScopeGrant(
+				long companyId, long oAuth2ApplicationScopeAliasesId,
+				String applicationName, String bundleSymbolicName, String scope,
+				java.util.List<String> scopeAliases)
+		throws com.liferay.oauth2.provider.exception.
+			DuplicateOAuth2ScopeGrantException {
+
+		return getService().createOAuth2ScopeGrant(
+			companyId, oAuth2ApplicationScopeAliasesId, applicationName,
+			bundleSymbolicName, scope, scopeAliases);
 	}
 
 	public static void deleteOAuth2AuthorizationOAuth2ScopeGrant(

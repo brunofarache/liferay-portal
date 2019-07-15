@@ -1,3 +1,17 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 import State from 'metal-state';
 
 /**
@@ -25,7 +39,7 @@ class OpenStreetMapGeocoder extends State {
 	_handleReverseJSONP({error, display_name, lat, lon}, callback) {
 		const result = {
 			data: {},
-			err: error,
+			err: error
 		};
 
 		if (!result.err) {
@@ -33,8 +47,8 @@ class OpenStreetMapGeocoder extends State {
 				address: display_name,
 				location: {
 					lat: parseFloat(lat) || 0,
-					lng: parseFloat(lon) || 0,
-				},
+					lng: parseFloat(lon) || 0
+				}
 			};
 		}
 
@@ -48,24 +62,19 @@ class OpenStreetMapGeocoder extends State {
 	 * @review
 	 */
 	forward(query, callback) {
-		AUI().use(
-			'jsonp',
-			A => {
-				const forwardUrl = OpenStreetMapGeocoder.TPL_FORWARD_GEOCODING_URL.replace(
-					'{query}',
-					query
-				);
+		AUI().use('jsonp', A => {
+			const forwardUrl = OpenStreetMapGeocoder.TPL_FORWARD_GEOCODING_URL.replace(
+				'{query}',
+				query
+			);
 
-				A.jsonp(
-					forwardUrl, {
-						context: this,
-						on: {
-							success: A.rbind('_handleForwardJSONP', this, callback),
-						},
-					}
-				);
-			}
-		);
+			A.jsonp(forwardUrl, {
+				context: this,
+				on: {
+					success: A.rbind('_handleForwardJSONP', this, callback)
+				}
+			});
+		});
 	}
 
 	/**
@@ -75,24 +84,19 @@ class OpenStreetMapGeocoder extends State {
 	 * @review
 	 */
 	reverse(location, callback) {
-		AUI().use(
-			'jsonp',
-			A => {
-				const reverseUrl = OpenStreetMapGeocoder.TPL_REVERSE_GEOCODING_URL.replace(
-					'{lat}',
-					location.lat
-				).replace('{lng}', location.lng);
+		AUI().use('jsonp', A => {
+			const reverseUrl = OpenStreetMapGeocoder.TPL_REVERSE_GEOCODING_URL.replace(
+				'{lat}',
+				location.lat
+			).replace('{lng}', location.lng);
 
-				A.jsonp(
-					reverseUrl, {
-						context: this,
-						on: {
-							success: A.rbind('_handleReverseJSONP', this, callback),
-						},
-					}
-				);
-			}
-		);
+			A.jsonp(reverseUrl, {
+				context: this,
+				on: {
+					success: A.rbind('_handleReverseJSONP', this, callback)
+				}
+			});
+		});
 	}
 }
 

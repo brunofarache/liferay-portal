@@ -1,6 +1,13 @@
 package ${configYAML.apiPackagePath}.client.dto.${escapedVersion};
 
+<#list globalEnumSchemas?keys as globalEnumSchemaName>
+	import ${configYAML.apiPackagePath}.client.constant.${escapedVersion}.${globalEnumSchemaName};
+</#list>
+
 import ${configYAML.apiPackagePath}.client.function.UnsafeSupplier;
+import ${configYAML.apiPackagePath}.client.serdes.${escapedVersion}.${schemaName}SerDes;
+
+import java.math.BigDecimal;
 
 import java.util.Date;
 import java.util.Map;
@@ -14,7 +21,7 @@ import javax.annotation.Generated;
  */
 @Generated("")
 public class ${schemaName} {
-	<#assign enumSchemas = freeMarkerTool.getDTOEnumSchemas(schema) />
+	<#assign enumSchemas = freeMarkerTool.getDTOEnumSchemas(openAPIYAML, schema) />
 
 	<#list enumSchemas?keys as enumName>
 		public static enum ${enumName} {
@@ -28,9 +35,9 @@ public class ${schemaName} {
 			</#list>;
 
 			public static ${enumName} create(String value) {
-				for (${enumName} ${enumName?uncap_first} : values()) {
-					if (Objects.equals(${enumName?uncap_first}.getValue(), value)) {
-						return ${enumName?uncap_first};
+				for (${enumName} ${freeMarkerTool.getSchemaVarName(enumName)} : values()) {
+					if (Objects.equals(${freeMarkerTool.getSchemaVarName(enumName)}.getValue(), value)) {
+						return ${freeMarkerTool.getSchemaVarName(enumName)};
 					}
 				}
 
@@ -58,17 +65,20 @@ public class ${schemaName} {
 	<#assign properties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, schema) />
 
 	<#list properties?keys as propertyName>
-		<#assign
-			propertySchema = freeMarkerTool.getDTOPropertySchema(propertyName, schema)
-			propertyType = properties[propertyName]
-		/>
+		<#assign capitalizedPropertyName = propertyName?cap_first />
 
-		public ${propertyType} get${propertyName?cap_first}() {
+		<#if enumSchemas?keys?seq_contains(properties[propertyName])>
+			<#assign capitalizedPropertyName = properties[propertyName] />
+		</#if>
+
+		<#assign propertyType = properties[propertyName] />
+
+		public ${propertyType} get${capitalizedPropertyName}() {
 			return ${propertyName};
 		}
 
 		<#if enumSchemas?keys?seq_contains(propertyType)>
-			public String get${propertyName?cap_first}AsString() {
+			public String get${capitalizedPropertyName}AsString() {
 				if (${propertyName} == null) {
 					return null;
 				}
@@ -77,11 +87,11 @@ public class ${schemaName} {
 			}
 		</#if>
 
-		public void set${propertyName?cap_first}(${propertyType} ${propertyName}) {
+		public void set${capitalizedPropertyName}(${propertyType} ${propertyName}) {
 			this.${propertyName} = ${propertyName};
 		}
 
-		public void set${propertyName?cap_first}(UnsafeSupplier<${propertyType}, Exception> ${propertyName}UnsafeSupplier) {
+		public void set${capitalizedPropertyName}(UnsafeSupplier<${propertyType}, Exception> ${propertyName}UnsafeSupplier) {
 			try {
 				${propertyName} = ${propertyName}UnsafeSupplier.get();
 			}
@@ -92,5 +102,31 @@ public class ${schemaName} {
 
 		protected ${propertyType} ${propertyName};
 	</#list>
+
+	@Override
+	public boolean equals(Object object) {
+		if (this == object) {
+			return true;
+		}
+
+		if (!(object instanceof ${schemaName})) {
+			return false;
+		}
+
+		${schemaName} ${schemaVarName} = (${schemaName})object;
+
+		return Objects.equals(toString(), ${schemaVarName}.toString());
+	}
+
+	@Override
+	public int hashCode() {
+		String string = toString();
+
+		return string.hashCode();
+	}
+
+	public String toString() {
+		return ${schemaName}SerDes.toJSON(this);
+	}
 
 }

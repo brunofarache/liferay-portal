@@ -21,8 +21,9 @@ import com.liferay.fragment.model.FragmentCollection;
 import com.liferay.fragment.model.FragmentEntry;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.service.FragmentEntryLinkLocalServiceUtil;
+import com.liferay.fragment.util.FragmentEntryTestUtil;
 import com.liferay.fragment.util.FragmentTestUtil;
-import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.StagedModel;
@@ -88,8 +89,10 @@ public class FragmentEntryLinkStagedModelDataHandlerTest
 			fragmentEntryLink.getFragmentEntryId(),
 			PortalUtil.getClassNameId(Layout.class),
 			fragmentEntryLink.getClassPK(), "css", "html", "js",
-			StringPool.BLANK, fragmentEntryLink.getPosition() + 1,
-			serviceContext);
+			fragmentEntryLink.getConfiguration(),
+			fragmentEntryLink.getEditableValues(),
+			fragmentEntryLink.getNamespace(),
+			fragmentEntryLink.getPosition() + 1, serviceContext);
 
 		try {
 			exportImportStagedModel(stagedModel);
@@ -115,7 +118,7 @@ public class FragmentEntryLinkStagedModelDataHandlerTest
 		FragmentCollection fragmentCollection =
 			FragmentTestUtil.addFragmentCollection(group.getGroupId());
 
-		FragmentEntry fragmentEntry = FragmentTestUtil.addFragmentEntry(
+		FragmentEntry fragmentEntry = FragmentEntryTestUtil.addFragmentEntry(
 			fragmentCollection.getFragmentCollectionId());
 
 		return FragmentTestUtil.addFragmentEntryLink(
@@ -124,9 +127,11 @@ public class FragmentEntryLinkStagedModelDataHandlerTest
 	}
 
 	@Override
-	protected StagedModel getStagedModel(String uuid, Group group) {
-		return FragmentTestUtil.fetchFragmentEntryLink(
-			uuid, group.getGroupId());
+	protected StagedModel getStagedModel(String uuid, Group group)
+		throws PortalException {
+
+		return FragmentEntryLinkLocalServiceUtil.
+			getFragmentEntryLinkByUuidAndGroupId(uuid, group.getGroupId());
 	}
 
 	@Override
@@ -149,6 +154,9 @@ public class FragmentEntryLinkStagedModelDataHandlerTest
 			importedFragmentEntryLink.getHtml(), fragmentEntryLink.getHtml());
 		Assert.assertEquals(
 			importedFragmentEntryLink.getJs(), fragmentEntryLink.getJs());
+		Assert.assertEquals(
+			importedFragmentEntryLink.getConfiguration(),
+			fragmentEntryLink.getConfiguration());
 		Assert.assertEquals(
 			importedFragmentEntryLink.getPosition(),
 			fragmentEntryLink.getPosition());

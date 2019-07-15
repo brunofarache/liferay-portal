@@ -24,6 +24,7 @@ import com.liferay.exportimport.kernel.service.ExportImportConfigurationLocalSer
 import com.liferay.exportimport.kernel.service.ExportImportLocalServiceUtil;
 import com.liferay.exportimport.kernel.service.ExportImportServiceUtil;
 import com.liferay.exportimport.kernel.staging.MergeLayoutPrototypesThreadLocal;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.events.EventsProcessorUtil;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTask;
@@ -49,10 +50,10 @@ import com.liferay.portal.kernel.model.LayoutTypePortlet;
 import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
-import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserGroup;
 import com.liferay.portal.kernel.model.impl.VirtualLayout;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
@@ -97,7 +98,6 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.PrefsPropsUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.Time;
@@ -165,7 +165,8 @@ public class SitesImpl implements Sites {
 
 	@Override
 	public void addPortletBreadcrumbEntries(
-			Group group, HttpServletRequest request, PortletURL portletURL)
+			Group group, HttpServletRequest httpServletRequest,
+			PortletURL portletURL)
 		throws Exception {
 
 		List<Group> ancestorGroups = group.getAncestors();
@@ -177,7 +178,7 @@ public class SitesImpl implements Sites {
 				"groupId", String.valueOf(ancestorGroup.getGroupId()));
 
 			PortalUtil.addPortletBreadcrumbEntry(
-				request, ancestorGroup.getDescriptiveName(),
+				httpServletRequest, ancestorGroup.getDescriptiveName(),
 				portletURL.toString());
 		}
 
@@ -187,33 +188,35 @@ public class SitesImpl implements Sites {
 			"groupId", String.valueOf(unescapedGroup.getGroupId()));
 
 		PortalUtil.addPortletBreadcrumbEntry(
-			request, unescapedGroup.getDescriptiveName(),
+			httpServletRequest, unescapedGroup.getDescriptiveName(),
 			portletURL.toString());
 	}
 
 	@Override
 	public void addPortletBreadcrumbEntries(
-			Group group, HttpServletRequest request,
+			Group group, HttpServletRequest httpServletRequest,
 			RenderResponse renderResponse)
 		throws Exception {
 
 		PortletURL portletURL = renderResponse.createRenderURL();
 
-		addPortletBreadcrumbEntries(group, request, portletURL);
+		addPortletBreadcrumbEntries(group, httpServletRequest, portletURL);
 	}
 
 	@Override
 	public void addPortletBreadcrumbEntries(
 			Group group, String pagesName, PortletURL redirectURL,
-			HttpServletRequest request, RenderResponse renderResponse)
+			HttpServletRequest httpServletRequest,
+			RenderResponse renderResponse)
 		throws Exception {
 
 		if (renderResponse == null) {
 			return;
 		}
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		Group unescapedGroup = group.toUnescapedModel();
 
@@ -221,20 +224,21 @@ public class SitesImpl implements Sites {
 
 		if (group.isLayoutPrototype()) {
 			PortalUtil.addPortletBreadcrumbEntry(
-				request, LanguageUtil.get(locale, "page-template"), null);
+				httpServletRequest, LanguageUtil.get(locale, "page-template"),
+				null);
 
 			PortalUtil.addPortletBreadcrumbEntry(
-				request, unescapedGroup.getDescriptiveName(),
+				httpServletRequest, unescapedGroup.getDescriptiveName(),
 				redirectURL.toString());
 		}
 		else {
 			PortalUtil.addPortletBreadcrumbEntry(
-				request, unescapedGroup.getDescriptiveName(), null);
+				httpServletRequest, unescapedGroup.getDescriptiveName(), null);
 		}
 
 		if (!group.isLayoutPrototype()) {
 			PortalUtil.addPortletBreadcrumbEntry(
-				request, LanguageUtil.get(locale, pagesName),
+				httpServletRequest, LanguageUtil.get(locale, pagesName),
 				redirectURL.toString());
 		}
 	}
@@ -459,8 +463,7 @@ public class SitesImpl implements Sites {
 				ResourcePermissionLocalServiceUtil.setResourcePermissions(
 					targetLayout.getCompanyId(), resourceName,
 					ResourceConstants.SCOPE_INDIVIDUAL, targetResourcePrimKey,
-					role.getRoleId(),
-					actions.toArray(new String[actions.size()]));
+					role.getRoleId(), actions.toArray(new String[0]));
 			}
 		}
 	}
@@ -541,20 +544,23 @@ public class SitesImpl implements Sites {
 
 	@Override
 	public Object[] deleteLayout(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws Exception {
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		PermissionChecker permissionChecker =
 			themeDisplay.getPermissionChecker();
 
-		long selPlid = ParamUtil.getLong(request, "selPlid");
+		long selPlid = ParamUtil.getLong(httpServletRequest, "selPlid");
 
-		long groupId = ParamUtil.getLong(request, "groupId");
-		boolean privateLayout = ParamUtil.getBoolean(request, "privateLayout");
-		long layoutId = ParamUtil.getLong(request, "layoutId");
+		long groupId = ParamUtil.getLong(httpServletRequest, "groupId");
+		boolean privateLayout = ParamUtil.getBoolean(
+			httpServletRequest, "privateLayout");
+		long layoutId = ParamUtil.getLong(httpServletRequest, "layoutId");
 
 		Layout layout = null;
 
@@ -591,20 +597,24 @@ public class SitesImpl implements Sites {
 
 			EventsProcessorUtil.process(
 				PropsKeys.LAYOUT_CONFIGURATION_ACTION_DELETE,
-				layoutType.getConfigurationActionDelete(), request, response);
+				layoutType.getConfigurationActionDelete(), httpServletRequest,
+				httpServletResponse);
 		}
 
 		if (group.isGuest() && !layout.isPrivateLayout() &&
-			layout.isRootLayout() &&
-			(LayoutLocalServiceUtil.getLayoutsCount(
-				group, false, LayoutConstants.DEFAULT_PARENT_LAYOUT_ID) == 1)) {
+			layout.isRootLayout()) {
 
-			throw new RequiredLayoutException(
-				RequiredLayoutException.AT_LEAST_ONE);
+			int count = LayoutLocalServiceUtil.getLayoutsCount(
+				group, false, LayoutConstants.DEFAULT_PARENT_LAYOUT_ID);
+
+			if (count == 1) {
+				throw new RequiredLayoutException(
+					RequiredLayoutException.AT_LEAST_ONE);
+			}
 		}
 
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
-			request);
+			httpServletRequest);
 
 		LayoutServiceUtil.deleteLayout(
 			groupId, privateLayout, layoutId, serviceContext);
@@ -619,12 +629,12 @@ public class SitesImpl implements Sites {
 			PortletRequest portletRequest, PortletResponse portletResponse)
 		throws Exception {
 
-		HttpServletRequest request = PortalUtil.getHttpServletRequest(
-			portletRequest);
-		HttpServletResponse response = PortalUtil.getHttpServletResponse(
-			portletResponse);
+		HttpServletRequest httpServletRequest =
+			PortalUtil.getHttpServletRequest(portletRequest);
+		HttpServletResponse httpServletResponse =
+			PortalUtil.getHttpServletResponse(portletResponse);
 
-		return deleteLayout(request, response);
+		return deleteLayout(httpServletRequest, httpServletResponse);
 	}
 
 	@Override
@@ -632,12 +642,12 @@ public class SitesImpl implements Sites {
 			RenderRequest renderRequest, RenderResponse renderResponse)
 		throws Exception {
 
-		HttpServletRequest request = PortalUtil.getHttpServletRequest(
-			renderRequest);
-		HttpServletResponse response = PortalUtil.getHttpServletResponse(
-			renderResponse);
+		HttpServletRequest httpServletRequest =
+			PortalUtil.getHttpServletRequest(renderRequest);
+		HttpServletResponse httpServletResponse =
+			PortalUtil.getHttpServletResponse(renderResponse);
 
-		deleteLayout(request, response);
+		deleteLayout(httpServletRequest, httpServletResponse);
 	}
 
 	@Override
@@ -1399,7 +1409,9 @@ public class SitesImpl implements Sites {
 	}
 
 	@Override
-	public void removeMergeFailFriendlyURLLayouts(LayoutSet layoutSet) {
+	public void removeMergeFailFriendlyURLLayouts(LayoutSet layoutSet)
+		throws PortalException {
+
 		UnicodeProperties settingsProperties =
 			layoutSet.getSettingsProperties();
 
@@ -1613,8 +1625,7 @@ public class SitesImpl implements Sites {
 
 		PortletLocalServiceUtil.deletePortlets(
 			targetLayout.getCompanyId(),
-			unreferencedPortletIds.toArray(
-				new String[unreferencedPortletIds.size()]),
+			unreferencedPortletIds.toArray(new String[0]),
 			targetLayout.getPlid());
 	}
 
@@ -1748,7 +1759,9 @@ public class SitesImpl implements Sites {
 	 *
 	 * @param layoutSet the site having its timestamp reset
 	 */
-	protected void doResetPrototype(LayoutSet layoutSet) {
+	protected void doResetPrototype(LayoutSet layoutSet)
+		throws PortalException {
+
 		UnicodeProperties settingsProperties =
 			layoutSet.getSettingsProperties();
 
@@ -1860,7 +1873,7 @@ public class SitesImpl implements Sites {
 		if (!importData) {
 			String cacheFileName = StringBundler.concat(
 				_TEMP_DIR, layoutSetPrototype.getUuid(), ".v",
-				String.valueOf(layoutSetPrototype.getMvccVersion()), ".lar");
+				layoutSetPrototype.getMvccVersion(), ".lar");
 
 			cacheFile = new File(cacheFileName);
 
@@ -2076,8 +2089,7 @@ public class SitesImpl implements Sites {
 			_log.debug(
 				StringBundler.concat(
 					"Acquired lock for ", SitesImpl.class.getName(),
-					" to update ", className, StringPool.POUND,
-					String.valueOf(classPK)));
+					" to update ", className, StringPool.POUND, classPK));
 		}
 
 		return owner;
@@ -2091,8 +2103,7 @@ public class SitesImpl implements Sites {
 			_log.debug(
 				StringBundler.concat(
 					"Released lock for ", SitesImpl.class.getName(),
-					" to update ", className, StringPool.POUND,
-					String.valueOf(classPK)));
+					" to update ", className, StringPool.POUND, classPK));
 		}
 	}
 

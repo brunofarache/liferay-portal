@@ -32,9 +32,10 @@ import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,7 @@ public class ProjectTemplates {
 		"com.liferay.project.templates.";
 
 	public static Map<String, String> getTemplates() throws Exception {
-		return getTemplates(new HashSet<>());
+		return getTemplates(Collections.emptySet());
 	}
 
 	public static Map<String, String> getTemplates(
@@ -164,6 +165,12 @@ public class ProjectTemplates {
 		return templates;
 	}
 
+	public static Map<String, String> getTemplates(File templateDirectory)
+		throws Exception {
+
+		return getTemplates(Arrays.asList(templateDirectory));
+	}
+
 	public static void main(String[] args) throws Exception {
 		ProjectTemplatesArgs projectTemplatesArgs = new ProjectTemplatesArgs();
 
@@ -180,6 +187,12 @@ public class ProjectTemplates {
 			}
 
 			jCommander.parse(args);
+
+			String template = projectTemplatesArgs.getTemplate();
+
+			if (template.equals("portlet")) {
+				projectTemplatesArgs.setTemplate("mvc-portlet");
+			}
 
 			if (projectTemplatesArgs.isHelp()) {
 				_printHelp(jCommander, projectTemplatesArgs);

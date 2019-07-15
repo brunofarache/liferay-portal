@@ -14,10 +14,11 @@
 
 package com.liferay.segments.internal.configuration;
 
-import aQute.bnd.annotation.ProviderType;
 import aQute.bnd.annotation.metatype.Meta;
 
 import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author David Arques
@@ -31,10 +32,10 @@ import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClass
 @ProviderType
 public interface SegmentsServiceConfiguration {
 
-	@Meta.AD(deflt = "15", name = "check-interval", required = false)
-	public int checkInterval();
-
-	@Meta.AD(deflt = "true", name = "segmentation-enabled", required = false)
+	@Meta.AD(
+		deflt = "true", description = "segmentation-enabled-description",
+		name = "segmentation-enabled-name", required = false
+	)
 	public boolean segmentationEnabled();
 
 }

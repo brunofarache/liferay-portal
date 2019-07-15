@@ -14,8 +14,6 @@
 
 package com.liferay.layout.page.template.model.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
 import com.liferay.petra.lang.HashUtil;
 import com.liferay.petra.string.StringBundler;
@@ -27,6 +25,8 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import java.util.Date;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The cache model class for representing LayoutPageTemplateStructure in entity cache.
@@ -69,7 +69,7 @@ public class LayoutPageTemplateStructureCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(23);
+		StringBundler sb = new StringBundler(21);
 
 		sb.append("{uuid=");
 		sb.append(uuid);
@@ -91,8 +91,6 @@ public class LayoutPageTemplateStructureCacheModel
 		sb.append(classNameId);
 		sb.append(", classPK=");
 		sb.append(classPK);
-		sb.append(", data=");
-		sb.append(data);
 		sb.append("}");
 
 		return sb.toString();
@@ -141,13 +139,6 @@ public class LayoutPageTemplateStructureCacheModel
 		layoutPageTemplateStructureImpl.setClassNameId(classNameId);
 		layoutPageTemplateStructureImpl.setClassPK(classPK);
 
-		if (data == null) {
-			layoutPageTemplateStructureImpl.setData("");
-		}
-		else {
-			layoutPageTemplateStructureImpl.setData(data);
-		}
-
 		layoutPageTemplateStructureImpl.resetOriginalValues();
 
 		return layoutPageTemplateStructureImpl;
@@ -171,7 +162,6 @@ public class LayoutPageTemplateStructureCacheModel
 		classNameId = objectInput.readLong();
 
 		classPK = objectInput.readLong();
-		data = objectInput.readUTF();
 	}
 
 	@Override
@@ -204,13 +194,6 @@ public class LayoutPageTemplateStructureCacheModel
 		objectOutput.writeLong(classNameId);
 
 		objectOutput.writeLong(classPK);
-
-		if (data == null) {
-			objectOutput.writeUTF("");
-		}
-		else {
-			objectOutput.writeUTF(data);
-		}
 	}
 
 	public String uuid;
@@ -223,6 +206,5 @@ public class LayoutPageTemplateStructureCacheModel
 	public long modifiedDate;
 	public long classNameId;
 	public long classPK;
-	public String data;
 
 }

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.service.impl;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.CurrentConnectionUtil;
@@ -40,7 +41,7 @@ import com.liferay.portal.kernel.model.ResourceBlockPermissionsContainer;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.ResourceTypePermission;
 import com.liferay.portal.kernel.model.Role;
-import com.liferay.portal.kernel.model.RoleConstants;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
@@ -52,7 +53,6 @@ import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.model.impl.ResourceBlockImpl;
 import com.liferay.portal.security.permission.PermissionCacheUtil;
 import com.liferay.portal.service.base.ResourceBlockLocalServiceBaseImpl;
@@ -500,8 +500,7 @@ public class ResourceBlockLocalServiceImpl
 					_log.warn(
 						StringBundler.concat(
 							"Unable to decrement reference count for resource ",
-							"block ", String.valueOf(resourceBlockId),
-							". Retrying."));
+							"block ", resourceBlockId, ". Retrying."));
 				}
 			}
 		}
@@ -847,7 +846,7 @@ public class ResourceBlockLocalServiceImpl
 			actionIdsLong |= oldActionIdsLong;
 		}
 		else if (operator == ResourceBlockConstants.OPERATOR_REMOVE) {
-			actionIdsLong = oldActionIdsLong & (~actionIdsLong);
+			actionIdsLong = oldActionIdsLong & ~actionIdsLong;
 		}
 
 		if (resourceBlock != null) {
@@ -966,8 +965,7 @@ public class ResourceBlockLocalServiceImpl
 					_log.warn(
 						StringBundler.concat(
 							"Unable to increment reference count for resource ",
-							"block ",
-							String.valueOf(resourceBlock.getResourceBlockId()),
+							"block ", resourceBlock.getResourceBlockId(),
 							". Retrying"));
 				}
 			}
@@ -1020,9 +1018,8 @@ public class ResourceBlockLocalServiceImpl
 		if (_log.isWarnEnabled()) {
 			_log.warn(
 				StringBundler.concat(
-					"Resource block ",
-					String.valueOf(permissionedModel.getResourceBlockId()),
-					" missing for ", name, "#", String.valueOf(primKey)));
+					"Resource block ", permissionedModel.getResourceBlockId(),
+					" missing for ", name, "#", primKey));
 		}
 
 		long groupId = 0;

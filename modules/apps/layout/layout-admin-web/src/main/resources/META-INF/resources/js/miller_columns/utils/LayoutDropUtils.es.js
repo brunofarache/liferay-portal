@@ -1,3 +1,17 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 import {
 	appendItemToColumn,
 	moveItemInside,
@@ -12,6 +26,7 @@ import {
 import {DROP_TARGET_BORDERS, DROP_TARGET_ITEM_TYPES} from './LayoutDragDrop.es';
 
 /**
+ * @param {object} layoutColumns
  * @param {object} sourceItem
  * @param {string} sourceItemColumnIndex
  * @param {string} targetId
@@ -20,11 +35,13 @@ import {DROP_TARGET_BORDERS, DROP_TARGET_ITEM_TYPES} from './LayoutDragDrop.es';
  * @review
  */
 function dropIsValid(
+	layoutColumns,
 	sourceItem,
 	sourceItemColumnIndex,
 	targetId,
 	targetType
 ) {
+	let targetColumnHasLayoutAssociated = true;
 	let targetColumnIsChild = false;
 	let targetEqualsSource = false;
 
@@ -34,14 +51,26 @@ function dropIsValid(
 			sourceItem,
 			sourceItemColumnIndex
 		);
-	}
-	else if (targetType === DROP_TARGET_ITEM_TYPES.item) {
-		targetEqualsSource = (sourceItem.plid === targetId);
+
+		const sourceColumnHasActiveItem =
+			getColumnActiveItem(layoutColumns, sourceItemColumnIndex) !== null;
+
+		const targetColumnHasItems = layoutColumns[targetId].length > 0;
+
+		targetColumnHasLayoutAssociated =
+			sourceColumnHasActiveItem || targetColumnHasItems;
+	} else if (targetType === DROP_TARGET_ITEM_TYPES.item) {
+		targetEqualsSource = sourceItem.plid === targetId;
 	}
 
-	const targetExists = (targetId !== null);
+	const targetExists = targetId !== null;
 
-	return targetExists && !targetEqualsSource && !targetColumnIsChild;
+	return (
+		targetColumnHasLayoutAssociated &&
+		targetExists &&
+		!targetEqualsSource &&
+		!targetColumnIsChild
+	);
 }
 
 /**
@@ -130,20 +159,30 @@ function dropItemInsideItem(
  * @return {object}
  * @review
  */
-function dropItemNextToItem(layoutColumns, sourceItem, dropPosition, targetItem) {
+function dropItemNextToItem(
+	layoutColumns,
+	sourceItem,
+	dropPosition,
+	targetItem
+) {
 	const nextLayoutColumns = removeItem(sourceItem.plid, layoutColumns);
 
 	const targetColumn = getItemColumn(nextLayoutColumns, targetItem.plid);
 	const targetColumnIndex = nextLayoutColumns.indexOf(targetColumn);
 
-	const parentPlid = getColumnActiveItem(nextLayoutColumns, targetColumnIndex - 1).plid;
+	const parentPlid = getColumnActiveItem(
+		nextLayoutColumns,
+		targetColumnIndex - 1
+	).plid;
 
 	const targetItemIndex = targetColumn.findIndex(
-		(targetColumnItem) => targetColumnItem.plid === targetItem.plid
+		targetColumnItem => targetColumnItem.plid === targetItem.plid
 	);
 
-	const priority = (dropPosition === DROP_TARGET_BORDERS.bottom) ?
-		(targetItemIndex + 1) : targetItemIndex;
+	const priority =
+		dropPosition === DROP_TARGET_BORDERS.bottom
+			? targetItemIndex + 1
+			: targetItemIndex;
 
 	const nextTargetColumn = [...targetColumn];
 

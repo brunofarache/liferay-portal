@@ -14,7 +14,7 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link UserGroupService}.
@@ -55,29 +55,6 @@ public class UserGroupServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		_userGroupService.addTeamUserGroups(teamId, userGroupIds);
-	}
-
-	/**
-	 * Adds a user group.
-	 *
-	 * <p>
-	 * This method handles the creation and bookkeeping of the user group,
-	 * including its resources, metadata, and internal data structures.
-	 * </p>
-	 *
-	 * @param name the user group's name
-	 * @param description the user group's description
-	 * @return the user group
-	 * @deprecated As of Newton (6.2.x), replaced by {@link
-	 #addUserGroup(String, String, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public com.liferay.portal.kernel.model.UserGroup addUserGroup(
-			String name, String description)
-		throws com.liferay.portal.kernel.exception.PortalException {
-
-		return _userGroupService.addUserGroup(name, description);
 	}
 
 	/**
@@ -235,26 +212,6 @@ public class UserGroupServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		_userGroupService.unsetTeamUserGroups(teamId, userGroupIds);
-	}
-
-	/**
-	 * Updates the user group.
-	 *
-	 * @param userGroupId the primary key of the user group
-	 * @param name the user group's name
-	 * @param description the the user group's description
-	 * @return the user group
-	 * @deprecated As of Newton (6.2.x), replaced by {@link
-	 #updateUserGroup(long, String, String, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public com.liferay.portal.kernel.model.UserGroup updateUserGroup(
-			long userGroupId, String name, String description)
-		throws com.liferay.portal.kernel.exception.PortalException {
-
-		return _userGroupService.updateUserGroup(
-			userGroupId, name, description);
 	}
 
 	/**

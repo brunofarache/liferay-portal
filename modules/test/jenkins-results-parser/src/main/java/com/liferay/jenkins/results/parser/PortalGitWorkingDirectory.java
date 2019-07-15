@@ -200,32 +200,6 @@ public class PortalGitWorkingDirectory extends GitWorkingDirectory {
 		super(upstreamBranchName, workingDirectoryPath, gitRepositoryName);
 	}
 
-	@Override
-	protected void setUpstreamGitRemoteToPrivateGitRepository() {
-		GitRemote upstreamGitRemote = getUpstreamGitRemote();
-
-		String remoteURL = upstreamGitRemote.getRemoteURL();
-
-		if (!remoteURL.contains("-ee")) {
-			remoteURL = remoteURL.replace(".git", "-ee.git");
-		}
-
-		addGitRemote(true, "upstream-temp", remoteURL);
-	}
-
-	@Override
-	protected void setUpstreamGitRemoteToPublicGitRepository() {
-		GitRemote upstreamGitRemote = getUpstreamGitRemote();
-
-		String remoteURL = upstreamGitRemote.getRemoteURL();
-
-		if (remoteURL.contains("-ee")) {
-			remoteURL = remoteURL.replace("-ee", "");
-		}
-
-		addGitRemote(true, "upstream-temp", remoteURL);
-	}
-
 	private boolean _isNPMTestModuleDir(File moduleDir) {
 		List<File> packageJSONFiles = JenkinsResultsParserUtil.findFiles(
 			moduleDir, "package\\.json");
@@ -310,7 +284,7 @@ public class PortalGitWorkingDirectory extends GitWorkingDirectory {
 		private static Map<Integer, String[]> _markerFileNames =
 			new HashMap<Integer, String[]>() {
 				{
-					put(0, new String[] {"subsystem.bnd", ".gitrepo"});
+					put(0, new String[] {".lfrbuild-release-src", ".gitrepo"});
 					put(1, new String[] {"app.bnd"});
 					put(2, new String[] {"bnd.bnd"});
 					put(

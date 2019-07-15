@@ -9,8 +9,33 @@
 </thead>
 <tbody>
 <tr>
+	<td>CHANGE_LIST_NAVIGATION_USER_SETTINGS</td>
+	<td>//li[contains(@class,'nav-item')]//span[contains(.,'User Settings')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CHANGE_LIST_NAVIGATION_GLOBAL_SETTINGS</td>
+	<td>//li[contains(@class,'nav-item')]//span[contains(.,'Global Settings')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CHANGE_LIST_USER_SETTINGS_POPUP_ENABLED</td>
+	<td>//div[contains(@class,'change-lists-configuration')]//input</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ACTIVE_CHANGE_LIST_TITLE</td>
 	<td>//div[contains(@class,'border-left-blue')]//div[contains(@data-qa-id,'headerTitle')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ACTIVE_CHANGE_LIST_STATUS</td>
+	<td>//td[contains(.,'${key_changeListName}')]//following-sibling::td//span[contains(@class,'label-info')]//span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CHANGE_LIST_ADDED</td>
+	<td>//div[contains(@data-qa-id,'changesAdded')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -19,13 +44,23 @@
 	<td></td>
 </tr>
 <tr>
+	<td>CHANGE_LIST_MODIFIED</td>
+	<td>//div[contains(@data-qa-id,'changesModified')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>CHANGE_LIST_NAME</td>
 	<td>//input[contains(@name,'name')]</td>
 	<td></td>
 </tr>
 <tr>
+	<td>CHANGE_LIST_NAME_CARD_VIEW</td>
+	<td>//span[contains(@data-qa-id,'headerSubTitle')][normalize-space(text())='${key_changeListName}']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>CHANGE_LIST_DESCRIPTION</td>
-	<td>//input[contains(@name,'description')]</td>
+	<td>//textarea[contains(@name,'description')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -34,13 +69,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>CHANGE_LIST_NAME_WC_HISTORY</td>
+	<td>//td[contains(@class,'change-list-title')]//a[contains(.,'${key_changeListName}')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>CHECK_CIRCLE</td>
 	<td>//td[contains(.,'${key_contentTitle}')]//following-sibling::td//span[span/*[name()='svg'][contains(@class,'lexicon-icon')]]</td>
 	<td></td>
 </tr>
 <tr>
-	<td>COLLISTION_DETECTED</td>
-	<td>//span[contains(@data-title,'Collision detected')]</td>
+	<td>COLLISION_DETECTED</td>
+	<td>//span[contains(@data-qa-id,'collision-detected')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -51,6 +91,11 @@
 <tr>
 	<td>HISTORY_CHANGE_LIST_STATUS</td>
 	<td>//h4[contains(.,'${key_changeListName}')]//following-sibling::span[contains(@class,'label-success')]//span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>INDICATOR</td>
+	<td>//li[contains(@class,'nav-item')]//span/*[name()='svg'][contains(@class,'change-list')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -106,6 +151,11 @@
 <tr>
 	<td>OVERVIEW_PUBLISHED_BY</td>
 	<td>//div[contains(@data-qa-id,'publishedBy')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PRODUCTION_CARD_TITLE</td>
+	<td>//span[contains(@class,'work-on-production')]</td>
 	<td></td>
 </tr>
 <tr>

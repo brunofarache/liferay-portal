@@ -18,7 +18,7 @@ import com.liferay.petra.lang.ClassLoaderPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
-import com.liferay.portal.kernel.cache.PortalCacheManagerNames;
+import com.liferay.portal.kernel.cache.PortalCache;
 import com.liferay.portal.kernel.cache.SingleVMPool;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.template.Template;
@@ -28,8 +28,7 @@ import com.liferay.portal.kernel.template.TemplateManager;
 import com.liferay.portal.kernel.template.TemplateResource;
 import com.liferay.portal.kernel.template.TemplateResourceLoader;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.template.BaseSingleTemplateManager;
-import com.liferay.portal.template.RestrictedTemplate;
+import com.liferay.portal.template.BaseTemplateManager;
 import com.liferay.portal.template.TemplateContextHelper;
 import com.liferay.portal.template.velocity.configuration.VelocityEngineConfiguration;
 import com.liferay.taglib.util.VelocityTaglib;
@@ -62,15 +61,17 @@ import org.osgi.service.component.annotations.Reference;
 	property = "language.type=" + TemplateConstants.LANG_TYPE_VM,
 	service = TemplateManager.class
 )
-public class VelocityManager extends BaseSingleTemplateManager {
+public class VelocityManager extends BaseTemplateManager {
 
 	@Override
 	public void addTaglibTheme(
 		Map<String, Object> contextObjects, String themeName,
-		HttpServletRequest request, HttpServletResponse response) {
+		HttpServletRequest httpServletRequest,
+		HttpServletResponse httpServletResponse) {
 
 		VelocityTaglib velocityTaglib = new VelocityTaglibImpl(
-			request.getServletContext(), request, response, contextObjects);
+			httpServletRequest.getServletContext(), httpServletRequest,
+			httpServletResponse, contextObjects);
 
 		contextObjects.put(themeName, velocityTaglib);
 
@@ -167,9 +168,7 @@ public class VelocityManager extends BaseSingleTemplateManager {
 
 			boolean cacheEnabled = false;
 
-			if (_velocityEngineConfiguration.
-					resourceModificationCheckInterval() != 0) {
-
+			if (_velocityTemplateResourceCache.isEnabled()) {
 				cacheEnabled = true;
 			}
 
@@ -181,11 +180,25 @@ public class VelocityManager extends BaseSingleTemplateManager {
 				"liferay." + VelocityEngine.RESOURCE_LOADER + ".class",
 				LiferayResourceLoader.class.getName());
 
-			extendedProperties.setProperty(
-				"liferay." + VelocityEngine.RESOURCE_LOADER +
-					".resourceModificationCheckInterval",
-				_velocityEngineConfiguration.
-					resourceModificationCheckInterval() + "");
+			if (cacheEnabled) {
+				PortalCache<TemplateResource, org.apache.velocity.Template>
+					portalCache =
+						(PortalCache
+							<TemplateResource, org.apache.velocity.Template>)
+								_singleVMPool.getPortalCache(
+									StringBundler.concat(
+										TemplateResource.class.getName(),
+										StringPool.POUND,
+										TemplateConstants.LANG_TYPE_VM));
+
+				extendedProperties.setProperty(
+					"liferay." + VelocityEngine.RESOURCE_LOADER +
+						"portal.cache",
+					portalCache);
+
+				_velocityTemplateResourceCache.setSecondLevelPortalCache(
+					portalCache);
+			}
 
 			extendedProperties.setProperty(
 				VelocityEngine.RESOURCE_MANAGER_CLASS,
@@ -224,9 +237,6 @@ public class VelocityManager extends BaseSingleTemplateManager {
 				VelocityEngine.VM_PERM_ALLOW_INLINE_REPLACE_GLOBAL,
 				String.valueOf(!cacheEnabled));
 
-			extendedProperties.setProperty(
-				PortalCacheManagerNames.SINGLE_VM, _singleVMPool);
-
 			_velocityEngine.setExtendedProperties(extendedProperties);
 
 			_velocityEngine.init();
@@ -264,21 +274,12 @@ public class VelocityManager extends BaseSingleTemplateManager {
 
 	@Override
 	protected Template doGetTemplate(
-		TemplateResource templateResource,
-		TemplateResource errorTemplateResource, boolean restricted,
+		TemplateResource templateResource, boolean restricted,
 		Map<String, Object> helperUtilities) {
 
-		Template template = new VelocityTemplate(
-			templateResource, errorTemplateResource, helperUtilities,
-			_velocityEngine, templateContextHelper,
-			_velocityEngineConfiguration.resourceModificationCheckInterval());
-
-		if (restricted) {
-			template = new RestrictedTemplate(
-				template, templateContextHelper.getRestrictedVariables());
-		}
-
-		return template;
+		return new VelocityTemplate(
+			templateResource, helperUtilities, _velocityEngine,
+			templateContextHelper, _velocityTemplateResourceCache, restricted);
 	}
 
 	private String _getVelocimacroLibrary(Class<?> clazz) {
@@ -324,5 +325,8 @@ public class VelocityManager extends BaseSingleTemplateManager {
 	private SingleVMPool _singleVMPool;
 
 	private VelocityEngine _velocityEngine;
+
+	@Reference
+	private VelocityTemplateResourceCache _velocityTemplateResourceCache;
 
 }

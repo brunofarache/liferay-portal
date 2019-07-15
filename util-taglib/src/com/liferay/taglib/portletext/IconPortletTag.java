@@ -33,6 +33,10 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class IconPortletTag extends IconTag {
 
+	public Portlet getPortlet() {
+		return _portlet;
+	}
+
 	public void setPortlet(Portlet portlet) {
 		_portlet = portlet;
 	}
@@ -89,10 +93,11 @@ public class IconPortletTag extends IconTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		super.setAttributes(request);
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		super.setAttributes(httpServletRequest);
 
-		request.setAttribute("liferay-portlet:icon_portlet:portlet", _portlet);
+		httpServletRequest.setAttribute(
+			"liferay-portlet:icon_portlet:portlet", _portlet);
 	}
 
 	private static final String _PAGE =

@@ -14,6 +14,7 @@
 
 package com.liferay.roles.admin.web.internal.display.context;
 
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownGroupItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.ViewTypeItem;
@@ -76,37 +77,37 @@ import javax.servlet.http.HttpServletRequest;
 public class EditRoleAssignmentsManagementToolbarDisplayContext {
 
 	public EditRoleAssignmentsManagementToolbarDisplayContext(
-			HttpServletRequest request, RenderRequest renderRequest,
+			HttpServletRequest httpServletRequest, RenderRequest renderRequest,
 			RenderResponse renderResponse, String displayStyle, String tabs3)
 		throws PortalException {
 
-		_request = request;
+		_httpServletRequest = httpServletRequest;
 		_renderRequest = renderRequest;
 		_renderResponse = renderResponse;
 		_displayStyle = displayStyle;
 		_tabs3 = tabs3;
 
-		long roleId = ParamUtil.getLong(request, "roleId");
+		long roleId = ParamUtil.getLong(httpServletRequest, "roleId");
 
 		_role = RoleServiceUtil.fetchRole(roleId);
 	}
 
 	public List<DropdownItem> getActionDropdownItems() {
-		return new DropdownItemList() {
-			{
-				add(
-					dropdownItem -> {
-						dropdownItem.setHref(
-							StringBundler.concat(
-								"javascript:", _renderResponse.getNamespace(),
-								"unsetRoleAssignments();"));
-						dropdownItem.setIcon("trash");
-						dropdownItem.setLabel(
-							LanguageUtil.get(_request, "delete"));
-						dropdownItem.setQuickAction(true);
-					});
-			}
-		};
+		return DropdownItemList.of(
+			() -> {
+				DropdownItem dropdownItem = new DropdownItem();
+
+				dropdownItem.setHref(
+					StringBundler.concat(
+						"javascript:", _renderResponse.getNamespace(),
+						"unsetRoleAssignments();"));
+				dropdownItem.setIcon("trash");
+				dropdownItem.setLabel(
+					LanguageUtil.get(_httpServletRequest, "delete"));
+				dropdownItem.setQuickAction(true);
+
+				return dropdownItem;
+			});
 	}
 
 	public String getClearResultsURL() {
@@ -118,25 +119,50 @@ public class EditRoleAssignmentsManagementToolbarDisplayContext {
 	}
 
 	public List<DropdownItem> getFilterDropdownItems() {
-		return new DropdownItemList() {
-			{
-				addGroup(
-					dropdownGroupItem -> {
-						dropdownGroupItem.setDropdownItems(
-							_getFilterNavigationDropdownItems());
-						dropdownGroupItem.setLabel(
-							LanguageUtil.get(_request, "filter-by-navigation"));
-					});
+		return DropdownItemList.of(
+			() -> {
+				DropdownGroupItem dropdownGroupItem = new DropdownGroupItem();
 
-				addGroup(
-					dropdownGroupItem -> {
-						dropdownGroupItem.setDropdownItems(
-							_getOrderByDropdownItems());
-						dropdownGroupItem.setLabel(
-							LanguageUtil.get(_request, "order-by"));
-					});
-			}
-		};
+				dropdownGroupItem.setDropdownItems(
+					DropdownItemList.of(
+						() -> {
+							DropdownItem dropdownItem = new DropdownItem();
+
+							dropdownItem.setActive(true);
+							dropdownItem.setHref(StringPool.BLANK);
+							dropdownItem.setLabel(
+								LanguageUtil.get(_httpServletRequest, "all"));
+
+							return dropdownItem;
+						}));
+				dropdownGroupItem.setLabel(
+					LanguageUtil.get(
+						_httpServletRequest, "filter-by-navigation"));
+
+				return dropdownGroupItem;
+			},
+			() -> {
+				DropdownGroupItem dropdownGroupItem = new DropdownGroupItem();
+
+				dropdownGroupItem.setDropdownItems(
+					DropdownItemList.of(
+						() -> {
+							DropdownItem dropdownItem = new DropdownItem();
+
+							dropdownItem.setActive(
+								Objects.equals(getOrderByCol(), "name"));
+							dropdownItem.setHref(
+								getPortletURL(), "orderByCol", "name");
+							dropdownItem.setLabel(
+								LanguageUtil.get(_httpServletRequest, "name"));
+
+							return dropdownItem;
+						}));
+				dropdownGroupItem.setLabel(
+					LanguageUtil.get(_httpServletRequest, "order-by"));
+
+				return dropdownGroupItem;
+			});
 	}
 
 	public SearchContainer getGroupSearchContainer() {
@@ -152,8 +178,9 @@ public class EditRoleAssignmentsManagementToolbarDisplayContext {
 				new EmptyOnClickRowChecker(_renderResponse));
 		}
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)_request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)_httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		LinkedHashMap<String, Object> groupParams = new LinkedHashMap<>();
 
@@ -182,7 +209,7 @@ public class EditRoleAssignmentsManagementToolbarDisplayContext {
 
 	public String getKeywords() {
 		if (Validator.isNull(_keywords)) {
-			_keywords = ParamUtil.getString(_request, "keywords");
+			_keywords = ParamUtil.getString(_httpServletRequest, "keywords");
 		}
 
 		return _keywords;
@@ -190,7 +217,8 @@ public class EditRoleAssignmentsManagementToolbarDisplayContext {
 
 	public String getOrderByCol() {
 		if (Validator.isNull(_orderByCol)) {
-			_orderByCol = ParamUtil.getString(_request, "orderByCol", "name");
+			_orderByCol = ParamUtil.getString(
+				_httpServletRequest, "orderByCol", "name");
 		}
 
 		return _orderByCol;
@@ -198,7 +226,8 @@ public class EditRoleAssignmentsManagementToolbarDisplayContext {
 
 	public String getOrderByType() {
 		if (Validator.isNull(_orderByType)) {
-			_orderByType = ParamUtil.getString(_request, "orderByType", "asc");
+			_orderByType = ParamUtil.getString(
+				_httpServletRequest, "orderByType", "asc");
 		}
 
 		return _orderByType;
@@ -219,8 +248,9 @@ public class EditRoleAssignmentsManagementToolbarDisplayContext {
 				new EmptyOnClickRowChecker(_renderResponse));
 		}
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)_request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)_httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		long parentOrganizationId =
 			OrganizationConstants.ANY_PARENT_ORGANIZATION_ID;
@@ -242,7 +272,7 @@ public class EditRoleAssignmentsManagementToolbarDisplayContext {
 		Indexer<?> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
 			Organization.class);
 
-		if (indexer.isIndexerEnabled() &&
+		if (!_tabs3.equals("current") && indexer.isIndexerEnabled() &&
 			PropsValues.ORGANIZATIONS_SEARCH_WITH_INDEX) {
 
 			organizationParams.put("expandoAttributes", getKeywords());
@@ -298,7 +328,7 @@ public class EditRoleAssignmentsManagementToolbarDisplayContext {
 		portletURL.setParameter("tabs3", _tabs3);
 		portletURL.setParameter("roleId", String.valueOf(_role.getRoleId()));
 
-		String redirect = ParamUtil.getString(_request, "redirect");
+		String redirect = ParamUtil.getString(_httpServletRequest, "redirect");
 
 		portletURL.setParameter("redirect", redirect);
 
@@ -358,7 +388,7 @@ public class EditRoleAssignmentsManagementToolbarDisplayContext {
 
 	public String getTabs2() {
 		if (Validator.isNull(_tabs2)) {
-			_tabs2 = ParamUtil.getString(_request, "tabs2", "users");
+			_tabs2 = ParamUtil.getString(_httpServletRequest, "tabs2", "users");
 		}
 
 		return _tabs2;
@@ -377,8 +407,9 @@ public class EditRoleAssignmentsManagementToolbarDisplayContext {
 				new EmptyOnClickRowChecker(_renderResponse));
 		}
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)_request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)_httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		LinkedHashMap<String, Object> userGroupParams = new LinkedHashMap<>();
 
@@ -423,8 +454,9 @@ public class EditRoleAssignmentsManagementToolbarDisplayContext {
 				new UnsetUserRoleChecker(_renderResponse, _role));
 		}
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)_request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)_httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		LinkedHashMap<String, Object> userParams = new LinkedHashMap<>();
 
@@ -460,43 +492,13 @@ public class EditRoleAssignmentsManagementToolbarDisplayContext {
 		};
 	}
 
-	private List<DropdownItem> _getFilterNavigationDropdownItems() {
-		return new DropdownItemList() {
-			{
-				add(
-					dropdownItem -> {
-						dropdownItem.setActive(true);
-						dropdownItem.setHref(StringPool.BLANK);
-						dropdownItem.setLabel(
-							LanguageUtil.get(_request, "all"));
-					});
-			}
-		};
-	}
-
-	private List<DropdownItem> _getOrderByDropdownItems() {
-		return new DropdownItemList() {
-			{
-				add(
-					dropdownItem -> {
-						dropdownItem.setActive(
-							Objects.equals(getOrderByCol(), "name"));
-						dropdownItem.setHref(
-							getPortletURL(), "orderByCol", "name");
-						dropdownItem.setLabel(
-							LanguageUtil.get(_request, "name"));
-					});
-			}
-		};
-	}
-
 	private final String _displayStyle;
+	private final HttpServletRequest _httpServletRequest;
 	private String _keywords;
 	private String _orderByCol;
 	private String _orderByType;
 	private final RenderRequest _renderRequest;
 	private final RenderResponse _renderResponse;
-	private final HttpServletRequest _request;
 	private final Role _role;
 	private SearchContainer _searchContainer;
 	private String _tabs2;

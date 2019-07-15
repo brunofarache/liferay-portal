@@ -14,8 +14,6 @@
 
 package com.liferay.asset.list.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.asset.list.model.AssetListEntry;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
@@ -41,6 +39,8 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import java.io.Serializable;
 
 import java.util.List;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service interface for AssetListEntry. Methods of this
@@ -294,6 +294,11 @@ public interface AssetListEntryLocalService
 	public AssetListEntry getAssetListEntry(long assetListEntryId)
 		throws PortalException;
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public AssetListEntry getAssetListEntry(
+			long groupId, String assetListEntryKey)
+		throws PortalException;
+
 	/**
 	 * Returns the asset list entry matching the UUID and group.
 	 *
@@ -351,11 +356,6 @@ public interface AssetListEntryLocalService
 
 	public void updateAssetListEntryTypeSettings(
 			long assetListEntryId, long segmentsEntryId, String typeSettings)
-		throws PortalException;
-
-	public AssetListEntry updateAssetListEntryTypeSettingsProperties(
-			long assetListEntryId, long segmentsEntryId,
-			String typeSettingsProperties)
 		throws PortalException;
 
 }

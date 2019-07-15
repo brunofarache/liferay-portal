@@ -14,11 +14,12 @@
 
 package com.liferay.change.tracking.rest.internal.resource;
 
-import com.liferay.change.tracking.CTEngineManager;
+import com.liferay.change.tracking.engine.CTEngineManager;
 import com.liferay.change.tracking.model.CTCollection;
 import com.liferay.change.tracking.model.CTEntry;
 import com.liferay.change.tracking.rest.internal.model.entry.CTEntryModel;
 import com.liferay.change.tracking.rest.internal.util.CTJaxRsUtil;
+import com.liferay.change.tracking.service.CTEntryLocalService;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -53,7 +54,7 @@ import org.osgi.service.component.annotations.ServiceScope;
  */
 @Component(
 	property = {
-		"osgi.jaxrs.application.select=(osgi.jaxrs.name=change-tracking-application)",
+		"osgi.jaxrs.application.select=(osgi.jaxrs.name=Liferay.Change.Tracking.REST)",
 		"osgi.jaxrs.resource=true"
 	},
 	scope = ServiceScope.PROTOTYPE, service = CTEntryResource.class
@@ -62,9 +63,19 @@ import org.osgi.service.component.annotations.ServiceScope;
 public class CTEntryResource {
 
 	@GET
+	@Path("/{ctEntryId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public CTEntryModel getCTEntryModel(
+		@PathParam("ctEntryId") long ctEntryId) {
+
+		return _getCTEntryModel(_ctEntryLocalService.fetchCTEntry(ctEntryId));
+	}
+
+	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Page<CTEntryModel> searchCollectionCTEntryModels(
 		@PathParam("collectionId") long ctCollectionId,
+		@QueryParam("companyId") long companyId,
 		@QueryParam("groupId") String groupIdFilter,
 		@QueryParam("userId") String userIdFilter,
 		@QueryParam("classNameId") String classNameIdFilter,
@@ -74,7 +85,7 @@ public class CTEntryResource {
 		@QueryParam("sort") String sort, @Context Pagination pagination) {
 
 		Optional<CTCollection> ctCollectionOptional =
-			_ctEngineManager.getCTCollectionOptional(ctCollectionId);
+			_ctEngineManager.getCTCollectionOptional(companyId, ctCollectionId);
 
 		if (!ctCollectionOptional.isPresent()) {
 			throw new IllegalArgumentException(
@@ -93,7 +104,7 @@ public class CTEntryResource {
 			queryDefinition.setStatus(GetterUtil.getInteger(statusFilter));
 		}
 		else {
-			queryDefinition.setStatus(WorkflowConstants.STATUS_ANY);
+			queryDefinition.setStatus(WorkflowConstants.STATUS_DRAFT);
 		}
 
 		if (pagination != null) {
@@ -129,6 +140,14 @@ public class CTEntryResource {
 		return _getPage(ctEntries, totalCount, pagination);
 	}
 
+	private CTEntryModel _getCTEntryModel(CTEntry ctEntry) {
+		if (ctEntry == null) {
+			return CTEntryModel.EMPTY_CT_ENTRY_MODEL;
+		}
+
+		return CTEntryModel.forCTEntry(ctEntry);
+	}
+
 	private String[] _getFiltersArray(String filterString) {
 		if (Validator.isNull(filterString)) {
 			return new String[0];
@@ -156,5 +175,8 @@ public class CTEntryResource {
 
 	@Reference
 	private CTEngineManager _ctEngineManager;
+
+	@Reference
+	private CTEntryLocalService _ctEntryLocalService;
 
 }

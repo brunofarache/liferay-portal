@@ -27,7 +27,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.search.test.util.FieldValuesAssert;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.PermissionCheckerTestRule;
+import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +53,7 @@ public class CalendarIndexerLocalizedContentTest
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
-			PermissionCheckerTestRule.INSTANCE,
+			PermissionCheckerMethodTestRule.INSTANCE,
 			SynchronousDestinationTestRule.INSTANCE);
 
 	@Before
@@ -139,21 +139,19 @@ public class CalendarIndexerLocalizedContentTest
 		Stream.of(
 			full, partial1, partial2
 		).forEach(
-			name -> {
-				addCalendar(
-					new LocalizedValuesMap() {
-						{
-							put(LocaleUtil.US, originalName);
-							put(LocaleUtil.JAPAN, name);
-						}
-					},
-					new LocalizedValuesMap() {
-						{
-							put(LocaleUtil.US, description);
-							put(LocaleUtil.JAPAN, description);
-						}
-					});
-			}
+			name -> addCalendar(
+				new LocalizedValuesMap() {
+					{
+						put(LocaleUtil.US, originalName);
+						put(LocaleUtil.JAPAN, name);
+					}
+				},
+				new LocalizedValuesMap() {
+					{
+						put(LocaleUtil.US, description);
+						put(LocaleUtil.JAPAN, description);
+					}
+				})
 		);
 
 		Map<String, String> nameMap = new HashMap<String, String>() {

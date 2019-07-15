@@ -56,7 +56,8 @@ public class ViewMVCRenderCommand implements MVCRenderCommand {
 		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		Template template = getTemplate(renderRequest);
+		Template template = (Template)renderRequest.getAttribute(
+			WebKeys.TEMPLATE);
 
 		long classNameId = ParamUtil.getLong(renderRequest, "classNameId");
 
@@ -104,15 +105,21 @@ public class ViewMVCRenderCommand implements MVCRenderCommand {
 			"sharingUserAutocompleteURL",
 			sharingUserAutocompleteURL.toString());
 
+		ResourceURL sharingVerifyEmailAddressURL =
+			renderResponse.createResourceURL();
+
+		sharingVerifyEmailAddressURL.setResourceID(
+			"/sharing/verify_email_address");
+
+		template.put(
+			"sharingVerifyEmailAddressURL",
+			sharingVerifyEmailAddressURL.toString());
+
 		template.put(
 			"spritemap",
 			themeDisplay.getPathThemeImages() + "/lexicon/icons.svg");
 
 		return "Sharing";
-	}
-
-	protected Template getTemplate(RenderRequest renderRequest) {
-		return (Template)renderRequest.getAttribute(WebKeys.TEMPLATE);
 	}
 
 	@Reference

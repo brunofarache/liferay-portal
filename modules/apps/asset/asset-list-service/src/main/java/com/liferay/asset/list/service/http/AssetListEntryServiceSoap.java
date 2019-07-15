@@ -14,13 +14,13 @@
 
 package com.liferay.asset.list.service.http;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.asset.list.service.AssetListEntryServiceUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 
 import java.rmi.RemoteException;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the SOAP utility for the
@@ -321,6 +321,62 @@ public class AssetListEntryServiceSoap {
 		}
 	}
 
+	public static com.liferay.asset.list.model.AssetListEntrySoap
+			getAssetListEntry(long assetListEntryId)
+		throws RemoteException {
+
+		try {
+			com.liferay.asset.list.model.AssetListEntry returnValue =
+				AssetListEntryServiceUtil.getAssetListEntry(assetListEntryId);
+
+			return com.liferay.asset.list.model.AssetListEntrySoap.toSoapModel(
+				returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static com.liferay.asset.list.model.AssetListEntrySoap
+			getAssetListEntry(long groupId, String assetListEntryKey)
+		throws RemoteException {
+
+		try {
+			com.liferay.asset.list.model.AssetListEntry returnValue =
+				AssetListEntryServiceUtil.getAssetListEntry(
+					groupId, assetListEntryKey);
+
+			return com.liferay.asset.list.model.AssetListEntrySoap.toSoapModel(
+				returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static com.liferay.asset.list.model.AssetListEntrySoap
+			getAssetListEntryByUuidAndGroupId(String uuid, long groupId)
+		throws RemoteException {
+
+		try {
+			com.liferay.asset.list.model.AssetListEntry returnValue =
+				AssetListEntryServiceUtil.getAssetListEntryByUuidAndGroupId(
+					uuid, groupId);
+
+			return com.liferay.asset.list.model.AssetListEntrySoap.toSoapModel(
+				returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
 	public static void moveAssetEntrySelection(
 			long assetListEntryId, long segmentsEntryId, int position,
 			int newPosition)
@@ -380,23 +436,6 @@ public class AssetListEntryServiceSoap {
 		try {
 			AssetListEntryServiceUtil.updateAssetListEntryTypeSettings(
 				assetListEntryId, segmentsEntryId, typeSettings);
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
-
-	public static void updateAssetListEntryTypeSettingsProperties(
-			long assetListEntryId, long segmentsEntryId,
-			String typeSettingsProperties)
-		throws RemoteException {
-
-		try {
-			AssetListEntryServiceUtil.
-				updateAssetListEntryTypeSettingsProperties(
-					assetListEntryId, segmentsEntryId, typeSettingsProperties);
 		}
 		catch (Exception e) {
 			_log.error(e, e);

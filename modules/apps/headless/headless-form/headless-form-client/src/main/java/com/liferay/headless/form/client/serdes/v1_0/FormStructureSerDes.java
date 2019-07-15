@@ -18,9 +18,14 @@ import com.liferay.headless.form.client.dto.v1_0.FormPage;
 import com.liferay.headless.form.client.dto.v1_0.FormStructure;
 import com.liferay.headless.form.client.json.BaseJSONParser;
 
-import java.util.Collection;
-import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import javax.annotation.Generated;
@@ -48,26 +53,32 @@ public class FormStructureSerDes {
 
 	public static String toJSON(FormStructure formStructure) {
 		if (formStructure == null) {
-			return "{}";
+			return "null";
 		}
 
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("{");
 
-		sb.append("\"availableLanguages\": ");
+		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
+			"yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-		if (formStructure.getAvailableLanguages() == null) {
-			sb.append("null");
-		}
-		else {
+		if (formStructure.getAvailableLanguages() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"availableLanguages\": ");
+
 			sb.append("[");
 
 			for (int i = 0; i < formStructure.getAvailableLanguages().length;
 				 i++) {
 
 				sb.append("\"");
-				sb.append(formStructure.getAvailableLanguages()[i]);
+
+				sb.append(_escape(formStructure.getAvailableLanguages()[i]));
+
 				sb.append("\"");
 
 				if ((i + 1) < formStructure.getAvailableLanguages().length) {
@@ -78,49 +89,72 @@ public class FormStructureSerDes {
 			sb.append("]");
 		}
 
-		sb.append(", ");
+		if (formStructure.getCreator() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
 
-		sb.append("\"contentSpaceId\": ");
+			sb.append("\"creator\": ");
 
-		sb.append(formStructure.getContentSpaceId());
-		sb.append(", ");
-
-		sb.append("\"creator\": ");
-
-		sb.append(formStructure.getCreator());
-		sb.append(", ");
-
-		sb.append("\"dateCreated\": ");
-
-		sb.append("\"");
-		sb.append(formStructure.getDateCreated());
-		sb.append("\"");
-		sb.append(", ");
-
-		sb.append("\"dateModified\": ");
-
-		sb.append("\"");
-		sb.append(formStructure.getDateModified());
-		sb.append("\"");
-		sb.append(", ");
-
-		sb.append("\"description\": ");
-
-		sb.append("\"");
-		sb.append(formStructure.getDescription());
-		sb.append("\"");
-		sb.append(", ");
-
-		sb.append("\"formPages\": ");
-
-		if (formStructure.getFormPages() == null) {
-			sb.append("null");
+			sb.append(String.valueOf(formStructure.getCreator()));
 		}
-		else {
+
+		if (formStructure.getDateCreated() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"dateCreated\": ");
+
+			sb.append("\"");
+
+			sb.append(
+				liferayToJSONDateFormat.format(formStructure.getDateCreated()));
+
+			sb.append("\"");
+		}
+
+		if (formStructure.getDateModified() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"dateModified\": ");
+
+			sb.append("\"");
+
+			sb.append(
+				liferayToJSONDateFormat.format(
+					formStructure.getDateModified()));
+
+			sb.append("\"");
+		}
+
+		if (formStructure.getDescription() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"description\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(formStructure.getDescription()));
+
+			sb.append("\"");
+		}
+
+		if (formStructure.getFormPages() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"formPages\": ");
+
 			sb.append("[");
 
 			for (int i = 0; i < formStructure.getFormPages().length; i++) {
-				sb.append(formStructure.getFormPages()[i]);
+				sb.append(String.valueOf(formStructure.getFormPages()[i]));
 
 				if ((i + 1) < formStructure.getFormPages().length) {
 					sb.append(", ");
@@ -130,47 +164,177 @@ public class FormStructureSerDes {
 			sb.append("]");
 		}
 
-		sb.append(", ");
+		if (formStructure.getFormSuccessPage() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
 
-		sb.append("\"id\": ");
+			sb.append("\"formSuccessPage\": ");
 
-		sb.append(formStructure.getId());
-		sb.append(", ");
+			sb.append(String.valueOf(formStructure.getFormSuccessPage()));
+		}
 
-		sb.append("\"name\": ");
+		if (formStructure.getId() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
 
-		sb.append("\"");
-		sb.append(formStructure.getName());
-		sb.append("\"");
-		sb.append(", ");
+			sb.append("\"id\": ");
 
-		sb.append("\"successPage\": ");
+			sb.append(formStructure.getId());
+		}
 
-		sb.append(formStructure.getSuccessPage());
+		if (formStructure.getName() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"name\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(formStructure.getName()));
+
+			sb.append("\"");
+		}
+
+		if (formStructure.getSiteId() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"siteId\": ");
+
+			sb.append(formStructure.getSiteId());
+		}
 
 		sb.append("}");
 
 		return sb.toString();
 	}
 
-	public static String toJSON(Collection<FormStructure> formStructures) {
-		if (formStructures == null) {
-			return "[]";
+	public static Map<String, Object> toMap(String json) {
+		FormStructureJSONParser formStructureJSONParser =
+			new FormStructureJSONParser();
+
+		return formStructureJSONParser.parseToMap(json);
+	}
+
+	public static Map<String, String> toMap(FormStructure formStructure) {
+		if (formStructure == null) {
+			return null;
 		}
 
-		StringBuilder sb = new StringBuilder();
+		Map<String, String> map = new HashMap<>();
 
-		sb.append("[");
+		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
+			"yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-		for (FormStructure formStructure : formStructures) {
-			if (sb.length() > 1) {
-				sb.append(", ");
+		if (formStructure.getAvailableLanguages() == null) {
+			map.put("availableLanguages", null);
+		}
+		else {
+			map.put(
+				"availableLanguages",
+				String.valueOf(formStructure.getAvailableLanguages()));
+		}
+
+		if (formStructure.getCreator() == null) {
+			map.put("creator", null);
+		}
+		else {
+			map.put("creator", String.valueOf(formStructure.getCreator()));
+		}
+
+		map.put(
+			"dateCreated",
+			liferayToJSONDateFormat.format(formStructure.getDateCreated()));
+
+		map.put(
+			"dateModified",
+			liferayToJSONDateFormat.format(formStructure.getDateModified()));
+
+		if (formStructure.getDescription() == null) {
+			map.put("description", null);
+		}
+		else {
+			map.put(
+				"description", String.valueOf(formStructure.getDescription()));
+		}
+
+		if (formStructure.getFormPages() == null) {
+			map.put("formPages", null);
+		}
+		else {
+			map.put("formPages", String.valueOf(formStructure.getFormPages()));
+		}
+
+		if (formStructure.getFormSuccessPage() == null) {
+			map.put("formSuccessPage", null);
+		}
+		else {
+			map.put(
+				"formSuccessPage",
+				String.valueOf(formStructure.getFormSuccessPage()));
+		}
+
+		if (formStructure.getId() == null) {
+			map.put("id", null);
+		}
+		else {
+			map.put("id", String.valueOf(formStructure.getId()));
+		}
+
+		if (formStructure.getName() == null) {
+			map.put("name", null);
+		}
+		else {
+			map.put("name", String.valueOf(formStructure.getName()));
+		}
+
+		if (formStructure.getSiteId() == null) {
+			map.put("siteId", null);
+		}
+		else {
+			map.put("siteId", String.valueOf(formStructure.getSiteId()));
+		}
+
+		return map;
+	}
+
+	private static String _escape(Object object) {
+		String string = String.valueOf(object);
+
+		string = string.replace("\\", "\\\\");
+
+		return string.replace("\"", "\\\"");
+	}
+
+	private static String _toJSON(Map<String, ?> map) {
+		StringBuilder sb = new StringBuilder("{");
+
+		@SuppressWarnings("unchecked")
+		Set set = map.entrySet();
+
+		@SuppressWarnings("unchecked")
+		Iterator<Map.Entry<String, ?>> iterator = set.iterator();
+
+		while (iterator.hasNext()) {
+			Map.Entry<String, ?> entry = iterator.next();
+
+			sb.append("\"");
+			sb.append(entry.getKey());
+			sb.append("\":");
+			sb.append("\"");
+			sb.append(entry.getValue());
+			sb.append("\"");
+
+			if (iterator.hasNext()) {
+				sb.append(",");
 			}
-
-			sb.append(toJSON(formStructure));
 		}
 
-		sb.append("]");
+		sb.append("}");
 
 		return sb.toString();
 	}
@@ -178,14 +342,17 @@ public class FormStructureSerDes {
 	private static class FormStructureJSONParser
 		extends BaseJSONParser<FormStructure> {
 
+		@Override
 		protected FormStructure createDTO() {
 			return new FormStructure();
 		}
 
+		@Override
 		protected FormStructure[] createDTOArray(int size) {
 			return new FormStructure[size];
 		}
 
+		@Override
 		protected void setField(
 			FormStructure formStructure, String jsonParserFieldName,
 			Object jsonParserFieldValue) {
@@ -196,11 +363,6 @@ public class FormStructureSerDes {
 						toStrings((Object[])jsonParserFieldValue));
 				}
 			}
-			else if (Objects.equals(jsonParserFieldName, "contentSpaceId")) {
-				if (jsonParserFieldValue != null) {
-					formStructure.setContentSpaceId((Long)jsonParserFieldValue);
-				}
-			}
 			else if (Objects.equals(jsonParserFieldName, "creator")) {
 				if (jsonParserFieldValue != null) {
 					formStructure.setCreator(
@@ -209,12 +371,14 @@ public class FormStructureSerDes {
 			}
 			else if (Objects.equals(jsonParserFieldName, "dateCreated")) {
 				if (jsonParserFieldValue != null) {
-					formStructure.setDateCreated((Date)jsonParserFieldValue);
+					formStructure.setDateCreated(
+						toDate((String)jsonParserFieldValue));
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "dateModified")) {
 				if (jsonParserFieldValue != null) {
-					formStructure.setDateModified((Date)jsonParserFieldValue);
+					formStructure.setDateModified(
+						toDate((String)jsonParserFieldValue));
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "description")) {
@@ -234,9 +398,17 @@ public class FormStructureSerDes {
 						));
 				}
 			}
+			else if (Objects.equals(jsonParserFieldName, "formSuccessPage")) {
+				if (jsonParserFieldValue != null) {
+					formStructure.setFormSuccessPage(
+						FormSuccessPageSerDes.toDTO(
+							(String)jsonParserFieldValue));
+				}
+			}
 			else if (Objects.equals(jsonParserFieldName, "id")) {
 				if (jsonParserFieldValue != null) {
-					formStructure.setId((Long)jsonParserFieldValue);
+					formStructure.setId(
+						Long.valueOf((String)jsonParserFieldValue));
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "name")) {
@@ -244,10 +416,10 @@ public class FormStructureSerDes {
 					formStructure.setName((String)jsonParserFieldValue);
 				}
 			}
-			else if (Objects.equals(jsonParserFieldName, "successPage")) {
+			else if (Objects.equals(jsonParserFieldName, "siteId")) {
 				if (jsonParserFieldValue != null) {
-					formStructure.setSuccessPage(
-						SuccessPageSerDes.toDTO((String)jsonParserFieldValue));
+					formStructure.setSiteId(
+						Long.valueOf((String)jsonParserFieldValue));
 				}
 			}
 			else {

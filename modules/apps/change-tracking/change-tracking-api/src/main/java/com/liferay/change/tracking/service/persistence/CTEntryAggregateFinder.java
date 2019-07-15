@@ -14,7 +14,7 @@
 
 package com.liferay.change.tracking.service.persistence;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Brian Wing Shun Chan
@@ -24,7 +24,7 @@ import aQute.bnd.annotation.ProviderType;
 public interface CTEntryAggregateFinder {
 
 	public java.util.List<com.liferay.change.tracking.model.CTEntryAggregate>
-		findByC_O(
+		findByCTCI_OCTEI(
 			long ctCollectionId, long ownerCTEntryId,
 			com.liferay.portal.kernel.dao.orm.QueryDefinition
 				<com.liferay.change.tracking.model.CTEntryAggregate>

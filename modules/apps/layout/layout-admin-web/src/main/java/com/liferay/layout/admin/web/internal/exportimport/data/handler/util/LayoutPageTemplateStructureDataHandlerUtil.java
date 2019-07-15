@@ -18,14 +18,20 @@ import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
+import com.liferay.layout.page.template.model.LayoutPageTemplateStructureRel;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalService;
+import com.liferay.layout.page.template.service.LayoutPageTemplateStructureRelLocalService;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Element;
+import com.liferay.segments.constants.SegmentsConstants;
+import com.liferay.segments.model.SegmentsExperience;
+import com.liferay.segments.service.SegmentsExperienceLocalService;
 
+import java.util.List;
 import java.util.Map;
 
 import org.osgi.service.component.annotations.Component;
@@ -70,7 +76,38 @@ public class LayoutPageTemplateStructureDataHandlerUtil {
 			return;
 		}
 
-		String data = layoutPageTemplateStructure.getData();
+		existingLayoutPageTemplateStructure.setClassNameId(classNameId);
+		existingLayoutPageTemplateStructure.setClassPK(classPK);
+
+		_layoutPageTemplateStructureLocalService.
+			updateLayoutPageTemplateStructure(
+				existingLayoutPageTemplateStructure);
+
+		List<LayoutPageTemplateStructureRel>
+			existingLayoutPageTemplateStructureRels =
+				_layoutPageTemplateStructureRelLocalService.
+					getLayoutPageTemplateStructureRels(
+						layoutPageTemplateStructureId);
+
+		for (LayoutPageTemplateStructureRel
+				existingLayoutPageTemplateStructureRel :
+					existingLayoutPageTemplateStructureRels) {
+
+			_importLayoutPageTemplateStructureRel(
+				portletDataContext, existingLayoutPageTemplateStructureRel);
+
+			_updateSegmentsExperiences(
+				classNameId, classPK, existingLayoutPageTemplateStructureRel);
+		}
+	}
+
+	private void _importLayoutPageTemplateStructureRel(
+			PortletDataContext portletDataContext,
+			LayoutPageTemplateStructureRel
+				existingLayoutPageTemplateStructureRel)
+		throws Exception {
+
+		String data = existingLayoutPageTemplateStructureRel.getData();
 
 		if (Validator.isNull(data)) {
 			return;
@@ -122,17 +159,49 @@ public class LayoutPageTemplateStructureDataHandlerUtil {
 			}
 		}
 
-		existingLayoutPageTemplateStructure.setClassNameId(classNameId);
-		existingLayoutPageTemplateStructure.setClassPK(classPK);
-		existingLayoutPageTemplateStructure.setData(dataJSONObject.toString());
+		existingLayoutPageTemplateStructureRel.setData(
+			dataJSONObject.toString());
 
-		_layoutPageTemplateStructureLocalService.
-			updateLayoutPageTemplateStructure(
-				existingLayoutPageTemplateStructure);
+		_layoutPageTemplateStructureRelLocalService.
+			updateLayoutPageTemplateStructureRel(
+				existingLayoutPageTemplateStructureRel);
+	}
+
+	private void _updateSegmentsExperiences(
+		long classNameId, long classPK,
+		LayoutPageTemplateStructureRel existingLayoutPageTemplateStructureRel) {
+
+		if (existingLayoutPageTemplateStructureRel.getSegmentsExperienceId() ==
+				SegmentsConstants.SEGMENTS_EXPERIENCE_ID_DEFAULT) {
+
+			return;
+		}
+
+		SegmentsExperience existingSegmentsExperience =
+			_segmentsExperienceLocalService.fetchSegmentsExperience(
+				existingLayoutPageTemplateStructureRel.
+					getSegmentsExperienceId());
+
+		if (existingSegmentsExperience == null) {
+			return;
+		}
+
+		existingSegmentsExperience.setClassNameId(classNameId);
+		existingSegmentsExperience.setClassPK(classPK);
+
+		_segmentsExperienceLocalService.updateSegmentsExperience(
+			existingSegmentsExperience);
 	}
 
 	@Reference
 	private LayoutPageTemplateStructureLocalService
 		_layoutPageTemplateStructureLocalService;
+
+	@Reference
+	private LayoutPageTemplateStructureRelLocalService
+		_layoutPageTemplateStructureRelLocalService;
+
+	@Reference
+	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
 
 }

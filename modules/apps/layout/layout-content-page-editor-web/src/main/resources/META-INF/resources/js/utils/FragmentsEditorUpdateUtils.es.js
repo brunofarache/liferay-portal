@@ -1,8 +1,36 @@
-import {contains} from 'metal-dom';
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
 
-import {CLEAR_ACTIVE_ITEM, CLEAR_DROP_TARGET, CLEAR_HOVERED_ITEM, UPDATE_LAST_SAVE_DATE, UPDATE_SAVING_CHANGES_STATUS, UPDATE_TRANSLATION_STATUS} from '../actions/actions.es';
-import {FRAGMENTS_EDITOR_ITEM_TYPES} from '../utils/constants';
-import {getWidget, getWidgetPath} from './FragmentsEditorGetUtils.es';
+import {CLEAR_DROP_TARGET, MOVE_ROW} from '../actions/actions.es';
+import {
+	DEFAULT_COMPONENT_ROW_CONFIG,
+	DEFAULT_SECTION_ROW_CONFIG
+} from './rowConstants';
+import {
+	disableSavingChangesStatusAction,
+	enableSavingChangesStatusAction,
+	updateLastSaveDateAction
+} from '../actions/saveChanges.es';
+import {
+	FRAGMENTS_EDITOR_DRAGGING_CLASS,
+	FRAGMENTS_EDITOR_ROW_TYPES
+} from './constants';
+import {
+	getTargetBorder,
+	getWidget,
+	getWidgetPath
+} from './FragmentsEditorGetUtils.es';
 
 /**
  * Inserts an element in the given position of a given array and returns
@@ -21,30 +49,83 @@ function add(array, element, position) {
 }
 
 /**
- * @param {string} itemId
- * @param {FRAGMENTS_EDITOR_ITEM_TYPES} itemType
+ * Returns a new layoutData with the given columns inserted as a new row
+ * at the given position
+ *
+ * @param {Array} layoutColumns
+ * @param {object} layoutData
+ * @param {number} position
+ * @param {Array} fragmentEntryLinkIds
+ * @param {string} type
+ * @return {object}
+ */
+function addRow(
+	layoutColumns,
+	layoutData,
+	position,
+	fragmentEntryLinkIds = [],
+	type = FRAGMENTS_EDITOR_ROW_TYPES.componentRow
+) {
+	let nextColumnId = layoutData.nextColumnId || 0;
+	const nextRowId = layoutData.nextRowId || 0;
+
+	const columns = [];
+
+	layoutColumns.forEach(columnSize => {
+		columns.push({
+			columnId: `${nextColumnId}`,
+			fragmentEntryLinkIds,
+			size: columnSize
+		});
+
+		nextColumnId += 1;
+	});
+
+	const defaultConfig =
+		type === FRAGMENTS_EDITOR_ROW_TYPES.sectionRow
+			? DEFAULT_SECTION_ROW_CONFIG
+			: DEFAULT_COMPONENT_ROW_CONFIG;
+
+	const nextStructure = add(
+		layoutData.structure,
+		{
+			columns,
+			config: defaultConfig,
+			rowId: `${nextRowId}`,
+			type
+		},
+		position
+	);
+
+	let nextData = setIn(layoutData, ['nextColumnId'], nextColumnId);
+
+	nextData = setIn(nextData, ['structure'], nextStructure);
+	nextData = setIn(nextData, ['nextRowId'], nextRowId + 1);
+
+	return nextData;
+}
+
+/**
+ * Removes the last key in keyPath from the given object and returns a new one
+ * @param {Array|Object} object Original object that will be copied
+ * @param {Array<string>} keyPath Array of strings used for reaching the deep property
+ * @return {Array|Object} Copy of the original object without the last key in keyPath
  * @review
  */
-function focusItem(itemId, itemType) {
-	if (itemId && itemType) {
-		let attr = '';
+function deleteIn(object, keyPath) {
+	const lastKey = keyPath.slice(-1);
+	const newKeyPath = keyPath.slice(0, keyPath.length - 1);
 
-		if (itemType === FRAGMENTS_EDITOR_ITEM_TYPES.editable) {
-			attr = 'id';
-		}
-		else if (itemType === FRAGMENTS_EDITOR_ITEM_TYPES.fragment) {
-			attr = 'data-fragment-entry-link-id';
-		}
-		else if (itemType === FRAGMENTS_EDITOR_ITEM_TYPES.section) {
-			attr = 'data-layout-section-id';
-		}
+	return updateIn(object, newKeyPath, lastItem => {
+		const newLastItem =
+			lastItem instanceof Array
+				? [...lastItem]
+				: Object.assign({}, lastItem);
 
-		const item = document.querySelector(`[${attr}='${itemId}']`);
+		delete newLastItem[lastKey];
 
-		if (item) {
-			item.focus();
-		}
-	}
+		return newLastItem;
+	});
 }
 
 /**
@@ -56,34 +137,40 @@ function focusItem(itemId, itemType) {
  */
 function moveItem(store, moveItemAction, moveItemPayload) {
 	store
-		.dispatchAction(
-			UPDATE_SAVING_CHANGES_STATUS,
-			{
-				savingChanges: true
-			}
+		.dispatch(enableSavingChangesStatusAction())
+		.dispatch(
+			Object.assign({}, moveItemPayload, {
+				type: moveItemAction
+			})
 		)
-		.dispatchAction(
-			moveItemAction,
-			moveItemPayload
-		)
-		.dispatchAction(
-			UPDATE_LAST_SAVE_DATE,
-			{
-				lastSaveDate: new Date()
-			}
-		)
-		.dispatchAction(
-			UPDATE_SAVING_CHANGES_STATUS,
-			{
-				savingChanges: false
-			}
-		)
-		.dispatchAction(
-			CLEAR_DROP_TARGET
-		)
-		.dispatchAction(
-			CLEAR_HOVERED_ITEM
-		);
+		.dispatch(updateLastSaveDateAction())
+		.dispatch(disableSavingChangesStatusAction())
+		.dispatch({
+			type: CLEAR_DROP_TARGET
+		});
+}
+
+/**
+ * Moves a row one position in the given direction
+ * @param {number} direction
+ * @param {number} rowIndex
+ * @param {{}} store
+ * @param {Array} structure
+ * @review
+ */
+function moveRow(direction, rowIndex, store, structure) {
+	const row = structure[rowIndex];
+	const targetRow = structure[rowIndex + direction];
+
+	if (targetRow) {
+		const moveItemPayload = {
+			rowId: row.rowId,
+			targetBorder: getTargetBorder(direction),
+			targetItemId: targetRow.rowId
+		};
+
+		moveItem(store, MOVE_ROW, moveItemPayload);
+	}
 }
 
 /**
@@ -111,72 +198,58 @@ function remove(array, position) {
  */
 function removeItem(store, removeItemAction, removeItemPayload) {
 	store
-		.dispatchAction(
-			UPDATE_SAVING_CHANGES_STATUS,
-			{
-				savingChanges: true
-			}
+		.dispatch(enableSavingChangesStatusAction())
+		.dispatch(
+			Object.assign({}, removeItemPayload, {
+				type: removeItemAction
+			})
 		)
-		.dispatchAction(
-			removeItemAction,
-			removeItemPayload
-		)
-		.dispatchAction(
-			UPDATE_LAST_SAVE_DATE,
-			{
-				lastSaveDate: new Date()
-			}
-		)
-		.dispatchAction(
-			UPDATE_SAVING_CHANGES_STATUS,
-			{
-				savingChanges: false
-			}
-		)
-		.dispatchAction(CLEAR_HOVERED_ITEM)
-		.dispatchAction(CLEAR_ACTIVE_ITEM);
+		.dispatch(updateLastSaveDateAction())
+		.dispatch(disableSavingChangesStatusAction());
+}
+
+/**
+ * Set dragging item's position to mouse coordinates
+ * @param {MouseEvent} event
+ */
+function setDraggingItemPosition(event) {
+	const draggingElement = document.body.querySelector(
+		`.${FRAGMENTS_EDITOR_DRAGGING_CLASS}`
+	);
+
+	if (draggingElement instanceof HTMLElement) {
+		const newXPos = event.clientX - draggingElement.offsetWidth / 2;
+		const newYPos = event.clientY - draggingElement.offsetHeight / 2;
+
+		requestAnimationFrame(() => {
+			setElementPosition(draggingElement, newXPos, newYPos);
+		});
+	}
+}
+
+/**
+ * Set an element's position to new x and y coordinates
+ * @param {HTMLElement} element
+ * @param {number} xPos
+ * @param {number} yPos
+ */
+function setElementPosition(element, xPos, yPos) {
+	element.style.left = `${xPos}px`;
+	element.style.top = `${yPos}px`;
 }
 
 /**
  * Recursively inserts a value inside an object creating
  * a copy of the original target. It the object (or any in the path),
  * it's an Array, it will generate new Arrays, preserving the same structure.
- * @param {!Array|!Object} object Original object that will be copied
- * @param {!Array<string>} keyPath Array of strings used for reaching the deep property
+ * @param {Array|Object} object Original object that will be copied
+ * @param {Array<string>} keyPath Array of strings used for reaching the deep property
  * @param {*} value Value to be inserted
  * @return {Array|Object} Copy of the original object with the new value
  * @review
  */
 function setIn(object, keyPath, value) {
-	return updateIn(
-		object,
-		keyPath,
-		() => value
-	);
-}
-
-/**
- * Returns true if current active element should be clear
- * @param {HTMLElement} oldActiveElement
- * @return {boolean}
- */
-function shouldClearFocus(oldActiveElement) {
-	const fragmentEntryLinkList = (
-		document.querySelector('#wrapper') ||
-		document.body
-	);
-	const newActiveElement = document.activeElement;
-
-	return (
-		oldActiveElement &&
-		newActiveElement &&
-		(oldActiveElement !== newActiveElement) &&
-		!contains(oldActiveElement, newActiveElement) &&
-		(
-			contains(fragmentEntryLinkList, newActiveElement) ||
-			(newActiveElement === document.body)
-		)
-	);
+	return updateIn(object, keyPath, () => value);
 }
 
 /**
@@ -184,10 +257,11 @@ function shouldClearFocus(oldActiveElement) {
  * a copy of the original target. It the object (or any in the path),
  * it's an Array, it will generate new Arrays, preserving the same structure.
  * Updater receives the previous value or defaultValue and returns a new value.
- * @param {!Array|Object} object Original object that will be copied
- * @param {!Array<string>} keyPath Array of strings used for reaching the deep property
- * @param {!Function} updater
- * @param {*} defaultValue
+ * @param {Array|Object} object Original object that will be copied
+ * @param {Array<string>} keyPath Array of strings used for reaching the deep property
+ * @param {function} updater Update function
+ * @param {*} [defaultValue] Default value to be sent to updater function if
+ *  there is no existing value
  * @return {Object}
  * @review
  */
@@ -196,9 +270,8 @@ function updateIn(object, keyPath, updater, defaultValue) {
 	let target = object;
 
 	if (keyPath.length > 1) {
-		target = target instanceof Array ?
-			[...target] :
-			Object.assign({}, target);
+		target =
+			target instanceof Array ? [...target] : Object.assign({}, target);
 
 		target[nextKey] = updateIn(
 			target[nextKey] || {},
@@ -206,18 +279,19 @@ function updateIn(object, keyPath, updater, defaultValue) {
 			updater,
 			defaultValue
 		);
-	}
-	else {
-		const nextValue = typeof target[nextKey] === 'undefined' ?
-			defaultValue :
-			target[nextKey];
+	} else {
+		const nextValue =
+			typeof target[nextKey] === 'undefined'
+				? defaultValue
+				: target[nextKey];
 
 		const updatedNextValue = updater(nextValue);
 
 		if (updatedNextValue !== target[nextKey]) {
-			target = target instanceof Array ?
-				[...target] :
-				Object.assign({}, target);
+			target =
+				target instanceof Array
+					? [...target]
+					: Object.assign({}, target);
 
 			target[nextKey] = updatedNextValue;
 		}
@@ -227,86 +301,23 @@ function updateIn(object, keyPath, updater, defaultValue) {
 }
 
 /**
- * Update layoutData on backend
- * @param {!string} updateLayoutPageTemplateDataURL
- * @param {!string} portletNamespace
- * @param {!string} classNameId
- * @param {!string} classPK
- * @param {!Object} data
- * @param {!Array} fragmentEntryLinkIds
- * @return {Promise}
- * @review
- */
-function updateLayoutData(
-	updateLayoutPageTemplateDataURL,
-	portletNamespace,
-	classNameId,
-	classPK,
-	data,
-	fragmentEntryLinkIds
-) {
-	const formData = new FormData();
-
-	formData.append(`${portletNamespace}classNameId`, classNameId);
-	formData.append(`${portletNamespace}classPK`, classPK);
-
-	formData.append(
-		`${portletNamespace}data`,
-		JSON.stringify(data)
-	);
-
-	if (fragmentEntryLinkIds) {
-		formData.append(
-			`${portletNamespace}fragmentEntryLinkIds`,
-			JSON.stringify(fragmentEntryLinkIds)
-		);
-	}
-
-	return fetch(
-		updateLayoutPageTemplateDataURL,
-		{
-			body: formData,
-			credentials: 'include',
-			method: 'POST'
-		}
-	);
-}
-
-/**
- * Updates section
+ * Updates row
  * @param {!Object} store Store instance that dispatches the actions
  * @param {string} updateAction Update action name
- * @param {object} payload Section payload
+ * @param {object} payload Row payload
  * @private
  * @review
  */
-function updateSection(store, updateAction, payload) {
+function updateRow(store, updateAction, payload) {
 	store
-		.dispatchAction(
-			UPDATE_SAVING_CHANGES_STATUS,
-			{
-				savingChanges: true
-			}
+		.dispatch(enableSavingChangesStatusAction())
+		.dispatch(
+			Object.assign({}, payload, {
+				type: updateAction
+			})
 		)
-		.dispatchAction(
-			updateAction,
-			payload
-		)
-		.dispatchAction(
-			UPDATE_TRANSLATION_STATUS
-		)
-		.dispatchAction(
-			UPDATE_LAST_SAVE_DATE,
-			{
-				lastSaveDate: new Date()
-			}
-		)
-		.dispatchAction(
-			UPDATE_SAVING_CHANGES_STATUS,
-			{
-				savingChanges: false
-			}
-		);
+		.dispatch(updateLastSaveDateAction())
+		.dispatch(disableSavingChangesStatusAction());
 }
 
 /**
@@ -324,16 +335,12 @@ function updateWidgets(state, fragmentEntryLinkId) {
 		const widget = getWidget(state.widgets, fragmentEntryLink.portletId);
 
 		if (!widget.instanceable && widget.used) {
-			const widgetPath = getWidgetPath(state.widgets, fragmentEntryLink.portletId);
-
-			nextState = setIn(
-				state,
-				[
-					...widgetPath,
-					'used'
-				],
-				false
+			const widgetPath = getWidgetPath(
+				state.widgets,
+				fragmentEntryLink.portletId
 			);
+
+			nextState = setIn(state, [...widgetPath, 'used'], false);
 		}
 	}
 
@@ -342,14 +349,15 @@ function updateWidgets(state, fragmentEntryLinkId) {
 
 export {
 	add,
-	focusItem,
+	addRow,
+	deleteIn,
 	moveItem,
+	moveRow,
 	remove,
 	removeItem,
+	setDraggingItemPosition,
 	setIn,
-	shouldClearFocus,
 	updateIn,
-	updateLayoutData,
-	updateSection,
+	updateRow,
 	updateWidgets
 };

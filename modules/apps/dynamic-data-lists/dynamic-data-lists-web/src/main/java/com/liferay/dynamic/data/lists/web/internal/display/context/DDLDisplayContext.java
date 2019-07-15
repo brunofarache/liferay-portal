@@ -300,7 +300,7 @@ public class DDLDisplayContext {
 	}
 
 	public List<DropdownItem> getFilterItemsDropdownItems() {
-		HttpServletRequest request = _ddlRequestHelper.getRequest();
+		HttpServletRequest httpServletRequest = _ddlRequestHelper.getRequest();
 
 		return new DropdownItemList() {
 			{
@@ -309,7 +309,8 @@ public class DDLDisplayContext {
 						dropdownGroupItem.setDropdownItems(
 							getFilterNavigationDropdownItems());
 						dropdownGroupItem.setLabel(
-							LanguageUtil.get(request, "filter-by-navigation"));
+							LanguageUtil.get(
+								httpServletRequest, "filter-by-navigation"));
 					});
 
 				addGroup(
@@ -317,7 +318,7 @@ public class DDLDisplayContext {
 						dropdownGroupItem.setDropdownItems(
 							getOrderByDropdownItems());
 						dropdownGroupItem.setLabel(
-							LanguageUtil.get(request, "order-by"));
+							LanguageUtil.get(httpServletRequest, "order-by"));
 					});
 			}
 		};
@@ -330,7 +331,7 @@ public class DDLDisplayContext {
 	}
 
 	public List<NavigationItem> getNavigationItems() {
-		HttpServletRequest request = _ddlRequestHelper.getRequest();
+		HttpServletRequest httpServletRequest = _ddlRequestHelper.getRequest();
 
 		return new NavigationItemList() {
 			{
@@ -340,25 +341,21 @@ public class DDLDisplayContext {
 						navigationItem.setHref(StringPool.BLANK);
 						navigationItem.setLabel(
 							HtmlUtil.escape(
-								LanguageUtil.get(request, "lists")));
+								LanguageUtil.get(httpServletRequest, "lists")));
 					});
 			}
 		};
 	}
 
 	public String getOrderByCol() {
-		String orderByCol = ParamUtil.getString(
+		return ParamUtil.getString(
 			_ddlRequestHelper.getRenderRequest(), "orderByCol",
 			"modified-date");
-
-		return orderByCol;
 	}
 
 	public String getOrderByType() {
-		String orderByType = ParamUtil.getString(
+		return ParamUtil.getString(
 			_ddlRequestHelper.getRenderRequest(), "orderByType", "asc");
-
-		return orderByType;
 	}
 
 	public PortletURL getPortletURL() {
@@ -829,9 +826,11 @@ public class DDLDisplayContext {
 
 		_hasAddRecordPermission = false;
 
-		if (_recordSet != null) {
+		DDLRecordSet recordSet = getRecordSet();
+
+		if (recordSet != null) {
 			_hasAddRecordPermission = DDLRecordSetPermission.contains(
-				getPermissionChecker(), _recordSet, DDLActionKeys.ADD_RECORD);
+				getPermissionChecker(), recordSet, DDLActionKeys.ADD_RECORD);
 		}
 
 		return _hasAddRecordPermission;

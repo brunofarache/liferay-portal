@@ -14,8 +14,7 @@
 
 package com.liferay.oauth2.provider.service;
 
-import aQute.bnd.annotation.ProviderType;
-
+import org.osgi.annotation.versioning.ProviderType;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.util.tracker.ServiceTracker;
@@ -314,6 +313,13 @@ public class OAuth2ApplicationScopeAliasesLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().getPersistedModel(primaryKeyObj);
+	}
+
+	public static java.util.List<String> getScopeAliasesList(
+		long oAuth2ApplicationScopeAliasesId) {
+
+		return getService().getScopeAliasesList(
+			oAuth2ApplicationScopeAliasesId);
 	}
 
 	/**

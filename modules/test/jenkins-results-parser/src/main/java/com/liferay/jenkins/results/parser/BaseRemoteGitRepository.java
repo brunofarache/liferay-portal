@@ -14,7 +14,8 @@
 
 package com.liferay.jenkins.results.parser;
 
-import org.json.JSONObject;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Peter Yoo
@@ -23,50 +24,32 @@ public abstract class BaseRemoteGitRepository
 	extends BaseGitRepository implements RemoteGitRepository {
 
 	@Override
-	public boolean equals(Object o) {
-		if (o == null) {
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof BaseRemoteGitRepository)) {
 			return false;
 		}
 
-		if (!(o instanceof RemoteGitRepository)) {
-			return false;
+		BaseRemoteGitRepository baseRemoteGitRepository =
+			(BaseRemoteGitRepository)obj;
+
+		if (Objects.equals(
+				getHostname(), baseRemoteGitRepository.getHostname()) &&
+			JenkinsResultsParserUtil.isJSONObjectEqual(
+				getJSONObject(), baseRemoteGitRepository.getJSONObject()) &&
+			Objects.equals(getName(), baseRemoteGitRepository.getName()) &&
+			Objects.equals(
+				getRemoteURL(), baseRemoteGitRepository.getRemoteURL()) &&
+			Objects.equals(
+				getUsername(), baseRemoteGitRepository.getUsername())) {
+
+			return true;
 		}
 
-		RemoteGitRepository remoteGitRepository = (RemoteGitRepository)o;
-
-		String hostname = getHostname();
-
-		if (!hostname.equals(remoteGitRepository.getHostname())) {
-			return false;
-		}
-
-		JSONObject jsonObject = getJSONObject();
-
-		if (!JenkinsResultsParserUtil.isJSONObjectEqual(
-				jsonObject, remoteGitRepository.getJSONObject())) {
-
-			return false;
-		}
-
-		String name = getName();
-
-		if (!name.equals(remoteGitRepository.getName())) {
-			return false;
-		}
-
-		String remoteURL = getRemoteURL();
-
-		if (!remoteURL.equals(remoteGitRepository.getRemoteURL())) {
-			return false;
-		}
-
-		String username = getUsername();
-
-		if (!username.equals(remoteGitRepository.getUsername())) {
-			return false;
-		}
-
-		return true;
+		return false;
 	}
 
 	@Override
@@ -76,6 +59,15 @@ public abstract class BaseRemoteGitRepository
 
 	@Override
 	public String getRemoteURL() {
+		List<String> gitHubDevNodeHostnames =
+			GitHubDevSyncUtil.getGitHubDevNodeHostnames();
+
+		if (gitHubDevNodeHostnames.contains("slave-" + getHostname())) {
+			return JenkinsResultsParserUtil.combine(
+				"root@", getHostname(), ":/opt/dev/projects/github/",
+				getName());
+		}
+
 		return JenkinsResultsParserUtil.combine(
 			"git@", getHostname(), ":", getUsername(), "/", getName());
 	}
@@ -115,9 +107,9 @@ public abstract class BaseRemoteGitRepository
 		put("hostname", hostname);
 		put("username", username);
 
-		validateKeys(_REQUIRED_KEYS);
+		validateKeys(_KEYS_REQUIRED);
 	}
 
-	private static final String[] _REQUIRED_KEYS = {"hostname", "username"};
+	private static final String[] _KEYS_REQUIRED = {"hostname", "username"};
 
 }

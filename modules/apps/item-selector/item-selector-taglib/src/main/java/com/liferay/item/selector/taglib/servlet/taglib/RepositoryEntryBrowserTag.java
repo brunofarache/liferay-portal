@@ -47,6 +47,62 @@ public class RepositoryEntryBrowserTag extends IncludeTag {
 		"icon", "descriptive", "list"
 	};
 
+	public DLMimeTypeDisplayContext getDlMimeTypeDisplayContext() {
+		return _dlMimeTypeDisplayContext;
+	}
+
+	public String getEmptyResultsMessage() {
+		return _emptyResultsMessage;
+	}
+
+	public List<String> getExtensions() {
+		return _extensions;
+	}
+
+	public String getItemSelectedEventName() {
+		return _itemSelectedEventName;
+	}
+
+	public ItemSelectorReturnTypeResolver getItemSelectorReturnTypeResolver() {
+		return _itemSelectorReturnTypeResolver;
+	}
+
+	public long getMaxFileSize() {
+		return _maxFileSize;
+	}
+
+	public PortletURL getPortletURL() {
+		return _portletURL;
+	}
+
+	public List<RepositoryEntry> getRepositoryEntries() {
+		return _repositoryEntries;
+	}
+
+	public int getRepositoryEntriesCount() {
+		return _repositoryEntriesCount;
+	}
+
+	public String getTabName() {
+		return _tabName;
+	}
+
+	public PortletURL getUploadURL() {
+		return _uploadURL;
+	}
+
+	public boolean isShowBreadcrumb() {
+		return _showBreadcrumb;
+	}
+
+	public boolean isShowDragAndDropZone() {
+		return _showDragAndDropZone;
+	}
+
+	public boolean isShowSearch() {
+		return _showSearch;
+	}
+
 	/**
 	 * @deprecated As of Judson (7.1.x), with no direct replacement
 	 */
@@ -61,6 +117,10 @@ public class RepositoryEntryBrowserTag extends IncludeTag {
 		_displayStyle = displayStyle;
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public void setDlMimeTypeDisplayContext(
 		DLMimeTypeDisplayContext dlMimeTypeDisplayContext) {
 
@@ -189,21 +249,21 @@ public class RepositoryEntryBrowserTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-item-selector:repository-entry-browser:displayStyle",
 			getDisplayStyle());
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-item-selector:repository-entry-browser:" +
 				"dlMimeTypeDisplayContext",
 			_dlMimeTypeDisplayContext);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-item-selector:repository-entry-browser:" +
 				"emptyResultsMessage",
-			_getEmptyResultsMessage(request));
+			_getEmptyResultsMessage(httpServletRequest));
 
 		if (_desiredItemSelectorReturnTypes != null) {
-			request.setAttribute(
+			httpServletRequest.setAttribute(
 				"liferay-item-selector:repository-entry-browser:" +
 					"existingFileEntryReturnType",
 				ItemSelectorRepositoryEntryBrowserReturnTypeUtil.
@@ -211,53 +271,55 @@ public class RepositoryEntryBrowserTag extends IncludeTag {
 						_desiredItemSelectorReturnTypes));
 		}
 
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-item-selector:repository-entry-browser:extensions",
 			_extensions);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-item-selector:repository-entry-browser:" +
 				"itemSelectedEventName",
 			_itemSelectedEventName);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-item-selector:repository-entry-browser:" +
 				"itemSelectorReturnTypeResolver",
 			_itemSelectorReturnTypeResolver);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-item-selector:repository-entry-browser:maxFileSize",
 			_maxFileSize);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-item-selector:repository-entry-browser:portletURL",
 			_portletURL);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-item-selector:repository-entry-browser:repositoryEntries",
 			_repositoryEntries);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-item-selector:repository-entry-browser:" +
 				"repositoryEntriesCount",
 			_repositoryEntriesCount);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-item-selector:repository-entry-browser:showBreadcrumb",
 			_showBreadcrumb);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-item-selector:repository-entry-browser:" +
 				"showDragAndDropZone",
 			_isShownDragAndDropZone());
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-item-selector:repository-entry-browser:showSearch",
 			_showSearch);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-item-selector:repository-entry-browser:tabName", _tabName);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-item-selector:repository-entry-browser:uploadURL",
 			_uploadURL);
 	}
 
-	private String _getEmptyResultsMessage(HttpServletRequest request) {
+	private String _getEmptyResultsMessage(
+		HttpServletRequest httpServletRequest) {
+
 		if (Validator.isNotNull(_emptyResultsMessage)) {
 			return _emptyResultsMessage;
 		}
 
-		return LanguageUtil.get(request, "no-results-were-found");
+		return LanguageUtil.get(httpServletRequest, "no-results-were-found");
 	}
 
 	private boolean _isShownDragAndDropZone() {

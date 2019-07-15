@@ -31,7 +31,7 @@ public class PanelTag extends IncludeTag {
 
 	@Override
 	public int doStartTag() throws JspException {
-		HttpServletRequest request =
+		HttpServletRequest httpServletRequest =
 			(HttpServletRequest)pageContext.getRequest();
 
 		if (Validator.isNull(_id)) {
@@ -52,25 +52,76 @@ public class PanelTag extends IncludeTag {
 			}
 		}
 
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-ui:panel:accordion", String.valueOf(_accordion));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-ui:panel:collapsible", String.valueOf(_collapsible));
-		request.setAttribute("liferay-ui:panel:cssClass", _cssClass);
-		request.setAttribute("liferay-ui:panel:defaultState", _defaultState);
-		request.setAttribute("liferay-ui:panel:extended", _extended);
-		request.setAttribute("liferay-ui:panel:helpMessage", _helpMessage);
-		request.setAttribute("liferay-ui:panel:iconCssClass", _iconCssClass);
-		request.setAttribute("liferay-ui:panel:id", _id);
-		request.setAttribute("liferay-ui:panel:parentId", _parentId);
-		request.setAttribute(
+		httpServletRequest.setAttribute("liferay-ui:panel:cssClass", _cssClass);
+		httpServletRequest.setAttribute(
+			"liferay-ui:panel:defaultState", _defaultState);
+		httpServletRequest.setAttribute("liferay-ui:panel:extended", _extended);
+		httpServletRequest.setAttribute(
+			"liferay-ui:panel:helpMessage", _helpMessage);
+		httpServletRequest.setAttribute(
+			"liferay-ui:panel:iconCssClass", _iconCssClass);
+		httpServletRequest.setAttribute("liferay-ui:panel:id", _id);
+		httpServletRequest.setAttribute("liferay-ui:panel:parentId", _parentId);
+		httpServletRequest.setAttribute(
 			"liferay-ui:panel:persistState", String.valueOf(_persistState));
-		request.setAttribute("liferay-ui:panel:state", _state);
-		request.setAttribute("liferay-ui:panel:title", _title);
+		httpServletRequest.setAttribute("liferay-ui:panel:state", _state);
+		httpServletRequest.setAttribute("liferay-ui:panel:title", _title);
 
 		super.doStartTag();
 
 		return EVAL_BODY_INCLUDE;
+	}
+
+	public String getCssClass() {
+		return _cssClass;
+	}
+
+	public String getDefaultState() {
+		return _defaultState;
+	}
+
+	public String getHelpMessage() {
+		return _helpMessage;
+	}
+
+	public String getIconCssClass() {
+		return _iconCssClass;
+	}
+
+	public String getId() {
+		return _id;
+	}
+
+	public String getMarkupView() {
+		return _markupView;
+	}
+
+	public String getParentId() {
+		return _parentId;
+	}
+
+	public String getState() {
+		return _state;
+	}
+
+	public String getTitle() {
+		return _title;
+	}
+
+	public boolean isCollapsible() {
+		return _collapsible;
+	}
+
+	public Boolean isExtended() {
+		return _extended;
+	}
+
+	public boolean isPersistState() {
+		return _persistState;
 	}
 
 	public void setCollapsible(boolean collapsible) {

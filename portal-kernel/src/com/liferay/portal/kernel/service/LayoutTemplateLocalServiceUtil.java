@@ -14,10 +14,9 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service utility for LayoutTemplate. This utility wraps
@@ -125,9 +124,6 @@ public class LayoutTemplateLocalServiceUtil {
 		if (_service == null) {
 			_service = (LayoutTemplateLocalService)PortalBeanLocatorUtil.locate(
 				LayoutTemplateLocalService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				LayoutTemplateLocalServiceUtil.class, "_service");
 		}
 
 		return _service;

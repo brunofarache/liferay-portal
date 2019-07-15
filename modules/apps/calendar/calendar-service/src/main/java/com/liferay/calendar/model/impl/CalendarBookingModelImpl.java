@@ -14,8 +14,6 @@
 
 package com.liferay.calendar.model.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.calendar.model.CalendarBooking;
 import com.liferay.calendar.model.CalendarBookingModel;
 import com.liferay.calendar.model.CalendarBookingSoap;
@@ -46,6 +44,9 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.io.Serializable;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
+
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -60,6 +61,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The base model implementation for the CalendarBooking service. Represents a row in the &quot;CalendarBooking&quot; database table, with each column mapped to a property of this class.
@@ -155,21 +158,6 @@ public class CalendarBookingModelImpl
 
 	public static final String TX_MANAGER = "liferayTransactionManager";
 
-	public static final boolean ENTITY_CACHE_ENABLED = GetterUtil.getBoolean(
-		com.liferay.calendar.service.util.ServiceProps.get(
-			"value.object.entity.cache.enabled.com.liferay.calendar.model.CalendarBooking"),
-		true);
-
-	public static final boolean FINDER_CACHE_ENABLED = GetterUtil.getBoolean(
-		com.liferay.calendar.service.util.ServiceProps.get(
-			"value.object.finder.cache.enabled.com.liferay.calendar.model.CalendarBooking"),
-		true);
-
-	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(
-		com.liferay.calendar.service.util.ServiceProps.get(
-			"value.object.column.bitmask.enabled.com.liferay.calendar.model.CalendarBooking"),
-		true);
-
 	public static final long CALENDARID_COLUMN_BITMASK = 1L;
 
 	public static final long CALENDARRESOURCEID_COLUMN_BITMASK = 2L;
@@ -191,6 +179,14 @@ public class CalendarBookingModelImpl
 	public static final long STARTTIME_COLUMN_BITMASK = 512L;
 
 	public static final long TITLE_COLUMN_BITMASK = 1024L;
+
+	public static void setEntityCacheEnabled(boolean entityCacheEnabled) {
+		_entityCacheEnabled = entityCacheEnabled;
+	}
+
+	public static void setFinderCacheEnabled(boolean finderCacheEnabled) {
+		_finderCacheEnabled = finderCacheEnabled;
+	}
 
 	/**
 	 * Converts the soap model instance into a normal model instance.
@@ -262,10 +258,6 @@ public class CalendarBookingModelImpl
 
 		return models;
 	}
-
-	public static final long LOCK_EXPIRATION_TIME = GetterUtil.getLong(
-		com.liferay.calendar.service.util.ServiceProps.get(
-			"lock.expiration.time.com.liferay.calendar.model.CalendarBooking"));
 
 	public CalendarBookingModelImpl() {
 	}
@@ -353,6 +345,32 @@ public class CalendarBookingModelImpl
 		getAttributeSetterBiConsumers() {
 
 		return _attributeSetterBiConsumers;
+	}
+
+	private static Function<InvocationHandler, CalendarBooking>
+		_getProxyProviderFunction() {
+
+		Class<?> proxyClass = ProxyUtil.getProxyClass(
+			CalendarBooking.class.getClassLoader(), CalendarBooking.class,
+			ModelWrapper.class);
+
+		try {
+			Constructor<CalendarBooking> constructor =
+				(Constructor<CalendarBooking>)proxyClass.getConstructor(
+					InvocationHandler.class);
+
+			return invocationHandler -> {
+				try {
+					return constructor.newInstance(invocationHandler);
+				}
+				catch (ReflectiveOperationException roe) {
+					throw new InternalError(roe);
+				}
+			};
+		}
+		catch (NoSuchMethodException nsme) {
+			throw new InternalError(nsme);
+		}
 	}
 
 	private static final Map<String, Function<CalendarBooking, Object>>
@@ -1567,8 +1585,12 @@ public class CalendarBookingModelImpl
 	@Override
 	public CalendarBooking toEscapedModel() {
 		if (_escapedModel == null) {
-			_escapedModel = (CalendarBooking)ProxyUtil.newProxyInstance(
-				_classLoader, _escapedModelInterfaces,
+			Function<InvocationHandler, CalendarBooking>
+				escapedModelProxyProviderFunction =
+					EscapedModelProxyProviderFunctionHolder.
+						_escapedModelProxyProviderFunction;
+
+			_escapedModel = escapedModelProxyProviderFunction.apply(
 				new AutoEscapeBeanHandler(this));
 		}
 
@@ -1672,12 +1694,12 @@ public class CalendarBookingModelImpl
 
 	@Override
 	public boolean isEntityCacheEnabled() {
-		return ENTITY_CACHE_ENABLED;
+		return _entityCacheEnabled;
 	}
 
 	@Override
 	public boolean isFinderCacheEnabled() {
-		return FINDER_CACHE_ENABLED;
+		return _finderCacheEnabled;
 	}
 
 	@Override
@@ -1952,11 +1974,15 @@ public class CalendarBookingModelImpl
 		return sb.toString();
 	}
 
-	private static final ClassLoader _classLoader =
-		CalendarBooking.class.getClassLoader();
-	private static final Class<?>[] _escapedModelInterfaces = new Class[] {
-		CalendarBooking.class, ModelWrapper.class
-	};
+	private static class EscapedModelProxyProviderFunctionHolder {
+
+		private static final Function<InvocationHandler, CalendarBooking>
+			_escapedModelProxyProviderFunction = _getProxyProviderFunction();
+
+	}
+
+	private static boolean _entityCacheEnabled;
+	private static boolean _finderCacheEnabled;
 
 	private String _uuid;
 	private String _originalUuid;

@@ -14,29 +14,21 @@
 
 package com.liferay.portal.search.query.function.score;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.search.script.Script;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Michael C. Han
+ * @author Wade Cao
+ * @author André de Oliveira
  */
 @ProviderType
-public class ScriptScoreFunction extends ScoreFunction {
-
-	public ScriptScoreFunction(Script script) {
-		_script = script;
-	}
+public interface ScriptScoreFunction extends ScoreFunction {
 
 	@Override
-	public <T> T accept(ScoreFunctionTranslator<T> scoreFunctionTranslator) {
-		return scoreFunctionTranslator.translate(this);
-	}
+	public <T> T accept(ScoreFunctionTranslator<T> scoreFunctionTranslator);
 
-	public Script getScript() {
-		return _script;
-	}
-
-	private final Script _script;
+	public Script getScript();
 
 }

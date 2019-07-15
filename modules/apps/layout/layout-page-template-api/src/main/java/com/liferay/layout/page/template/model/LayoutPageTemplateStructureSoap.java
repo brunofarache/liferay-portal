@@ -14,16 +14,16 @@
 
 package com.liferay.layout.page.template.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
- * This class is used by SOAP remote services.
+ * This class is used by SOAP remote services, specifically {@link com.liferay.layout.page.template.service.http.LayoutPageTemplateStructureServiceSoap}.
  *
  * @author Brian Wing Shun Chan
  * @generated
@@ -48,7 +48,6 @@ public class LayoutPageTemplateStructureSoap implements Serializable {
 		soapModel.setModifiedDate(model.getModifiedDate());
 		soapModel.setClassNameId(model.getClassNameId());
 		soapModel.setClassPK(model.getClassPK());
-		soapModel.setData(model.getData());
 
 		return soapModel;
 	}
@@ -193,14 +192,6 @@ public class LayoutPageTemplateStructureSoap implements Serializable {
 		_classPK = classPK;
 	}
 
-	public String getData() {
-		return _data;
-	}
-
-	public void setData(String data) {
-		_data = data;
-	}
-
 	private String _uuid;
 	private long _layoutPageTemplateStructureId;
 	private long _groupId;
@@ -211,6 +202,5 @@ public class LayoutPageTemplateStructureSoap implements Serializable {
 	private Date _modifiedDate;
 	private long _classNameId;
 	private long _classPK;
-	private String _data;
 
 }

@@ -24,14 +24,21 @@ JournalEditArticleDisplayContext journalEditArticleDisplayContext = new JournalE
 DDMStructure ddmStructure = journalEditArticleDisplayContext.getDDMStructure();
 %>
 
-<aui:input name="groupId" type="hidden" value="<%= journalEditArticleDisplayContext.getGroupId() %>" />
 <aui:input name="ddmStructureKey" type="hidden" value="<%= ddmStructure.getStructureKey() %>" />
+
+<c:if test="<%= journalWebConfiguration.changeableDefaultLanguage() %>">
+	<soy:component-renderer
+		context="<%= journalEditArticleDisplayContext.getChangeDefaultLanguageSoyContext() %>"
+		module="js/ChangeDefaultLanguage.es"
+		templateNamespace="com.liferay.journal.web.ChangeDefaultLanguage.render"
+	/>
+</c:if>
 
 <p class="article-structure">
 	<b><liferay-ui:message key="structure" /></b>: <%= HtmlUtil.escape(ddmStructure.getName(locale)) %>
 </p>
 
-<c:if test="<%= article != null %>">
+<c:if test="<%= (article != null) && !article.isNew() && (journalEditArticleDisplayContext.getClassNameId() == JournalArticleConstants.CLASSNAME_ID_DEFAULT) %>">
 	<p class="article-version-status">
 		<b><liferay-ui:message key="version" /></b>: <%= article.getVersion() %>
 
@@ -42,7 +49,7 @@ DDMStructure ddmStructure = journalEditArticleDisplayContext.getDDMStructure();
 </c:if>
 
 <c:choose>
-	<c:when test="<%= !journalWebConfiguration.journalArticleForceAutogenerateId() %>">
+	<c:when test="<%= !journalWebConfiguration.journalArticleForceAutogenerateId() && (journalEditArticleDisplayContext.getClassNameId() == JournalArticleConstants.CLASSNAME_ID_DEFAULT) %>">
 		<div class="article-id">
 			<label for="<portlet:namespace />newArticleId"><liferay-ui:message key="id" /></label>
 
@@ -62,6 +69,12 @@ DDMStructure ddmStructure = journalEditArticleDisplayContext.getDDMStructure();
 	<c:otherwise>
 		<aui:input name="newArticleId" type="hidden" />
 		<aui:input name="autoArticleId" type="hidden" value="<%= true %>" />
+
+		<c:if test="<%= (article != null) && !article.isNew() && (journalEditArticleDisplayContext.getClassNameId() == JournalArticleConstants.CLASSNAME_ID_DEFAULT) %>">
+			<p class="article-id">
+				<b><liferay-ui:message key="id" /></b>: <%= article.getArticleId() %>
+			</p>
+		</c:if>
 	</c:otherwise>
 </c:choose>
 
@@ -69,6 +82,7 @@ DDMStructure ddmStructure = journalEditArticleDisplayContext.getDDMStructure();
 	<label for="<portlet:namespace />descriptionMapAsXML"><liferay-ui:message key="summary" /></label>
 
 	<liferay-ui:input-localized
+		availableLocales="<%= journalEditArticleDisplayContext.getAvailableLocales() %>"
 		cssClass="form-control"
 		defaultLanguageId="<%= journalEditArticleDisplayContext.getDefaultLanguageId() %>"
 		editorName="alloyeditor"

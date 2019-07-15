@@ -14,10 +14,9 @@
 
 package com.liferay.announcements.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the remote service utility for AnnouncementsFlag. This utility wraps
@@ -71,9 +70,6 @@ public class AnnouncementsFlagServiceUtil {
 		if (_service == null) {
 			_service = (AnnouncementsFlagService)PortalBeanLocatorUtil.locate(
 				AnnouncementsFlagService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				AnnouncementsFlagServiceUtil.class, "_service");
 		}
 
 		return _service;

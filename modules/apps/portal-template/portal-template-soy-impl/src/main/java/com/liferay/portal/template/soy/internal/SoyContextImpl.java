@@ -14,6 +14,7 @@
 
 package com.liferay.portal.template.soy.internal;
 
+import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.portal.template.soy.constants.SoyTemplateConstants;
 import com.liferay.portal.template.soy.data.SoyDataFactory;
 import com.liferay.portal.template.soy.internal.data.SoyDataFactoryProvider;
@@ -32,7 +33,8 @@ import java.util.stream.Stream;
  * as given by the template user, without any transformation to Soy internal
  * types. This is so that values put into this maps are immutables.
  *
- * It can, of course, contain {@link com.liferay.portal.template.soy.util.SoyRawData}
+ * It can, of course, contain {@link
+ * com.liferay.portal.template.soy.util.SoyRawData}
  * values as they are part of the public API and are types known to the user.
  *
  * In order to make use of a {@link SoyContext} in the template engine, it is
@@ -40,7 +42,7 @@ import java.util.stream.Stream;
  * that really knows how to coerce userland values into soyland values.
  *
  * @author Matthew Tambara
- * @see SoyTemplateRecord
+ * @see    SoyTemplateRecord
  * @review
  */
 public class SoyContextImpl implements SoyContext {
@@ -56,8 +58,8 @@ public class SoyContextImpl implements SoyContext {
 	/**
 	 * Create a context with initial values.
 	 *
-	 * @param context initial context values
-	 * @param restrictedVariables list of restricted (read-only) variables
+	 * @param  context initial context values
+	 * @param  restrictedVariables list of restricted (read-only) variables
 	 * @review
 	 */
 	public SoyContextImpl(
@@ -73,8 +75,10 @@ public class SoyContextImpl implements SoyContext {
 	}
 
 	@Override
-	public void clearInjectedData() {
+	public SoyContext clearInjectedData() {
 		_map.remove(SoyTemplateConstants.INJECTED_DATA);
+
+		return this;
 	}
 
 	@Override
@@ -134,14 +138,36 @@ public class SoyContextImpl implements SoyContext {
 	}
 
 	@Override
-	public Object put(String key, Object value) {
+	public SoyContext put(String key, Object value) {
 		if (key.equals(SoyTemplateConstants.INJECTED_DATA) &&
 			!(value instanceof Map)) {
 
 			throw new IllegalArgumentException("Injected data must be a Map");
 		}
 
-		return _map.put(key, value);
+		_map.put(key, value);
+
+		return this;
+	}
+
+	@Override
+	public SoyContext put(
+		String key, UnsafeSupplier<?, Exception> unsafeSupplier) {
+
+		Object value = null;
+
+		if (unsafeSupplier != null) {
+			try {
+				value = unsafeSupplier.get();
+			}
+			catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		put(key, value);
+
+		return this;
 	}
 
 	@Override
@@ -152,15 +178,17 @@ public class SoyContextImpl implements SoyContext {
 	}
 
 	@Override
-	public void putHTML(String key, String value) {
+	public SoyContext putHTML(String key, String value) {
 		SoyDataFactory soyDataFactory =
 			SoyDataFactoryProvider.getSoyDataFactory();
 
 		_map.put(key, soyDataFactory.createSoyHTMLData(value));
+
+		return this;
 	}
 
 	@Override
-	public void putInjectedData(String key, Object value) {
+	public SoyContext putInjectedData(String key, Object value) {
 		Map<String, Object> injectedData = (Map<String, Object>)_map.get(
 			SoyTemplateConstants.INJECTED_DATA);
 
@@ -171,6 +199,8 @@ public class SoyContextImpl implements SoyContext {
 		}
 
 		injectedData.put(key, value);
+
+		return this;
 	}
 
 	@Override
@@ -179,13 +209,15 @@ public class SoyContextImpl implements SoyContext {
 	}
 
 	@Override
-	public void removeInjectedData(String key) {
+	public SoyContext removeInjectedData(String key) {
 		Map<String, Object> injectedData = (Map<String, Object>)_map.get(
 			SoyTemplateConstants.INJECTED_DATA);
 
 		if (injectedData != null) {
 			injectedData.remove(key);
 		}
+
+		return this;
 	}
 
 	@Override

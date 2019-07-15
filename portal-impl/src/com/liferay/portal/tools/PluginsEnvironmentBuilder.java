@@ -441,10 +441,10 @@ public class PluginsEnvironmentBuilder {
 
 		List<String> importSharedJars = getImportSharedJars(projectDir);
 
-		if (sharedProject) {
-			if (!importSharedJars.contains("portal-compat-shared.jar")) {
-				importSharedJars.add("portal-compat-shared.jar");
-			}
+		if (sharedProject &&
+			!importSharedJars.contains("portal-compat-shared.jar")) {
+
+			importSharedJars.add("portal-compat-shared.jar");
 		}
 
 		File gitignoreFile = new File(
@@ -456,8 +456,7 @@ public class PluginsEnvironmentBuilder {
 			return;
 		}
 
-		String[] gitIgnores = importSharedJars.toArray(
-			new String[importSharedJars.size()]);
+		String[] gitIgnores = importSharedJars.toArray(new String[0]);
 
 		for (int i = 0; i < gitIgnores.length; i++) {
 			String gitIgnore = gitIgnores[i];
@@ -516,7 +515,7 @@ public class PluginsEnvironmentBuilder {
 
 		System.out.println("Updating " + gitignoreFile);
 
-		String[] gitIgnores = jars.toArray(new String[jars.size()]);
+		String[] gitIgnores = jars.toArray(new String[0]);
 
 		for (int i = 0; i < gitIgnores.length; i++) {
 			String gitIgnore = gitIgnores[i];
@@ -589,7 +588,6 @@ public class PluginsEnvironmentBuilder {
 			globalJars.add("portlet.jar");
 
 			portalJars.addAll(dependencyJars);
-			portalJars.add("bnd.jar");
 			portalJars.add("commons-logging.jar");
 			portalJars.add("log4j.jar");
 

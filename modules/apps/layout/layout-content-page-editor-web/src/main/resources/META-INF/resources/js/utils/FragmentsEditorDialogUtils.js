@@ -1,55 +1,52 @@
 /**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
+import {UPDATE_LAST_SAVE_DATE} from '../actions/actions.es';
+
+/**
+ * @private
+ * @review
+ * @type {null|{detach: Function}}
+ */
+let _widgetConfigurationChangeHandler = null;
+
+/**
  * Possible types that can be returned by the image selector
  */
 const IMAGE_SELECTOR_RETURN_TYPES = {
-	downloadUrl: 'com.liferay.item.selector.criteria.DownloadURLItemSelectorReturnType',
-	fileEntryItemSelector: 'com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType',
+	downloadUrl:
+		'com.liferay.item.selector.criteria.DownloadURLItemSelectorReturnType',
+	fileEntryItemSelector:
+		'com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType',
 	url: 'URL'
 };
 
 /**
- * @param {string} url
- * @param {string} title
- * @param {string} eventName
- * @param {function} callback
- * @param {function} destroyedCallback
+ * @param {object} options
+ * @param {function} options.callback
+ * @param {string} options.assetBrowserURL
+ * @param {string} options.modalTitle
+ * @param {string} options.portletNamespace
+ * @param {function} [options.destroyedCallback=null]
  */
-function _openItemSelector(url, title, eventName, callback, destroyedCallback) {
-	AUI().use(
-		'liferay-item-selector-dialog',
-		A => {
-			const itemSelector = new A.LiferayItemSelectorDialog(
-				{
-					eventName,
-					on: {
-						selectedItemChange: event => {
-							callback(event);
-						},
-
-						visibleChange: event => {
-							if ((event.newVal === false) && destroyedCallback) {
-								destroyedCallback();
-							}
-						}
-					},
-					title,
-					url
-				}
-			);
-
-			itemSelector.open();
-		}
-	);
-}
-
-/**
- * @param {string} assetBrowserURL
- * @param {string} modalTitle
- * @param {string} portletNamespace
- * @param {function} callback
- * @param {function} [destroyedCallback=null]
- */
-function openAssetBrowser(assetBrowserURL, modalTitle, portletNamespace, callback, destroyedCallback = null) {
+function openAssetBrowser({
+	assetBrowserURL,
+	callback,
+	modalTitle,
+	portletNamespace,
+	destroyedCallback = null
+}) {
 	Liferay.Util.selectEntity(
 		{
 			dialog: {
@@ -63,15 +60,12 @@ function openAssetBrowser(assetBrowserURL, modalTitle, portletNamespace, callbac
 		},
 		event => {
 			if (event.assetclassnameid) {
-				callback(
-					{
-						classNameId: event.assetclassnameid,
-						classPK: event.assetclasspk,
-						title: event.assettitle
-					}
-				);
-			}
-			else if (destroyedCallback) {
+				callback({
+					classNameId: event.assetclassnameid,
+					classPK: event.assetclasspk,
+					title: event.assettitle
+				});
+			} else if (destroyedCallback) {
 				destroyedCallback();
 			}
 		}
@@ -79,38 +73,107 @@ function openAssetBrowser(assetBrowserURL, modalTitle, portletNamespace, callbac
 }
 
 /**
- * @param {string} imageSelectorURL
- * @param {string} portletNamespace
- * @param {function} callback
- * @param {function} destroyedCallback
+ * @param {object} options
+ * @param {function} options.callback
+ * @param {string} options.imageSelectorURL
+ * @param {string} options.portletNamespace
+ * @param {function} [options.destroyedCallback=null]
  */
-function openImageSelector(imageSelectorURL, portletNamespace, callback, destroyedCallback) {
-	_openItemSelector(
-		imageSelectorURL,
-		Liferay.Language.get('select'),
-		`${portletNamespace}selectImage`,
-		event => {
-			const selectedItem = event.newVal || {};
+function openImageSelector({
+	callback,
+	imageSelectorURL,
+	portletNamespace,
+	destroyedCallback = null
+}) {
+	AUI().use('liferay-item-selector-dialog', A => {
+		const itemSelector = new A.LiferayItemSelectorDialog({
+			eventName: `${portletNamespace}selectImage`,
+			on: {
+				selectedItemChange: event => {
+					const selectedItem = event.newVal || {};
 
-			const {returnType, value} = selectedItem;
-			let selectedImageURL = '';
+					const {returnType, value} = selectedItem;
+					let selectedImageURL = '';
 
-			if (returnType === IMAGE_SELECTOR_RETURN_TYPES.downloadUrl ||
-				returnType === IMAGE_SELECTOR_RETURN_TYPES.url) {
+					if (
+						returnType ===
+							IMAGE_SELECTOR_RETURN_TYPES.downloadUrl ||
+						returnType === IMAGE_SELECTOR_RETURN_TYPES.url
+					) {
+						selectedImageURL = value;
+					}
 
-				selectedImageURL = value;
-			}
+					if (
+						returnType ===
+						IMAGE_SELECTOR_RETURN_TYPES.fileEntryItemSelector
+					) {
+						selectedImageURL = JSON.parse(value).url;
+					}
 
-			if (returnType === IMAGE_SELECTOR_RETURN_TYPES.fileEntryItemSelector) {
-				selectedImageURL = JSON.parse(value).url;
-			}
+					if (selectedImageURL) {
+						callback(selectedImageURL);
+					}
+				},
 
-			if (selectedImageURL) {
-				callback(selectedImageURL);
-			}
-		},
-		destroyedCallback
-	);
+				visibleChange: event => {
+					if (event.newVal === false && destroyedCallback) {
+						destroyedCallback();
+					}
+				}
+			},
+			title: Liferay.Language.get('select'),
+			url: imageSelectorURL
+		});
+
+		itemSelector.open();
+	});
 }
 
-export {openAssetBrowser, openImageSelector};
+/**
+ * @param {{dispatch: Function}} store
+ * @review
+ */
+function startListeningWidgetConfigurationChange(store) {
+	stopListeningWidgetConfigurationChange();
+
+	let submitFormHandler = null;
+
+	_widgetConfigurationChangeHandler = Liferay.after('popupReady', event => {
+		const configurationForm = event.win.document.querySelector(
+			'.portlet-configuration-setup'
+		);
+
+		if (configurationForm) {
+			if (submitFormHandler) {
+				submitFormHandler.detach();
+
+				submitFormHandler = null;
+			}
+
+			submitFormHandler = event.win.Liferay.on('submitForm', () => {
+				store.dispatch({
+					lastSaveDate: new Date(),
+					type: UPDATE_LAST_SAVE_DATE
+				});
+			});
+		}
+	});
+}
+
+/**
+ * @review
+ */
+function stopListeningWidgetConfigurationChange() {
+	if (_widgetConfigurationChangeHandler) {
+		_widgetConfigurationChangeHandler.detach();
+
+		_widgetConfigurationChangeHandler = null;
+	}
+}
+
+export {
+	openAssetBrowser,
+	openImageSelector,
+	startListeningWidgetConfigurationChange,
+	stopListeningWidgetConfigurationChange
+};

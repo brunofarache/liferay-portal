@@ -22,7 +22,6 @@ import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.captcha.Captcha;
 import com.liferay.portal.kernel.captcha.CaptchaConfigurationException;
 import com.liferay.portal.kernel.captcha.CaptchaException;
-import com.liferay.portal.kernel.captcha.CaptchaTextException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONException;
@@ -74,7 +73,8 @@ public class ReCaptchaImpl extends SimpleCaptchaImpl {
 
 	@Override
 	public void serveImage(
-		HttpServletRequest request, HttpServletResponse response) {
+		HttpServletRequest httpServletRequest,
+		HttpServletResponse httpServletResponse) {
 
 		throw new UnsupportedOperationException();
 	}
@@ -97,31 +97,32 @@ public class ReCaptchaImpl extends SimpleCaptchaImpl {
 	}
 
 	@Override
-	protected boolean validateChallenge(HttpServletRequest request)
+	protected boolean validateChallenge(HttpServletRequest httpServletRequest)
 		throws CaptchaException {
 
 		String reCaptchaResponse = ParamUtil.getString(
-			request, "g-recaptcha-response");
+			httpServletRequest, "g-recaptcha-response");
 
 		while (Validator.isBlank(reCaptchaResponse) &&
-			   (request instanceof HttpServletRequestWrapper)) {
+			   (httpServletRequest instanceof HttpServletRequestWrapper)) {
 
 			HttpServletRequestWrapper httpServletRequestWrapper =
-				(HttpServletRequestWrapper)request;
+				(HttpServletRequestWrapper)httpServletRequest;
 
-			request =
+			httpServletRequest =
 				(HttpServletRequest)httpServletRequestWrapper.getRequest();
 
 			reCaptchaResponse = ParamUtil.getString(
-				request, "g-recaptcha-response");
+				httpServletRequest, "g-recaptcha-response");
 		}
 
 		if (Validator.isBlank(reCaptchaResponse)) {
 			_log.error(
-				"CAPTCHA text is null. User " + request.getRemoteUser() +
-					" may be trying to circumvent the CAPTCHA.");
+				"CAPTCHA text is null. User " +
+					httpServletRequest.getRemoteUser() +
+						" may be trying to circumvent the CAPTCHA.");
 
-			throw new CaptchaTextException();
+			throw new CaptchaException();
 		}
 
 		Http.Options options = new Http.Options();
@@ -136,7 +137,7 @@ public class ReCaptchaImpl extends SimpleCaptchaImpl {
 			_log.error(se, se);
 		}
 
-		options.addPart("remoteip", request.getRemoteAddr());
+		options.addPart("remoteip", httpServletRequest.getRemoteAddr());
 		options.addPart("response", reCaptchaResponse);
 		options.setPost(true);
 
@@ -200,10 +201,10 @@ public class ReCaptchaImpl extends SimpleCaptchaImpl {
 	protected boolean validateChallenge(PortletRequest portletRequest)
 		throws CaptchaException {
 
-		HttpServletRequest request = PortalUtil.getHttpServletRequest(
-			portletRequest);
+		HttpServletRequest httpServletRequest =
+			PortalUtil.getHttpServletRequest(portletRequest);
 
-		return validateChallenge(request);
+		return validateChallenge(httpServletRequest);
 	}
 
 	private static final String _TAGLIB_PATH = "/captcha/recaptcha.jsp";

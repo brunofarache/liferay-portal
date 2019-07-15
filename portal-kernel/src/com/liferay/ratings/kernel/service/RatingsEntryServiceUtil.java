@@ -14,10 +14,9 @@
 
 package com.liferay.ratings.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the remote service utility for RatingsEntry. This utility wraps
@@ -65,9 +64,6 @@ public class RatingsEntryServiceUtil {
 		if (_service == null) {
 			_service = (RatingsEntryService)PortalBeanLocatorUtil.locate(
 				RatingsEntryService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				RatingsEntryServiceUtil.class, "_service");
 		}
 
 		return _service;

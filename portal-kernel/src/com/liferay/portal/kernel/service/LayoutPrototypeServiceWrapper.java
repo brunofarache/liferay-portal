@@ -14,7 +14,7 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link LayoutPrototypeService}.
@@ -42,21 +42,6 @@ public class LayoutPrototypeServiceWrapper
 
 		return _layoutPrototypeService.addLayoutPrototype(
 			nameMap, descriptionMap, active, serviceContext);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 #addLayoutPrototype(Map, Map, boolean, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public com.liferay.portal.kernel.model.LayoutPrototype addLayoutPrototype(
-			java.util.Map<java.util.Locale, String> nameMap, String description,
-			boolean active, ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException {
-
-		return _layoutPrototypeService.addLayoutPrototype(
-			nameMap, description, active, serviceContext);
 	}
 
 	@Override
@@ -114,25 +99,6 @@ public class LayoutPrototypeServiceWrapper
 
 		return _layoutPrototypeService.updateLayoutPrototype(
 			layoutPrototypeId, nameMap, descriptionMap, active, serviceContext);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 #updateLayoutPrototype(long, Map, Map, boolean,
-	 ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public com.liferay.portal.kernel.model.LayoutPrototype
-			updateLayoutPrototype(
-				long layoutPrototypeId,
-				java.util.Map<java.util.Locale, String> nameMap,
-				String description, boolean active,
-				ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException {
-
-		return _layoutPrototypeService.updateLayoutPrototype(
-			layoutPrototypeId, nameMap, description, active, serviceContext);
 	}
 
 	@Override

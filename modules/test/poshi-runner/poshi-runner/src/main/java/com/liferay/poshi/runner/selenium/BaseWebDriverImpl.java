@@ -20,6 +20,7 @@ import com.liferay.poshi.runner.PoshiRunnerContext;
 import com.liferay.poshi.runner.PoshiRunnerGetterUtil;
 import com.liferay.poshi.runner.exception.PoshiRunnerWarningException;
 import com.liferay.poshi.runner.util.AntCommands;
+import com.liferay.poshi.runner.util.ArchiveUtil;
 import com.liferay.poshi.runner.util.CharPool;
 import com.liferay.poshi.runner.util.EmailCommands;
 import com.liferay.poshi.runner.util.FileUtil;
@@ -27,6 +28,7 @@ import com.liferay.poshi.runner.util.GetterUtil;
 import com.liferay.poshi.runner.util.HtmlUtil;
 import com.liferay.poshi.runner.util.OSDetector;
 import com.liferay.poshi.runner.util.PropsValues;
+import com.liferay.poshi.runner.util.ResourceUtil;
 import com.liferay.poshi.runner.util.RuntimeVariables;
 import com.liferay.poshi.runner.util.StringPool;
 import com.liferay.poshi.runner.util.StringUtil;
@@ -107,8 +109,7 @@ import org.sikuli.api.robot.Mouse;
 import org.sikuli.api.robot.desktop.DesktopKeyboard;
 import org.sikuli.api.robot.desktop.DesktopMouse;
 import org.sikuli.api.visual.Canvas;
-import org.sikuli.api.visual.CanvasBuilder.ElementAdder;
-import org.sikuli.api.visual.CanvasBuilder.ElementAreaSetter;
+import org.sikuli.api.visual.CanvasBuilder;
 import org.sikuli.api.visual.DesktopCanvas;
 
 import org.w3c.dom.Document;
@@ -1319,10 +1320,8 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 			thread.start();
 
 			try {
-				String location = futureTask.get(
+				return futureTask.get(
 					PropsValues.GET_LOCATION_TIMEOUT, TimeUnit.SECONDS);
-
-				return location;
 			}
 			catch (CancellationException ce) {
 				exceptions.add(ce);
@@ -1353,9 +1352,8 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 		if (!exceptions.isEmpty()) {
 			throw new Exception(exceptions.get(0));
 		}
-		else {
-			throw new TimeoutException();
-		}
+
+		throw new TimeoutException();
 	}
 
 	@Override
@@ -1817,6 +1815,35 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 	@Override
 	public void javaScriptClick(String locator) {
 		executeJavaScriptEvent(locator, "MouseEvent", "click");
+	}
+
+	@Override
+	public void javaScriptDragAndDropToObject(
+			String sourceLocator, String targetLocator)
+		throws Exception {
+
+		WebElement sourceElement = getWebElement(sourceLocator);
+
+		WrapsDriver wrapsDriver = (WrapsDriver)sourceElement;
+
+		WebDriver wrappedWebDriver = wrapsDriver.getWrappedDriver();
+
+		JavascriptExecutor javascriptExecutor =
+			(JavascriptExecutor)wrappedWebDriver;
+
+		StringBuilder sb = new StringBuilder();
+
+		String simulateJSContent = ResourceUtil.read(
+			"com/liferay/poshi/runner/dependencies/simulate_drag_and_drop.js");
+
+		sb.append(simulateJSContent);
+
+		sb.append("\nSimulate.dragAndDrop(arguments[0], arguments[1]);");
+
+		WebElement targetElement = getWebElement(targetLocator);
+
+		javascriptExecutor.executeScript(
+			sb.toString(), sourceElement, targetElement);
 	}
 
 	public String javaScriptGetText(String locator, String timeout)
@@ -2605,9 +2632,9 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 
 		Canvas canvas = new DesktopCanvas();
 
-		ElementAdder elementAdder = canvas.add();
+		CanvasBuilder.ElementAdder elementAdder = canvas.add();
 
-		ElementAreaSetter elementAreaSetter = elementAdder.box();
+		CanvasBuilder.ElementAreaSetter elementAreaSetter = elementAdder.box();
 
 		elementAreaSetter.around(screenRegion);
 
@@ -2813,9 +2840,7 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 
 		String fileName = PropsValues.TCAT_ADMIN_REPOSITORY + "/" + value;
 
-		if (OSDetector.isWindows()) {
-			fileName = StringUtil.replace(fileName, "/", "\\");
-		}
+		fileName = FileUtil.fixFilePath(fileName);
 
 		sikuliType(image, fileName);
 
@@ -2842,9 +2867,7 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 
 		String fileName = getOutputDirName() + "/" + value;
 
-		if (OSDetector.isWindows()) {
-			fileName = StringUtil.replace(fileName, "/", "\\");
-		}
+		fileName = FileUtil.fixFilePath(fileName);
 
 		sikuliType(image, fileName);
 
@@ -2888,41 +2911,64 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 	public void typeAceEditor(String locator, String value) {
 		WebElement webElement = getWebElement(locator);
 
-		webElement.sendKeys(Keys.chord(Keys.CONTROL, "a"));
+		String webElementTagName = webElement.getTagName();
 
-		webElement.sendKeys(Keys.DELETE);
+		if (webElementTagName.equals("textarea")) {
+			webElement.sendKeys(Keys.chord(Keys.CONTROL, "a"));
 
-		Matcher matcher = _aceEditorPattern.matcher(value);
+			webElement.sendKeys(Keys.DELETE);
 
-		int x = 0;
+			Matcher matcher = _aceEditorPattern.matcher(value);
 
-		while (matcher.find()) {
-			int y = matcher.start();
+			int x = 0;
 
-			String line = value.substring(x, y);
+			while (matcher.find()) {
+				int y = matcher.start();
+
+				String line = value.substring(x, y);
+
+				webElement.sendKeys(line.trim());
+
+				String specialCharacter = matcher.group();
+
+				if (specialCharacter.equals("(")) {
+					webElement.sendKeys("(");
+				}
+				else if (specialCharacter.equals("${line.separator}")) {
+					keyPress(locator, "\\SPACE");
+					keyPress(locator, "\\RETURN");
+				}
+
+				x = y + specialCharacter.length();
+			}
+
+			String line = value.substring(x);
 
 			webElement.sendKeys(line.trim());
 
-			String specialCharacter = matcher.group();
+			webElement.sendKeys(Keys.chord(Keys.CONTROL, Keys.SHIFT, Keys.END));
 
-			if (specialCharacter.equals("(")) {
-				webElement.sendKeys("(");
-			}
-			else if (specialCharacter.equals("${line.separator}")) {
-				keyPress(locator, "\\SPACE");
-				keyPress(locator, "\\RETURN");
-			}
+			webElement.sendKeys(Keys.DELETE);
 
-			x = y + specialCharacter.length();
+			return;
 		}
 
-		String line = value.substring(x);
+		WrapsDriver wrapsDriver = (WrapsDriver)webElement;
 
-		webElement.sendKeys(line.trim());
+		WebDriver wrappedWebDriver = wrapsDriver.getWrappedDriver();
 
-		webElement.sendKeys(Keys.chord(Keys.CONTROL, Keys.SHIFT, Keys.END));
+		JavascriptExecutor javascriptExecutor =
+			(JavascriptExecutor)wrappedWebDriver;
 
-		webElement.sendKeys(Keys.DELETE);
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("ace.edit(");
+		sb.append(getAttribute(locator + "@id"));
+		sb.append(").setValue(\"");
+		sb.append(HtmlUtil.escapeJS(value.replace("\\", "\\\\")));
+		sb.append("\");");
+
+		javascriptExecutor.executeScript(sb.toString());
 	}
 
 	@Override
@@ -3062,9 +3108,24 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 
 		filePath = LiferaySeleniumHelper.getSourceDirFilePath(filePath);
 
-		if (OSDetector.isWindows()) {
-			filePath = StringUtil.replace(filePath, "/", "\\");
+		if (value.endsWith(".jar") || value.endsWith(".war") ||
+			value.endsWith(".zip")) {
+
+			File file = new File(filePath);
+
+			if (file.isDirectory()) {
+				String archiveFilePath =
+					_outputDirName + FileUtil.getSeparator() + file.getName();
+
+				archiveFilePath = FileUtil.getCanonicalPath(archiveFilePath);
+
+				ArchiveUtil.archive(filePath, archiveFilePath);
+
+				filePath = archiveFilePath;
+			}
 		}
+
+		filePath = FileUtil.fixFilePath(filePath);
 
 		uploadFile(location, filePath);
 	}
@@ -3075,16 +3136,14 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 
 		WebElement webElement = getWebElement(location);
 
-		webElement.sendKeys(value);
+		webElement.sendKeys(FileUtil.getCanonicalPath(value));
 	}
 
 	@Override
 	public void uploadTempFile(String location, String value) {
 		String filePath = _outputDirName + FileUtil.getSeparator() + value;
 
-		if (OSDetector.isWindows()) {
-			filePath = StringUtil.replace(filePath, "/", "\\");
-		}
+		filePath = FileUtil.fixFilePath(filePath);
 
 		uploadFile(location, filePath);
 	}
@@ -3149,6 +3208,25 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 	}
 
 	@Override
+	public void waitForEditable(String locator) throws Exception {
+		for (int second = 0;; second++) {
+			if (second >= PropsValues.TIMEOUT_EXPLICIT_WAIT) {
+				assertEditable(locator);
+			}
+
+			try {
+				if (isEditable(locator)) {
+					break;
+				}
+			}
+			catch (Exception e) {
+			}
+
+			Thread.sleep(1000);
+		}
+	}
+
+	@Override
 	public void waitForElementNotPresent(String locator) throws Exception {
 		for (int second = 0;; second++) {
 			if (second >= PropsValues.TIMEOUT_EXPLICIT_WAIT) {
@@ -3176,6 +3254,25 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 
 			try {
 				if (isElementPresent(locator)) {
+					break;
+				}
+			}
+			catch (Exception e) {
+			}
+
+			Thread.sleep(1000);
+		}
+	}
+
+	@Override
+	public void waitForNotEditable(String locator) throws Exception {
+		for (int second = 0;; second++) {
+			if (second >= PropsValues.TIMEOUT_EXPLICIT_WAIT) {
+				assertNotEditable(locator);
+			}
+
+			try {
+				if (isNotEditable(locator)) {
 					break;
 				}
 			}
@@ -4143,8 +4240,8 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 		_navigationBarHeight = navigationBarHeight;
 	}
 
-	private static final String _CURRENT_DIR_NAME =
-		PoshiRunnerGetterUtil.getCanonicalPath(".");
+	private static final String _CURRENT_DIR_NAME = FileUtil.getCanonicalPath(
+		".");
 
 	private static final String _OUTPUT_DIR_NAME = PropsValues.OUTPUT_DIR_NAME;
 

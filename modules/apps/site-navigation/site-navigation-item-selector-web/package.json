@@ -1,29 +1,16 @@
 {
 	"dependencies": {
-		"metal": "^2.5.18",
-		"metal-dom": "^2.5.18",
-		"metal-soy": "^2.4.5",
-		"metal-state": "^2.6.4"
-	},
-	"devDependencies": {
-		"babel-cli": "^6.26.0",
-		"babel-preset-env": "^1.7.0",
-		"check-source-formatting": "^2.0.14",
-		"cross-env": "^5.2.0",
-		"liferay-npm-bundler": "^2.6.1",
-		"liferay-npm-bundler-preset-liferay-dev": "^1.1.1",
-		"metal-tools-soy": "^4.2.9",
-		"rimraf": "^2.6.3"
+		"frontend-js-web": "^4.0.0",
+		"metal": "2.16.8",
+		"metal-dom": "2.16.8",
+		"metal-soy": "2.16.8",
+		"metal-state": "2.16.8"
 	},
 	"name": "site-navigation-item-selector-web",
 	"scripts": {
-		"build": "npm run build:soy && npm run compile && liferay-npm-bundler && npm run cleanSoy",
-		"build:soy": "metalsoy --soyDeps \"../../../node_modules/+(frontend-js-web|frontend-js-metal-web|frontend-taglib)/src/**/*.soy\"",
-		"checkFormat": "npm run csf",
-		"cleanSoy": "rimraf src/**/*.soy.js",
-		"compile": "cross-env NODE_ENV=production babel --source-maps -d classes/META-INF/resources src/main/resources/META-INF/resources",
-		"csf": "csf src/**/*.es.js",
-		"format": "npm run csf -- -i"
+		"build": "liferay-npm-scripts build",
+		"checkFormat": "liferay-npm-scripts check",
+		"format": "liferay-npm-scripts fix"
 	},
-	"version": "2.0.0"
+	"version": "3.0.0"
 }

@@ -1,10 +1,10 @@
 package ${apiPackagePath}.model;
 
+import ${serviceBuilder.getCompatJavaClassName("ProviderType")};
+
 <#if entity.hasCompoundPK()>
 	import ${apiPackagePath}.service.persistence.${entity.name}PK;
 </#if>
-
-import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.expando.kernel.util.ExpandoBridgeFactoryUtil;

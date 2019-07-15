@@ -14,8 +14,7 @@
 
 package com.liferay.asset.list.service;
 
-import aQute.bnd.annotation.ProviderType;
-
+import org.osgi.annotation.versioning.ProviderType;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.util.tracker.ServiceTracker;
@@ -366,6 +365,13 @@ public class AssetListEntryLocalServiceUtil {
 		return getService().getAssetListEntry(assetListEntryId);
 	}
 
+	public static com.liferay.asset.list.model.AssetListEntry getAssetListEntry(
+			long groupId, String assetListEntryKey)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().getAssetListEntry(groupId, assetListEntryKey);
+	}
+
 	/**
 	 * Returns the asset list entry matching the UUID and group.
 	 *
@@ -458,16 +464,6 @@ public class AssetListEntryLocalServiceUtil {
 
 		getService().updateAssetListEntryTypeSettings(
 			assetListEntryId, segmentsEntryId, typeSettings);
-	}
-
-	public static com.liferay.asset.list.model.AssetListEntry
-			updateAssetListEntryTypeSettingsProperties(
-				long assetListEntryId, long segmentsEntryId,
-				String typeSettingsProperties)
-		throws com.liferay.portal.kernel.exception.PortalException {
-
-		return getService().updateAssetListEntryTypeSettingsProperties(
-			assetListEntryId, segmentsEntryId, typeSettingsProperties);
 	}
 
 	public static AssetListEntryLocalService getService() {

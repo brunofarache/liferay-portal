@@ -26,8 +26,8 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.Role;
-import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.Team;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
@@ -284,7 +284,7 @@ public class PermissionImporterImpl implements PermissionImporter {
 			List<String> actions = _getActions(roleElement);
 
 			importedRoleIdsToActionIds.put(
-				role.getRoleId(), actions.toArray(new String[actions.size()]));
+				role.getRoleId(), actions.toArray(new String[0]));
 		}
 
 		Map<Long, String[]> roleIdsToActionIds =

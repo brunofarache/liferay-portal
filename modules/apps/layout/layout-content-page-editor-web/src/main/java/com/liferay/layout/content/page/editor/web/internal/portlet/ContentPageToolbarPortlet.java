@@ -46,11 +46,12 @@ import org.osgi.service.component.annotations.Reference;
 		"com.liferay.portlet.render-weight=50",
 		"com.liferay.portlet.system=true",
 		"com.liferay.portlet.use-default-template=false",
-		"javax.portlet.display-name=Standard Page Editor",
+		"javax.portlet.display-name=Content Page Editor",
 		"javax.portlet.expiration-cache=0",
 		"javax.portlet.init-param.template-path=/META-INF/resources/",
 		"javax.portlet.init-param.view-template=/view_toolbar.jsp",
 		"javax.portlet.name=" + ContentPageEditorPortletKeys.CONTENT_PAGE_TOOLBAR_PORTLET,
+		"javax.portlet.resource-bundle=content.Language",
 		"javax.portlet.supports.mime-type=text/html"
 	},
 	service = Portlet.class
@@ -62,20 +63,21 @@ public class ContentPageToolbarPortlet extends MVCPortlet {
 			RenderRequest renderRequest, RenderResponse renderResponse)
 		throws IOException, PortletException {
 
-		HttpServletRequest request = _portal.getHttpServletRequest(
+		HttpServletRequest httpServletRequest = _portal.getHttpServletRequest(
 			renderRequest);
 
 		ContentPageEditorDisplayContext contentPageEditorDisplayContext =
-			(ContentPageEditorDisplayContext)request.getAttribute(
+			(ContentPageEditorDisplayContext)httpServletRequest.getAttribute(
 				ContentPageEditorWebKeys.
 					LIFERAY_SHARED_CONTENT_PAGE_EDITOR_DISPLAY_CONTEXT);
 
 		if (contentPageEditorDisplayContext == null) {
 			contentPageEditorDisplayContext =
 				_contentPageEditorDisplayContextProvider.
-					getContentPageEditorDisplayContext(request, renderResponse);
+					getContentPageEditorDisplayContext(
+						httpServletRequest, renderResponse);
 
-			request.setAttribute(
+			httpServletRequest.setAttribute(
 				ContentPageEditorWebKeys.
 					LIFERAY_SHARED_CONTENT_PAGE_EDITOR_DISPLAY_CONTEXT,
 				contentPageEditorDisplayContext);

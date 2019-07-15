@@ -25,8 +25,8 @@ import com.liferay.portal.kernel.dao.db.DBInspector;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
@@ -36,8 +36,8 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.upgrade.UpgradeStep;
-import com.liferay.portal.kernel.upgrade.util.UpgradeProcessUtil;
 import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -67,6 +67,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -123,7 +124,7 @@ public class UpgradeContentTargetingTest {
 
 		SegmentsEntry segmentsEntry =
 			_segmentsEntryLocalService.fetchSegmentsEntry(
-				_group.getGroupId(), "ct_" + contentTargetingUserSegmentId,
+				_group.getGroupId(), "CT_" + contentTargetingUserSegmentId,
 				false);
 
 		Assert.assertNotNull(segmentsEntry);
@@ -150,7 +151,7 @@ public class UpgradeContentTargetingTest {
 
 		SegmentsEntry segmentsEntry =
 			_segmentsEntryLocalService.fetchSegmentsEntry(
-				_group.getGroupId(), "ct_" + contentTargetingUserSegmentId,
+				_group.getGroupId(), "CT_" + contentTargetingUserSegmentId,
 				false);
 
 		Assert.assertNotNull(segmentsEntry);
@@ -195,7 +196,7 @@ public class UpgradeContentTargetingTest {
 
 		SegmentsEntry segmentsEntry =
 			_segmentsEntryLocalService.fetchSegmentsEntry(
-				_group.getGroupId(), "ct_" + contentTargetingUserSegmentId,
+				_group.getGroupId(), "CT_" + contentTargetingUserSegmentId,
 				false);
 
 		Assert.assertNotNull(segmentsEntry);
@@ -234,7 +235,7 @@ public class UpgradeContentTargetingTest {
 
 		SegmentsEntry segmentsEntry =
 			_segmentsEntryLocalService.fetchSegmentsEntry(
-				_group.getGroupId(), "ct_" + contentTargetingUserSegmentId,
+				_group.getGroupId(), "CT_" + contentTargetingUserSegmentId,
 				false);
 
 		Assert.assertNotNull(segmentsEntry);
@@ -282,7 +283,7 @@ public class UpgradeContentTargetingTest {
 
 		SegmentsEntry segmentsEntry =
 			_segmentsEntryLocalService.fetchSegmentsEntry(
-				_group.getGroupId(), "ct_" + contentTargetingUserSegmentId,
+				_group.getGroupId(), "CT_" + contentTargetingUserSegmentId,
 				false);
 
 		Assert.assertNotNull(segmentsEntry);
@@ -327,7 +328,7 @@ public class UpgradeContentTargetingTest {
 
 		SegmentsEntry segmentsEntry =
 			_segmentsEntryLocalService.fetchSegmentsEntry(
-				_group.getGroupId(), "ct_" + contentTargetingUserSegmentId,
+				_group.getGroupId(), "CT_" + contentTargetingUserSegmentId,
 				false);
 
 		Assert.assertNotNull(segmentsEntry);
@@ -366,7 +367,7 @@ public class UpgradeContentTargetingTest {
 
 		SegmentsEntry segmentsEntry =
 			_segmentsEntryLocalService.fetchSegmentsEntry(
-				_group.getGroupId(), "ct_" + contentTargetingUserSegmentId,
+				_group.getGroupId(), "CT_" + contentTargetingUserSegmentId,
 				false);
 
 		Assert.assertNotNull(segmentsEntry);
@@ -392,13 +393,9 @@ public class UpgradeContentTargetingTest {
 
 		long contentTargetingUserSegmentId = -1L;
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+		JSONObject jsonObject = JSONUtil.put("value", "liferay");
 
-		jsonObject.put("value", "liferay");
-
-		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
-
-		jsonArray.put(jsonObject);
+		JSONArray jsonArray = JSONUtil.put(jsonObject);
 
 		insertContentTargetingRuleInstance(
 			contentTargetingUserSegmentId, "PreviousVisitedSiteRule",
@@ -413,7 +410,7 @@ public class UpgradeContentTargetingTest {
 
 		SegmentsEntry segmentsEntry =
 			_segmentsEntryLocalService.fetchSegmentsEntry(
-				_group.getGroupId(), "ct_" + contentTargetingUserSegmentId,
+				_group.getGroupId(), "CT_" + contentTargetingUserSegmentId,
 				false);
 
 		Assert.assertNotNull(segmentsEntry);
@@ -451,7 +448,7 @@ public class UpgradeContentTargetingTest {
 
 		SegmentsEntry segmentsEntry =
 			_segmentsEntryLocalService.fetchSegmentsEntry(
-				_group.getGroupId(), "ct_" + contentTargetingUserSegmentId,
+				_group.getGroupId(), "CT_" + contentTargetingUserSegmentId,
 				false);
 
 		Assert.assertNotNull(segmentsEntry);
@@ -472,6 +469,40 @@ public class UpgradeContentTargetingTest {
 	}
 
 	@Test
+	public void testUpgradeContentTargetingUserSegmentsWithSiteLocale()
+		throws Exception {
+
+		_group = GroupTestUtil.updateDisplaySettings(
+			_group.getGroupId(), null, LocaleUtil.SPAIN);
+
+		long contentTargetingUserSegmentId = -1L;
+
+		Map<Locale, String> nameMap = new HashMap<>();
+
+		nameMap.put(
+			PortalUtil.getSiteDefaultLocale(_group),
+			RandomTestUtil.randomString());
+
+		Map<Locale, String> descriptionMap =
+			RandomTestUtil.randomLocaleStringMap();
+
+		insertContentTargetingUserSegment(
+			contentTargetingUserSegmentId, nameMap, descriptionMap);
+
+		_upgradeContentTargeting.upgrade();
+
+		SegmentsEntry segmentsEntry =
+			_segmentsEntryLocalService.fetchSegmentsEntry(
+				_group.getGroupId(), "CT_" + contentTargetingUserSegmentId,
+				false);
+
+		Assert.assertNotNull(segmentsEntry);
+
+		Assert.assertEquals(nameMap, segmentsEntry.getNameMap());
+		Assert.assertEquals(descriptionMap, segmentsEntry.getDescriptionMap());
+	}
+
+	@Test
 	public void testUpgradeContentTargetingUserSegmentsWithSiteMemberRule()
 		throws Exception {
 
@@ -489,7 +520,7 @@ public class UpgradeContentTargetingTest {
 
 		SegmentsEntry segmentsEntry =
 			_segmentsEntryLocalService.fetchSegmentsEntry(
-				_group.getGroupId(), "ct_" + contentTargetingUserSegmentId,
+				_group.getGroupId(), "CT_" + contentTargetingUserSegmentId,
 				false);
 
 		Assert.assertNotNull(segmentsEntry);
@@ -527,7 +558,7 @@ public class UpgradeContentTargetingTest {
 
 		SegmentsEntry segmentsEntry =
 			_segmentsEntryLocalService.fetchSegmentsEntry(
-				_group.getGroupId(), "ct_" + contentTargetingUserSegmentId,
+				_group.getGroupId(), "CT_" + contentTargetingUserSegmentId,
 				false);
 
 		Assert.assertNotNull(segmentsEntry);
@@ -565,7 +596,7 @@ public class UpgradeContentTargetingTest {
 
 		SegmentsEntry segmentsEntry =
 			_segmentsEntryLocalService.fetchSegmentsEntry(
-				_group.getGroupId(), "ct_" + contentTargetingUserSegmentId,
+				_group.getGroupId(), "CT_" + contentTargetingUserSegmentId,
 				false);
 
 		Assert.assertNotNull(segmentsEntry);
@@ -687,18 +718,20 @@ public class UpgradeContentTargetingTest {
 
 			ps.setTimestamp(6, new Timestamp(System.currentTimeMillis()));
 			ps.setTimestamp(7, new Timestamp(System.currentTimeMillis()));
+
+			Locale defaultLocale = PortalUtil.getSiteDefaultLocale(_group);
+
+			String defaultLanguageId = LocaleUtil.toLanguageId(defaultLocale);
+
 			ps.setString(
 				8,
 				LocalizationUtil.updateLocalization(
-					nameMap, StringPool.BLANK, "Name",
-					UpgradeProcessUtil.getDefaultLanguageId(
-						_group.getCompanyId())));
+					nameMap, StringPool.BLANK, "Name", defaultLanguageId));
 			ps.setString(
 				9,
 				LocalizationUtil.updateLocalization(
 					descriptionMap, StringPool.BLANK, "Description",
-					UpgradeProcessUtil.getDefaultLanguageId(
-						_group.getCompanyId())));
+					defaultLanguageId));
 
 			ps.executeUpdate();
 		}
@@ -761,10 +794,11 @@ public class UpgradeContentTargetingTest {
 	private String _getCustomFieldRuleTypeSettings(
 		ExpandoColumn expandoColumn, String expandoValue) {
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
-
-		jsonObject.put("attributeName", expandoColumn.getName());
-		jsonObject.put("value", expandoValue);
+		JSONObject jsonObject = JSONUtil.put(
+			"attributeName", expandoColumn.getName()
+		).put(
+			"value", expandoValue
+		);
 
 		return jsonObject.toString();
 	}
@@ -773,24 +807,25 @@ public class UpgradeContentTargetingTest {
 		ZonedDateTime startZonedDateTime, ZonedDateTime endZonedDateTime,
 		String timeZoneId, String type) {
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
-
 		DateFormat dateFormat = DateFormatFactoryUtil.getSimpleDateFormat(
-			"yyyy-MM-dd HH:mm", Locale.ENGLISH);
+			"yyyy-MM-dd HH:mm", LocaleUtil.ENGLISH);
 
-		jsonObject.put(
+		JSONObject jsonObject = JSONUtil.put(
 			"startDate",
-			dateFormat.format(Date.from(startZonedDateTime.toInstant())));
-
-		jsonObject.put("startDateTimeZoneId", timeZoneId);
-		jsonObject.put("type", type);
+			dateFormat.format(Date.from(startZonedDateTime.toInstant()))
+		).put(
+			"startDateTimeZoneId", timeZoneId
+		).put(
+			"type", type
+		);
 
 		if (type.equals("between")) {
 			jsonObject.put(
 				"endDate",
-				dateFormat.format(Date.from(endZonedDateTime.toInstant())));
-
-			jsonObject.put("endDateTimeZoneId", timeZoneId);
+				dateFormat.format(Date.from(endZonedDateTime.toInstant()))
+			).put(
+				"endDateTimeZoneId", timeZoneId
+			);
 		}
 
 		return jsonObject.toString();

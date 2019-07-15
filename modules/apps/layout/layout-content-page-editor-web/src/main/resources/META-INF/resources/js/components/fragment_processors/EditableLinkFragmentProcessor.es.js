@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
+/* eslint no-unused-vars: "warn" */
+
 import {FLOATING_TOOLBAR_BUTTONS} from '../../utils/constants';
 import {destroy, init} from './EditableTextFragmentProcessor.es';
 
@@ -6,10 +22,7 @@ import {destroy, init} from './EditableTextFragmentProcessor.es';
  * @return {object[]} Floating toolbar panels
  */
 function getFloatingToolbarButtons(editableValues) {
-	return [
-		FLOATING_TOOLBAR_BUTTONS.edit,
-		FLOATING_TOOLBAR_BUTTONS.link
-	];
+	return [FLOATING_TOOLBAR_BUTTONS.edit, FLOATING_TOOLBAR_BUTTONS.link];
 }
 
 /**
@@ -37,20 +50,22 @@ function render(content, value, editableValues) {
 			link.target = config.target;
 		}
 
-		[...link.classList].forEach(
-			elementClass => {
-				if (elementClass.startsWith('btn-') || (elementClass === 'btn')) {
+		if (config.buttonType) {
+			Array.from(link.classList).forEach(elementClass => {
+				if (
+					elementClass.indexOf('btn-') === 0 ||
+					elementClass === 'btn'
+				) {
 					link.classList.remove(elementClass);
 				}
-			}
-		);
+			});
 
-		if (config.buttonType && config.buttonType === 'link') {
-			link.classList.add('link');
-		}
-		else {
-			link.classList.add('btn');
-			link.classList.add(`btn-${config.buttonType}`);
+			if (config.buttonType && config.buttonType === 'link') {
+				link.classList.add('link');
+			} else {
+				link.classList.add('btn');
+				link.classList.add(`btn-${config.buttonType}`);
+			}
 		}
 	}
 

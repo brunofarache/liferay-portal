@@ -14,6 +14,9 @@
 
 package com.liferay.product.navigation.product.menu.web.internal.product.navigation.control.menu;
 
+import com.liferay.application.list.PanelCategory;
+import com.liferay.application.list.PanelCategoryRegistry;
+import com.liferay.application.list.constants.PanelCategoryKeys;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -34,12 +37,13 @@ import com.liferay.product.navigation.control.menu.constants.ProductNavigationCo
 import com.liferay.product.navigation.product.menu.constants.ProductNavigationProductMenuWebKeys;
 import com.liferay.product.navigation.product.menu.web.internal.constants.ProductNavigationProductMenuPortletKeys;
 import com.liferay.taglib.portletext.RuntimeTag;
-import com.liferay.taglib.util.BodyBottomTag;
+import com.liferay.taglib.servlet.PageContextFactoryUtil;
 
 import java.io.IOException;
 import java.io.Writer;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -50,7 +54,6 @@ import javax.portlet.WindowStateException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
 
@@ -77,40 +80,27 @@ public class ProductMenuProductNavigationControlMenuEntry
 	}
 
 	@Override
-	public String getURL(HttpServletRequest request) {
+	public String getURL(HttpServletRequest httpServletRequest) {
 		return null;
 	}
 
 	@Override
 	public boolean includeBody(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException {
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
-		if (themeDisplay.isIsolated()) {
-			return false;
-		}
-
-		BodyBottomTag bodyBottomTag = new BodyBottomTag();
-
-		bodyBottomTag.setOutputKey("productMenu");
-
-		try {
-			bodyBottomTag.doBodyTag(
-				request, response, this::_processBodyBottomContent);
-		}
-		catch (JspException je) {
-			throw new IOException(je);
-		}
+		_processBodyBottomContent(
+			PageContextFactoryUtil.create(
+				httpServletRequest, httpServletResponse));
 
 		return true;
 	}
 
 	@Override
 	public boolean includeIcon(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException {
 
 		Map<String, String> values = new HashMap<>();
@@ -121,10 +111,12 @@ public class ProductMenuProductNavigationControlMenuEntry
 
 		values.put("portletNamespace", portletNamespace);
 
-		values.put("title", HtmlUtil.escape(LanguageUtil.get(request, "menu")));
+		values.put(
+			"title",
+			HtmlUtil.escape(LanguageUtil.get(httpServletRequest, "menu")));
 
 		String productMenuState = SessionClicks.get(
-			request,
+			httpServletRequest,
 			ProductNavigationProductMenuWebKeys.
 				PRODUCT_NAVIGATION_PRODUCT_MENU_STATE,
 			"closed");
@@ -136,13 +128,14 @@ public class ProductMenuProductNavigationControlMenuEntry
 		else {
 			values.put("cssClass", StringPool.BLANK);
 
-			ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-				WebKeys.THEME_DISPLAY);
+			ThemeDisplay themeDisplay =
+				(ThemeDisplay)httpServletRequest.getAttribute(
+					WebKeys.THEME_DISPLAY);
 
 			PortletDisplay portletDisplay = themeDisplay.getPortletDisplay();
 
 			PortletURL portletURL = PortletURLFactoryUtil.create(
-				request,
+				httpServletRequest,
 				ProductNavigationProductMenuPortletKeys.
 					PRODUCT_NAVIGATION_PRODUCT_MENU,
 				RenderRequest.RENDER_PHASE);
@@ -160,7 +153,7 @@ public class ProductMenuProductNavigationControlMenuEntry
 			values.put("dataURL", "data-url='" + portletURL.toString() + "'");
 		}
 
-		Writer writer = response.getWriter();
+		Writer writer = httpServletResponse.getWriter();
 
 		writer.write(StringUtil.replace(_TMPL_CONTENT, "${", "}", values));
 
@@ -168,21 +161,33 @@ public class ProductMenuProductNavigationControlMenuEntry
 	}
 
 	@Override
-	public boolean isShow(HttpServletRequest request) throws PortalException {
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+	public boolean isShow(HttpServletRequest httpServletRequest)
+		throws PortalException {
 
-		if (themeDisplay.isImpersonated()) {
-			return true;
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+		if (!themeDisplay.isSignedIn()) {
+			return false;
 		}
 
 		User user = themeDisplay.getUser();
 
-		if (themeDisplay.isSignedIn() && user.isSetupComplete()) {
-			return true;
+		if (!themeDisplay.isImpersonated() && !user.isSetupComplete()) {
+			return false;
 		}
 
-		return false;
+		List<PanelCategory> childPanelCategories =
+			_panelCategoryRegistry.getChildPanelCategories(
+				PanelCategoryKeys.ROOT, themeDisplay.getPermissionChecker(),
+				themeDisplay.getScopeGroup());
+
+		if (childPanelCategories.isEmpty()) {
+			return false;
+		}
+
+		return true;
 	}
 
 	private void _processBodyBottomContent(PageContext pageContext) {
@@ -191,11 +196,11 @@ public class ProductMenuProductNavigationControlMenuEntry
 
 			jspWriter.write("<div class=\"");
 
-			HttpServletRequest request =
+			HttpServletRequest httpServletRequest =
 				(HttpServletRequest)pageContext.getRequest();
 
 			String productMenuState = SessionClicks.get(
-				request,
+				httpServletRequest,
 				ProductNavigationProductMenuWebKeys.
 					PRODUCT_NAVIGATION_PRODUCT_MENU_STATE,
 				"closed");
@@ -233,6 +238,9 @@ public class ProductMenuProductNavigationControlMenuEntry
 
 	private static final String _TMPL_CONTENT = StringUtil.read(
 		ProductMenuProductNavigationControlMenuEntry.class, "icon.tmpl");
+
+	@Reference
+	private PanelCategoryRegistry _panelCategoryRegistry;
 
 	@Reference
 	private Portal _portal;

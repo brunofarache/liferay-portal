@@ -20,10 +20,10 @@
 
 <aui:input id="assetDisplayPageIdInput" ignoreRequestValue="<%= true %>" name="assetDisplayPageId" type="hidden" value="<%= selectAssetDisplayPageDisplayContext.getAssetDisplayPageId() %>" />
 
-<aui:select label="" name="displayPageType" value="<%= selectAssetDisplayPageDisplayContext.getAssetDisplayPageType() %>">
-	<aui:option label="default-display-page" value="<%= AssetDisplayPageConstants.TYPE_DEFAULT %>" />
-	<aui:option label="specific-display-page" value="<%= AssetDisplayPageConstants.TYPE_SPECIFIC %>" />
-	<aui:option label="no-display-page" value="<%= AssetDisplayPageConstants.TYPE_NONE %>" />
+<aui:select label="" name="displayPageType" title="display-page-template-type" value="<%= selectAssetDisplayPageDisplayContext.getAssetDisplayPageType() %>">
+	<aui:option label="default-display-page-template" value="<%= AssetDisplayPageConstants.TYPE_DEFAULT %>" />
+	<aui:option label="specific-display-page-template" value="<%= AssetDisplayPageConstants.TYPE_SPECIFIC %>" />
+	<aui:option label="no-display-page-template" value="<%= AssetDisplayPageConstants.TYPE_NONE %>" />
 </aui:select>
 
 <div class="input-group <%= selectAssetDisplayPageDisplayContext.isAssetDisplayPageTypeDefault() ? StringPool.BLANK : "hide" %>" id="<portlet:namespace />defaultDisplayPageNameContainer">
@@ -33,7 +33,7 @@
 	%>
 
 	<div class="input-group-item">
-		<input class="field form-control lfr-input-text" id="<portlet:namespace />defaultDisplayPageNameInput" readonly="readonly" title="<%= LanguageUtil.get(resourceBundle, "default-display-page") %>" type="text" value="<%= Validator.isNotNull(defaultAssetDisplayPageName) ? defaultAssetDisplayPageName : LanguageUtil.get(resourceBundle, "no-default-display-page") %>" />
+		<input class="field form-control lfr-input-text" id="<portlet:namespace />defaultDisplayPageNameInput" readonly="readonly" title="<%= LanguageUtil.get(resourceBundle, "default-display-page-template") %>" type="text" value="<%= Validator.isNotNull(defaultAssetDisplayPageName) ? defaultAssetDisplayPageName : LanguageUtil.get(resourceBundle, "no-default-display-page-template") %>" />
 	</div>
 
 	<c:if test="<%= selectAssetDisplayPageDisplayContext.isAssetDisplayPageTypeDefault() && selectAssetDisplayPageDisplayContext.isShowViewInContextLink() && selectAssetDisplayPageDisplayContext.isURLViewInContext() %>">
@@ -49,20 +49,19 @@
 </div>
 
 <div class="<%= selectAssetDisplayPageDisplayContext.isAssetDisplayPageTypeSpecific() ? StringPool.BLANK : "hide" %>" id="<portlet:namespace />specificDisplayPageNameContainer">
-	<div class="input-group">
+	<div class="input-group mb-2">
 
 		<%
 		String specificAssetDisplayPageName = selectAssetDisplayPageDisplayContext.getSpecificAssetDisplayPageName();
 		%>
 
 		<div class="input-group-item">
-			<input class="field form-control lfr-input-text" id="<portlet:namespace />specificDisplayPageNameInput" readonly="readonly" title="<%= LanguageUtil.get(resourceBundle, "specific-display-page") %>" type="text" value="<%= Validator.isNotNull(specificAssetDisplayPageName) ? specificAssetDisplayPageName : LanguageUtil.get(resourceBundle, "no-display-page-selected") %>" />
+			<input class="field form-control lfr-input-text" id="<portlet:namespace />specificDisplayPageNameInput" readonly="readonly" title="<%= LanguageUtil.get(resourceBundle, "specific-display-page-template") %>" type="text" value="<%= Validator.isNotNull(specificAssetDisplayPageName) ? specificAssetDisplayPageName : LanguageUtil.get(resourceBundle, "no-display-page-template-selected") %>" />
 		</div>
 
 		<c:if test="<%= selectAssetDisplayPageDisplayContext.isAssetDisplayPageTypeSpecific() && selectAssetDisplayPageDisplayContext.isShowViewInContextLink() && selectAssetDisplayPageDisplayContext.isURLViewInContext() %>">
 			<div class="input-group-item input-group-item-shrink">
 				<clay:button
-					elementClasses="ml-2"
 					icon="view"
 					id='<%= liferayPortletResponse.getNamespace() + "previewSpecificDisplayPageButton" %>'
 					monospaced="<%= true %>"
@@ -72,7 +71,7 @@
 		</c:if>
 	</div>
 
-	<div class="button-holder">
+	<div class="btn-group">
 		<aui:button name="chooseSpecificDisplayPage" value="select" />
 	</div>
 </div>
@@ -81,6 +80,7 @@
 	var assetDisplayPageIdInput = document.getElementById('<portlet:namespace />assetDisplayPageIdInput');
 	var chooseSpecificDisplayPage = document.getElementById('<portlet:namespace />chooseSpecificDisplayPage');
 	var pagesContainerInput = document.getElementById('<portlet:namespace />pagesContainerInput');
+	var previewSpecificDisplayPageButton = document.getElementById('<portlet:namespace />previewSpecificDisplayPageButton');
 	var specificDisplayPageNameInput = document.getElementById('<portlet:namespace />specificDisplayPageNameInput');
 
 	chooseSpecificDisplayPage.addEventListener(
@@ -106,6 +106,10 @@
 								}
 
 								specificDisplayPageNameInput.value = selectedItem.name;
+
+								if (previewSpecificDisplayPageButton) {
+									previewSpecificDisplayPageButton.parentNode.remove();
+								}
 							}
 						}
 					},
@@ -140,8 +144,6 @@
 			}
 		);
 	}
-
-	var previewSpecificDisplayPageButton = document.getElementById('<portlet:namespace />previewSpecificDisplayPageButton');
 
 	if (previewSpecificDisplayPageButton) {
 		previewSpecificDisplayPageButton.addEventListener(

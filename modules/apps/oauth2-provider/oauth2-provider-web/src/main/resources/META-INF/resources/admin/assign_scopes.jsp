@@ -22,17 +22,25 @@ String redirect = ParamUtil.getString(request, "redirect");
 OAuth2Application oAuth2Application = oAuth2AdminPortletDisplayContext.getOAuth2Application();
 
 AssignScopesDisplayContext assignScopesDisplayContext = (AssignScopesDisplayContext)oAuth2AdminPortletDisplayContext;
-
-List<String> assignedScopes = Collections.emptyList();
-
-if (oAuth2Application.getOAuth2ApplicationScopeAliasesId() > 0) {
-	OAuth2ApplicationScopeAliases oAuth2ApplicationScopeAliases = OAuth2ApplicationScopeAliasesLocalServiceUtil.getOAuth2ApplicationScopeAliases(oAuth2Application.getOAuth2ApplicationScopeAliasesId());
-
-	assignedScopes = oAuth2ApplicationScopeAliases.getScopeAliasesList();
-}
 %>
 
 <div class="container-fluid container-fluid-max-xl container-view">
+	<liferay-ui:error exception="<%= OAuth2ApplicationClientCredentialUserIdException.class %>">
+
+		<%
+		OAuth2ApplicationClientCredentialUserIdException oAuth2ApplicationClientCredentialUserIdException = ((OAuth2ApplicationClientCredentialUserIdException)errorException);
+		%>
+
+		<c:choose>
+			<c:when test="<%= Validator.isNotNull(oAuth2ApplicationClientCredentialUserIdException.getClientCredentialUserScreenName()) %>">
+				<liferay-ui:message arguments="<%= oAuth2ApplicationClientCredentialUserIdException.getClientCredentialUserScreenName() %>" key="this-operation-cannot-be-performed-because-you-cannot-impersonate-x" />
+			</c:when>
+			<c:otherwise>
+				<liferay-ui:message arguments="<%= oAuth2ApplicationClientCredentialUserIdException.getClientCredentialUserId() %>" key="this-operation-cannot-be-performed-because-you-cannot-impersonate-x" />
+			</c:otherwise>
+		</c:choose>
+	</liferay-ui:error>
+
 	<div class="row">
 		<div class="col-lg-12">
 			<portlet:actionURL name="/admin/assign_scopes" var="assignScopesURL">
@@ -57,7 +65,7 @@ if (oAuth2Application.getOAuth2ApplicationScopeAliasesId() > 0) {
 						</li>
 					</ul>
 
-					<div class="tab-content">
+					<div class="hidden tab-content" id="<portlet:namespace />navScopeTypesTabContents">
 						<div aria-labelledby="navResourceScopesTab" class="active fade show tab-pane" id="<portlet:namespace />navResourceScopes" role="tabpanel">
 							<%@ include file="/admin/assign_scopes_tab1.jspf" %>
 						</div>
@@ -84,28 +92,16 @@ if (oAuth2Application.getOAuth2ApplicationScopeAliasesId() > 0) {
 	AUI().use(
 		'node',
 		'aui-modal',
-		'event-outside',
 		function(A) {
 			if (A.all('#<portlet:namespace />navGlobalScopes .panel').size() > 0) {
 				A.one('#<portlet:namespace />navScopeTypes').toggleClass('hidden', false);
 			}
 
-			var modal = new A.Modal(
-				{
-					centered: true,
-					cssClass: 'assign-scopes-modal',
-					visible: false,
-					zIndex: Liferay.zIndex.OVERLAY,
-					modal: true,
-					width: 1000,
-					bodyContent: '<div id="<portlet:namespace />modalBody"/>',
-					headerContent: '<%= UnicodeLanguageUtil.get(request, "choose-one-of-the-following-global-scopes-that-include-this-resource-scope") %>'
-				}
-			).render();
+			A.one('#<portlet:namespace />navScopeTypesTabContents').toggleClass('hidden', false);
 
 			var handle;
 
-			var appsAccordion = A.one('#appsAccordion');
+			var appsAccordion = A.one('#<portlet:namespace />appsAccordion');
 
 			appsAccordion.delegate(
 				'click',
@@ -123,20 +119,73 @@ if (oAuth2Application.getOAuth2ApplicationScopeAliasesId() > 0) {
 						return true;
 					}
 
+					var modal = new A.Modal(
+						{
+							centered: true,
+							cssClass: 'assign-scopes-modal modal-full-screen',
+							destroyOnHide: true,
+							visible: true,
+							zIndex: Liferay.zIndex.OVERLAY,
+							modal: true,
+							bodyContent: '<div id="<portlet:namespace />modalBody"/>',
+							headerContent: '<%= UnicodeLanguageUtil.get(request, "choose-one-of-the-following-global-scopes-that-include-this-resource-scope") %>'
+						}
+					).render();
+
+					modal.on(
+						'visibleChange',
+						function(event) {
+							if (event.newVal) {
+								return;
+							}
+
+							document.querySelectorAll('#<portlet:namespace />globalAccordion .panel').forEach(
+								function(globalAccordionPanel) {
+									globalAccordionPanel.classList.remove('hide');
+								}
+							);
+
+							var globalAccordion = document.getElementById('<portlet:namespace />globalAccordion');
+							var navGlobalScopes = document.getElementById('<portlet:namespace />navGlobalScopes');
+
+							if (navGlobalScopes && globalAccordion) {
+								dom.append(navGlobalScopes, globalAccordion);
+							}
+						}
+					);
+
+					modal.addToolbar(
+						[
+							{
+								cssClass: 'btn-primary',
+								label: '<liferay-ui:message key="close" />',
+								on: {
+									click: function() {
+										modal.hide();
+									}
+								}
+							}
+						]);
+
 					var scopeAliases = currentTarget.attr("data-slave").split(" ");
 
-					var globalAccordionPanel = document.querySelector('#<portlet:namespace />globalAccordion .panel');
-
-					if (globalAccordionPanel) {
-						globalAccordionPanel.classList.add('hide');
-					}
+					document.querySelectorAll('#<portlet:namespace />globalAccordion .panel').forEach(
+						function(globalAccordionPanel) {
+							globalAccordionPanel.classList.add('hide');
+						}
+					);
 
 					for (var i = 0; i < scopeAliases.length; i++) {
-						var scopeAlias = document.querySelector('#<portlet:namespace />globalAccordion #<portlet:namespace />' + scopeAliases[i].replace(/[\.#]/g, '') + '.panel');
+						document.querySelectorAll('#<portlet:namespace />globalAccordion .panel[data-master]').forEach(
+							function(globalAccordionPanel) {
+								var masterScopeAliases = globalAccordionPanel.getAttribute("data-master");
 
-						if (scopeAlias) {
-							scopeAlias.classList.remove('hide');
-						}
+								var array = masterScopeAliases.split(" ");
+
+								if (array.indexOf(scopeAliases[i]) >= 0) {
+									globalAccordionPanel.classList.remove('hide');
+								}
+							});
 					}
 
 					var globalAccordion = document.getElementById('<portlet:namespace />globalAccordion');
@@ -145,31 +194,6 @@ if (oAuth2Application.getOAuth2ApplicationScopeAliasesId() > 0) {
 					if (globalAccordion && modalBody) {
 						dom.append(modalBody, globalAccordion);
 					}
-
-					var boundingBox = modal.get('boundingBox');
-
-					handle = boundingBox.once(
-						'clickoutside',
-						function() {
-							modal.hide();
-
-							var globalAccordionPanel = document.querySelector('#<portlet:namespace />globalAccordion .panel');
-
-							if (globalAccordionPanel) {
-								globalAccordionPanel.classList.remove('hide');
-							}
-
-							var globalAccordion = document.getElementById('<portlet:namespace />globalAccordion');
-							var navGlobalScopes = document.getElementById('<portlet:namespace />navGlobalScopes');
-
-							if (navGlobalScopes && globalAccordion) {
-								dom.append(navGlobalScopes, globalAccordion);
-							}
-						},
-						modal
-					);
-
-					modal.show();
 
 					event.preventDefault();
 
@@ -182,6 +206,13 @@ if (oAuth2Application.getOAuth2ApplicationScopeAliasesId() > 0) {
 				var checkbox = A.one(checkboxElement);
 
 				var value = checkbox.val();
+				if (!value) {
+					return;
+				}
+
+				var processedScopeAliases = value.split(" ");
+
+				var scopeAlias = processedScopeAliases[0];
 
 				<portlet:namespace />changeScopeAliasStickyStatus(value, checkbox.attr('checked'));
 
@@ -189,7 +220,7 @@ if (oAuth2Application.getOAuth2ApplicationScopeAliasesId() > 0) {
 					function() {
 						var array = this.attr("data-slave").split(" ");
 
-						return array.indexOf(value) >= 0;
+						return array.indexOf(scopeAlias) >= 0;
 					}
 				).each(
 					function() {
@@ -199,16 +230,31 @@ if (oAuth2Application.getOAuth2ApplicationScopeAliasesId() > 0) {
 
 						var logicalOR = checkbox.attr('checked');
 
-						for (var i = 0; i < scopeAliases.length; i++) {
-							var scopeAliasChecked = document.querySelectorAll('input[value="' + scopeAliases[i] + '"]:checked');
+						for (var i = 0; i < scopeAliases.length && !logicalOR; i++) {
 
-							logicalOR = logicalOR || scopeAliasChecked.length > 0;
-
-							if (logicalOR) {
-								slave.attr('checked', true);
-								slave.attr('disabled', true);
-								return;
+							if (processedScopeAliases.indexOf(scopeAliases[i]) >= 0) {
+								continue;
 							}
+
+							A.all('#<portlet:namespace />globalAccordion .panel[data-master]').filter(
+								function() {
+									return this.one('input:checked');
+								}
+							).each(
+								function() {
+									var array = this.attr("data-master").split(" ");
+
+									if (array.indexOf(scopeAliases[i]) >= 0) {
+										logicalOR = true;
+										processedScopeAliases.concat(array);
+									}
+								});
+						}
+
+						if (logicalOR) {
+							slave.attr('checked', true);
+							slave.attr('disabled', true);
+							return;
 						}
 
 						var index = <portlet:namespace />getArrayIndexOfStickyScopeAlias(slave.val());
@@ -216,7 +262,7 @@ if (oAuth2Application.getOAuth2ApplicationScopeAliasesId() > 0) {
 							slave.attr('checked', false);
 						}
 
-						if (slave.attr('name')) {
+						if (slave.attr('name') == '<portlet:namespace />scopeAliases') {
 							slave.attr('disabled', false);
 						}
 					}
@@ -234,7 +280,9 @@ if (oAuth2Application.getOAuth2ApplicationScopeAliasesId() > 0) {
 
 			<portlet:namespace />changeScopeAliasStickyStatus = function(scopeAlias, sticky) {
 				if (sticky) {
-					<portlet:namespace />stickyScopeAliases.push(scopeAlias);
+					if (<portlet:namespace />stickyScopeAliases.indexOf(scopeAlias) < 0) {
+						<portlet:namespace />stickyScopeAliases.push(scopeAlias);
+					}
 				}
 				else {
 					var index = <portlet:namespace />getArrayIndexOfStickyScopeAlias(scopeAlias);
@@ -253,16 +301,6 @@ if (oAuth2Application.getOAuth2ApplicationScopeAliasesId() > 0) {
 				}
 				return -1;
 			}
-
-			<%
-			for (String assignedScope : assignedScopes) {
-				%>
-
-					<portlet:namespace />changeScopeAliasStickyStatus('<%= HtmlUtil.escapeJS(assignedScope) %>', true);
-
-				<%
-				}
-			%>
 
 			<portlet:namespace />recalculateAll();
 
@@ -284,6 +322,23 @@ if (oAuth2Application.getOAuth2ApplicationScopeAliasesId() > 0) {
 					document.<portlet:namespace/>fm.submit();
 				}
 			);
+
+			A.all('#<portlet:namespace />appsAccordion .panel').filter(
+				function() {
+					return this.one('input:checked');
+				}
+			).each(
+				function() {
+
+					var panelHeaderElement = this.one('*[data-toggle="collapse"]');
+
+					panelHeaderElement.attr('aria-expanded', 'true')
+					panelHeaderElement.removeClass('collapsed');
+
+					var panelBodyElement = this.one('.collapse');
+
+					panelBodyElement.addClass('show');
+				});
 		}
 	);
 </aui:script>

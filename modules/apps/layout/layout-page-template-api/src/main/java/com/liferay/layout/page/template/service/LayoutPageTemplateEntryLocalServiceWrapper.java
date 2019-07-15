@@ -14,9 +14,9 @@
 
 package com.liferay.layout.page.template.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.service.ServiceWrapper;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link LayoutPageTemplateEntryLocalService}.
@@ -322,6 +322,16 @@ public class LayoutPageTemplateEntryLocalServiceWrapper
 
 		return _layoutPageTemplateEntryLocalService.dynamicQueryCount(
 			dynamicQuery, projection);
+	}
+
+	@Override
+	public com.liferay.layout.page.template.model.LayoutPageTemplateEntry
+		fetchDefaultLayoutPageTemplateEntry(
+			long groupId, long classNameId, long classTypeId) {
+
+		return _layoutPageTemplateEntryLocalService.
+			fetchDefaultLayoutPageTemplateEntry(
+				groupId, classNameId, classTypeId);
 	}
 
 	@Override
@@ -672,17 +682,6 @@ public class LayoutPageTemplateEntryLocalServiceWrapper
 	@Override
 	public com.liferay.layout.page.template.model.LayoutPageTemplateEntry
 			updateLayoutPageTemplateEntry(
-				long userId, long layoutPageTemplateEntryId, int status)
-		throws com.liferay.portal.kernel.exception.PortalException {
-
-		return _layoutPageTemplateEntryLocalService.
-			updateLayoutPageTemplateEntry(
-				userId, layoutPageTemplateEntryId, status);
-	}
-
-	@Override
-	public com.liferay.layout.page.template.model.LayoutPageTemplateEntry
-			updateLayoutPageTemplateEntry(
 				long layoutPageTemplateEntryId, long classNameId,
 				long classTypeId)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -726,6 +725,16 @@ public class LayoutPageTemplateEntryLocalServiceWrapper
 			updateLayoutPageTemplateEntry(
 				layoutPageTemplateEntryId, name, fragmentEntryIds,
 				editableValues, serviceContext);
+	}
+
+	@Override
+	public com.liferay.layout.page.template.model.LayoutPageTemplateEntry
+			updateStatus(
+				long userId, long layoutPageTemplateEntryId, int status)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _layoutPageTemplateEntryLocalService.updateStatus(
+			userId, layoutPageTemplateEntryId, status);
 	}
 
 	@Override

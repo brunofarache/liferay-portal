@@ -46,11 +46,11 @@ public class LayoutPrototypeManagementToolbarDisplayContext
 	public LayoutPrototypeManagementToolbarDisplayContext(
 		LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse,
-		HttpServletRequest request,
+		HttpServletRequest httpServletRequest,
 		LayoutPrototypeDisplayContext layoutPrototypeDisplayContext) {
 
 		super(
-			liferayPortletRequest, liferayPortletResponse, request,
+			liferayPortletRequest, liferayPortletResponse, httpServletRequest,
 			layoutPrototypeDisplayContext.getSearchContainer());
 
 		_layoutPrototypeDisplayContext = layoutPrototypeDisplayContext;
@@ -130,17 +130,13 @@ public class LayoutPrototypeManagementToolbarDisplayContext
 				if (active != null) {
 					if (active) {
 						add(
-							labelItem -> {
-								labelItem.setLabel(
-									LanguageUtil.get(request, "active"));
-							});
+							labelItem -> labelItem.setLabel(
+								LanguageUtil.get(request, "active")));
 					}
 					else {
 						add(
-							labelItem -> {
-								labelItem.setLabel(
-									LanguageUtil.get(request, "inactive"));
-							});
+							labelItem -> labelItem.setLabel(
+								LanguageUtil.get(request, "inactive")));
 					}
 				}
 			}

@@ -14,8 +14,6 @@
 
 package com.liferay.portal.service.http;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.service.LayoutSetPrototypeServiceUtil;
@@ -25,6 +23,8 @@ import java.rmi.RemoteException;
 
 import java.util.Locale;
 import java.util.Map;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the SOAP utility for the
@@ -87,38 +87,6 @@ public class LayoutSetPrototypeServiceSoap {
 			com.liferay.portal.kernel.model.LayoutSetPrototype returnValue =
 				LayoutSetPrototypeServiceUtil.addLayoutSetPrototype(
 					nameMap, descriptionMap, active, layoutsUpdateable,
-					serviceContext);
-
-			return com.liferay.portal.kernel.model.LayoutSetPrototypeSoap.
-				toSoapModel(returnValue);
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 #addLayoutSetPrototype(Map, Map, boolean, boolean,
-	 ServiceContext)}
-	 */
-	@Deprecated
-	public static com.liferay.portal.kernel.model.LayoutSetPrototypeSoap
-			addLayoutSetPrototype(
-				String[] nameMapLanguageIds, String[] nameMapValues,
-				String description, boolean active, boolean layoutsUpdateable,
-				com.liferay.portal.kernel.service.ServiceContext serviceContext)
-		throws RemoteException {
-
-		try {
-			Map<Locale, String> nameMap = LocalizationUtil.getLocalizationMap(
-				nameMapLanguageIds, nameMapValues);
-
-			com.liferay.portal.kernel.model.LayoutSetPrototype returnValue =
-				LayoutSetPrototypeServiceUtil.addLayoutSetPrototype(
-					nameMap, description, active, layoutsUpdateable,
 					serviceContext);
 
 			return com.liferay.portal.kernel.model.LayoutSetPrototypeSoap.
@@ -224,39 +192,6 @@ public class LayoutSetPrototypeServiceSoap {
 			com.liferay.portal.kernel.model.LayoutSetPrototype returnValue =
 				LayoutSetPrototypeServiceUtil.updateLayoutSetPrototype(
 					layoutSetPrototypeId, nameMap, descriptionMap, active,
-					layoutsUpdateable, serviceContext);
-
-			return com.liferay.portal.kernel.model.LayoutSetPrototypeSoap.
-				toSoapModel(returnValue);
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 #updateLayoutSetPrototype(long, Map, Map, boolean, boolean,
-	 ServiceContext)}
-	 */
-	@Deprecated
-	public static com.liferay.portal.kernel.model.LayoutSetPrototypeSoap
-			updateLayoutSetPrototype(
-				long layoutSetPrototypeId, String[] nameMapLanguageIds,
-				String[] nameMapValues, String description, boolean active,
-				boolean layoutsUpdateable,
-				com.liferay.portal.kernel.service.ServiceContext serviceContext)
-		throws RemoteException {
-
-		try {
-			Map<Locale, String> nameMap = LocalizationUtil.getLocalizationMap(
-				nameMapLanguageIds, nameMapValues);
-
-			com.liferay.portal.kernel.model.LayoutSetPrototype returnValue =
-				LayoutSetPrototypeServiceUtil.updateLayoutSetPrototype(
-					layoutSetPrototypeId, nameMap, description, active,
 					layoutsUpdateable, serviceContext);
 
 			return com.liferay.portal.kernel.model.LayoutSetPrototypeSoap.

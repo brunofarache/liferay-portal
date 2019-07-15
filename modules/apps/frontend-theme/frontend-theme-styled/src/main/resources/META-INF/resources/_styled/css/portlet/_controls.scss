@@ -1,7 +1,3 @@
-.freeform .portlet {
-	margin-bottom: 0;
-}
-
 body.portlet {
 	border-width: 0;
 }
@@ -39,14 +35,11 @@ body.portlet {
 	white-space: nowrap;
 }
 
-.panel-page-content, .panel-page-body {
+.panel-page-content,
+.panel-page-body {
 	.portlet-title-text {
 		cursor: auto;
 	}
-}
-
-.portlet-content, .portlet-minimized .portlet-content-container {
-	padding: 12px;
 }
 
 .portlet-minimized .portlet-content {
@@ -78,7 +71,8 @@ body.portlet {
 		}
 	}
 
-	&:hover, &.open {
+	&:hover,
+	&.open {
 		.visible-interaction {
 			display: block;
 		}

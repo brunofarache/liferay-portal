@@ -30,7 +30,7 @@ import com.liferay.sharing.configuration.SharingConfiguration;
 import com.liferay.sharing.configuration.SharingConfigurationFactory;
 import com.liferay.sharing.display.context.util.SharingMenuItemFactory;
 import com.liferay.sharing.display.context.util.SharingToolbarItemFactory;
-import com.liferay.sharing.document.library.internal.security.permission.SharingPermissionHelper;
+import com.liferay.sharing.security.permission.SharingPermission;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,7 +47,8 @@ public class SharingDLDisplayContextFactory implements DLDisplayContextFactory {
 	@Override
 	public DLEditFileEntryDisplayContext getDLEditFileEntryDisplayContext(
 		DLEditFileEntryDisplayContext parentDLEditFileEntryDisplayContext,
-		HttpServletRequest request, HttpServletResponse response,
+		HttpServletRequest httpServletRequest,
+		HttpServletResponse httpServletResponse,
 		DLFileEntryType dlFileEntryType) {
 
 		return parentDLEditFileEntryDisplayContext;
@@ -56,8 +57,8 @@ public class SharingDLDisplayContextFactory implements DLDisplayContextFactory {
 	@Override
 	public DLEditFileEntryDisplayContext getDLEditFileEntryDisplayContext(
 		DLEditFileEntryDisplayContext parentDLEditFileEntryDisplayContext,
-		HttpServletRequest request, HttpServletResponse response,
-		FileEntry fileEntry) {
+		HttpServletRequest httpServletRequest,
+		HttpServletResponse httpServletResponse, FileEntry fileEntry) {
 
 		return parentDLEditFileEntryDisplayContext;
 	}
@@ -65,8 +66,8 @@ public class SharingDLDisplayContextFactory implements DLDisplayContextFactory {
 	@Override
 	public DLViewFileVersionDisplayContext getDLViewFileVersionDisplayContext(
 		DLViewFileVersionDisplayContext parentDLViewFileVersionDisplayContext,
-		HttpServletRequest request, HttpServletResponse response,
-		FileShortcut fileShortcut) {
+		HttpServletRequest httpServletRequest,
+		HttpServletResponse httpServletResponse, FileShortcut fileShortcut) {
 
 		return parentDLViewFileVersionDisplayContext;
 	}
@@ -74,12 +75,13 @@ public class SharingDLDisplayContextFactory implements DLDisplayContextFactory {
 	@Override
 	public DLViewFileVersionDisplayContext getDLViewFileVersionDisplayContext(
 		DLViewFileVersionDisplayContext parentDLViewFileVersionDisplayContext,
-		HttpServletRequest request, HttpServletResponse response,
-		FileVersion fileVersion) {
+		HttpServletRequest httpServletRequest,
+		HttpServletResponse httpServletResponse, FileVersion fileVersion) {
 
 		try {
-			ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-				WebKeys.THEME_DISPLAY);
+			ThemeDisplay themeDisplay =
+				(ThemeDisplay)httpServletRequest.getAttribute(
+					WebKeys.THEME_DISPLAY);
 
 			SharingConfiguration sharingConfiguration =
 				_sharingConfigurationFactory.getGroupSharingConfiguration(
@@ -96,13 +98,13 @@ public class SharingDLDisplayContextFactory implements DLDisplayContextFactory {
 			}
 
 			return new SharingDLViewFileVersionDisplayContext(
-				parentDLViewFileVersionDisplayContext, request, response,
-				fileEntry, fileVersion,
+				parentDLViewFileVersionDisplayContext, httpServletRequest,
+				httpServletResponse, fileEntry, fileVersion,
 				ResourceBundleUtil.getBundle(
 					themeDisplay.getLocale(),
 					SharingDLDisplayContextFactory.class),
 				_sharingMenuItemFactory, _sharingToolbarItemFactory,
-				_sharingPermissionHelper, sharingConfiguration);
+				_sharingPermission, sharingConfiguration);
 		}
 		catch (PortalException pe) {
 			throw new SystemException(
@@ -119,7 +121,7 @@ public class SharingDLDisplayContextFactory implements DLDisplayContextFactory {
 	private SharingMenuItemFactory _sharingMenuItemFactory;
 
 	@Reference
-	private SharingPermissionHelper _sharingPermissionHelper;
+	private SharingPermission _sharingPermission;
 
 	@Reference
 	private SharingToolbarItemFactory _sharingToolbarItemFactory;

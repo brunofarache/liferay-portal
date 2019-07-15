@@ -32,7 +32,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	immediate = true,
-	property = "model.class.name=com.liferay.data.engine.rest.internal.model.InternalDataDefinition",
+	property = "model.class.name=" + DataDefinitionConstants.RESOURCE_NAME,
 	service = ModelResourcePermission.class
 )
 public class InternalDataDefinitionModelResourcePermission
@@ -46,7 +46,7 @@ public class InternalDataDefinitionModelResourcePermission
 
 		if (!contains(permissionChecker, internalDataDefinition, actionId)) {
 			throw new PrincipalException.MustHavePermission(
-				permissionChecker, DataDefinitionConstants.MODEL_RESOURCE_NAME,
+				permissionChecker, DataDefinitionConstants.RESOURCE_NAME,
 				(long)internalDataDefinition.getPrimaryKeyObj(), actionId);
 		}
 	}

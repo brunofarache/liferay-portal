@@ -14,10 +14,9 @@
 
 package com.liferay.document.library.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service utility for DLFolder. This utility wraps
@@ -975,9 +974,6 @@ public class DLFolderLocalServiceUtil {
 		if (_service == null) {
 			_service = (DLFolderLocalService)PortalBeanLocatorUtil.locate(
 				DLFolderLocalService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				DLFolderLocalServiceUtil.class, "_service");
 		}
 
 		return _service;

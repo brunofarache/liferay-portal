@@ -1,3 +1,17 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 import hash from './utils/hash';
 import middlewares from './middlewares/defaults';
 
@@ -8,14 +22,27 @@ import middlewares from './middlewares/defaults';
  * @class
  */
 class Client {
+	/**
+	 * Constructor
+	 * @param {*} uri The Endpoint URI where the data should be sent
+	 */
+	constructor(uri) {
+		this.uri = uri;
+	}
+
 	_getContextEvents(analytics, context) {
 		return analytics.events.filter(event => {
-			return (
-				event.applicationId &&
-				event.contextHash ===
-					hash(context, {unorderedObjects: false}) &&
-				event.eventId
-			);
+			const contextHash = hash(context, {
+				unorderedObjects: false
+			});
+
+			let eventId = false;
+
+			if (event.applicationId && event.contextHash === contextHash) {
+				eventId = event.eventId;
+			}
+
+			return eventId;
 		});
 	}
 
@@ -41,7 +68,7 @@ class Client {
 			credentials: 'same-origin',
 			headers,
 			method: 'POST',
-			mode: 'cors',
+			mode: 'cors'
 		};
 	}
 
@@ -55,15 +82,14 @@ class Client {
 	 */
 	_getRequestBody(analytics, userId, context) {
 		const events = this._getContextEvents(analytics, context);
-		const {analyticsKey, dataSourceId} = analytics.config;
+		const {dataSourceId} = analytics.config;
 
 		return {
-			analyticsKey,
 			context,
 			dataSourceId,
 			events,
 			protocolVersion: '1.0',
-			userId,
+			userId
 		};
 	}
 

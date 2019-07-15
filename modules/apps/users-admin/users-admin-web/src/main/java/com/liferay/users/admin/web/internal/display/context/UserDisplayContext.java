@@ -25,12 +25,12 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.PasswordPolicy;
 import com.liferay.portal.kernel.model.Role;
-import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserConstants;
 import com.liferay.portal.kernel.model.UserGroup;
 import com.liferay.portal.kernel.model.UserGroupGroupRole;
 import com.liferay.portal.kernel.model.UserGroupRole;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.OrganizationLocalServiceUtil;
@@ -46,7 +46,6 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.users.admin.constants.UsersAdminPortletKeys;
 import com.liferay.users.admin.kernel.util.UsersAdminUtil;
 
 import java.util.ArrayList;
@@ -65,21 +64,23 @@ import javax.servlet.http.HttpServletRequest;
 public class UserDisplayContext {
 
 	public UserDisplayContext(
-			HttpServletRequest request, InitDisplayContext initDisplayContext)
+			HttpServletRequest httpServletRequest,
+			InitDisplayContext initDisplayContext)
 		throws PortalException {
 
-		_request = request;
+		_httpServletRequest = httpServletRequest;
 		_initDisplayContext = initDisplayContext;
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		_permissionChecker = themeDisplay.getPermissionChecker();
 
-		_renderResponse = (RenderResponse)_request.getAttribute(
+		_renderResponse = (RenderResponse)_httpServletRequest.getAttribute(
 			JavaConstants.JAVAX_PORTLET_RESPONSE);
 
-		_selUser = PortalUtil.getSelectedUser(request);
+		_selUser = PortalUtil.getSelectedUser(httpServletRequest);
 		_themeDisplay = themeDisplay;
 	}
 
@@ -158,7 +159,7 @@ public class UserDisplayContext {
 		}
 		else {
 			String organizationIds = ParamUtil.getString(
-				_request, "organizationsSearchContainerPrimaryKeys");
+				_httpServletRequest, "organizationsSearchContainerPrimaryKeys");
 
 			if (Validator.isNotNull(organizationIds)) {
 				long[] organizationIdsArray = StringUtil.split(
@@ -244,24 +245,20 @@ public class UserDisplayContext {
 		return new NavigationItemList() {
 			{
 				String toolbarItem = ParamUtil.getString(
-					_request, "toolbarItem", "view-all-users");
+					_httpServletRequest, "toolbarItem", "view-all-users");
 
-				if (!portletName.equals(
-						UsersAdminPortletKeys.MY_ORGANIZATIONS)) {
-
-					add(
-						navigationItem -> {
-							navigationItem.setActive(
-								toolbarItem.equals("view-all-users"));
-							navigationItem.setHref(
-								_renderResponse.createRenderURL(),
-								"toolbarItem", "view-all-users",
-								"saveUsersListView", true, "usersListView",
-								UserConstants.LIST_VIEW_FLAT_USERS);
-							navigationItem.setLabel(
-								LanguageUtil.get(_request, "users"));
-						});
-				}
+				add(
+					navigationItem -> {
+						navigationItem.setActive(
+							toolbarItem.equals("view-all-users"));
+						navigationItem.setHref(
+							_renderResponse.createRenderURL(), "toolbarItem",
+							"view-all-users", "saveUsersListView", true,
+							"usersListView",
+							UserConstants.LIST_VIEW_FLAT_USERS);
+						navigationItem.setLabel(
+							LanguageUtil.get(_httpServletRequest, "users"));
+					});
 
 				add(
 					navigationItem -> {
@@ -273,7 +270,8 @@ public class UserDisplayContext {
 							"usersListView",
 							UserConstants.LIST_VIEW_FLAT_ORGANIZATIONS);
 						navigationItem.setLabel(
-							LanguageUtil.get(_request, "organizations"));
+							LanguageUtil.get(
+								_httpServletRequest, "organizations"));
 					});
 			}
 		};
@@ -329,10 +327,10 @@ public class UserDisplayContext {
 	private static final Log _log = LogFactoryUtil.getLog(
 		UserDisplayContext.class);
 
+	private final HttpServletRequest _httpServletRequest;
 	private final InitDisplayContext _initDisplayContext;
 	private final PermissionChecker _permissionChecker;
 	private final RenderResponse _renderResponse;
-	private final HttpServletRequest _request;
 	private final User _selUser;
 	private final ThemeDisplay _themeDisplay;
 

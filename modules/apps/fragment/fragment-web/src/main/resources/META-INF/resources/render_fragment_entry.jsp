@@ -17,35 +17,26 @@
 <%@ include file="/init.jsp" %>
 
 <%
-long fragmentEntryId = ParamUtil.getLong(renderRequest, "fragmentEntryId");
+long fragmentEntryId = ParamUtil.getLong(request, "fragmentEntryId");
 
 FragmentEntry fragmentEntry = FragmentEntryLocalServiceUtil.fetchFragmentEntry(fragmentEntryId);
 
-String css = BeanParamUtil.getString(fragmentEntry, renderRequest, "css");
-String html = BeanParamUtil.getString(fragmentEntry, renderRequest, "html");
-String js = BeanParamUtil.getString(fragmentEntry, renderRequest, "js");
+String css = BeanParamUtil.getString(fragmentEntry, request, "css");
+String html = BeanParamUtil.getString(fragmentEntry, request, "html");
+String js = BeanParamUtil.getString(fragmentEntry, request, "js");
+String configuration = BeanParamUtil.getString(fragmentEntry, request, "configuration");
 
 FragmentEntryLink fragmentEntryLink = FragmentEntryLinkLocalServiceUtil.createFragmentEntryLink(0);
 
+fragmentEntryLink.setFragmentEntryId(fragmentEntryId);
 fragmentEntryLink.setCss(css);
 fragmentEntryLink.setHtml(html);
 fragmentEntryLink.setJs(js);
-fragmentEntryLink.setFragmentEntryId(fragmentEntryId);
+fragmentEntryLink.setConfiguration(configuration);
 
-try {
+DefaultFragmentRendererContext defaultFragmentRendererContext = new DefaultFragmentRendererContext(fragmentEntryLink);
+
+defaultFragmentRendererContext.setMode(FragmentEntryLinkConstants.VIEW);
 %>
 
-	<%= FragmentEntryRenderUtil.renderFragmentEntryLink(fragmentEntryLink, FragmentEntryLinkConstants.VIEW, request, response) %>
-
-<%
-}
-catch (FragmentEntryContentException fece) {
-%>
-
-	<div class="alert alert-danger">
-		<liferay-ui:message key="<%= fece.getMessage() %>" />
-	</div>
-
-<%
-}
-%>
+<%= fragmentRendererController.render(defaultFragmentRendererContext, request, response) %>

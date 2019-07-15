@@ -22,7 +22,7 @@
 			align-items: center;
 			display: flex;
 			justify-content: space-between;
-			padding: 16px 24px;
+			padding: 12px 14px;
 		}
 
 		.form-header-section-left {
@@ -35,12 +35,8 @@
 			align-items: center;
 			display: flex;
 
-			.members-count-button {
-				margin-right: 24px;
-			}
-
-			.loading-animation {
-				margin: 0 8px 0 0;
+			.toggle-editing {
+				margin-bottom: 0;
 			}
 		}
 
@@ -58,9 +54,5 @@
 
 	.title-editor-root.editing + .source-icon {
 		display: none;
-	}
-
-	.btn {
-		text-transform: capitalize;
 	}
 }

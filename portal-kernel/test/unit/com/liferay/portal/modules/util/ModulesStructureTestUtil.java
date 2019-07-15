@@ -14,14 +14,13 @@
 
 package com.liferay.portal.modules.util;
 
-import aQute.bnd.osgi.Constants;
-
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.StringBundler;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.File;
@@ -46,6 +45,46 @@ import org.junit.Assert;
  * @author Andrea Di Giorgi
  */
 public class ModulesStructureTestUtil {
+
+	public static int compare(String moduleVersion1, String moduleVersion2) {
+		int major1 = 0;
+		int minor1 = 0;
+		int micro1 = 0;
+
+		Matcher matcher = _moduleVersionPattern.matcher(moduleVersion1);
+
+		if (matcher.matches()) {
+			major1 = GetterUtil.getInteger(matcher.group(1));
+			minor1 = GetterUtil.getInteger(matcher.group(3));
+			micro1 = GetterUtil.getInteger(matcher.group(5));
+		}
+
+		int major2 = 0;
+		int minor2 = 0;
+		int micro2 = 0;
+
+		matcher = _moduleVersionPattern.matcher(moduleVersion2);
+
+		if (matcher.matches()) {
+			major2 = GetterUtil.getInteger(matcher.group(1));
+			minor2 = GetterUtil.getInteger(matcher.group(3));
+			micro2 = GetterUtil.getInteger(matcher.group(5));
+		}
+
+		int result = Integer.compare(major1, major2);
+
+		if (result != 0) {
+			return result;
+		}
+
+		result = Integer.compare(minor1, minor2);
+
+		if (result != 0) {
+			return result;
+		}
+
+		return Integer.compare(micro1, micro2);
+	}
 
 	public static boolean contains(Path path, String... strings)
 		throws IOException {
@@ -125,9 +164,9 @@ public class ModulesStructureTestUtil {
 				if (_log.isDebugEnabled()) {
 					_log.debug(
 						StringBundler.concat(
-							"Ignoring dependency in ",
-							String.valueOf(gradlePath), " since version ",
-							moduleVersion, " cannot be parsed: ", dependency),
+							"Ignoring dependency in ", gradlePath,
+							" since version ", moduleVersion,
+							" cannot be parsed: ", dependency),
 						iae);
 				}
 			}
@@ -154,9 +193,9 @@ public class ModulesStructureTestUtil {
 
 			Assert.assertTrue(
 				StringBundler.concat(
-					"Dependency in ", String.valueOf(gradlePath),
-					" points to nonexistent project directory ",
-					String.valueOf(projectDirPath), ": ", matcher.group()),
+					"Dependency in ", gradlePath,
+					" points to nonexistent project directory ", projectDirPath,
+					": ", matcher.group()),
 				Files.exists(projectDirPath));
 
 			Path bndBndPath = projectDirPath.resolve("bnd.bnd");
@@ -170,8 +209,7 @@ public class ModulesStructureTestUtil {
 				if (_log.isDebugEnabled()) {
 					_log.debug(
 						StringBundler.concat(
-							"Ignoring dependency in ",
-							String.valueOf(gradlePath),
+							"Ignoring dependency in ", gradlePath,
 							" since it points to a non-OSGi project: ",
 							matcher.group()),
 						nsfe);
@@ -182,9 +220,8 @@ public class ModulesStructureTestUtil {
 
 			String moduleGroup = "com.liferay";
 			String moduleName = bndProperties.getProperty(
-				Constants.BUNDLE_SYMBOLICNAME);
-			String moduleVersion = bndProperties.getProperty(
-				Constants.BUNDLE_VERSION);
+				"Bundle-SymbolicName");
+			String moduleVersion = bndProperties.getProperty("Bundle-Version");
 
 			String configuration = matcher.group(1);
 
@@ -206,5 +243,7 @@ public class ModulesStructureTestUtil {
 					"version:\\s*['\"](.+)['\"]");
 	private static final Pattern _gradleProjectDependencyPattern =
 		Pattern.compile("(\\w+)\\s+project\\(['\"](.+)['\"]\\)");
+	private static final Pattern _moduleVersionPattern = Pattern.compile(
+		"(\\d{1,10})(\\.(\\d{1,10})(\\.(\\d{1,10})(\\.([-_\\da-zA-Z]+))?)?)?");
 
 }

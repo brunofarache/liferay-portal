@@ -6,6 +6,7 @@
 {template .render}
 	{@param item: ?}
 	{@param itemId: string}
+	{@param itemType: string}
 	{@param buttons: list<[
 		icon: string,
 		id: string,
@@ -14,7 +15,6 @@
 		type: string
 	]>}
 	{@param? _handlePanelButtonClick: any}
-	{@param? _handleFloatingToolbarFocusOut: any}
 	{@param? classes: string}
 	{@param? fixSelectedPanel: bool}
 	{@param? selectedPanelId: string}
@@ -23,27 +23,32 @@
 
 	<div
 		class="fragments-editor__floating-toolbar {$classes ?: ''}"
-		data-onfocusout="{$_handleFloatingToolbarFocusOut}"
+		data-fragments-editor-item-id="{$itemId}"
+		data-fragments-editor-item-type="{$itemType}"
 		tabindex="-1"
 	>
 		{if $spritemap and $buttons and (length($buttons) > 0)}
 			{if (not $selectedPanelId) or (not $fixSelectedPanel)}
-				<div class="fragments-editor__floating-toolbar-buttons popover">
-					{foreach $button in $buttons}
-						{call .button}
-							{param handleButtonClick: $_handlePanelButtonClick /}
-							{param key: $button.id /}
-							{param button: $button /}
-							{param ref: $button.id /}
-							{param selectedPanelId: $selectedPanelId /}
-							{param spritemap: $spritemap /}
-						{/call}
-					{/foreach}
+				<div class="fragments-editor__floating-toolbar-buttons" ref="buttons">
+					<div class="popover">
+						{foreach $button in $buttons}
+							{call .button}
+								{param handleButtonClick: $_handlePanelButtonClick /}
+								{param key: $button.id /}
+								{param button: $button /}
+								{param ref: $button.id /}
+								{param selectedPanelId: $selectedPanelId /}
+								{param spritemap: $spritemap /}
+							{/call}
+						{/foreach}
+					</div>
 				</div>
 			{/if}
+		{/if}
 
-			{if $selectedPanelId}
-				<div class="fragments-editor__floating-toolbar-panel popover">
+		{if $selectedPanelId}
+			<div class="fragments-editor__floating-toolbar-panel" ref="panel">
+				<div class="dropdown-menu position-relative p-0 show">
 					{delcall com.liferay.layout.content.page.editor.web.FloatingToolbarPanel variant="$selectedPanelId"}
 						{param item: $item /}
 						{param itemId: $itemId /}
@@ -52,7 +57,7 @@
 						{param store: $store /}
 					{/delcall}
 				</div>
-			{/if}
+			</div>
 		{/if}
 	</div>
 {/template}
@@ -94,7 +99,7 @@
 		type="button"
 	>
 		<svg class="lexicon-icon">
-			<use xlink:href="{$spritemap}#{$button.icon}"></use>
+			<use xlink:href="{$spritemap ?: ''}#{$button.icon}"></use>
 		</svg>
 	</button>
 {/template}

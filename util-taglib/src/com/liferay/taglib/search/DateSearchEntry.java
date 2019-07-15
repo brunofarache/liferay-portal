@@ -14,12 +14,12 @@
 
 package com.liferay.taglib.search;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import java.text.Format;
@@ -40,9 +40,10 @@ public class DateSearchEntry extends TextSearchEntry {
 	}
 
 	@Override
-	public String getName(HttpServletRequest request) {
+	public String getName(HttpServletRequest httpServletRequest) {
 		if (_date != null) {
-			Object[] localeAndTimeZone = getLocaleAndTimeZone(request);
+			Object[] localeAndTimeZone = getLocaleAndTimeZone(
+				httpServletRequest);
 
 			Locale locale = (Locale)localeAndTimeZone[0];
 
@@ -82,13 +83,16 @@ public class DateSearchEntry extends TextSearchEntry {
 		_userName = userName;
 	}
 
-	protected Object[] getLocaleAndTimeZone(HttpServletRequest request) {
+	protected Object[] getLocaleAndTimeZone(
+		HttpServletRequest httpServletRequest) {
+
 		if ((_locale != null) && (_timeZone != null)) {
 			return new Object[] {_locale, _timeZone};
 		}
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		_locale = themeDisplay.getLocale();
 		_timeZone = themeDisplay.getTimeZone();

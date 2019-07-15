@@ -14,6 +14,7 @@
 
 package com.liferay.portal.model.impl;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -64,7 +65,6 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.RemotePreference;
 import com.liferay.portal.kernel.util.SetUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TimeZoneUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -259,98 +259,6 @@ public class UserImpl extends UserBaseImpl {
 		}
 
 		return emailAddress;
-	}
-
-	/**
-	 * Returns the user's display URL, discounting the URL of the user's default
-	 * intranet site home page.
-	 *
-	 * <p>
-	 * The logic for the display URL to return is as follows:
-	 * </p>
-	 *
-	 * <ol>
-	 * <li>
-	 * If the user is the guest user, return an empty string.
-	 * </li>
-	 * <li>
-	 * Else, if a friendly URL is available for the user's profile, return that
-	 * friendly URL.
-	 * </li>
-	 * <li>
-	 * Otherwise, return the URL of the user's default extranet site home page.
-	 * </li>
-	 * </ol>
-	 *
-	 * @param      portalURL the portal's URL
-	 * @param      mainPath the main path
-	 * @return     the user's display URL
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #getDisplayURL(ThemeDisplay)}
-	 */
-	@Deprecated
-	@Override
-	public String getDisplayURL(String portalURL, String mainPath)
-		throws PortalException {
-
-		return getDisplayURL(portalURL, mainPath, false);
-	}
-
-	/**
-	 * Returns the user's display URL.
-	 *
-	 * <p>
-	 * The logic for the display URL to return is as follows:
-	 * </p>
-	 *
-	 * <ol>
-	 * <li>
-	 * If the user is the guest user, return an empty string.
-	 * </li>
-	 * <li>
-	 * Else, if a friendly URL is available for the user's profile, return that
-	 * friendly URL.
-	 * </li>
-	 * <li>
-	 * Else, if <code>privateLayout</code> is <code>true</code>, return the URL
-	 * of the user's default intranet site home page.
-	 * </li>
-	 * <li>
-	 * Otherwise, return the URL of the user's default extranet site home page.
-	 * </li>
-	 * </ol>
-	 *
-	 * @param      portalURL the portal's URL
-	 * @param      mainPath the main path
-	 * @param      privateLayout whether to use the URL of the user's default
-	 *             intranet(versus extranet)  site home page, if no friendly URL
-	 *             is available for the user's profile
-	 * @return     the user's display URL
-	 * @throws     PortalException
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #getDisplayURL(ThemeDisplay)}
-	 */
-	@Deprecated
-	@Override
-	public String getDisplayURL(
-			String portalURL, String mainPath, boolean privateLayout)
-		throws PortalException {
-
-		if (isDefaultUser()) {
-			return StringPool.BLANK;
-		}
-
-		String profileFriendlyURL = getProfileFriendlyURL();
-
-		if (profileFriendlyURL != null) {
-			return portalURL.concat(
-				PortalUtil.getPathContext()
-			).concat(
-				profileFriendlyURL
-			);
-		}
-
-		return StringPool.BLANK;
 	}
 
 	/**
@@ -933,12 +841,11 @@ public class UserImpl extends UserBaseImpl {
 			return true;
 		}
 
-		if (PropsValues.USERS_REMINDER_QUERIES_ENABLED) {
-			if (Validator.isNull(getReminderQueryQuestion()) ||
-				Validator.isNull(getReminderQueryAnswer())) {
+		if (PropsValues.USERS_REMINDER_QUERIES_ENABLED &&
+			(Validator.isNull(getReminderQueryQuestion()) ||
+			 Validator.isNull(getReminderQueryAnswer()))) {
 
-				return false;
-			}
+			return false;
 		}
 
 		return true;

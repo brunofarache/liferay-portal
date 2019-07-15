@@ -14,14 +14,12 @@
 
 package com.liferay.portal.kernel.search;
 
-import aQute.bnd.annotation.ProviderType;
-
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.search.geolocation.GeoLocationPoint;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 
 import java.io.Serializable;
 
@@ -31,6 +29,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Bruno Farache
@@ -123,13 +123,6 @@ public class Field implements Serializable {
 	public static final String NODE_ID = "nodeId";
 
 	public static final String ORGANIZATION_ID = "organizationId";
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #ENTRY_CLASS_NAME}
-	 */
-	@Deprecated
-	public static final String PORTLET_ID = "portletId";
 
 	public static final String PRIORITY = "priority";
 
@@ -325,14 +318,6 @@ public class Field implements Serializable {
 		_fields.add(field);
 	}
 
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link Query#getBoost}
-	 */
-	@Deprecated
-	public float getBoost() {
-		return _boost;
-	}
-
 	public Date[] getDates() {
 		return _dates;
 	}
@@ -417,15 +402,6 @@ public class Field implements Serializable {
 		return _tokenized;
 	}
 
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             Query#setBoost(float)}
-	 */
-	@Deprecated
-	public void setBoost(float boost) {
-		_boost = boost;
-	}
-
 	public void setDates(Date[] dates) {
 		_dates = dates;
 	}
@@ -439,9 +415,8 @@ public class Field implements Serializable {
 		else {
 			setValue(
 				StringBundler.concat(
-					"lat: ", String.valueOf(geoLocationPoint.getLatitude()),
-					", lon: ",
-					String.valueOf(geoLocationPoint.getLongitude())));
+					"lat: ", geoLocationPoint.getLatitude(), ", lon: ",
+					geoLocationPoint.getLongitude()));
 		}
 	}
 
@@ -597,7 +572,6 @@ public class Field implements Serializable {
 
 	private static final String _UID_PORTLET = "_PORTLET_";
 
-	private float _boost = 1;
 	private Date[] _dates;
 	private final List<Field> _fields = new ArrayList<>();
 	private GeoLocationPoint _geoLocationPoint;

@@ -279,7 +279,10 @@ public class LayoutStagedModelDataHandler
 			Layout parentLayout = _layoutLocalService.fetchLayout(
 				layout.getGroupId(), layout.isPrivateLayout(), parentLayoutId);
 
-			if (parentLayout != null) {
+			if ((parentLayout != null) &&
+				!portletDataContext.isPathProcessed(
+					ExportImportPathUtil.getModelPath(parentLayout))) {
+
 				StagedModelDataHandlerUtil.exportReferenceStagedModel(
 					portletDataContext, layout, parentLayout,
 					PortletDataContext.REFERENCE_TYPE_PARENT);
@@ -543,9 +546,7 @@ public class LayoutStagedModelDataHandler
 		Layout importedLayout = null;
 
 		if (existingLayout == null) {
-			long plid = _counterLocalService.increment();
-
-			importedLayout = _layoutLocalService.createLayout(plid);
+			importedLayout = _layoutLocalService.create();
 
 			if (layoutsImportMode.equals(
 					PortletDataHandlerKeys.
@@ -604,6 +605,8 @@ public class LayoutStagedModelDataHandler
 			Layout draftLayout = layouts.get(
 				GetterUtil.getLong(
 					layoutElement.attributeValue("draft-layout-id")));
+
+			draftLayout = _layoutLocalService.getLayout(draftLayout.getPlid());
 
 			draftLayout.setClassNameId(_portal.getClassNameId(Layout.class));
 			draftLayout.setClassPK(importedLayout.getPlid());
@@ -1159,9 +1162,7 @@ public class LayoutStagedModelDataHandler
 						layout.getCompanyId());
 				}
 				else if (scopeType.equals("layout")) {
-					Layout scopeLayout = null;
-
-					scopeLayout =
+					Layout scopeLayout =
 						_layoutLocalService.fetchLayoutByUuidAndGroupId(
 							scopeLayoutUuid, portletDataContext.getGroupId(),
 							portletDataContext.isPrivateLayout());
@@ -1192,37 +1193,35 @@ public class LayoutStagedModelDataHandler
 				});
 		}
 
-		List<FragmentEntryLink> fragmentEntryLinks =
-			_fragmentEntryLinkLocalService.getFragmentEntryLinks(
-				layout.getGroupId(), _portal.getClassNameId(Layout.class),
+		List<PortletPreferences> portletPreferencesList =
+			_portletPreferencesLocalService.getPortletPreferencesByPlid(
 				layout.getPlid());
 
-		for (FragmentEntryLink fragmentEntryLink : fragmentEntryLinks) {
-			List<String> fragmentEntryLinkPortletIds =
-				_portletRegistry.getFragmentEntryLinkPortletIds(
-					fragmentEntryLink);
+		for (PortletPreferences portletPreferences : portletPreferencesList) {
+			String portletId = portletPreferences.getPortletId();
 
-			for (String portletId : fragmentEntryLinkPortletIds) {
-				String key = PortletPermissionUtil.getPrimaryKey(
-					layout.getPlid(), portletId);
+			String key = PortletPermissionUtil.getPrimaryKey(
+				layout.getPlid(), portletId);
 
-				long scopeGroupId = portletDataContext.getScopeGroupId();
-
-				Settings portletInstanceSettings =
-					SettingsFactoryUtil.getSettings(
-						new PortletInstanceSettingsLocator(layout, portletId));
-
-				String scopeType = portletInstanceSettings.getValue(
-					"lfrScopeType", null);
-				String scopeLayoutUuid = portletInstanceSettings.getValue(
-					"lfrScopeLayoutUuid", null);
-
-				portletIds.put(
-					key,
-					new Object[] {
-						portletId, scopeGroupId, scopeType, scopeLayoutUuid
-					});
+			if (portletIds.containsKey(key)) {
+				continue;
 			}
+
+			long scopeGroupId = portletDataContext.getScopeGroupId();
+
+			Settings portletInstanceSettings = SettingsFactoryUtil.getSettings(
+				new PortletInstanceSettingsLocator(layout, portletId));
+
+			String scopeType = portletInstanceSettings.getValue(
+				"lfrScopeType", null);
+			String scopeLayoutUuid = portletInstanceSettings.getValue(
+				"lfrScopeLayoutUuid", null);
+
+			portletIds.put(
+				key,
+				new Object[] {
+					portletId, scopeGroupId, scopeType, scopeLayoutUuid
+				});
 		}
 
 		return portletIds;
@@ -1657,11 +1656,6 @@ public class LayoutStagedModelDataHandler
 			importedLayout.setColorSchemeId(layout.getColorSchemeId());
 			importedLayout.setCss(layout.getCss());
 		}
-		else {
-			importedLayout.setThemeId(StringPool.BLANK);
-			importedLayout.setColorSchemeId(StringPool.BLANK);
-			importedLayout.setCss(StringPool.BLANK);
-		}
 	}
 
 	protected void initNewLayoutPermissions(
@@ -1821,6 +1815,9 @@ public class LayoutStagedModelDataHandler
 		layoutElement.addAttribute(
 			"layout-id", String.valueOf(layout.getLayoutId()));
 		layoutElement.addAttribute(
+			"layout-parent-layout-id",
+			String.valueOf(layout.getParentLayoutId()));
+		layoutElement.addAttribute(
 			"layout-priority", String.valueOf(layout.getPriority()));
 
 		String layoutPrototypeUuid = layout.getLayoutPrototypeUuid();
@@ -1975,8 +1972,7 @@ public class LayoutStagedModelDataHandler
 			if (!importedPortletIds.isEmpty()) {
 				_portletLocalService.deletePortlets(
 					importedLayout.getCompanyId(),
-					importedPortletIds.toArray(
-						new String[importedPortletIds.size()]),
+					importedPortletIds.toArray(new String[0]),
 					importedLayout.getPlid());
 			}
 

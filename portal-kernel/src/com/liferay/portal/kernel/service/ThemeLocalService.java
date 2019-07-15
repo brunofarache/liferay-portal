@@ -14,8 +14,6 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.model.ColorScheme;
@@ -29,6 +27,8 @@ import com.liferay.portal.kernel.transaction.Transactional;
 import java.util.List;
 
 import javax.servlet.ServletContext;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service interface for Theme. Methods of this
@@ -89,14 +89,6 @@ public interface ThemeLocalService extends BaseLocalService {
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<Theme> getThemes(long companyId);
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link #getPageThemes}
-	 */
-	@Deprecated
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<Theme> getThemes(
-		long companyId, long groupId, long userId, boolean wapTheme);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<Theme> getWARThemes();

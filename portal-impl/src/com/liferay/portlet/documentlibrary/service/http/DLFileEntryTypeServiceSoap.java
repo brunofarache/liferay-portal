@@ -14,8 +14,6 @@
 
 package com.liferay.portlet.documentlibrary.service.http;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.document.library.kernel.service.DLFileEntryTypeServiceUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -25,6 +23,8 @@ import java.rmi.RemoteException;
 
 import java.util.Locale;
 import java.util.Map;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the SOAP utility for the
@@ -237,6 +237,30 @@ public class DLFileEntryTypeServiceSoap {
 
 	public static
 		com.liferay.document.library.kernel.model.DLFileEntryTypeSoap[] search(
+				long companyId, long folderId, long[] groupIds, String keywords,
+				boolean includeBasicFileEntryType, boolean inherited, int start,
+				int end)
+			throws RemoteException {
+
+		try {
+			java.util.List
+				<com.liferay.document.library.kernel.model.DLFileEntryType>
+					returnValue = DLFileEntryTypeServiceUtil.search(
+						companyId, folderId, groupIds, keywords,
+						includeBasicFileEntryType, inherited, start, end);
+
+			return com.liferay.document.library.kernel.model.
+				DLFileEntryTypeSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static
+		com.liferay.document.library.kernel.model.DLFileEntryTypeSoap[] search(
 				long companyId, long[] groupIds, String keywords,
 				boolean includeBasicFileEntryType, int start, int end,
 				com.liferay.portal.kernel.util.OrderByComparator
@@ -254,6 +278,25 @@ public class DLFileEntryTypeServiceSoap {
 
 			return com.liferay.document.library.kernel.model.
 				DLFileEntryTypeSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static int searchCount(
+			long companyId, long folderId, long[] groupIds, String keywords,
+			boolean includeBasicFileEntryType, boolean inherited)
+		throws RemoteException {
+
+		try {
+			int returnValue = DLFileEntryTypeServiceUtil.searchCount(
+				companyId, folderId, groupIds, keywords,
+				includeBasicFileEntryType, inherited);
+
+			return returnValue;
 		}
 		catch (Exception e) {
 			_log.error(e, e);

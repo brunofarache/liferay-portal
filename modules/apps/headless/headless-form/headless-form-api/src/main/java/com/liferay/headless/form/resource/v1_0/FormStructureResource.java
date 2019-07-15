@@ -16,10 +16,14 @@ package com.liferay.headless.form.resource.v1_0;
 
 import com.liferay.headless.form.dto.v1_0.FormStructure;
 import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 
 import javax.annotation.Generated;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * To access this resource, run:
@@ -30,15 +34,22 @@ import javax.annotation.Generated;
  * @generated
  */
 @Generated("")
+@ProviderType
 public interface FormStructureResource {
-
-	public Page<FormStructure> getContentSpaceFormStructuresPage(
-			Long contentSpaceId, Pagination pagination)
-		throws Exception;
 
 	public FormStructure getFormStructure(Long formStructureId)
 		throws Exception;
 
+	public Page<FormStructure> getSiteFormStructuresPage(
+			Long siteId, Pagination pagination)
+		throws Exception;
+
+	public default void setContextAcceptLanguage(
+		AcceptLanguage contextAcceptLanguage) {
+	}
+
 	public void setContextCompany(Company contextCompany);
+
+	public void setContextUser(User contextUser);
 
 }

@@ -14,8 +14,6 @@
 
 package com.liferay.fragment.model.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.petra.lang.HashUtil;
 import com.liferay.petra.string.StringBundler;
@@ -27,6 +25,8 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import java.util.Date;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The cache model class for representing FragmentEntryLink in entity cache.
@@ -67,7 +67,7 @@ public class FragmentEntryLinkCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(41);
+		StringBundler sb = new StringBundler(45);
 
 		sb.append("{uuid=");
 		sb.append(uuid);
@@ -99,14 +99,18 @@ public class FragmentEntryLinkCacheModel
 		sb.append(html);
 		sb.append(", js=");
 		sb.append(js);
+		sb.append(", configuration=");
+		sb.append(configuration);
 		sb.append(", editableValues=");
 		sb.append(editableValues);
-		sb.append(", position=");
-		sb.append(position);
-		sb.append(", lastPropagationDate=");
-		sb.append(lastPropagationDate);
 		sb.append(", namespace=");
 		sb.append(namespace);
+		sb.append(", position=");
+		sb.append(position);
+		sb.append(", rendererKey=");
+		sb.append(rendererKey);
+		sb.append(", lastPropagationDate=");
+		sb.append(lastPropagationDate);
 		sb.append(", lastPublishDate=");
 		sb.append(lastPublishDate);
 		sb.append("}");
@@ -179,6 +183,13 @@ public class FragmentEntryLinkCacheModel
 			fragmentEntryLinkImpl.setJs(js);
 		}
 
+		if (configuration == null) {
+			fragmentEntryLinkImpl.setConfiguration("");
+		}
+		else {
+			fragmentEntryLinkImpl.setConfiguration(configuration);
+		}
+
 		if (editableValues == null) {
 			fragmentEntryLinkImpl.setEditableValues("");
 		}
@@ -186,7 +197,21 @@ public class FragmentEntryLinkCacheModel
 			fragmentEntryLinkImpl.setEditableValues(editableValues);
 		}
 
+		if (namespace == null) {
+			fragmentEntryLinkImpl.setNamespace("");
+		}
+		else {
+			fragmentEntryLinkImpl.setNamespace(namespace);
+		}
+
 		fragmentEntryLinkImpl.setPosition(position);
+
+		if (rendererKey == null) {
+			fragmentEntryLinkImpl.setRendererKey("");
+		}
+		else {
+			fragmentEntryLinkImpl.setRendererKey(rendererKey);
+		}
 
 		if (lastPropagationDate == Long.MIN_VALUE) {
 			fragmentEntryLinkImpl.setLastPropagationDate(null);
@@ -194,13 +219,6 @@ public class FragmentEntryLinkCacheModel
 		else {
 			fragmentEntryLinkImpl.setLastPropagationDate(
 				new Date(lastPropagationDate));
-		}
-
-		if (namespace == null) {
-			fragmentEntryLinkImpl.setNamespace("");
-		}
-		else {
-			fragmentEntryLinkImpl.setNamespace(namespace);
 		}
 
 		if (lastPublishDate == Long.MIN_VALUE) {
@@ -240,11 +258,13 @@ public class FragmentEntryLinkCacheModel
 		css = objectInput.readUTF();
 		html = objectInput.readUTF();
 		js = objectInput.readUTF();
+		configuration = objectInput.readUTF();
 		editableValues = objectInput.readUTF();
+		namespace = objectInput.readUTF();
 
 		position = objectInput.readInt();
+		rendererKey = objectInput.readUTF();
 		lastPropagationDate = objectInput.readLong();
-		namespace = objectInput.readUTF();
 		lastPublishDate = objectInput.readLong();
 	}
 
@@ -304,15 +324,19 @@ public class FragmentEntryLinkCacheModel
 			objectOutput.writeUTF(js);
 		}
 
+		if (configuration == null) {
+			objectOutput.writeUTF("");
+		}
+		else {
+			objectOutput.writeUTF(configuration);
+		}
+
 		if (editableValues == null) {
 			objectOutput.writeUTF("");
 		}
 		else {
 			objectOutput.writeUTF(editableValues);
 		}
-
-		objectOutput.writeInt(position);
-		objectOutput.writeLong(lastPropagationDate);
 
 		if (namespace == null) {
 			objectOutput.writeUTF("");
@@ -321,6 +345,16 @@ public class FragmentEntryLinkCacheModel
 			objectOutput.writeUTF(namespace);
 		}
 
+		objectOutput.writeInt(position);
+
+		if (rendererKey == null) {
+			objectOutput.writeUTF("");
+		}
+		else {
+			objectOutput.writeUTF(rendererKey);
+		}
+
+		objectOutput.writeLong(lastPropagationDate);
 		objectOutput.writeLong(lastPublishDate);
 	}
 
@@ -339,10 +373,12 @@ public class FragmentEntryLinkCacheModel
 	public String css;
 	public String html;
 	public String js;
+	public String configuration;
 	public String editableValues;
-	public int position;
-	public long lastPropagationDate;
 	public String namespace;
+	public int position;
+	public String rendererKey;
+	public long lastPropagationDate;
 	public long lastPublishDate;
 
 }

@@ -14,11 +14,14 @@
 
 package com.liferay.change.tracking.internal.background.task;
 
-import com.liferay.change.tracking.CTEngineManager;
-import com.liferay.change.tracking.exception.CTException;
+import com.liferay.change.tracking.engine.CTEngineManager;
+import com.liferay.change.tracking.engine.exception.CTEngineException;
+import com.liferay.change.tracking.engine.exception.CTEntryCollisionCTEngineException;
+import com.liferay.change.tracking.engine.exception.CTProcessCTEngineException;
 import com.liferay.change.tracking.internal.background.task.display.CTPublishBackgroundTaskDisplay;
 import com.liferay.change.tracking.internal.process.log.CTProcessLog;
 import com.liferay.change.tracking.internal.process.util.CTProcessMessageSenderUtil;
+import com.liferay.change.tracking.internal.util.CTEntryCollisionUtil;
 import com.liferay.change.tracking.model.CTCollection;
 import com.liferay.change.tracking.model.CTEntry;
 import com.liferay.change.tracking.model.CTEntryAggregate;
@@ -42,6 +45,9 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
+import com.liferay.portal.kernel.transaction.TransactionConfig;
+import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
@@ -92,16 +98,38 @@ public class CTPublishBackgroundTaskExecutor
 	public BackgroundTaskResult execute(BackgroundTask backgroundTask)
 		throws Exception {
 
-		final Map<String, Serializable> taskContextMap =
+		Map<String, Serializable> taskContextMap =
 			backgroundTask.getTaskContextMap();
 
-		final long ctProcessId = GetterUtil.getLong(
+		long ctProcessId = GetterUtil.getLong(
 			taskContextMap.get("ctProcessId"));
-
-		final long ctCollectionId = GetterUtil.getLong(
+		long ctCollectionId = GetterUtil.getLong(
 			taskContextMap.get("ctCollectionId"));
+		boolean ignoreCollision = GetterUtil.getBoolean(
+			taskContextMap.get("ignoreCollision"));
 
-		_publishCTCollection(backgroundTask, ctProcessId, ctCollectionId);
+		try {
+			TransactionInvokerUtil.invoke(
+				_transactionConfig,
+				() -> {
+					_publishCTCollection(
+						backgroundTask, ctProcessId, ctCollectionId,
+						ignoreCollision);
+
+					return null;
+				});
+		}
+		catch (Throwable t) {
+			CTProcessMessageSenderUtil.logCTProcessFailed();
+
+			throw new CTProcessCTEngineException(
+				backgroundTask.getCompanyId(), ctProcessId,
+				"Unable to publish change tracking collection " +
+					ctCollectionId,
+				t);
+		}
+
+		CTProcessMessageSenderUtil.logCTProcessFinished();
 
 		return BackgroundTaskResult.SUCCESS;
 	}
@@ -130,95 +158,81 @@ public class CTPublishBackgroundTaskExecutor
 			"log", FileUtil.createTempFile(ctProcessLogJSON.getBytes()));
 	}
 
+	private void _checkExistingCollisions(
+			CTEntry ctEntry, boolean ignoreCollision)
+		throws CTEntryCollisionCTEngineException {
+
+		if (!ctEntry.isCollision()) {
+			return;
+		}
+
+		CTProcessMessageSenderUtil.logCTEntryCollision(
+			ctEntry, ignoreCollision);
+
+		if (!ignoreCollision) {
+			throw new CTEntryCollisionCTEngineException(
+				ctEntry.getCompanyId(), ctEntry.getCtEntryId());
+		}
+	}
+
 	private void _publishCTCollection(
 			BackgroundTask backgroundTask, long ctProcessId,
-			long ctCollectionId)
+			long ctCollectionId, boolean ignoreCollision)
 		throws Exception {
 
-		try {
-			CTProcess ctProcess = CTProcessLocalServiceUtil.getCTProcess(
-				ctProcessId);
+		CTProcess ctProcess = CTProcessLocalServiceUtil.getCTProcess(
+			ctProcessId);
 
-			CTProcessMessageSenderUtil.logCTProcessStarted(ctProcess);
+		CTProcessMessageSenderUtil.logCTProcessStarted(ctProcess);
 
-			List<CTEntry> ctEntries = _ctEngineManager.getCTEntries(
-				ctCollectionId);
+		List<CTEntry> ctEntries = _ctEngineManager.getCTEntries(ctCollectionId);
 
-			if (ListUtil.isEmpty(ctEntries)) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(
-						"Unable to find change tracking entries with change " +
-							"tracking collection ID " + ctCollectionId);
-				}
-
-				return;
+		if (ListUtil.isEmpty(ctEntries)) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Unable to find change tracking entries with change " +
+						"tracking collection ID " + ctCollectionId);
 			}
 
-			List<CTEntryAggregate> ctEntryAggregates =
-				_ctEngineManager.getCTEntryAggregates(ctCollectionId);
-
-			_publishCTEntriesAndCTEntryAggregates(
-				backgroundTask.getUserId(), ctCollectionId, ctEntries,
-				ctEntryAggregates);
-
-			_attachLogs(backgroundTask);
+			return;
 		}
-		catch (Exception e) {
-			CTProcessMessageSenderUtil.logCTProcessFailed();
 
-			_log.error(
-				"Unable to publish change tracking collection " +
-					ctCollectionId,
-				e);
+		List<CTEntryAggregate> ctEntryAggregates =
+			_ctEngineManager.getCTEntryAggregates(ctCollectionId);
 
-			throw e;
-		}
-		finally {
-			CTProcessMessageSenderUtil.logCTProcessFinished();
-		}
+		_publishCTEntriesAndCTEntryAggregates(
+			backgroundTask.getUserId(), ctCollectionId, ctEntries,
+			ctEntryAggregates, ignoreCollision);
+
+		_attachLogs(backgroundTask);
 	}
 
 	private void _publishCTEntriesAndCTEntryAggregates(
 			long userId, long ctCollectionId, List<CTEntry> ctEntries,
-			List<CTEntryAggregate> ctEntryAggregates)
+			List<CTEntryAggregate> ctEntryAggregates, boolean ignoreCollision)
 		throws Exception {
 
 		User user = UserLocalServiceUtil.getUser(userId);
 
-		Optional<CTCollection> productionCTCollectionOptional =
-			_ctEngineManager.getProductionCTCollectionOptional(
-				user.getCompanyId());
+		for (CTEntry ctEntry : ctEntries) {
+			_publishCTEntry(ctEntry, ignoreCollision);
 
-		long productionCTCollectionId = productionCTCollectionOptional.map(
-			CTCollection::getCtCollectionId
-		).orElseThrow(
-			() -> new CTException(
-				user.getCompanyId(),
-				"Unable to find production the change tracking collection")
-		);
-
-		Stream<CTEntry> ctEntriesStream = ctEntries.stream();
-
-		ctEntriesStream.peek(
-			CTProcessMessageSenderUtil::logCTEntryPublished
-		).forEach(
-			ctEntry -> _publishCTEntry(ctEntry, productionCTCollectionId)
-		);
+			CTProcessMessageSenderUtil.logCTEntryPublished(ctEntry);
+		}
 
 		if (ListUtil.isNotEmpty(ctEntryAggregates)) {
 			Stream<CTEntryAggregate> ctEntryAggregatesStream =
 				ctEntryAggregates.stream();
 
-			ctEntryAggregatesStream.forEach(
-				ctEntryAggregate -> _publishCTEntryAggregate(
-					ctEntryAggregate, productionCTCollectionId));
+			ctEntryAggregatesStream.forEach(this::_publishCTEntryAggregate);
 		}
 
 		Optional<CTCollection> ctCollectionOptional =
-			_ctEngineManager.getCTCollectionOptional(ctCollectionId);
+			_ctEngineManager.getCTCollectionOptional(
+				user.getCompanyId(), ctCollectionId);
 
 		CTCollection ctCollection = ctCollectionOptional.orElseThrow(
-			() -> new CTException(
+			() -> new CTEngineException(
 				user.getCompanyId(),
 				"Unable to find change tracking collection " + ctCollectionId));
 
@@ -237,22 +251,18 @@ public class CTPublishBackgroundTaskExecutor
 		}
 	}
 
-	private void _publishCTEntry(
-		CTEntry ctEntry, long productionCTCollectionId) {
+	private void _publishCTEntry(CTEntry ctEntry, boolean ignoreCollision)
+		throws CTEntryCollisionCTEngineException {
 
-		CTEntryLocalServiceUtil.addCTCollectionCTEntry(
-			productionCTCollectionId, ctEntry);
+		_checkExistingCollisions(ctEntry, ignoreCollision);
 
 		CTEntryLocalServiceUtil.updateStatus(
 			ctEntry.getCtEntryId(), WorkflowConstants.STATUS_APPROVED);
+
+		CTEntryCollisionUtil.checkCollidingCTEntries(ctEntry);
 	}
 
-	private void _publishCTEntryAggregate(
-		CTEntryAggregate ctEntryAggregate, long productionCTCollectionId) {
-
-		CTEntryAggregateLocalServiceUtil.addCTCollectionCTEntryAggregate(
-			productionCTCollectionId, ctEntryAggregate);
-
+	private void _publishCTEntryAggregate(CTEntryAggregate ctEntryAggregate) {
 		CTEntryAggregateLocalServiceUtil.updateStatus(
 			ctEntryAggregate.getCtEntryAggregateId(),
 			WorkflowConstants.STATUS_APPROVED);
@@ -262,5 +272,8 @@ public class CTPublishBackgroundTaskExecutor
 		CTPublishBackgroundTaskExecutor.class);
 
 	private final CTEngineManager _ctEngineManager;
+	private final TransactionConfig _transactionConfig =
+		TransactionConfig.Factory.create(
+			Propagation.REQUIRED, new Class<?>[] {Exception.class});
 
 }

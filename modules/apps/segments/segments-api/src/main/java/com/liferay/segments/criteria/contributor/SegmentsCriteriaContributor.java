@@ -14,10 +14,9 @@
 
 package com.liferay.segments.criteria.contributor;
 
-import aQute.bnd.annotation.ConsumerType;
-
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
+import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.segments.criteria.Criteria;
 import com.liferay.segments.field.Field;
 
@@ -34,7 +33,6 @@ import javax.portlet.PortletRequest;
  * @author Eduardo García
  * @review
  */
-@ConsumerType
 public interface SegmentsCriteriaContributor {
 
 	/**
@@ -63,6 +61,14 @@ public interface SegmentsCriteriaContributor {
 	public default Criteria.Criterion getCriterion(Criteria criteria) {
 		return criteria.getCriterion(getKey());
 	}
+
+	/**
+	 * Returns the entity model associated to the contributor.
+	 *
+	 * @return
+	 * @review
+	 */
+	public EntityModel getEntityModel();
 
 	/**
 	 * Returns the name of the entity model associated to the contributor.

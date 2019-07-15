@@ -33,7 +33,7 @@ import com.liferay.knowledge.base.web.internal.upload.KBArticleAttachmentKBUploa
 import com.liferay.portal.kernel.exception.NoSuchSubscriptionException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Release;
-import com.liferay.portal.kernel.model.RoleConstants;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
@@ -248,17 +248,17 @@ public class AdminPortlet extends BaseKBPortlet {
 		String resourceID = GetterUtil.getString(
 			resourceRequest.getResourceID());
 
-		HttpServletRequest request = _portal.getHttpServletRequest(
+		HttpServletRequest httpServletRequest = _portal.getHttpServletRequest(
 			resourceRequest);
 
 		if (resourceID.equals("infoPanel")) {
 			try {
-				List<KBArticle> kbArticles = getKBArticles(request);
+				List<KBArticle> kbArticles = getKBArticles(httpServletRequest);
 
 				resourceRequest.setAttribute(
 					KBWebKeys.KNOWLEDGE_BASE_KB_ARTICLES, kbArticles);
 
-				List<KBFolder> kbFolders = getKBFolders(request);
+				List<KBFolder> kbFolders = getKBFolders(httpServletRequest);
 
 				resourceRequest.setAttribute(
 					KBWebKeys.KNOWLEDGE_BASE_KB_FOLDERS, kbFolders);
@@ -466,10 +466,6 @@ public class AdminPortlet extends BaseKBPortlet {
 		throws IOException, PortletException {
 
 		try {
-			renderRequest.setAttribute(
-				KBWebKeys.DL_MIME_TYPE_DISPLAY_CONTEXT,
-				dlMimeTypeDisplayContext);
-
 			KBArticle kbArticle = null;
 
 			long kbArticleClassNameId = _portal.getClassNameId(
@@ -549,11 +545,12 @@ public class AdminPortlet extends BaseKBPortlet {
 		}
 	}
 
-	protected List<KBArticle> getKBArticles(HttpServletRequest request)
+	protected List<KBArticle> getKBArticles(
+			HttpServletRequest httpServletRequest)
 		throws Exception {
 
 		long[] kbArticleResourcePrimKeys = ParamUtil.getLongValues(
-			request, "rowIdsKBArticle");
+			httpServletRequest, "rowIdsKBArticle");
 
 		List<KBArticle> kbArticles = new ArrayList<>();
 
@@ -567,10 +564,11 @@ public class AdminPortlet extends BaseKBPortlet {
 		return kbArticles;
 	}
 
-	protected List<KBFolder> getKBFolders(HttpServletRequest request)
+	protected List<KBFolder> getKBFolders(HttpServletRequest httpServletRequest)
 		throws Exception {
 
-		long[] kbFolderIds = ParamUtil.getLongValues(request, "rowIdsKBFolder");
+		long[] kbFolderIds = ParamUtil.getLongValues(
+			httpServletRequest, "rowIdsKBFolder");
 
 		List<KBFolder> kbFolders = new ArrayList<>();
 

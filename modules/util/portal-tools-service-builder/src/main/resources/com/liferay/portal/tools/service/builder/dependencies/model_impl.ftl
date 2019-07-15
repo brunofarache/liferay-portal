@@ -12,6 +12,9 @@
 
 package ${packagePath}.model.impl;
 
+import ${serviceBuilder.getCompatJavaClassName("ProviderType")};
+import ${serviceBuilder.getCompatJavaClassName("StringBundler")};
+
 <#if entity.hasCompoundPK()>
 	import ${apiPackagePath}.service.persistence.${entity.name}PK;
 </#if>
@@ -45,13 +48,9 @@ import ${apiPackagePath}.model.${entity.name}Soap;
 	<#assign versionedEntity = entity.versionedEntity />
 
 	import ${apiPackagePath}.model.${versionedEntity.name};
-	import ${apiPackagePath}.model.impl.${versionedEntity.name}Impl;
 </#if>
 
 import ${apiPackagePath}.service.${entity.name}LocalServiceUtil;
-import ${serviceBuilder.getCompatJavaClassName("StringBundler")};
-
-import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.expando.kernel.util.ExpandoBridgeFactoryUtil;
@@ -81,6 +80,9 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.io.Serializable;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
 
 import java.math.BigDecimal;
 
@@ -500,6 +502,26 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		return _attributeSetterBiConsumers;
 	}
 
+	private static Function<InvocationHandler, ${entity.name}> _getProxyProviderFunction() {
+		Class<?> proxyClass = ProxyUtil.getProxyClass(${entity.name}.class.getClassLoader(), ${entity.name}.class, ModelWrapper.class);
+
+		try {
+			Constructor<${entity.name}> constructor = (Constructor<${entity.name}>)proxyClass.getConstructor(InvocationHandler.class);
+
+			return invocationHandler -> {
+				try {
+					return constructor.newInstance(invocationHandler);
+				}
+				catch (ReflectiveOperationException roe) {
+					throw new InternalError(roe);
+				}
+			};
+		}
+		catch (NoSuchMethodException nsme) {
+			throw new InternalError(nsme);
+		}
+	}
+
 	private static final Map<String, Function<${entity.name}, Object>> _attributeGetterFunctions;
 	private static final Map<String, BiConsumer<${entity.name}, Object>> _attributeSetterBiConsumers;
 
@@ -655,7 +677,7 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		@Override
 		public void populateVersionModel(${versionEntity.name} ${versionEntity.varName}) {
 			<#list entity.entityColumns as entityColumn>
-				<#if !entityColumn.isPrimary() && !stringUtil.equals(entityColumn.methodName, "HeadId") && !stringUtil.equals(entityColumn.methodName, "MvccVersion")>
+				<#if !entityColumn.isPrimary() && !stringUtil.equals(entityColumn.methodName, "HeadId") && !stringUtil.equals(entityColumn.methodName, "MvccVersion") && !entityColumn.isMappingManyToMany()>
 					${versionEntity.varName}.set${entityColumn.methodName}(get${entityColumn.methodName}());
 				</#if>
 			</#list>
@@ -674,7 +696,7 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		@Override
 		public void populateVersionedModel(${versionedEntity.name} ${versionedEntity.varName}) {
 			<#list versionedEntity.entityColumns as entityColumn>
-				<#if !entityColumn.isPrimary() && !stringUtil.equals(entityColumn.methodName, "HeadId") && !stringUtil.equals(entityColumn.methodName, "MvccVersion")>
+				<#if !entityColumn.isPrimary() && !stringUtil.equals(entityColumn.methodName, "HeadId") && !stringUtil.equals(entityColumn.methodName, "MvccVersion") && !entityColumn.isMappingManyToMany()>
 					${versionedEntity.varName}.set${entityColumn.methodName}(get${entityColumn.methodName}());
 				</#if>
 			</#list>
@@ -1397,7 +1419,9 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 	@Override
 	public ${entity.name} toEscapedModel() {
 		if (_escapedModel == null) {
-			_escapedModel = (${entity.name})ProxyUtil.newProxyInstance(_classLoader, _escapedModelInterfaces, new AutoEscapeBeanHandler(this));
+			Function<InvocationHandler, ${entity.name}> escapedModelProxyProviderFunction = EscapedModelProxyProviderFunctionHolder._escapedModelProxyProviderFunction;
+
+			_escapedModel = escapedModelProxyProviderFunction.apply(new AutoEscapeBeanHandler(this));
 		}
 
 		return _escapedModel;
@@ -1740,9 +1764,11 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		}
 	</#if>
 
-	private static final ClassLoader _classLoader = ${entity.name}.class.getClassLoader();
+	private static class EscapedModelProxyProviderFunctionHolder {
 
-	private static final Class<?>[] _escapedModelInterfaces = new Class[] {${entity.name}.class, ModelWrapper.class};
+		private static final Function<InvocationHandler, ${entity.name}> _escapedModelProxyProviderFunction = _getProxyProviderFunction();
+
+	}
 
 	<#if dependencyInjectorDS>
 		private static boolean _entityCacheEnabled;

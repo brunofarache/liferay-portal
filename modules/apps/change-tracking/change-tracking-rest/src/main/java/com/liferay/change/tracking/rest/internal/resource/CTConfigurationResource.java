@@ -14,19 +14,23 @@
 
 package com.liferay.change.tracking.rest.internal.resource;
 
-import com.liferay.change.tracking.CTEngineManager;
-import com.liferay.change.tracking.configuration.CTConfiguration;
-import com.liferay.change.tracking.rest.internal.exception.CTJaxRsException;
+import com.liferay.change.tracking.definition.CTDefinition;
+import com.liferay.change.tracking.engine.CTEngineManager;
+import com.liferay.change.tracking.rest.internal.exception.JaxRsCTEngineException;
 import com.liferay.change.tracking.rest.internal.model.configuration.CTConfigurationModel;
 import com.liferay.change.tracking.rest.internal.model.configuration.CTConfigurationUpdateModel;
 import com.liferay.change.tracking.rest.internal.util.CTJaxRsUtil;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.CompanyLocalService;
+import com.liferay.portal.kernel.util.ResourceBundleUtil;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -50,7 +54,7 @@ import org.osgi.service.component.annotations.ServiceScope;
  */
 @Component(
 	property = {
-		"osgi.jaxrs.application.select=(osgi.jaxrs.name=change-tracking-application)",
+		"osgi.jaxrs.application.select=(osgi.jaxrs.name=Liferay.Change.Tracking.REST)",
 		"osgi.jaxrs.resource=true"
 	},
 	scope = ServiceScope.PROTOTYPE, service = CTConfigurationResource.class
@@ -62,22 +66,25 @@ public class CTConfigurationResource {
 	@Path("/{companyId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public CTConfigurationModel getCtConfigurationModel(
-			@PathParam("companyId") long companyId)
-		throws CTJaxRsException {
+			@PathParam("companyId") long companyId, @Context User user)
+		throws JaxRsCTEngineException {
 
 		CTJaxRsUtil.checkCompany(companyId);
 
-		return _getCTConfigurationModel(companyId);
+		return _getCTConfigurationModel(companyId, user.getLocale());
 	}
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<CTConfigurationModel> getCTConfigurationModels() {
+	public List<CTConfigurationModel> getCTConfigurationModels(
+		@Context User user) {
+
 		List<CTConfigurationModel> ctConfigurationModels = new ArrayList<>();
 
 		for (Company company : _companyLocalService.getCompanies()) {
 			ctConfigurationModels.add(
-				_getCTConfigurationModel(company.getCompanyId()));
+				_getCTConfigurationModel(
+					company.getCompanyId(), user.getLocale()));
 		}
 
 		return ctConfigurationModels;
@@ -90,41 +97,52 @@ public class CTConfigurationResource {
 	public CTConfigurationModel updateCtConfiguration(
 			@PathParam("companyId") long companyId, @Context User user,
 			CTConfigurationUpdateModel ctConfigurationUpdateModel)
-		throws CTJaxRsException {
+		throws JaxRsCTEngineException {
 
 		CTJaxRsUtil.checkCompany(companyId);
 
 		_updateChangeTrackingEnabled(
 			companyId, user, ctConfigurationUpdateModel);
 
-		return _getCTConfigurationModel(companyId);
+		return _getCTConfigurationModel(companyId, user.getLocale());
 	}
 
 	@Reference(
 		cardinality = ReferenceCardinality.MULTIPLE,
-		policy = ReferencePolicy.DYNAMIC, unbind = "_removeCTConfiguration"
+		policy = ReferencePolicy.DYNAMIC, unbind = "_removeCTDefinition"
 	)
-	private void _addCTConfiguration(CTConfiguration<?, ?> ctConfiguration) {
-		_ctConfigurations.add(ctConfiguration);
+	private void _addCTDefinition(CTDefinition<?, ?> ctDefinition) {
+		_ctDefinitions.add(ctDefinition);
 	}
 
-	private CTConfigurationModel _getCTConfigurationModel(long companyId) {
+	private CTConfigurationModel _getCTConfigurationModel(
+		long companyId, Locale locale) {
+
 		Set<String> supportedContentTypeLanguageKeys = new HashSet<>();
 		Set<String> supportedContentTypes = new HashSet<>();
 
-		Stream<CTConfiguration<?, ?>> stream = _ctConfigurations.stream();
+		ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
+			"content.Language", locale, getClass());
+
+		Stream<CTDefinition<?, ?>> stream = _ctDefinitions.stream();
 
 		stream.forEach(
-			ctConfiguration -> {
+			ctDefinition -> {
 				supportedContentTypeLanguageKeys.add(
-					ctConfiguration.getContentTypeLanguageKey());
-				supportedContentTypes.add(ctConfiguration.getContentType());
+					ctDefinition.getContentTypeLanguageKey());
+
+				String contentType = LanguageUtil.get(
+					resourceBundle, ctDefinition.getContentTypeLanguageKey());
+
+				supportedContentTypes.add(contentType);
 			});
 
 		CTConfigurationModel.Builder builder = CTConfigurationModel.forCompany(
 			companyId);
 
-		return builder.setChangeTrackingEnabled(
+		return builder.setChangeTrackingAllowed(
+			_ctEngineManager.isChangeTrackingAllowed(companyId)
+		).setChangeTrackingEnabled(
 			_ctEngineManager.isChangeTrackingEnabled(companyId)
 		).setSupportedContentTypeLanguageKeys(
 			supportedContentTypeLanguageKeys
@@ -133,8 +151,8 @@ public class CTConfigurationResource {
 		).build();
 	}
 
-	private void _removeCTConfiguration(CTConfiguration<?, ?> ctConfiguration) {
-		_ctConfigurations.remove(ctConfiguration);
+	private void _removeCTDefinition(CTDefinition<?, ?> ctDefinition) {
+		_ctDefinitions.remove(ctDefinition);
 	}
 
 	private void _updateChangeTrackingEnabled(
@@ -157,8 +175,7 @@ public class CTConfigurationResource {
 	@Reference
 	private CompanyLocalService _companyLocalService;
 
-	private final Set<CTConfiguration<?, ?>> _ctConfigurations =
-		new HashSet<>();
+	private final Set<CTDefinition<?, ?>> _ctDefinitions = new HashSet<>();
 
 	@Reference
 	private CTEngineManager _ctEngineManager;

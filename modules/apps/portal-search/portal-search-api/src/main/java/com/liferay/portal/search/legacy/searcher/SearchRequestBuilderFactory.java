@@ -14,32 +14,27 @@
 
 package com.liferay.portal.search.legacy.searcher;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.search.searcher.SearchRequestBuilder;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
- * Provides a search request builder that can build a search request based off
- * a legacy search context. For backward compatibility only. New code should use
+ * Creates a search request builder for building a search request from a legacy
+ * search context. This is for backward compatibility only; new code should use
  * {@link com.liferay.portal.search.searcher.SearchRequestBuilderFactory}.
  *
  * @author André de Oliveira
- *
- * @review
  */
 @ProviderType
 public interface SearchRequestBuilderFactory {
 
 	/**
-	 * Provides a search request builder based off a legacy search context.
+	 * Creates a search request builder from a legacy search context.
 	 *
-	 * @param searchContext the search context
+	 * @param  searchContext the search context
 	 * @return the search request builder
-	 *
-	 * @review
 	 */
-	public SearchRequestBuilder getSearchRequestBuilder(
-		SearchContext searchContext);
+	public SearchRequestBuilder builder(SearchContext searchContext);
 
 }

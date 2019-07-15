@@ -62,6 +62,7 @@ import java.io.InputStream;
 import java.net.URL;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -141,6 +142,25 @@ public class FjordSiteInitializer implements SiteInitializer {
 				_PATH + "/fragments/features", serviceContext);
 
 			homeFragmentEntries.addAll(featuresFragmentEntries);
+
+			List<FragmentEntry> headerFragmentEntries = _addFragmentEntries(
+				fragmentCollection.getFragmentCollectionId(),
+				_PATH + "/fragments/common/header", serviceContext);
+
+			FragmentEntry headerFullscreenFragmentEntry = _getFragmentEntry(
+				headerFragmentEntries, "Header");
+
+			downloadFragmentEntries.add(0, headerFullscreenFragmentEntry);
+			featuresFragmentEntries.add(0, headerFullscreenFragmentEntry);
+			homeFragmentEntries.add(0, headerFullscreenFragmentEntry);
+
+			List<FragmentEntry> footerFragmentEntries = _addFragmentEntries(
+				fragmentCollection.getFragmentCollectionId(),
+				_PATH + "/fragments/common/footer", serviceContext);
+
+			downloadFragmentEntries.addAll(footerFragmentEntries);
+			featuresFragmentEntries.addAll(footerFragmentEntries);
+			homeFragmentEntries.addAll(footerFragmentEntries);
 
 			_addLayout(
 				layoutPageTemplateCollection.
@@ -340,6 +360,10 @@ public class FjordSiteInitializer implements SiteInitializer {
 		if (draftLayout != null) {
 			_layoutCopyHelper.copyLayout(draftLayout, layout);
 		}
+
+		_layoutLocalService.updateLayout(
+			layout.getGroupId(), layout.isPrivateLayout(), layout.getLayoutId(),
+			new Date());
 	}
 
 	private ServiceContext _createServiceContext(long groupId)
@@ -361,6 +385,19 @@ public class FjordSiteInitializer implements SiteInitializer {
 		serviceContext.setTimeZone(user.getTimeZone());
 
 		return serviceContext;
+	}
+
+	private FragmentEntry _getFragmentEntry(
+		List<FragmentEntry> fragmentEntries, String name) {
+
+		for (FragmentEntry fragmentEntry : fragmentEntries) {
+			if (name.equals(fragmentEntry.getName())) {
+				return fragmentEntry;
+			}
+		}
+
+		throw new IllegalArgumentException(
+			"Unable to get fragment entry " + name);
 	}
 
 	private long _getPreviewFileEntryId(
@@ -435,8 +472,8 @@ public class FjordSiteInitializer implements SiteInitializer {
 		}
 
 		_layoutSetLocalService.updateLookAndFeel(
-			serviceContext.getScopeGroupId(), false, _THEME_ID,
-			StringPool.BLANK, StringPool.BLANK);
+			serviceContext.getScopeGroupId(), _THEME_ID, StringPool.BLANK,
+			StringPool.BLANK);
 	}
 
 	private static final String _PATH =

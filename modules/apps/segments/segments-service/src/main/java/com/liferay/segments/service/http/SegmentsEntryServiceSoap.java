@@ -14,8 +14,6 @@
 
 package com.liferay.segments.service.http;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
@@ -25,6 +23,8 @@ import java.rmi.RemoteException;
 
 import java.util.Locale;
 import java.util.Map;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the SOAP utility for the
@@ -69,10 +69,10 @@ import java.util.Map;
 public class SegmentsEntryServiceSoap {
 
 	public static com.liferay.segments.model.SegmentsEntrySoap addSegmentsEntry(
-			String[] nameMapLanguageIds, String[] nameMapValues,
-			String[] descriptionMapLanguageIds, String[] descriptionMapValues,
-			boolean active, String criteria, String key, String source,
-			String type,
+			String segmentsEntryKey, String[] nameMapLanguageIds,
+			String[] nameMapValues, String[] descriptionMapLanguageIds,
+			String[] descriptionMapValues, boolean active, String criteria,
+			String source, String type,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws RemoteException {
 
@@ -85,8 +85,8 @@ public class SegmentsEntryServiceSoap {
 
 			com.liferay.segments.model.SegmentsEntry returnValue =
 				SegmentsEntryServiceUtil.addSegmentsEntry(
-					nameMap, descriptionMap, active, criteria, key, source,
-					type, serviceContext);
+					segmentsEntryKey, nameMap, descriptionMap, active, criteria,
+					source, type, serviceContext);
 
 			return com.liferay.segments.model.SegmentsEntrySoap.toSoapModel(
 				returnValue);
@@ -198,10 +198,10 @@ public class SegmentsEntryServiceSoap {
 
 	public static com.liferay.segments.model.SegmentsEntrySoap
 			updateSegmentsEntry(
-				long segmentsEntryId, String[] nameMapLanguageIds,
-				String[] nameMapValues, String[] descriptionMapLanguageIds,
+				long segmentsEntryId, String segmentsEntryKey,
+				String[] nameMapLanguageIds, String[] nameMapValues,
+				String[] descriptionMapLanguageIds,
 				String[] descriptionMapValues, boolean active, String criteria,
-				String key,
 				com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws RemoteException {
 
@@ -214,8 +214,8 @@ public class SegmentsEntryServiceSoap {
 
 			com.liferay.segments.model.SegmentsEntry returnValue =
 				SegmentsEntryServiceUtil.updateSegmentsEntry(
-					segmentsEntryId, nameMap, descriptionMap, active, criteria,
-					key, serviceContext);
+					segmentsEntryId, segmentsEntryKey, nameMap, descriptionMap,
+					active, criteria, serviceContext);
 
 			return com.liferay.segments.model.SegmentsEntrySoap.toSoapModel(
 				returnValue);

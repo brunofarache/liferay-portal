@@ -14,13 +14,13 @@
 
 package com.liferay.taglib.ui;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.language.UnicodeLanguageUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.Http;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.taglib.FileAvailabilityUtil;
 import com.liferay.taglib.util.TagResourceBundleUtil;
@@ -32,6 +32,18 @@ import java.util.ResourceBundle;
  * @author Shuyang Zhou
  */
 public class IconDeleteTag extends IconTag {
+
+	public String getConfirmation() {
+		return _confirmation;
+	}
+
+	public boolean isShowIcon() {
+		return _showIcon;
+	}
+
+	public boolean isTrash() {
+		return _trash;
+	}
 
 	public void setConfirmation(String confirmation) {
 		_confirmation = confirmation;
@@ -75,7 +87,7 @@ public class IconDeleteTag extends IconTag {
 					icon = "trash";
 				}
 				else {
-					icon = "times";
+					icon = "times-circle";
 				}
 			}
 		}

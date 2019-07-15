@@ -14,12 +14,11 @@
 
 package com.liferay.portal.search.searcher;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.search.aggregation.AggregationResult;
 import com.liferay.portal.search.document.Document;
+import com.liferay.portal.search.groupby.GroupByResponse;
 import com.liferay.portal.search.hits.SearchHits;
 import com.liferay.portal.search.stats.StatsResponse;
 
@@ -29,12 +28,14 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
- * Holds various outcomes returned when a search is performed.
+ * Contains the full response of an executed search, as returned from the search
+ * engine. The exact response format and the contents of the response depends on
+ * the search engine and the search request that was executed.
  *
  * @author André de Oliveira
- *
- * @review
  */
 @ProviderType
 public interface SearchResponse {
@@ -43,29 +44,44 @@ public interface SearchResponse {
 
 	public Map<String, AggregationResult> getAggregationResultsMap();
 
+	public long getCount();
+
 	public List<com.liferay.portal.kernel.search.Document> getDocuments71();
 
 	public Stream<Document> getDocumentsStream();
 
+	public String getFederatedSearchKey();
+
+	public SearchResponse getFederatedSearchResponse(String key);
+
+	public Stream<SearchResponse> getFederatedSearchResponsesStream();
+
+	/**
+	 * Returns the map containing the top hits aggregations for each field.
+	 *
+	 * @return the map containing the top hits aggregations
+	 *
+	 * @review
+	 */
+	public List<GroupByResponse> getGroupByResponses();
+
 	public SearchRequest getRequest();
 
 	/**
-	 * Returns the request string submitted to the search engine.
+	 * Returns the request string that was submitted to the search engine. The
+	 * format of the string is dependent on the search engine.
 	 *
-	 * @return the request string in search engine form
-	 *
-	 * @review
+	 * @return the full request string, as returned by the search engine
 	 */
 	public String getRequestString();
 
 	/**
-	 * Returns the response string returned by the search engine. Can be large
-	 * depending on number of results. Must be enabled with
-	 * {@link SearchRequest#isIncludeResponseString()}.
+	 * Returns the response string as returned by the search engine. This can be
+	 * large depending on the number of results; it must be enabled with {@link
+	 * SearchRequest#isIncludeResponseString()}.
 	 *
-	 * @return the response string in search engine form, or blank if disabled
-	 *
-	 * @review
+	 * @return the response string as returned by the search engine, or blank if
+	 *         disabled
 	 */
 	public String getResponseString();
 
@@ -76,8 +92,6 @@ public interface SearchResponse {
 	 * search engine.
 	 *
 	 * @return the map containing the metrics aggregations per field
-	 *
-	 * @review
 	 */
 	public Map<String, StatsResponse> getStatsResponseMap();
 

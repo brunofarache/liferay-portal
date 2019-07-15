@@ -14,8 +14,6 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -37,6 +35,8 @@ import java.io.Serializable;
 
 import java.util.Collection;
 import java.util.List;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service interface for UserNotificationEvent. Methods of this
@@ -80,17 +80,6 @@ public interface UserNotificationEventLocalService
 			long userId, String type, long timestamp, int deliveryType,
 			long deliverBy, String payload, boolean archived,
 			ServiceContext serviceContext)
-		throws PortalException;
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), {@link
-	 #addUserNotificationEvent(long, String, long, int, long,
-	 String, boolean, ServiceContext)}
-	 */
-	@Deprecated
-	public UserNotificationEvent addUserNotificationEvent(
-			long userId, String type, long timestamp, long deliverBy,
-			String payload, boolean archived, ServiceContext serviceContext)
 		throws PortalException;
 
 	/**

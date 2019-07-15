@@ -14,8 +14,6 @@
 
 package com.liferay.portal.search.web.portlet.shared.search;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.facet.Facet;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -28,6 +26,8 @@ import java.util.Optional;
 import javax.portlet.PortletPreferences;
 import javax.portlet.RenderRequest;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * @author André de Oliveira
  */
@@ -37,6 +37,9 @@ public interface PortletSharedSearchResponse {
 	public List<Document> getDocuments();
 
 	public Facet getFacet(String name);
+
+	public SearchResponse getFederatedSearchResponse(
+		Optional<String> federatedSearchKeyOptional);
 
 	/**
 	 * @deprecated As of Judson (7.1.x)
@@ -60,11 +63,9 @@ public interface PortletSharedSearchResponse {
 		RenderRequest renderRequest);
 
 	/**
-	 * @deprecated As of Judson (7.1.x), replaced by {@link #getSearchResponse()}
-	 *             and
-	 *             {@link SearchResponse#getRequestString()}
-	 *
-	 * @review
+	 * @deprecated As of Judson (7.1.x), replaced by {@link
+	 *             #getSearchResponse()} and {@link
+	 *             SearchResponse#getRequestString()}
 	 */
 	@Deprecated
 	public String getQueryString();
@@ -72,9 +73,9 @@ public interface PortletSharedSearchResponse {
 	public List<String> getRelatedQueriesSuggestions();
 
 	/**
-	 * @return the search response as processed by the Liferay Search Framework
+	 * Returns the search response shared by the portlets.
 	 *
-	 * @review
+	 * @return the search response as processed by the Liferay Search Framework
 	 */
 	public SearchResponse getSearchResponse();
 
@@ -85,11 +86,9 @@ public interface PortletSharedSearchResponse {
 	public ThemeDisplay getThemeDisplay(RenderRequest renderRequest);
 
 	/**
-	 * @deprecated As of Mueller (7.2.x), replaced by {@link #getSearchResponse()}
-	 *             and
-	 *             {@link SearchResponse#getTotalHits()}
-	 *
-	 * @review
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #getSearchResponse()} and {@link
+	 *             SearchResponse#getTotalHits()}
 	 */
 	@Deprecated
 	public int getTotalHits();

@@ -14,10 +14,9 @@
 
 package com.liferay.asset.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service utility for AssetVocabulary. This utility wraps
@@ -561,9 +560,6 @@ public class AssetVocabularyLocalServiceUtil {
 			_service =
 				(AssetVocabularyLocalService)PortalBeanLocatorUtil.locate(
 					AssetVocabularyLocalService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				AssetVocabularyLocalServiceUtil.class, "_service");
 		}
 
 		return _service;

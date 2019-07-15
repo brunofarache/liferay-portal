@@ -14,20 +14,21 @@
 
 package com.liferay.portal.security.audit.event.generators.util;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.audit.AuditMessage;
 import com.liferay.portal.kernel.audit.AuditRequestThreadLocal;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 
 import java.util.List;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Mika Koivisto
@@ -60,10 +61,11 @@ public class AuditMessageBuilder {
 			JSONFactoryUtil.createJSONObject();
 
 		if ((realUserId > 0) && (userId != realUserId)) {
-			additionalInfoJSONObject.put("doAsUserId", String.valueOf(userId));
 			additionalInfoJSONObject.put(
-				"doAsUserName",
-				PortalUtil.getUserName(userId, StringPool.BLANK));
+				"doAsUserId", String.valueOf(userId)
+			).put(
+				"doAsUserName", PortalUtil.getUserName(userId, StringPool.BLANK)
+			);
 		}
 
 		if (attributes != null) {
@@ -82,11 +84,13 @@ public class AuditMessageBuilder {
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
 
 		for (Attribute attribute : attributes) {
-			JSONObject attributeJSONObject = JSONFactoryUtil.createJSONObject();
-
-			attributeJSONObject.put("name", attribute.getName());
-			attributeJSONObject.put("newValue", attribute.getNewValue());
-			attributeJSONObject.put("oldValue", attribute.getOldValue());
+			JSONObject attributeJSONObject = JSONUtil.put(
+				"name", attribute.getName()
+			).put(
+				"newValue", attribute.getNewValue()
+			).put(
+				"oldValue", attribute.getOldValue()
+			);
 
 			jsonArray.put(attributeJSONObject);
 		}

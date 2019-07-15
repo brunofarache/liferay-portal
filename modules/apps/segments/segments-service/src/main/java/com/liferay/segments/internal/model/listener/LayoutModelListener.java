@@ -14,19 +14,13 @@
 
 package com.liferay.segments.internal.model.listener;
 
-import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.portal.kernel.exception.ModelListenerException;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.BaseModelListener;
 import com.liferay.portal.kernel.model.Layout;
-import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.ModelListener;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
-import com.liferay.segments.exception.DefaultSegmentsExperienceException;
 import com.liferay.segments.service.SegmentsExperienceLocalService;
-
-import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -38,26 +32,8 @@ import org.osgi.service.component.annotations.Reference;
 public class LayoutModelListener extends BaseModelListener<Layout> {
 
 	@Override
-	public void onAfterCreate(Layout layout) throws ModelListenerException {
-		try {
-			if (!_isPublishedContentLayout(layout)) {
-				return;
-			}
-
-			_addDefaultSegmentsExperience(layout);
-		}
-		catch (PortalException pe) {
-			throw new ModelListenerException(pe);
-		}
-	}
-
-	@Override
 	public void onAfterRemove(Layout layout) throws ModelListenerException {
 		try {
-			if (!_isPublishedContentLayout(layout)) {
-				return;
-			}
-
 			_segmentsExperienceLocalService.deleteSegmentsExperiences(
 				layout.getGroupId(),
 				_classNameLocalService.getClassNameId(Layout.class),
@@ -66,64 +42,6 @@ public class LayoutModelListener extends BaseModelListener<Layout> {
 		catch (Exception e) {
 			throw new ModelListenerException(e);
 		}
-	}
-
-	@Override
-	public void onAfterUpdate(Layout layout) throws ModelListenerException {
-		try {
-			if (!_isPublishedContentLayout(layout) ||
-				ExportImportThreadLocal.isImportInProcess() ||
-				ExportImportThreadLocal.isStagingInProcess()) {
-
-				return;
-			}
-
-			_segmentsExperienceLocalService.getDefaultSegmentsExperience(
-				layout.getGroupId(),
-				_classNameLocalService.getClassNameId(Layout.class),
-				layout.getPlid());
-		}
-		catch (DefaultSegmentsExperienceException dsee) {
-			_addDefaultSegmentsExperience(layout);
-		}
-		catch (Exception e) {
-			throw new ModelListenerException(e);
-		}
-	}
-
-	private void _addDefaultSegmentsExperience(Layout layout) {
-		try {
-			_segmentsExperienceLocalService.addDefaultSegmentsExperience(
-				layout.getGroupId(),
-				_classNameLocalService.getClassNameId(Layout.class),
-				layout.getPlid());
-		}
-		catch (Exception e) {
-			throw new ModelListenerException(e);
-		}
-	}
-
-	private boolean _isPublishedContentLayout(Layout layout)
-		throws PortalException {
-
-		if (!Objects.equals(layout.getType(), LayoutConstants.TYPE_CONTENT)) {
-			return false;
-		}
-
-		if (layout.getClassNameId() != _classNameLocalService.getClassNameId(
-				Layout.class)) {
-
-			return true;
-		}
-
-		Layout draftLayout = _layoutLocalService.fetchLayout(
-			layout.getClassPK());
-
-		if (draftLayout != null) {
-			return false;
-		}
-
-		return true;
 	}
 
 	@Reference

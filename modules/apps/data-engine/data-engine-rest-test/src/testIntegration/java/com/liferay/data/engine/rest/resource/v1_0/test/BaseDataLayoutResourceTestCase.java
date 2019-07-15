@@ -14,45 +14,42 @@
 
 package com.liferay.data.engine.rest.resource.v1_0.test;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
-import com.liferay.data.engine.rest.dto.v1_0.DataLayout;
-import com.liferay.data.engine.rest.resource.v1_0.DataLayoutResource;
+import com.liferay.data.engine.rest.client.dto.v1_0.DataLayout;
+import com.liferay.data.engine.rest.client.http.HttpInvoker;
+import com.liferay.data.engine.rest.client.pagination.Page;
+import com.liferay.data.engine.rest.client.pagination.Pagination;
+import com.liferay.data.engine.rest.client.resource.v1_0.DataLayoutResource;
+import com.liferay.data.engine.rest.client.serdes.v1_0.DataLayoutSerDes;
 import com.liferay.petra.string.StringBundler;
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.Base64;
-import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
-import com.liferay.portal.kernel.util.Http;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.odata.entity.EntityField;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.vulcan.pagination.Page;
-import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.resource.EntityModelResource;
 
 import java.lang.reflect.InvocationTargetException;
 
-import java.net.URL;
-
 import java.text.DateFormat;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -62,9 +59,9 @@ import java.util.stream.Stream;
 import javax.annotation.Generated;
 
 import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.Response;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.lang.time.DateUtils;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -97,7 +94,16 @@ public abstract class BaseDataLayoutResourceTestCase {
 		irrelevantGroup = GroupTestUtil.addGroup();
 		testGroup = GroupTestUtil.addGroup();
 
-		_resourceURL = new URL("http://localhost:8080/o/data-engine/v1.0");
+		testCompany = CompanyLocalServiceUtil.getCompany(
+			testGroup.getCompanyId());
+
+		_dataLayoutResource.setContextCompany(testCompany);
+
+		DataLayoutResource.Builder builder = DataLayoutResource.builder();
+
+		dataLayoutResource = builder.locale(
+			LocaleUtil.getDefault()
+		).build();
 	}
 
 	@After
@@ -107,19 +113,100 @@ public abstract class BaseDataLayoutResourceTestCase {
 	}
 
 	@Test
-	public void testGetContentSpaceDataLayoutPage() throws Exception {
-		Long contentSpaceId =
-			testGetContentSpaceDataLayoutPage_getContentSpaceId();
-		Long irrelevantContentSpaceId =
-			testGetContentSpaceDataLayoutPage_getIrrelevantContentSpaceId();
+	public void testClientSerDesToDTO() throws Exception {
+		ObjectMapper objectMapper = new ObjectMapper() {
+			{
+				configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
+				configure(
+					SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
+				enable(SerializationFeature.INDENT_OUTPUT);
+				setDateFormat(new ISO8601DateFormat());
+				setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+				setSerializationInclusion(JsonInclude.Include.NON_NULL);
+				setVisibility(
+					PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+				setVisibility(
+					PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
+			}
+		};
 
-		if ((irrelevantContentSpaceId != null)) {
+		DataLayout dataLayout1 = randomDataLayout();
+
+		String json = objectMapper.writeValueAsString(dataLayout1);
+
+		DataLayout dataLayout2 = DataLayoutSerDes.toDTO(json);
+
+		Assert.assertTrue(equals(dataLayout1, dataLayout2));
+	}
+
+	@Test
+	public void testClientSerDesToJSON() throws Exception {
+		ObjectMapper objectMapper = new ObjectMapper() {
+			{
+				configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
+				configure(
+					SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
+				setDateFormat(new ISO8601DateFormat());
+				setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+				setSerializationInclusion(JsonInclude.Include.NON_NULL);
+				setVisibility(
+					PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+				setVisibility(
+					PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
+			}
+		};
+
+		DataLayout dataLayout = randomDataLayout();
+
+		String json1 = objectMapper.writeValueAsString(dataLayout);
+		String json2 = DataLayoutSerDes.toJSON(dataLayout);
+
+		Assert.assertEquals(
+			objectMapper.readTree(json1), objectMapper.readTree(json2));
+	}
+
+	@Test
+	public void testEscapeRegexInStringFields() throws Exception {
+		String regex = "^[0-9]+(\\.[0-9]{1,2})\"?";
+
+		DataLayout dataLayout = randomDataLayout();
+
+		dataLayout.setDataLayoutKey(regex);
+		dataLayout.setDefaultLanguageId(regex);
+		dataLayout.setPaginationMode(regex);
+
+		String json = DataLayoutSerDes.toJSON(dataLayout);
+
+		Assert.assertFalse(json.contains(regex));
+
+		dataLayout = DataLayoutSerDes.toDTO(json);
+
+		Assert.assertEquals(regex, dataLayout.getDataLayoutKey());
+		Assert.assertEquals(regex, dataLayout.getDefaultLanguageId());
+		Assert.assertEquals(regex, dataLayout.getPaginationMode());
+	}
+
+	@Test
+	public void testGetDataDefinitionDataLayoutsPage() throws Exception {
+		Page<DataLayout> page =
+			dataLayoutResource.getDataDefinitionDataLayoutsPage(
+				testGetDataDefinitionDataLayoutsPage_getDataDefinitionId(),
+				RandomTestUtil.randomString(), Pagination.of(1, 2));
+
+		Assert.assertEquals(0, page.getTotalCount());
+
+		Long dataDefinitionId =
+			testGetDataDefinitionDataLayoutsPage_getDataDefinitionId();
+		Long irrelevantDataDefinitionId =
+			testGetDataDefinitionDataLayoutsPage_getIrrelevantDataDefinitionId();
+
+		if ((irrelevantDataDefinitionId != null)) {
 			DataLayout irrelevantDataLayout =
-				testGetContentSpaceDataLayoutPage_addDataLayout(
-					irrelevantContentSpaceId, randomIrrelevantDataLayout());
+				testGetDataDefinitionDataLayoutsPage_addDataLayout(
+					irrelevantDataDefinitionId, randomIrrelevantDataLayout());
 
-			Page<DataLayout> page = invokeGetContentSpaceDataLayoutPage(
-				irrelevantContentSpaceId, Pagination.of(1, 2));
+			page = dataLayoutResource.getDataDefinitionDataLayoutsPage(
+				irrelevantDataDefinitionId, null, Pagination.of(1, 2));
 
 			Assert.assertEquals(1, page.getTotalCount());
 
@@ -130,15 +217,15 @@ public abstract class BaseDataLayoutResourceTestCase {
 		}
 
 		DataLayout dataLayout1 =
-			testGetContentSpaceDataLayoutPage_addDataLayout(
-				contentSpaceId, randomDataLayout());
+			testGetDataDefinitionDataLayoutsPage_addDataLayout(
+				dataDefinitionId, randomDataLayout());
 
 		DataLayout dataLayout2 =
-			testGetContentSpaceDataLayoutPage_addDataLayout(
-				contentSpaceId, randomDataLayout());
+			testGetDataDefinitionDataLayoutsPage_addDataLayout(
+				dataDefinitionId, randomDataLayout());
 
-		Page<DataLayout> page = invokeGetContentSpaceDataLayoutPage(
-			contentSpaceId, Pagination.of(1, 2));
+		page = dataLayoutResource.getDataDefinitionDataLayoutsPage(
+			dataDefinitionId, null, Pagination.of(1, 2));
 
 		Assert.assertEquals(2, page.getTotalCount());
 
@@ -149,33 +236,35 @@ public abstract class BaseDataLayoutResourceTestCase {
 	}
 
 	@Test
-	public void testGetContentSpaceDataLayoutPageWithPagination()
+	public void testGetDataDefinitionDataLayoutsPageWithPagination()
 		throws Exception {
 
-		Long contentSpaceId =
-			testGetContentSpaceDataLayoutPage_getContentSpaceId();
+		Long dataDefinitionId =
+			testGetDataDefinitionDataLayoutsPage_getDataDefinitionId();
 
 		DataLayout dataLayout1 =
-			testGetContentSpaceDataLayoutPage_addDataLayout(
-				contentSpaceId, randomDataLayout());
+			testGetDataDefinitionDataLayoutsPage_addDataLayout(
+				dataDefinitionId, randomDataLayout());
 
 		DataLayout dataLayout2 =
-			testGetContentSpaceDataLayoutPage_addDataLayout(
-				contentSpaceId, randomDataLayout());
+			testGetDataDefinitionDataLayoutsPage_addDataLayout(
+				dataDefinitionId, randomDataLayout());
 
 		DataLayout dataLayout3 =
-			testGetContentSpaceDataLayoutPage_addDataLayout(
-				contentSpaceId, randomDataLayout());
+			testGetDataDefinitionDataLayoutsPage_addDataLayout(
+				dataDefinitionId, randomDataLayout());
 
-		Page<DataLayout> page1 = invokeGetContentSpaceDataLayoutPage(
-			contentSpaceId, Pagination.of(1, 2));
+		Page<DataLayout> page1 =
+			dataLayoutResource.getDataDefinitionDataLayoutsPage(
+				dataDefinitionId, null, Pagination.of(1, 2));
 
 		List<DataLayout> dataLayouts1 = (List<DataLayout>)page1.getItems();
 
 		Assert.assertEquals(dataLayouts1.toString(), 2, dataLayouts1.size());
 
-		Page<DataLayout> page2 = invokeGetContentSpaceDataLayoutPage(
-			contentSpaceId, Pagination.of(2, 2));
+		Page<DataLayout> page2 =
+			dataLayoutResource.getDataDefinitionDataLayoutsPage(
+				dataDefinitionId, null, Pagination.of(2, 2));
 
 		Assert.assertEquals(3, page2.getTotalCount());
 
@@ -183,90 +272,35 @@ public abstract class BaseDataLayoutResourceTestCase {
 
 		Assert.assertEquals(dataLayouts2.toString(), 1, dataLayouts2.size());
 
+		Page<DataLayout> page3 =
+			dataLayoutResource.getDataDefinitionDataLayoutsPage(
+				dataDefinitionId, null, Pagination.of(1, 3));
+
 		assertEqualsIgnoringOrder(
 			Arrays.asList(dataLayout1, dataLayout2, dataLayout3),
-			new ArrayList<DataLayout>() {
-				{
-					addAll(dataLayouts1);
-					addAll(dataLayouts2);
-				}
-			});
+			(List<DataLayout>)page3.getItems());
 	}
 
-	protected DataLayout testGetContentSpaceDataLayoutPage_addDataLayout(
-			Long contentSpaceId, DataLayout dataLayout)
+	protected DataLayout testGetDataDefinitionDataLayoutsPage_addDataLayout(
+			Long dataDefinitionId, DataLayout dataLayout)
+		throws Exception {
+
+		return dataLayoutResource.postDataDefinitionDataLayout(
+			dataDefinitionId, dataLayout);
+	}
+
+	protected Long testGetDataDefinitionDataLayoutsPage_getDataDefinitionId()
 		throws Exception {
 
 		throw new UnsupportedOperationException(
 			"This method needs to be implemented");
 	}
 
-	protected Long testGetContentSpaceDataLayoutPage_getContentSpaceId()
-		throws Exception {
-
-		return testGroup.getGroupId();
-	}
-
 	protected Long
-			testGetContentSpaceDataLayoutPage_getIrrelevantContentSpaceId()
+			testGetDataDefinitionDataLayoutsPage_getIrrelevantDataDefinitionId()
 		throws Exception {
 
-		return irrelevantGroup.getGroupId();
-	}
-
-	protected Page<DataLayout> invokeGetContentSpaceDataLayoutPage(
-			Long contentSpaceId, Pagination pagination)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		String location =
-			_resourceURL +
-				_toPath(
-					"/content-spaces/{content-space-id}/data-layout",
-					contentSpaceId);
-
-		location = HttpUtil.addParameter(
-			location, "page", pagination.getPage());
-		location = HttpUtil.addParameter(
-			location, "pageSize", pagination.getPageSize());
-
-		options.setLocation(location);
-
-		String string = HttpUtil.URLtoString(options);
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("HTTP response: " + string);
-		}
-
-		return _outputObjectMapper.readValue(
-			string,
-			new TypeReference<Page<DataLayout>>() {
-			});
-	}
-
-	protected Http.Response invokeGetContentSpaceDataLayoutPageResponse(
-			Long contentSpaceId, Pagination pagination)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		String location =
-			_resourceURL +
-				_toPath(
-					"/content-spaces/{content-space-id}/data-layout",
-					contentSpaceId);
-
-		location = HttpUtil.addParameter(
-			location, "page", pagination.getPage());
-		location = HttpUtil.addParameter(
-			location, "pageSize", pagination.getPageSize());
-
-		options.setLocation(location);
-
-		HttpUtil.URLtoString(options);
-
-		return options.getResponse();
+		return null;
 	}
 
 	@Test
@@ -284,80 +318,31 @@ public abstract class BaseDataLayoutResourceTestCase {
 			DataLayout dataLayout)
 		throws Exception {
 
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
+		return dataLayoutResource.postDataDefinitionDataLayout(
+			testGetDataDefinitionDataLayoutsPage_getDataDefinitionId(),
+			dataLayout);
 	}
 
-	protected DataLayout invokePostDataDefinitionDataLayout(
-			Long dataDefinitionId, DataLayout dataLayout)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		options.setBody(
-			_inputObjectMapper.writeValueAsString(dataLayout),
-			ContentTypes.APPLICATION_JSON, StringPool.UTF8);
-
-		String location =
-			_resourceURL +
-				_toPath(
-					"/data-definitions/{data-definition-id}/data-layouts",
-					dataDefinitionId);
-
-		options.setLocation(location);
-
-		options.setPost(true);
-
-		String string = HttpUtil.URLtoString(options);
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("HTTP response: " + string);
-		}
-
-		try {
-			return _outputObjectMapper.readValue(string, DataLayout.class);
-		}
-		catch (Exception e) {
-			_log.error("Unable to process HTTP response: " + string, e);
-
-			throw e;
-		}
-	}
-
-	protected Http.Response invokePostDataDefinitionDataLayoutResponse(
-			Long dataDefinitionId, DataLayout dataLayout)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		options.setBody(
-			_inputObjectMapper.writeValueAsString(dataLayout),
-			ContentTypes.APPLICATION_JSON, StringPool.UTF8);
-
-		String location =
-			_resourceURL +
-				_toPath(
-					"/data-definitions/{data-definition-id}/data-layouts",
-					dataDefinitionId);
-
-		options.setLocation(location);
-
-		options.setPost(true);
-
-		HttpUtil.URLtoString(options);
-
-		return options.getResponse();
+	@Test
+	public void testPostDataLayoutDataLayoutPermission() throws Exception {
+		Assert.assertTrue(true);
 	}
 
 	@Test
 	public void testDeleteDataLayout() throws Exception {
 		DataLayout dataLayout = testDeleteDataLayout_addDataLayout();
 
-		assertResponseCode(
-			200, invokeDeleteDataLayoutResponse(dataLayout.getId()));
+		assertHttpResponseStatusCode(
+			204,
+			dataLayoutResource.deleteDataLayoutHttpResponse(
+				dataLayout.getId()));
 
-		assertResponseCode(
-			404, invokeGetDataLayoutResponse(dataLayout.getId()));
+		assertHttpResponseStatusCode(
+			404,
+			dataLayoutResource.getDataLayoutHttpResponse(dataLayout.getId()));
+
+		assertHttpResponseStatusCode(
+			404, dataLayoutResource.getDataLayoutHttpResponse(0L));
 	}
 
 	protected DataLayout testDeleteDataLayout_addDataLayout() throws Exception {
@@ -365,47 +350,12 @@ public abstract class BaseDataLayoutResourceTestCase {
 			"This method needs to be implemented");
 	}
 
-	protected void invokeDeleteDataLayout(Long dataLayoutId) throws Exception {
-		Http.Options options = _createHttpOptions();
-
-		options.setDelete(true);
-
-		String location =
-			_resourceURL +
-				_toPath("/data-layouts/{data-layout-id}", dataLayoutId);
-
-		options.setLocation(location);
-
-		String string = HttpUtil.URLtoString(options);
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("HTTP response: " + string);
-		}
-	}
-
-	protected Http.Response invokeDeleteDataLayoutResponse(Long dataLayoutId)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		options.setDelete(true);
-
-		String location =
-			_resourceURL +
-				_toPath("/data-layouts/{data-layout-id}", dataLayoutId);
-
-		options.setLocation(location);
-
-		HttpUtil.URLtoString(options);
-
-		return options.getResponse();
-	}
-
 	@Test
 	public void testGetDataLayout() throws Exception {
 		DataLayout postDataLayout = testGetDataLayout_addDataLayout();
 
-		DataLayout getDataLayout = invokeGetDataLayout(postDataLayout.getId());
+		DataLayout getDataLayout = dataLayoutResource.getDataLayout(
+			postDataLayout.getId());
 
 		assertEquals(postDataLayout, getDataLayout);
 		assertValid(getDataLayout);
@@ -416,62 +366,20 @@ public abstract class BaseDataLayoutResourceTestCase {
 			"This method needs to be implemented");
 	}
 
-	protected DataLayout invokeGetDataLayout(Long dataLayoutId)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		String location =
-			_resourceURL +
-				_toPath("/data-layouts/{data-layout-id}", dataLayoutId);
-
-		options.setLocation(location);
-
-		String string = HttpUtil.URLtoString(options);
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("HTTP response: " + string);
-		}
-
-		try {
-			return _outputObjectMapper.readValue(string, DataLayout.class);
-		}
-		catch (Exception e) {
-			_log.error("Unable to process HTTP response: " + string, e);
-
-			throw e;
-		}
-	}
-
-	protected Http.Response invokeGetDataLayoutResponse(Long dataLayoutId)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		String location =
-			_resourceURL +
-				_toPath("/data-layouts/{data-layout-id}", dataLayoutId);
-
-		options.setLocation(location);
-
-		HttpUtil.URLtoString(options);
-
-		return options.getResponse();
-	}
-
 	@Test
 	public void testPutDataLayout() throws Exception {
 		DataLayout postDataLayout = testPutDataLayout_addDataLayout();
 
 		DataLayout randomDataLayout = randomDataLayout();
 
-		DataLayout putDataLayout = invokePutDataLayout(
+		DataLayout putDataLayout = dataLayoutResource.putDataLayout(
 			postDataLayout.getId(), randomDataLayout);
 
 		assertEquals(randomDataLayout, putDataLayout);
 		assertValid(putDataLayout);
 
-		DataLayout getDataLayout = invokeGetDataLayout(putDataLayout.getId());
+		DataLayout getDataLayout = dataLayoutResource.getDataLayout(
+			putDataLayout.getId());
 
 		assertEquals(randomDataLayout, getDataLayout);
 		assertValid(getDataLayout);
@@ -482,68 +390,134 @@ public abstract class BaseDataLayoutResourceTestCase {
 			"This method needs to be implemented");
 	}
 
-	protected DataLayout invokePutDataLayout(
-			Long dataLayoutId, DataLayout dataLayout)
-		throws Exception {
+	@Test
+	public void testGetSiteDataLayoutPage() throws Exception {
+		Page<DataLayout> page = dataLayoutResource.getSiteDataLayoutPage(
+			testGetSiteDataLayoutPage_getSiteId(),
+			RandomTestUtil.randomString(), Pagination.of(1, 2));
 
-		Http.Options options = _createHttpOptions();
+		Assert.assertEquals(0, page.getTotalCount());
 
-		options.setBody(
-			_inputObjectMapper.writeValueAsString(dataLayout),
-			ContentTypes.APPLICATION_JSON, StringPool.UTF8);
+		Long siteId = testGetSiteDataLayoutPage_getSiteId();
+		Long irrelevantSiteId = testGetSiteDataLayoutPage_getIrrelevantSiteId();
 
-		String location =
-			_resourceURL +
-				_toPath("/data-layouts/{data-layout-id}", dataLayoutId);
+		if ((irrelevantSiteId != null)) {
+			DataLayout irrelevantDataLayout =
+				testGetSiteDataLayoutPage_addDataLayout(
+					irrelevantSiteId, randomIrrelevantDataLayout());
 
-		options.setLocation(location);
+			page = dataLayoutResource.getSiteDataLayoutPage(
+				irrelevantSiteId, null, Pagination.of(1, 2));
 
-		options.setPut(true);
+			Assert.assertEquals(1, page.getTotalCount());
 
-		String string = HttpUtil.URLtoString(options);
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("HTTP response: " + string);
+			assertEquals(
+				Arrays.asList(irrelevantDataLayout),
+				(List<DataLayout>)page.getItems());
+			assertValid(page);
 		}
 
-		try {
-			return _outputObjectMapper.readValue(string, DataLayout.class);
-		}
-		catch (Exception e) {
-			_log.error("Unable to process HTTP response: " + string, e);
+		DataLayout dataLayout1 = testGetSiteDataLayoutPage_addDataLayout(
+			siteId, randomDataLayout());
 
-			throw e;
-		}
+		DataLayout dataLayout2 = testGetSiteDataLayoutPage_addDataLayout(
+			siteId, randomDataLayout());
+
+		page = dataLayoutResource.getSiteDataLayoutPage(
+			siteId, null, Pagination.of(1, 2));
+
+		Assert.assertEquals(2, page.getTotalCount());
+
+		assertEqualsIgnoringOrder(
+			Arrays.asList(dataLayout1, dataLayout2),
+			(List<DataLayout>)page.getItems());
+		assertValid(page);
 	}
 
-	protected Http.Response invokePutDataLayoutResponse(
-			Long dataLayoutId, DataLayout dataLayout)
-		throws Exception {
+	@Test
+	public void testGetSiteDataLayoutPageWithPagination() throws Exception {
+		Long siteId = testGetSiteDataLayoutPage_getSiteId();
 
-		Http.Options options = _createHttpOptions();
+		DataLayout dataLayout1 = testGetSiteDataLayoutPage_addDataLayout(
+			siteId, randomDataLayout());
 
-		options.setBody(
-			_inputObjectMapper.writeValueAsString(dataLayout),
-			ContentTypes.APPLICATION_JSON, StringPool.UTF8);
+		DataLayout dataLayout2 = testGetSiteDataLayoutPage_addDataLayout(
+			siteId, randomDataLayout());
 
-		String location =
-			_resourceURL +
-				_toPath("/data-layouts/{data-layout-id}", dataLayoutId);
+		DataLayout dataLayout3 = testGetSiteDataLayoutPage_addDataLayout(
+			siteId, randomDataLayout());
 
-		options.setLocation(location);
+		Page<DataLayout> page1 = dataLayoutResource.getSiteDataLayoutPage(
+			siteId, null, Pagination.of(1, 2));
 
-		options.setPut(true);
+		List<DataLayout> dataLayouts1 = (List<DataLayout>)page1.getItems();
 
-		HttpUtil.URLtoString(options);
+		Assert.assertEquals(dataLayouts1.toString(), 2, dataLayouts1.size());
 
-		return options.getResponse();
+		Page<DataLayout> page2 = dataLayoutResource.getSiteDataLayoutPage(
+			siteId, null, Pagination.of(2, 2));
+
+		Assert.assertEquals(3, page2.getTotalCount());
+
+		List<DataLayout> dataLayouts2 = (List<DataLayout>)page2.getItems();
+
+		Assert.assertEquals(dataLayouts2.toString(), 1, dataLayouts2.size());
+
+		Page<DataLayout> page3 = dataLayoutResource.getSiteDataLayoutPage(
+			siteId, null, Pagination.of(1, 3));
+
+		assertEqualsIgnoringOrder(
+			Arrays.asList(dataLayout1, dataLayout2, dataLayout3),
+			(List<DataLayout>)page3.getItems());
 	}
 
-	protected void assertResponseCode(
-		int expectedResponseCode, Http.Response actualResponse) {
+	protected DataLayout testGetSiteDataLayoutPage_addDataLayout(
+			Long siteId, DataLayout dataLayout)
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	protected Long testGetSiteDataLayoutPage_getSiteId() throws Exception {
+		return testGroup.getGroupId();
+	}
+
+	protected Long testGetSiteDataLayoutPage_getIrrelevantSiteId()
+		throws Exception {
+
+		return irrelevantGroup.getGroupId();
+	}
+
+	@Test
+	public void testPostSiteDataLayoutPermission() throws Exception {
+		Assert.assertTrue(true);
+	}
+
+	@Test
+	public void testGetSiteDataLayout() throws Exception {
+		DataLayout postDataLayout = testGetSiteDataLayout_addDataLayout();
+
+		DataLayout getDataLayout = dataLayoutResource.getSiteDataLayout(
+			postDataLayout.getSiteId(), postDataLayout.getDataLayoutKey());
+
+		assertEquals(postDataLayout, getDataLayout);
+		assertValid(getDataLayout);
+	}
+
+	protected DataLayout testGetSiteDataLayout_addDataLayout()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	protected void assertHttpResponseStatusCode(
+		int expectedHttpResponseStatusCode,
+		HttpInvoker.HttpResponse actualHttpResponse) {
 
 		Assert.assertEquals(
-			expectedResponseCode, actualResponse.getResponseCode());
+			expectedHttpResponseStatusCode, actualHttpResponse.getStatusCode());
 	}
 
 	protected void assertEquals(
@@ -589,14 +563,105 @@ public abstract class BaseDataLayoutResourceTestCase {
 	}
 
 	protected void assertValid(DataLayout dataLayout) {
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
+		boolean valid = true;
+
+		if (dataLayout.getDateCreated() == null) {
+			valid = false;
+		}
+
+		if (dataLayout.getDateModified() == null) {
+			valid = false;
+		}
+
+		if (dataLayout.getId() == null) {
+			valid = false;
+		}
+
+		if (!Objects.equals(dataLayout.getSiteId(), testGroup.getGroupId())) {
+			valid = false;
+		}
+
+		for (String additionalAssertFieldName :
+				getAdditionalAssertFieldNames()) {
+
+			if (Objects.equals("dataDefinitionId", additionalAssertFieldName)) {
+				if (dataLayout.getDataDefinitionId() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("dataLayoutKey", additionalAssertFieldName)) {
+				if (dataLayout.getDataLayoutKey() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("dataLayoutPages", additionalAssertFieldName)) {
+				if (dataLayout.getDataLayoutPages() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"defaultLanguageId", additionalAssertFieldName)) {
+
+				if (dataLayout.getDefaultLanguageId() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("description", additionalAssertFieldName)) {
+				if (dataLayout.getDescription() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("name", additionalAssertFieldName)) {
+				if (dataLayout.getName() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("paginationMode", additionalAssertFieldName)) {
+				if (dataLayout.getPaginationMode() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("userId", additionalAssertFieldName)) {
+				if (dataLayout.getUserId() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			throw new IllegalArgumentException(
+				"Invalid additional assert field name " +
+					additionalAssertFieldName);
+		}
+
+		Assert.assertTrue(valid);
 	}
 
 	protected void assertValid(Page<DataLayout> page) {
 		boolean valid = false;
 
-		Collection<DataLayout> dataLayouts = page.getItems();
+		java.util.Collection<DataLayout> dataLayouts = page.getItems();
 
 		int size = dataLayouts.size();
 
@@ -610,15 +675,157 @@ public abstract class BaseDataLayoutResourceTestCase {
 		Assert.assertTrue(valid);
 	}
 
+	protected String[] getAdditionalAssertFieldNames() {
+		return new String[0];
+	}
+
+	protected String[] getIgnoredEntityFieldNames() {
+		return new String[0];
+	}
+
 	protected boolean equals(DataLayout dataLayout1, DataLayout dataLayout2) {
 		if (dataLayout1 == dataLayout2) {
 			return true;
 		}
 
-		return false;
+		if (!Objects.equals(dataLayout1.getSiteId(), dataLayout2.getSiteId())) {
+			return false;
+		}
+
+		for (String additionalAssertFieldName :
+				getAdditionalAssertFieldNames()) {
+
+			if (Objects.equals("dataDefinitionId", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						dataLayout1.getDataDefinitionId(),
+						dataLayout2.getDataDefinitionId())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("dataLayoutKey", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						dataLayout1.getDataLayoutKey(),
+						dataLayout2.getDataLayoutKey())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("dataLayoutPages", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						dataLayout1.getDataLayoutPages(),
+						dataLayout2.getDataLayoutPages())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("dateCreated", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						dataLayout1.getDateCreated(),
+						dataLayout2.getDateCreated())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("dateModified", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						dataLayout1.getDateModified(),
+						dataLayout2.getDateModified())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"defaultLanguageId", additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						dataLayout1.getDefaultLanguageId(),
+						dataLayout2.getDefaultLanguageId())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("description", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						dataLayout1.getDescription(),
+						dataLayout2.getDescription())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("id", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						dataLayout1.getId(), dataLayout2.getId())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("name", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						dataLayout1.getName(), dataLayout2.getName())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("paginationMode", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						dataLayout1.getPaginationMode(),
+						dataLayout2.getPaginationMode())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("userId", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						dataLayout1.getUserId(), dataLayout2.getUserId())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			throw new IllegalArgumentException(
+				"Invalid additional assert field name " +
+					additionalAssertFieldName);
+		}
+
+		return true;
 	}
 
-	protected Collection<EntityField> getEntityFields() throws Exception {
+	protected java.util.Collection<EntityField> getEntityFields()
+		throws Exception {
+
 		if (!(_dataLayoutResource instanceof EntityModelResource)) {
 			throw new UnsupportedOperationException(
 				"Resource is not an instance of EntityModelResource");
@@ -639,12 +846,15 @@ public abstract class BaseDataLayoutResourceTestCase {
 	protected List<EntityField> getEntityFields(EntityField.Type type)
 		throws Exception {
 
-		Collection<EntityField> entityFields = getEntityFields();
+		java.util.Collection<EntityField> entityFields = getEntityFields();
 
 		Stream<EntityField> stream = entityFields.stream();
 
 		return stream.filter(
-			entityField -> Objects.equals(entityField.getType(), type)
+			entityField ->
+				Objects.equals(entityField.getType(), type) &&
+				!ArrayUtil.contains(
+					getIgnoredEntityFieldNames(), entityField.getName())
 		).collect(
 			Collectors.toList()
 		);
@@ -668,19 +878,78 @@ public abstract class BaseDataLayoutResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
+		if (entityFieldName.equals("dataLayoutKey")) {
+			sb.append("'");
+			sb.append(String.valueOf(dataLayout.getDataLayoutKey()));
+			sb.append("'");
+
+			return sb.toString();
+		}
+
 		if (entityFieldName.equals("dataLayoutPages")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
 		}
 
 		if (entityFieldName.equals("dateCreated")) {
-			sb.append(_dateFormat.format(dataLayout.getDateCreated()));
+			if (operator.equals("between")) {
+				sb = new StringBundler();
+
+				sb.append("(");
+				sb.append(entityFieldName);
+				sb.append(" gt ");
+				sb.append(
+					_dateFormat.format(
+						DateUtils.addSeconds(dataLayout.getDateCreated(), -2)));
+				sb.append(" and ");
+				sb.append(entityFieldName);
+				sb.append(" lt ");
+				sb.append(
+					_dateFormat.format(
+						DateUtils.addSeconds(dataLayout.getDateCreated(), 2)));
+				sb.append(")");
+			}
+			else {
+				sb.append(entityFieldName);
+
+				sb.append(" ");
+				sb.append(operator);
+				sb.append(" ");
+
+				sb.append(_dateFormat.format(dataLayout.getDateCreated()));
+			}
 
 			return sb.toString();
 		}
 
 		if (entityFieldName.equals("dateModified")) {
-			sb.append(_dateFormat.format(dataLayout.getDateModified()));
+			if (operator.equals("between")) {
+				sb = new StringBundler();
+
+				sb.append("(");
+				sb.append(entityFieldName);
+				sb.append(" gt ");
+				sb.append(
+					_dateFormat.format(
+						DateUtils.addSeconds(
+							dataLayout.getDateModified(), -2)));
+				sb.append(" and ");
+				sb.append(entityFieldName);
+				sb.append(" lt ");
+				sb.append(
+					_dateFormat.format(
+						DateUtils.addSeconds(dataLayout.getDateModified(), 2)));
+				sb.append(")");
+			}
+			else {
+				sb.append(entityFieldName);
+
+				sb.append(" ");
+				sb.append(operator);
+				sb.append(" ");
+
+				sb.append(_dateFormat.format(dataLayout.getDateModified()));
+			}
 
 			return sb.toString();
 		}
@@ -716,6 +985,11 @@ public abstract class BaseDataLayoutResourceTestCase {
 			return sb.toString();
 		}
 
+		if (entityFieldName.equals("siteId")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
 		if (entityFieldName.equals("userId")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
@@ -725,100 +999,38 @@ public abstract class BaseDataLayoutResourceTestCase {
 			"Invalid entity field " + entityFieldName);
 	}
 
-	protected DataLayout randomDataLayout() {
+	protected DataLayout randomDataLayout() throws Exception {
 		return new DataLayout() {
 			{
 				dataDefinitionId = RandomTestUtil.randomLong();
+				dataLayoutKey = RandomTestUtil.randomString();
 				dateCreated = RandomTestUtil.nextDate();
 				dateModified = RandomTestUtil.nextDate();
 				defaultLanguageId = RandomTestUtil.randomString();
 				id = RandomTestUtil.randomLong();
 				paginationMode = RandomTestUtil.randomString();
+				siteId = testGroup.getGroupId();
 				userId = RandomTestUtil.randomLong();
 			}
 		};
 	}
 
-	protected DataLayout randomIrrelevantDataLayout() {
+	protected DataLayout randomIrrelevantDataLayout() throws Exception {
+		DataLayout randomIrrelevantDataLayout = randomDataLayout();
+
+		randomIrrelevantDataLayout.setSiteId(irrelevantGroup.getGroupId());
+
+		return randomIrrelevantDataLayout;
+	}
+
+	protected DataLayout randomPatchDataLayout() throws Exception {
 		return randomDataLayout();
 	}
 
-	protected DataLayout randomPatchDataLayout() {
-		return randomDataLayout();
-	}
-
+	protected DataLayoutResource dataLayoutResource;
 	protected Group irrelevantGroup;
+	protected Company testCompany;
 	protected Group testGroup;
-
-	protected static class Page<T> {
-
-		public Collection<T> getItems() {
-			return new ArrayList<>(items);
-		}
-
-		public long getLastPage() {
-			return lastPage;
-		}
-
-		public long getPage() {
-			return page;
-		}
-
-		public long getPageSize() {
-			return pageSize;
-		}
-
-		public long getTotalCount() {
-			return totalCount;
-		}
-
-		@JsonProperty
-		protected Collection<T> items;
-
-		@JsonProperty
-		protected long lastPage;
-
-		@JsonProperty
-		protected long page;
-
-		@JsonProperty
-		protected long pageSize;
-
-		@JsonProperty
-		protected long totalCount;
-
-	}
-
-	private Http.Options _createHttpOptions() {
-		Http.Options options = new Http.Options();
-
-		options.addHeader("Accept", "application/json");
-
-		String userNameAndPassword = "test@liferay.com:test";
-
-		String encodedUserNameAndPassword = Base64.encode(
-			userNameAndPassword.getBytes());
-
-		options.addHeader(
-			"Authorization", "Basic " + encodedUserNameAndPassword);
-
-		options.addHeader("Content-Type", "application/json");
-
-		return options;
-	}
-
-	private String _toPath(String template, Object... values) {
-		if (ArrayUtil.isEmpty(values)) {
-			return template;
-		}
-
-		for (int i = 0; i < values.length; i++) {
-			template = template.replaceFirst(
-				"\\{.*\\}", String.valueOf(values[i]));
-		}
-
-		return template;
-	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		BaseDataLayoutResourceTestCase.class);
@@ -836,35 +1048,9 @@ public abstract class BaseDataLayoutResourceTestCase {
 
 	};
 	private static DateFormat _dateFormat;
-	private final static ObjectMapper _inputObjectMapper = new ObjectMapper() {
-		{
-			setFilterProvider(
-				new SimpleFilterProvider() {
-					{
-						addFilter(
-							"Liferay.Vulcan",
-							SimpleBeanPropertyFilter.serializeAll());
-					}
-				});
-			setSerializationInclusion(JsonInclude.Include.NON_NULL);
-		}
-	};
-	private final static ObjectMapper _outputObjectMapper = new ObjectMapper() {
-		{
-			setFilterProvider(
-				new SimpleFilterProvider() {
-					{
-						addFilter(
-							"Liferay.Vulcan",
-							SimpleBeanPropertyFilter.serializeAll());
-					}
-				});
-		}
-	};
 
 	@Inject
-	private DataLayoutResource _dataLayoutResource;
-
-	private URL _resourceURL;
+	private com.liferay.data.engine.rest.resource.v1_0.DataLayoutResource
+		_dataLayoutResource;
 
 }

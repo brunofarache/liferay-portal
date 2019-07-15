@@ -1,42 +1,37 @@
 definition {
+
 	macro _selectCard {
 		if (isSet(collectionName)) {
 			Navigator.gotoNavNested(navNested = "${collectionName}");
 
-			LexiconCard.clickCard(
-				card = "${pageTemplateName}"
-			);
+			LexiconCard.clickCard(card = "${pageTemplateName}");
 		}
 		else {
 			Navigator.gotoNavNested(navNested = "Basic Pages");
 
-			LexiconCard.clickCard(
-				card = "Standard Page"
-			);
+			LexiconCard.clickCard(card = "Content Page");
 		}
 	}
 
 	macro addPage {
 		var key_breadcrumbName="Pages";
 
+		Pause(locator1 = "3000");
+
 		if (IsElementPresent(locator1 = "Message#EMPTY_INFO_TAGLIB")) {
-			SitePages.gotoAddFirstPage(
-				pageType = "Public Page"
-			);
+			SitePages.gotoAddFirstPage(pageType = "Public Page");
 		}
 		else {
 			AssertClick(
 				locator1 = "Breadcrumb#BREADCRUMB_ENTRY",
-				value1="Pages"
-			);
+				value1 = "Pages");
 
 			LexiconEntry.gotoAddMenuItem(menuItem = "Public Page");
 		}
 
 		ContentPages._selectCard(
 			collectionName = "${collectionName}",
-			pageTemplateName = "${pageTemplateName}"
-		);
+			pageTemplateName = "${pageTemplateName}");
 
 		SelectFrame(locator1 = "IFrame#DIALOG");
 
@@ -45,17 +40,12 @@ definition {
 		Button.clickAdd();
 
 		SelectFrame.selectFrameTop();
+
+		PageEditor.assertFragmentSidebarLoaded();
 	}
 
-	macro gotoEditMode {
-		Click(locator1 = "ToggleSwitch#EDIT_MODE");
-
-		AssertLocation.assertPartialLocation(value1 = "mode=edit");
+	macro clickPencil {
+		Click(locator1 = "Icon#EDIT_PENCIL");
 	}
 
-	macro gotoViewMode {
-		Click(locator1 = "ToggleSwitch#EDIT_MODE");
-
-		AssertLocation.assertPartialLocation(value1 = "mode=view");
-	}
 }

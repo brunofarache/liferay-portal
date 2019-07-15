@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.template.StringTemplateResource;
 import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.template.TemplateConstants;
 import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
@@ -231,6 +232,10 @@ public abstract class BaseDB implements DB {
 	@Override
 	public int getMinorVersion() {
 		return _minorVersion;
+	}
+
+	public Integer getSQLType(String templateType) {
+		return _sqlTypes.get(templateType);
 	}
 
 	@Override
@@ -613,7 +618,13 @@ public abstract class BaseDB implements DB {
 		String[] actual = getTemplate();
 
 		for (int i = 0; i < TEMPLATE.length; i++) {
-			_templateMap.put(TEMPLATE[i], actual[i]);
+			_templates.put(TEMPLATE[i], actual[i]);
+		}
+
+		String[] templateTypes = ArrayUtil.clone(TEMPLATE, 5, 15);
+
+		for (int i = 0; i < templateTypes.length; i++) {
+			_sqlTypes.put(StringUtil.trim(templateTypes[i]), getSQLTypes()[i]);
 		}
 	}
 
@@ -690,9 +701,7 @@ public abstract class BaseDB implements DB {
 			nullable = "not null;";
 		}
 
-		String[] template = {words[1], words[2], words[3], words[4], nullable};
-
-		return template;
+		return new String[] {words[1], words[2], words[3], words[4], nullable};
 	}
 
 	protected String[] buildColumnTypeTokens(String line) {
@@ -714,9 +723,7 @@ public abstract class BaseDB implements DB {
 			}
 		}
 
-		String[] template = {words[1], words[2], "", words[3], nullable};
-
-		return template;
+		return new String[] {words[1], words[2], "", words[3], nullable};
 	}
 
 	protected abstract String buildCreateFileContent(
@@ -981,6 +988,8 @@ public abstract class BaseDB implements DB {
 
 	protected abstract String getServerName();
 
+	protected abstract int[] getSQLTypes();
+
 	protected String getSuffix(int type) {
 		if (type == BARE) {
 			return "-bare";
@@ -1193,7 +1202,7 @@ public abstract class BaseDB implements DB {
 
 			String matched = template.substring(startIndex, endIndex);
 
-			sb.append(_templateMap.get(matched));
+			sb.append(_templates.get(matched));
 		}
 
 		if (sb == null) {
@@ -1283,7 +1292,8 @@ public abstract class BaseDB implements DB {
 	private final DBType _dbType;
 	private final int _majorVersion;
 	private final int _minorVersion;
+	private final Map<String, Integer> _sqlTypes = new HashMap<>();
 	private boolean _supportsStringCaseSensitiveQuery = true;
-	private final Map<String, String> _templateMap = new HashMap<>();
+	private final Map<String, String> _templates = new HashMap<>();
 
 }

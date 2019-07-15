@@ -1,84 +1,22 @@
 /**
- * Available values for buttonType config key
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
  */
-export const BUTTON_TYPES = [
-	{
-		buttonTypeId: 'link',
-		label: Liferay.Language.get('link')
-	},
-	{
-		buttonTypeId: 'primary',
-		label: Liferay.Language.get('primary-button')
-	},
-	{
-		buttonTypeId: 'secondary',
-		label: Liferay.Language.get('secondary-button')
-	}
-];
 
 /**
- * Available values for padding (horizontal and vertical) config key
+ * @type {string}
  */
-export const PADDING_OPTIONS = [
-	{
-		label: 'x0',
-		paddingSize: '0'
-	},
-	{
-		label: 'x1',
-		paddingSize: '3'
-	},
-	{
-		label: 'x2',
-		paddingSize: '4'
-	},
-	{
-		label: 'x4',
-		paddingSize: '5'
-	},
-	{
-		label: 'x6',
-		paddingSize: '6'
-	},
-	{
-		label: 'x8',
-		paddingSize: '7'
-	},
-	{
-		label: 'x10',
-		paddingSize: '8'
-	}
-];
-
-/**
- * Available values for containerType config key
- */
-export const NUMBER_OF_COLUMNS_OPTIONS = [
-	{
-		label: '1',
-		numberOfColumnId: '1'
-	},
-	{
-		label: '2',
-		numberOfColumnId: '2'
-	},
-	{
-		label: '3',
-		numberOfColumnId: '3'
-	},
-	{
-		label: '4',
-		numberOfColumnId: '4'
-	},
-	{
-		label: '5',
-		numberOfColumnId: '5'
-	},
-	{
-		label: '6',
-		numberOfColumnId: '6'
-	}
-];
+export const BACKGROUND_IMAGE_FRAGMENT_ENTRY_PROCESSOR =
+	'com.liferay.fragment.entry.processor.background.image.BackgroundImageFragmentEntryProcessor';
 
 /**
  * List of editable types and their compatibilities
@@ -89,20 +27,18 @@ export const NUMBER_OF_COLUMNS_OPTIONS = [
  */
 
 export const COMPATIBLE_TYPES = {
-	'html': [
+	html: [
 		'ddm-date',
 		'ddm-decimal',
 		'ddm-integer',
 		'ddm-number',
 		'ddm-text-html',
 		'text',
-		'textarea'
+		'textarea',
+		'url'
 	],
 
-	'image': [
-		'ddm-image',
-		'image'
-	],
+	image: ['ddm-image', 'image'],
 
 	'rich-text': [
 		'ddm-date',
@@ -111,33 +47,25 @@ export const COMPATIBLE_TYPES = {
 		'ddm-number',
 		'ddm-text-html',
 		'text',
-		'textarea'
+		'textarea',
+		'url'
 	],
 
-	'text': [
+	text: [
 		'ddm-date',
 		'ddm-decimal',
 		'ddm-integer',
 		'ddm-number',
 		'text',
-		'textarea'
+		'textarea',
+		'url'
 	]
 };
 
 /**
- * Available values for containerType config key
+ * Default language id key
  */
-export const CONTAINER_TYPES = [
-	{
-		containerTypeId: 'fluid',
-		label: Liferay.Language.get('fluid')
-	},
-
-	{
-		containerTypeId: 'fixed',
-		label: Liferay.Language.get('fixed-width')
-	}
-];
+export const DEFAULT_LANGUAGE_ID_KEY = 'defaultValue';
 
 /**
  * Available editable field config keys
@@ -176,6 +104,14 @@ export const FLOATING_TOOLBAR_BUTTONS = {
 		id: 'edit',
 		title: Liferay.Language.get('edit'),
 		type: 'editor'
+	},
+
+	fragmentConfiguration: {
+		icon: '',
+		id: 'fragment_configuration',
+		panelId: 'fragment_configuration',
+		title: '',
+		type: 'panel'
 	},
 
 	imageLink: {
@@ -219,13 +155,26 @@ export const FLOATING_TOOLBAR_BUTTONS = {
 	},
 
 	textProperties: {
-		icon: 'format',
+		icon: 'pencil',
 		id: 'text_properties',
 		panelId: 'text_properties',
 		title: Liferay.Language.get('text-properties'),
 		type: 'panel'
 	}
 };
+
+/**
+ * @type {string}
+ */
+export const EDITABLE_FRAGMENT_ENTRY_PROCESSOR =
+	'com.liferay.fragment.entry.processor.editable.EditableFragmentEntryProcessor';
+
+/**
+ * Fragments Editor dragging class
+ * @review
+ * @type {string}
+ */
+export const FRAGMENTS_EDITOR_DRAGGING_CLASS = 'dragging';
 
 /**
  * Fragments Editor item borders
@@ -247,23 +196,24 @@ export const FRAGMENTS_EDITOR_ITEM_TYPES = {
 	editable: 'fragments-editor-editable-field',
 	fragment: 'fragments-editor-fragment',
 	fragmentList: 'fragments-editor-fragment-list',
-	section: 'fragments-editor-section'
+	row: 'fragments-editor-row'
 };
 
 /**
- * Available element config keys
+ * Fragments Editor row types
+ * @review
+ * @type {!object}
  */
-export const ITEM_CONFIG_KEYS = {
-	backgroundColorCssClass: 'backgroundColorCssClass',
-	columnSpacing: 'columnSpacing',
-	containerType: 'containerType',
-	padding: 'padding'
+export const FRAGMENTS_EDITOR_ROW_TYPES = {
+	componentRow: '1',
+	sectionRow: '0'
 };
 
 /**
- * Max section columns
+ * @type {string}
  */
-export const MAX_SECTION_COLUMNS = 12;
+export const FREEMARKER_FRAGMENT_ENTRY_PROCESSOR =
+	'com.liferay.fragment.entry.processor.freemarker.FreeMarkerFragmentEntryProcessor';
 
 /**
  * Available attributes for target config key
@@ -314,7 +264,7 @@ export const TEXT_ALIGNMENT_OPTIONS = [
  */
 export const TEXT_STYLES = [
 	{
-		label: Liferay.Language.get('regular'),
+		label: Liferay.Language.get('normal'),
 		textStyleId: ''
 	},
 	{
@@ -322,7 +272,23 @@ export const TEXT_STYLES = [
 		textStyleId: 'small'
 	},
 	{
-		label: Liferay.Language.get('Large'),
+		label: Liferay.Language.get('lead'),
 		textStyleId: 'lead'
+	},
+	{
+		label: Liferay.Util.sub(Liferay.Language.get('heading-x'), '1'),
+		textStyleId: 'h1'
+	},
+	{
+		label: Liferay.Util.sub(Liferay.Language.get('heading-x'), '2'),
+		textStyleId: 'h2'
+	},
+	{
+		label: Liferay.Util.sub(Liferay.Language.get('heading-x'), '3'),
+		textStyleId: 'h3'
+	},
+	{
+		label: Liferay.Util.sub(Liferay.Language.get('heading-x'), '4'),
+		textStyleId: 'h4'
 	}
 ];

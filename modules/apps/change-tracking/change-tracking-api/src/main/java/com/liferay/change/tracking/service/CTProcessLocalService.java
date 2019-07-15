@@ -14,8 +14,6 @@
 
 package com.liferay.change.tracking.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.change.tracking.model.CTProcess;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
@@ -38,6 +36,8 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import java.io.Serializable;
 
 import java.util.List;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service interface for CTProcess. Methods of this
@@ -73,7 +73,8 @@ public interface CTProcessLocalService
 	public CTProcess addCTProcess(CTProcess ctProcess);
 
 	public CTProcess addCTProcess(
-			long userId, long ctCollectionId, ServiceContext serviceContext)
+			long userId, long ctCollectionId, boolean ignoreCollision,
+			ServiceContext serviceContext)
 		throws PortalException;
 
 	/**
@@ -217,11 +218,8 @@ public interface CTProcessLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<CTProcess> getCTProcesses(
-		long companyId, int status, QueryDefinition<?> queryDefinition);
-
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<CTProcess> getCTProcesses(
-		long companyId, QueryDefinition<?> queryDefinition);
+		long companyId, long userId, String keywords,
+		QueryDefinition<?> queryDefinition);
 
 	/**
 	 * Returns the number of ct processes.

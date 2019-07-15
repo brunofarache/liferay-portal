@@ -16,8 +16,9 @@ package com.liferay.layout.admin.web.internal.portlet.action;
 
 import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
 import com.liferay.layout.admin.web.internal.handler.LayoutExceptionRequestHandler;
+import com.liferay.layout.admin.web.internal.security.permission.resource.LayoutPageTemplateEntryPermission;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
-import com.liferay.layout.page.template.service.LayoutPageTemplateEntryService;
+import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -28,6 +29,7 @@ import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.LayoutPrototype;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.LayoutPrototypeService;
 import com.liferay.portal.kernel.service.LayoutService;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -70,9 +72,6 @@ public class AddContentLayoutMVCActionCommand
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
 		long groupId = ParamUtil.getLong(actionRequest, "groupId");
 		long layoutPageTemplateEntryId = ParamUtil.getLong(
 			actionRequest, "layoutPageTemplateEntryId");
@@ -95,8 +94,8 @@ public class AddContentLayoutMVCActionCommand
 
 		try {
 			LayoutPageTemplateEntry layoutPageTemplateEntry =
-				_layoutPageTemplateEntryService.fetchLayoutPageTemplateEntry(
-					layoutPageTemplateEntryId);
+				_layoutPageTemplateEntryLocalService.
+					fetchLayoutPageTemplateEntry(layoutPageTemplateEntryId);
 
 			if ((layoutPageTemplateEntry != null) &&
 				(layoutPageTemplateEntry.getLayoutPrototypeId() > 0)) {
@@ -119,6 +118,16 @@ public class AddContentLayoutMVCActionCommand
 				SitesUtil.mergeLayoutPrototypeLayout(layout.getGroup(), layout);
 			}
 			else {
+				ThemeDisplay themeDisplay =
+					(ThemeDisplay)actionRequest.getAttribute(
+						WebKeys.THEME_DISPLAY);
+
+				if (layoutPageTemplateEntryId > 0) {
+					LayoutPageTemplateEntryPermission.check(
+						themeDisplay.getPermissionChecker(),
+						layoutPageTemplateEntryId, ActionKeys.VIEW);
+				}
+
 				layout = _layoutService.addLayout(
 					groupId, privateLayout, parentLayoutId,
 					portal.getClassNameId(LayoutPageTemplateEntry.class),
@@ -134,7 +143,7 @@ public class AddContentLayoutMVCActionCommand
 			if (Objects.equals(
 					layout.getType(), LayoutConstants.TYPE_CONTENT)) {
 
-				redirectURL = getContentRedirectURL(themeDisplay, layout);
+				redirectURL = getContentRedirectURL(actionRequest, layout);
 			}
 
 			jsonObject.put("redirectURL", redirectURL);
@@ -165,7 +174,8 @@ public class AddContentLayoutMVCActionCommand
 	private LayoutExceptionRequestHandler _layoutExceptionRequestHandler;
 
 	@Reference
-	private LayoutPageTemplateEntryService _layoutPageTemplateEntryService;
+	private LayoutPageTemplateEntryLocalService
+		_layoutPageTemplateEntryLocalService;
 
 	@Reference
 	private LayoutPrototypeService _layoutPrototypeService;

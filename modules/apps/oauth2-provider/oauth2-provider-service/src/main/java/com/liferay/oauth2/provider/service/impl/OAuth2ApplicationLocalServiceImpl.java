@@ -49,12 +49,14 @@ import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Repository;
-import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.portletfilerepository.PortletFileRepository;
 import com.liferay.portal.kernel.repository.RepositoryFactory;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.PropsUtil;
@@ -106,11 +108,12 @@ public class OAuth2ApplicationLocalServiceImpl
 	@Override
 	public OAuth2Application addOAuth2Application(
 			long companyId, long userId, String userName,
-			List<GrantType> allowedGrantTypesList, String clientId,
-			int clientProfile, String clientSecret, String description,
-			List<String> featuresList, String homePageURL, long iconFileEntryId,
-			String name, String privacyPolicyURL, List<String> redirectURIsList,
-			List<String> scopeAliasesList, ServiceContext serviceContext)
+			List<GrantType> allowedGrantTypesList, long clientCredentialUserId,
+			String clientId, int clientProfile, String clientSecret,
+			String description, List<String> featuresList, String homePageURL,
+			long iconFileEntryId, String name, String privacyPolicyURL,
+			List<String> redirectURIsList, List<String> scopeAliasesList,
+			ServiceContext serviceContext)
 		throws PortalException {
 
 		if (allowedGrantTypesList == null) {
@@ -144,6 +147,8 @@ public class OAuth2ApplicationLocalServiceImpl
 		long oAuth2ApplicationId = counterLocalService.increment(
 			OAuth2Application.class.getName());
 
+		User user = _userLocalService.getUser(clientCredentialUserId);
+
 		OAuth2Application oAuth2Application =
 			oAuth2ApplicationPersistence.create(oAuth2ApplicationId);
 
@@ -153,6 +158,8 @@ public class OAuth2ApplicationLocalServiceImpl
 		oAuth2Application.setCreateDate(new Date());
 		oAuth2Application.setModifiedDate(new Date());
 		oAuth2Application.setAllowedGrantTypesList(allowedGrantTypesList);
+		oAuth2Application.setClientCredentialUserId(user.getUserId());
+		oAuth2Application.setClientCredentialUserName(user.getScreenName());
 		oAuth2Application.setClientId(clientId);
 		oAuth2Application.setClientProfile(clientProfile);
 		oAuth2Application.setClientSecret(clientSecret);
@@ -182,6 +189,27 @@ public class OAuth2ApplicationLocalServiceImpl
 			oAuth2Application.getOAuth2ApplicationId(), false, false, false);
 
 		return oAuth2ApplicationPersistence.update(oAuth2Application);
+	}
+
+	/**
+	 * @deprecated As of Mueller (7.2.x), since 7.2, unused
+	 */
+	@Deprecated
+	@Override
+	public OAuth2Application addOAuth2Application(
+			long companyId, long userId, String userName,
+			List<GrantType> allowedGrantTypesList, String clientId,
+			int clientProfile, String clientSecret, String description,
+			List<String> featuresList, String homePageURL, long iconFileEntryId,
+			String name, String privacyPolicyURL, List<String> redirectURIsList,
+			List<String> scopeAliasesList, ServiceContext serviceContext)
+		throws PortalException {
+
+		return addOAuth2Application(
+			companyId, userId, userName, allowedGrantTypesList, userId,
+			clientId, clientProfile, clientSecret, description, featuresList,
+			homePageURL, iconFileEntryId, name, privacyPolicyURL,
+			redirectURIsList, scopeAliasesList, serviceContext);
 	}
 
 	@Override
@@ -259,7 +287,7 @@ public class OAuth2ApplicationLocalServiceImpl
 
 		if (inputStream == null) {
 			if (oldIconFileEntryId > 0) {
-				PortletFileRepositoryUtil.deletePortletFileEntry(
+				_portletFileRepository.deletePortletFileEntry(
 					oldIconFileEntryId);
 
 				oAuth2Application.setIconFileEntryId(-1);
@@ -277,11 +305,11 @@ public class OAuth2ApplicationLocalServiceImpl
 
 		serviceContext.setAddGuestPermissions(true);
 
-		Repository repository = PortletFileRepositoryUtil.addPortletRepository(
+		Repository repository = _portletFileRepository.addPortletRepository(
 			group.getGroupId(), OAuth2ProviderConstants.SERVICE_NAME,
 			serviceContext);
 
-		Folder folder = PortletFileRepositoryUtil.addPortletFolder(
+		Folder folder = _portletFileRepository.addPortletFolder(
 			userLocalService.getDefaultUserId(oAuth2Application.getCompanyId()),
 			repository.getRepositoryId(),
 			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID, "icons",
@@ -308,11 +336,11 @@ public class OAuth2ApplicationLocalServiceImpl
 			throw new PortalException(ioe);
 		}
 
-		String fileName = PortletFileRepositoryUtil.getUniqueFileName(
+		String fileName = _portletFileRepository.getUniqueFileName(
 			group.getGroupId(), folder.getFolderId(),
 			oAuth2Application.getClientId());
 
-		FileEntry fileEntry = PortletFileRepositoryUtil.addPortletFileEntry(
+		FileEntry fileEntry = _portletFileRepository.addPortletFileEntry(
 			group.getGroupId(), oAuth2Application.getUserId(),
 			OAuth2Application.class.getName(),
 			oAuth2Application.getOAuth2ApplicationId(),
@@ -326,8 +354,7 @@ public class OAuth2ApplicationLocalServiceImpl
 		oAuth2Application = updateOAuth2Application(oAuth2Application);
 
 		if (oldIconFileEntryId > 0) {
-			PortletFileRepositoryUtil.deletePortletFileEntry(
-				oldIconFileEntryId);
+			_portletFileRepository.deletePortletFileEntry(oldIconFileEntryId);
 		}
 
 		return oAuth2Application;
@@ -336,11 +363,11 @@ public class OAuth2ApplicationLocalServiceImpl
 	@Override
 	public OAuth2Application updateOAuth2Application(
 			long oAuth2ApplicationId, List<GrantType> allowedGrantTypesList,
-			String clientId, int clientProfile, String clientSecret,
-			String description, List<String> featuresList, String homePageURL,
-			long iconFileEntryId, String name, String privacyPolicyURL,
-			List<String> redirectURIsList, long auth2ApplicationScopeAliasesId,
-			ServiceContext serviceContext)
+			long clientCredentialUserId, String clientId, int clientProfile,
+			String clientSecret, String description, List<String> featuresList,
+			String homePageURL, long iconFileEntryId, String name,
+			String privacyPolicyURL, List<String> redirectURIsList,
+			long auth2ApplicationScopeAliasesId, ServiceContext serviceContext)
 		throws PortalException {
 
 		OAuth2Application oAuth2Application =
@@ -360,10 +387,14 @@ public class OAuth2ApplicationLocalServiceImpl
 			allowedGrantTypesList, clientId, clientProfile, clientSecret,
 			homePageURL, name, privacyPolicyURL, redirectURIsList);
 
+		User user = _userLocalService.getUser(clientCredentialUserId);
+
 		oAuth2Application.setModifiedDate(new Date());
 		oAuth2Application.setOAuth2ApplicationScopeAliasesId(
 			auth2ApplicationScopeAliasesId);
 		oAuth2Application.setAllowedGrantTypesList(allowedGrantTypesList);
+		oAuth2Application.setClientCredentialUserId(user.getUserId());
+		oAuth2Application.setClientCredentialUserName(user.getScreenName());
 		oAuth2Application.setClientId(clientId);
 		oAuth2Application.setClientProfile(clientProfile);
 		oAuth2Application.setClientSecret(clientSecret);
@@ -376,6 +407,30 @@ public class OAuth2ApplicationLocalServiceImpl
 		oAuth2Application.setRedirectURIsList(redirectURIsList);
 
 		return oAuth2ApplicationPersistence.update(oAuth2Application);
+	}
+
+	/**
+	 * @deprecated As of Mueller (7.2.x), since 7.2, unused
+	 */
+	@Deprecated
+	public OAuth2Application updateOAuth2Application(
+			long oAuth2ApplicationId, List<GrantType> allowedGrantTypesList,
+			String clientId, int clientProfile, String clientSecret,
+			String description, List<String> featuresList, String homePageURL,
+			long iconFileEntryId, String name, String privacyPolicyURL,
+			List<String> redirectURIsList, long auth2ApplicationScopeAliasesId,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		OAuth2Application oAuth2Application =
+			oAuth2ApplicationPersistence.findByPrimaryKey(oAuth2ApplicationId);
+
+		return updateOAuth2Application(
+			oAuth2ApplicationId, allowedGrantTypesList,
+			oAuth2Application.getClientCredentialUserId(), clientId,
+			clientProfile, clientSecret, description, featuresList, homePageURL,
+			iconFileEntryId, name, privacyPolicyURL, redirectURIsList,
+			auth2ApplicationScopeAliasesId, serviceContext);
 	}
 
 	@Override
@@ -636,6 +691,9 @@ public class OAuth2ApplicationLocalServiceImpl
 	@Reference
 	private OAuth2AuthorizationLocalService _oAuth2AuthorizationLocalService;
 
+	@Reference
+	private PortletFileRepository _portletFileRepository;
+
 	@Reference(
 		target = "(class.name=com.liferay.portal.repository.portletrepository.PortletRepository)"
 	)
@@ -643,5 +701,8 @@ public class OAuth2ApplicationLocalServiceImpl
 
 	@Reference(target = "(current.store=true)")
 	private Store _store;
+
+	@Reference
+	private UserLocalService _userLocalService;
 
 }

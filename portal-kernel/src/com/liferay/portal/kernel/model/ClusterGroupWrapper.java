@@ -14,12 +14,12 @@
 
 package com.liferay.portal.kernel.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.model.wrapper.BaseModelWrapper;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * <p>
@@ -28,8 +28,10 @@ import java.util.Map;
  *
  * @author Brian Wing Shun Chan
  * @see ClusterGroup
+ * @deprecated
  * @generated
  */
+@Deprecated
 @ProviderType
 public class ClusterGroupWrapper
 	extends BaseModelWrapper<ClusterGroup>

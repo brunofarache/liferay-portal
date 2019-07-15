@@ -77,28 +77,16 @@ if (fileEntryTypeId >= 0) {
 	dlFileEntryType = DLFileEntryTypeLocalServiceUtil.getFileEntryType(fileEntryTypeId);
 }
 
-DLVersionNumberIncrease dlVersionNumberIncrease = DLVersionNumberIncrease.valueOf(ParamUtil.getString(request, "versionIncrease"), DLVersionNumberIncrease.AUTOMATIC);
+DLVersionNumberIncrease dlVersionNumberIncrease = DLVersionNumberIncrease.valueOf(request.getParameter("versionIncrease"), DLVersionNumberIncrease.AUTOMATIC);
 boolean updateVersionDetails = ParamUtil.getBoolean(request, "updateVersionDetails");
 
-long assetClassPK = 0;
-
-if ((fileVersion != null) && !fileVersion.isApproved() && Validator.isNotNull(fileVersion.getVersion()) && !fileVersion.getVersion().equals(DLFileEntryConstants.VERSION_DEFAULT)) {
-	assetClassPK = fileVersion.getFileVersionId();
-}
-else if (fileEntry != null) {
-	assetClassPK = fileEntry.getFileEntryId();
-}
+long assetClassPK = DLAssetHelperUtil.getAssetClassPK(fileEntry, fileVersion);
 
 boolean checkedOut = false;
-boolean hasLock = false;
 boolean pending = false;
-
-com.liferay.portal.kernel.lock.Lock lock = null;
 
 if (fileEntry != null) {
 	checkedOut = fileEntry.isCheckedOut();
-	hasLock = fileEntry.hasLock();
-	lock = fileEntry.getLock();
 	pending = fileVersion.isPending();
 }
 
@@ -155,6 +143,13 @@ if (portletTitleBasedNavigation) {
 
 <div <%= portletTitleBasedNavigation ? "class=\"container-fluid-1280\"" : StringPool.BLANK %>>
 	<c:if test="<%= checkedOut %>">
+
+		<%
+		boolean hasLock = fileEntry.hasLock();
+
+		Lock lock = fileEntry.getLock();
+		%>
+
 		<c:choose>
 			<c:when test="<%= hasLock %>">
 				<div class="alert alert-success">
@@ -409,6 +404,7 @@ if (portletTitleBasedNavigation) {
 											classPK="<%= ddmStructure.getPrimaryKey() %>"
 											ddmFormValues="<%= ddmFormValues %>"
 											fieldsNamespace="<%= String.valueOf(ddmStructure.getPrimaryKey()) %>"
+											groupId="<%= (fileEntry != null) ? fileEntry.getGroupId() : 0 %>"
 											localizable="<%= localizable %>"
 											requestedLocale="<%= locale %>"
 										/>
@@ -431,27 +427,32 @@ if (portletTitleBasedNavigation) {
 					</c:if>
 				</aui:fieldset>
 
-				<c:if test="<%= (fileEntry != null) && !checkedOut && dlAdminDisplayContext.isVersioningStrategyOverridable() %>">
-					<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="versioning">
-						<aui:input label="customize-the-version-number-increment-and-describe-my-changes" name="updateVersionDetails" type="toggle-switch" value="<%= updateVersionDetails %>" />
+				<c:choose>
+					<c:when test="<%= (fileEntry != null) && !checkedOut && dlAdminDisplayContext.isVersioningStrategyOverridable() %>">
+						<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="versioning">
+							<aui:input label="customize-the-version-number-increment-and-describe-my-changes" name="updateVersionDetails" type="toggle-switch" value="<%= updateVersionDetails %>" />
 
-						<div class="<%= updateVersionDetails ? StringPool.BLANK : "hide" %>" id="<portlet:namespace />versionDetails">
-							<aui:input checked="<%= dlVersionNumberIncrease == DLVersionNumberIncrease.MAJOR %>" label="major-version" name="versionIncrease" type="radio" value="<%= DLVersionNumberIncrease.MAJOR %>" />
+							<div class="<%= updateVersionDetails ? StringPool.BLANK : "hide" %>" id="<portlet:namespace />versionDetails">
+								<aui:input checked="<%= dlVersionNumberIncrease == DLVersionNumberIncrease.MAJOR %>" label="major-version" name="versionIncrease" type="radio" value="<%= DLVersionNumberIncrease.MAJOR %>" />
 
-							<aui:input checked="<%= dlVersionNumberIncrease == DLVersionNumberIncrease.MINOR %>" label="minor-version" name="versionIncrease" type="radio" value="<%= DLVersionNumberIncrease.MINOR %>" />
+								<aui:input checked="<%= dlVersionNumberIncrease == DLVersionNumberIncrease.MINOR %>" label="minor-version" name="versionIncrease" type="radio" value="<%= DLVersionNumberIncrease.MINOR %>" />
 
-							<aui:input checked="<%= (dlVersionNumberIncrease == DLVersionNumberIncrease.AUTOMATIC) || (dlVersionNumberIncrease == DLVersionNumberIncrease.NONE) %>" label="keep-current-version-number" name="versionIncrease" type="radio" value="<%= DLVersionNumberIncrease.NONE %>" />
+								<aui:input checked="<%= (dlVersionNumberIncrease == DLVersionNumberIncrease.AUTOMATIC) || (dlVersionNumberIncrease == DLVersionNumberIncrease.NONE) %>" label="keep-current-version-number" name="versionIncrease" type="radio" value="<%= DLVersionNumberIncrease.NONE %>" />
 
-							<aui:model-context />
+								<aui:model-context />
 
-							<aui:input label="version-notes" maxLength="75" name="changeLog" />
+								<aui:input label="version-notes" maxLength="75" name="changeLog" />
 
-							<aui:model-context bean="<%= fileVersion %>" model="<%= DLFileVersion.class %>" />
-						</div>
-					</aui:fieldset>
-				</c:if>
+								<aui:model-context bean="<%= fileVersion %>" model="<%= DLFileVersion.class %>" />
+							</div>
+						</aui:fieldset>
+					</c:when>
+					<c:otherwise>
+						<aui:input name="updateVersionDetails" type="hidden" value="<%= false %>" />
+					</c:otherwise>
+				</c:choose>
 
-				<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="display-page">
+				<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="display-page-template">
 					<liferay-asset:select-asset-display-page
 						classNameId="<%= PortalUtil.getClassNameId(DLFileEntry.class) %>"
 						classPK="<%= (fileEntry != null) ? fileEntry.getFileEntryId() : 0 %>"
@@ -633,35 +634,20 @@ if (portletTitleBasedNavigation) {
 		window,
 		'<portlet:namespace />showVersionDetailsDialog',
 		function(form) {
-			Liferay.Portlet.DocumentLibrary.Checkin.showDialog(
-				'<portlet:namespace />versionDetails',
-				'<%= UnicodeLanguageUtil.get(request, "describe-your-changes") %>',
-				{
-					label: '<liferay-ui:message key="save" />',
-					callback: function(event) {
-						var data = {};
-
-						var versionIncreaseNode = document.querySelector('input[name="<portlet:namespace />versionDetailsVersionIncrease"]:checked');
-
-						if (versionIncreaseNode) {
-							data.versionIncrease = versionIncreaseNode.value;
-						}
-
-						var changeLogElement = document.getElementById('<portlet:namespace />versionDetailsChangeLog');
-
-						if (changeLogElement) {
-							data.changeLog = changeLogElement.value;
-						}
-
-						Liferay.Util.postForm(
-							form,
-							{
-								data: data
+			Liferay.DocumentLibraryCheckin.showDialog(
+				'<portlet:namespace />',
+				function(versionIncrease, changeLog) {
+					Liferay.Util.postForm(
+						form,
+						{
+							data: {
+								changeLog: changeLog,
+								updateVersionDetails: true,
+								versionIncrease: versionIncrease
 							}
-						);
-					}
-				},
-				'<liferay-ui:message key="cancel" />'
+						}
+					);
+				}
 			);
 		},
 		['document-library-checkin']

@@ -21,10 +21,10 @@ import com.liferay.portal.kernel.lock.DuplicateLockException;
 import com.liferay.portal.kernel.lock.Lock;
 import com.liferay.portal.kernel.lock.LockManager;
 import com.liferay.portal.kernel.model.Role;
-import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserGroupGroupRole;
 import com.liferay.portal.kernel.model.UserGroupRole;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserGroupGroupRoleLocalService;
@@ -64,6 +64,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -899,6 +900,13 @@ public class WorkflowTaskManagerImpl implements WorkflowTaskManager {
 		if ((role.getType() == RoleConstants.TYPE_SITE) ||
 			(role.getType() == RoleConstants.TYPE_ORGANIZATION)) {
 
+			if (Objects.equals(role.getName(), RoleConstants.SITE_MEMBER)) {
+				long[] userGroupUserIds = _userLocalService.getGroupUserIds(
+					kaleoTaskInstanceToken.getGroupId());
+
+				return ArrayUtil.contains(userGroupUserIds, userId);
+			}
+
 			List<UserGroupRole> userGroupRoles =
 				_userGroupRoleLocalService.getUserGroupRolesByGroupAndRole(
 					kaleoTaskInstanceToken.getGroupId(), assigneeClassPK);
@@ -963,6 +971,15 @@ public class WorkflowTaskManagerImpl implements WorkflowTaskManager {
 
 		if ((role.getType() == RoleConstants.TYPE_SITE) ||
 			(role.getType() == RoleConstants.TYPE_ORGANIZATION)) {
+
+			if (Objects.equals(role.getName(), RoleConstants.SITE_MEMBER)) {
+				List<User> userGroupUsers = _userLocalService.getGroupUsers(
+					kaleoTaskInstanceToken.getGroupId());
+
+				users.addAll(userGroupUsers);
+
+				return;
+			}
 
 			List<UserGroupRole> userGroupRoles =
 				_userGroupRoleLocalService.getUserGroupRolesByGroupAndRole(

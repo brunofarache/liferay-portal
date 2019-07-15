@@ -29,9 +29,7 @@ import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLVersionNumberIncrease;
 import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.document.library.kernel.service.DLTrashService;
-import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.reflect.ReflectionUtil;
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.lock.DuplicateLockException;
 import com.liferay.portal.kernel.model.TrashedModel;
@@ -58,8 +56,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -106,12 +102,18 @@ public class EditEntryMVCActionCommand extends BaseMVCActionCommand {
 		long[] fileEntryIds = ParamUtil.getLongValues(
 			actionRequest, "rowIdsFileEntry");
 
+		DLVersionNumberIncrease dlVersionNumberIncrease =
+			DLVersionNumberIncrease.valueOf(
+				actionRequest.getParameter("versionIncrease"),
+				DLVersionNumberIncrease.MINOR);
+		String changeLog = ParamUtil.getString(actionRequest, "changeLog");
+
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
 			actionRequest);
 
 		for (long fileEntryId : fileEntryIds) {
 			_dlAppService.checkInFileEntry(
-				fileEntryId, DLVersionNumberIncrease.MINOR, StringPool.BLANK,
+				fileEntryId, dlVersionNumberIncrease, changeLog,
 				serviceContext);
 		}
 
@@ -126,8 +128,8 @@ public class EditEntryMVCActionCommand extends BaseMVCActionCommand {
 
 			if (!ArrayUtil.contains(fileEntryIds, toFileEntryId)) {
 				_dlAppService.checkInFileEntry(
-					toFileEntryId, DLVersionNumberIncrease.MINOR,
-					StringPool.BLANK, serviceContext);
+					toFileEntryId, dlVersionNumberIncrease, changeLog,
+					serviceContext);
 			}
 		}
 	}
@@ -169,9 +171,7 @@ public class EditEntryMVCActionCommand extends BaseMVCActionCommand {
 		BulkSelection<Folder> folderBulkSelection =
 			_folderBulkSelectionFactory.create(actionRequest.getParameterMap());
 
-		Stream<Folder> folderStream = folderBulkSelection.stream();
-
-		folderStream.forEach(
+		folderBulkSelection.forEach(
 			folder -> _deleteFolder(folder, moveToTrash, trashedModels));
 
 		// Delete file shortcuts before file entries. See LPS-21348.
@@ -180,10 +180,7 @@ public class EditEntryMVCActionCommand extends BaseMVCActionCommand {
 			_fileShortcutBulkSelectionFactory.create(
 				actionRequest.getParameterMap());
 
-		Stream<FileShortcut> fileShortcutStream =
-			fileShortcutBulkSelection.stream();
-
-		fileShortcutStream.forEach(
+		fileShortcutBulkSelection.forEach(
 			fileShortcut -> _deleteFileShortcut(
 				fileShortcut, moveToTrash, trashedModels));
 
@@ -191,9 +188,7 @@ public class EditEntryMVCActionCommand extends BaseMVCActionCommand {
 			_fileEntryBulkSelectionFactory.create(
 				actionRequest.getParameterMap());
 
-		Stream<FileEntry> fileEntryStream = fileEntryBulkSelection.stream();
-
-		fileEntryStream.forEach(
+		fileEntryBulkSelection.forEach(
 			fileEntry -> _deleteFileEntry(
 				fileEntry, moveToTrash, trashedModels));
 
@@ -266,14 +261,14 @@ public class EditEntryMVCActionCommand extends BaseMVCActionCommand {
 			   SourceFileNameException e) {
 
 			if (e instanceof DuplicateFileEntryException) {
-				HttpServletResponse response = _portal.getHttpServletResponse(
-					actionResponse);
+				HttpServletResponse httpServletResponse =
+					_portal.getHttpServletResponse(actionResponse);
 
-				response.setStatus(
+				httpServletResponse.setStatus(
 					ServletResponseConstants.SC_DUPLICATE_FILE_EXCEPTION);
 			}
 
-			SessionErrors.add(actionRequest, e.getClass());
+			SessionErrors.add(actionRequest, e.getClass(), e);
 		}
 		catch (AssetCategoryException | AssetTagException |
 			   InvalidFolderException e) {
@@ -294,36 +289,26 @@ public class EditEntryMVCActionCommand extends BaseMVCActionCommand {
 		BulkSelection<Folder> folderBulkSelection =
 			_folderBulkSelectionFactory.create(actionRequest.getParameterMap());
 
-		Stream<Folder> folderStream = folderBulkSelection.stream();
-
-		folderStream.forEach(
-			_toSafeConsumer(
-				folder -> _dlAppService.moveFolder(
-					folder.getFolderId(), newFolderId, serviceContext)));
+		folderBulkSelection.forEach(
+			folder -> _dlAppService.moveFolder(
+				folder.getFolderId(), newFolderId, serviceContext));
 
 		BulkSelection<FileEntry> fileEntryBulkSelection =
 			_fileEntryBulkSelectionFactory.create(
 				actionRequest.getParameterMap());
 
-		Stream<FileEntry> fileEntryStream = fileEntryBulkSelection.stream();
-
-		fileEntryStream.forEach(
-			_toSafeConsumer(
-				fileEntry -> _dlAppService.moveFileEntry(
-					fileEntry.getFileEntryId(), newFolderId, serviceContext)));
+		fileEntryBulkSelection.forEach(
+			fileEntry -> _dlAppService.moveFileEntry(
+				fileEntry.getFileEntryId(), newFolderId, serviceContext));
 
 		BulkSelection<FileShortcut> fileShortcutBulkSelection =
 			_fileShortcutBulkSelectionFactory.create(
 				actionRequest.getParameterMap());
 
-		Stream<FileShortcut> fileShortcutStream =
-			fileShortcutBulkSelection.stream();
-
-		fileShortcutStream.forEach(
-			_toSafeConsumer(
-				fileShortcut -> _dlAppService.updateFileShortcut(
-					fileShortcut.getFileShortcutId(), newFolderId,
-					fileShortcut.getToFileEntryId(), serviceContext)));
+		fileShortcutBulkSelection.forEach(
+			fileShortcut -> _dlAppService.updateFileShortcut(
+				fileShortcut.getFileShortcutId(), newFolderId,
+				fileShortcut.getToFileEntryId(), serviceContext));
 	}
 
 	protected void restoreTrashEntries(ActionRequest actionRequest)
@@ -335,19 +320,6 @@ public class EditEntryMVCActionCommand extends BaseMVCActionCommand {
 		for (long restoreTrashEntryId : restoreTrashEntryIds) {
 			_trashEntryService.restoreEntry(restoreTrashEntryId);
 		}
-	}
-
-	private static <E, T extends Throwable> Consumer<E> _toSafeConsumer(
-		UnsafeConsumer<E, T> unsafeConsumer) {
-
-		return (E e) -> {
-			try {
-				unsafeConsumer.accept(e);
-			}
-			catch (Throwable t) {
-				ReflectionUtil.throwException(t);
-			}
-		};
 	}
 
 	private void _deleteFileEntry(

@@ -14,9 +14,9 @@
 
 package com.liferay.oauth2.provider.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.service.ServiceWrapper;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link OAuth2ApplicationScopeAliasesLocalService}.
@@ -338,6 +338,14 @@ public class OAuth2ApplicationScopeAliasesLocalServiceWrapper
 
 		return _oAuth2ApplicationScopeAliasesLocalService.getPersistedModel(
 			primaryKeyObj);
+	}
+
+	@Override
+	public java.util.List<String> getScopeAliasesList(
+		long oAuth2ApplicationScopeAliasesId) {
+
+		return _oAuth2ApplicationScopeAliasesLocalService.getScopeAliasesList(
+			oAuth2ApplicationScopeAliasesId);
 	}
 
 	/**

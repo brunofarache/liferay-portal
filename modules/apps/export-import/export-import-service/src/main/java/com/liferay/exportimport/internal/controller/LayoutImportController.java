@@ -14,8 +14,6 @@
 
 package com.liferay.exportimport.internal.controller;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.asset.kernel.model.adapter.StagedAssetLink;
 import com.liferay.exportimport.constants.ExportImportConstants;
 import com.liferay.exportimport.controller.PortletImportController;
@@ -104,6 +102,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang.time.StopWatch;
 
+import org.osgi.annotation.versioning.ProviderType;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -301,17 +300,6 @@ public class LayoutImportController implements ImportController {
 		}
 	}
 
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void deleteMissingLayouts(
-			PortletDataContext portletDataContext,
-			List<String> sourceLayoutUuids, List<Layout> previousLayouts,
-			ServiceContext serviceContext)
-		throws Exception {
-	}
-
 	protected void deletePortletData(PortletDataContext portletDataContext)
 		throws Exception {
 
@@ -322,10 +310,8 @@ public class LayoutImportController implements ImportController {
 			(Map<Long, Layout>)portletDataContext.getNewPrimaryKeysMap(
 				Layout.class + ".layout");
 
-		if (_log.isDebugEnabled()) {
-			if (!portletElements.isEmpty()) {
-				_log.debug("Deleting portlet data");
-			}
+		if (_log.isDebugEnabled() && !portletElements.isEmpty()) {
+			_log.debug("Deleting portlet data");
 		}
 
 		for (Element portletElement : portletElements) {
@@ -690,19 +676,6 @@ public class LayoutImportController implements ImportController {
 			PROCESS_FLAG_LAYOUT_IMPORT_IN_PROCESS;
 	}
 
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void importLayout(
-			PortletDataContext portletDataContext,
-			List<String> sourceLayoutsUuids, Element layoutElement)
-		throws Exception {
-
-		StagedModelDataHandlerUtil.importStagedModel(
-			portletDataContext, layoutElement);
-	}
-
 	protected void importLayoutsFromLegacyLar(
 			PortletDataContext portletDataContext,
 			String layoutSetPrototypeUuid, ServiceContext serviceContext,
@@ -786,24 +759,19 @@ public class LayoutImportController implements ImportController {
 
 		List<Element> layoutElements = layoutsElement.elements();
 
-		if (_log.isDebugEnabled()) {
-			if (!layoutElements.isEmpty()) {
-				_log.debug("Importing layouts");
-			}
+		if (_log.isDebugEnabled() && !layoutElements.isEmpty()) {
+			_log.debug("Importing layouts");
 		}
 
-		List<String> sourceLayoutsUuids = new ArrayList<>();
-
 		for (Element layoutElement : layoutElements) {
-			importLayout(portletDataContext, sourceLayoutsUuids, layoutElement);
+			StagedModelDataHandlerUtil.importStagedModel(
+				portletDataContext, layoutElement);
 		}
 
 		// Import portlets
 
-		if (_log.isDebugEnabled()) {
-			if (!portletElements.isEmpty()) {
-				_log.debug("Importing portlets");
-			}
+		if (_log.isDebugEnabled() && !portletElements.isEmpty()) {
+			_log.debug("Importing portlets");
 		}
 
 		Map<Long, Layout> layouts =
@@ -860,8 +828,6 @@ public class LayoutImportController implements ImportController {
 			// portlet preferences first, then the portlet data, then the
 			// portlet permissions. The import of the portlet data assumes that
 			// portlet preferences already exist.
-
-			setPortletScope(portletDataContext, portletElement);
 
 			long portletPreferencesGroupId = portletDataContext.getGroupId();
 
@@ -1015,86 +981,6 @@ public class LayoutImportController implements ImportController {
 			new StagedModelType(Layout.class));
 		portletDataContext.addDeletionSystemEventStagedModelTypes(
 			new StagedModelType(StagedAssetLink.class));
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setExportImportLifecycleManager(
-		ExportImportLifecycleManager exportImportLifecycleManager) {
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setGroupLocalService(GroupLocalService groupLocalService) {
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setLayoutLocalService(
-		LayoutLocalService layoutLocalService) {
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setLayoutPrototypeLocalService(
-		LayoutPrototypeLocalService layoutPrototypeLocalService) {
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setLayoutSetLocalService(
-		LayoutSetLocalService layoutSetLocalService) {
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setLayoutSetPrototypeLocalService(
-		LayoutSetPrototypeLocalService layoutSetPrototypeLocalService) {
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setPortletImportController(
-		PortletImportController portletImportController) {
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setPortletLocalService(
-		PortletLocalService portletLocalService) {
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setPortletScope(
-		PortletDataContext portletDataContext, Element portletElement) {
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void updateLayoutPriorities(
-		PortletDataContext portletDataContext, List<Element> layoutElements,
-		boolean privateLayout) {
 	}
 
 	protected void validateFile(
@@ -1314,20 +1200,6 @@ public class LayoutImportController implements ImportController {
 			Layout.class.getSimpleName());
 
 		validateLayoutPrototypes(companyId, headerElement, layoutsElement);
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x), replaced by {@link
-	 *             #validateLayoutPrototypes(long, Element, Element)}
-	 */
-	@Deprecated
-	protected void validateLayoutPrototypes(
-			long companyId, Element layoutsElement)
-		throws Exception {
-
-		throw new UnsupportedOperationException(
-			"This method is deprecated and replaced by " +
-				"#validateLayoutPrototypes(long, Element, Element)");
 	}
 
 	protected void validateLayoutPrototypes(

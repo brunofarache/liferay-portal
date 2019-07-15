@@ -1,3 +1,17 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 import {Align} from 'metal-position';
 import Component from 'metal-component';
 import {Config} from 'metal-state';
@@ -27,7 +41,6 @@ const POPOVER_POSITIONS = {
  * @review
  */
 class DisabledAreaPopover extends Component {
-
 	/**
 	 * @inheritDoc
 	 * @review
@@ -37,7 +50,12 @@ class DisabledAreaPopover extends Component {
 
 		this._documentListeners = [
 			on(document.body, 'click', this._handleDocumentClick.bind(this)),
-			on(window, 'scroll', this._handleWindowScroll.bind(this))
+
+			on(
+				'.fragment-entry-link-list-wrapper',
+				'scroll',
+				this._handleFragmentEntryLinkListScroll.bind(this)
+			)
 		];
 	}
 
@@ -48,9 +66,40 @@ class DisabledAreaPopover extends Component {
 	disposed() {
 		this._detachListener();
 
-		this._documentListeners.forEach(
-			documentListener => documentListener.removeListener()
+		this._documentListeners.forEach(documentListener =>
+			documentListener.removeListener()
 		);
+	}
+
+	/**
+	 * @inheritdoc
+	 * @review
+	 */
+	rendered() {
+		if (this._position) {
+			requestAnimationFrame(() => {
+				let popoverPosition = Align.TopCenter;
+
+				const suggestedAlign = Align.suggestAlignBestRegion(
+					this.refs.popover,
+					this._clickedElement,
+					popoverPosition
+				);
+
+				if (suggestedAlign.position !== popoverPosition) {
+					popoverPosition = Align.BottomCenter;
+				}
+
+				Align.align(
+					this.refs.popover,
+					this._clickedElement,
+					popoverPosition,
+					false
+				);
+
+				this._setPosition(popoverPosition);
+			});
+		}
 	}
 
 	/**
@@ -117,13 +166,9 @@ class DisabledAreaPopover extends Component {
 	_handleElementClick(event) {
 		event.stopImmediatePropagation();
 
-		const alignPosition = Align.align(
-			this.refs.popover,
-			event.delegateTarget,
-			Align.TopCenter
-		);
+		this._clickedElement = event.delegateTarget;
 
-		this._setPosition(alignPosition);
+		this._setPosition(Align.TopCenter);
 	}
 
 	/**
@@ -133,7 +178,7 @@ class DisabledAreaPopover extends Component {
 	 * @private
 	 * @review
 	 */
-	_handleWindowScroll() {
+	_handleFragmentEntryLinkListScroll() {
 		this._hidePopover();
 	}
 
@@ -143,6 +188,7 @@ class DisabledAreaPopover extends Component {
 	 * @review
 	 */
 	_hidePopover() {
+		this._clickedElement = null;
 		this._position = null;
 	}
 
@@ -154,9 +200,10 @@ class DisabledAreaPopover extends Component {
 	 * @review
 	 */
 	_setPosition(alignPosition) {
-		this._position = POPOVER_POSITIONS[alignPosition];
+		if (this._position !== POPOVER_POSITIONS[alignPosition]) {
+			this._position = POPOVER_POSITIONS[alignPosition];
+		}
 	}
-
 }
 
 /**
@@ -166,7 +213,6 @@ class DisabledAreaPopover extends Component {
  * @type {!Object}
  */
 DisabledAreaPopover.STATE = {
-
 	/**
 	 * Selector for elements where this popover should be shown
 	 * @default undefined
@@ -175,9 +221,7 @@ DisabledAreaPopover.STATE = {
 	 * @review
 	 * @type {!string}
 	 */
-	selector: Config
-		.string()
-		.required(),
+	selector: Config.string().required(),
 
 	/**
 	 * Clicked element
@@ -188,9 +232,7 @@ DisabledAreaPopover.STATE = {
 	 * @review
 	 * @type {!object}
 	 */
-	_clickedElement: Config
-		.object()
-		.value(null),
+	_clickedElement: Config.object().value(null),
 
 	/**
 	 * Listeners attached to document
@@ -201,9 +243,7 @@ DisabledAreaPopover.STATE = {
 	 * @review
 	 * @type {!Array<object>}
 	 */
-	_documentListeners: Config
-		.arrayOf(Config.object())
-		.value([]),
+	_documentListeners: Config.arrayOf(Config.object()).value([]),
 
 	/**
 	 * Click listener attached to DOM
@@ -214,9 +254,7 @@ DisabledAreaPopover.STATE = {
 	 * @review
 	 * @type {!object}
 	 */
-	_elementListener: Config
-		.object()
-		.value(null),
+	_elementListener: Config.object().value(null),
 
 	/**
 	 * Popover position
@@ -227,9 +265,7 @@ DisabledAreaPopover.STATE = {
 	 * @review
 	 * @type {!string}
 	 */
-	_position: Config
-		.string()
-		.value(null)
+	_position: Config.string().value(null)
 };
 
 Soy.register(DisabledAreaPopover, templates);

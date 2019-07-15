@@ -46,6 +46,8 @@ public interface Build {
 
 	public String getBrowser();
 
+	public String getBuildDescription();
+
 	public JSONObject getBuildJSONObject();
 
 	public int getBuildNumber();
@@ -59,6 +61,8 @@ public interface Build {
 	public String getDatabase();
 
 	public Long getDelayTime();
+
+	public int getDepth();
 
 	public String getDisplayName();
 

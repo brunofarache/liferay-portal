@@ -14,10 +14,9 @@
 
 package com.liferay.exportimport.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the remote service utility for ExportImportConfiguration. This utility wraps
@@ -81,9 +80,6 @@ public class ExportImportConfigurationServiceUtil {
 			_service =
 				(ExportImportConfigurationService)PortalBeanLocatorUtil.locate(
 					ExportImportConfigurationService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				ExportImportConfigurationServiceUtil.class, "_service");
 		}
 
 		return _service;

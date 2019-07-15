@@ -210,10 +210,8 @@ public abstract class BaseSearchTestCase {
 		try {
 			WorkflowThreadLocal.setEnabled(true);
 
-			BaseModel<?> baseModel = addBaseModelWithWorkflow(
+			return addBaseModelWithWorkflow(
 				parentBaseModel, approved, keywords, serviceContext);
-
-			return baseModel;
 		}
 		finally {
 			WorkflowThreadLocal.setEnabled(workflowEnabled);
@@ -800,13 +798,13 @@ public abstract class BaseSearchTestCase {
 
 			serviceContext.setUserId(user1.getUserId());
 
-			baseModel = addBaseModel(
+			addBaseModel(
 				parentBaseModel1, true, RandomTestUtil.randomString(),
 				serviceContext);
-			baseModel = addBaseModel(
+			addBaseModel(
 				parentBaseModel1, true, RandomTestUtil.randomString(),
 				serviceContext);
-			baseModel = addBaseModel(
+			addBaseModel(
 				parentBaseModel2, true, RandomTestUtil.randomString(),
 				serviceContext);
 
@@ -814,9 +812,10 @@ public abstract class BaseSearchTestCase {
 
 			serviceContext.setUserId(user2.getUserId());
 
-			baseModel = addBaseModel(
+			addBaseModel(
 				parentBaseModel1, true, RandomTestUtil.randomString(),
 				serviceContext);
+
 			baseModel = addBaseModel(
 				parentBaseModel2, true, RandomTestUtil.randomString(),
 				serviceContext);
@@ -869,13 +868,13 @@ public abstract class BaseSearchTestCase {
 
 			PrincipalThreadLocal.setName(user1.getUserId());
 
-			baseModel = addBaseModel(
+			addBaseModel(
 				parentBaseModel1, true, RandomTestUtil.randomString(),
 				serviceContext);
-			baseModel = addBaseModel(
+			addBaseModel(
 				parentBaseModel1, true, RandomTestUtil.randomString(),
 				serviceContext);
-			baseModel = addBaseModel(
+			addBaseModel(
 				parentBaseModel2, true, RandomTestUtil.randomString(),
 				serviceContext);
 
@@ -883,9 +882,10 @@ public abstract class BaseSearchTestCase {
 
 			PrincipalThreadLocal.setName(user2.getUserId());
 
-			baseModel = addBaseModel(
+			addBaseModel(
 				parentBaseModel1, true, RandomTestUtil.randomString(),
 				serviceContext);
+
 			baseModel = addBaseModel(
 				parentBaseModel2, true, RandomTestUtil.randomString(),
 				serviceContext);

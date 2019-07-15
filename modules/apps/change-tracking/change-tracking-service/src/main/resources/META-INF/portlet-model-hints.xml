@@ -9,7 +9,10 @@
 		<field name="createDate" type="Date" />
 		<field name="modifiedDate" type="Date" />
 		<field name="name" type="String" />
-		<field name="description" type="String" />
+		<field name="description" type="String">
+			<hint-collection name="TEXTAREA" />
+			<hint name="max-length">200</hint>
+		</field>
 		<field name="status" type="int" />
 		<field name="statusByUserId" type="long" />
 		<field name="statusByUserName" type="String" />
@@ -22,10 +25,12 @@
 		<field name="userName" type="String" />
 		<field name="createDate" type="Date" />
 		<field name="modifiedDate" type="Date" />
+		<field name="originalCTCollectionId" type="long" />
 		<field name="modelClassNameId" type="long" />
 		<field name="modelClassPK" type="long" />
 		<field name="modelResourcePrimKey" type="long" />
 		<field name="changeType" type="int" />
+		<field name="collision" type="boolean" />
 		<field name="status" type="int" />
 	</model>
 	<model name="com.liferay.change.tracking.model.CTEntryAggregate">

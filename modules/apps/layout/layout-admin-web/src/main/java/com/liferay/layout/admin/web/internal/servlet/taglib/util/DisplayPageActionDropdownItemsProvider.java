@@ -59,9 +59,9 @@ public class DisplayPageActionDropdownItemsProvider {
 		_layoutPageTemplateEntry = layoutPageTemplateEntry;
 		_renderResponse = renderResponse;
 
-		_request = PortalUtil.getHttpServletRequest(renderRequest);
+		_httpServletRequest = PortalUtil.getHttpServletRequest(renderRequest);
 
-		_themeDisplay = (ThemeDisplay)_request.getAttribute(
+		_themeDisplay = (ThemeDisplay)_httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
 
@@ -117,7 +117,9 @@ public class DisplayPageActionDropdownItemsProvider {
 				_themeDisplay.getURLCurrent(), "backURL",
 				_themeDisplay.getURLCurrent(), "selPlid",
 				_layoutPageTemplateEntry.getPlid());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "configure"));
+
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "configure"));
 		};
 	}
 
@@ -141,7 +143,8 @@ public class DisplayPageActionDropdownItemsProvider {
 			dropdownItem.putData("action", "deleteDisplayPage");
 			dropdownItem.putData(
 				"deleteDisplayPageURL", deleteDisplayPageURL.toString());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "delete"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "delete"));
 		};
 	}
 
@@ -164,23 +167,39 @@ public class DisplayPageActionDropdownItemsProvider {
 			Group layoutPrototypeGroup = layoutPrototype.getGroup();
 
 			return dropdownItem -> {
-				dropdownItem.setHref(
-					layoutPrototypeGroup.getDisplayURL(_themeDisplay, true));
-				dropdownItem.setLabel(LanguageUtil.get(_request, "edit"));
+				String layoutFullURL = layoutPrototypeGroup.getDisplayURL(
+					_themeDisplay, true);
+
+				layoutFullURL = HttpUtil.setParameter(
+					layoutFullURL, "p_l_back_url",
+					_themeDisplay.getURLCurrent());
+
+				dropdownItem.setHref(layoutFullURL);
+
+				dropdownItem.setLabel(
+					LanguageUtil.get(_httpServletRequest, "edit"));
 			};
 		}
 
 		Layout layout = LayoutLocalServiceUtil.fetchLayout(
 			_layoutPageTemplateEntry.getPlid());
 
-		String layoutFullURL = PortalUtil.getLayoutFullURL(
-			layout, _themeDisplay);
+		Layout draftLayout = LayoutLocalServiceUtil.fetchLayout(
+			PortalUtil.getClassNameId(Layout.class), layout.getPlid());
 
 		return dropdownItem -> {
-			dropdownItem.setHref(
-				HttpUtil.setParameter(
-					layoutFullURL, "p_l_mode", Constants.EDIT));
-			dropdownItem.setLabel(LanguageUtil.get(_request, "edit"));
+			String layoutFullURL = PortalUtil.getLayoutFullURL(
+				draftLayout, _themeDisplay);
+
+			layoutFullURL = HttpUtil.setParameter(
+				layoutFullURL, "p_l_back_url", _themeDisplay.getURLCurrent());
+			layoutFullURL = HttpUtil.setParameter(
+				layoutFullURL, "p_l_mode", Constants.EDIT);
+
+			dropdownItem.setHref(layoutFullURL);
+
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "edit"));
 		};
 	}
 
@@ -226,9 +245,9 @@ public class DisplayPageActionDropdownItemsProvider {
 							getLayoutPageTemplateEntryId())) {
 
 				message = LanguageUtil.format(
-					_request,
+					_httpServletRequest,
 					"do-you-want-to-replace-x-for-x-as-the-default-display-" +
-						"page",
+						"page-template",
 					new String[] {
 						_layoutPageTemplateEntry.getName(),
 						defaultLayoutPageTemplateEntry.getName()
@@ -236,7 +255,7 @@ public class DisplayPageActionDropdownItemsProvider {
 			}
 			else if (_layoutPageTemplateEntry.isDefaultTemplate()) {
 				message = LanguageUtil.get(
-					_request, "unmark-default-confirmation");
+					_httpServletRequest, "unmark-default-confirmation");
 			}
 
 			dropdownItem.putData("message", message);
@@ -247,7 +266,7 @@ public class DisplayPageActionDropdownItemsProvider {
 				label = "unmark-as-default";
 			}
 
-			dropdownItem.setLabel(LanguageUtil.get(_request, label));
+			dropdownItem.setLabel(LanguageUtil.get(_httpServletRequest, label));
 		};
 	}
 
@@ -260,13 +279,14 @@ public class DisplayPageActionDropdownItemsProvider {
 			_layoutPageTemplateEntry.getName(), null,
 			String.valueOf(
 				_layoutPageTemplateEntry.getLayoutPageTemplateEntryId()),
-			LiferayWindowState.POP_UP.toString(), null, _request);
+			LiferayWindowState.POP_UP.toString(), null, _httpServletRequest);
 
 		return dropdownItem -> {
 			dropdownItem.putData("action", "permissionsDisplayPage");
 			dropdownItem.putData(
 				"permissionsDisplayPageURL", permissionsDisplayPageURL);
-			dropdownItem.setLabel(LanguageUtil.get(_request, "permissions"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "permissions"));
 		};
 	}
 
@@ -301,13 +321,14 @@ public class DisplayPageActionDropdownItemsProvider {
 				_layoutPageTemplateEntry.getName());
 			dropdownItem.putData(
 				"updateDisplayPageURL", updateDisplayPageURL.toString());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "rename"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "rename"));
 		};
 	}
 
+	private final HttpServletRequest _httpServletRequest;
 	private final LayoutPageTemplateEntry _layoutPageTemplateEntry;
 	private final RenderResponse _renderResponse;
-	private final HttpServletRequest _request;
 	private final ThemeDisplay _themeDisplay;
 
 }

@@ -1,10 +1,9 @@
 package ${apiPackagePath}.service.persistence;
 
-import aQute.bnd.annotation.ProviderType;
+import ${serviceBuilder.getCompatJavaClassName("ProviderType")};
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.bean.PortletBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
  * @author ${author}
@@ -74,8 +73,6 @@ public class ${entity.name}FinderUtil {
 			<#else>
 				_finder = (${entity.name}Finder)PortalBeanLocatorUtil.locate(${entity.name}Finder.class.getName());
 			</#if>
-
-			ReferenceRegistry.registerReference(${entity.name}FinderUtil.class, "_finder");
 		}
 
 		return _finder;
@@ -83,8 +80,6 @@ public class ${entity.name}FinderUtil {
 
 	public void setFinder(${entity.name}Finder finder) {
 		_finder = finder;
-
-		ReferenceRegistry.registerReference(${entity.name}FinderUtil.class, "_finder");
 	}
 
 	private static ${entity.name}Finder _finder;

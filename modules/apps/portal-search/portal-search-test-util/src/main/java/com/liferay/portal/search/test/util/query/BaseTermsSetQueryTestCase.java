@@ -16,7 +16,6 @@ package com.liferay.portal.search.test.util.query;
 
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.search.query.TermsSetQuery;
-import com.liferay.portal.search.script.Script;
 import com.liferay.portal.search.test.util.DocumentsAssert;
 import com.liferay.portal.search.test.util.indexing.BaseIndexingTestCase;
 
@@ -91,12 +90,11 @@ public abstract class BaseTermsSetQueryTestCase extends BaseIndexingTestCase {
 				indexingTestHelper.search();
 
 				indexingTestHelper.verifyResponse(
-					searchResponse -> {
+					searchResponse ->
 						DocumentsAssert.assertValuesIgnoreRelevance(
 							searchResponse.getRequestString(),
 							searchResponse.getDocumentsStream(),
-							Field.USER_NAME, expected);
-					});
+							Field.USER_NAME, expected));
 			});
 	}
 
@@ -115,8 +113,7 @@ public abstract class BaseTermsSetQueryTestCase extends BaseIndexingTestCase {
 
 		TermsSetQuery termsSetQuery = queries.termsSet(Field.USER_NAME, terms);
 
-		termsSetQuery.setMinimumShouldMatchScript(
-			new Script("painless", source));
+		termsSetQuery.setMinimumShouldMatchScript(scripts.script(source));
 
 		assertTermsSet(termsSetQuery, expected);
 	}

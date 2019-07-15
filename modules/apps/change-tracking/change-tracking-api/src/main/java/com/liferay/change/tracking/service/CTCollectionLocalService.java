@@ -14,8 +14,6 @@
 
 package com.liferay.change.tracking.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.change.tracking.model.CTCollection;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
@@ -38,6 +36,8 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import java.io.Serializable;
 
 import java.util.List;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service interface for CTCollection. Methods of this
@@ -374,6 +374,11 @@ public interface CTCollectionLocalService
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	public CTCollection updateCTCollection(CTCollection ctCollection);
+
+	public CTCollection updateCTCollection(
+			long userId, long ctCollectionId, String name, String description,
+			ServiceContext serviceContext)
+		throws PortalException;
 
 	public CTCollection updateStatus(
 			long userId, CTCollection ctCollection, int status,

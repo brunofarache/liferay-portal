@@ -1,8 +1,8 @@
 package ${packagePath}.service.http;
 
-import ${apiPackagePath}.model.${entity.name};
+import ${serviceBuilder.getCompatJavaClassName("ProviderType")};
 
-import aQute.bnd.annotation.ProviderType;
+import ${apiPackagePath}.model.${entity.name};
 
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;

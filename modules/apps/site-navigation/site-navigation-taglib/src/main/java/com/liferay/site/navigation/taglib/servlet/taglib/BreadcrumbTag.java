@@ -29,6 +29,10 @@ import javax.servlet.jsp.PageContext;
  */
 public class BreadcrumbTag extends IncludeTag {
 
+	public List<BreadcrumbEntry> getBreadcrumbEntries() {
+		return _breadcrumbEntries;
+	}
+
 	public void setBreadcrumbEntries(List<BreadcrumbEntry> breadcrumbEntries) {
 		_breadcrumbEntries = breadcrumbEntries;
 	}
@@ -53,8 +57,8 @@ public class BreadcrumbTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-site-navigation:breadcrumb:breadcrumbEntries",
 			_breadcrumbEntries);
 	}

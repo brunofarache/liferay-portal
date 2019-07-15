@@ -1,3 +1,17 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 AUI.add(
 	'liferay-product-navigation-control-menu-portlet-dd',
 	function(A) {
@@ -10,98 +24,99 @@ AUI.add(
 
 		var STR_NODE = 'node';
 
-		var PortletDragDrop = A.Component.create(
-			{
-				ATTRS: {
-					srcNode: {
-						setter: A.one
-					}
+		var PortletDragDrop = A.Component.create({
+			ATTRS: {
+				srcNode: {
+					setter: A.one
+				}
+			},
+
+			EXTENDS: A.Plugin.Base,
+
+			NAME: NAME,
+
+			NS: NAME,
+
+			prototype: {
+				initializer: function() {
+					var instance = this;
+
+					instance._bindUIDragDrop();
 				},
 
-				EXTENDS: A.Plugin.Base,
+				_bindUIDragDrop: function() {
+					var instance = this;
 
-				NAME: NAME,
-
-				NS: NAME,
-
-				prototype: {
-					initializer: function() {
-						var instance = this;
-
-						instance._bindUIDragDrop();
-					},
-
-					_bindUIDragDrop: function() {
-						var instance = this;
-
-						var portletItemOptions = {
-							delegateConfig: {
-								container: instance.get('srcNode'),
-								dragConfig: {
-									clickPixelThresh: 0,
-									clickTimeThresh: 0
-								},
-								invalid: '.lfr-portlet-used',
-								target: false
+					var portletItemOptions = {
+						delegateConfig: {
+							container: instance.get('srcNode'),
+							dragConfig: {
+								clickPixelThresh: 0,
+								clickTimeThresh: 0
 							},
-							dragNodes: '[data-draggable]',
-							dropContainer: function(dropNode) {
-								return dropNode.one(Layout.options.dropContainer);
-							}
-						};
-
-						var defaultLayoutOptions = Layout.DEFAULT_LAYOUT_OPTIONS;
-
-						if (defaultLayoutOptions) {
-							portletItemOptions.on = defaultLayoutOptions.on;
-
-							portletItemOptions.delegateConfig.dragConfig.plugins = defaultLayoutOptions.delegateConfig.dragConfig.plugins;
+							invalid: '.lfr-portlet-used',
+							target: false
+						},
+						dragNodes: '[data-draggable]',
+						dropContainer: function(dropNode) {
+							return dropNode.one(Layout.options.dropContainer);
 						}
+					};
 
-						var portletItemClass = 'PortletItem';
+					var defaultLayoutOptions = Layout.DEFAULT_LAYOUT_OPTIONS;
 
-						if (themeDisplay.isFreeformLayout()) {
-							portletItemClass = 'FreeFormPortletItem';
-						}
+					if (defaultLayoutOptions) {
+						portletItemOptions.on = defaultLayoutOptions.on;
 
-						var portletItem = new ControlMenu[portletItemClass](portletItemOptions);
+						portletItemOptions.delegateConfig.dragConfig.plugins =
+							defaultLayoutOptions.delegateConfig.dragConfig.plugins;
+					}
 
-						portletItem.on('drag:end', instance._onDragEnd, instance);
+					var portletItem = new ControlMenu['PortletItem'](
+						portletItemOptions
+					);
 
-						portletItem.delegate.dd.addInvalid(SELECTOR_ADD_CONTENT_ITEM);
+					portletItem.on('drag:end', instance._onDragEnd, instance);
 
-						instance._portletItem = portletItem;
+					portletItem.delegate.dd.addInvalid(
+						SELECTOR_ADD_CONTENT_ITEM
+					);
 
-						Liferay.fire('initLayout');
-					},
+					instance._portletItem = portletItem;
 
-					_onDragEnd: function(event) {
-						var instance = this;
+					Liferay.fire('initLayout');
+				},
 
-						var portletItem = event.currentTarget;
+				_onDragEnd: function(event) {
+					var instance = this;
 
-						var appendNode = portletItem.appendNode;
+					var portletItem = event.currentTarget;
 
-						if (appendNode && appendNode.inDoc()) {
-							var portletNode = event.target.get(STR_NODE);
+					var appendNode = portletItem.appendNode;
 
-							instance.fire(
-								'dragEnd',
-								{
-									appendNode: appendNode,
-									portletNode: portletNode
-								}
-							);
-						}
+					if (appendNode && appendNode.inDoc()) {
+						var portletNode = event.target.get(STR_NODE);
+
+						instance.fire('dragEnd', {
+							appendNode: appendNode,
+							portletNode: portletNode
+						});
 					}
 				}
 			}
-		);
+		});
 
 		ControlMenu.PortletDragDrop = PortletDragDrop;
 	},
 	'',
 	{
-		requires: ['aui-base', 'dd', 'liferay-product-navigation-control-menu', 'liferay-layout', 'liferay-layout-column', 'liferay-portlet-base']
+		requires: [
+			'aui-base',
+			'dd',
+			'liferay-product-navigation-control-menu',
+			'liferay-layout',
+			'liferay-layout-column',
+			'liferay-portlet-base'
+		]
 	}
 );

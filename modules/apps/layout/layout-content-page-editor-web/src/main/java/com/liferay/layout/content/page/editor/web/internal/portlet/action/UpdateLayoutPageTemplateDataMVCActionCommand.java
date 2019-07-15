@@ -16,7 +16,7 @@ package com.liferay.layout.content.page.editor.web.internal.portlet.action;
 
 import com.liferay.fragment.service.FragmentEntryLinkLocalService;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
-import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalService;
+import com.liferay.layout.page.template.service.LayoutPageTemplateStructureService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.segments.constants.SegmentsConstants;
 
 import java.util.concurrent.Callable;
 
@@ -95,14 +96,17 @@ public class UpdateLayoutPageTemplateDataMVCActionCommand
 
 		long classNameId = ParamUtil.getLong(actionRequest, "classNameId");
 		long classPK = ParamUtil.getLong(actionRequest, "classPK");
+		long segmentsExperienceId = ParamUtil.getLong(
+			actionRequest, "segmentsExperienceId",
+			SegmentsConstants.SEGMENTS_EXPERIENCE_ID_DEFAULT);
 		String data = ParamUtil.getString(actionRequest, "data");
 
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
 			actionRequest);
 
-		_layoutPageTemplateStructureLocalService.
-			updateLayoutPageTemplateStructure(
-				serviceContext.getScopeGroupId(), classNameId, classPK, data);
+		_layoutPageTemplateStructureService.updateLayoutPageTemplateStructure(
+			serviceContext.getScopeGroupId(), classNameId, classPK,
+			segmentsExperienceId, data);
 
 		String fragmentEntryLinkIdsString = ParamUtil.getString(
 			actionRequest, "fragmentEntryLinkIds");
@@ -127,8 +131,8 @@ public class UpdateLayoutPageTemplateDataMVCActionCommand
 	private FragmentEntryLinkLocalService _fragmentEntryLinkLocalService;
 
 	@Reference
-	private LayoutPageTemplateStructureLocalService
-		_layoutPageTemplateStructureLocalService;
+	private LayoutPageTemplateStructureService
+		_layoutPageTemplateStructureService;
 
 	private class UpdateLayoutPageTemplateStructuresCallable
 		implements Callable<Void> {

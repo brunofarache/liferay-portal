@@ -15,6 +15,7 @@
 package com.liferay.asset.publisher.web.internal.portlet;
 
 import com.liferay.asset.constants.AssetWebKeys;
+import com.liferay.asset.list.util.AssetListAssetEntryProvider;
 import com.liferay.asset.publisher.constants.AssetPublisherPortletKeys;
 import com.liferay.asset.publisher.constants.AssetPublisherWebKeys;
 import com.liferay.asset.publisher.util.AssetPublisherHelper;
@@ -238,9 +239,10 @@ public class AssetPublisherPortlet extends MVCPortlet {
 			AssetPublisherDisplayContext assetPublisherDisplayContext =
 				new AssetPublisherDisplayContext(
 					assetEntryActionRegistry, assetHelper,
-					assetPublisherCustomizer, assetPublisherHelper,
-					assetPublisherWebConfiguration, assetPublisherWebUtil,
-					infoListProviderTracker, resourceRequest, resourceResponse,
+					assetListAssetEntryProvider, assetPublisherCustomizer,
+					assetPublisherHelper, assetPublisherWebConfiguration,
+					assetPublisherWebUtil, infoListProviderTracker,
+					resourceRequest, resourceResponse,
 					resourceRequest.getPreferences());
 
 			resourceRequest.setAttribute(
@@ -337,9 +339,10 @@ public class AssetPublisherPortlet extends MVCPortlet {
 			AssetPublisherDisplayContext assetPublisherDisplayContext =
 				new AssetPublisherDisplayContext(
 					assetEntryActionRegistry, assetHelper,
-					assetPublisherCustomizer, assetPublisherHelper,
-					assetPublisherWebConfiguration, assetPublisherWebUtil,
-					infoListProviderTracker, renderRequest, renderResponse,
+					assetListAssetEntryProvider, assetPublisherCustomizer,
+					assetPublisherHelper, assetPublisherWebConfiguration,
+					assetPublisherWebUtil, infoListProviderTracker,
+					renderRequest, renderResponse,
 					renderRequest.getPreferences());
 
 			renderRequest.setAttribute(
@@ -380,18 +383,14 @@ public class AssetPublisherPortlet extends MVCPortlet {
 		return false;
 	}
 
-	@Reference(
-		target = "(&(release.bundle.symbolic.name=com.liferay.asset.publisher.web)(&(release.schema.version>=1.0.0)(!(release.schema.version>=1.1.0))))",
-		unbind = "-"
-	)
-	protected void setRelease(Release release) {
-	}
-
 	@Reference
 	protected AssetEntryActionRegistry assetEntryActionRegistry;
 
 	@Reference
 	protected AssetHelper assetHelper;
+
+	@Reference
+	protected AssetListAssetEntryProvider assetListAssetEntryProvider;
 
 	@Reference
 	protected AssetPublisherCustomizerRegistry assetPublisherCustomizerRegistry;
@@ -412,6 +411,11 @@ public class AssetPublisherPortlet extends MVCPortlet {
 
 	@Reference
 	protected Portal portal;
+
+	@Reference(
+		target = "(&(release.bundle.symbolic.name=com.liferay.asset.publisher.web)(&(release.schema.version>=1.0.0)(!(release.schema.version>=1.1.0))))"
+	)
+	protected Release release;
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		AssetPublisherPortlet.class);

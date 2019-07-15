@@ -14,8 +14,6 @@
 
 package com.liferay.dynamic.data.mapping.service.http;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutServiceUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -23,6 +21,8 @@ import com.liferay.portal.kernel.security.auth.HttpPrincipal;
 import com.liferay.portal.kernel.service.http.TunnelUtil;
 import com.liferay.portal.kernel.util.MethodHandler;
 import com.liferay.portal.kernel.util.MethodKey;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the HTTP utility for the
@@ -126,6 +126,52 @@ public class DDMStructureLayoutServiceHttp {
 		}
 	}
 
+	public static java.util.List
+		<com.liferay.dynamic.data.mapping.model.DDMStructureLayout> search(
+				HttpPrincipal httpPrincipal, long companyId, long[] groupIds,
+				long classNameId, String keywords, int start, int end,
+				com.liferay.portal.kernel.util.OrderByComparator
+					<com.liferay.dynamic.data.mapping.model.DDMStructureLayout>
+						orderByComparator)
+			throws com.liferay.portal.kernel.exception.PortalException {
+
+		try {
+			MethodKey methodKey = new MethodKey(
+				DDMStructureLayoutServiceUtil.class, "search",
+				_searchParameterTypes2);
+
+			MethodHandler methodHandler = new MethodHandler(
+				methodKey, companyId, groupIds, classNameId, keywords, start,
+				end, orderByComparator);
+
+			Object returnObj = null;
+
+			try {
+				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
+			}
+			catch (Exception e) {
+				if (e instanceof
+						com.liferay.portal.kernel.exception.PortalException) {
+
+					throw (com.liferay.portal.kernel.exception.PortalException)
+						e;
+				}
+
+				throw new com.liferay.portal.kernel.exception.SystemException(
+					e);
+			}
+
+			return (java.util.List
+				<com.liferay.dynamic.data.mapping.model.DDMStructureLayout>)
+					returnObj;
+		}
+		catch (com.liferay.portal.kernel.exception.SystemException se) {
+			_log.error(se, se);
+
+			throw se;
+		}
+	}
+
 	private static Log _log = LogFactoryUtil.getLog(
 		DDMStructureLayoutServiceHttp.class);
 
@@ -133,5 +179,9 @@ public class DDMStructureLayoutServiceHttp {
 		new Class[] {long.class, int.class, int.class};
 	private static final Class<?>[] _getStructureLayoutsCountParameterTypes1 =
 		new Class[] {long.class};
+	private static final Class<?>[] _searchParameterTypes2 = new Class[] {
+		long.class, long[].class, long.class, String.class, int.class,
+		int.class, com.liferay.portal.kernel.util.OrderByComparator.class
+	};
 
 }

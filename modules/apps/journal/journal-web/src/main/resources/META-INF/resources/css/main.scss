@@ -1,5 +1,7 @@
-@import "mixins";
+@import 'mixins';
 
+$toolbarDesktopHeight: 64px;
+$toolbarHeight: 110px;
 $toolbarZIndex: 971;
 
 $controlMenuDesktopHeight: 56px;
@@ -10,18 +12,26 @@ $productMenuWidth: 320px;
 
 .portlet-journal {
 	.article-content-content {
-		img, .cke_widget_image {
+		word-wrap: break-word;
+
+		img,
+		.cke_widget_image {
 			max-width: 100%;
 
-			&[style*="float: left;"], &[style*="float:left;"] {
+			&[style*='float: left;'],
+			&[style*='float:left;'] {
 				margin-right: 24px;
 			}
 
-			&[style*="float: right;"], &[style*="float:right;"] {
+			&[style*='float: right;'],
+			&[style*='float:right;'] {
 				margin-left: 24px;
 			}
 
-			&[style*="float: left;"], &[style*="float:left;"], &[style*="float: right;"], &[style*="float:right;"] {
+			&[style*='float: left;'],
+			&[style*='float:left;'],
+			&[style*='float: right;'],
+			&[style*='float:right;'] {
 				margin-bottom: 24px;
 				margin-top: 24px;
 			}
@@ -70,18 +80,47 @@ $productMenuWidth: 320px;
 			min-height: 3.5rem;
 			position: fixed;
 			top: $controlMenuHeight;
-			transition: left ease $productMenuTransitionDuration, width ease $productMenuTransitionDuration;
+			transition: left ease $productMenuTransitionDuration,
+				width ease $productMenuTransitionDuration;
 			width: 100%;
 			z-index: $toolbarZIndex;
 
 			body.open & {
 				left: $productMenuWidth;
 				width: calc(100% - #{$productMenuWidth});
+
+				@media (max-width: 768px) {
+					left: 0;
+					width: 100%;
+				}
 			}
 
-			@media (min-width: 768px) {
-				min-height: $controlMenuDesktopHeight;
-				top: $controlMenuDesktopHeight;
+			> .container-fluid {
+				padding: 0;
+
+				> .tbar-nav {
+					flex-wrap: wrap;
+
+					> .tbar-item {
+						padding: 0.5em;
+					}
+
+					> .tbar-item:first-child {
+						border-top: solid thin #e7e7ed;
+						order: 1;
+						width: 100%;
+					}
+
+					> .tbar-item:last-child {
+						flex-grow: 1;
+						padding-right: 1em;
+
+						> .tbar-section {
+							display: flex;
+							justify-content: flex-end;
+						}
+					}
+				}
 			}
 
 			.form-text {
@@ -89,6 +128,8 @@ $productMenuWidth: 320px;
 			}
 
 			.input-localized {
+				flex-direction: row-reverse;
+
 				.form-validator-stack {
 					display: none;
 				}
@@ -102,30 +143,82 @@ $productMenuWidth: 320px;
 					padding-right: 0.5rem;
 				}
 			}
+
+			.journal-article-button-row .btn-cancel {
+				border: 0;
+			}
+
+			@media (min-width: 768px) {
+				min-height: $toolbarDesktopHeight;
+				top: $controlMenuDesktopHeight;
+
+				> .container-fluid > .tbar-nav {
+					> .tbar-item:first-child {
+						border-top: none;
+						order: 0;
+						width: auto;
+					}
+
+					> .tbar-item:last-child {
+						flex-grow: 0;
+					}
+				}
+
+				.input-localized {
+					flex-direction: row;
+				}
+			}
 		}
 
 		.contextual-sidebar-content {
-			margin-top: $controlMenuHeight;
+			margin-top: $toolbarHeight;
 
 			@media (min-width: 768px) {
-				margin-top: $controlMenuDesktopHeight;
+				margin-top: $toolbarDesktopHeight;
+			}
+
+			@media (max-width: 769px) {
+				> .container-fluid {
+					margin: 0;
+					padding: 0;
+
+					> .sheet {
+						border: none;
+						border-radius: 0;
+						min-height: calc(
+							100vh - #{$controlMenuHeight + $toolbarHeight}
+						);
+					}
+				}
 			}
 		}
 
 		.edit-article-sidebar {
-			border-left: 1px #E7E7ED solid;
+			border-left: 1px #e7e7ed solid;
 			box-shadow: none;
-			height: calc(100vh - #{$controlMenuHeight * 2}) !important;
+			height: calc(
+				100vh - #{$controlMenuHeight + $toolbarHeight}
+			) !important;
 			overflow-y: scroll;
-			top: $controlMenuHeight * 2 !important;
+			top: $controlMenuHeight + $toolbarHeight !important;
+			width: 100%;
+			z-index: 1;
 
 			@media (min-width: 768px) {
-				height: calc(100vh - #{$controlMenuDesktopHeight * 2}) !important;
-				top: $controlMenuDesktopHeight * 2 !important;
+				height: calc(
+					100vh - #{$controlMenuDesktopHeight + $toolbarDesktopHeight}
+				) !important;
+				top: $controlMenuDesktopHeight + $toolbarDesktopHeight !important;
+				width: $productMenuWidth;
 			}
 
 			.article-content-description {
 				@extend .article-content-content;
+
+				.language-value,
+				.input-localized-content {
+					margin-bottom: 0;
+				}
 
 				.alloy-editor-switch {
 					display: none;
@@ -137,7 +230,8 @@ $productMenuWidth: 320px;
 					margin-bottom: 16px;
 				}
 
-				.expiration-date, .review-date {
+				.expiration-date,
+				.review-date {
 					.form-group-autofit {
 						margin-bottom: 8px;
 					}
@@ -145,8 +239,21 @@ $productMenuWidth: 320px;
 			}
 		}
 
-		.sidebar-body .panel-body {
-			padding: 0;
+		.sidebar-body {
+			.panel-body {
+				margin-bottom: 16px;
+				padding: 0;
+
+				.article-default-language {
+					margin-bottom: 1rem;
+				}
+			}
+		}
+	}
+
+	.check-circle-center {
+		.green {
+			color: #008000;
 		}
 	}
 }

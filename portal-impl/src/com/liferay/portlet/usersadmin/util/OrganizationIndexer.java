@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.usersadmin.util;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -40,7 +41,6 @@ import com.liferay.portal.kernel.service.OrganizationLocalServiceUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.ArrayList;
@@ -52,10 +52,10 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 
 /**
- * @author Raymond Augé
- * @author Zsigmond Rab
- * @author Hugo Huijser
- * @author Marco Leo
+ * @author     Raymond Augé
+ * @author     Zsigmond Rab
+ * @author     Hugo Huijser
+ * @author     Marco Leo
  * @deprecated As of Judson (7.1.x), since 7.1.0
  */
 @Deprecated
@@ -95,8 +95,7 @@ public class OrganizationIndexer extends BaseIndexer<Organization> {
 
 			termsFilter.addValues(
 				ArrayUtil.toStringArray(
-					excludedOrganizationIds.toArray(
-						new Long[excludedOrganizationIds.size()])));
+					excludedOrganizationIds.toArray(new Long[0])));
 
 			contextBooleanFilter.add(termsFilter, BooleanClauseOccur.MUST_NOT);
 		}

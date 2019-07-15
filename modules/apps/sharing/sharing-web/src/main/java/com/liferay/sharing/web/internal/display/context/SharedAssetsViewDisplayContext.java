@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.PortletURLUtil;
 import com.liferay.portal.kernel.service.ClassNameLocalServiceUtil;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.servlet.taglib.ui.Menu;
 import com.liferay.portal.kernel.servlet.taglib.ui.MenuItem;
 import com.liferay.portal.kernel.servlet.taglib.ui.URLMenuItem;
@@ -34,8 +35,11 @@ import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.sharing.configuration.SharingConfiguration;
+import com.liferay.sharing.configuration.SharingConfigurationFactory;
 import com.liferay.sharing.display.context.util.SharingMenuItemFactory;
 import com.liferay.sharing.filter.SharedAssetsFilterItem;
 import com.liferay.sharing.interpreter.SharingEntryInterpreter;
@@ -44,14 +48,16 @@ import com.liferay.sharing.renderer.SharingEntryEditRenderer;
 import com.liferay.sharing.security.permission.SharingEntryAction;
 import com.liferay.sharing.security.permission.SharingPermission;
 import com.liferay.sharing.service.SharingEntryLocalService;
+import com.liferay.sharing.servlet.taglib.ui.SharingEntryMenuItemContributor;
 import com.liferay.sharing.util.comparator.SharingEntryModifiedDateComparator;
+import com.liferay.sharing.web.internal.servlet.taglib.ui.SharingEntryMenuItemContributorRegistry;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.ResourceBundle;
 import java.util.function.Function;
 
 import javax.portlet.PortletException;
@@ -67,28 +73,38 @@ import javax.servlet.http.HttpServletRequest;
 public class SharedAssetsViewDisplayContext {
 
 	public SharedAssetsViewDisplayContext(
+		GroupLocalService groupLocalService,
 		LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse,
-		HttpServletRequest request, ResourceBundle resourceBundle,
 		List<SharedAssetsFilterItem> sharedAssetsFilterItems,
-		SharingEntryLocalService sharingEntryLocalService,
+		SharingConfigurationFactory sharingConfigurationFactory,
 		Function<SharingEntry, SharingEntryInterpreter>
 			sharingEntryInterpreterFunction,
+		SharingEntryLocalService sharingEntryLocalService,
+		SharingEntryMenuItemContributorRegistry
+			sharingEntryMenuItemContributorRegistry,
 		SharingMenuItemFactory sharingMenuItemFactory,
 		SharingPermission sharingPermission) {
 
+		_groupLocalService = groupLocalService;
 		_liferayPortletRequest = liferayPortletRequest;
 		_liferayPortletResponse = liferayPortletResponse;
-		_request = request;
 		_sharedAssetsFilterItems = sharedAssetsFilterItems;
-		_sharingEntryLocalService = sharingEntryLocalService;
+		_sharingConfigurationFactory = sharingConfigurationFactory;
 		_sharingEntryInterpreterFunction = sharingEntryInterpreterFunction;
+		_sharingEntryLocalService = sharingEntryLocalService;
+		_sharingEntryMenuItemContributorRegistry =
+			sharingEntryMenuItemContributorRegistry;
 		_sharingMenuItemFactory = sharingMenuItemFactory;
 		_sharingPermission = sharingPermission;
 
 		_currentURLObj = PortletURLUtil.getCurrent(
 			liferayPortletRequest, liferayPortletResponse);
-		_themeDisplay = (ThemeDisplay)request.getAttribute(
+
+		_httpServletRequest = PortalUtil.getHttpServletRequest(
+			liferayPortletRequest);
+
+		_themeDisplay = (ThemeDisplay)_httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
 
@@ -107,7 +123,7 @@ public class SharedAssetsViewDisplayContext {
 	}
 
 	public String getClassName() {
-		return ParamUtil.getString(_request, "className");
+		return ParamUtil.getString(_httpServletRequest, "className");
 	}
 
 	public List<DropdownItem> getFilterDropdownItems() {
@@ -118,14 +134,15 @@ public class SharedAssetsViewDisplayContext {
 						dropdownGroupItem.setDropdownItems(
 							_getFilterNavigationDropdownItems());
 						dropdownGroupItem.setLabel(
-							LanguageUtil.get(_request, "filter-by-navigation"));
+							LanguageUtil.get(
+								_httpServletRequest, "filter-by-navigation"));
 					});
 				addGroup(
 					dropdownGroupItem -> {
 						dropdownGroupItem.setDropdownItems(
 							_getOrderByDropdownItems());
 						dropdownGroupItem.setLabel(
-							LanguageUtil.get(_request, "order-by"));
+							LanguageUtil.get(_httpServletRequest, "order-by"));
 					});
 			}
 		};
@@ -147,7 +164,8 @@ public class SharedAssetsViewDisplayContext {
 						navigationItem.setHref(sharedWithMeURL);
 
 						navigationItem.setLabel(
-							LanguageUtil.get(_request, "shared-with-me"));
+							LanguageUtil.get(
+								_httpServletRequest, "shared-with-me"));
 					});
 				add(
 					navigationItem -> {
@@ -162,7 +180,8 @@ public class SharedAssetsViewDisplayContext {
 						navigationItem.setHref(sharedByMeURL);
 
 						navigationItem.setLabel(
-							LanguageUtil.get(_request, "shared-by-me"));
+							LanguageUtil.get(
+								_httpServletRequest, "shared-by-me"));
 					});
 			}
 		};
@@ -179,21 +198,33 @@ public class SharedAssetsViewDisplayContext {
 
 		menu.setDirection("left-side");
 		menu.setMarkupView("lexicon");
-		menu.setTriggerCssClass("component-action");
+		menu.setMessage(LanguageUtil.get(_httpServletRequest, "actions"));
+		menu.setScroll(false);
+		menu.setShowWhenSingleIcon(true);
 
-		List<MenuItem> menuItems = new ArrayList<>(2);
+		if (!isVisible(sharingEntry)) {
+			menu.setMenuItems(Collections.emptyList());
 
-		if (hasEditPermission(
+			return menu;
+		}
+
+		List<MenuItem> menuItems = new ArrayList<>();
+
+		if (_hasEditPermission(
 				sharingEntry.getClassNameId(), sharingEntry.getClassPK())) {
 
-			menuItems.add(_createEditMenuItem(sharingEntry));
+			MenuItem menuItem = _createEditMenuItem(sharingEntry);
+
+			if (menuItem != null) {
+				menuItems.add(menuItem);
+			}
 		}
 
 		if (sharingEntry.isShareable()) {
 			menuItems.add(
 				_sharingMenuItemFactory.createShareMenuItem(
 					sharingEntry.getClassName(), sharingEntry.getClassPK(),
-					_request));
+					_httpServletRequest));
 		}
 
 		boolean containsManageCollaboratorsPermission =
@@ -206,18 +237,25 @@ public class SharedAssetsViewDisplayContext {
 			menuItems.add(
 				_sharingMenuItemFactory.createManageCollaboratorsMenuItem(
 					sharingEntry.getClassName(), sharingEntry.getClassPK(),
-					_request));
+					_httpServletRequest));
 		}
 
+		SharingEntryMenuItemContributor sharingEntryMenuItemContributor =
+			_sharingEntryMenuItemContributorRegistry.
+				getSharingEntryMenuItemContributor(
+					sharingEntry.getClassNameId());
+
+		menuItems.addAll(
+			sharingEntryMenuItemContributor.getSharingEntryMenuItems(
+				sharingEntry, _themeDisplay));
+
 		menu.setMenuItems(menuItems);
-		menu.setScroll(false);
-		menu.setShowWhenSingleIcon(true);
 
 		return menu;
 	}
 
 	public String getSortingOrder() {
-		return ParamUtil.getString(_request, "orderByType", "asc");
+		return ParamUtil.getString(_httpServletRequest, "orderByType", "asc");
 	}
 
 	public PortletURL getSortingURL() throws PortletException {
@@ -242,23 +280,34 @@ public class SharedAssetsViewDisplayContext {
 		return sharingEntryInterpreter.getTitle(sharingEntry);
 	}
 
-	public boolean hasEditPermission(long classNameId, long classPK) {
-		SharingEntry sharingEntry = _sharingEntryLocalService.fetchSharingEntry(
-			_themeDisplay.getUserId(), classNameId, classPK);
+	public boolean isVisible(SharingEntry sharingEntry) throws PortalException {
+		SharingEntryInterpreter sharingEntryInterpreter =
+			_sharingEntryInterpreterFunction.apply(sharingEntry);
 
-		if ((sharingEntry != null) &&
-			sharingEntry.hasSharingPermission(SharingEntryAction.UPDATE)) {
-
-			return true;
+		if (sharingEntryInterpreter == null) {
+			return false;
 		}
 
-		return false;
+		if (!sharingEntryInterpreter.isVisible(sharingEntry)) {
+			return false;
+		}
+
+		SharingConfiguration groupSharingConfiguration =
+			_sharingConfigurationFactory.getGroupSharingConfiguration(
+				_groupLocalService.getGroup(sharingEntry.getGroupId()));
+
+		if (!groupSharingConfiguration.isEnabled()) {
+			return false;
+		}
+
+		return true;
 	}
 
 	public void populateResults(SearchContainer<SharingEntry> searchContainer) {
 		long classNameId = 0;
 
-		String className = ParamUtil.getString(_request, "className");
+		String className = ParamUtil.getString(
+			_httpServletRequest, "className");
 
 		if (Validator.isNotNull(className)) {
 			classNameId = ClassNameLocalServiceUtil.getClassNameId(className);
@@ -301,6 +350,13 @@ public class SharedAssetsViewDisplayContext {
 		throws PortalException {
 
 		try {
+			PortletURL editPortletURL = _getURLEdit(
+				sharingEntry, _liferayPortletRequest, _liferayPortletResponse);
+
+			if (editPortletURL == null) {
+				return null;
+			}
+
 			URLMenuItem urlMenuItem = new URLMenuItem();
 
 			Map<String, Object> data = new HashMap<>(3);
@@ -313,31 +369,13 @@ public class SharedAssetsViewDisplayContext {
 			data.put(
 				"title",
 				LanguageUtil.format(
-					_request, "edit-x", HtmlUtil.escape(getTitle(sharingEntry)),
-					false));
+					_httpServletRequest, "edit-x",
+					HtmlUtil.escape(getTitle(sharingEntry)), false));
 
 			urlMenuItem.setData(data);
 
-			urlMenuItem.setLabel(LanguageUtil.get(_request, "edit"));
+			urlMenuItem.setLabel(LanguageUtil.get(_httpServletRequest, "edit"));
 			urlMenuItem.setMethod("get");
-
-			PortletURL editPortletURL = _getURLEdit(
-				sharingEntry, _liferayPortletRequest, _liferayPortletResponse);
-
-			editPortletURL.setWindowState(LiferayWindowState.POP_UP);
-
-			editPortletURL.setParameter(
-				"hideDefaultSuccessMessage", Boolean.TRUE.toString());
-			editPortletURL.setParameter("showHeader", Boolean.FALSE.toString());
-
-			PortletDisplay portletDisplay = _themeDisplay.getPortletDisplay();
-
-			PortletURL redirectURL =
-				_liferayPortletResponse.createLiferayPortletURL(
-					_themeDisplay.getPlid(), portletDisplay.getId(),
-					PortletRequest.RENDER_PHASE, false);
-
-			editPortletURL.setParameter("redirect", redirectURL.toString());
 
 			urlMenuItem.setURL(editPortletURL.toString());
 
@@ -351,16 +389,14 @@ public class SharedAssetsViewDisplayContext {
 	}
 
 	private PortletURL _getCurrentSortingURL() throws PortletException {
-		PortletURL sortingURL = PortletURLUtil.clone(
-			_currentURLObj, _liferayPortletResponse);
-
-		return sortingURL;
+		return PortletURLUtil.clone(_currentURLObj, _liferayPortletResponse);
 	}
 
 	private List<DropdownItem> _getFilterNavigationDropdownItems() {
 		return new DropdownItemList() {
 			{
-				String className = ParamUtil.getString(_request, "className");
+				String className = ParamUtil.getString(
+					_httpServletRequest, "className");
 
 				add(
 					dropdownItem -> {
@@ -377,7 +413,7 @@ public class SharedAssetsViewDisplayContext {
 						dropdownItem.setHref(viewAllClassNamesURL);
 
 						dropdownItem.setLabel(
-							LanguageUtil.get(_request, "all"));
+							LanguageUtil.get(_httpServletRequest, "all"));
 					});
 				add(
 					dropdownItem -> {
@@ -389,7 +425,8 @@ public class SharedAssetsViewDisplayContext {
 			}
 
 			private String _getClassNameLabel(String className) {
-				String label = LanguageUtil.get(_request, "asset-types");
+				String label = LanguageUtil.get(
+					_httpServletRequest, "asset-types");
 
 				if (Validator.isNotNull(className)) {
 					for (SharedAssetsFilterItem sharedAssetsFilterItem :
@@ -414,18 +451,20 @@ public class SharedAssetsViewDisplayContext {
 
 	private List<DropdownItem> _getOrderByDropdownItems() {
 		String orderByCol = ParamUtil.getString(
-			_request, "orderByCol", "sharedDate");
+			_httpServletRequest, "orderByCol", "sharedDate");
 
 		return new DropdownItemList() {
 			{
 				add(
 					dropdownItem -> {
-						dropdownItem.setActive("sharedDate".equals(orderByCol));
+						dropdownItem.setActive(
+							Objects.equals(orderByCol, "sharedDate"));
 						dropdownItem.setHref(
 							_getCurrentSortingURL(), "orderByCol",
 							"sharedDate");
 						dropdownItem.setLabel(
-							LanguageUtil.get(_request, "shared-date"));
+							LanguageUtil.get(
+								_httpServletRequest, "shared-date"));
 					});
 			}
 		};
@@ -435,7 +474,7 @@ public class SharedAssetsViewDisplayContext {
 			SharingEntry sharingEntry,
 			LiferayPortletRequest liferayPortletRequest,
 			LiferayPortletResponse liferayPortletResponse)
-		throws PortalException {
+		throws PortalException, WindowStateException {
 
 		SharingEntryInterpreter sharingEntryInterpreter =
 			_sharingEntryInterpreterFunction.apply(sharingEntry);
@@ -447,22 +486,65 @@ public class SharedAssetsViewDisplayContext {
 		SharingEntryEditRenderer sharingEntryEditRenderer =
 			sharingEntryInterpreter.getSharingEntryEditRenderer();
 
-		return sharingEntryEditRenderer.getURLEdit(
+		PortletURL portletURL = sharingEntryEditRenderer.getURLEdit(
 			sharingEntry, liferayPortletRequest, liferayPortletResponse);
+
+		if (portletURL == null) {
+			return null;
+		}
+
+		portletURL.setParameter(
+			"hideDefaultSuccessMessage", Boolean.TRUE.toString());
+
+		PortletDisplay portletDisplay = _themeDisplay.getPortletDisplay();
+
+		PortletURL redirectURL =
+			_liferayPortletResponse.createLiferayPortletURL(
+				_themeDisplay.getPlid(), portletDisplay.getId(),
+				PortletRequest.RENDER_PHASE, false);
+
+		redirectURL.setParameter(
+			"mvcRenderCommandName",
+			"/shared_assets/close_sharing_entry_edit_dialog");
+
+		portletURL.setParameter("redirect", redirectURL.toString());
+
+		portletURL.setParameter("showHeader", Boolean.FALSE.toString());
+
+		portletURL.setWindowState(LiferayWindowState.POP_UP);
+
+		return portletURL;
+	}
+
+	private boolean _hasEditPermission(long classNameId, long classPK) {
+		SharingEntry sharingEntry = _sharingEntryLocalService.fetchSharingEntry(
+			_themeDisplay.getUserId(), classNameId, classPK);
+
+		if ((sharingEntry != null) &&
+			sharingEntry.hasSharingPermission(SharingEntryAction.UPDATE)) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	private boolean _isIncoming() {
-		return ParamUtil.getBoolean(_request, "incoming", true);
+		return ParamUtil.getBoolean(_httpServletRequest, "incoming", true);
 	}
 
 	private final PortletURL _currentURLObj;
+	private final GroupLocalService _groupLocalService;
+	private final HttpServletRequest _httpServletRequest;
 	private final LiferayPortletRequest _liferayPortletRequest;
 	private final LiferayPortletResponse _liferayPortletResponse;
-	private final HttpServletRequest _request;
 	private final List<SharedAssetsFilterItem> _sharedAssetsFilterItems;
+	private final SharingConfigurationFactory _sharingConfigurationFactory;
 	private final Function<SharingEntry, SharingEntryInterpreter>
 		_sharingEntryInterpreterFunction;
 	private final SharingEntryLocalService _sharingEntryLocalService;
+	private final SharingEntryMenuItemContributorRegistry
+		_sharingEntryMenuItemContributorRegistry;
 	private final SharingMenuItemFactory _sharingMenuItemFactory;
 	private final SharingPermission _sharingPermission;
 	private final ThemeDisplay _themeDisplay;

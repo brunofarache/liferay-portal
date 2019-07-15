@@ -14,13 +14,13 @@
 
 package com.liferay.oauth2.provider.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * This class is used by SOAP remote services.
@@ -44,8 +44,6 @@ public class OAuth2ApplicationScopeAliasesSoap implements Serializable {
 		soapModel.setUserName(model.getUserName());
 		soapModel.setCreateDate(model.getCreateDate());
 		soapModel.setOAuth2ApplicationId(model.getOAuth2ApplicationId());
-		soapModel.setScopeAliases(model.getScopeAliases());
-		soapModel.setScopeAliasesHash(model.getScopeAliasesHash());
 
 		return soapModel;
 	}
@@ -158,29 +156,11 @@ public class OAuth2ApplicationScopeAliasesSoap implements Serializable {
 		_oAuth2ApplicationId = oAuth2ApplicationId;
 	}
 
-	public String getScopeAliases() {
-		return _scopeAliases;
-	}
-
-	public void setScopeAliases(String scopeAliases) {
-		_scopeAliases = scopeAliases;
-	}
-
-	public long getScopeAliasesHash() {
-		return _scopeAliasesHash;
-	}
-
-	public void setScopeAliasesHash(long scopeAliasesHash) {
-		_scopeAliasesHash = scopeAliasesHash;
-	}
-
 	private long _oAuth2ApplicationScopeAliasesId;
 	private long _companyId;
 	private long _userId;
 	private String _userName;
 	private Date _createDate;
 	private long _oAuth2ApplicationId;
-	private String _scopeAliases;
-	private long _scopeAliasesHash;
 
 }

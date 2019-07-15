@@ -14,37 +14,19 @@
 
 package com.liferay.portal.search.geolocation;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Michael C. Han
  */
 @ProviderType
-public class GeoDistance {
+public interface GeoDistance {
 
-	public GeoDistance(double distance) {
-		this(distance, DistanceUnit.METERS);
-	}
+	public double getDistance();
 
-	public GeoDistance(double distance, DistanceUnit distanceUnit) {
-		_distance = distance;
-		_distanceUnit = distanceUnit;
-	}
-
-	public double getDistance() {
-		return _distance;
-	}
-
-	public DistanceUnit getDistanceUnit() {
-		return _distanceUnit;
-	}
+	public DistanceUnit getDistanceUnit();
 
 	@Override
-	public String toString() {
-		return _distance + _distanceUnit.toString();
-	}
-
-	private final double _distance;
-	private final DistanceUnit _distanceUnit;
+	public String toString();
 
 }

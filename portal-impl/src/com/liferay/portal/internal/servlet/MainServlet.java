@@ -14,6 +14,8 @@
 
 package com.liferay.portal.internal.servlet;
 
+import com.liferay.petra.io.StreamUtil;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.events.EventsProcessorUtil;
 import com.liferay.portal.events.StartupAction;
@@ -35,7 +37,6 @@ import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.model.PortletApp;
 import com.liferay.portal.kernel.model.PortletFilter;
 import com.liferay.portal.kernel.model.PortletURLListener;
-import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.patcher.PatchInconsistencyException;
@@ -52,7 +53,6 @@ import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutTemplateLocalServiceUtil;
 import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
 import com.liferay.portal.kernel.service.ResourceActionLocalServiceUtil;
-import com.liferay.portal.kernel.service.ThemeLocalServiceUtil;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.servlet.InactiveRequestHandler;
 import com.liferay.portal.kernel.servlet.PortalSessionThreadLocal;
@@ -66,7 +66,6 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.ServiceProxyFactory;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -195,17 +194,23 @@ public class MainServlet extends HttpServlet {
 	}
 
 	@Override
-	public void doGet(HttpServletRequest request, HttpServletResponse response)
+	public void doGet(
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException, ServletException {
 
-		_portalRequestProcessor.process(request, response);
+		_portalRequestProcessor.process(
+			httpServletRequest, httpServletResponse);
 	}
 
 	@Override
-	public void doPost(HttpServletRequest request, HttpServletResponse response)
+	public void doPost(
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException, ServletException {
 
-		_portalRequestProcessor.process(request, response);
+		_portalRequestProcessor.process(
+			httpServletRequest, httpServletResponse);
 	}
 
 	@Override
@@ -337,10 +342,11 @@ public class MainServlet extends HttpServlet {
 
 		try {
 			String[] xmls = {
-				HttpUtil.URLtoString(
-					servletContext.getResource("/WEB-INF/liferay-social.xml")),
-				HttpUtil.URLtoString(
-					servletContext.getResource(
+				StreamUtil.toString(
+					servletContext.getResourceAsStream(
+						"/WEB-INF/liferay-social.xml")),
+				StreamUtil.toString(
+					servletContext.getResourceAsStream(
 						"/WEB-INF/liferay-social-ext.xml"))
 			};
 
@@ -355,32 +361,13 @@ public class MainServlet extends HttpServlet {
 			_log.debug("Initialize themes");
 		}
 
-		try {
-			String[] xmls = {
-				HttpUtil.URLtoString(
-					servletContext.getResource(
-						"/WEB-INF/liferay-look-and-feel.xml")),
-				HttpUtil.URLtoString(
-					servletContext.getResource(
-						"/WEB-INF/liferay-look-and-feel-ext.xml"))
-			};
-
-			List<Theme> themes = ThemeLocalServiceUtil.init(
-				servletContext, null, true, xmls, pluginPackage);
-
-			servletContext.setAttribute(WebKeys.PLUGIN_THEMES, themes);
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-		}
-
 		if (_log.isDebugEnabled()) {
 			_log.debug("Initialize web settings");
 		}
 
 		try {
-			String xml = HttpUtil.URLtoString(
-				servletContext.getResource("/WEB-INF/web.xml"));
+			String xml = StreamUtil.toString(
+				servletContext.getResourceAsStream("/WEB-INF/web.xml"));
 
 			_checkWebSettings(xml);
 		}
@@ -466,14 +453,15 @@ public class MainServlet extends HttpServlet {
 
 	@Override
 	public void service(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException, ServletException {
 
 		if (_log.isDebugEnabled()) {
 			_log.debug("Process service request");
 		}
 
-		if (_processShutdownRequest(request, response)) {
+		if (_processShutdownRequest(httpServletRequest, httpServletResponse)) {
 			if (_log.isDebugEnabled()) {
 				_log.debug("Processed shutdown request");
 			}
@@ -481,7 +469,9 @@ public class MainServlet extends HttpServlet {
 			return;
 		}
 
-		if (_processMaintenanceRequest(request, response)) {
+		if (_processMaintenanceRequest(
+				httpServletRequest, httpServletResponse)) {
+
 			if (_log.isDebugEnabled()) {
 				_log.debug("Processed maintenance request");
 			}
@@ -493,9 +483,11 @@ public class MainServlet extends HttpServlet {
 			_log.debug("Get company id");
 		}
 
-		long companyId = PortalInstances.getCompanyId(request);
+		long companyId = PortalInstances.getCompanyId(httpServletRequest);
 
-		if (_processCompanyInactiveRequest(request, response, companyId)) {
+		if (_processCompanyInactiveRequest(
+				httpServletRequest, httpServletResponse, companyId)) {
+
 			if (_log.isDebugEnabled()) {
 				_log.debug("Processed company inactive request");
 			}
@@ -504,7 +496,9 @@ public class MainServlet extends HttpServlet {
 		}
 
 		try {
-			if (_processGroupInactiveRequest(request, response)) {
+			if (_processGroupInactiveRequest(
+					httpServletRequest, httpServletResponse)) {
+
 				if (_log.isDebugEnabled()) {
 					_log.debug("Processed site inactive request");
 				}
@@ -527,7 +521,7 @@ public class MainServlet extends HttpServlet {
 			_log.debug("Set portal port");
 		}
 
-		PortalUtil.setPortalInetSocketAddresses(request);
+		PortalUtil.setPortalInetSocketAddresses(httpServletRequest);
 
 		if (_log.isDebugEnabled()) {
 			_log.debug("Check variables");
@@ -535,7 +529,7 @@ public class MainServlet extends HttpServlet {
 
 		ServletContext servletContext = getServletContext();
 
-		request.setAttribute(WebKeys.CTX, servletContext);
+		httpServletRequest.setAttribute(WebKeys.CTX, servletContext);
 
 		if (_log.isDebugEnabled()) {
 			_log.debug("Handle non-serializable request");
@@ -545,21 +539,22 @@ public class MainServlet extends HttpServlet {
 			_log.debug("Encrypt request");
 		}
 
-		request = _encryptRequest(request, companyId);
+		httpServletRequest = _encryptRequest(httpServletRequest, companyId);
 
-		long userId = PortalUtil.getUserId(request);
+		long userId = PortalUtil.getUserId(httpServletRequest);
 
-		String remoteUser = _getRemoteUser(request, userId);
+		String remoteUser = _getRemoteUser(httpServletRequest, userId);
 
 		try {
 			if (_log.isDebugEnabled()) {
 				_log.debug(
 					StringBundler.concat(
-						"Authenticate user id ", String.valueOf(userId),
-						" and remote user ", remoteUser));
+						"Authenticate user id ", userId, " and remote user ",
+						remoteUser));
 			}
 
-			userId = _loginUser(request, response, userId, remoteUser);
+			userId = _loginUser(
+				httpServletRequest, httpServletResponse, userId, remoteUser);
 
 			if (_log.isDebugEnabled()) {
 				_log.debug("Authenticated user id " + userId);
@@ -573,13 +568,16 @@ public class MainServlet extends HttpServlet {
 			_log.debug("Set session thread local");
 		}
 
-		PortalSessionThreadLocal.setHttpSession(request.getSession());
+		PortalSessionThreadLocal.setHttpSession(
+			httpServletRequest.getSession());
 
 		if (_log.isDebugEnabled()) {
 			_log.debug("Process service pre events");
 		}
 
-		if (_processServicePre(request, response, userId)) {
+		if (_processServicePre(
+				httpServletRequest, httpServletResponse, userId)) {
+
 			if (_log.isDebugEnabled()) {
 				_log.debug("Processing service pre events has errors");
 			}
@@ -587,11 +585,13 @@ public class MainServlet extends HttpServlet {
 			return;
 		}
 
-		if (request.getAttribute(AbsoluteRedirectsResponse.class.getName()) !=
-				null) {
+		Object classNameAttribute = httpServletRequest.getAttribute(
+			AbsoluteRedirectsResponse.class.getName());
 
+		if (classNameAttribute != null) {
 			if (_log.isDebugEnabled()) {
-				String currentURL = PortalUtil.getCurrentURL(request);
+				String currentURL = PortalUtil.getCurrentURL(
+					httpServletRequest);
 
 				_log.debug(
 					"Current URL " + currentURL + " has absolute redirect");
@@ -600,9 +600,10 @@ public class MainServlet extends HttpServlet {
 			return;
 		}
 
-		if (request.getAttribute(WebKeys.THEME_DISPLAY) == null) {
+		if (httpServletRequest.getAttribute(WebKeys.THEME_DISPLAY) == null) {
 			if (_log.isDebugEnabled()) {
-				String currentURL = PortalUtil.getCurrentURL(request);
+				String currentURL = PortalUtil.getCurrentURL(
+					httpServletRequest);
 
 				_log.debug(
 					"Current URL " + currentURL +
@@ -617,7 +618,7 @@ public class MainServlet extends HttpServlet {
 				_log.debug("Call parent service");
 			}
 
-			super.service(request, response);
+			super.service(httpServletRequest, httpServletResponse);
 		}
 		finally {
 			if (_log.isDebugEnabled()) {
@@ -627,7 +628,8 @@ public class MainServlet extends HttpServlet {
 			try {
 				EventsProcessorUtil.process(
 					PropsKeys.SERVLET_SERVICE_EVENTS_POST,
-					PropsValues.SERVLET_SERVICE_EVENTS_POST, request, response);
+					PropsValues.SERVLET_SERVICE_EVENTS_POST, httpServletRequest,
+					httpServletResponse);
 			}
 			catch (Exception e) {
 				_log.error(e, e);
@@ -698,30 +700,34 @@ public class MainServlet extends HttpServlet {
 	}
 
 	private HttpServletRequest _encryptRequest(
-		HttpServletRequest request, long companyId) {
+		HttpServletRequest httpServletRequest, long companyId) {
 
-		boolean encryptRequest = ParamUtil.getBoolean(request, WebKeys.ENCRYPT);
+		boolean encryptRequest = ParamUtil.getBoolean(
+			httpServletRequest, WebKeys.ENCRYPT);
 
 		if (!encryptRequest) {
-			return request;
+			return httpServletRequest;
 		}
 
 		try {
 			Company company = CompanyLocalServiceUtil.getCompanyById(companyId);
 
-			request = new EncryptedServletRequest(request, company.getKeyObj());
+			httpServletRequest = new EncryptedServletRequest(
+				httpServletRequest, company.getKeyObj());
 		}
 		catch (Exception e) {
 		}
 
-		return request;
+		return httpServletRequest;
 	}
 
-	private String _getRemoteUser(HttpServletRequest request, long userId) {
-		String remoteUser = request.getRemoteUser();
+	private String _getRemoteUser(
+		HttpServletRequest httpServletRequest, long userId) {
+
+		String remoteUser = httpServletRequest.getRemoteUser();
 
 		if (!PropsValues.PORTAL_JAAS_ENABLE) {
-			HttpSession session = request.getSession();
+			HttpSession session = httpServletRequest.getSession();
 
 			String jRemoteUser = (String)session.getAttribute("j_remoteuser");
 
@@ -787,11 +793,11 @@ public class MainServlet extends HttpServlet {
 						ServletContext servletContext = getServletContext();
 
 						String[] xmls = {
-							HttpUtil.URLtoString(
-								servletContext.getResource(
+							StreamUtil.toString(
+								servletContext.getResourceAsStream(
 									"/WEB-INF/liferay-layout-templates.xml")),
-							HttpUtil.URLtoString(
-								servletContext.getResource(
+							StreamUtil.toString(
+								servletContext.getResourceAsStream(
 									"/WEB-INF" +
 										"/liferay-layout-templates-ext.xml"))
 						};
@@ -934,8 +940,9 @@ public class MainServlet extends HttpServlet {
 		String[] xmls = new String[PropsValues.PORTLET_CONFIGS.length];
 
 		for (int i = 0; i < PropsValues.PORTLET_CONFIGS.length; i++) {
-			xmls[i] = HttpUtil.URLtoString(
-				servletContext.getResource(PropsValues.PORTLET_CONFIGS[i]));
+			xmls[i] = StreamUtil.toString(
+				servletContext.getResourceAsStream(
+					PropsValues.PORTLET_CONFIGS[i]));
 		}
 
 		PortletLocalServiceUtil.initEAR(servletContext, xmls, pluginPackage);
@@ -1006,8 +1013,9 @@ public class MainServlet extends HttpServlet {
 	}
 
 	private long _loginUser(
-			HttpServletRequest request, HttpServletResponse response,
-			long userId, String remoteUser)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse, long userId,
+			String remoteUser)
 		throws PortalException {
 
 		if ((userId > 0) || (remoteUser == null)) {
@@ -1021,22 +1029,23 @@ public class MainServlet extends HttpServlet {
 		if (!user.isDefaultUser()) {
 			EventsProcessorUtil.process(
 				PropsKeys.LOGIN_EVENTS_PRE, PropsValues.LOGIN_EVENTS_PRE,
-				request, response);
+				httpServletRequest, httpServletResponse);
 
 			if (PropsValues.USERS_UPDATE_LAST_LOGIN ||
 				(user.getLastLoginDate() == null)) {
 
 				user = UserLocalServiceUtil.updateLastLogin(
-					userId, request.getRemoteAddr());
+					userId, httpServletRequest.getRemoteAddr());
 			}
 		}
 
-		if (request.getAttribute(WebKeys.USER) != null) {
-			request.setAttribute(WebKeys.USER, user);
-			request.setAttribute(WebKeys.USER_ID, Long.valueOf(userId));
+		if (httpServletRequest.getAttribute(WebKeys.USER) != null) {
+			httpServletRequest.setAttribute(WebKeys.USER, user);
+			httpServletRequest.setAttribute(
+				WebKeys.USER_ID, Long.valueOf(userId));
 		}
 
-		HttpSession session = request.getSession();
+		HttpSession session = httpServletRequest.getSession();
 
 		session.setAttribute(WebKeys.LOCALE, user.getLocale());
 		session.setAttribute(WebKeys.USER, user);
@@ -1047,15 +1056,15 @@ public class MainServlet extends HttpServlet {
 		if (!user.isDefaultUser()) {
 			EventsProcessorUtil.process(
 				PropsKeys.LOGIN_EVENTS_POST, PropsValues.LOGIN_EVENTS_POST,
-				request, response);
+				httpServletRequest, httpServletResponse);
 		}
 
 		return userId;
 	}
 
 	private boolean _processCompanyInactiveRequest(
-			HttpServletRequest request, HttpServletResponse response,
-			long companyId)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse, long companyId)
 		throws IOException {
 
 		if (PortalInstances.isCompanyActive(companyId)) {
@@ -1063,17 +1072,18 @@ public class MainServlet extends HttpServlet {
 		}
 
 		_inactiveRequestHandler.processInactiveRequest(
-			request, response,
+			httpServletRequest, httpServletResponse,
 			"this-instance-is-inactive-please-contact-the-administrator");
 
 		return true;
 	}
 
 	private boolean _processGroupInactiveRequest(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException, PortalException {
 
-		long plid = ParamUtil.getLong(request, "p_l_id");
+		long plid = ParamUtil.getLong(httpServletRequest, "p_l_id");
 
 		if (plid <= 0) {
 			return false;
@@ -1088,73 +1098,82 @@ public class MainServlet extends HttpServlet {
 		}
 
 		_inactiveRequestHandler.processInactiveRequest(
-			request, response,
+			httpServletRequest, httpServletResponse,
 			"this-site-is-inactive-please-contact-the-administrator");
 
 		return true;
 	}
 
 	private boolean _processMaintenanceRequest(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException, ServletException {
 
 		if (!MaintenanceUtil.isMaintaining()) {
 			return false;
 		}
 
-		RequestDispatcher requestDispatcher = request.getRequestDispatcher(
-			"/html/portal/maintenance.jsp");
+		RequestDispatcher requestDispatcher =
+			httpServletRequest.getRequestDispatcher(
+				"/html/portal/maintenance.jsp");
 
-		requestDispatcher.include(request, response);
+		requestDispatcher.include(httpServletRequest, httpServletResponse);
 
 		return true;
 	}
 
 	private boolean _processServicePre(
-			HttpServletRequest request, HttpServletResponse response,
-			long userId)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse, long userId)
 		throws IOException, ServletException {
 
 		try {
 			EventsProcessorUtil.process(
 				PropsKeys.SERVLET_SERVICE_EVENTS_PRE,
-				PropsValues.SERVLET_SERVICE_EVENTS_PRE, request, response);
+				PropsValues.SERVLET_SERVICE_EVENTS_PRE, httpServletRequest,
+				httpServletResponse);
 		}
 		catch (Exception e) {
 			Throwable cause = e.getCause();
 
 			if (cause instanceof NoSuchLayoutException) {
 				PortalUtil.sendError(
-					HttpServletResponse.SC_NOT_FOUND, (Exception)cause, request,
-					response);
+					HttpServletResponse.SC_NOT_FOUND, (Exception)cause,
+					httpServletRequest, httpServletResponse);
 
 				return true;
 			}
 			else if (cause instanceof PrincipalException) {
 				_processServicePrePrincipalException(
-					cause, userId, request, response);
+					cause, userId, httpServletRequest, httpServletResponse);
 
 				return true;
 			}
 
 			_log.error(e, e);
 
-			request.setAttribute(PageContext.EXCEPTION, e);
+			httpServletRequest.setAttribute(PageContext.EXCEPTION, e);
 
 			ServletContext servletContext = getServletContext();
 
 			StrutsUtil.forward(
 				PropsValues.SERVLET_SERVICE_EVENTS_PRE_ERROR_PAGE,
-				servletContext, request, response);
+				servletContext, httpServletRequest, httpServletResponse);
 
-			if (e == request.getAttribute(PageContext.EXCEPTION)) {
-				request.removeAttribute(PageContext.EXCEPTION);
-				request.removeAttribute(RequestDispatcher.ERROR_EXCEPTION);
-				request.removeAttribute(RequestDispatcher.ERROR_EXCEPTION_TYPE);
-				request.removeAttribute(RequestDispatcher.ERROR_MESSAGE);
-				request.removeAttribute(RequestDispatcher.ERROR_REQUEST_URI);
-				request.removeAttribute(RequestDispatcher.ERROR_SERVLET_NAME);
-				request.removeAttribute(RequestDispatcher.ERROR_STATUS_CODE);
+			if (e == httpServletRequest.getAttribute(PageContext.EXCEPTION)) {
+				httpServletRequest.removeAttribute(PageContext.EXCEPTION);
+				httpServletRequest.removeAttribute(
+					RequestDispatcher.ERROR_EXCEPTION);
+				httpServletRequest.removeAttribute(
+					RequestDispatcher.ERROR_EXCEPTION_TYPE);
+				httpServletRequest.removeAttribute(
+					RequestDispatcher.ERROR_MESSAGE);
+				httpServletRequest.removeAttribute(
+					RequestDispatcher.ERROR_REQUEST_URI);
+				httpServletRequest.removeAttribute(
+					RequestDispatcher.ERROR_SERVLET_NAME);
+				httpServletRequest.removeAttribute(
+					RequestDispatcher.ERROR_STATUS_CODE);
 			}
 
 			return true;
@@ -1163,11 +1182,11 @@ public class MainServlet extends HttpServlet {
 		if (_HTTP_HEADER_VERSION_VERBOSITY_DEFAULT) {
 		}
 		else if (_HTTP_HEADER_VERSION_VERBOSITY_PARTIAL) {
-			response.addHeader(
+			httpServletResponse.addHeader(
 				_LIFERAY_PORTAL_REQUEST_HEADER, ReleaseInfo.getName());
 		}
 		else {
-			response.addHeader(
+			httpServletResponse.addHeader(
 				_LIFERAY_PORTAL_REQUEST_HEADER, ReleaseInfo.getReleaseInfo());
 		}
 
@@ -1175,16 +1194,16 @@ public class MainServlet extends HttpServlet {
 	}
 
 	private void _processServicePrePrincipalException(
-			Throwable t, long userId, HttpServletRequest request,
-			HttpServletResponse response)
+			Throwable t, long userId, HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException, ServletException {
 
 		if ((userId > 0) ||
-			(ParamUtil.getInteger(request, "p_p_lifecycle") == 2)) {
+			(ParamUtil.getInteger(httpServletRequest, "p_p_lifecycle") == 2)) {
 
 			PortalUtil.sendError(
-				HttpServletResponse.SC_UNAUTHORIZED, (Exception)t, request,
-				response);
+				HttpServletResponse.SC_UNAUTHORIZED, (Exception)t,
+				httpServletRequest, httpServletResponse);
 
 			return;
 		}
@@ -1193,11 +1212,11 @@ public class MainServlet extends HttpServlet {
 
 		String redirect = mainPath.concat("/portal/login");
 
-		String currentURL = PortalUtil.getCurrentURL(request);
+		String currentURL = PortalUtil.getCurrentURL(httpServletRequest);
 
 		redirect = HttpUtil.addParameter(redirect, "redirect", currentURL);
 
-		long plid = ParamUtil.getLong(request, "p_l_id");
+		long plid = ParamUtil.getLong(httpServletRequest, "p_l_id");
 
 		if (plid > 0) {
 			try {
@@ -1224,11 +1243,12 @@ public class MainServlet extends HttpServlet {
 			}
 		}
 
-		response.sendRedirect(redirect);
+		httpServletResponse.sendRedirect(redirect);
 	}
 
 	private boolean _processShutdownRequest(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException {
 
 		if (!ShutdownUtil.isShutdown()) {
@@ -1242,7 +1262,7 @@ public class MainServlet extends HttpServlet {
 		}
 
 		_inactiveRequestHandler.processInactiveRequest(
-			request, response, messageKey);
+			httpServletRequest, httpServletResponse, messageKey);
 
 		return true;
 	}

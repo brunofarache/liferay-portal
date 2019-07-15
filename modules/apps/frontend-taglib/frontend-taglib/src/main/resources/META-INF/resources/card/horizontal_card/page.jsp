@@ -16,72 +16,54 @@
 
 <%@ include file="/card/horizontal_card/init.jsp" %>
 
-<c:choose>
-	<c:when test="<%= (rowChecker != null) && (resultRow != null) %>">
-		<liferay-util:buffer
-			var="checkboxInput"
-		>
-			<%= rowChecker.getRowCheckBox(request, rowChecker.isChecked(resultRow.getObject()), rowChecker.isDisabled(resultRow.getObject()), resultRow.getPrimaryKey()) %>
-		</liferay-util:buffer>
+<%
+String checkboxInput = null;
 
-		<c:if test="<%= Validator.isNotNull(checkboxInput) %>">
-			<div class="checkbox checkbox-card checkbox-middle-left">
-				<label>
-					<%= checkboxInput %>
-		</c:if>
-	</c:when>
-	<c:when test="<%= showCheckbox %>">
-		<div class="checkbox checkbox-card checkbox-middle-left">
+if ((rowChecker != null) && (resultRow != null)) {
+	checkboxInput = rowChecker.getRowCheckBox(request, resultRow);
+}
+%>
+
+<c:if test="<%= Validator.isNotNull(checkboxInput) %>">
+	<div class="card-type-directory form-check form-check-card form-check-middle-left">
+		<div class="custom-checkbox custom-control">
 			<label>
-				<aui:input checked="<%= checkboxChecked %>" cssClass="<%= checkboxCSSClass %>" data="<%= checkboxData %>" disabled="<%= checkboxDisabled %>" id="<%= checkboxId %>" label="" name="<%= checkboxName %>" title='<%= LanguageUtil.format(request, "select-x", new Object[] {HtmlUtil.escape(text)}) %>' type="checkbox" useNamespace="<%= false %>" value="<%= checkboxValue %>" wrappedField="<%= true %>" />
-	</c:when>
-</c:choose>
+				<%= checkboxInput %>
+				<span class="custom-control-label"></span>
+</c:if>
 
-<div class="card card-horizontal taglib-horizontal-card <%= Validator.isNotNull(cssClass) ? cssClass : StringPool.BLANK %>" <%= AUIUtil.buildData(data) %>>
-	<div class="card-row card-row-padded <%= showCheckbox ? "selectable" : StringPool.BLANK %>">
-		<c:if test="<%= Validator.isNotNull(colHTML) %>">
-			<div class="card-col-field">
-				<%= colHTML %>
-			</div>
-		</c:if>
+<div class="card card-horizontal <%= Validator.isNotNull(cardCssClass) ? cardCssClass : StringPool.BLANK %> <%= Validator.isNotNull(cssClass) ? cssClass : StringPool.BLANK %>" <%= AUIUtil.buildData(data) %>>
+	<div class="card-body">
+		<div class="card-row">
+			<c:if test="<%= Validator.isNotNull(colHTML) %>">
+				<div class="autofit-col">
+					<%= colHTML %>
+				</div>
+			</c:if>
 
-		<div class="card-col-content card-col-gutters">
-			<span class="lfr-card-title-text truncate-text">
+			<div class="autofit-col autofit-col-expand autofit-col-gutters">
 				<aui:a data="<%= linkData %>" href="<%= url %>" title="<%= HtmlUtil.escapeAttribute(text) %>">
 					<%= HtmlUtil.escape(text) %>
 				</aui:a>
-			</span>
-		</div>
-
-		<liferay-util:buffer
-			var="actionJspBuffer"
-		>
-			<liferay-util:include page="<%= actionJsp %>" servletContext="<%= actionJspServletContext %>" />
-		</liferay-util:buffer>
-
-		<c:if test="<%= Validator.isNotNull(actionJspBuffer) %>">
-			<div class="card-col-field lfr-card-actions-column">
-				<%= actionJspBuffer %>
 			</div>
-		</c:if>
+
+			<liferay-util:buffer
+				var="actionJspBuffer"
+			>
+				<liferay-util:include page="<%= actionJsp %>" servletContext="<%= actionJspServletContext %>" />
+			</liferay-util:buffer>
+
+			<c:if test="<%= Validator.isNotNull(actionJspBuffer) %>">
+				<div class="autofit-col">
+					<%= actionJspBuffer %>
+				</div>
+			</c:if>
+		</div>
 	</div>
 </div>
 
-<c:choose>
-	<c:when test="<%= (rowChecker != null) && (resultRow != null) %>">
-		<liferay-util:buffer
-			var="checkboxInput"
-		>
-			<%= rowChecker.getRowCheckBox(request, rowChecker.isChecked(resultRow.getObject()), rowChecker.isDisabled(resultRow.getObject()), resultRow.getPrimaryKey()) %>
-		</liferay-util:buffer>
-
-		<c:if test="<%= Validator.isNotNull(checkboxInput) %>">
-				</label>
-			</div>
-		</c:if>
-	</c:when>
-	<c:when test="<%= showCheckbox %>">
+<c:if test="<%= Validator.isNotNull(checkboxInput) %>">
 			</label>
 		</div>
-	</c:when>
-</c:choose>
+	</div>
+</c:if>

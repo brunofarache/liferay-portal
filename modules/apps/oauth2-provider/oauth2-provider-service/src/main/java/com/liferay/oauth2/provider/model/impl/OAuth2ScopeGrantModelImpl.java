@@ -14,8 +14,6 @@
 
 package com.liferay.oauth2.provider.model.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.expando.kernel.util.ExpandoBridgeFactoryUtil;
 import com.liferay.oauth2.provider.model.OAuth2ScopeGrant;
@@ -31,6 +29,9 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 
 import java.io.Serializable;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
+
 import java.sql.Types;
 
 import java.util.Collections;
@@ -39,6 +40,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The base model implementation for the OAuth2ScopeGrant service. Represents a row in the &quot;OAuth2ScopeGrant&quot; database table, with each column mapped to a property of this class.
@@ -66,7 +69,8 @@ public class OAuth2ScopeGrantModelImpl
 		{"oAuth2ScopeGrantId", Types.BIGINT}, {"companyId", Types.BIGINT},
 		{"oA2AScopeAliasesId", Types.BIGINT},
 		{"applicationName", Types.VARCHAR},
-		{"bundleSymbolicName", Types.VARCHAR}, {"scope", Types.VARCHAR}
+		{"bundleSymbolicName", Types.VARCHAR}, {"scope", Types.VARCHAR},
+		{"scopeAliases", Types.CLOB}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -79,10 +83,11 @@ public class OAuth2ScopeGrantModelImpl
 		TABLE_COLUMNS_MAP.put("applicationName", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("bundleSymbolicName", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("scope", Types.VARCHAR);
+		TABLE_COLUMNS_MAP.put("scopeAliases", Types.CLOB);
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table OAuth2ScopeGrant (oAuth2ScopeGrantId LONG not null primary key,companyId LONG,oA2AScopeAliasesId LONG,applicationName VARCHAR(255) null,bundleSymbolicName VARCHAR(255) null,scope VARCHAR(240) null)";
+		"create table OAuth2ScopeGrant (oAuth2ScopeGrantId LONG not null primary key,companyId LONG,oA2AScopeAliasesId LONG,applicationName VARCHAR(255) null,bundleSymbolicName VARCHAR(255) null,scope VARCHAR(240) null,scopeAliases TEXT null)";
 
 	public static final String TABLE_SQL_DROP = "drop table OAuth2ScopeGrant";
 
@@ -221,6 +226,32 @@ public class OAuth2ScopeGrantModelImpl
 		return _attributeSetterBiConsumers;
 	}
 
+	private static Function<InvocationHandler, OAuth2ScopeGrant>
+		_getProxyProviderFunction() {
+
+		Class<?> proxyClass = ProxyUtil.getProxyClass(
+			OAuth2ScopeGrant.class.getClassLoader(), OAuth2ScopeGrant.class,
+			ModelWrapper.class);
+
+		try {
+			Constructor<OAuth2ScopeGrant> constructor =
+				(Constructor<OAuth2ScopeGrant>)proxyClass.getConstructor(
+					InvocationHandler.class);
+
+			return invocationHandler -> {
+				try {
+					return constructor.newInstance(invocationHandler);
+				}
+				catch (ReflectiveOperationException roe) {
+					throw new InternalError(roe);
+				}
+			};
+		}
+		catch (NoSuchMethodException nsme) {
+			throw new InternalError(nsme);
+		}
+	}
+
 	private static final Map<String, Function<OAuth2ScopeGrant, Object>>
 		_attributeGetterFunctions;
 	private static final Map<String, BiConsumer<OAuth2ScopeGrant, Object>>
@@ -268,6 +299,12 @@ public class OAuth2ScopeGrantModelImpl
 		attributeSetterBiConsumers.put(
 			"scope",
 			(BiConsumer<OAuth2ScopeGrant, String>)OAuth2ScopeGrant::setScope);
+		attributeGetterFunctions.put(
+			"scopeAliases", OAuth2ScopeGrant::getScopeAliases);
+		attributeSetterBiConsumers.put(
+			"scopeAliases",
+			(BiConsumer<OAuth2ScopeGrant, String>)
+				OAuth2ScopeGrant::setScopeAliases);
 
 		_attributeGetterFunctions = Collections.unmodifiableMap(
 			attributeGetterFunctions);
@@ -407,6 +444,21 @@ public class OAuth2ScopeGrantModelImpl
 		return GetterUtil.getString(_originalScope);
 	}
 
+	@Override
+	public String getScopeAliases() {
+		if (_scopeAliases == null) {
+			return "";
+		}
+		else {
+			return _scopeAliases;
+		}
+	}
+
+	@Override
+	public void setScopeAliases(String scopeAliases) {
+		_scopeAliases = scopeAliases;
+	}
+
 	public long getColumnBitmask() {
 		return _columnBitmask;
 	}
@@ -427,8 +479,12 @@ public class OAuth2ScopeGrantModelImpl
 	@Override
 	public OAuth2ScopeGrant toEscapedModel() {
 		if (_escapedModel == null) {
-			_escapedModel = (OAuth2ScopeGrant)ProxyUtil.newProxyInstance(
-				_classLoader, _escapedModelInterfaces,
+			Function<InvocationHandler, OAuth2ScopeGrant>
+				escapedModelProxyProviderFunction =
+					EscapedModelProxyProviderFunctionHolder.
+						_escapedModelProxyProviderFunction;
+
+			_escapedModel = escapedModelProxyProviderFunction.apply(
 				new AutoEscapeBeanHandler(this));
 		}
 
@@ -446,6 +502,7 @@ public class OAuth2ScopeGrantModelImpl
 		oAuth2ScopeGrantImpl.setApplicationName(getApplicationName());
 		oAuth2ScopeGrantImpl.setBundleSymbolicName(getBundleSymbolicName());
 		oAuth2ScopeGrantImpl.setScope(getScope());
+		oAuth2ScopeGrantImpl.setScopeAliases(getScopeAliases());
 
 		oAuth2ScopeGrantImpl.resetOriginalValues();
 
@@ -570,6 +627,14 @@ public class OAuth2ScopeGrantModelImpl
 			oAuth2ScopeGrantCacheModel.scope = null;
 		}
 
+		oAuth2ScopeGrantCacheModel.scopeAliases = getScopeAliases();
+
+		String scopeAliases = oAuth2ScopeGrantCacheModel.scopeAliases;
+
+		if ((scopeAliases != null) && (scopeAliases.length() == 0)) {
+			oAuth2ScopeGrantCacheModel.scopeAliases = null;
+		}
+
 		return oAuth2ScopeGrantCacheModel;
 	}
 
@@ -636,11 +701,13 @@ public class OAuth2ScopeGrantModelImpl
 		return sb.toString();
 	}
 
-	private static final ClassLoader _classLoader =
-		OAuth2ScopeGrant.class.getClassLoader();
-	private static final Class<?>[] _escapedModelInterfaces = new Class[] {
-		OAuth2ScopeGrant.class, ModelWrapper.class
-	};
+	private static class EscapedModelProxyProviderFunctionHolder {
+
+		private static final Function<InvocationHandler, OAuth2ScopeGrant>
+			_escapedModelProxyProviderFunction = _getProxyProviderFunction();
+
+	}
+
 	private static boolean _entityCacheEnabled;
 	private static boolean _finderCacheEnabled;
 
@@ -657,6 +724,7 @@ public class OAuth2ScopeGrantModelImpl
 	private String _originalBundleSymbolicName;
 	private String _scope;
 	private String _originalScope;
+	private String _scopeAliases;
 	private long _columnBitmask;
 	private OAuth2ScopeGrant _escapedModel;
 

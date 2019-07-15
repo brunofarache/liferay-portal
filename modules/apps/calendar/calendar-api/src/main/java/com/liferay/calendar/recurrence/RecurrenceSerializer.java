@@ -21,6 +21,7 @@ import com.google.ical.values.RDateList;
 import com.google.ical.values.RRule;
 import com.google.ical.values.WeekdayNum;
 
+import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -51,7 +52,7 @@ public class RecurrenceSerializer {
 		try {
 			Recurrence recurrence = new Recurrence();
 
-			int index = data.indexOf(StringPool.NEW_LINE);
+			int index = data.indexOf(CharPool.NEW_LINE);
 
 			if (index != -1) {
 				String exceptionDates = data.substring(index + 1);
@@ -190,11 +191,9 @@ public class RecurrenceSerializer {
 	}
 
 	private static DateValue _toDateValue(Calendar jCalendar) {
-		DateValue dateValue = new DateValueImpl(
+		return new DateValueImpl(
 			jCalendar.get(Calendar.YEAR), jCalendar.get(Calendar.MONTH) + 1,
 			jCalendar.get(Calendar.DATE));
-
-		return dateValue;
 	}
 
 	private static Calendar _toJCalendar(

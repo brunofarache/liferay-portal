@@ -32,6 +32,22 @@ public class ManagementBarFilterItemTag extends IncludeTag {
 		return EVAL_BODY_INCLUDE;
 	}
 
+	public String getId() {
+		return _id;
+	}
+
+	public String getLabel() {
+		return _label;
+	}
+
+	public String getUrl() {
+		return _url;
+	}
+
+	public boolean isActive() {
+		return _active;
+	}
+
 	public void setActive(boolean active) {
 		_active = active;
 	}
@@ -67,11 +83,11 @@ public class ManagementBarFilterItemTag extends IncludeTag {
 
 	@Override
 	protected boolean isCleanUpSetAttributes() {
-		return _CLEAN_UP_SET_ATTRIBUTES;
+		return super.isCleanUpSetAttributes();
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
 		ManagementBarNavigationTag managementBarNavigationTag =
 			(ManagementBarNavigationTag)findAncestorWithClass(
 				this, ManagementBarNavigationTag.class);
@@ -86,8 +102,6 @@ public class ManagementBarFilterItemTag extends IncludeTag {
 			managementBarFilterItems.add(managementBarFilterItem);
 		}
 	}
-
-	private static final boolean _CLEAN_UP_SET_ATTRIBUTES = true;
 
 	private boolean _active;
 	private String _id;

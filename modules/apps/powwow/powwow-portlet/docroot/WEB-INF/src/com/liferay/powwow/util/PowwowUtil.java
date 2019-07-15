@@ -22,6 +22,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
@@ -103,15 +104,16 @@ public class PowwowUtil {
 
 	public static String getInvitationURL(
 			long powwowMeetingId, PowwowParticipant powwowParticipant,
-			HttpServletRequest request)
+			HttpServletRequest httpServletRequest)
 		throws Exception {
 
 		StringBundler sb = new StringBundler(9);
 
 		Layout layout = null;
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		Group group = GroupLocalServiceUtil.fetchGroup(
 			themeDisplay.getCompanyId(),
@@ -334,7 +336,7 @@ public class PowwowUtil {
 		powwowSubscriptionSender.setReplyToAddress(fromAddress);
 		powwowSubscriptionSender.setScopeGroupId(powwowMeeting.getGroupId());
 		powwowSubscriptionSender.setServiceContext(serviceContext);
-		powwowSubscriptionSender.setUserId(powwowMeeting.getUserId());
+		powwowSubscriptionSender.setCurrentUserId(powwowMeeting.getUserId());
 
 		return powwowSubscriptionSender;
 	}
@@ -420,13 +422,11 @@ public class PowwowUtil {
 			return;
 		}
 
-		JSONObject notificationEventJSONObject =
-			JSONFactoryUtil.createJSONObject();
-
-		notificationEventJSONObject.put(
-			"classPK", powwowParticipant.getPowwowMeetingId());
-		notificationEventJSONObject.put(
-			"userId", powwowParticipant.getUserId());
+		JSONObject notificationEventJSONObject = JSONUtil.put(
+			"classPK", powwowParticipant.getPowwowMeetingId()
+		).put(
+			"userId", powwowParticipant.getUserId()
+		);
 
 		NotificationEvent notificationEvent =
 			NotificationEventFactoryUtil.createNotificationEvent(

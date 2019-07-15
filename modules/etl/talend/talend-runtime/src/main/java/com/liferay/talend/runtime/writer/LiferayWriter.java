@@ -14,24 +14,29 @@
 
 package com.liferay.talend.runtime.writer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import com.liferay.talend.avro.constants.AvroConstants;
+import com.liferay.talend.common.schema.SchemaUtils;
+import com.liferay.talend.common.schema.constants.SchemaConstants;
 import com.liferay.talend.runtime.LiferaySink;
 import com.liferay.talend.tliferayoutput.Action;
 import com.liferay.talend.tliferayoutput.TLiferayOutputProperties;
 
 import java.io.IOException;
+import java.io.StringReader;
 
 import java.net.URI;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.Map;
+import java.util.Objects;
 
-import javax.ws.rs.core.UriBuilder;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonReader;
 
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -47,12 +52,14 @@ import org.talend.components.api.container.RuntimeContainer;
 import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.converter.AvroConverter;
 import org.talend.daikon.avro.converter.string.StringStringConverter;
+import org.talend.daikon.exception.TalendRuntimeException;
 import org.talend.daikon.i18n.GlobalI18N;
 import org.talend.daikon.i18n.I18nMessageProvider;
 import org.talend.daikon.i18n.I18nMessages;
 
 /**
  * @author Zoltán Takács
+ * @author Igor Beslic
  */
 public class LiferayWriter
 	implements WriterWithFeedback<Result, IndexedRecord, IndexedRecord> {
@@ -68,18 +75,12 @@ public class LiferayWriter
 		_dieOnError = tLiferayOutputProperties.dieOnError.getValue();
 		_liferaySink = writeOperation.getSink();
 		_rejectWrites = new ArrayList<>();
-		_rejectSchema = TLiferayOutputProperties.createRejectSchema(
+		_rejectSchema = SchemaUtils.createRejectSchema(
 			tLiferayOutputProperties.resource.main.schema.getValue());
 		_successWrites = new ArrayList<>();
 	}
 
-	/**
-	 * It will be the part of WriterWithFeedback API in the next version of
-	 * daikon dependency. When we migrate to Talend 7, we just need to add the
-	 * Override annotation here
-	 *
-	 * @review
-	 */
+	@Override
 	public void cleanWrites() {
 		_successWrites.clear();
 		_rejectWrites.clear();
@@ -91,81 +92,26 @@ public class LiferayWriter
 	}
 
 	public void doDelete(IndexedRecord indexedRecord) throws IOException {
-		String resourceId = getIndexedRecordId(indexedRecord);
+		URI resourceURI = _tLiferayOutputProperties.resource.getEndpointURI();
 
-		String resourceURL =
-			_tLiferayOutputProperties.resource.resourceProperty.
-				getSingleResourceOperationURL();
+		_liferaySink.doDeleteRequest(
+			_runtimeContainer, resourceURI.toASCIIString());
+	}
 
-		UriBuilder uriBuilder = UriBuilder.fromPath(resourceURL);
+	public void doInsert(IndexedRecord indexedRecord) throws IOException {
+		URI resourceURI = _tLiferayOutputProperties.resource.getEndpointURI();
 
-		URI singleResourceUri = uriBuilder.path(
-			"/{resourceId}"
-		).build(
-			resourceId
-		);
-
-		try {
-			_liferaySink.doApioDeleteRequest(
-				_runtimeContainer, singleResourceUri.toASCIIString());
-		}
-		catch (IOException ioe) {
-			if (_log.isDebugEnabled()) {
-				_log.debug("Unable to delete the resource", ioe);
-			}
-
-			throw ioe;
-		}
+		_liferaySink.doPostRequest(
+			_runtimeContainer, resourceURI.toASCIIString(),
+			_createEndpointRequestPayload(indexedRecord));
 	}
 
 	public void doUpdate(IndexedRecord indexedRecord) throws IOException {
-		ObjectNode objectNode = _createApioExpectedForm(indexedRecord, true);
-		String resourceId = getIndexedRecordId(indexedRecord);
+		URI resourceURI = _tLiferayOutputProperties.resource.getEndpointURI();
 
-		String resourceURL =
-			_tLiferayOutputProperties.resource.resourceProperty.
-				getSingleResourceOperationURL();
-
-		UriBuilder uriBuilder = UriBuilder.fromPath(resourceURL);
-
-		URI singleResourceUri = uriBuilder.path(
-			"/{resourceId}"
-		).build(
-			resourceId
-		);
-
-		try {
-			_liferaySink.doApioPutRequest(
-				_runtimeContainer, singleResourceUri.toASCIIString(),
-				objectNode);
-		}
-		catch (IOException ioe) {
-			if (_log.isDebugEnabled()) {
-				_log.debug("Unable to update the resource: ", ioe);
-			}
-
-			throw ioe;
-		}
-	}
-
-	public void doUpsert(IndexedRecord indexedRecord) throws IOException {
-		ObjectNode objectNode = _createApioExpectedForm(indexedRecord, true);
-
-		String resourceURL =
-			_tLiferayOutputProperties.resource.resourceProperty.
-				getResourceURL();
-
-		try {
-			_liferaySink.doApioPostRequest(
-				_runtimeContainer, resourceURL, objectNode);
-		}
-		catch (IOException ioe) {
-			if (_log.isDebugEnabled()) {
-				_log.debug("Unable to insert the resource: ", ioe);
-			}
-
-			throw ioe;
-		}
+		_liferaySink.doPatchRequest(
+			_runtimeContainer, resourceURI.toASCIIString(),
+			_createEndpointRequestPayload(indexedRecord));
 	}
 
 	@Override
@@ -186,7 +132,6 @@ public class LiferayWriter
 	@Override
 	public void open(String uId) throws IOException {
 		_result = new Result(uId);
-		_tLiferayOutputProperties.resource.setupResourceURLPrefix();
 	}
 
 	@Override
@@ -211,17 +156,22 @@ public class LiferayWriter
 		IndexedRecord indexedRecord = (IndexedRecord)indexedRecordDatum;
 		cleanWrites();
 
-		Action action = _tLiferayOutputProperties.operations.getValue();
+		Action action =
+			_tLiferayOutputProperties.resource.operations.getValue();
 
 		try {
 			if (Action.Delete == action) {
 				doDelete(indexedRecord);
 			}
+			else if (Action.Insert == action) {
+				doInsert(indexedRecord);
+			}
 			else if (Action.Update == action) {
 				doUpdate(indexedRecord);
 			}
-			else if (Action.Upsert == action) {
-				doUpsert(indexedRecord);
+			else {
+				throw TalendRuntimeException.createUnexpectedException(
+					"Unexpected Operation in Output component");
 			}
 
 			_handleSuccessRecord(indexedRecord);
@@ -237,41 +187,6 @@ public class LiferayWriter
 		_result.totalCount++;
 	}
 
-	protected String getIndexedRecordId(IndexedRecord indexedRecord)
-		throws IOException {
-
-		Schema indexRecordSchema = indexedRecord.getSchema();
-
-		List<Schema.Field> indexRecordFields = indexRecordSchema.getFields();
-
-		Stream<Schema.Field> stream = indexRecordFields.stream();
-
-		Schema.Field idField = stream.filter(
-			field -> AvroConstants.ID.equals(field.name())
-		).findFirst(
-		).orElseThrow(
-			() -> new IOException(
-				String.format(
-					"Unable to find '%s' field in the incoming indexed record",
-					AvroConstants.ID))
-		);
-
-		Schema fieldSchema = idField.schema();
-
-		Schema unwrappedSchema = AvroUtils.unwrapIfNullable(fieldSchema);
-
-		Schema.Type fieldType = unwrappedSchema.getType();
-
-		if (fieldType == Schema.Type.STRING) {
-			return (String)indexedRecord.get(idField.pos());
-		}
-
-		throw new IOException(
-			i18nMessages.getMessage(
-				"error.unsupported.field.schema", idField.name(),
-				fieldType.getName()));
-	}
-
 	protected static final I18nMessages i18nMessages;
 
 	static {
@@ -281,45 +196,130 @@ public class LiferayWriter
 		i18nMessages = i18nMessageProvider.getI18nMessages(LiferayWriter.class);
 	}
 
-	private ObjectNode _createApioExpectedForm(
-			IndexedRecord indexedRecord, boolean excludeId)
+	private JsonObject _createEndpointRequestPayload(
+			IndexedRecord indexedRecord)
 		throws IOException {
 
 		Schema indexRecordSchema = indexedRecord.getSchema();
 
 		List<Schema.Field> indexRecordFields = indexRecordSchema.getFields();
 
-		ObjectNode objectNode = _mapper.createObjectNode();
+		JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
+
+		Map<String, JsonObjectBuilder> nestedJsonObjectBuilders =
+			new HashMap<>();
 
 		for (Schema.Field field : indexRecordFields) {
-			String fieldName = field.name();
-
-			if (excludeId && fieldName.equals(AvroConstants.ID)) {
+			if (indexedRecord.get(field.pos()) == null) {
 				continue;
 			}
 
-			Schema fieldSchema = field.schema();
+			String fieldName = field.name();
 
-			Schema unwrappedSchema = AvroUtils.unwrapIfNullable(fieldSchema);
+			Schema unwrappedSchema = AvroUtils.unwrapIfNullable(field.schema());
 
-			Schema.Type fieldType = unwrappedSchema.getType();
-
-			if (fieldType == Schema.Type.STRING) {
-				objectNode.put(
-					fieldName, (String)indexedRecord.get(field.pos()));
+			if (unwrappedSchema.getType() == Schema.Type.NULL) {
+				continue;
 			}
-			else if (fieldType == Schema.Type.NULL) {
-				objectNode.put(fieldName, "");
+
+			JsonObjectBuilder currentJsonObjectBuilder = objectBuilder;
+
+			if (_isNestedFieldName(fieldName)) {
+				String[] nameParts = fieldName.split("_");
+
+				if (!nestedJsonObjectBuilders.containsKey(nameParts[0])) {
+					nestedJsonObjectBuilders.put(
+						nameParts[0], Json.createObjectBuilder());
+				}
+
+				currentJsonObjectBuilder = nestedJsonObjectBuilders.get(
+					nameParts[0]);
+
+				fieldName = nameParts[1];
+			}
+
+			if (AvroUtils.isSameType(unwrappedSchema, AvroUtils._boolean())) {
+				currentJsonObjectBuilder.add(
+					fieldName, (boolean)indexedRecord.get(field.pos()));
+			}
+			else if (AvroUtils.isSameType(
+						unwrappedSchema, AvroUtils._bytes())) {
+
+				Base64.Encoder encoder = Base64.getEncoder();
+
+				currentJsonObjectBuilder.add(
+					fieldName,
+					encoder.encodeToString(
+						(byte[])indexedRecord.get(field.pos())));
+			}
+			else if (AvroUtils.isSameType(
+						unwrappedSchema, AvroUtils._logicalTimestamp()) ||
+					 AvroUtils.isSameType(unwrappedSchema, AvroUtils._date())) {
+
+				currentJsonObjectBuilder.add(
+					fieldName, (Long)indexedRecord.get(field.pos()));
+			}
+			else if (AvroUtils.isSameType(
+						unwrappedSchema, AvroUtils._double())) {
+
+				currentJsonObjectBuilder.add(
+					fieldName, (double)indexedRecord.get(field.pos()));
+			}
+			else if (AvroUtils.isSameType(
+						unwrappedSchema, AvroUtils._float())) {
+
+				currentJsonObjectBuilder.add(
+					fieldName, (float)indexedRecord.get(field.pos()));
+			}
+			else if (AvroUtils.isSameType(unwrappedSchema, AvroUtils._int())) {
+				currentJsonObjectBuilder.add(
+					fieldName, (int)indexedRecord.get(field.pos()));
+			}
+			else if (AvroUtils.isSameType(unwrappedSchema, AvroUtils._long())) {
+				currentJsonObjectBuilder.add(
+					fieldName, (long)indexedRecord.get(field.pos()));
+			}
+			else if (AvroUtils.isSameType(
+						unwrappedSchema, AvroUtils._string())) {
+
+				String stringFieldValue = (String)indexedRecord.get(
+					field.pos());
+
+				if (Objects.equals("true", field.getProp("oas.dictionary")) ||
+					Objects.equals("Dictionary", unwrappedSchema.getName())) {
+
+					StringReader stringReader = new StringReader(
+						stringFieldValue);
+
+					JsonReader jsonReader = Json.createReader(stringReader);
+
+					currentJsonObjectBuilder.add(
+						fieldName, jsonReader.readValue());
+
+					jsonReader.close();
+
+					continue;
+				}
+
+				currentJsonObjectBuilder.add(fieldName, stringFieldValue);
 			}
 			else {
 				throw new IOException(
 					i18nMessages.getMessage(
-						"error.unsupported.field.schema", field.name(),
-						fieldType.getName()));
+						"error.unsupported.field.schema", fieldName,
+						unwrappedSchema.getType()));
 			}
 		}
 
-		return objectNode;
+		for (Map.Entry<String, JsonObjectBuilder> nestedJsonObjectBuilder :
+				nestedJsonObjectBuilders.entrySet()) {
+
+			objectBuilder.add(
+				nestedJsonObjectBuilder.getKey(),
+				nestedJsonObjectBuilder.getValue());
+		}
+
+		return objectBuilder.build();
 	}
 
 	private void _handleRejectRecord(
@@ -365,7 +365,7 @@ public class LiferayWriter
 		}
 
 		Schema.Field errorField = _rejectSchema.getField(
-			TLiferayOutputProperties.FIELD_ERROR_MESSAGE);
+			SchemaConstants.FIELD_ERROR_MESSAGE);
 
 		errorIndexedRecord.put(
 			errorField.pos(),
@@ -379,6 +379,14 @@ public class LiferayWriter
 		_successWrites.add(indexedRecord);
 	}
 
+	private boolean _isNestedFieldName(String fieldName) {
+		if (fieldName.contains("_")) {
+			return true;
+		}
+
+		return false;
+	}
+
 	private static final Logger _log = LoggerFactory.getLogger(
 		LiferayWriter.class);
 
@@ -388,7 +396,6 @@ public class LiferayWriter
 	private final boolean _dieOnError;
 	private final LiferaySink _liferaySink;
 	private final LiferayWriteOperation _liferayWriteOperation;
-	private final ObjectMapper _mapper = new ObjectMapper();
 	private final Schema _rejectSchema;
 	private final List<IndexedRecord> _rejectWrites;
 	private Result _result;

@@ -17,8 +17,11 @@ package com.liferay.headless.form.client.serdes.v1_0;
 import com.liferay.headless.form.client.dto.v1_0.Validation;
 import com.liferay.headless.form.client.json.BaseJSONParser;
 
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.annotation.Generated;
 
@@ -43,54 +46,127 @@ public class ValidationSerDes {
 
 	public static String toJSON(Validation validation) {
 		if (validation == null) {
-			return "{}";
+			return "null";
 		}
 
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("{");
 
-		sb.append("\"errorMessage\": ");
+		if (validation.getErrorMessage() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
 
-		sb.append("\"");
-		sb.append(validation.getErrorMessage());
-		sb.append("\"");
-		sb.append(", ");
+			sb.append("\"errorMessage\": ");
 
-		sb.append("\"expression\": ");
+			sb.append("\"");
 
-		sb.append("\"");
-		sb.append(validation.getExpression());
-		sb.append("\"");
-		sb.append(", ");
+			sb.append(_escape(validation.getErrorMessage()));
 
-		sb.append("\"id\": ");
+			sb.append("\"");
+		}
 
-		sb.append(validation.getId());
+		if (validation.getExpression() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"expression\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(validation.getExpression()));
+
+			sb.append("\"");
+		}
+
+		if (validation.getId() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"id\": ");
+
+			sb.append(validation.getId());
+		}
 
 		sb.append("}");
 
 		return sb.toString();
 	}
 
-	public static String toJSON(Collection<Validation> validations) {
-		if (validations == null) {
-			return "[]";
+	public static Map<String, Object> toMap(String json) {
+		ValidationJSONParser validationJSONParser = new ValidationJSONParser();
+
+		return validationJSONParser.parseToMap(json);
+	}
+
+	public static Map<String, String> toMap(Validation validation) {
+		if (validation == null) {
+			return null;
 		}
 
-		StringBuilder sb = new StringBuilder();
+		Map<String, String> map = new HashMap<>();
 
-		sb.append("[");
+		if (validation.getErrorMessage() == null) {
+			map.put("errorMessage", null);
+		}
+		else {
+			map.put(
+				"errorMessage", String.valueOf(validation.getErrorMessage()));
+		}
 
-		for (Validation validation : validations) {
-			if (sb.length() > 1) {
-				sb.append(", ");
+		if (validation.getExpression() == null) {
+			map.put("expression", null);
+		}
+		else {
+			map.put("expression", String.valueOf(validation.getExpression()));
+		}
+
+		if (validation.getId() == null) {
+			map.put("id", null);
+		}
+		else {
+			map.put("id", String.valueOf(validation.getId()));
+		}
+
+		return map;
+	}
+
+	private static String _escape(Object object) {
+		String string = String.valueOf(object);
+
+		string = string.replace("\\", "\\\\");
+
+		return string.replace("\"", "\\\"");
+	}
+
+	private static String _toJSON(Map<String, ?> map) {
+		StringBuilder sb = new StringBuilder("{");
+
+		@SuppressWarnings("unchecked")
+		Set set = map.entrySet();
+
+		@SuppressWarnings("unchecked")
+		Iterator<Map.Entry<String, ?>> iterator = set.iterator();
+
+		while (iterator.hasNext()) {
+			Map.Entry<String, ?> entry = iterator.next();
+
+			sb.append("\"");
+			sb.append(entry.getKey());
+			sb.append("\":");
+			sb.append("\"");
+			sb.append(entry.getValue());
+			sb.append("\"");
+
+			if (iterator.hasNext()) {
+				sb.append(",");
 			}
-
-			sb.append(toJSON(validation));
 		}
 
-		sb.append("]");
+		sb.append("}");
 
 		return sb.toString();
 	}
@@ -98,14 +174,17 @@ public class ValidationSerDes {
 	private static class ValidationJSONParser
 		extends BaseJSONParser<Validation> {
 
+		@Override
 		protected Validation createDTO() {
 			return new Validation();
 		}
 
+		@Override
 		protected Validation[] createDTOArray(int size) {
 			return new Validation[size];
 		}
 
+		@Override
 		protected void setField(
 			Validation validation, String jsonParserFieldName,
 			Object jsonParserFieldValue) {
@@ -122,7 +201,8 @@ public class ValidationSerDes {
 			}
 			else if (Objects.equals(jsonParserFieldName, "id")) {
 				if (jsonParserFieldValue != null) {
-					validation.setId((Long)jsonParserFieldValue);
+					validation.setId(
+						Long.valueOf((String)jsonParserFieldValue));
 				}
 			}
 			else {

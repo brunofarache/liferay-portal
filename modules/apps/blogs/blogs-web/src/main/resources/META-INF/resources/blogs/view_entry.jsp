@@ -35,7 +35,7 @@ long entryId = ParamUtil.getLong(request, "entryId", entry.getEntryId());
 
 String entryTitle = BlogsEntryUtil.getDisplayTitle(resourceBundle, entry);
 
-AssetEntry assetEntry = AssetEntryLocalServiceUtil.getEntry(BlogsEntry.class.getName(), entry.getEntryId());
+AssetEntry assetEntry = BlogsEntryAssetEntryUtil.getAssetEntry(request, entry);
 
 AssetEntryServiceUtil.incrementViewCounter(assetEntry);
 
@@ -48,7 +48,9 @@ if (ratingsStats != null) {
 	ratingsEntry = RatingsEntryLocalServiceUtil.fetchEntry(themeDisplay.getUserId(), BlogsEntry.class.getName(), entry.getEntryId());
 }
 
-request.setAttribute(WebKeys.LAYOUT_ASSET_ENTRY, assetEntry);
+if (request.getAttribute(WebKeys.LAYOUT_ASSET_ENTRY) == null) {
+	request.setAttribute(WebKeys.LAYOUT_ASSET_ENTRY, assetEntry);
+}
 
 request.setAttribute("view_entry_content.jsp-entry", entry);
 
@@ -57,14 +59,16 @@ request.setAttribute("view_entry_content.jsp-assetEntry", assetEntry);
 request.setAttribute("view_entry_content.jsp-ratingsEntry", ratingsEntry);
 request.setAttribute("view_entry_content.jsp-ratingsStats", ratingsStats);
 
+portletDisplay.setShowBackIcon(true);
+portletDisplay.setURLBack(redirect);
+
 boolean portletTitleBasedNavigation = GetterUtil.getBoolean(portletConfig.getInitParameter("portlet-title-based-navigation"));
 
 if (portletTitleBasedNavigation) {
-	portletDisplay.setShowBackIcon(true);
-	portletDisplay.setURLBack(redirect);
-
 	renderResponse.setTitle(entryTitle);
 }
+
+BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortletInstanceConfigurationUtil.getBlogsPortletInstanceConfiguration(themeDisplay);
 %>
 
 <portlet:actionURL name="/blogs/edit_entry" var="editEntryURL" />
@@ -121,10 +125,6 @@ if (portletTitleBasedNavigation) {
 				%>
 
 				<c:if test="<%= discussion != null %>">
-					<h2>
-						<strong><liferay-ui:message arguments="<%= discussion.getDiscussionCommentsCount() %>" key='<%= (discussion.getDiscussionCommentsCount() == 1) ? "x-comment" : "x-comments" %>' /></strong>
-					</h2>
-
 					<c:if test="<%= PropsValues.BLOGS_TRACKBACK_ENABLED && entry.isAllowTrackbacks() && Validator.isNotNull(entry.getUrlTitle()) %>">
 						<aui:input inlineLabel="left" name="trackbackURL" type="resource" value='<%= PortalUtil.getLayoutFullURL(themeDisplay.getLayout(), themeDisplay, false) + Portal.FRIENDLY_URL_SEPARATOR + "blogs/trackback/" + entry.getUrlTitle() %>' />
 					</c:if>
@@ -150,7 +150,7 @@ PortalUtil.setPageTitle(BlogsEntryUtil.getDisplayTitle(resourceBundle, entry), r
 String description = entry.getDescription();
 
 if (Validator.isNull(description)) {
-	description = HtmlUtil.stripHtml(StringUtil.shorten(entry.getContent(), pageAbstractLength));
+	description = HtmlUtil.stripHtml(StringUtil.shorten(entry.getContent(), PropsValues.BLOGS_PAGE_ABSTRACT_LENGTH));
 }
 
 PortalUtil.setPageDescription(description, request);

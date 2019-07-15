@@ -14,10 +14,9 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the remote service utility for Contact. This utility wraps
@@ -87,9 +86,6 @@ public class ContactServiceUtil {
 		if (_service == null) {
 			_service = (ContactService)PortalBeanLocatorUtil.locate(
 				ContactService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				ContactServiceUtil.class, "_service");
 		}
 
 		return _service;

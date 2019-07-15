@@ -16,6 +16,7 @@ package com.liferay.portal.service.impl;
 
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.exportimport.kernel.staging.MergeLayoutPrototypesThreadLocal;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.bean.BeanPropertiesUtil;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.SQLQuery;
@@ -37,7 +38,7 @@ import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.ResourcePermission;
 import com.liferay.portal.kernel.model.ResourcePermissionConstants;
 import com.liferay.portal.kernel.model.Role;
-import com.liferay.portal.kernel.model.RoleConstants;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.search.IndexWriterHelperUtil;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
@@ -54,7 +55,6 @@ import com.liferay.portal.kernel.spring.aop.Retry;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.impl.ResourceImpl;
@@ -166,8 +166,7 @@ public class ResourcePermissionLocalServiceImpl
 
 			filterOwnerActions(name, ownerActionIds);
 
-			String[] ownerPermissions = ownerActionIds.toArray(
-				new String[ownerActionIds.size()]);
+			String[] ownerPermissions = ownerActionIds.toArray(new String[0]);
 
 			setOwnerResourcePermissions(
 				companyId, name, ResourceConstants.SCOPE_INDIVIDUAL, primKey,
@@ -370,7 +369,7 @@ public class ResourcePermissionLocalServiceImpl
 			if (_updateResourcePermission(
 					companyId, name, ResourceConstants.SCOPE_INDIVIDUAL,
 					primKey, userId, role.getRoleId(),
-					actionIds.toArray(new String[actionIds.size()]),
+					actionIds.toArray(new String[0]),
 					ResourcePermissionConstants.OPERATOR_SET, true,
 					resourcePermissionsMap)) {
 
@@ -398,7 +397,7 @@ public class ResourcePermissionLocalServiceImpl
 				if (_updateResourcePermission(
 						companyId, name, ResourceConstants.SCOPE_INDIVIDUAL,
 						primKey, 0, groupRole.getRoleId(),
-						actions.toArray(new String[actions.size()]),
+						actions.toArray(new String[0]),
 						ResourcePermissionConstants.OPERATOR_SET, true,
 						resourcePermissionsMap)) {
 
@@ -432,7 +431,7 @@ public class ResourcePermissionLocalServiceImpl
 				if (_updateResourcePermission(
 						companyId, name, ResourceConstants.SCOPE_INDIVIDUAL,
 						primKey, 0, guestRole.getRoleId(),
-						actions.toArray(new String[actions.size()]),
+						actions.toArray(new String[0]),
 						ResourcePermissionConstants.OPERATOR_SET, true,
 						resourcePermissionsMap)) {
 
@@ -549,7 +548,7 @@ public class ResourcePermissionLocalServiceImpl
 				resourcePermission.setRoleId((Long)resourcePermissionArray[4]);
 				resourcePermission.setActionIds(resourceActionBitwiseValue);
 				resourcePermission.setViewActionId(
-					resourceActionBitwiseValue % 2 == 1);
+					(resourceActionBitwiseValue % 2) == 1);
 
 				session.save(resourcePermission);
 
@@ -764,21 +763,6 @@ public class ResourcePermissionLocalServiceImpl
 		}
 
 		return availableActionIds;
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #getAvailableResourcePermissionActionIds(long, String, int,
-	 *             String, Collection)}
-	 */
-	@Deprecated
-	@Override
-	public Map<Long, Set<String>> getAvailableResourcePermissionActionIds(
-		long companyId, String name, int scope, String primKey, long[] roleIds,
-		Collection<String> actionIds) {
-
-		return getAvailableResourcePermissionActionIds(
-			companyId, name, scope, primKey, new ArrayList<String>(actionIds));
 	}
 
 	/**
@@ -1169,51 +1153,6 @@ public class ResourcePermissionLocalServiceImpl
 	}
 
 	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link #getRoles(long,
-	 *             String, int, String, String}
-	 */
-	@Deprecated
-	@Override
-	public boolean[] hasResourcePermissions(
-			long companyId, String name, int scope, String primKey,
-			long[] roleIds, String actionId)
-		throws PortalException {
-
-		boolean[] hasResourcePermissions = new boolean[roleIds.length];
-
-		if (roleIds.length == 0) {
-			return hasResourcePermissions;
-		}
-
-		ResourceAction resourceAction =
-			resourceActionLocalService.getResourceAction(name, actionId);
-
-		List<ResourcePermission> resourcePermissions =
-			resourcePermissionPersistence.findByC_N_S_P_R(
-				companyId, name, scope, primKey, roleIds);
-
-		if (resourcePermissions.isEmpty()) {
-			return hasResourcePermissions;
-		}
-
-		for (ResourcePermission resourcePermission : resourcePermissions) {
-			if (resourcePermission.hasAction(resourceAction)) {
-				long roleId = resourcePermission.getRoleId();
-
-				for (int i = 0; i < roleIds.length; i++) {
-					if (roleIds[i] == roleId) {
-						hasResourcePermissions[i] = true;
-
-						break;
-					}
-				}
-			}
-		}
-
-		return hasResourcePermissions;
-	}
-
-	/**
 	 * Returns <code>true</code> if the role has permission at the scope to
 	 * perform the action on the resource.
 	 *
@@ -1394,7 +1333,7 @@ public class ResourcePermissionLocalServiceImpl
 
 		setResourcePermissions(
 			companyId, name, scope, primKey, toRoleId,
-			actionIds.toArray(new String[actionIds.size()]));
+			actionIds.toArray(new String[0]));
 
 		resourcePermissionPersistence.remove(resourcePermissionId);
 
@@ -1678,8 +1617,7 @@ public class ResourcePermissionLocalServiceImpl
 
 			setResourcePermissions(
 				companyId, name, ResourceConstants.SCOPE_INDIVIDUAL, primKey,
-				role.getRoleId(),
-				actionIds.toArray(new String[actionIds.size()]));
+				role.getRoleId(), actionIds.toArray(new String[0]));
 		}
 	}
 
@@ -1772,13 +1710,11 @@ public class ResourcePermissionLocalServiceImpl
 		return roleLocalService.getRole(companyId, roleName);
 	}
 
-	protected boolean isGuestRoleId(long companyId, long roleId)
-		throws PortalException {
-
-		Role guestRole = roleLocalService.getRole(
+	protected boolean isGuestRoleId(long companyId, long roleId) {
+		Role guestRole = roleLocalService.fetchRole(
 			companyId, RoleConstants.GUEST);
 
-		if (roleId == guestRole.getRoleId()) {
+		if ((guestRole != null) && (roleId == guestRole.getRoleId())) {
 			return true;
 		}
 
@@ -1992,7 +1928,7 @@ public class ResourcePermissionLocalServiceImpl
 			if (_updateResourcePermission(
 					companyId, name, ResourceConstants.SCOPE_INDIVIDUAL, name,
 					0, guestRole.getRoleId(),
-					guestActionIds.toArray(new String[guestActionIds.size()]),
+					guestActionIds.toArray(new String[0]),
 					ResourcePermissionConstants.OPERATOR_SET, true,
 					resourcePermissionsMap)) {
 
@@ -2002,7 +1938,7 @@ public class ResourcePermissionLocalServiceImpl
 			if (_updateResourcePermission(
 					companyId, name, ResourceConstants.SCOPE_INDIVIDUAL, name,
 					0, ownerRole.getRoleId(),
-					ownerActionIds.toArray(new String[ownerActionIds.size()]),
+					ownerActionIds.toArray(new String[0]),
 					ResourcePermissionConstants.OPERATOR_SET, true,
 					resourcePermissionsMap)) {
 
@@ -2013,7 +1949,7 @@ public class ResourcePermissionLocalServiceImpl
 				_updateResourcePermission(
 					companyId, name, ResourceConstants.SCOPE_INDIVIDUAL, name,
 					0, siteMemberRole.getRoleId(),
-					groupActionIds.toArray(new String[groupActionIds.size()]),
+					groupActionIds.toArray(new String[0]),
 					ResourcePermissionConstants.OPERATOR_SET, true,
 					resourcePermissionsMap)) {
 
@@ -2143,7 +2079,7 @@ public class ResourcePermissionLocalServiceImpl
 			}
 			else {
 				actionIdsLong =
-					actionIdsLong & (~resourceAction.getBitwiseValue());
+					actionIdsLong & ~resourceAction.getBitwiseValue();
 			}
 		}
 
@@ -2151,7 +2087,7 @@ public class ResourcePermissionLocalServiceImpl
 			resourcePermission.isNew()) {
 
 			resourcePermission.setActionIds(actionIdsLong);
-			resourcePermission.setViewActionId(actionIdsLong % 2 == 1);
+			resourcePermission.setViewActionId((actionIdsLong % 2) == 1);
 
 			resourcePermissionPersistence.update(resourcePermission);
 

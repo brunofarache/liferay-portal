@@ -14,7 +14,7 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link OrganizationLocalService}.
@@ -1674,7 +1674,7 @@ public class OrganizationLocalServiceWrapper
 	 * @param countryId the primary key of the organization's country
 	 * @param statusId the organization's workflow status
 	 * @param comments the comments about the organization
-	 * @param logo whether to update the ogranization's logo
+	 * @param hasLogo if the organization has a custom logo
 	 * @param logoBytes the new logo image data
 	 * @param site whether the organization is to be associated with a main
 	 site
@@ -1688,53 +1688,14 @@ public class OrganizationLocalServiceWrapper
 	public com.liferay.portal.kernel.model.Organization updateOrganization(
 			long companyId, long organizationId, long parentOrganizationId,
 			String name, String type, long regionId, long countryId,
-			long statusId, String comments, boolean logo, byte[] logoBytes,
+			long statusId, String comments, boolean hasLogo, byte[] logoBytes,
 			boolean site, ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _organizationLocalService.updateOrganization(
 			companyId, organizationId, parentOrganizationId, name, type,
-			regionId, countryId, statusId, comments, logo, logoBytes, site,
+			regionId, countryId, statusId, comments, hasLogo, logoBytes, site,
 			serviceContext);
-	}
-
-	/**
-	 * Updates the organization.
-	 *
-	 * @param companyId the primary key of the organization's company
-	 * @param organizationId the primary key of the organization
-	 * @param parentOrganizationId the primary key of organization's parent
-	 organization
-	 * @param name the organization's name
-	 * @param type the organization's type
-	 * @param regionId the primary key of the organization's region
-	 * @param countryId the primary key of the organization's country
-	 * @param statusId the organization's workflow status
-	 * @param comments the comments about the organization
-	 * @param site whether the organization is to be associated with a main
-	 site
-	 * @param serviceContext the service context to be applied (optionally
-	 <code>null</code>). Can set asset category IDs and asset tag
-	 names for the organization, and merge expando bridge
-	 attributes for the organization.
-	 * @return the organization
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 #updateOrganization(long, long, long, String, String, long,
-	 long, long, String, boolean, byte[], boolean,
-	 ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public com.liferay.portal.kernel.model.Organization updateOrganization(
-			long companyId, long organizationId, long parentOrganizationId,
-			String name, String type, long regionId, long countryId,
-			long statusId, String comments, boolean site,
-			ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException {
-
-		return _organizationLocalService.updateOrganization(
-			companyId, organizationId, parentOrganizationId, name, type,
-			regionId, countryId, statusId, comments, site, serviceContext);
 	}
 
 	/**

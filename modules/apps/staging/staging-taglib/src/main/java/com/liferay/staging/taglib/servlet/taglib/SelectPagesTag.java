@@ -14,8 +14,6 @@
 
 package com.liferay.staging.taglib.servlet.taglib;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.petra.string.StringPool;
 import com.liferay.staging.taglib.internal.servlet.ServletContextUtil;
 import com.liferay.taglib.util.IncludeTag;
@@ -23,11 +21,37 @@ import com.liferay.taglib.util.IncludeTag;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * @author Máté Thurzó
  */
 @ProviderType
 public class SelectPagesTag extends IncludeTag {
+
+	public String getAction() {
+		return _action;
+	}
+
+	public long getExportImportConfigurationId() {
+		return _exportImportConfigurationId;
+	}
+
+	public long getGroupId() {
+		return _groupId;
+	}
+
+	public String getTreeId() {
+		return _treeId;
+	}
+
+	public boolean isDisableInputs() {
+		return _disableInputs;
+	}
+
+	public boolean isPrivateLayout() {
+		return _privateLayout;
+	}
 
 	public void setAction(String action) {
 		if (action == null) {
@@ -115,32 +139,36 @@ public class SelectPagesTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute("liferay-staging:select-pages:action", _action);
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
+			"liferay-staging:select-pages:action", _action);
+		httpServletRequest.setAttribute(
 			"liferay-staging:select-pages:disableInputs", _disableInputs);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:select-pages:exportImportConfigurationId",
 			_exportImportConfigurationId);
-		request.setAttribute("liferay-staging:select-pages:groupId", _groupId);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
+			"liferay-staging:select-pages:groupId", _groupId);
+		httpServletRequest.setAttribute(
 			"liferay-staging:select-pages:layoutSetBranchId",
 			_layoutSetBranchId);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:select-pages:layoutSetSettings",
 			_layoutSetSettings);
-		request.setAttribute("liferay-staging:select-pages:logo", _logo);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
+			"liferay-staging:select-pages:logo", _logo);
+		httpServletRequest.setAttribute(
 			"liferay-staging:select-pages:privateLayout", _privateLayout);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:select-pages:selectedLayoutIds",
 			_selectedLayoutIds);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:select-pages:showDeleteMissingLayouts",
 			_showDeleteMissingLayouts);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:select-pages:themeReference", _themeReference);
-		request.setAttribute("liferay-staging:select-pages:treeId", _treeId);
+		httpServletRequest.setAttribute(
+			"liferay-staging:select-pages:treeId", _treeId);
 	}
 
 	private static final String _PAGE = "/select_pages/page.jsp";

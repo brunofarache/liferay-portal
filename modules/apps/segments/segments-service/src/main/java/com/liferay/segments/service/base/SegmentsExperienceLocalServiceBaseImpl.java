@@ -14,8 +14,11 @@
 
 package com.liferay.segments.service.base;
 
-import aQute.bnd.annotation.ProviderType;
-
+import com.liferay.exportimport.kernel.lar.ExportImportHelperUtil;
+import com.liferay.exportimport.kernel.lar.ManifestSummary;
+import com.liferay.exportimport.kernel.lar.PortletDataContext;
+import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
+import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -25,8 +28,11 @@ import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Projection;
+import com.liferay.portal.kernel.dao.orm.Property;
+import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.model.PersistedModel;
@@ -36,7 +42,6 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
 import com.liferay.portal.kernel.service.persistence.ClassNamePersistence;
-import com.liferay.portal.kernel.service.persistence.GroupPersistence;
 import com.liferay.portal.kernel.service.persistence.LayoutPersistence;
 import com.liferay.portal.kernel.service.persistence.UserPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -48,12 +53,16 @@ import com.liferay.segments.service.SegmentsExperienceLocalService;
 import com.liferay.segments.service.persistence.SegmentsEntryPersistence;
 import com.liferay.segments.service.persistence.SegmentsEntryRelPersistence;
 import com.liferay.segments.service.persistence.SegmentsExperiencePersistence;
+import com.liferay.segments.service.persistence.SegmentsExperimentPersistence;
+import com.liferay.segments.service.persistence.SegmentsExperimentRelPersistence;
 
 import java.io.Serializable;
 
 import java.util.List;
 
 import javax.sql.DataSource;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the base implementation for the segments experience local service.
@@ -236,6 +245,20 @@ public abstract class SegmentsExperienceLocalServiceBaseImpl
 	}
 
 	/**
+	 * Returns the segments experience matching the UUID and group.
+	 *
+	 * @param uuid the segments experience's UUID
+	 * @param groupId the primary key of the group
+	 * @return the matching segments experience, or <code>null</code> if a matching segments experience could not be found
+	 */
+	@Override
+	public SegmentsExperience fetchSegmentsExperienceByUuidAndGroupId(
+		String uuid, long groupId) {
+
+		return segmentsExperiencePersistence.fetchByUUID_G(uuid, groupId);
+	}
+
+	/**
 	 * Returns the segments experience with the primary key.
 	 *
 	 * @param segmentsExperienceId the primary key of the segments experience
@@ -296,6 +319,101 @@ public abstract class SegmentsExperienceLocalServiceBaseImpl
 			"segmentsExperienceId");
 	}
 
+	@Override
+	public ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		final PortletDataContext portletDataContext) {
+
+		final ExportActionableDynamicQuery exportActionableDynamicQuery =
+			new ExportActionableDynamicQuery() {
+
+				@Override
+				public long performCount() throws PortalException {
+					ManifestSummary manifestSummary =
+						portletDataContext.getManifestSummary();
+
+					StagedModelType stagedModelType = getStagedModelType();
+
+					long modelAdditionCount = super.performCount();
+
+					manifestSummary.addModelAdditionCount(
+						stagedModelType, modelAdditionCount);
+
+					long modelDeletionCount =
+						ExportImportHelperUtil.getModelDeletionCount(
+							portletDataContext, stagedModelType);
+
+					manifestSummary.addModelDeletionCount(
+						stagedModelType, modelDeletionCount);
+
+					return modelAdditionCount;
+				}
+
+			};
+
+		initActionableDynamicQuery(exportActionableDynamicQuery);
+
+		exportActionableDynamicQuery.setAddCriteriaMethod(
+			new ActionableDynamicQuery.AddCriteriaMethod() {
+
+				@Override
+				public void addCriteria(DynamicQuery dynamicQuery) {
+					portletDataContext.addDateRangeCriteria(
+						dynamicQuery, "modifiedDate");
+
+					StagedModelType stagedModelType =
+						exportActionableDynamicQuery.getStagedModelType();
+
+					long referrerClassNameId =
+						stagedModelType.getReferrerClassNameId();
+
+					Property classNameIdProperty = PropertyFactoryUtil.forName(
+						"classNameId");
+
+					if ((referrerClassNameId !=
+							StagedModelType.REFERRER_CLASS_NAME_ID_ALL) &&
+						(referrerClassNameId !=
+							StagedModelType.REFERRER_CLASS_NAME_ID_ANY)) {
+
+						dynamicQuery.add(
+							classNameIdProperty.eq(
+								stagedModelType.getReferrerClassNameId()));
+					}
+					else if (referrerClassNameId ==
+								StagedModelType.REFERRER_CLASS_NAME_ID_ANY) {
+
+						dynamicQuery.add(classNameIdProperty.isNotNull());
+					}
+				}
+
+			});
+
+		exportActionableDynamicQuery.setCompanyId(
+			portletDataContext.getCompanyId());
+
+		exportActionableDynamicQuery.setGroupId(
+			portletDataContext.getScopeGroupId());
+
+		exportActionableDynamicQuery.setPerformActionMethod(
+			new ActionableDynamicQuery.PerformActionMethod
+				<SegmentsExperience>() {
+
+				@Override
+				public void performAction(SegmentsExperience segmentsExperience)
+					throws PortalException {
+
+					StagedModelDataHandlerUtil.exportStagedModel(
+						portletDataContext, segmentsExperience);
+				}
+
+			});
+		exportActionableDynamicQuery.setStagedModelType(
+			new StagedModelType(
+				PortalUtil.getClassNameId(SegmentsExperience.class.getName()),
+				StagedModelType.REFERRER_CLASS_NAME_ID_ALL));
+
+		return exportActionableDynamicQuery;
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -312,6 +430,55 @@ public abstract class SegmentsExperienceLocalServiceBaseImpl
 		throws PortalException {
 
 		return segmentsExperiencePersistence.findByPrimaryKey(primaryKeyObj);
+	}
+
+	/**
+	 * Returns all the segments experiences matching the UUID and company.
+	 *
+	 * @param uuid the UUID of the segments experiences
+	 * @param companyId the primary key of the company
+	 * @return the matching segments experiences, or an empty list if no matches were found
+	 */
+	@Override
+	public List<SegmentsExperience> getSegmentsExperiencesByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		return segmentsExperiencePersistence.findByUuid_C(uuid, companyId);
+	}
+
+	/**
+	 * Returns a range of segments experiences matching the UUID and company.
+	 *
+	 * @param uuid the UUID of the segments experiences
+	 * @param companyId the primary key of the company
+	 * @param start the lower bound of the range of segments experiences
+	 * @param end the upper bound of the range of segments experiences (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the range of matching segments experiences, or an empty list if no matches were found
+	 */
+	@Override
+	public List<SegmentsExperience> getSegmentsExperiencesByUuidAndCompanyId(
+		String uuid, long companyId, int start, int end,
+		OrderByComparator<SegmentsExperience> orderByComparator) {
+
+		return segmentsExperiencePersistence.findByUuid_C(
+			uuid, companyId, start, end, orderByComparator);
+	}
+
+	/**
+	 * Returns the segments experience matching the UUID and group.
+	 *
+	 * @param uuid the segments experience's UUID
+	 * @param groupId the primary key of the group
+	 * @return the matching segments experience
+	 * @throws PortalException if a matching segments experience could not be found
+	 */
+	@Override
+	public SegmentsExperience getSegmentsExperienceByUuidAndGroupId(
+			String uuid, long groupId)
+		throws PortalException {
+
+		return segmentsExperiencePersistence.findByUUID_G(uuid, groupId);
 	}
 
 	/**
@@ -481,6 +648,96 @@ public abstract class SegmentsExperienceLocalServiceBaseImpl
 	}
 
 	/**
+	 * Returns the segments experiment local service.
+	 *
+	 * @return the segments experiment local service
+	 */
+	public com.liferay.segments.service.SegmentsExperimentLocalService
+		getSegmentsExperimentLocalService() {
+
+		return segmentsExperimentLocalService;
+	}
+
+	/**
+	 * Sets the segments experiment local service.
+	 *
+	 * @param segmentsExperimentLocalService the segments experiment local service
+	 */
+	public void setSegmentsExperimentLocalService(
+		com.liferay.segments.service.SegmentsExperimentLocalService
+			segmentsExperimentLocalService) {
+
+		this.segmentsExperimentLocalService = segmentsExperimentLocalService;
+	}
+
+	/**
+	 * Returns the segments experiment persistence.
+	 *
+	 * @return the segments experiment persistence
+	 */
+	public SegmentsExperimentPersistence getSegmentsExperimentPersistence() {
+		return segmentsExperimentPersistence;
+	}
+
+	/**
+	 * Sets the segments experiment persistence.
+	 *
+	 * @param segmentsExperimentPersistence the segments experiment persistence
+	 */
+	public void setSegmentsExperimentPersistence(
+		SegmentsExperimentPersistence segmentsExperimentPersistence) {
+
+		this.segmentsExperimentPersistence = segmentsExperimentPersistence;
+	}
+
+	/**
+	 * Returns the segments experiment rel local service.
+	 *
+	 * @return the segments experiment rel local service
+	 */
+	public com.liferay.segments.service.SegmentsExperimentRelLocalService
+		getSegmentsExperimentRelLocalService() {
+
+		return segmentsExperimentRelLocalService;
+	}
+
+	/**
+	 * Sets the segments experiment rel local service.
+	 *
+	 * @param segmentsExperimentRelLocalService the segments experiment rel local service
+	 */
+	public void setSegmentsExperimentRelLocalService(
+		com.liferay.segments.service.SegmentsExperimentRelLocalService
+			segmentsExperimentRelLocalService) {
+
+		this.segmentsExperimentRelLocalService =
+			segmentsExperimentRelLocalService;
+	}
+
+	/**
+	 * Returns the segments experiment rel persistence.
+	 *
+	 * @return the segments experiment rel persistence
+	 */
+	public SegmentsExperimentRelPersistence
+		getSegmentsExperimentRelPersistence() {
+
+		return segmentsExperimentRelPersistence;
+	}
+
+	/**
+	 * Sets the segments experiment rel persistence.
+	 *
+	 * @param segmentsExperimentRelPersistence the segments experiment rel persistence
+	 */
+	public void setSegmentsExperimentRelPersistence(
+		SegmentsExperimentRelPersistence segmentsExperimentRelPersistence) {
+
+		this.segmentsExperimentRelPersistence =
+			segmentsExperimentRelPersistence;
+	}
+
+	/**
 	 * Returns the counter local service.
 	 *
 	 * @return the counter local service
@@ -544,46 +801,6 @@ public abstract class SegmentsExperienceLocalServiceBaseImpl
 		ClassNamePersistence classNamePersistence) {
 
 		this.classNamePersistence = classNamePersistence;
-	}
-
-	/**
-	 * Returns the group local service.
-	 *
-	 * @return the group local service
-	 */
-	public com.liferay.portal.kernel.service.GroupLocalService
-		getGroupLocalService() {
-
-		return groupLocalService;
-	}
-
-	/**
-	 * Sets the group local service.
-	 *
-	 * @param groupLocalService the group local service
-	 */
-	public void setGroupLocalService(
-		com.liferay.portal.kernel.service.GroupLocalService groupLocalService) {
-
-		this.groupLocalService = groupLocalService;
-	}
-
-	/**
-	 * Returns the group persistence.
-	 *
-	 * @return the group persistence
-	 */
-	public GroupPersistence getGroupPersistence() {
-		return groupPersistence;
-	}
-
-	/**
-	 * Sets the group persistence.
-	 *
-	 * @param groupPersistence the group persistence
-	 */
-	public void setGroupPersistence(GroupPersistence groupPersistence) {
-		this.groupPersistence = groupPersistence;
 	}
 
 	/**
@@ -768,6 +985,24 @@ public abstract class SegmentsExperienceLocalServiceBaseImpl
 	@BeanReference(type = SegmentsExperiencePersistence.class)
 	protected SegmentsExperiencePersistence segmentsExperiencePersistence;
 
+	@BeanReference(
+		type = com.liferay.segments.service.SegmentsExperimentLocalService.class
+	)
+	protected com.liferay.segments.service.SegmentsExperimentLocalService
+		segmentsExperimentLocalService;
+
+	@BeanReference(type = SegmentsExperimentPersistence.class)
+	protected SegmentsExperimentPersistence segmentsExperimentPersistence;
+
+	@BeanReference(
+		type = com.liferay.segments.service.SegmentsExperimentRelLocalService.class
+	)
+	protected com.liferay.segments.service.SegmentsExperimentRelLocalService
+		segmentsExperimentRelLocalService;
+
+	@BeanReference(type = SegmentsExperimentRelPersistence.class)
+	protected SegmentsExperimentRelPersistence segmentsExperimentRelPersistence;
+
 	@ServiceReference(
 		type = com.liferay.counter.kernel.service.CounterLocalService.class
 	)
@@ -782,15 +1017,6 @@ public abstract class SegmentsExperienceLocalServiceBaseImpl
 
 	@ServiceReference(type = ClassNamePersistence.class)
 	protected ClassNamePersistence classNamePersistence;
-
-	@ServiceReference(
-		type = com.liferay.portal.kernel.service.GroupLocalService.class
-	)
-	protected com.liferay.portal.kernel.service.GroupLocalService
-		groupLocalService;
-
-	@ServiceReference(type = GroupPersistence.class)
-	protected GroupPersistence groupPersistence;
 
 	@ServiceReference(
 		type = com.liferay.portal.kernel.service.LayoutLocalService.class

@@ -59,14 +59,13 @@ public class DefaultAssetPublisherCustomizer
 	}
 
 	@Override
-	public Integer getDelta(HttpServletRequest request) {
-		PortletPreferences portletPreferences = getPortletPreferences(request);
+	public Integer getDelta(HttpServletRequest httpServletRequest) {
+		PortletPreferences portletPreferences = getPortletPreferences(
+			httpServletRequest);
 
-		Integer delta = GetterUtil.getInteger(
+		return GetterUtil.getInteger(
 			portletPreferences.getValue("delta", null),
 			SearchContainer.DEFAULT_DELTA);
-
-		return delta;
 	}
 
 	@Override
@@ -75,7 +74,7 @@ public class DefaultAssetPublisherCustomizer
 	}
 
 	@Override
-	public boolean isEnablePermissions(HttpServletRequest request) {
+	public boolean isEnablePermissions(HttpServletRequest httpServletRequest) {
 		if (assetPublisherWebConfiguration.searchWithIndex()) {
 			return true;
 		}
@@ -84,21 +83,24 @@ public class DefaultAssetPublisherCustomizer
 			return true;
 		}
 
-		PortletPreferences portletPreferences = getPortletPreferences(request);
+		PortletPreferences portletPreferences = getPortletPreferences(
+			httpServletRequest);
 
-		Boolean enablePermissions = GetterUtil.getBoolean(
+		return GetterUtil.getBoolean(
 			portletPreferences.getValue("enablePermissions", null), true);
-
-		return enablePermissions;
 	}
 
 	@Override
-	public boolean isOrderingAndGroupingEnabled(HttpServletRequest request) {
+	public boolean isOrderingAndGroupingEnabled(
+		HttpServletRequest httpServletRequest) {
+
 		return true;
 	}
 
 	@Override
-	public boolean isOrderingByTitleEnabled(HttpServletRequest request) {
+	public boolean isOrderingByTitleEnabled(
+		HttpServletRequest httpServletRequest) {
+
 		if (!assetPublisherWebConfiguration.searchWithIndex()) {
 			return false;
 		}
@@ -107,7 +109,9 @@ public class DefaultAssetPublisherCustomizer
 	}
 
 	@Override
-	public boolean isSelectionStyleEnabled(HttpServletRequest request) {
+	public boolean isSelectionStyleEnabled(
+		HttpServletRequest httpServletRequest) {
+
 		return true;
 	}
 
@@ -119,22 +123,28 @@ public class DefaultAssetPublisherCustomizer
 	}
 
 	@Override
-	public boolean isShowEnableAddContentButton(HttpServletRequest request) {
+	public boolean isShowEnableAddContentButton(
+		HttpServletRequest httpServletRequest) {
+
 		return true;
 	}
 
 	@Override
-	public boolean isShowEnableRelatedAssets(HttpServletRequest request) {
+	public boolean isShowEnableRelatedAssets(
+		HttpServletRequest httpServletRequest) {
+
 		return true;
 	}
 
 	@Override
-	public boolean isShowScopeSelector(HttpServletRequest request) {
+	public boolean isShowScopeSelector(HttpServletRequest httpServletRequest) {
 		return true;
 	}
 
 	@Override
-	public boolean isShowSubtypeFieldsFilter(HttpServletRequest request) {
+	public boolean isShowSubtypeFieldsFilter(
+		HttpServletRequest httpServletRequest) {
+
 		if (!assetPublisherWebConfiguration.searchWithIndex()) {
 			return false;
 		}
@@ -144,16 +154,19 @@ public class DefaultAssetPublisherCustomizer
 
 	@Override
 	public void setAssetEntryQueryOptions(
-		AssetEntryQuery assetEntryQuery, HttpServletRequest request) {
+		AssetEntryQuery assetEntryQuery,
+		HttpServletRequest httpServletRequest) {
 
 		if (ArrayUtil.isNotEmpty(assetEntryQuery.getGroupIds())) {
 			return;
 		}
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
-		PortletPreferences portletPreferences = getPortletPreferences(request);
+		PortletPreferences portletPreferences = getPortletPreferences(
+			httpServletRequest);
 
 		long[] groupIds = assetPublisherHelper.getGroupIds(
 			portletPreferences, themeDisplay.getScopeGroupId(),
@@ -162,9 +175,10 @@ public class DefaultAssetPublisherCustomizer
 		assetEntryQuery.setGroupIds(groupIds);
 	}
 
-	protected String getPortletName(HttpServletRequest request) {
-		PortletConfig portletConfig = (PortletConfig)request.getAttribute(
-			JavaConstants.JAVAX_PORTLET_CONFIG);
+	protected String getPortletName(HttpServletRequest httpServletRequest) {
+		PortletConfig portletConfig =
+			(PortletConfig)httpServletRequest.getAttribute(
+				JavaConstants.JAVAX_PORTLET_CONFIG);
 
 		if (portletConfig == null) {
 			return StringPool.BLANK;
@@ -174,10 +188,11 @@ public class DefaultAssetPublisherCustomizer
 	}
 
 	protected PortletPreferences getPortletPreferences(
-		HttpServletRequest request) {
+		HttpServletRequest httpServletRequest) {
 
-		PortletRequest portletRequest = (PortletRequest)request.getAttribute(
-			JavaConstants.JAVAX_PORTLET_REQUEST);
+		PortletRequest portletRequest =
+			(PortletRequest)httpServletRequest.getAttribute(
+				JavaConstants.JAVAX_PORTLET_REQUEST);
 
 		if (portletRequest != null) {
 			return portletRequest.getPreferences();

@@ -14,8 +14,6 @@
 
 package com.liferay.dynamic.data.lists.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.dynamic.data.lists.model.DDLRecordSet;
 import com.liferay.dynamic.data.lists.model.DDLRecordSetSettings;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
@@ -46,6 +44,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service interface for DDLRecordSet. Methods of this
@@ -177,6 +177,9 @@ public interface DDLRecordSetLocalService
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	public DDLRecordSet deleteDDLRecordSet(long recordSetId)
+		throws PortalException;
+
+	public void deleteDDMStructureRecordSets(long ddmStructureId)
 		throws PortalException;
 
 	/**
@@ -406,6 +409,9 @@ public interface DDLRecordSetLocalService
 	public int getDDLRecordSetsCount();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<DDLRecordSet> getDDMStructureRecordSets(long ddmStructureId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ExportActionableDynamicQuery getExportActionableDynamicQuery(
 		PortletDataContext portletDataContext);
 
@@ -471,7 +477,8 @@ public interface DDLRecordSetLocalService
 	public int getRecordSetsCount(long groupId);
 
 	/**
-	 * Returns the number of all the record sets belonging the group and associated with the DDMStructure.
+	 * Returns the number of all the record sets belonging the group and
+	 * associated with the DDMStructure.
 	 *
 	 * @param groupId the primary key of the record set's group
 	 * @return the number of record sets belonging to the group

@@ -21,6 +21,10 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class IconVerticalCardTag extends VerticalCardTag {
 
+	public String getIcon() {
+		return _icon;
+	}
+
 	public void setIcon(String icon) {
 		_icon = icon;
 	}
@@ -43,10 +47,10 @@ public class IconVerticalCardTag extends VerticalCardTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		super.setAttributes(request);
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		super.setAttributes(httpServletRequest);
 
-		request.setAttribute("liferay-frontend:card:icon", _icon);
+		httpServletRequest.setAttribute("liferay-frontend:card:icon", _icon);
 	}
 
 	private String _icon;

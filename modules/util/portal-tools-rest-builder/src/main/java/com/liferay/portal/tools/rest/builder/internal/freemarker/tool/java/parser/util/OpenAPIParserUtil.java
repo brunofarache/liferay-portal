@@ -15,6 +15,7 @@
 package com.liferay.portal.tools.rest.builder.internal.freemarker.tool.java.parser.util;
 
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.TextFormatter;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.tools.rest.builder.internal.freemarker.tool.java.JavaMethodParameter;
 import com.liferay.portal.tools.rest.builder.internal.freemarker.tool.java.JavaMethodSignature;
@@ -156,7 +157,7 @@ public class OpenAPIParserUtil {
 			return Object.class.getName();
 		}
 
-		if (StringUtil.equals(schema.getType(), "array")) {
+		if (schema.getItems() != null) {
 			Items items = schema.getItems();
 
 			String javaDataType = _openAPIDataTypeMap.get(
@@ -166,9 +167,6 @@ public class OpenAPIParserUtil {
 			if (items.getReference() != null) {
 				javaDataType = javaDataTypeMap.get(
 					getReferenceName(items.getReference()));
-			}
-			else if (Objects.equals(items.getType(), "object")) {
-				javaDataType = Object.class.getName();
 			}
 
 			return getArrayClassName(javaDataType);
@@ -247,6 +245,21 @@ public class OpenAPIParserUtil {
 			javaDataTypeMap.put(schemaName + "ResourceImpl", sb.toString());
 		}
 
+		Map<String, Schema> globalEnumSchemas =
+			OpenAPIUtil.getGlobalEnumSchemas(openAPIYAML);
+
+		for (String schemaName : globalEnumSchemas.keySet()) {
+			StringBuilder sb = new StringBuilder();
+
+			sb.append(configYAML.getApiPackagePath());
+			sb.append(".constant.");
+			sb.append(OpenAPIUtil.escapeVersion(openAPIYAML));
+			sb.append('.');
+			sb.append(schemaName);
+
+			javaDataTypeMap.put(schemaName, sb.toString());
+		}
+
 		return javaDataTypeMap;
 	}
 
@@ -297,6 +310,10 @@ public class OpenAPIParserUtil {
 		return schemaNames;
 	}
 
+	public static String getSchemaVarName(String schemaName) {
+		return TextFormatter.format(schemaName, TextFormatter.I);
+	}
+
 	public static boolean hasHTTPMethod(
 		JavaMethodSignature javaMethodSignature, String... httpMethods) {
 
@@ -329,6 +346,9 @@ public class OpenAPIParserUtil {
 				put(
 					new AbstractMap.SimpleImmutableEntry<>("number", "double"),
 					Double.class.getName());
+				put(
+					new AbstractMap.SimpleImmutableEntry<>("object", null),
+					Object.class.getName());
 				put(
 					new AbstractMap.SimpleImmutableEntry<>("string", null),
 					String.class.getName());

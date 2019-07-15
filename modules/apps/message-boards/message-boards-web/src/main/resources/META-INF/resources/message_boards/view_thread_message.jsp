@@ -33,7 +33,7 @@ if (message.isAnonymous()) {
 
 <a id="<portlet:namespace />message_<%= message.getMessageId() %>"></a>
 
-<div class="card list-group-card panel">
+<div class="card panel">
 	<div class="panel-heading">
 		<div class="card-row card-row-padded">
 			<div class="card-col-field">
@@ -113,7 +113,14 @@ if (message.isAnonymous()) {
 					</c:if>
 
 					<span class="h5 text-default">
-						<span><liferay-ui:message key="posts" />:</span> <%= posts %>
+						<c:choose>
+							<c:when test="<%= posts == 1 %>">
+								<span><liferay-ui:message key="post" />:</span> <%= posts %>
+							</c:when>
+							<c:otherwise>
+								<span><liferay-ui:message key="posts" />:</span> <%= posts %>
+							</c:otherwise>
+						</c:choose>
 					</span>
 
 					<c:if test="<%= !message.isAnonymous() %>">
@@ -182,15 +189,26 @@ if (message.isAnonymous()) {
 					boolean hasDeletePermission = !thread.isLocked() && (thread.getMessageCount() > 1) && MBMessagePermission.contains(permissionChecker, message, ActionKeys.DELETE);
 					boolean hasMoveThreadPermission = (message.getParentMessageId() != MBMessageConstants.DEFAULT_PARENT_MESSAGE_ID) && MBCategoryPermission.contains(permissionChecker, scopeGroupId, category.getCategoryId(), ActionKeys.MOVE_THREAD);
 					boolean hasPermissionsPermission = !thread.isLocked() && !message.isRoot() && MBMessagePermission.contains(permissionChecker, message, ActionKeys.PERMISSIONS);
-					boolean hasReplyPermission = !thread.isLocked() && !message.isDraft() && MBCategoryPermission.contains(permissionChecker, scopeGroupId, message.getCategoryId(), ActionKeys.REPLY_TO_MESSAGE);
+					boolean hasReplyPermission = thread.isApproved() && !thread.isLocked() && !message.isDraft() && MBCategoryPermission.contains(permissionChecker, scopeGroupId, message.getCategoryId(), ActionKeys.REPLY_TO_MESSAGE);
 					boolean hasUpdatePermission = !thread.isLocked() && MBMessagePermission.contains(permissionChecker, message, ActionKeys.UPDATE);
 
 					boolean showAnswerFlag = false;
 
-					if (!message.isRoot()) {
-						MBMessage rootMessage = MBMessageLocalServiceUtil.getMessage(thread.getRootMessageId());
+					if (thread.isQuestion() && !message.isRoot()) {
+						MBMessageDisplay messageDisplay = (MBMessageDisplay)request.getAttribute(WebKeys.MESSAGE_BOARDS_MESSAGE_DISPLAY);
 
-						showAnswerFlag = MBMessagePermission.contains(permissionChecker, rootMessage, ActionKeys.UPDATE) && (thread.isQuestion() || MBThreadLocalServiceUtil.hasAnswerMessage(thread.getThreadId()));
+						MBMessage rootMessage;
+
+						if (messageDisplay != null) {
+							MBTreeWalker mbTreeWalker = messageDisplay.getTreeWalker();
+
+							rootMessage = mbTreeWalker.getRoot();
+						}
+						else {
+							rootMessage = MBMessageLocalServiceUtil.getMessage(thread.getRootMessageId());
+						}
+
+						showAnswerFlag = MBMessagePermission.contains(permissionChecker, rootMessage, ActionKeys.UPDATE);
 					}
 					%>
 
@@ -199,7 +217,7 @@ if (message.isAnonymous()) {
 							direction="left-side"
 							icon="<%= StringPool.BLANK %>"
 							markupView="lexicon"
-							message="<%= StringPool.BLANK %>"
+							message="actions"
 							showWhenSingleIcon="<%= true %>"
 						>
 							<c:if test="<%= showAnswerFlag %>">
@@ -253,18 +271,7 @@ if (message.isAnonymous()) {
 								</portlet:renderURL>
 
 								<%
-								String quoteText = null;
-
-								if (messageFormat.equals("bbcode")) {
-									quoteText = MBUtil.getBBCodeQuoteBody(request, message);
-								}
-								else {
-									quoteText = MBUtil.getHtmlQuoteBody(request, message);
-								}
-
-								quoteText = HtmlUtil.escapeJS(quoteText);
-
-								String taglibReplyWithQuoteToMessageURL = "javascript:" + liferayPortletResponse.getNamespace() + "addReplyToMessage('" + message.getMessageId() + "', '" + quoteText + "');";
+								String taglibReplyWithQuoteToMessageURL = "javascript:" + liferayPortletResponse.getNamespace() + "addReplyToMessage('" + message.getMessageId() + "', true);";
 								%>
 
 								<liferay-ui:icon

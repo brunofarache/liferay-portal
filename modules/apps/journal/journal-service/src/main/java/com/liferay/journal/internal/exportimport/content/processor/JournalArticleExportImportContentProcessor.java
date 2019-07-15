@@ -23,8 +23,8 @@ import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.storage.Fields;
 import com.liferay.dynamic.data.mapping.util.DDMFormValuesTransformer;
 import com.liferay.exportimport.content.processor.ExportImportContentProcessor;
-import com.liferay.exportimport.kernel.exception.ExportImportContentProcessorException;
 import com.liferay.exportimport.kernel.exception.ExportImportContentValidationException;
+import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
@@ -37,6 +37,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.NoSuchLayoutException;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
@@ -137,6 +138,9 @@ public class JournalArticleExportImportContentProcessor
 
 		JournalArticle article = (JournalArticle)stagedModel;
 
+		content = replaceImportJournalArticleReferences(
+			portletDataContext, stagedModel, content);
+
 		DDMStructure ddmStructure = _fetchDDMStructure(
 			portletDataContext, article);
 
@@ -213,8 +217,8 @@ public class JournalArticleExportImportContentProcessor
 
 					String type = "page";
 
-					if (e instanceof NoSuchFileEntryException ||
-						e.getCause() instanceof NoSuchFileEntryException) {
+					if ((e instanceof NoSuchFileEntryException) ||
+						(e.getCause() instanceof NoSuchFileEntryException)) {
 
 						type = "file entry";
 					}
@@ -283,7 +287,18 @@ public class JournalArticleExportImportContentProcessor
 			for (Element dynamicContentElement : dynamicContentElements) {
 				String jsonData = dynamicContentElement.getStringValue();
 
-				JSONObject jsonObject = _jsonFactory.createJSONObject(jsonData);
+				JSONObject jsonObject = null;
+
+				try {
+					jsonObject = _jsonFactory.createJSONObject(jsonData);
+				}
+				catch (JSONException jsone) {
+					if (_log.isDebugEnabled()) {
+						_log.debug("Unable to parse JSON", jsone);
+					}
+
+					continue;
+				}
 
 				long classPK = GetterUtil.getLong(jsonObject.get("classPK"));
 
@@ -400,18 +415,10 @@ public class JournalArticleExportImportContentProcessor
 							articlePrimaryKey);
 				}
 
-				ExportImportContentProcessorException eicpe =
-					new ExportImportContentProcessorException(
-						new NoSuchArticleException());
+				portletDataContext.removePrimaryKey(
+					ExportImportPathUtil.getModelPath(stagedModel));
 
-				eicpe.setClassName(
-					JournalArticleExportImportContentProcessor.class.getName());
-				eicpe.setStagedModelClassName(JournalArticle.class.getName());
-				eicpe.setStagedModelClassPK(articlePrimaryKey);
-				eicpe.setType(
-					ExportImportContentProcessorException.ARTICLE_NOT_FOUND);
-
-				throw eicpe;
+				continue;
 			}
 
 			String journalArticleReference =
@@ -419,8 +426,11 @@ public class JournalArticleExportImportContentProcessor
 
 			JSONObject jsonObject = _jsonFactory.createJSONObject();
 
-			jsonObject.put("className", JournalArticle.class.getName());
-			jsonObject.put("classPK", journalArticle.getResourcePrimKey());
+			jsonObject.put(
+				"className", JournalArticle.class.getName()
+			).put(
+				"classPK", journalArticle.getResourcePrimKey()
+			);
 
 			content = StringUtil.replace(
 				content, journalArticleReference, jsonObject.toString());
@@ -452,7 +462,12 @@ public class JournalArticleExportImportContentProcessor
 				for (Element dynamicContentElement : dynamicContentElements) {
 					String json = dynamicContentElement.getStringValue();
 
-					if (Validator.isNull(json)) {
+					JSONObject jsonObject = _jsonFactory.createJSONObject(json);
+
+					long classPK = GetterUtil.getLong(
+						jsonObject.get("classPK"));
+
+					if (classPK <= 0) {
 						if (_log.isDebugEnabled()) {
 							_log.debug(
 								"No journal article reference is specified");
@@ -460,11 +475,6 @@ public class JournalArticleExportImportContentProcessor
 
 						continue;
 					}
-
-					JSONObject jsonObject = _jsonFactory.createJSONObject(json);
-
-					long classPK = GetterUtil.getLong(
-						jsonObject.get("classPK"));
 
 					JournalArticle journalArticle =
 						_journalArticleLocalService.fetchLatestArticle(classPK);
@@ -587,10 +597,7 @@ public class JournalArticleExportImportContentProcessor
 		}
 
 		try {
-			Fields fields = _journalConverter.getDDMFields(
-				ddmStructure, content);
-
-			return fields;
+			return _journalConverter.getDDMFields(ddmStructure, content);
 		}
 		catch (Exception e) {
 			if (_log.isWarnEnabled()) {

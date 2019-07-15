@@ -17,17 +17,23 @@ package com.liferay.portal.vulcan.internal.jaxrs.context.provider;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.resource.EntityModelResource;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import javax.ws.rs.container.ResourceContext;
+import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.cxf.jaxrs.impl.ResourceContextImpl;
 import org.apache.cxf.jaxrs.impl.UriInfoImpl;
+import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
+import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
+import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 
@@ -46,7 +52,7 @@ public class ContextProviderUtil {
 				(EntityModelResource)matchedResource;
 
 			return entityModelResource.getEntityModel(
-				_getQueryParameters(message));
+				_getPathParameters(message));
 		}
 
 		return null;
@@ -57,11 +63,46 @@ public class ContextProviderUtil {
 			"HTTP.REQUEST");
 	}
 
+	public static MultivaluedHashMap<String, String> getMultivaluedHashMap(
+		Map<String, String[]> parameterMap) {
+
+		return new MultivaluedHashMap<String, String>() {
+			{
+				for (Entry<String, String[]> entry : parameterMap.entrySet()) {
+					put(entry.getKey(), Arrays.asList(entry.getValue()));
+				}
+			}
+		};
+	}
+
 	private static Object _getMatchedResource(Message message) {
 		Exchange exchange = message.getExchange();
 
+		Object root = exchange.get(JAXRSUtils.ROOT_INSTANCE);
+
+		if (root != null) {
+			return root;
+		}
+
+		OperationResourceInfo operationResourceInfo = exchange.get(
+			OperationResourceInfo.class);
+
 		ResourceContext resourceContext = new ResourceContextImpl(
-			message, exchange.get(OperationResourceInfo.class));
+			message, operationResourceInfo);
+
+		ClassResourceInfo classResourceInfo =
+			operationResourceInfo.getClassResourceInfo();
+
+		ResourceProvider resourceProvider =
+			classResourceInfo.getResourceProvider();
+
+		if (resourceProvider != null) {
+			Object instance = resourceProvider.getInstance(message);
+
+			resourceContext.initResource(instance);
+
+			return instance;
+		}
 
 		UriInfo uriInfo = new UriInfoImpl(message);
 
@@ -72,12 +113,12 @@ public class ContextProviderUtil {
 		return resourceContext.getResource(matchedResourceClass);
 	}
 
-	private static MultivaluedMap<String, String> _getQueryParameters(
+	private static MultivaluedMap<String, String> _getPathParameters(
 		Message message) {
 
 		UriInfoImpl uriInfo = new UriInfoImpl(message);
 
-		return uriInfo.getQueryParameters();
+		return uriInfo.getPathParameters();
 	}
 
 }

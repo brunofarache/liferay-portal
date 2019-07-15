@@ -1,4 +1,19 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 import debounce from 'metal-debounce';
+import {DEBOUNCE} from '../utils/constants';
 import {getClosestAssetElement, getNumberOfWords} from '../utils/assets';
 import {onReady} from '../utils/events.js';
 import {ScrollTracker} from '../utils/scroll';
@@ -14,11 +29,14 @@ function getBlogPayload(blog) {
 	const {dataset} = blog;
 
 	let payload = {
-		entryId: dataset.analyticsAssetId,
+		entryId: dataset.analyticsAssetId
 	};
 
 	if (dataset.analyticsAssetTitle) {
-		payload = {...payload, title: dataset.analyticsAssetTitle};
+		payload = {
+			...payload,
+			title: dataset.analyticsAssetTitle
+		};
 	}
 
 	return payload;
@@ -47,11 +65,11 @@ function trackBlogsScroll(analytics, blogElements) {
 				analytics.send('blogDepthReached', applicationId, {
 					...getBlogPayload(element),
 					depth,
-					sessionId: scrollSessionId,
+					sessionId: scrollSessionId
 				});
 			}, element);
 		});
-	}, 1500);
+	}, DEBOUNCE);
 
 	document.addEventListener('scroll', onScroll);
 
@@ -73,10 +91,14 @@ function trackBlogViewed(analytics) {
 			)
 			.filter(element => isTrackableBlog(element))
 			.forEach(element => {
-				let payload = getBlogPayload(element);
 				const numberOfWords = getNumberOfWords(element);
 
-				payload = {numberOfWords, ...payload};
+				let payload = getBlogPayload(element);
+
+				payload = {
+					numberOfWords,
+					...payload
+				};
 
 				blogElements.push(element);
 
@@ -106,7 +128,7 @@ function trackBlogClicked(analytics) {
 
 		const payload = {
 			...getBlogPayload(blogElement),
-			tagName,
+			tagName
 		};
 
 		if (tagName === 'a') {

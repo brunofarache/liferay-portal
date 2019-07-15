@@ -19,7 +19,7 @@ import com.liferay.captcha.util.CaptchaUtil;
 import com.liferay.login.web.internal.constants.LoginPortletKeys;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.captcha.CaptchaConfigurationException;
-import com.liferay.portal.kernel.captcha.CaptchaTextException;
+import com.liferay.portal.kernel.captcha.CaptchaException;
 import com.liferay.portal.kernel.exception.CompanyMaxUsersException;
 import com.liferay.portal.kernel.exception.ContactNameException;
 import com.liferay.portal.kernel.exception.EmailAddressException;
@@ -83,7 +83,7 @@ public class CreateAnonymousAccountMVCActionCommand
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
 
-		HttpServletRequest request = _portal.getHttpServletRequest(
+		HttpServletRequest httpServletRequest = _portal.getHttpServletRequest(
 			actionRequest);
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
@@ -140,9 +140,11 @@ public class CreateAnonymousAccountMVCActionCommand
 
 		// Session messages
 
-		SessionMessages.add(request, "userAdded", user.getEmailAddress());
 		SessionMessages.add(
-			request, "userAddedPassword", user.getPasswordUnencrypted());
+			httpServletRequest, "userAdded", user.getEmailAddress());
+		SessionMessages.add(
+			httpServletRequest, "userAddedPassword",
+			user.getPasswordUnencrypted());
 	}
 
 	@Override
@@ -241,8 +243,7 @@ public class CreateAnonymousAccountMVCActionCommand
 						actionRequest, actionResponse, portletURL.toString());
 				}
 			}
-			else if (e instanceof CaptchaConfigurationException ||
-					 e instanceof CaptchaTextException ||
+			else if (e instanceof CaptchaException ||
 					 e instanceof CompanyMaxUsersException ||
 					 e instanceof ContactNameException ||
 					 e instanceof EmailAddressException ||

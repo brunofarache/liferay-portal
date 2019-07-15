@@ -350,6 +350,10 @@ public class FileEntryStagedModelDataHandler
 
 		FileEntry existingFileEntry = fetchMissingReference(uuid, groupId);
 
+		if (existingFileEntry == null) {
+			return;
+		}
+
 		Map<Long, Long> dlFileEntryIds =
 			(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
 				DLFileEntry.class);
@@ -737,7 +741,7 @@ public class FileEntryStagedModelDataHandler
 		ddmFormValues =
 			_ddmFormValuesExportImportContentProcessor.
 				replaceExportContentReferences(
-					portletDataContext, fileEntry, ddmFormValues, false, false);
+					portletDataContext, fileEntry, ddmFormValues, true, false);
 
 		portletDataContext.addZipEntry(
 			ddmFormValuesPath, serialize(ddmFormValues));

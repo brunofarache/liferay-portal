@@ -14,12 +14,12 @@
 
 package com.liferay.document.library.kernel.store;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.exception.PortalException;
 
 import java.io.File;
 import java.io.InputStream;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The interface for all file store implementations. Most, if not all
@@ -48,6 +48,10 @@ public interface Store {
 			long companyId, long repositoryId, String fileName, InputStream is)
 		throws PortalException;
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public void checkRoot(long companyId);
 
 	public void copyFileToStore(
@@ -112,6 +116,10 @@ public interface Store {
 		long companyId, long repositoryId, String fileName,
 		String versionLabel);
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public void move(String srcDir, String destDir);
 
 	public void moveFileToStore(

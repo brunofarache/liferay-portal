@@ -1,14 +1,30 @@
-'use strict';
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
 
-import Uri from 'metal-uri/lib/Uri';
-import App from 'senna/lib/app/App';
-import core from 'metal/lib/core';
-import dom from 'metal-dom/lib/dom';
-import {CancellablePromise} from 'metal-promise/lib/promise/Promise';
-import {openToast} from 'frontend-js-web/liferay/toast/commands/OpenToast.es';
+/* eslint no-console: "warn" */
+/* eslint no-unused-vars: "warn" */
+
+import {App} from 'senna';
+import {openToast} from 'frontend-js-web';
+import core from 'metal';
+import dom from 'metal-dom';
+import Uri from 'metal-uri';
 
 import LiferaySurface from '../surface/Surface.es';
 import Utils from '../util/Utils.es';
+
+const PROPAGATED_PARAMS = ['bodyCssClass'];
 
 /**
  * LiferayApp
@@ -26,7 +42,6 @@ import Utils from '../util/Utils.es';
  */
 
 class LiferayApp extends App {
-
 	/**
 	 * @inheritDoc
 	 */
@@ -39,7 +54,8 @@ class LiferayApp extends App {
 
 		this.setShouldUseFacade(true);
 
-		this.timeout = Math.max(Liferay.SPA.requestTimeout, 0) || Utils.getMaxTimeout();
+		this.timeout =
+			Math.max(Liferay.SPA.requestTimeout, 0) || Utils.getMaxTimeout();
 		this.timeoutAlert = null;
 
 		const exceptionsSelector = Liferay.SPA.navigationExceptionSelectors;
@@ -132,15 +148,17 @@ class LiferayApp extends App {
 	 */
 
 	isInPortletBlacklist(element) {
-		return Object.keys(this.portletsBlacklist).some(
-			(portletId) => {
-				const boundaryId = Utils.getPortletBoundaryId(portletId);
+		return Object.keys(this.portletsBlacklist).some(portletId => {
+			const boundaryId = Utils.getPortletBoundaryId(portletId);
 
-				const portlets = document.querySelectorAll('[id^="' + boundaryId + '"]');
+			const portlets = document.querySelectorAll(
+				'[id^="' + boundaryId + '"]'
+			);
 
-				return Array.prototype.slice.call(portlets).some(portlet => dom.contains(portlet, element));
-			}
-		);
+			return Array.prototype.slice
+				.call(portlets)
+				.some(portlet => dom.contains(portlet, element));
+		});
 	}
 
 	/**
@@ -154,9 +172,11 @@ class LiferayApp extends App {
 		let screenCacheExpired = false;
 
 		if (this.getCacheExpirationTime() !== 0) {
-			const lastModifiedInterval = (new Date()).getTime() - screen.getCacheLastModified();
+			const lastModifiedInterval =
+				new Date().getTime() - screen.getCacheLastModified();
 
-			screenCacheExpired = lastModifiedInterval > this.getCacheExpirationTime();
+			screenCacheExpired =
+				lastModifiedInterval > this.getCacheExpirationTime();
 		}
 
 		return screenCacheExpired;
@@ -179,14 +199,13 @@ class LiferayApp extends App {
 
 		this._clearLayoutData();
 
-		Liferay.fire(
-			'beforeNavigate',
-			{
-				app: this,
-				originalEvent: event,
-				path: data.path
-			}
-		);
+		data.path = this._propagateParams(data);
+
+		Liferay.fire('beforeNavigate', {
+			app: this,
+			originalEvent: event,
+			path: data.path
+		});
 	}
 
 	/**
@@ -196,7 +215,7 @@ class LiferayApp extends App {
 	 * @param  {!Event} event The event object
 	 */
 
-	onDataLayoutConfigReady_(event) {
+	onDataLayoutConfigReady_() {
 		if (Liferay.Layout) {
 			Liferay.Layout.init(Liferay.Data.layoutConfig);
 		}
@@ -241,14 +260,11 @@ class LiferayApp extends App {
 	 */
 
 	onEndNavigate(event) {
-		Liferay.fire(
-			'endNavigate',
-			{
-				app: this,
-				error: event.error,
-				path: event.path
-			}
-		);
+		Liferay.fire('endNavigate', {
+			app: this,
+			error: event.error,
+			path: event.path
+		});
 
 		if (!this.pendingNavigate) {
 			this._clearRequestTimer();
@@ -256,7 +272,10 @@ class LiferayApp extends App {
 		}
 
 		if (!event.error) {
-			this.dataLayoutConfigReadyHandle_ = Liferay.once('dataLayoutConfigReady', this.onDataLayoutConfigReady_);
+			this.dataLayoutConfigReadyHandle_ = Liferay.once(
+				'dataLayoutConfigReady',
+				this.onDataLayoutConfigReady_
+			);
 		}
 
 		AUI().Get._insertCache = {};
@@ -282,18 +301,27 @@ class LiferayApp extends App {
 	onNavigationError(event) {
 		if (event.error.requestPrematureTermination) {
 			window.location.href = event.path;
-		}
-		else if (event.error.invalidStatus || event.error.requestError || event.error.timeout) {
-			let message = Liferay.Language.get('there-was-an-unexpected-error.-please-refresh-the-current-page');
+		} else if (
+			event.error.invalidStatus ||
+			event.error.requestError ||
+			event.error.timeout
+		) {
+			let message = Liferay.Language.get(
+				'there-was-an-unexpected-error.-please-refresh-the-current-page'
+			);
 
 			if (Liferay.SPA.debugEnabled) {
 				console.error(event.error);
 
 				if (event.error.invalidStatus) {
-					message = Liferay.Language.get('the-spa-navigation-request-received-an-invalid-http-status-code');
+					message = Liferay.Language.get(
+						'the-spa-navigation-request-received-an-invalid-http-status-code'
+					);
 				}
 				if (event.error.requestError) {
-					message = Liferay.Language.get('there-was-an-unexpected-error-in-the-spa-request');
+					message = Liferay.Language.get(
+						'there-was-an-unexpected-error-in-the-spa-request'
+					);
 				}
 				if (event.error.timeout) {
 					message = Liferay.Language.get('the-spa-request-timed-out');
@@ -302,13 +330,11 @@ class LiferayApp extends App {
 
 			Liferay.Data.layoutConfig = this.dataLayoutConfig_;
 
-			this._createNotification(
-				{
-					message: message,
-					title: Liferay.Language.get('error'),
-					type: 'danger'
-				}
-			);
+			this._createNotification({
+				message,
+				title: Liferay.Language.get('error'),
+				type: 'danger'
+			});
 		}
 	}
 
@@ -319,13 +345,10 @@ class LiferayApp extends App {
 	 */
 
 	onStartNavigate(event) {
-		Liferay.fire(
-			'startNavigate',
-			{
-				app: this,
-				path: event.path
-			}
-		);
+		Liferay.fire('startNavigate', {
+			app: this,
+			path: event.path
+		});
 
 		this._startRequestTimer(event.path);
 	}
@@ -379,25 +402,23 @@ class LiferayApp extends App {
 	/**
 	 * Creates a user notification
 	 * @param  {!Object} configuration object that's passed to `Liferay.Notification`
-	 * @return {!CancellablePromise} A promise that renders a notification when
+	 * @return {!Promise} A promise that renders a notification when
 	 * resolved
 	 */
 
 	_createNotification(config) {
-		return new CancellablePromise(
-			(resolve) => {
-				resolve(
-					openToast(
-						Object.assign(
-							{
-								type: 'warning'
-							},
-							config
-						)
+		return new Promise(resolve => {
+			resolve(
+				openToast(
+					Object.assign(
+						{
+							type: 'warning'
+						},
+						config
 					)
-				);
-			}
-		);
+				)
+			);
+		});
 	}
 
 	/**
@@ -408,6 +429,29 @@ class LiferayApp extends App {
 		if (this.timeoutAlert) {
 			this.timeoutAlert.dispose();
 		}
+	}
+
+	_propagateParams(data) {
+		const activeUri = new Uri(this.activePath || window.location.href);
+
+		const activePpid = activeUri.getParameterValue('p_p_id');
+
+		const nextUri = new Uri(data.path);
+
+		const nextPpid = nextUri.getParameterValue('p_p_id');
+
+		if (nextPpid && nextPpid === activePpid) {
+			PROPAGATED_PARAMS.forEach(paramKey => {
+				const paramName = `_${nextPpid}_${paramKey}`;
+				const paramValue = activeUri.getParameterValue(paramName);
+
+				if (paramValue) {
+					nextUri.addParameterValue(paramName, paramValue);
+				}
+			});
+		}
+
+		return nextUri.toString();
 	}
 
 	/**
@@ -421,31 +465,21 @@ class LiferayApp extends App {
 		this._clearRequestTimer();
 
 		if (Liferay.SPA.userNotification.timeout > 0) {
-			this.requestTimer = setTimeout(
-				() => {
-					Liferay.fire(
-						'spaRequestTimeout',
-						{
-							path: path
-						}
-					);
+			this.requestTimer = setTimeout(() => {
+				Liferay.fire('spaRequestTimeout', {
+					path
+				});
 
-					this._hideTimeoutAlert();
+				this._hideTimeoutAlert();
 
-					this._createNotification(
-						{
-							message: Liferay.SPA.userNotification.message,
-							title: Liferay.SPA.userNotification.title,
-							type: 'warning'
-						}
-					).then(
-						(alert) => {
-							this.timeoutAlert = alert;
-						}
-					);
-				},
-				Liferay.SPA.userNotification.timeout
-			);
+				this._createNotification({
+					message: Liferay.SPA.userNotification.message,
+					title: Liferay.SPA.userNotification.title,
+					type: 'warning'
+				}).then(alert => {
+					this.timeoutAlert = alert;
+				});
+			}, Liferay.SPA.userNotification.timeout);
 		}
 	}
 

@@ -14,23 +14,28 @@
 
 package com.liferay.asset.list.internal.exportimport.data.handler;
 
-import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.asset.list.model.AssetListEntry;
 import com.liferay.asset.list.model.AssetListEntrySegmentsEntryRel;
-import com.liferay.asset.util.StagingAssetEntryHelper;
+import com.liferay.exportimport.content.processor.ExportImportContentProcessor;
 import com.liferay.exportimport.data.handler.base.BaseStagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
+import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.staged.model.repository.StagedModelRepository;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.xml.Element;
+import com.liferay.segments.constants.SegmentsConstants;
+import com.liferay.segments.model.SegmentsEntry;
+import com.liferay.segments.service.SegmentsEntryLocalService;
 
 import java.util.Map;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 /**
  * @author Eduardo García
@@ -74,6 +79,27 @@ public class AssetListEntrySegmentsEntryRelStagedModelDataHandler
 
 		Element entryElement = portletDataContext.getExportDataElement(
 			assetListEntrySegmentsEntryRel);
+
+		if (assetListEntrySegmentsEntryRel.getSegmentsEntryId() !=
+				SegmentsConstants.SEGMENTS_ENTRY_ID_DEFAULT) {
+
+			SegmentsEntry segmentsEntry =
+				_segmentsEntryLocalService.fetchSegmentsEntry(
+					assetListEntrySegmentsEntryRel.getSegmentsEntryId());
+
+			StagedModelDataHandlerUtil.exportReferenceStagedModel(
+				portletDataContext, assetListEntrySegmentsEntryRel,
+				segmentsEntry, PortletDataContext.REFERENCE_TYPE_STRONG);
+		}
+
+		String typeSettings =
+			_assetListEntryExportImportContentProcessor.
+				replaceExportContentReferences(
+					portletDataContext, assetListEntrySegmentsEntryRel,
+					assetListEntrySegmentsEntryRel.getTypeSettings(), false,
+					false);
+
+		assetListEntrySegmentsEntryRel.setTypeSettings(typeSettings);
 
 		portletDataContext.addClassedModel(
 			entryElement,
@@ -119,6 +145,15 @@ public class AssetListEntrySegmentsEntryRelStagedModelDataHandler
 			assetListEntrySegmentsEntryRel.getAssetListEntryId(),
 			assetListEntrySegmentsEntryRel.getAssetListEntryId());
 
+		Map<Long, Long> segmentsEntryIds =
+			(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
+				SegmentsEntry.class);
+
+		long segmentsEntryId = MapUtil.getLong(
+			segmentsEntryIds,
+			assetListEntrySegmentsEntryRel.getSegmentsEntryId(),
+			assetListEntrySegmentsEntryRel.getSegmentsEntryId());
+
 		AssetListEntrySegmentsEntryRel importedAssetListEntrySegmentsEntryRel =
 			(AssetListEntrySegmentsEntryRel)
 				assetListEntrySegmentsEntryRel.clone();
@@ -127,11 +162,21 @@ public class AssetListEntrySegmentsEntryRelStagedModelDataHandler
 			portletDataContext.getScopeGroupId());
 		importedAssetListEntrySegmentsEntryRel.setAssetListEntryId(
 			assetListEntryId);
+		importedAssetListEntrySegmentsEntryRel.setSegmentsEntryId(
+			segmentsEntryId);
 
 		AssetListEntrySegmentsEntryRel existingAssetListEntrySegmentsEntryRel =
 			_stagedModelRepository.fetchStagedModelByUuidAndGroupId(
 				assetListEntrySegmentsEntryRel.getUuid(),
 				portletDataContext.getScopeGroupId());
+
+		String typeSettings =
+			_assetListEntryExportImportContentProcessor.
+				replaceImportContentReferences(
+					portletDataContext, importedAssetListEntrySegmentsEntryRel,
+					importedAssetListEntrySegmentsEntryRel.getTypeSettings());
+
+		importedAssetListEntrySegmentsEntryRel.setTypeSettings(typeSettings);
 
 		if ((existingAssetListEntrySegmentsEntryRel == null) ||
 			!portletDataContext.isDataStrategyMirror()) {
@@ -161,8 +206,16 @@ public class AssetListEntrySegmentsEntryRelStagedModelDataHandler
 		return _stagedModelRepository;
 	}
 
+	@Reference(
+		policy = ReferencePolicy.DYNAMIC,
+		policyOption = ReferencePolicyOption.GREEDY,
+		target = "(model.class.name=com.liferay.asset.list.model.AssetListEntry)"
+	)
+	private volatile ExportImportContentProcessor<String>
+		_assetListEntryExportImportContentProcessor;
+
 	@Reference
-	private AssetEntryLocalService _assetEntryLocalService;
+	private SegmentsEntryLocalService _segmentsEntryLocalService;
 
 	@Reference(
 		target = "(model.class.name=com.liferay.asset.list.model.AssetListEntrySegmentsEntryRel)",
@@ -170,8 +223,5 @@ public class AssetListEntrySegmentsEntryRelStagedModelDataHandler
 	)
 	private StagedModelRepository<AssetListEntrySegmentsEntryRel>
 		_stagedModelRepository;
-
-	@Reference
-	private StagingAssetEntryHelper _stagingAssetEntryHelper;
 
 }

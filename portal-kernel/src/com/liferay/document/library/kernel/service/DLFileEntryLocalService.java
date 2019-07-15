@@ -14,8 +14,6 @@
 
 package com.liferay.document.library.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFileVersion;
 import com.liferay.document.library.kernel.model.DLVersionNumberIncrease;
@@ -53,6 +51,8 @@ import java.io.Serializable;
 
 import java.util.List;
 import java.util.Map;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service interface for DLFileEntry. Methods of this
@@ -99,7 +99,9 @@ public interface DLFileEntryLocalService
 		throws PortalException;
 
 	/**
-	 * @deprecated As of Judson (7.1.x), replaced by {@link #checkInFileEntry(long, long, DLVersionNumberIncrease, String, ServiceContext)}
+	 * @deprecated As of Judson (7.1.x), replaced by {@link
+	 #checkInFileEntry(long, long, DLVersionNumberIncrease,
+	 String, ServiceContext)}
 	 */
 	@Deprecated
 	public void checkInFileEntry(
@@ -651,6 +653,10 @@ public interface DLFileEntryLocalService
 	public boolean hasFileEntryLock(long userId, long fileEntryId)
 		throws PortalException;
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public boolean hasFileEntryLock(
+		long userId, long fileEntryId, long folderId);
+
 	@BufferedIncrement(
 		configuration = "DLFileEntry", incrementClass = NumberIncrement.class
 	)
@@ -722,7 +728,10 @@ public interface DLFileEntryLocalService
 	public DLFileEntry updateDLFileEntry(DLFileEntry dlFileEntry);
 
 	/**
-	 * @deprecated As of Judson (7.1.x), replaced by {@link #updateFileEntry(long, long, String, String, String, String, String, DLVersionNumberIncrease, long, Map, File, InputStream, long, ServiceContext)}
+	 * @deprecated As of Judson (7.1.x), replaced by {@link
+	 #updateFileEntry(long, long, String, String, String, String,
+	 String, DLVersionNumberIncrease, long, Map, File,
+	 InputStream, long, ServiceContext)}
 	 */
 	@Deprecated
 	public DLFileEntry updateFileEntry(

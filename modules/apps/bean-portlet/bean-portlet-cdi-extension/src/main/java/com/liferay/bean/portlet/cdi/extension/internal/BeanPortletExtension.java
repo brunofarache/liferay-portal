@@ -482,8 +482,8 @@ public class BeanPortletExtension implements Extension {
 	}
 
 	public void step4ApplicationScopedInitializedSync(
-		@Initialized(ApplicationScoped.class) @Observes ServletContext
-			servletContext,
+		@Initialized(ApplicationScoped.class) @Observes
+			ServletContext servletContext,
 		BeanManager beanManager,
 		javax.enterprise.event.Event<ServletContext> servletContextEvent) {
 
@@ -1245,7 +1245,9 @@ public class BeanPortletExtension implements Extension {
 
 			BeanMethod beanMethod = beanMethodFactory.create(beanManager);
 
-			if ((portletNames.length > 0) && "*".equals(portletNames[0])) {
+			if ((portletNames.length > 0) &&
+				Objects.equals(portletNames[0], "*")) {
+
 				wildcardBeanMethods.add(beanMethod);
 			}
 			else {

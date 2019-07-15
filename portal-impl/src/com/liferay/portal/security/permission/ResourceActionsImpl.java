@@ -15,6 +15,7 @@
 package com.liferay.portal.security.permission;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.exception.NoSuchResourceActionException;
@@ -26,10 +27,9 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.model.PortletConstants;
-import com.liferay.portal.kernel.model.ResourceAction;
 import com.liferay.portal.kernel.model.Role;
-import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.ResourceActions;
@@ -45,7 +45,6 @@ import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -138,13 +137,15 @@ public class ResourceActionsImpl implements ResourceActions {
 	}
 
 	@Override
-	public String getAction(HttpServletRequest request, String action) {
+	public String getAction(
+		HttpServletRequest httpServletRequest, String action) {
+
 		String key = getActionNamePrefix() + action;
 
-		String value = LanguageUtil.get(request, key, null);
+		String value = LanguageUtil.get(httpServletRequest, key, null);
 
 		if ((value == null) || value.equals(key)) {
-			value = _getResourceBundlesString(request, key);
+			value = _getResourceBundlesString(httpServletRequest, key);
 		}
 
 		if (value == null) {
@@ -174,54 +175,6 @@ public class ResourceActionsImpl implements ResourceActions {
 	@Override
 	public String getActionNamePrefix() {
 		return _ACTION_NAME_PREFIX;
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x)
-	 */
-	@Deprecated
-	@Override
-	public List<String> getActionsNames(
-		HttpServletRequest request, List<String> actions) {
-
-		Set<String> actionNames = new LinkedHashSet<>();
-
-		for (String action : actions) {
-			actionNames.add(getAction(request, action));
-		}
-
-		return new ArrayList<>(actionNames);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x)
-	 */
-	@Deprecated
-	@Override
-	public List<String> getActionsNames(
-		HttpServletRequest request, String name, long actionIds) {
-
-		try {
-			List<ResourceAction> resourceActions =
-				resourceActionLocalService.getResourceActions(name);
-
-			List<String> actions = new ArrayList<>();
-
-			for (ResourceAction resourceAction : resourceActions) {
-				long bitwiseValue = resourceAction.getBitwiseValue();
-
-				if ((actionIds & bitwiseValue) == bitwiseValue) {
-					actions.add(resourceAction.getActionId());
-				}
-			}
-
-			return getActionsNames(request, actions);
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			return Collections.emptyList();
-		}
 	}
 
 	@Override
@@ -263,13 +216,15 @@ public class ResourceActionsImpl implements ResourceActions {
 	}
 
 	@Override
-	public String getModelResource(HttpServletRequest request, String name) {
+	public String getModelResource(
+		HttpServletRequest httpServletRequest, String name) {
+
 		String key = getModelResourceNamePrefix() + name;
 
-		String value = LanguageUtil.get(request, key, null);
+		String value = LanguageUtil.get(httpServletRequest, key, null);
 
 		if ((value == null) || value.equals(key)) {
-			value = _getResourceBundlesString(request, key);
+			value = _getResourceBundlesString(httpServletRequest, key);
 		}
 
 		if (value == null) {
@@ -358,14 +313,12 @@ public class ResourceActionsImpl implements ResourceActions {
 
 	@Override
 	public String[] getOrganizationModelResources() {
-		return _organizationModelResources.toArray(
-			new String[_organizationModelResources.size()]);
+		return _organizationModelResources.toArray(new String[0]);
 	}
 
 	@Override
 	public String[] getPortalModelResources() {
-		return _portalModelResources.toArray(
-			new String[_portalModelResources.size()]);
+		return _portalModelResources.toArray(new String[0]);
 	}
 
 	@Override
@@ -578,8 +531,7 @@ public class ResourceActionsImpl implements ResourceActions {
 
 	@Override
 	public String[] getRootModelResources() {
-		return _rootModelResources.toArray(
-			new String[_rootModelResources.size()]);
+		return _rootModelResources.toArray(new String[0]);
 	}
 
 	@Override
@@ -640,19 +592,6 @@ public class ResourceActionsImpl implements ResourceActions {
 		for (String source : sources) {
 			read(servletContextName, classLoader, source);
 		}
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x)
-	 */
-	@Deprecated
-	@Override
-	public void read(String servletContextName, InputStream inputStream)
-		throws Exception {
-
-		Document document = UnsecureSAXReaderUtil.read(inputStream, true);
-
-		_read(servletContextName, document, null);
 	}
 
 	@Override
@@ -972,18 +911,18 @@ public class ResourceActionsImpl implements ResourceActions {
 	}
 
 	private String _getResourceBundlesString(
-		HttpServletRequest request, String key) {
+		HttpServletRequest httpServletRequest, String key) {
 
 		Locale locale = null;
 
-		HttpSession session = request.getSession(false);
+		HttpSession session = httpServletRequest.getSession(false);
 
 		if (session != null) {
 			locale = (Locale)session.getAttribute(WebKeys.LOCALE);
 		}
 
 		if (locale == null) {
-			locale = request.getLocale();
+			locale = httpServletRequest.getLocale();
 		}
 
 		return _getResourceBundlesString(locale, key);

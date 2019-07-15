@@ -14,17 +14,17 @@
 
 package com.liferay.portal.search.internal.stats;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.search.stats.StatsResponse;
 
 import java.io.Serializable;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Michael C. Han
  */
 @ProviderType
-public class StatsResponseImpl implements StatsResponse, Serializable {
+public class StatsResponseImpl implements Serializable, StatsResponse {
 
 	public StatsResponseImpl(
 		long cardinality, long count, String field, double max, double mean,

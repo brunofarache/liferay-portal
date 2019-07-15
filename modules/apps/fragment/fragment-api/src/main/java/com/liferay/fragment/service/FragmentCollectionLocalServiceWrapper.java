@@ -14,9 +14,9 @@
 
 package com.liferay.fragment.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.service.ServiceWrapper;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link FragmentCollectionLocalService}.
@@ -252,6 +252,12 @@ public class FragmentCollectionLocalServiceWrapper
 
 		return _fragmentCollectionLocalService.
 			fetchFragmentCollectionByUuidAndGroupId(uuid, groupId);
+	}
+
+	@Override
+	public String generateFragmentCollectionKey(long groupId, String name) {
+		return _fragmentCollectionLocalService.generateFragmentCollectionKey(
+			groupId, name);
 	}
 
 	@Override

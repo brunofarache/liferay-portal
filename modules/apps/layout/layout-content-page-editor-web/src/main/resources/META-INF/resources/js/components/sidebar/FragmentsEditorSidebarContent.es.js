@@ -1,15 +1,31 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
+/* eslint no-unused-vars: "warn" */
+
 import Component from 'metal-component';
-import {Config} from 'metal-state';
 import Soy from 'metal-soy';
 
 import './fragments/SidebarElementsPanel.es';
 import './fragments/SidebarSectionsPanel.es';
 import './layouts/SidebarLayoutsPanel.es';
 import './mapping/SidebarMappingPanel.es';
-import './structure/SidebarStructurePanel.es';
+import './page_structure/SidebarPageStructurePanel.es';
 import './widgets/SidebarWidgetsPanel.es';
 import {getConnectedComponent} from '../../store/ConnectedComponent.es';
-import {HIDE_SIDEBAR, TOGGLE_SIDEBAR} from '../../actions/actions.es';
+import {UPDATE_SELECTED_SIDEBAR_PANEL_ID} from '../../actions/actions.es';
+import {setIn} from '../../utils/FragmentsEditorUpdateUtils.es';
 import templates from './FragmentsEditorSidebarContent.soy';
 
 /**
@@ -17,6 +33,41 @@ import templates from './FragmentsEditorSidebarContent.soy';
  * @review
  */
 class FragmentsEditorSidebarContent extends Component {
+	/**
+	 * @inheritdoc
+	 * @param {object} state
+	 * @review
+	 */
+	prepareStateForRender(state) {
+		let nextState = state;
+
+		if (state.selectedSidebarPanelId && state.sidebarPanels) {
+			const selectedSidebarPanel = state.sidebarPanels.find(
+				sidebarPanel =>
+					sidebarPanel.sidebarPanelId === state.selectedSidebarPanelId
+			);
+
+			if (selectedSidebarPanel) {
+				nextState = setIn(
+					nextState,
+					['_selectedSidebarPanel'],
+					selectedSidebarPanel
+				);
+			}
+		}
+
+		return nextState;
+	}
+
+	/**
+	 * Opens look and feel configuration window
+	 * @param {!MouseEvent} event
+	 * @private
+	 * @review
+	 */
+	_handleLookAndFeeldButtonClick(event) {
+		Liferay.Util.navigate(this.lookAndFeelURL);
+	}
 
 	/**
 	 * Updates active panel
@@ -25,17 +76,18 @@ class FragmentsEditorSidebarContent extends Component {
 	 * @review
 	 */
 	_handlePanelButtonClick(event) {
-		const data = event.delegateTarget.dataset;
+		const {sidebarPanelId} = event.delegateTarget.dataset;
 
-		if (!this.fragmentsEditorSidebarVisible) {
-			this.store.dispatchAction(TOGGLE_SIDEBAR);
-			this._setActivePanel(data.sidebarPanelId, data.sidebarTitle);
-		}
-		else if (this._sidebarPanelId === data.sidebarPanelId) {
-			this._hideSidebar();
-		}
-		else {
-			this._setActivePanel(data.sidebarPanelId, data.sidebarTitle);
+		if (this.selectedSidebarPanelId === sidebarPanelId) {
+			this.store.dispatch({
+				sidebarPanelId: '',
+				type: UPDATE_SELECTED_SIDEBAR_PANEL_ID
+			});
+		} else {
+			this.store.dispatch({
+				sidebarPanelId,
+				type: UPDATE_SELECTED_SIDEBAR_PANEL_ID
+			});
 		}
 	}
 
@@ -45,67 +97,16 @@ class FragmentsEditorSidebarContent extends Component {
 	 * @review
 	 */
 	_hideSidebar() {
-		this.store.dispatchAction(HIDE_SIDEBAR);
-		this._sidebarPanelId = '';
-		this._sidebarTitle = '';
+		this.store.dispatch({
+			sidebarPanelId: '',
+			type: UPDATE_SELECTED_SIDEBAR_PANEL_ID
+		});
 	}
-
-	/**
-	 * Set as active the panel with the given sidebarPanelId and also set sidebar title
-	 * @param {string} sidebarPanelId
-	 * @param {string} title
-	 * @private
-	 * @review
-	 */
-	_setActivePanel(sidebarPanelId, title) {
-		this._sidebarPanelId = sidebarPanelId;
-		this._sidebarTitle = title;
-	}
-
 }
-
-/**
- * State definition.
- * @review
- * @static
- * @type {!Object}
- */
-FragmentsEditorSidebarContent.STATE = {
-
-	/**
-	 * Sidebar active panel ID
-	 * @default sections
-	 * @memberof FragmentsEditorSidebarContent
-	 * @private
-	 * @review
-	 * @type {string}
-	 */
-	_sidebarPanelId: Config
-		.string()
-		.internal()
-		.value('sections'),
-
-	/**
-	 * Sidebar active panel title
-	 * @default Sections
-	 * @memberof FragmentsEditorSidebarContent
-	 * @private
-	 * @review
-	 * @type {string}
-	 */
-	_sidebarTitle: Config
-		.string()
-		.internal()
-		.value('Sections')
-};
 
 const ConnectedFragmentsEditorSidebarContent = getConnectedComponent(
 	FragmentsEditorSidebarContent,
-	[
-		'fragmentsEditorSidebarVisible',
-		'sidebarPanels',
-		'spritemap'
-	]
+	['lookAndFeelURL', 'selectedSidebarPanelId', 'sidebarPanels', 'spritemap']
 );
 
 Soy.register(ConnectedFragmentsEditorSidebarContent, templates);

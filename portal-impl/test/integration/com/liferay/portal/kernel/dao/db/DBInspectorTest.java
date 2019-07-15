@@ -14,18 +14,13 @@
 
 package com.liferay.portal.kernel.dao.db;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
-import com.liferay.portal.kernel.test.rule.AggregateTestRule;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-
-import org.eclipse.core.runtime.Assert;
-
 import org.junit.AfterClass;
-import org.junit.Assume;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -38,100 +33,103 @@ public class DBInspectorTest {
 
 	@ClassRule
 	@Rule
-	public static final AggregateTestRule aggregateTestRule =
+	public static final LiferayIntegrationTestRule liferayIntegrationTestRule =
 		new LiferayIntegrationTestRule();
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
-		_connection = DataAccess.getConnection();
+		DB db = DBManagerUtil.getDB();
 
-		_dbInspector = new DBInspector(_connection);
+		db.runSQL(
+			StringBundler.concat(
+				"create table ", _TABLE_NAME, " (typeBlob BLOB, typeBoolean ",
+				"BOOLEAN, typeDate DATE null, typeDouble DOUBLE, typeInteger ",
+				"INTEGER, typeLong LONG not null primary key, typeSBlob ",
+				"SBLOB, typeString STRING null, typeText TEXT null, ",
+				"typeVarchar VARCHAR(75) null);"));
 	}
 
 	@AfterClass
 	public static void tearDownClass() throws Exception {
-		DataAccess.cleanUp(_connection);
+		DB db = DBManagerUtil.getDB();
+
+		db.runSQL("drop table " + _TABLE_NAME);
+	}
+
+	@Before
+	public void setUp() throws Exception {
+		if (_dbInspector == null) {
+			_dbInspector = new DBInspector(DataAccess.getConnection());
+		}
 	}
 
 	@Test
-	public void testHasColumn() throws Exception {
-		Assert.isTrue(
-			_dbInspector.hasColumn(
-				_TABLE_NAME_EXISTING, _COLUMN_NAME_EXISTING));
+	public void testHasColumnTypeBlob() throws Exception {
+		Assert.assertTrue(
+			_dbInspector.hasColumnType(_TABLE_NAME, "typeBlob", "BLOB null"));
 	}
 
 	@Test
-	public void testHasColumnLowerCase() throws Exception {
-		DatabaseMetaData databaseMetaData = _connection.getMetaData();
-
-		Assume.assumeTrue(databaseMetaData.storesLowerCaseIdentifiers());
-
-		Assert.isTrue(
-			_dbInspector.hasColumn(
-				_TABLE_NAME_EXISTING,
-				StringUtil.toLowerCase(_COLUMN_NAME_EXISTING)));
+	public void testHasColumnTypeBoolean() throws Exception {
+		Assert.assertTrue(
+			_dbInspector.hasColumnType(
+				_TABLE_NAME, "typeBoolean", "BOOLEAN null"));
 	}
 
 	@Test
-	public void testHasColumnNonexisting() throws Exception {
-		Assert.isTrue(
-			!_dbInspector.hasColumn(
-				_TABLE_NAME_EXISTING, _COLUMN_NAME_NONEXISTING));
+	public void testHasColumnTypeDate() throws Exception {
+		Assert.assertTrue(
+			_dbInspector.hasColumnType(_TABLE_NAME, "typeDate", "DATE null"));
 	}
 
 	@Test
-	public void testHasColumnUpperCase() throws Exception {
-		DatabaseMetaData databaseMetaData = _connection.getMetaData();
-
-		Assume.assumeTrue(databaseMetaData.storesUpperCaseIdentifiers());
-
-		Assert.isTrue(
-			_dbInspector.hasColumn(
-				_TABLE_NAME_EXISTING,
-				StringUtil.toUpperCase(_COLUMN_NAME_EXISTING)));
+	public void testHasColumnTypeDouble() throws Exception {
+		Assert.assertTrue(
+			_dbInspector.hasColumnType(
+				_TABLE_NAME, "typeDouble", "DOUBLE null"));
 	}
 
 	@Test
-	public void testHasTable() throws Exception {
-		Assert.isTrue(_dbInspector.hasTable(_TABLE_NAME_EXISTING));
+	public void testHasColumnTypeInteger() throws Exception {
+		Assert.assertTrue(
+			_dbInspector.hasColumnType(
+				_TABLE_NAME, "typeInteger", "INTEGER null"));
 	}
 
 	@Test
-	public void testHasTableLowerCase() throws Exception {
-		DatabaseMetaData databaseMetaData = _connection.getMetaData();
-
-		Assume.assumeTrue(databaseMetaData.storesLowerCaseIdentifiers());
-
-		Assert.isTrue(
-			_dbInspector.hasTable(
-				StringUtil.toLowerCase(_TABLE_NAME_EXISTING)));
+	public void testHasColumnTypeLong() throws Exception {
+		Assert.assertTrue(
+			_dbInspector.hasColumnType(_TABLE_NAME, "typeLong", "LONG"));
 	}
 
 	@Test
-	public void testHasTableNonexisting() throws Exception {
-		Assert.isTrue(!_dbInspector.hasTable(_TABLE_NAME_NONEXISTING));
+	public void testHasColumnTypeSBlob() throws Exception {
+		Assert.assertTrue(
+			_dbInspector.hasColumnType(_TABLE_NAME, "typeSBlob", "SBLOB null"));
 	}
 
 	@Test
-	public void testHasTableUpperCase() throws Exception {
-		DatabaseMetaData databaseMetaData = _connection.getMetaData();
-
-		Assume.assumeTrue(databaseMetaData.storesUpperCaseIdentifiers());
-
-		Assert.isTrue(
-			_dbInspector.hasTable(
-				StringUtil.toUpperCase(_TABLE_NAME_EXISTING)));
+	public void testHasColumnTypeString() throws Exception {
+		Assert.assertTrue(
+			_dbInspector.hasColumnType(
+				_TABLE_NAME, "typeString", "STRING null"));
 	}
 
-	private static final String _COLUMN_NAME_EXISTING = "releaseId";
+	@Test
+	public void testHasColumnTypeText() throws Exception {
+		Assert.assertTrue(
+			_dbInspector.hasColumnType(_TABLE_NAME, "typeText", "TEXT null"));
+	}
 
-	private static final String _COLUMN_NAME_NONEXISTING = "nonexistingColumn";
+	@Test
+	public void testHasColumnTypeVarchar() throws Exception {
+		Assert.assertTrue(
+			_dbInspector.hasColumnType(
+				_TABLE_NAME, "typeVarchar", "VARCHAR(75) null"));
+	}
 
-	private static final String _TABLE_NAME_EXISTING = "Release_";
+	private static final String _TABLE_NAME = "DBInspectorTest";
 
-	private static final String _TABLE_NAME_NONEXISTING = "NonexistingTable";
-
-	private static Connection _connection;
 	private static DBInspector _dbInspector;
 
 }

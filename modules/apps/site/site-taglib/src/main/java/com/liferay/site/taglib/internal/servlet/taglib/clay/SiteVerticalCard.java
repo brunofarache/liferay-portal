@@ -41,7 +41,7 @@ public class SiteVerticalCard implements VerticalCard {
 		_group = group;
 		_selectedGroupIds = selectedGroupIds;
 
-		_request = PortalUtil.getHttpServletRequest(renderRequest);
+		_httpServletRequest = PortalUtil.getHttpServletRequest(renderRequest);
 		_themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
@@ -54,15 +54,16 @@ public class SiteVerticalCard implements VerticalCard {
 			data.put(
 				"groupdescriptivename",
 				_group.getDescriptiveName(_themeDisplay.getLocale()));
+			data.put("groupid", String.valueOf(_group.getGroupId()));
+			data.put("groupscopelabel", _group.getScopeLabel(_themeDisplay));
+			data.put(
+				"grouptype",
+				LanguageUtil.get(_httpServletRequest, _group.getTypeLabel()));
+			data.put("url", _group.getDisplayURL(_themeDisplay));
+			data.put("uuid", _group.getUuid());
 		}
 		catch (Exception e) {
 		}
-
-		data.put("groupid", String.valueOf(_group.getGroupId()));
-		data.put(
-			"grouptype", LanguageUtil.get(_request, _group.getTypeLabel()));
-		data.put("url", _group.getDisplayURL(_themeDisplay));
-		data.put("uuid", _group.getUuid());
 
 		return data;
 	}
@@ -73,7 +74,7 @@ public class SiteVerticalCard implements VerticalCard {
 			return "text-muted";
 		}
 
-		return "selector-button";
+		return "card-interactive card-interactive-secondary selector-button";
 	}
 
 	@Override
@@ -109,7 +110,7 @@ public class SiteVerticalCard implements VerticalCard {
 	}
 
 	private final Group _group;
-	private final HttpServletRequest _request;
+	private final HttpServletRequest _httpServletRequest;
 	private final long[] _selectedGroupIds;
 	private final ThemeDisplay _themeDisplay;
 

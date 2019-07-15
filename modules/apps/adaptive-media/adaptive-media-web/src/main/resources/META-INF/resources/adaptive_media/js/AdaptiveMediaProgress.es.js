@@ -1,9 +1,20 @@
-import Ajax from 'metal-ajax';
-import Component from 'metal-component';
-import PortletBase from 'frontend-js-web/liferay/PortletBase.es';
-import ProgressBar from 'frontend-js-web/liferay/compat/progressbar/ProgressBar.es';
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
+import 'clay-progress-bar';
+import {PortletBase, fetch} from 'frontend-js-web';
 import Soy from 'metal-soy';
-import Tooltip from 'frontend-js-web/liferay/compat/tooltip/Tooltip.es';
 import core from 'metal';
 
 import templates from './AdaptiveMediaProgress.soy';
@@ -16,7 +27,6 @@ import templates from './AdaptiveMediaProgress.soy';
  */
 
 class AdaptiveMediaProgress extends PortletBase {
-
 	/**
 	 * @inheritDoc
 	 */
@@ -24,6 +34,10 @@ class AdaptiveMediaProgress extends PortletBase {
 		this.id_ = this.namespace + 'AdaptRemaining' + this.uuid + 'Progress';
 
 		this.updateProgressBar_(this.adaptedImages, this.totalImages);
+
+		if (this.autoStartProgress) {
+			this.startProgress();
+		}
 	}
 
 	/**
@@ -34,12 +48,16 @@ class AdaptiveMediaProgress extends PortletBase {
 	 * that has to be invoked.
 	 */
 	startProgress(backgroundTaskUrl) {
-		if (this.percentage_ >= 100 || this.totalImages === 0 || this.disabled) {
+		if (
+			this.percentage_ >= 100 ||
+			this.totalImages === 0 ||
+			this.disabled
+		) {
 			return;
 		}
 
 		if (backgroundTaskUrl) {
-			Ajax.request(backgroundTaskUrl);
+			fetch(backgroundTaskUrl);
 		}
 
 		this.clearInterval_();
@@ -72,24 +90,18 @@ class AdaptiveMediaProgress extends PortletBase {
 	 * @protected
 	 */
 	getAdaptedImagesPercentage_() {
-		Ajax.request(this.percentageUrl).then((xhr) => {
-			try {
-				let json = JSON.parse(xhr.response);
-
-				let adaptedImages = json.adaptedImages;
-
-				let totalImages = json.totalImages;
-
-				this.updateProgressBar_(adaptedImages, totalImages);
+		fetch(this.percentageUrl)
+			.then(res => res.json())
+			.then(json => {
+				this.updateProgressBar_(json.adaptedImages, json.totalImages);
 
 				if (this.percentage_ >= 100) {
 					this.onProgressBarComplete_();
 				}
-			}
-			catch (e) {
+			})
+			.catch(() => {
 				clearInterval(this.intervalId_);
-			}
-		});
+			});
 	}
 
 	/**
@@ -111,13 +123,10 @@ class AdaptiveMediaProgress extends PortletBase {
 	 * @protected
 	 */
 	updateProgressBar_(adaptedImages, totalImages) {
-		let percentage = Math.round(adaptedImages / totalImages * 100) || 0;
-
-		this.progressBarClass_ = (percentage >= 100) ? 'progress-bar-success' : '';
-		this.progressBarLabel_ = percentage + '%';
-		this.progressBarValue_ = percentage;
-		this.progressBarTooltip_ = this.tooltip ? this.tooltip : adaptedImages + '/' + totalImages;
-		this.percentage_ = percentage;
+		this.percentage_ = Math.round((adaptedImages / totalImages) * 100) || 0;
+		this.progressBarTooltip_ = this.tooltip
+			? this.tooltip
+			: adaptedImages + '/' + totalImages;
 	}
 }
 
@@ -128,6 +137,17 @@ class AdaptiveMediaProgress extends PortletBase {
  * @type {!Object}
  */
 AdaptiveMediaProgress.STATE = {
+	/**
+	 * Number of adapted images in the platform.
+	 *
+	 * @instance
+	 * @memberof AdaptiveMediaProgress
+	 * @type {Number}
+	 */
+	autoStartProgress: {
+		validator: core.isBoolean,
+		value: false
+	},
 
 	/**
 	 * Number of adapted images in the platform.
@@ -189,39 +209,6 @@ AdaptiveMediaProgress.STATE = {
 	},
 
 	/**
-	 * The progress bar class.
-	 *
-	 * @memberof AdaptiveMediaProgress
-	 * @protected
-	 * @type {String}
-	 */
-	progressBarClass_: {
-		validator: core.isString
-	},
-
-	/**
-	 * The progress bar label.
-	 *
-	 * @memberof AdaptiveMediaProgress
-	 * @protected
-	 * @type {String}
-	 */
-	progressBarLabel_: {
-		validator: core.isString
-	},
-
-	/**
-	 * The progress bar value.
-	 *
-	 * @memberof AdaptiveMediaProgress
-	 * @protected
-	 * @type {Number}
-	 */
-	progressBarValue_: {
-		validator: core.isNumber
-	},
-
-	/**
 	 * The progress bar tooltip. If AdaptiveMediaProgress.tooltip
 	 * is defined, this will be used.
 	 *
@@ -247,6 +234,16 @@ AdaptiveMediaProgress.STATE = {
 	},
 
 	/**
+	 * The path to the SVG spritemap file containing the icons.
+	 * @memberof AdaptiveMediaProgress
+	 * @protected
+	 * @type {String}
+	 */
+	spritemap: {
+		validator: core.isString
+	},
+
+	/**
 	 * Number of images present in the platform.
 	 *
 	 * @instance
@@ -266,17 +263,6 @@ AdaptiveMediaProgress.STATE = {
 	 */
 	tooltip: {
 		validator: core.isString
-	},
-
-	/**
-	 * The tooltip position in the progress bar.
-	 *
-	 * @instance
-	 * @memberof AdaptiveMediaProgress
-	 * @type {Object}
-	 */
-	tooltipPosition: {
-		value: Tooltip.Align.Top
 	},
 
 	/**

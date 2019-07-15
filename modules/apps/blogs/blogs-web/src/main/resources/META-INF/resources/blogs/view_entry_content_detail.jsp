@@ -21,12 +21,11 @@ SearchContainer searchContainer = (SearchContainer)request.getAttribute("view_en
 
 BlogsEntry entry = (BlogsEntry)request.getAttribute("view_entry_content.jsp-entry");
 
-RatingsEntry ratingsEntry = (RatingsEntry)request.getAttribute("view_entry_content.jsp-ratingsEntry");
-RatingsStats ratingsStats = (RatingsStats)request.getAttribute("view_entry_content.jsp-ratingsStats");
+BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortletInstanceConfigurationUtil.getBlogsPortletInstanceConfiguration(themeDisplay);
 %>
 
 <c:choose>
-	<c:when test="<%= BlogsEntryPermission.contains(permissionChecker, entry, ActionKeys.VIEW) && (entry.isVisible() || (entry.getUserId() == user.getUserId()) || BlogsEntryPermission.contains(permissionChecker, entry, ActionKeys.UPDATE)) %>">
+	<c:when test="<%= entry.isVisible() || (entry.getUserId() == user.getUserId()) || BlogsEntryPermission.contains(permissionChecker, entry, ActionKeys.UPDATE) %>">
 		<portlet:renderURL var="viewEntryURL">
 			<portlet:param name="mvcRenderCommandName" value="/blogs/view_entry" />
 			<portlet:param name="redirect" value="<%= currentURL %>" />
@@ -108,7 +107,7 @@ RatingsStats ratingsStats = (RatingsStats)request.getAttribute("view_entry_conte
 							%>
 
 							<liferay-ui:user-portrait
-								cssClass="sticker-xl"
+								cssClass="sticker-lg"
 								user="<%= entryUser %>"
 							/>
 						</div>
@@ -130,7 +129,7 @@ RatingsStats ratingsStats = (RatingsStats)request.getAttribute("view_entry_conte
 										<c:if test="<%= blogsPortletInstanceConfiguration.enableViewCount() %>">
 
 											<%
-											AssetEntry assetEntry = _getAssetEntry(request, entry);
+											AssetEntry assetEntry = BlogsEntryAssetEntryUtil.getAssetEntry(request, entry);
 											%>
 
 											- <liferay-ui:message arguments="<%= assetEntry.getViewCount() %>" key='<%= (assetEntry.getViewCount() == 1) ? "x-view" : "x-views" %>' />
@@ -230,7 +229,7 @@ RatingsStats ratingsStats = (RatingsStats)request.getAttribute("view_entry_conte
 					<div class="col-md-8 mx-auto widget-mode-detail">
 
 						<%
-						AssetEntry assetEntry = _getAssetEntry(request, entry);
+						AssetEntry assetEntry = BlogsEntryAssetEntryUtil.getAssetEntry(request, entry);
 						%>
 
 						<div class="entry-links">
@@ -255,17 +254,3 @@ RatingsStats ratingsStats = (RatingsStats)request.getAttribute("view_entry_conte
 
 	</c:otherwise>
 </c:choose>
-
-<%!
-private AssetEntry _getAssetEntry(HttpServletRequest request, BlogsEntry entry) throws PortalException, SystemException {
-	AssetEntry assetEntry = (AssetEntry)request.getAttribute("view_entry_content.jsp-assetEntry");
-
-	if (assetEntry == null) {
-		assetEntry = AssetEntryLocalServiceUtil.getEntry(BlogsEntry.class.getName(), entry.getEntryId());
-
-		request.setAttribute("view_entry_content.jsp-assetEntry", assetEntry);
-	}
-
-	return assetEntry;
-}
-%>

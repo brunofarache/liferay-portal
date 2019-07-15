@@ -32,13 +32,13 @@ public class JournalSelectDDMTemplateManagementToolbarDisplayContext
 	public JournalSelectDDMTemplateManagementToolbarDisplayContext(
 			LiferayPortletRequest liferayPortletRequest,
 			LiferayPortletResponse liferayPortletResponse,
-			HttpServletRequest request,
+			HttpServletRequest httpServletRequest,
 			JournalSelectDDMTemplateDisplayContext
 				journalSelectDDMTemplateDisplayContext)
 		throws Exception {
 
 		super(
-			liferayPortletRequest, liferayPortletResponse, request,
+			liferayPortletRequest, liferayPortletResponse, httpServletRequest,
 			journalSelectDDMTemplateDisplayContext.getTemplateSearch());
 
 		_journalSelectDDMTemplateDisplayContext =
@@ -80,13 +80,23 @@ public class JournalSelectDDMTemplateManagementToolbarDisplayContext
 	}
 
 	@Override
+	protected String getDefaultDisplayStyle() {
+		return "icon";
+	}
+
+	@Override
+	protected String[] getDisplayViews() {
+		return new String[] {"list", "icon"};
+	}
+
+	@Override
 	protected String[] getNavigationKeys() {
 		return new String[] {"all"};
 	}
 
 	@Override
 	protected String[] getOrderByKeys() {
-		return new String[] {"modified-date", "id"};
+		return new String[] {"modified-date"};
 	}
 
 	private final JournalSelectDDMTemplateDisplayContext

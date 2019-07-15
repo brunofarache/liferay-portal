@@ -42,6 +42,18 @@ public class ResourcesTag extends IncludeTag {
 		return super.doStartTag();
 	}
 
+	public String getEditorName() {
+		return _editorName;
+	}
+
+	public String getInlineEditSaveURL() {
+		return _inlineEditSaveURL;
+	}
+
+	public boolean isInlineEdit() {
+		return _inlineEdit;
+	}
+
 	public void setEditorName(String editorName) {
 		_editorName = editorName;
 	}
@@ -71,23 +83,24 @@ public class ResourcesTag extends IncludeTag {
 	}
 
 	@Override
-	protected void includePage(String page, HttpServletResponse response)
+	protected void includePage(
+			String page, HttpServletResponse httpServletResponse)
 		throws IOException, ServletException {
 
 		servletContext = PortalWebResourcesUtil.getServletContext(
 			_getEditorResourceType());
 
-		super.includePage(page, response);
+		super.includePage(page, httpServletResponse);
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		super.setAttributes(request);
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		super.setAttributes(httpServletRequest);
 
-		setNamespacedAttribute(request, "editorName", _editorName);
-		setNamespacedAttribute(request, "inlineEdit", _inlineEdit);
+		setNamespacedAttribute(httpServletRequest, "editorName", _editorName);
+		setNamespacedAttribute(httpServletRequest, "inlineEdit", _inlineEdit);
 		setNamespacedAttribute(
-			request, "inlineEditSaveURL", _inlineEditSaveURL);
+			httpServletRequest, "inlineEditSaveURL", _inlineEditSaveURL);
 	}
 
 	private EditorRenderer _getEditorProvider() {

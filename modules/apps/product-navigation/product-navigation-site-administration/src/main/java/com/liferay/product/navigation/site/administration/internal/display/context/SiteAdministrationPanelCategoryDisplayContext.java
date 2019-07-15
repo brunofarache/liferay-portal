@@ -355,15 +355,16 @@ public class SiteAdministrationPanelCategoryDisplayContext {
 		Group group = getGroup();
 
 		Layout layout = LayoutLocalServiceUtil.fetchFirstLayout(
-			group.getGroupId(), false,
-			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID);
+			group.getGroupId(), false, LayoutConstants.DEFAULT_PARENT_LAYOUT_ID,
+			false);
 
 		if ((layout != null) && !layout.isHidden()) {
 			return true;
 		}
 
 		layout = LayoutLocalServiceUtil.fetchFirstLayout(
-			group.getGroupId(), true, LayoutConstants.DEFAULT_PARENT_LAYOUT_ID);
+			group.getGroupId(), true, LayoutConstants.DEFAULT_PARENT_LAYOUT_ID,
+			false);
 
 		if ((layout != null) && !layout.isHidden()) {
 			return true;
@@ -390,11 +391,12 @@ public class SiteAdministrationPanelCategoryDisplayContext {
 	}
 
 	public boolean isShowSiteSelector() throws PortalException {
-		HttpServletRequest request = PortalUtil.getHttpServletRequest(
-			_portletRequest);
+		HttpServletRequest httpServletRequest =
+			PortalUtil.getHttpServletRequest(_portletRequest);
 
 		List<Group> mySites = getMySites();
-		List<Group> recentSites = _recentGroupManager.getRecentGroups(request);
+		List<Group> recentSites = _recentGroupManager.getRecentGroups(
+			httpServletRequest);
 
 		if (mySites.isEmpty() && recentSites.isEmpty()) {
 			return false;
@@ -479,12 +481,12 @@ public class SiteAdministrationPanelCategoryDisplayContext {
 			return;
 		}
 
-		HttpServletRequest request = PortalUtil.getHttpServletRequest(
-			_portletRequest);
+		HttpServletRequest httpServletRequest =
+			PortalUtil.getHttpServletRequest(_portletRequest);
 
-		_recentGroupManager.addRecentGroup(request, groupId);
+		_recentGroupManager.addRecentGroup(httpServletRequest, groupId);
 
-		_groupProvider.setGroup(request, _group);
+		_groupProvider.setGroup(httpServletRequest, _group);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

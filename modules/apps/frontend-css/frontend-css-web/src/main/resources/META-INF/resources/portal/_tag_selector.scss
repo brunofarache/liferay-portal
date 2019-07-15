@@ -1,4 +1,4 @@
-@import "bourbon";
+@import 'bourbon';
 
 .lfr-tags-selector-list {
 	border: 0 solid transparent;
@@ -13,6 +13,10 @@
 }
 
 .lfr-tags-selector-content {
+	&.has-error .form-feedback-item {
+		margin-top: -1.5em;
+	}
+
 	.toolbar {
 		position: static;
 	}
@@ -61,7 +65,8 @@
 		margin-left: 1em;
 	}
 
-	.lfr-tag-selector-search, .lfr-tag-selector-input {
+	.lfr-tag-selector-search,
+	.lfr-tag-selector-input {
 		margin-bottom: 0;
 	}
 

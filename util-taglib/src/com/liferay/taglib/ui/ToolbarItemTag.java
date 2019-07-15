@@ -29,6 +29,10 @@ public class ToolbarItemTag extends IncludeTag {
 		return EVAL_BODY_INCLUDE;
 	}
 
+	public ToolbarItem getToolbarItem() {
+		return _toolbarItem;
+	}
+
 	public void setToolbarItem(ToolbarItem toolbarItem) {
 		_toolbarItem = toolbarItem;
 	}
@@ -51,8 +55,8 @@ public class ToolbarItemTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-ui:toolbar-item:toolbarItem", _toolbarItem);
 	}
 

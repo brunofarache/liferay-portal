@@ -30,6 +30,42 @@ import javax.servlet.jsp.PageContext;
  */
 public class DiscussionTag extends IncludeTag {
 
+	public String getClassName() {
+		return _className;
+	}
+
+	public long getClassPK() {
+		return _classPK;
+	}
+
+	public Discussion getDiscussion() {
+		return _discussion;
+	}
+
+	public String getFormName() {
+		return _formName;
+	}
+
+	public String getRedirect() {
+		return _redirect;
+	}
+
+	public long getUserId() {
+		return _userId;
+	}
+
+	public boolean isAssetEntryVisible() {
+		return _assetEntryVisible;
+	}
+
+	public boolean isHideControls() {
+		return _hideControls;
+	}
+
+	public boolean isRatingsEnabled() {
+		return _ratingsEnabled;
+	}
+
 	public void setAssetEntryVisible(boolean assetEntryVisible) {
 		_assetEntryVisible = assetEntryVisible;
 	}
@@ -93,9 +129,10 @@ public class DiscussionTag extends IncludeTag {
 		_userId = 0;
 	}
 
-	protected String getEditorURL(HttpServletRequest request) {
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+	protected String getEditorURL(HttpServletRequest httpServletRequest) {
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		PortletDisplay portletDisplay = themeDisplay.getPortletDisplay();
 
@@ -107,13 +144,14 @@ public class DiscussionTag extends IncludeTag {
 			"portletId=", portletId);
 	}
 
-	protected String getFormAction(HttpServletRequest request) {
+	protected String getFormAction(HttpServletRequest httpServletRequest) {
 		if (_formAction != null) {
 			return _formAction;
 		}
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		return themeDisplay.getPathMain() + "/portal/comment/discussion/edit";
 	}
@@ -123,9 +161,10 @@ public class DiscussionTag extends IncludeTag {
 		return _PAGE;
 	}
 
-	protected String getPaginationURL(HttpServletRequest request) {
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+	protected String getPaginationURL(HttpServletRequest httpServletRequest) {
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		PortletDisplay portletDisplay = themeDisplay.getPortletDisplay();
 
@@ -138,36 +177,40 @@ public class DiscussionTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-comment:discussion:assetEntryVisible",
 			String.valueOf(_assetEntryVisible));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-comment:discussion:className", _className);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-comment:discussion:classPK", String.valueOf(_classPK));
 
 		if (_discussion != null) {
-			request.setAttribute(
+			httpServletRequest.setAttribute(
 				"liferay-comment:discussion:discussion", _discussion);
 		}
 
-		request.setAttribute(
-			"liferay-comment:discussion:editorURL", getEditorURL(request));
-		request.setAttribute(
-			"liferay-comment:discussion:formAction", getFormAction(request));
-		request.setAttribute("liferay-comment:discussion:formName", _formName);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
+			"liferay-comment:discussion:editorURL",
+			getEditorURL(httpServletRequest));
+		httpServletRequest.setAttribute(
+			"liferay-comment:discussion:formAction",
+			getFormAction(httpServletRequest));
+		httpServletRequest.setAttribute(
+			"liferay-comment:discussion:formName", _formName);
+		httpServletRequest.setAttribute(
 			"liferay-comment:discussion:hideControls",
 			String.valueOf(_hideControls));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-comment:discussion:paginationURL",
-			getPaginationURL(request));
-		request.setAttribute(
+			getPaginationURL(httpServletRequest));
+		httpServletRequest.setAttribute(
 			"liferay-comment:discussion:ratingsEnabled",
 			String.valueOf(_ratingsEnabled));
-		request.setAttribute("liferay-comment:discussion:redirect", _redirect);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
+			"liferay-comment:discussion:redirect", _redirect);
+		httpServletRequest.setAttribute(
 			"liferay-comment:discussion:userId", String.valueOf(_userId));
 	}
 

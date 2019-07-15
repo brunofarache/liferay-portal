@@ -1,5 +1,20 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 import debounce from 'metal-debounce';
 import {closest, getClosestAssetElement} from '../utils/assets';
+import {DEBOUNCE} from '../utils/constants';
 import {onReady} from '../utils/events.js';
 import {ScrollTracker} from '../utils/scroll';
 
@@ -14,13 +29,13 @@ function getCustomAssetPayload({dataset}) {
 	const {
 		analyticsAssetCategory: category,
 		analyticsAssetId: assetId,
-		analyticsAssetTitle: title,
+		analyticsAssetTitle: title
 	} = dataset;
 
 	return {
 		assetId,
 		category,
-		title,
+		title
 	};
 }
 
@@ -74,11 +89,11 @@ function trackCustomAssetScroll(analytics, customAssetElements) {
 				analytics.send('assetDepthReached', applicationId, {
 					...getCustomAssetPayload(element),
 					depth,
-					sessionId: scrollSessionId,
+					sessionId: scrollSessionId
 				});
 			}, element);
 		});
-	}, 1500);
+	}, DEBOUNCE);
 
 	document.addEventListener('scroll', onScroll);
 
@@ -95,14 +110,12 @@ function trackCustomAssetScroll(analytics, customAssetElements) {
 function trackCustomAssetSubmitted(analytics) {
 	const onSubmit = event => {
 		const {target} = event;
-
 		const customAssetElement = getClosestAssetElement(target, 'custom');
 
 		if (
 			!isTrackableCustomAsset(customAssetElement) ||
 			(isTrackableCustomAsset(customAssetElement) &&
-				target.tagName !== 'FORM' &&
-				event.defaultPrevented)
+				(target.tagName !== 'FORM' || event.defaultPrevented))
 		) {
 			return;
 		}
@@ -114,9 +127,9 @@ function trackCustomAssetSubmitted(analytics) {
 		);
 	};
 
-	document.addEventListener('submit', onSubmit, true);
+	document.addEventListener('submit', onSubmit);
 
-	return () => document.removeEventListener('submit', onSubmit, true);
+	return () => document.removeEventListener('submit', onSubmit);
 }
 
 /**
@@ -138,7 +151,7 @@ function trackCustomAssetViewed(analytics) {
 					element.getElementsByTagName('form').length > 0;
 				const payload = {
 					...getCustomAssetPayload(element),
-					formEnabled,
+					formEnabled
 				};
 
 				customAssetElements.push(element);
@@ -174,7 +187,7 @@ function trackCustomAssetClick(analytics) {
 
 		const payload = {
 			...getCustomAssetPayload(customAssetElement),
-			tagName,
+			tagName
 		};
 
 		if (tagName === 'a') {

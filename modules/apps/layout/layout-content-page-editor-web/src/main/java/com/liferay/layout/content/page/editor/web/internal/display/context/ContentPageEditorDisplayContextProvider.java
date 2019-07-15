@@ -14,6 +14,7 @@
 
 package com.liferay.layout.content.page.editor.web.internal.display.context;
 
+import com.liferay.fragment.renderer.FragmentRendererController;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorWebKeys;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeConstants;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
@@ -42,22 +43,27 @@ import org.osgi.service.component.annotations.Reference;
 public class ContentPageEditorDisplayContextProvider {
 
 	public ContentPageEditorDisplayContext getContentPageEditorDisplayContext(
-		HttpServletRequest request, RenderResponse renderResponse) {
+		HttpServletRequest httpServletRequest, RenderResponse renderResponse) {
 
-		String className = (String)request.getAttribute(
+		String className = (String)httpServletRequest.getAttribute(
 			ContentPageEditorWebKeys.CLASS_NAME);
 
 		long classPK = GetterUtil.getLong(
-			request.getAttribute(ContentPageEditorWebKeys.CLASS_PK));
+			httpServletRequest.getAttribute(ContentPageEditorWebKeys.CLASS_PK));
 
 		if (Objects.equals(className, Layout.class.getName())) {
 			return new ContentPageLayoutEditorDisplayContext(
-				request, renderResponse, className, classPK);
+				httpServletRequest, renderResponse, className, classPK,
+				_fragmentRendererController);
 		}
 
 		LayoutPageTemplateEntry layoutPageTemplateEntry =
 			_layoutPageTemplateEntryLocalService.fetchLayoutPageTemplateEntry(
 				classPK);
+
+		Layout draftLayout = _layoutLocalService.fetchLayout(
+			_portal.getClassNameId(Layout.class.getName()),
+			layoutPageTemplateEntry.getPlid());
 
 		boolean showMapping = false;
 
@@ -69,8 +75,12 @@ public class ContentPageEditorDisplayContextProvider {
 		}
 
 		return new ContentPageEditorLayoutPageTemplateDisplayContext(
-			request, renderResponse, className, classPK, showMapping);
+			httpServletRequest, renderResponse, Layout.class.getName(),
+			draftLayout.getPlid(), showMapping, _fragmentRendererController);
 	}
+
+	@Reference
+	private FragmentRendererController _fragmentRendererController;
 
 	@Reference
 	private LayoutCopyHelper _layoutCopyHelper;

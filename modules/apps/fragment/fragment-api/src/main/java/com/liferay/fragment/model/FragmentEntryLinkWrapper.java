@@ -14,8 +14,6 @@
 
 package com.liferay.fragment.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.model.ModelWrapper;
 import com.liferay.portal.kernel.model.wrapper.BaseModelWrapper;
@@ -23,6 +21,8 @@ import com.liferay.portal.kernel.model.wrapper.BaseModelWrapper;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * <p>
@@ -62,10 +62,12 @@ public class FragmentEntryLinkWrapper
 		attributes.put("css", getCss());
 		attributes.put("html", getHtml());
 		attributes.put("js", getJs());
+		attributes.put("configuration", getConfiguration());
 		attributes.put("editableValues", getEditableValues());
-		attributes.put("position", getPosition());
-		attributes.put("lastPropagationDate", getLastPropagationDate());
 		attributes.put("namespace", getNamespace());
+		attributes.put("position", getPosition());
+		attributes.put("rendererKey", getRendererKey());
+		attributes.put("lastPropagationDate", getLastPropagationDate());
 		attributes.put("lastPublishDate", getLastPublishDate());
 
 		return attributes;
@@ -164,10 +166,22 @@ public class FragmentEntryLinkWrapper
 			setJs(js);
 		}
 
+		String configuration = (String)attributes.get("configuration");
+
+		if (configuration != null) {
+			setConfiguration(configuration);
+		}
+
 		String editableValues = (String)attributes.get("editableValues");
 
 		if (editableValues != null) {
 			setEditableValues(editableValues);
+		}
+
+		String namespace = (String)attributes.get("namespace");
+
+		if (namespace != null) {
+			setNamespace(namespace);
 		}
 
 		Integer position = (Integer)attributes.get("position");
@@ -176,16 +190,16 @@ public class FragmentEntryLinkWrapper
 			setPosition(position);
 		}
 
+		String rendererKey = (String)attributes.get("rendererKey");
+
+		if (rendererKey != null) {
+			setRendererKey(rendererKey);
+		}
+
 		Date lastPropagationDate = (Date)attributes.get("lastPropagationDate");
 
 		if (lastPropagationDate != null) {
 			setLastPropagationDate(lastPropagationDate);
-		}
-
-		String namespace = (String)attributes.get("namespace");
-
-		if (namespace != null) {
-			setNamespace(namespace);
 		}
 
 		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
@@ -233,6 +247,16 @@ public class FragmentEntryLinkWrapper
 	@Override
 	public long getCompanyId() {
 		return model.getCompanyId();
+	}
+
+	/**
+	 * Returns the configuration of this fragment entry link.
+	 *
+	 * @return the configuration of this fragment entry link
+	 */
+	@Override
+	public String getConfiguration() {
+		return model.getConfiguration();
 	}
 
 	/**
@@ -386,6 +410,16 @@ public class FragmentEntryLinkWrapper
 	}
 
 	/**
+	 * Returns the renderer key of this fragment entry link.
+	 *
+	 * @return the renderer key of this fragment entry link
+	 */
+	@Override
+	public String getRendererKey() {
+		return model.getRendererKey();
+	}
+
+	/**
 	 * Returns the user ID of this fragment entry link.
 	 *
 	 * @return the user ID of this fragment entry link
@@ -470,6 +504,16 @@ public class FragmentEntryLinkWrapper
 	@Override
 	public void setCompanyId(long companyId) {
 		model.setCompanyId(companyId);
+	}
+
+	/**
+	 * Sets the configuration of this fragment entry link.
+	 *
+	 * @param configuration the configuration of this fragment entry link
+	 */
+	@Override
+	public void setConfiguration(String configuration) {
+		model.setConfiguration(configuration);
 	}
 
 	/**
@@ -622,6 +666,16 @@ public class FragmentEntryLinkWrapper
 	@Override
 	public void setPrimaryKey(long primaryKey) {
 		model.setPrimaryKey(primaryKey);
+	}
+
+	/**
+	 * Sets the renderer key of this fragment entry link.
+	 *
+	 * @param rendererKey the renderer key of this fragment entry link
+	 */
+	@Override
+	public void setRendererKey(String rendererKey) {
+		model.setRendererKey(rendererKey);
 	}
 
 	/**

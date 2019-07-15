@@ -15,6 +15,7 @@
 package com.liferay.module.configuration.localization.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.definitions.ExtendedAttributeDefinition;
 import com.liferay.portal.configuration.metatype.definitions.ExtendedMetaTypeInformation;
@@ -26,7 +27,6 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.ResourceBundleLoaderUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
@@ -164,10 +164,10 @@ public class ModuleConfigurationLocalizationTest {
 			extendedMetaTypeInformation.getObjectClassDefinition(
 				pid, locale.getLanguage());
 
-		if (ResourceBundleUtil.getString(
-				resourceBundle, extendedObjectClassDefinition.getName()) ==
-					null) {
+		String extendedObjectClassDefinitionName = ResourceBundleUtil.getString(
+			resourceBundle, extendedObjectClassDefinition.getName());
 
+		if (extendedObjectClassDefinitionName == null) {
 			sb.append("\n\t\tMissing localization for configuration pid: ");
 			sb.append(extendedObjectClassDefinition.getID());
 		}
@@ -178,10 +178,11 @@ public class ModuleConfigurationLocalizationTest {
 				extendedObjectClassDefinition.getAttributeDefinitions(
 					ExtendedObjectClassDefinition.ALL)) {
 
-			if (ResourceBundleUtil.getString(
-					resourceBundle, extendedAttributeDefinition.getName()) ==
-						null) {
+			String extendedAttributeDefinitionName =
+				ResourceBundleUtil.getString(
+					resourceBundle, extendedAttributeDefinition.getName());
 
+			if (extendedAttributeDefinitionName == null) {
 				missingAttributeNames.add(extendedAttributeDefinition.getID());
 			}
 		}

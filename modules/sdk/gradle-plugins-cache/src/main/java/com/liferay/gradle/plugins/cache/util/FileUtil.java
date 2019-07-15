@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -142,7 +143,7 @@ public class FileUtil extends com.liferay.gradle.util.FileUtil {
 				continue;
 			}
 
-			if (".DS_Store".equals(file.getName())) {
+			if (Objects.equals(file.getName(), ".DS_Store")) {
 				continue;
 			}
 
@@ -357,7 +358,8 @@ public class FileUtil extends com.liferay.gradle.util.FileUtil {
 	private static final Logger _logger = Logging.getLogger(FileUtil.class);
 
 	private static final List<String> _excludedDirNames = Arrays.asList(
-		"bin", "build", "classes", "node_modules", "test-classes", "tmp");
+		"bin", "build", "classes", "node_modules", "node_modules_cache",
+		"test-classes", "tmp");
 
 	private static class FileComparator implements Comparator<File> {
 

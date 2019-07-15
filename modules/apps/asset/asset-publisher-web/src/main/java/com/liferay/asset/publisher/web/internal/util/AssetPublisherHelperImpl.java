@@ -27,6 +27,7 @@ import com.liferay.asset.kernel.service.AssetTagLocalService;
 import com.liferay.asset.kernel.service.persistence.AssetEntryQuery;
 import com.liferay.asset.list.model.AssetListEntry;
 import com.liferay.asset.list.service.AssetListEntryService;
+import com.liferay.asset.list.util.AssetListAssetEntryProvider;
 import com.liferay.asset.publisher.constants.AssetPublisherPortletKeys;
 import com.liferay.asset.publisher.util.AssetEntryResult;
 import com.liferay.asset.publisher.util.AssetPublisherHelper;
@@ -138,7 +139,9 @@ public class AssetPublisherHelperImpl implements AssetPublisherHelper {
 
 		if (_isSearchWithIndex(portletName, assetEntryQuery)) {
 			return _assetHelper.searchAssetEntries(
-				assetEntryQuery, getAssetCategoryIds(portletPreferences),
+				assetEntryQuery,
+				_filterAssetCategoryIds(
+					getAssetCategoryIds(portletPreferences)),
 				getAssetTagNames(portletPreferences), attributes, companyId,
 				assetEntryQuery.getKeywords(), layout, locale, scopeGroupId,
 				timeZone, userId, start, end);
@@ -325,7 +328,8 @@ public class AssetPublisherHelperImpl implements AssetPublisherHelper {
 				portletRequest.getAttribute(
 					SegmentsWebKeys.SEGMENTS_ENTRY_IDS));
 
-			return assetListEntry.getAssetEntries(segmentsEntryIds);
+			return _assetListAssetEntryProvider.getAssetEntries(
+				assetListEntry, segmentsEntryIds);
 		}
 
 		List<AssetEntry> assetEntries = getAssetEntries(
@@ -720,7 +724,6 @@ public class AssetPublisherHelperImpl implements AssetPublisherHelper {
 				groupIds.add(groupId);
 			}
 			catch (Exception e) {
-				continue;
 			}
 		}
 
@@ -835,9 +838,7 @@ public class AssetPublisherHelperImpl implements AssetPublisherHelper {
 			assetCategoryIdsList.add(assetCategoryId);
 		}
 
-		return ArrayUtil.toArray(
-			assetCategoryIdsList.toArray(
-				new Long[assetCategoryIdsList.size()]));
+		return ArrayUtil.toArray(assetCategoryIdsList.toArray(new Long[0]));
 	}
 
 	private List<AssetEntryResult> _getAssetEntryResultsByClassName(
@@ -1074,8 +1075,7 @@ public class AssetPublisherHelperImpl implements AssetPublisherHelper {
 		}
 
 		portletPreferences.setValues(
-			"assetEntryXml",
-			assetEntryXmlsList.toArray(new String[assetEntryXmlsList.size()]));
+			"assetEntryXml", assetEntryXmlsList.toArray(new String[0]));
 
 		portletPreferences.store();
 	}
@@ -1202,6 +1202,9 @@ public class AssetPublisherHelperImpl implements AssetPublisherHelper {
 
 	@Reference
 	private AssetHelper _assetHelper;
+
+	@Reference
+	private AssetListAssetEntryProvider _assetListAssetEntryProvider;
 
 	@Reference
 	private AssetListEntryService _assetListEntryService;

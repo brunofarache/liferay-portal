@@ -76,6 +76,22 @@ public class JournalArticleTag extends IncludeTag {
 		return super.doStartTag();
 	}
 
+	public String getArticleId() {
+		return _articleId;
+	}
+
+	public long getGroupId() {
+		return _groupId;
+	}
+
+	public String getWrapperCssClass() {
+		return _wrapperCssClass;
+	}
+
+	public boolean isShowTitle() {
+		return _showTitle;
+	}
+
 	public void setArticleId(String articleId) {
 		_articleId = articleId;
 	}
@@ -142,13 +158,13 @@ public class JournalArticleTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-journal:journal-article:articleDisplay", _articleDisplay);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-journal:journal-article:showTitle",
 			String.valueOf(_showTitle));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-journal:journal-article:wrapperCssClass",
 			_wrapperCssClass);
 	}

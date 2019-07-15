@@ -39,9 +39,11 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.workflow.RequiredWorkflowDefinitionException;
 import com.liferay.portal.kernel.workflow.WorkflowDefinition;
 import com.liferay.portal.kernel.workflow.WorkflowDefinitionManagerUtil;
 import com.liferay.portal.workflow.constants.WorkflowWebKeys;
+import com.liferay.portal.workflow.exception.IncompleteWorkflowInstancesException;
 import com.liferay.portal.workflow.web.internal.constants.WorkflowDefinitionConstants;
 import com.liferay.portal.workflow.web.internal.constants.WorkflowPortletKeys;
 import com.liferay.portal.workflow.web.internal.display.context.util.WorkflowDefinitionRequestHelper;
@@ -101,18 +103,18 @@ public class WorkflowDefinitionDisplayContext {
 	}
 
 	public String getActive(WorkflowDefinition workflowDefinition) {
-		HttpServletRequest request =
+		HttpServletRequest httpServletRequest =
 			_workflowDefinitionRequestHelper.getRequest();
 
 		if (workflowDefinition.isActive()) {
-			return LanguageUtil.get(request, "yes");
+			return LanguageUtil.get(httpServletRequest, "yes");
 		}
 
-		return LanguageUtil.get(request, "no");
+		return LanguageUtil.get(httpServletRequest, "no");
 	}
 
-	public String getClearResultsURL(HttpServletRequest request) {
-		PortletURL clearResultsURL = _getPortletURL(request);
+	public String getClearResultsURL(HttpServletRequest httpServletRequest) {
+		PortletURL clearResultsURL = _getPortletURL(httpServletRequest);
 
 		clearResultsURL.setParameter("keywords", StringPool.BLANK);
 
@@ -188,7 +190,9 @@ public class WorkflowDefinitionDisplayContext {
 			title, "title", newTitle, defaultLanguageId);
 	}
 
-	public DropdownItemList getFilterOptions(HttpServletRequest request) {
+	public DropdownItemList getFilterOptions(
+		HttpServletRequest httpServletRequest) {
+
 		return new DropdownItemList() {
 			{
 				addGroup(
@@ -199,19 +203,22 @@ public class WorkflowDefinitionDisplayContext {
 									add(
 										_getFilterNavigationDropdownItem(
 											"all",
-											_getCurrentNavigation(request),
+											_getCurrentNavigation(
+												httpServletRequest),
 											"all"));
 
 									add(
 										_getFilterNavigationDropdownItem(
 											"published",
-											_getCurrentNavigation(request),
+											_getCurrentNavigation(
+												httpServletRequest),
 											"published"));
 
 									add(
 										_getFilterNavigationDropdownItem(
 											"not-published",
-											_getCurrentNavigation(request),
+											_getCurrentNavigation(
+												httpServletRequest),
 											"not-published"));
 								}
 							});
@@ -230,13 +237,16 @@ public class WorkflowDefinitionDisplayContext {
 									add(
 										_getOrderByDropdownItem(
 											"last-modified",
-											_getCurrentOrder(request),
-											request));
+											_getCurrentOrder(
+												httpServletRequest),
+											httpServletRequest));
 
 									add(
 										_getOrderByDropdownItem(
-											"title", _getCurrentOrder(request),
-											request));
+											"title",
+											_getCurrentOrder(
+												httpServletRequest),
+											httpServletRequest));
 								}
 							});
 
@@ -249,9 +259,31 @@ public class WorkflowDefinitionDisplayContext {
 		};
 	}
 
+	public String getManageSubmissionsLink() {
+		return _buildErrorLink(
+			"configure-submissions", getWorkflowInstancesPortletURL());
+	}
+
 	public Object[] getMessageArguments(
-			List<WorkflowDefinitionLink> workflowDefinitionLinks)
+			IncompleteWorkflowInstancesException
+				incompleteWorkflowInstancesException)
 		throws PortletException {
+
+		return new Object[] {
+			String.valueOf(
+				incompleteWorkflowInstancesException.
+					getWorkflowInstancesCount()),
+			getManageSubmissionsLink()
+		};
+	}
+
+	public Object[] getMessageArguments(
+			RequiredWorkflowDefinitionException
+				requiredWorkflowDefinitionException)
+		throws PortletException {
+
+		List<WorkflowDefinitionLink> workflowDefinitionLinks =
+			requiredWorkflowDefinitionException.getWorkflowDefinitionLinks();
 
 		if (workflowDefinitionLinks.isEmpty()) {
 			return new Object[0];
@@ -294,7 +326,24 @@ public class WorkflowDefinitionDisplayContext {
 	}
 
 	public String getMessageKey(
-		List<WorkflowDefinitionLink> workflowDefinitionLinks) {
+		IncompleteWorkflowInstancesException
+			incompleteWorkflowInstancesException) {
+
+		if (incompleteWorkflowInstancesException.getWorkflowInstancesCount() ==
+				1) {
+
+			return "there-is-x-unresolved-workflow-submission-x";
+		}
+
+		return "there-are-x-unresolved-workflow-submissions-x";
+	}
+
+	public String getMessageKey(
+		RequiredWorkflowDefinitionException
+			requiredWorkflowDefinitionException) {
+
+		List<WorkflowDefinitionLink> workflowDefinitionLinks =
+			requiredWorkflowDefinitionException.getWorkflowDefinitionLinks();
 
 		if (workflowDefinitionLinks.isEmpty()) {
 			return StringPool.BLANK;
@@ -318,12 +367,13 @@ public class WorkflowDefinitionDisplayContext {
 	}
 
 	public SearchContainer<WorkflowDefinition> getSearch(
-			HttpServletRequest request, RenderRequest renderRequest, int status)
+			HttpServletRequest httpServletRequest, RenderRequest renderRequest,
+			int status)
 		throws PortalException {
 
 		WorkflowDefinitionSearch workflowDefinitionSearch =
 			new WorkflowDefinitionSearch(
-				renderRequest, _getPortletURL(request));
+				renderRequest, _getPortletURL(httpServletRequest));
 
 		workflowDefinitionSearch.setEmptyResultsMessage(
 			"no-workflow-definitions-are-defined");
@@ -364,7 +414,7 @@ public class WorkflowDefinitionDisplayContext {
 		return workflowDefinitionSearch;
 	}
 
-	public String getSearchURL(HttpServletRequest request) {
+	public String getSearchURL(HttpServletRequest httpServletRequest) {
 		PortletURL portletURL = _getPortletURL(null);
 
 		ThemeDisplay themeDisplay =
@@ -378,10 +428,11 @@ public class WorkflowDefinitionDisplayContext {
 		return portletURL.toString();
 	}
 
-	public String getSortingURL(HttpServletRequest request)
+	public String getSortingURL(HttpServletRequest httpServletRequest)
 		throws PortletException {
 
-		String orderByType = ParamUtil.getString(request, "orderByType", "asc");
+		String orderByType = ParamUtil.getString(
+			httpServletRequest, "orderByType", "asc");
 
 		LiferayPortletResponse response =
 			_workflowDefinitionRequestHelper.getLiferayPortletResponse();
@@ -392,7 +443,7 @@ public class WorkflowDefinitionDisplayContext {
 			"orderByType", Objects.equals(orderByType, "asc") ? "desc" : "asc");
 
 		String definitionsNavigation = ParamUtil.getString(
-			request, "definitionsNavigation");
+			httpServletRequest, "definitionsNavigation");
 
 		if (Validator.isNotNull(definitionsNavigation)) {
 			portletURL.setParameter(
@@ -411,11 +462,12 @@ public class WorkflowDefinitionDisplayContext {
 	}
 
 	public int getTotalItems(
-			HttpServletRequest request, RenderRequest renderRequest, int status)
+			HttpServletRequest httpServletRequest, RenderRequest renderRequest,
+			int status)
 		throws PortalException {
 
 		SearchContainer<?> searchContainer = getSearch(
-			request, renderRequest, status);
+			httpServletRequest, renderRequest, status);
 
 		return searchContainer.getTotal();
 	}
@@ -475,11 +527,12 @@ public class WorkflowDefinitionDisplayContext {
 	}
 
 	public boolean isDisabledManagementBar(
-			HttpServletRequest request, RenderRequest renderRequest, int status)
+			HttpServletRequest httpServletRequest, RenderRequest renderRequest,
+			int status)
 		throws PortalException {
 
 		SearchContainer searchContainer = getSearch(
-			request, renderRequest, status);
+			httpServletRequest, renderRequest, status);
 
 		return !searchContainer.hasResults();
 	}
@@ -526,17 +579,9 @@ public class WorkflowDefinitionDisplayContext {
 			workflowDefinition -> predicate.test(workflowDefinition));
 	}
 
-	protected String getConfigureAssignementLink() throws PortletException {
-		PortletURL portletURL = getWorkflowDefinitionLinkPortletURL();
-
-		ResourceBundle resourceBundle = getResourceBundle();
-
-		return StringUtil.replace(
-			_HTML, new String[] {"[$RENDER_URL$]", "[$MESSAGE$]"},
-			new String[] {
-				portletURL.toString(),
-				LanguageUtil.get(resourceBundle, "configure-assignments")
-			});
+	protected String getConfigureAssignementLink() {
+		return _buildErrorLink(
+			"configure-assignments", getWorkflowDefinitionLinkPortletURL());
 	}
 
 	protected String getLocalizedAssetName(String className) {
@@ -581,12 +626,37 @@ public class WorkflowDefinitionDisplayContext {
 				_workflowDefinitionRequestHelper.getLocale());
 	}
 
-	private String _getCurrentNavigation(HttpServletRequest request) {
-		return ParamUtil.getString(request, "definitionsNavigation", "all");
+	protected PortletURL getWorkflowInstancesPortletURL() {
+		LiferayPortletResponse response =
+			_workflowDefinitionRequestHelper.getLiferayPortletResponse();
+
+		PortletURL portletURL = response.createLiferayPortletURL(
+			WorkflowPortletKeys.CONTROL_PANEL_WORKFLOW_INSTANCE,
+			PortletRequest.RENDER_PHASE);
+
+		portletURL.setParameter("mvcPath", "/view.jsp");
+
+		return portletURL;
 	}
 
-	private String _getCurrentOrder(HttpServletRequest request) {
-		return ParamUtil.getString(request, "orderByCol", "title");
+	private String _buildErrorLink(String messageKey, PortletURL portletURL) {
+		return StringUtil.replace(
+			_HTML, new String[] {"[$RENDER_URL$]", "[$MESSAGE$]"},
+			new String[] {
+				portletURL.toString(),
+				LanguageUtil.get(getResourceBundle(), messageKey)
+			});
+	}
+
+	private String _getCurrentNavigation(
+		HttpServletRequest httpServletRequest) {
+
+		return ParamUtil.getString(
+			httpServletRequest, "definitionsNavigation", "all");
+	}
+
+	private String _getCurrentOrder(HttpServletRequest httpServletRequest) {
+		return ParamUtil.getString(httpServletRequest, "orderByCol", "title");
 	}
 
 	private UnsafeConsumer<DropdownItem, Exception>
@@ -610,37 +680,39 @@ public class WorkflowDefinitionDisplayContext {
 	}
 
 	private UnsafeConsumer<DropdownItem, Exception> _getOrderByDropdownItem(
-		String orderByCol, String currentOrder, HttpServletRequest request) {
+		String orderByCol, String currentOrder,
+		HttpServletRequest httpServletRequest) {
 
 		return dropdownItem -> {
 			dropdownItem.setActive(Objects.equals(currentOrder, orderByCol));
 			dropdownItem.setHref(
-				_getPortletURL(request), "orderByCol", orderByCol);
+				_getPortletURL(httpServletRequest), "orderByCol", orderByCol);
 			dropdownItem.setLabel(
 				LanguageUtil.get(
 					_workflowDefinitionRequestHelper.getRequest(), orderByCol));
 		};
 	}
 
-	private PortletURL _getPortletURL(HttpServletRequest request) {
+	private PortletURL _getPortletURL(HttpServletRequest httpServletRequest) {
 		LiferayPortletResponse liferayPortletResponse =
 			_workflowDefinitionRequestHelper.getLiferayPortletResponse();
 
 		PortletURL portletURL = liferayPortletResponse.createRenderURL();
 
-		if (request == null) {
+		if (httpServletRequest == null) {
 			return portletURL;
 		}
 
 		String definitionsNavigation = ParamUtil.getString(
-			request, "definitionsNavigation");
+			httpServletRequest, "definitionsNavigation");
 
 		if (Validator.isNotNull(definitionsNavigation)) {
 			portletURL.setParameter(
 				"definitionsNavigation", definitionsNavigation);
 		}
 
-		String orderByType = ParamUtil.getString(request, "orderByType", "asc");
+		String orderByType = ParamUtil.getString(
+			httpServletRequest, "orderByType", "asc");
 
 		portletURL.setParameter("orderByType", orderByType);
 

@@ -14,19 +14,23 @@
 
 package com.liferay.staging.taglib.servlet.taglib;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.staging.taglib.internal.servlet.ServletContextUtil;
 import com.liferay.taglib.util.IncludeTag;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * @author Péter Borkuti
  */
 @ProviderType
 public class IncompleteProcessMessageTag extends IncludeTag {
+
+	public boolean isLocalPublishing() {
+		return _localPublishing;
+	}
 
 	public void setLocalPublishing(boolean localPublishing) {
 		_localPublishing = localPublishing;
@@ -52,8 +56,8 @@ public class IncompleteProcessMessageTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-staging:incomplete-process-message:localPublishing",
 			_localPublishing);
 	}

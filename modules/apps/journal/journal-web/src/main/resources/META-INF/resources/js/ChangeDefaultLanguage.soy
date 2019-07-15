@@ -11,28 +11,24 @@
 
 	{@param? _itemClicked: any}
 
-	<div class="default-language mb-3 text-info">
-		{call ClayIcon.render}
-			{param spritemap: $spritemap /}
-			{param symbol: 'info-circle' /}
-		{/call}
-
-		{sp}{$strings[$defaultLanguage]}{sp}
+	<div class="article-default-language">
+		<b>{msg desc=""}web-content-default-language{/msg}</b>:
+		{sp}{$strings[$defaultLanguage]}
 
 		{let $label kind="html"}
 			<strong>{$strings['change']}</strong>
 		{/let}
 
 		{call ClayDropdown.render}
-			{param contentRenderer: 'defaultLanguage' /}
-			{param elementClasses: 'd-md-inline' /}
+			{param contentRenderer: 'item' /}
+			{param elementClasses: 'mt-2' /}
 			{param events: [
 				'itemClicked': $_itemClicked
 			] /}
 			{param items: $languages /}
 			{param label: $label /}
 			{param spritemap: $spritemap /}
-			{param triggerClasses: 'text-primary' /}
+			{param style: 'secondary' /}
 		{/call}
 	</div>
 {/template}
@@ -80,7 +76,6 @@
 				</span>
 			{/if}
 		{/let}
-
 		{call ClayButton.render}
 			{param ariaLabel: $label /}
 			{param disabled: $disabled /}

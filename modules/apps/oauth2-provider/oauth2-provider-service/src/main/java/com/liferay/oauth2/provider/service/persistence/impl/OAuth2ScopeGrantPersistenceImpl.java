@@ -14,8 +14,6 @@
 
 package com.liferay.oauth2.provider.service.persistence.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.oauth2.provider.exception.NoSuchOAuth2ScopeGrantException;
 import com.liferay.oauth2.provider.model.OAuth2Authorization;
 import com.liferay.oauth2.provider.model.OAuth2ScopeGrant;
@@ -35,8 +33,7 @@ import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.SessionFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.service.persistence.CompanyProvider;
-import com.liferay.portal.kernel.service.persistence.CompanyProviderWrapper;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.service.persistence.impl.TableMapper;
 import com.liferay.portal.kernel.service.persistence.impl.TableMapperFactory;
@@ -62,6 +59,7 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import org.osgi.annotation.versioning.ProviderType;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -1223,7 +1221,7 @@ public class OAuth2ScopeGrantPersistenceImpl
 		oAuth2ScopeGrant.setNew(true);
 		oAuth2ScopeGrant.setPrimaryKey(oAuth2ScopeGrantId);
 
-		oAuth2ScopeGrant.setCompanyId(companyProvider.getCompanyId());
+		oAuth2ScopeGrant.setCompanyId(CompanyThreadLocal.getCompanyId());
 
 		return oAuth2ScopeGrant;
 	}
@@ -1798,7 +1796,7 @@ public class OAuth2ScopeGrantPersistenceImpl
 
 		if (oAuth2ScopeGrant == null) {
 			oAuth2ScopeGrantToOAuth2AuthorizationTableMapper.addTableMapping(
-				companyProvider.getCompanyId(), pk, oAuth2AuthorizationPK);
+				CompanyThreadLocal.getCompanyId(), pk, oAuth2AuthorizationPK);
 		}
 		else {
 			oAuth2ScopeGrantToOAuth2AuthorizationTableMapper.addTableMapping(
@@ -1820,7 +1818,7 @@ public class OAuth2ScopeGrantPersistenceImpl
 
 		if (oAuth2ScopeGrant == null) {
 			oAuth2ScopeGrantToOAuth2AuthorizationTableMapper.addTableMapping(
-				companyProvider.getCompanyId(), pk,
+				CompanyThreadLocal.getCompanyId(), pk,
 				oAuth2Authorization.getPrimaryKey());
 		}
 		else {
@@ -1845,7 +1843,7 @@ public class OAuth2ScopeGrantPersistenceImpl
 		OAuth2ScopeGrant oAuth2ScopeGrant = fetchByPrimaryKey(pk);
 
 		if (oAuth2ScopeGrant == null) {
-			companyId = companyProvider.getCompanyId();
+			companyId = CompanyThreadLocal.getCompanyId();
 		}
 		else {
 			companyId = oAuth2ScopeGrant.getCompanyId();
@@ -1971,7 +1969,7 @@ public class OAuth2ScopeGrantPersistenceImpl
 		OAuth2ScopeGrant oAuth2ScopeGrant = fetchByPrimaryKey(pk);
 
 		if (oAuth2ScopeGrant == null) {
-			companyId = companyProvider.getCompanyId();
+			companyId = CompanyThreadLocal.getCompanyId();
 		}
 		else {
 			companyId = oAuth2ScopeGrant.getCompanyId();
@@ -2158,9 +2156,6 @@ public class OAuth2ScopeGrantPersistenceImpl
 	}
 
 	private boolean _columnBitmaskEnabled;
-
-	@Reference(service = CompanyProviderWrapper.class)
-	protected CompanyProvider companyProvider;
 
 	@Reference
 	protected EntityCache entityCache;

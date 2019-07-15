@@ -14,16 +14,20 @@
 
 package com.liferay.fragment.contributor;
 
-import com.liferay.fragment.constants.FragmentEntryTypeConstants;
+import com.liferay.fragment.constants.FragmentConstants;
+import com.liferay.fragment.constants.FragmentExportImportConstants;
 import com.liferay.fragment.model.FragmentEntry;
+import com.liferay.fragment.model.FragmentEntryLink;
+import com.liferay.fragment.service.FragmentEntryLinkLocalService;
 import com.liferay.fragment.service.FragmentEntryLocalService;
+import com.liferay.petra.io.StreamUtil;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.StringBundler;
+import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -31,8 +35,8 @@ import java.net.URL;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -70,29 +74,30 @@ public abstract class BaseFragmentCollectionContributor
 
 	protected void readAndCheckFragmentCollectionStructure() {
 		try {
-			JSONObject jsonObject = _getStructure("collection.json");
+			String name = _getContributedCollectionName();
 
-			String name = jsonObject.getString("name");
-			JSONArray jsonArray = jsonObject.getJSONArray("fragments");
+			Enumeration<URL> enumeration = _bundle.findEntries(
+				StringPool.BLANK,
+				FragmentExportImportConstants.FILE_NAME_FRAGMENT_CONFIG, true);
 
-			if (Validator.isNotNull(name) && (jsonArray.length() > 0)) {
-				_name = name;
+			if (Validator.isNull(name) || !enumeration.hasMoreElements()) {
+				return;
+			}
 
-				Iterator<String> iterator = jsonArray.iterator();
+			_name = name;
 
-				while (iterator.hasNext()) {
-					FragmentEntry fragmentEntry = _getFragmentEntry(
-						iterator.next());
+			while (enumeration.hasMoreElements()) {
+				URL url = enumeration.nextElement();
 
-					List<FragmentEntry> fragmentEntryList =
-						_fragmentEntries.getOrDefault(
-							fragmentEntry.getType(), new ArrayList<>());
+				FragmentEntry fragmentEntry = _getFragmentEntry(url);
 
-					fragmentEntryList.add(fragmentEntry);
+				_updateFragmentEntryLinks(fragmentEntry);
 
-					_fragmentEntries.put(
-						fragmentEntry.getType(), fragmentEntryList);
-				}
+				List<FragmentEntry> fragmentEntryList =
+					_fragmentEntries.computeIfAbsent(
+						fragmentEntry.getType(), type -> new ArrayList<>());
+
+				fragmentEntryList.add(fragmentEntry);
 			}
 		}
 		catch (Exception e) {
@@ -103,35 +108,56 @@ public abstract class BaseFragmentCollectionContributor
 	}
 
 	@Reference
+	protected FragmentEntryLinkLocalService fragmentEntryLinkLocalService;
+
+	@Reference
 	protected FragmentEntryLocalService fragmentEntryLocalService;
+
+	private String _getContributedCollectionName() throws Exception {
+		Class<?> clazz = getClass();
+
+		String json = StreamUtil.toString(
+			clazz.getResourceAsStream(
+				"dependencies/" +
+					FragmentExportImportConstants.FILE_NAME_COLLECTION_CONFIG));
+
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(json);
+
+		return jsonObject.getString("name");
+	}
 
 	private String _getFileContent(String path, String fileName)
 		throws Exception {
 
-		Class<?> resourceClass = getClass();
+		Class<?> clazz = getClass();
 
-		StringBundler sb = new StringBundler(4);
+		StringBundler sb = new StringBundler(3);
 
-		sb.append("dependencies/");
 		sb.append(path);
 		sb.append("/");
 		sb.append(fileName);
 
-		return StringUtil.read(
-			resourceClass.getResourceAsStream(sb.toString()));
+		return StringUtil.read(clazz.getResourceAsStream(sb.toString()));
 	}
 
-	private FragmentEntry _getFragmentEntry(String path) throws Exception {
-		JSONObject jsonObject = _getStructure(path + "/fragment.json");
+	private FragmentEntry _getFragmentEntry(URL url) throws Exception {
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+			StreamUtil.toString(url.openStream()));
 
 		String name = jsonObject.getString("name");
-		String fragmentEntryKey = _getFragmentEntryKey(jsonObject);
+		String fragmentEntryKey = StringBundler.concat(
+			getFragmentCollectionKey(), StringPool.DASH,
+			jsonObject.getString("fragmentEntryKey"));
+
+		String path = FileUtil.getPath(url.getPath());
+
 		String css = _getFileContent(path, jsonObject.getString("cssPath"));
 		String html = _getFileContent(path, jsonObject.getString("htmlPath"));
 		String js = _getFileContent(path, jsonObject.getString("jsPath"));
+
 		String thumbnailURL = _getImagePreviewURL(
 			jsonObject.getString("thumbnail"));
-		int type = FragmentEntryTypeConstants.getTypeFromLabel(
+		int type = FragmentConstants.getTypeFromLabel(
 			jsonObject.getString("type"));
 
 		FragmentEntry fragmentEntry =
@@ -148,13 +174,6 @@ public abstract class BaseFragmentCollectionContributor
 		return fragmentEntry;
 	}
 
-	private String _getFragmentEntryKey(JSONObject jsonObject) {
-		String fragmentEntryKey = jsonObject.getString("fragmentEntryKey");
-
-		return String.join(
-			StringPool.DASH, getFragmentCollectionKey(), fragmentEntryKey);
-	}
-
 	private String _getImagePreviewURL(String fileName) {
 		URL url = _bundle.getResource(
 			"META-INF/resources/thumbnails/" + fileName);
@@ -168,13 +187,19 @@ public abstract class BaseFragmentCollectionContributor
 		return servletContext.getContextPath() + "/thumbnails/" + fileName;
 	}
 
-	private JSONObject _getStructure(String path) throws Exception {
-		Class<?> resourceClass = getClass();
+	private void _updateFragmentEntryLinks(FragmentEntry fragmentEntry) {
+		List<FragmentEntryLink> fragmentEntryLinks =
+			fragmentEntryLinkLocalService.getFragmentEntryLinks(
+				fragmentEntry.getFragmentEntryKey());
 
-		String structure = StringUtil.read(
-			resourceClass.getResourceAsStream("dependencies/" + path));
+		for (FragmentEntryLink fragmentEntryLink : fragmentEntryLinks) {
+			fragmentEntryLink.setCss(fragmentEntry.getCss());
+			fragmentEntryLink.setHtml(fragmentEntry.getHtml());
+			fragmentEntryLink.setJs(fragmentEntry.getJs());
 
-		return JSONFactoryUtil.createJSONObject(structure);
+			fragmentEntryLinkLocalService.updateFragmentEntryLink(
+				fragmentEntryLink);
+		}
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

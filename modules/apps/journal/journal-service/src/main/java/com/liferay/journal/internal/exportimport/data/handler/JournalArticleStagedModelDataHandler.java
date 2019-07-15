@@ -375,7 +375,7 @@ public class JournalArticleStagedModelDataHandler
 		if (layout != null) {
 			portletDataContext.addReferenceElement(
 				article, articleElement, layout,
-				PortletDataContext.REFERENCE_TYPE_DEPENDENCY, true);
+				PortletDataContext.REFERENCE_TYPE_DEPENDENCY_DISPOSABLE, true);
 		}
 
 		if (article.isSmallImage()) {
@@ -500,6 +500,10 @@ public class JournalArticleStagedModelDataHandler
 			existingArticle = fetchExistingArticleWithParentGroups(
 				uuid, articleResourceUuid, groupId, articleArticleId, null, 0.0,
 				preloaded);
+		}
+
+		if (existingArticle == null) {
+			return;
 		}
 
 		Map<String, String> articleArticleIds =
@@ -782,8 +786,6 @@ public class JournalArticleStagedModelDataHandler
 									"Unable to import attachment for file " +
 										"entry " + fileEntry.getFileEntryId());
 							}
-
-							continue;
 						}
 					}
 					finally {

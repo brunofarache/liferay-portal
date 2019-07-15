@@ -14,13 +14,10 @@
 
 package com.liferay.social.kernel.service.persistence;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.OrderByComparator;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
 import com.liferay.social.kernel.model.SocialRequest;
 
 import java.io.Serializable;
@@ -28,6 +25,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The persistence utility for the social request service. This utility wraps <code>com.liferay.portlet.social.service.persistence.impl.SocialRequestPersistenceImpl</code> and provides direct access to the database for CRUD operations. This utility should only be used by the service layer, as it must operate within a transaction. Never access this utility in a JSP, controller, model, or other front-end class.
@@ -2327,9 +2326,6 @@ public class SocialRequestUtil {
 			_persistence =
 				(SocialRequestPersistence)PortalBeanLocatorUtil.locate(
 					SocialRequestPersistence.class.getName());
-
-			ReferenceRegistry.registerReference(
-				SocialRequestUtil.class, "_persistence");
 		}
 
 		return _persistence;

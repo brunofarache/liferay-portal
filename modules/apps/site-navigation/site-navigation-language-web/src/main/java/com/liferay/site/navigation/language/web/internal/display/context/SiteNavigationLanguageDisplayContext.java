@@ -27,7 +27,7 @@ import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portlet.display.template.PortletDisplayTemplate;
-import com.liferay.site.navigation.language.web.configuration.SiteNavigationLanguagePortletInstanceConfiguration;
+import com.liferay.site.navigation.language.web.internal.configuration.SiteNavigationLanguagePortletInstanceConfiguration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,13 +42,15 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class SiteNavigationLanguageDisplayContext {
 
-	public SiteNavigationLanguageDisplayContext(HttpServletRequest request)
+	public SiteNavigationLanguageDisplayContext(
+			HttpServletRequest httpServletRequest)
 		throws ConfigurationException {
 
-		_portletDisplayTemplate = (PortletDisplayTemplate)request.getAttribute(
-			WebKeys.PORTLET_DISPLAY_TEMPLATE);
+		_portletDisplayTemplate =
+			(PortletDisplayTemplate)httpServletRequest.getAttribute(
+				WebKeys.PORTLET_DISPLAY_TEMPLATE);
 
-		_themeDisplay = (ThemeDisplay)request.getAttribute(
+		_themeDisplay = (ThemeDisplay)httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
 		PortletDisplay portletDisplay = _themeDisplay.getPortletDisplay();

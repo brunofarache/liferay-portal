@@ -25,6 +25,26 @@ import javax.servlet.jsp.PageContext;
  */
 public class CustomAttributeListTag extends IncludeTag {
 
+	public String getClassName() {
+		return _className;
+	}
+
+	public long getClassPK() {
+		return _classPK;
+	}
+
+	public String getIgnoreAttributeNames() {
+		return _ignoreAttributeNames;
+	}
+
+	public boolean isEditable() {
+		return _editable;
+	}
+
+	public boolean isLabel() {
+		return _label;
+	}
+
 	public void setClassName(String className) {
 		_className = className;
 	}
@@ -69,19 +89,19 @@ public class CustomAttributeListTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-expando:custom-attribute-list:className", _className);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-expando:custom-attribute-list:classPK",
 			String.valueOf(_classPK));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-expando:custom-attribute-list:editable",
 			String.valueOf(_editable));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-expando:custom-attribute-list:ignoreAttributeNames",
 			_ignoreAttributeNames);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-expando:custom-attribute-list:label",
 			String.valueOf(_label));
 	}

@@ -14,8 +14,7 @@
 
 package com.liferay.fragment.service;
 
-import aQute.bnd.annotation.ProviderType;
-
+import org.osgi.annotation.versioning.ProviderType;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.util.tracker.ServiceTracker;
@@ -54,6 +53,33 @@ public class FragmentEntryLinkLocalServiceUtil {
 		return getService().addFragmentEntryLink(fragmentEntryLink);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 #addFragmentEntryLink(long, long, long, long, long, long,
+	 String, String, String, String, String, String, int, String,
+	 ServiceContext)}
+	 */
+	@Deprecated
+	public static com.liferay.fragment.model.FragmentEntryLink
+			addFragmentEntryLink(
+				long userId, long groupId, long originalFragmentEntryLinkId,
+				long fragmentEntryId, long classNameId, long classPK,
+				String rendererKey,
+				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().addFragmentEntryLink(
+			userId, groupId, originalFragmentEntryLinkId, fragmentEntryId,
+			classNameId, classPK, rendererKey, serviceContext);
+	}
+
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 #addFragmentEntryLink(long, long, long, long, long, long,
+	 String, String, String, String, String, String, int, String,
+	 ServiceContext)}
+	 */
+	@Deprecated
 	public static com.liferay.fragment.model.FragmentEntryLink
 			addFragmentEntryLink(
 				long userId, long groupId, long originalFragmentEntryLinkId,
@@ -69,6 +95,73 @@ public class FragmentEntryLinkLocalServiceUtil {
 			serviceContext);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 #addFragmentEntryLink(long, long, long, long, long, long,
+	 String, String, String, String, String, String, int, String,
+	 ServiceContext)}
+	 */
+	@Deprecated
+	public static com.liferay.fragment.model.FragmentEntryLink
+			addFragmentEntryLink(
+				long userId, long groupId, long originalFragmentEntryLinkId,
+				long fragmentEntryId, long classNameId, long classPK,
+				String css, String html, String js, String editableValues,
+				int position, String rendererKey,
+				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().addFragmentEntryLink(
+			userId, groupId, originalFragmentEntryLinkId, fragmentEntryId,
+			classNameId, classPK, css, html, js, editableValues, position,
+			rendererKey, serviceContext);
+	}
+
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 #addFragmentEntryLink(long, long, long, long, long, long,
+	 String, String, String, String, String, String, int, String,
+	 ServiceContext)}
+	 */
+	@Deprecated
+	public static com.liferay.fragment.model.FragmentEntryLink
+			addFragmentEntryLink(
+				long userId, long groupId, long originalFragmentEntryLinkId,
+				long fragmentEntryId, long classNameId, long classPK,
+				String css, String html, String js, String editableValues,
+				String namespace, int position, String rendererKey,
+				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().addFragmentEntryLink(
+			userId, groupId, originalFragmentEntryLinkId, fragmentEntryId,
+			classNameId, classPK, css, html, js, editableValues, namespace,
+			position, rendererKey, serviceContext);
+	}
+
+	public static com.liferay.fragment.model.FragmentEntryLink
+			addFragmentEntryLink(
+				long userId, long groupId, long originalFragmentEntryLinkId,
+				long fragmentEntryId, long classNameId, long classPK,
+				String css, String html, String js, String configuration,
+				String editableValues, String namespace, int position,
+				String rendererKey,
+				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().addFragmentEntryLink(
+			userId, groupId, originalFragmentEntryLinkId, fragmentEntryId,
+			classNameId, classPK, css, html, js, configuration, editableValues,
+			namespace, position, rendererKey, serviceContext);
+	}
+
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 #addFragmentEntryLink(long, long, long, long, long, long,
+	 String, String, String, String, String, String, int, String,
+	 ServiceContext)}
+	 */
+	@Deprecated
 	public static com.liferay.fragment.model.FragmentEntryLink
 			addFragmentEntryLink(
 				long userId, long groupId, long fragmentEntryId,
@@ -261,6 +354,13 @@ public class FragmentEntryLinkLocalServiceUtil {
 		return getService().getActionableDynamicQuery();
 	}
 
+	public static int getClassedModelFragmentEntryLinksCount(
+		long groupId, long classNameId, long classPK) {
+
+		return getService().getClassedModelFragmentEntryLinksCount(
+			groupId, classNameId, classPK);
+	}
+
 	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery
 		getExportActionableDynamicQuery(
 			com.liferay.exportimport.kernel.lar.PortletDataContext
@@ -359,6 +459,12 @@ public class FragmentEntryLinkLocalServiceUtil {
 			orderByComparator);
 	}
 
+	public static java.util.List<com.liferay.fragment.model.FragmentEntryLink>
+		getFragmentEntryLinks(String rendererKey) {
+
+		return getService().getFragmentEntryLinks(rendererKey);
+	}
+
 	/**
 	 * Returns all the fragment entry links matching the UUID and company.
 	 *
@@ -448,10 +554,10 @@ public class FragmentEntryLinkLocalServiceUtil {
 		return getService().getPersistedModel(primaryKeyObj);
 	}
 
-	public static void updateClassModel(long classNameId, long classPK)
+	public static void updateClassedModel(long classNameId, long classPK)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
-		getService().updateClassModel(classNameId, classPK);
+		getService().updateClassedModel(classNameId, classPK);
 	}
 
 	/**
@@ -475,6 +581,13 @@ public class FragmentEntryLinkLocalServiceUtil {
 			fragmentEntryLinkId, position);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 #updateFragmentEntryLink(long, long, long, long, long, long,
+	 String, String, String, String, String, String, int,
+	 ServiceContext)}
+	 */
+	@Deprecated
 	public static com.liferay.fragment.model.FragmentEntryLink
 			updateFragmentEntryLink(
 				long userId, long fragmentEntryLinkId,
@@ -488,6 +601,45 @@ public class FragmentEntryLinkLocalServiceUtil {
 			userId, fragmentEntryLinkId, originalFragmentEntryLinkId,
 			fragmentEntryId, classNameId, classPK, css, html, js,
 			editableValues, position, serviceContext);
+	}
+
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 #updateFragmentEntryLink(long, long, long, long, long, long,
+	 String, String, String, String, String, String, int,
+	 ServiceContext)}
+	 */
+	@Deprecated
+	public static com.liferay.fragment.model.FragmentEntryLink
+			updateFragmentEntryLink(
+				long userId, long fragmentEntryLinkId,
+				long originalFragmentEntryLinkId, long fragmentEntryId,
+				long classNameId, long classPK, String css, String html,
+				String js, String editableValues, String namespace,
+				int position,
+				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().updateFragmentEntryLink(
+			userId, fragmentEntryLinkId, originalFragmentEntryLinkId,
+			fragmentEntryId, classNameId, classPK, css, html, js,
+			editableValues, namespace, position, serviceContext);
+	}
+
+	public static com.liferay.fragment.model.FragmentEntryLink
+			updateFragmentEntryLink(
+				long userId, long fragmentEntryLinkId,
+				long originalFragmentEntryLinkId, long fragmentEntryId,
+				long classNameId, long classPK, String css, String html,
+				String js, String configuration, String editableValues,
+				String namespace, int position,
+				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().updateFragmentEntryLink(
+			userId, fragmentEntryLinkId, originalFragmentEntryLinkId,
+			fragmentEntryId, classNameId, classPK, css, html, js, configuration,
+			editableValues, namespace, position, serviceContext);
 	}
 
 	public static com.liferay.fragment.model.FragmentEntryLink

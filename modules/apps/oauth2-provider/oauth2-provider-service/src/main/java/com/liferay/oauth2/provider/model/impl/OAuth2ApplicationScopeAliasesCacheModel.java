@@ -14,8 +14,6 @@
 
 package com.liferay.oauth2.provider.model.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.oauth2.provider.model.OAuth2ApplicationScopeAliases;
 import com.liferay.petra.lang.HashUtil;
 import com.liferay.petra.string.StringBundler;
@@ -27,6 +25,8 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import java.util.Date;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The cache model class for representing OAuth2ApplicationScopeAliases in entity cache.
@@ -69,7 +69,7 @@ public class OAuth2ApplicationScopeAliasesCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(17);
+		StringBundler sb = new StringBundler(13);
 
 		sb.append("{oAuth2ApplicationScopeAliasesId=");
 		sb.append(oAuth2ApplicationScopeAliasesId);
@@ -83,10 +83,6 @@ public class OAuth2ApplicationScopeAliasesCacheModel
 		sb.append(createDate);
 		sb.append(", oAuth2ApplicationId=");
 		sb.append(oAuth2ApplicationId);
-		sb.append(", scopeAliases=");
-		sb.append(scopeAliases);
-		sb.append(", scopeAliasesHash=");
-		sb.append(scopeAliasesHash);
 		sb.append("}");
 
 		return sb.toString();
@@ -120,15 +116,6 @@ public class OAuth2ApplicationScopeAliasesCacheModel
 		oAuth2ApplicationScopeAliasesImpl.setOAuth2ApplicationId(
 			oAuth2ApplicationId);
 
-		if (scopeAliases == null) {
-			oAuth2ApplicationScopeAliasesImpl.setScopeAliases("");
-		}
-		else {
-			oAuth2ApplicationScopeAliasesImpl.setScopeAliases(scopeAliases);
-		}
-
-		oAuth2ApplicationScopeAliasesImpl.setScopeAliasesHash(scopeAliasesHash);
-
 		oAuth2ApplicationScopeAliasesImpl.resetOriginalValues();
 
 		return oAuth2ApplicationScopeAliasesImpl;
@@ -145,9 +132,6 @@ public class OAuth2ApplicationScopeAliasesCacheModel
 		createDate = objectInput.readLong();
 
 		oAuth2ApplicationId = objectInput.readLong();
-		scopeAliases = objectInput.readUTF();
-
-		scopeAliasesHash = objectInput.readLong();
 	}
 
 	@Override
@@ -168,15 +152,6 @@ public class OAuth2ApplicationScopeAliasesCacheModel
 		objectOutput.writeLong(createDate);
 
 		objectOutput.writeLong(oAuth2ApplicationId);
-
-		if (scopeAliases == null) {
-			objectOutput.writeUTF("");
-		}
-		else {
-			objectOutput.writeUTF(scopeAliases);
-		}
-
-		objectOutput.writeLong(scopeAliasesHash);
 	}
 
 	public long oAuth2ApplicationScopeAliasesId;
@@ -185,7 +160,5 @@ public class OAuth2ApplicationScopeAliasesCacheModel
 	public String userName;
 	public long createDate;
 	public long oAuth2ApplicationId;
-	public String scopeAliases;
-	public long scopeAliasesHash;
 
 }

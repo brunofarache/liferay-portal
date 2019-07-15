@@ -14,10 +14,9 @@
 
 package com.liferay.social.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service utility for SocialRequest. This utility wraps
@@ -637,9 +636,6 @@ public class SocialRequestLocalServiceUtil {
 		if (_service == null) {
 			_service = (SocialRequestLocalService)PortalBeanLocatorUtil.locate(
 				SocialRequestLocalService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				SocialRequestLocalServiceUtil.class, "_service");
 		}
 
 		return _service;

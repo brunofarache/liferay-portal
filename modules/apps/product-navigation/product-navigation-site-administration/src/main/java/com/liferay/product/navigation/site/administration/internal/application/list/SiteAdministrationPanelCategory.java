@@ -20,7 +20,12 @@ import com.liferay.application.list.PanelCategory;
 import com.liferay.application.list.constants.ApplicationListWebKeys;
 import com.liferay.application.list.constants.PanelCategoryKeys;
 import com.liferay.item.selector.ItemSelector;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.service.permission.GroupPermissionUtil;
 import com.liferay.product.navigation.site.administration.internal.constants.SiteAdministrationWebKeys;
 import com.liferay.site.util.GroupURLProvider;
 import com.liferay.site.util.RecentGroupManager;
@@ -71,29 +76,51 @@ public class SiteAdministrationPanelCategory extends BaseJSPPanelCategory {
 
 	@Override
 	public boolean include(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException {
 
-		request.setAttribute(ApplicationListWebKeys.PANEL_CATEGORY, this);
+		httpServletRequest.setAttribute(
+			ApplicationListWebKeys.PANEL_CATEGORY, this);
 
-		return super.include(request, response);
+		return super.include(httpServletRequest, httpServletResponse);
 	}
 
 	@Override
 	public boolean includeHeader(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException {
 
-		request.setAttribute(ApplicationListWebKeys.PANEL_CATEGORY, this);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
+			ApplicationListWebKeys.PANEL_CATEGORY, this);
+		httpServletRequest.setAttribute(
 			SiteAdministrationWebKeys.GROUP_URL_PROVIDER, _groupURLProvider);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			SiteAdministrationWebKeys.ITEM_SELECTOR, _itemSelector);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			SiteAdministrationWebKeys.RECENT_GROUP_MANAGER,
 			_recentGroupManager);
 
-		return super.includeHeader(request, response);
+		return super.includeHeader(httpServletRequest, httpServletResponse);
+	}
+
+	@Override
+	public boolean isShow(PermissionChecker permissionChecker, Group group)
+		throws PortalException {
+
+		if (group == null) {
+			return false;
+		}
+
+		if (GroupPermissionUtil.contains(
+				permissionChecker, group,
+				ActionKeys.VIEW_SITE_ADMINISTRATION)) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	@Reference(unbind = "-")

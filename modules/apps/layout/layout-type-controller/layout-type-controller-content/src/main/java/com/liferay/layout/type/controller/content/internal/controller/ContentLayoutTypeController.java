@@ -14,8 +14,12 @@
 
 package com.liferay.layout.type.controller.content.internal.controller;
 
-import com.liferay.asset.display.contributor.AssetDisplayContributorTracker;
+import com.liferay.fragment.constants.FragmentActionKeys;
 import com.liferay.fragment.contributor.FragmentCollectionContributorTracker;
+import com.liferay.fragment.renderer.FragmentRendererController;
+import com.liferay.fragment.renderer.FragmentRendererTracker;
+import com.liferay.info.constants.InfoDisplayWebKeys;
+import com.liferay.info.display.contributor.InfoDisplayContributorTracker;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorWebKeys;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
@@ -28,11 +32,13 @@ import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.LayoutTypeController;
 import com.liferay.portal.kernel.model.impl.BaseLayoutTypeControllerImpl;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.permission.LayoutPermissionUtil;
 import com.liferay.portal.kernel.servlet.TransferHeadersHelperUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.taglib.servlet.PipingServletResponse;
 
@@ -66,23 +72,30 @@ public class ContentLayoutTypeController extends BaseLayoutTypeControllerImpl {
 
 	@Override
 	public String includeEditContent(
-		HttpServletRequest request, HttpServletResponse response,
-		Layout layout) {
+		HttpServletRequest httpServletRequest,
+		HttpServletResponse httpServletResponse, Layout layout) {
 
 		return StringPool.BLANK;
 	}
 
 	@Override
 	public boolean includeLayoutContent(
-			HttpServletRequest request, HttpServletResponse response,
-			Layout layout)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse, Layout layout)
 		throws Exception {
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+		if (layout.getClassNameId() == _portal.getClassNameId(Layout.class)) {
+			LayoutPermissionUtil.check(
+				themeDisplay.getPermissionChecker(), layout.getClassPK(),
+				ActionKeys.UPDATE);
+		}
 
 		String layoutMode = ParamUtil.getString(
-			request, "p_l_mode", Constants.VIEW);
+			httpServletRequest, "p_l_mode", Constants.VIEW);
 
 		if (layoutMode.equals(Constants.EDIT) &&
 			!LayoutPermissionUtil.contains(
@@ -93,19 +106,24 @@ public class ContentLayoutTypeController extends BaseLayoutTypeControllerImpl {
 		}
 
 		if (layoutMode.equals(Constants.EDIT)) {
-			request.setAttribute(
-				ContentPageEditorWebKeys.ASSET_DISPLAY_CONTRIBUTOR_TRACKER,
-				_assetDisplayContributorTracker);
-
-			request.setAttribute(
+			httpServletRequest.setAttribute(
+				ContentLayoutTypeControllerWebKeys.ITEM_SELECTOR,
+				_itemSelector);
+			httpServletRequest.setAttribute(
 				ContentPageEditorWebKeys.
 					FRAGMENT_COLLECTION_CONTRIBUTOR_TRACKER,
 				_fragmentCollectionContributorTracker);
-
-			request.setAttribute(
-				ContentLayoutTypeControllerWebKeys.ITEM_SELECTOR,
-				_itemSelector);
+			httpServletRequest.setAttribute(
+				FragmentActionKeys.FRAGMENT_RENDERER_TRACKER,
+				_fragmentRendererTracker);
+			httpServletRequest.setAttribute(
+				InfoDisplayWebKeys.INFO_DISPLAY_CONTRIBUTOR_TRACKER,
+				_infoDisplayContributorTracker);
 		}
+
+		httpServletRequest.setAttribute(
+			FragmentActionKeys.FRAGMENT_RENDERER_CONTROLLER,
+			_fragmentRendererController);
 
 		String page = getViewPage();
 
@@ -120,52 +138,51 @@ public class ContentLayoutTypeController extends BaseLayoutTypeControllerImpl {
 		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
 
 		ServletResponse servletResponse = createServletResponse(
-			response, unsyncStringWriter);
+			httpServletResponse, unsyncStringWriter);
 
 		String contentType = servletResponse.getContentType();
 
-		String includeServletPath = (String)request.getAttribute(
+		String includeServletPath = (String)httpServletRequest.getAttribute(
 			RequestDispatcher.INCLUDE_SERVLET_PATH);
 
 		try {
 			LayoutPageTemplateEntry layoutPageTemplateEntry =
-				_layoutPageTemplateEntryLocalService.
-					fetchLayoutPageTemplateEntryByPlid(layout.getPlid());
+				_fetchLayoutPageTemplateEntry(layout);
 
 			if (layoutPageTemplateEntry != null) {
-				request.setAttribute(
+				httpServletRequest.setAttribute(
 					ContentPageEditorWebKeys.CLASS_NAME,
 					LayoutPageTemplateEntry.class.getName());
 
-				request.setAttribute(
+				httpServletRequest.setAttribute(
 					ContentPageEditorWebKeys.CLASS_PK,
 					layoutPageTemplateEntry.getLayoutPageTemplateEntryId());
 			}
 			else {
-				request.setAttribute(
+				httpServletRequest.setAttribute(
 					ContentPageEditorWebKeys.CLASS_NAME,
 					Layout.class.getName());
 
-				request.setAttribute(
+				httpServletRequest.setAttribute(
 					ContentPageEditorWebKeys.CLASS_PK, layout.getPlid());
 			}
 
-			addAttributes(request);
+			addAttributes(httpServletRequest);
 
-			requestDispatcher.include(request, servletResponse);
+			requestDispatcher.include(httpServletRequest, servletResponse);
 		}
 		finally {
-			removeAttributes(request);
+			removeAttributes(httpServletRequest);
 
-			request.setAttribute(
+			httpServletRequest.setAttribute(
 				RequestDispatcher.INCLUDE_SERVLET_PATH, includeServletPath);
 		}
 
 		if (contentType != null) {
-			response.setContentType(contentType);
+			httpServletResponse.setContentType(contentType);
 		}
 
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			WebKeys.LAYOUT_CONTENT, unsyncStringWriter.getStringBundler());
 
 		return false;
@@ -208,9 +225,11 @@ public class ContentLayoutTypeController extends BaseLayoutTypeControllerImpl {
 
 	@Override
 	protected ServletResponse createServletResponse(
-		HttpServletResponse response, UnsyncStringWriter unsyncStringWriter) {
+		HttpServletResponse httpServletResponse,
+		UnsyncStringWriter unsyncStringWriter) {
 
-		return new PipingServletResponse(response, unsyncStringWriter);
+		return new PipingServletResponse(
+			httpServletResponse, unsyncStringWriter);
 	}
 
 	@Override
@@ -231,6 +250,28 @@ public class ContentLayoutTypeController extends BaseLayoutTypeControllerImpl {
 		this.servletContext = servletContext;
 	}
 
+	private LayoutPageTemplateEntry _fetchLayoutPageTemplateEntry(
+		Layout layout) {
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			_layoutPageTemplateEntryLocalService.
+				fetchLayoutPageTemplateEntryByPlid(layout.getPlid());
+
+		if (layoutPageTemplateEntry != null) {
+			return layoutPageTemplateEntry;
+		}
+
+		if (layout.getClassNameId() == _portal.getClassNameId(Layout.class)) {
+			Layout publishedLayout = _layoutLocalService.fetchLayout(
+				layout.getClassPK());
+
+			return _layoutPageTemplateEntryLocalService.
+				fetchLayoutPageTemplateEntryByPlid(publishedLayout.getPlid());
+		}
+
+		return null;
+	}
+
 	private static final String _EDIT_LAYOUT_PAGE =
 		"/layout/edit_layout/content.jsp";
 
@@ -241,17 +282,29 @@ public class ContentLayoutTypeController extends BaseLayoutTypeControllerImpl {
 	private static final String _VIEW_PAGE = "/layout/view/content.jsp";
 
 	@Reference
-	private AssetDisplayContributorTracker _assetDisplayContributorTracker;
-
-	@Reference
 	private FragmentCollectionContributorTracker
 		_fragmentCollectionContributorTracker;
+
+	@Reference
+	private FragmentRendererController _fragmentRendererController;
+
+	@Reference
+	private FragmentRendererTracker _fragmentRendererTracker;
+
+	@Reference
+	private InfoDisplayContributorTracker _infoDisplayContributorTracker;
 
 	@Reference
 	private ItemSelector _itemSelector;
 
 	@Reference
+	private LayoutLocalService _layoutLocalService;
+
+	@Reference
 	private LayoutPageTemplateEntryLocalService
 		_layoutPageTemplateEntryLocalService;
+
+	@Reference
+	private Portal _portal;
 
 }

@@ -10,12 +10,17 @@
 <tbody>
 <tr>
 	<td>AUTOSAVE_MESSAGE</td>
-	<td>//div[contains(@class,'management-bar')]//span[@class='navbar-text']</td>
+	<td>//div[contains(@class,'management-bar')]//span[contains(@class,'navbar-text')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>EMPTY_MESSAGE</td>
 	<td>//div[contains(@class,'empty-result-message')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FRAGMENT_DROP_TARGET</td>
+	<td>//div[contains(@class,'drop-target')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -35,18 +40,23 @@
 	<td></td>
 </tr>
 <tr>
+	<td>FRAGMENT_SIDEBAR_LOADED</td>
+	<td>//div[@class='fragments-editor-sidebar-sections-buttons']/button</td>
+	<td></td>
+</tr>
+<tr>
 	<td>FRAGMENT_SIDEBAR_COLLECTION_PANEL</td>
-	<td>//div[contains(@class,'fragments-editor-sidebar-section')]//a[contains(@href,'fragment-collection')][normalize-space()='${key_collectionName}']</td>
+	<td>//div[contains(@class,'fragments-editor-sidebar-section')]//a[normalize-space()='${key_collectionName}']</td>
 	<td></td>
 </tr>
 <tr>
 	<td>FRAGMENT_SIDEBAR_COLLECTION_PANEL_COLLAPSED</td>
-	<td>//div[contains(@class,'fragments-editor-sidebar-section')]//a[contains(@href,'fragment-collection')][contains(@class,'collapsed')][normalize-space()='${key_collectionName}']</td>
+	<td>//div[contains(@class,'fragments-editor-sidebar-section')]//a[contains(@class,'collapsed')][normalize-space()='${key_collectionName}']</td>
 	<td></td>
 </tr>
 <tr>
 	<td>FRAGMENT_SIDEBAR_COLLECTION_PANEL_EXPANDED</td>
-	<td>//div[contains(@class,'fragments-editor-sidebar-section')]//a[contains(@href,'fragment-collection')][@aria-expanded='true'][normalize-space()='${key_collectionName}']</td>
+	<td>//div[contains(@class,'fragments-editor-sidebar-section')]//a[@aria-expanded='true'][normalize-space()='${key_collectionName}']</td>
 	<td></td>
 </tr>
 <tr>
@@ -77,7 +87,7 @@
 </tr>
 <tr>
 	<td>CONTENT_PAGE_DISABLED_POPOVER</td>
-	<td>//div[contains(@class,'disabled-area-popover--visible')]//div[@class='popover-body']</td>
+	<td>//div[contains(@class,'clay-popover')][not(contains(@class,'sr-only'))]//div[@class='popover-body']/p</td>
 	<td></td>
 </tr>
 <tr>
@@ -97,6 +107,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>SECTION_PROPERTIES_BUTTON</td>
+	<td>//button[@data-title='${key_button}']</td>
+	<td></td>
+</tr>
+<tr>
 	<td></td>
 	<td></td>
 	<td></td>
@@ -110,6 +125,58 @@
 <tr>
 	<td>EDITABLE_FIELD_TOOLBAR_MAP_BUTTON</td>
 	<td>//button[@data-title='Map']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>EDITABLE_FIELD_TOOLBAR_IMAGE_PROPERTIES_BUTTON</td>
+	<td>//button[@data-panel-id='image_properties']</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!--SECTION_BUILDER-->
+<tr>
+	<td>SECTION_BUILDER_LAYOUTS_1_COLUMN</td>
+	<td>//div[contains(@class,'sidebar-layouts-section')]//div[1]/div[contains(@class,'drag-handler')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SECTION_BUILDER_LAYOUTS_2_COLUMN</td>
+	<td>//div[contains(@class,'sidebar-layouts-section')]//div[2]/div[contains(@class,'drag-handler')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SECTION_BUILDER_LAYOUTS_3_COLUMN</td>
+	<td>//div[contains(@class,'sidebar-layouts-section')]//div[3]/div[contains(@class,'drag-handler')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SECTION_BUILDER_LAYOUTS_4_COLUMN</td>
+	<td>//div[contains(@class,'sidebar-layouts-section')]//div[4]/div[contains(@class,'drag-handler')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!--WIDGETS-->
+<tr>
+	<td>WIDGETS_APPLICATION_SEARCH_FIELD</td>
+	<td>//form[@role='search']//input[contains(@placeholder,'Search')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>WIDGETS_ADD_PORTLET_DRAG_LINK</td>
+	<td>//div[contains(@data-drag-source-label,'${key_portletName}') and contains(@class,'drag-source')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>WIDGETS_OPTIONS_ICON</td>
+	<td>//span[contains(@class,'portlet-name') and contains(.,'${key_portletName}')]/../..//a[span//*[name()='path'][contains(@class,'lexicon-icon-body')]]</td>
 	<td></td>
 </tr>
 </tbody>

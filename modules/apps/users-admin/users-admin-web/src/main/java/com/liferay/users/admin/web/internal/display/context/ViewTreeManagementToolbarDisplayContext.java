@@ -41,6 +41,7 @@ import com.liferay.portal.kernel.service.permission.OrganizationPermissionUtil;
 import com.liferay.portal.kernel.service.permission.PortalPermissionUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -52,6 +53,7 @@ import com.liferay.users.admin.web.internal.search.OrganizationUserChecker;
 import com.liferay.users.admin.web.internal.util.comparator.OrganizationUserNameComparator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -67,57 +69,112 @@ import javax.servlet.http.HttpServletRequest;
 public class ViewTreeManagementToolbarDisplayContext {
 
 	public ViewTreeManagementToolbarDisplayContext(
-		HttpServletRequest request, RenderRequest renderRequest,
+		HttpServletRequest httpServletRequest, RenderRequest renderRequest,
 		RenderResponse renderResponse, Organization organization,
 		String displayStyle) {
 
-		_request = request;
+		_httpServletRequest = httpServletRequest;
 		_renderRequest = renderRequest;
 		_renderResponse = renderResponse;
 		_organization = organization;
 		_displayStyle = displayStyle;
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)_request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)_httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		_permissionChecker = themeDisplay.getPermissionChecker();
 	}
 
 	public List<DropdownItem> getActionDropdownItems() {
-		return new DropdownItemList() {
-			{
-				add(
-					dropdownItem -> {
-						dropdownItem.putData("action", "delete");
-						dropdownItem.setHref(
-							StringBundler.concat(
-								"javascript:", _renderResponse.getNamespace(),
-								"delete();"));
-						dropdownItem.setIcon("times-circle");
-						dropdownItem.setLabel(
-							LanguageUtil.get(_request, "delete"));
-						dropdownItem.setQuickAction(true);
-					});
-			}
-		};
+		return DropdownItemList.of(
+			() -> {
+				DropdownItem dropdownItem = new DropdownItem();
+
+				dropdownItem.putData("action", Constants.DELETE);
+				dropdownItem.setHref(
+					StringBundler.concat(
+						"javascript:", _renderResponse.getNamespace(),
+						"delete();"));
+				dropdownItem.setIcon("times-circle");
+				dropdownItem.setLabel(
+					LanguageUtil.get(_httpServletRequest, Constants.DELETE));
+				dropdownItem.setQuickAction(true);
+
+				return dropdownItem;
+			},
+			() -> {
+				if (Objects.equals(getNavigation(), "active")) {
+					return null;
+				}
+
+				DropdownItem dropdownItem = new DropdownItem();
+
+				dropdownItem.putData("action", Constants.RESTORE);
+				dropdownItem.setHref(
+					StringBundler.concat(
+						"javascript:", _renderResponse.getNamespace(),
+						"deleteUsers('", Constants.RESTORE, "');"));
+				dropdownItem.setIcon("undo");
+				dropdownItem.setLabel(
+					LanguageUtil.get(_httpServletRequest, Constants.RESTORE));
+				dropdownItem.setQuickAction(true);
+
+				return dropdownItem;
+			},
+			() -> {
+				if (Objects.equals(getNavigation(), "inactive")) {
+					return null;
+				}
+
+				DropdownItem dropdownItem = new DropdownItem();
+
+				dropdownItem.putData("action", Constants.DEACTIVATE);
+				dropdownItem.setHref(
+					StringBundler.concat(
+						"javascript:", _renderResponse.getNamespace(),
+						"deleteUsers('", Constants.DEACTIVATE, "');"));
+				dropdownItem.setIcon("hidden");
+				dropdownItem.setLabel(
+					LanguageUtil.get(
+						_httpServletRequest, Constants.DEACTIVATE));
+				dropdownItem.setQuickAction(true);
+
+				return dropdownItem;
+			},
+			() -> {
+				DropdownItem dropdownItem = new DropdownItem();
+
+				dropdownItem.putData("action", Constants.REMOVE);
+				dropdownItem.setHref(
+					StringBundler.concat(
+						"javascript:", _renderResponse.getNamespace(),
+						"removeOrganizationsAndUsers();"));
+				dropdownItem.setIcon("minus-circle");
+				dropdownItem.setLabel(
+					LanguageUtil.get(_httpServletRequest, Constants.REMOVE));
+				dropdownItem.setQuickAction(true);
+
+				return dropdownItem;
+			});
 	}
 
-	public List<String> getAvailableActionDropdownItems(
-		Organization organization) {
-
-		List<String> availableActionDropdownItems = new ArrayList<>();
-
-		availableActionDropdownItems.add("delete");
-
-		return availableActionDropdownItems;
+	public List<String> getAvailableActions(Organization organization) {
+		return Arrays.asList(Constants.DELETE, Constants.REMOVE);
 	}
 
-	public List<String> getAvailableActionDropdownItems(User user) {
+	public List<String> getAvailableActions(User user) {
 		List<String> availableActionDropdownItems = new ArrayList<>();
 
-		if (!user.isActive()) {
-			availableActionDropdownItems.add("delete");
+		if (user.isActive()) {
+			availableActionDropdownItems.add(Constants.DEACTIVATE);
 		}
+		else {
+			availableActionDropdownItems.add(Constants.DELETE);
+			availableActionDropdownItems.add(Constants.RESTORE);
+		}
+
+		availableActionDropdownItems.add(Constants.REMOVE);
 
 		return availableActionDropdownItems;
 	}
@@ -149,7 +206,8 @@ public class ViewTreeManagementToolbarDisplayContext {
 								String.valueOf(
 									_organization.getOrganizationId()));
 							dropdownItem.setLabel(
-								LanguageUtil.get(_request, "new-user"));
+								LanguageUtil.get(
+									_httpServletRequest, "new-user"));
 						});
 				}
 
@@ -176,7 +234,8 @@ public class ViewTreeManagementToolbarDisplayContext {
 								dropdownItem.setHref(addOrganizationTypeURL);
 								dropdownItem.setLabel(
 									LanguageUtil.format(
-										_request, "new-x", organizationType));
+										_httpServletRequest, "new-x",
+										organizationType));
 							});
 					}
 				}
@@ -193,7 +252,8 @@ public class ViewTreeManagementToolbarDisplayContext {
 								String.valueOf(
 									_organization.getOrganizationId()));
 							dropdownItem.setLabel(
-								LanguageUtil.get(_request, "assign-users"));
+								LanguageUtil.get(
+									_httpServletRequest, "assign-users"));
 							dropdownItem.setQuickAction(true);
 						});
 				}
@@ -209,7 +269,8 @@ public class ViewTreeManagementToolbarDisplayContext {
 						dropdownGroupItem.setDropdownItems(
 							_getFilterNavigationDropdownItems());
 						dropdownGroupItem.setLabel(
-							LanguageUtil.get(_request, "filter-by-navigation"));
+							LanguageUtil.get(
+								_httpServletRequest, "filter-by-navigation"));
 					});
 
 				addGroup(
@@ -217,7 +278,7 @@ public class ViewTreeManagementToolbarDisplayContext {
 						dropdownGroupItem.setDropdownItems(
 							_getOrderByDropdownItems());
 						dropdownGroupItem.setLabel(
-							LanguageUtil.get(_request, "order-by"));
+							LanguageUtil.get(_httpServletRequest, "order-by"));
 					});
 			}
 		};
@@ -242,8 +303,10 @@ public class ViewTreeManagementToolbarDisplayContext {
 							labelItem.setCloseable(true);
 
 							String label = String.format(
-								"%s: %s", LanguageUtil.get(_request, "status"),
-								LanguageUtil.get(_request, navigation));
+								"%s: %s",
+								LanguageUtil.get(_httpServletRequest, "status"),
+								LanguageUtil.get(
+									_httpServletRequest, navigation));
 
 							labelItem.setLabel(label);
 						});
@@ -254,7 +317,7 @@ public class ViewTreeManagementToolbarDisplayContext {
 
 	public String getKeywords() {
 		if (_keywords == null) {
-			_keywords = ParamUtil.getString(_request, "keywords");
+			_keywords = ParamUtil.getString(_httpServletRequest, "keywords");
 		}
 
 		return _keywords;
@@ -296,18 +359,19 @@ public class ViewTreeManagementToolbarDisplayContext {
 			String.valueOf(_organization.getOrganizationId()));
 
 		String toolbarItem = GetterUtil.getString(
-			_request.getAttribute("view.jsp-toolbarItem"));
+			_httpServletRequest.getAttribute("view.jsp-toolbarItem"));
 
 		portletURL.setParameter("toolbarItem", toolbarItem);
 
 		String usersListView = GetterUtil.getString(
-			_request.getAttribute("view.jsp-usersListView"));
+			_httpServletRequest.getAttribute("view.jsp-usersListView"));
 
 		portletURL.setParameter("usersListView", usersListView);
 
 		portletURL.setParameter("displayStyle", _displayStyle);
 
-		String[] keywords = ParamUtil.getStringValues(_request, "keywords");
+		String[] keywords = ParamUtil.getStringValues(
+			_httpServletRequest, "keywords");
 
 		if (ArrayUtil.isNotEmpty(keywords)) {
 			portletURL.setParameter("keywords", keywords[keywords.length - 1]);
@@ -362,8 +426,9 @@ public class ViewTreeManagementToolbarDisplayContext {
 		int total = 0;
 		List results = null;
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)_request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)_httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		if (Validator.isNotNull(getKeywords())) {
 			total =
@@ -473,7 +538,7 @@ public class ViewTreeManagementToolbarDisplayContext {
 					dropdownItem.setHref(
 						getPortletURL(), "navigation", navigation);
 					dropdownItem.setLabel(
-						LanguageUtil.get(_request, navigation));
+						LanguageUtil.get(_httpServletRequest, navigation));
 				});
 		}
 
@@ -488,13 +553,14 @@ public class ViewTreeManagementToolbarDisplayContext {
 						dropdownItem.setActive(true);
 						dropdownItem.setHref(StringPool.BLANK);
 						dropdownItem.setLabel(
-							LanguageUtil.get(_request, "name"));
+							LanguageUtil.get(_httpServletRequest, "name"));
 					});
 			}
 		};
 	}
 
 	private final String _displayStyle;
+	private final HttpServletRequest _httpServletRequest;
 	private String _keywords;
 	private String _navigation;
 	private String _orderByCol;
@@ -503,7 +569,6 @@ public class ViewTreeManagementToolbarDisplayContext {
 	private final PermissionChecker _permissionChecker;
 	private final RenderRequest _renderRequest;
 	private final RenderResponse _renderResponse;
-	private final HttpServletRequest _request;
 	private SearchContainer _searchContainer;
 
 }

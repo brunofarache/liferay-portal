@@ -14,23 +14,31 @@
 
 package com.liferay.fragment.service.impl;
 
-import com.liferay.fragment.constants.FragmentEntryTypeConstants;
+import com.liferay.fragment.configuration.FragmentServiceConfiguration;
+import com.liferay.fragment.constants.FragmentConstants;
 import com.liferay.fragment.exception.DuplicateFragmentEntryKeyException;
 import com.liferay.fragment.exception.FragmentEntryContentException;
 import com.liferay.fragment.exception.FragmentEntryNameException;
 import com.liferay.fragment.exception.RequiredFragmentEntryException;
 import com.liferay.fragment.model.FragmentEntry;
+import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.processor.FragmentEntryProcessorRegistry;
+import com.liferay.fragment.service.FragmentEntryLinkLocalService;
 import com.liferay.fragment.service.base.FragmentEntryLocalServiceBaseImpl;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.Property;
+import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.ModelHintsUtil;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
@@ -40,7 +48,6 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TempFileEntryUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.spring.extender.service.ServiceReference;
 
 import java.util.Date;
 import java.util.List;
@@ -50,12 +57,25 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
 /**
  * @author Jürgen Kappler
  */
+@Component(
+	property = "model.class.name=com.liferay.fragment.model.FragmentEntry",
+	service = AopService.class
+)
 public class FragmentEntryLocalServiceImpl
 	extends FragmentEntryLocalServiceBaseImpl {
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #addFragmentEntry(long, long, long, String, String, String,
+	 *             String, int, int, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public FragmentEntry addFragmentEntry(
 			long userId, long groupId, long fragmentCollectionId, String name,
@@ -67,6 +87,12 @@ public class FragmentEntryLocalServiceImpl
 			type, status, serviceContext);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #addFragmentEntry(long, long, long, String, String, String,
+	 *             String, int, int, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public FragmentEntry addFragmentEntry(
 			long userId, long groupId, long fragmentCollectionId, String name,
@@ -75,9 +101,15 @@ public class FragmentEntryLocalServiceImpl
 
 		return addFragmentEntry(
 			userId, groupId, fragmentCollectionId, StringPool.BLANK, name, 0,
-			FragmentEntryTypeConstants.TYPE_SECTION, status, serviceContext);
+			FragmentConstants.TYPE_SECTION, status, serviceContext);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #addFragmentEntry(long, long, long, String, String, String,
+	 *             String, int, int, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public FragmentEntry addFragmentEntry(
 			long userId, long groupId, long fragmentCollectionId, String name,
@@ -90,6 +122,12 @@ public class FragmentEntryLocalServiceImpl
 			previewFileEntryId, type, status, serviceContext);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #addFragmentEntry(long, long, long, String, String, String,
+	 *             String, int, int, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public FragmentEntry addFragmentEntry(
 			long userId, long groupId, long fragmentCollectionId, String name,
@@ -98,10 +136,16 @@ public class FragmentEntryLocalServiceImpl
 
 		return addFragmentEntry(
 			userId, groupId, fragmentCollectionId, StringPool.BLANK, name,
-			previewFileEntryId, FragmentEntryTypeConstants.TYPE_SECTION, status,
+			previewFileEntryId, FragmentConstants.TYPE_SECTION, status,
 			serviceContext);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #addFragmentEntry(long, long, long, String, String, String,
+	 *             String, int, int, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public FragmentEntry addFragmentEntry(
 			long userId, long groupId, long fragmentCollectionId,
@@ -114,6 +158,12 @@ public class FragmentEntryLocalServiceImpl
 			type, status, serviceContext);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #addFragmentEntry(long, long, long, String, String, String,
+	 *             String, int, int, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public FragmentEntry addFragmentEntry(
 			long userId, long groupId, long fragmentCollectionId,
@@ -123,7 +173,7 @@ public class FragmentEntryLocalServiceImpl
 
 		return addFragmentEntry(
 			userId, groupId, fragmentCollectionId, fragmentEntryKey, name, 0,
-			FragmentEntryTypeConstants.TYPE_SECTION, status, serviceContext);
+			FragmentConstants.TYPE_SECTION, status, serviceContext);
 	}
 
 	@Override
@@ -140,7 +190,7 @@ public class FragmentEntryLocalServiceImpl
 		validate(name);
 
 		if (Validator.isNull(fragmentEntryKey)) {
-			fragmentEntryKey = _generateFragmentEntryKey(groupId, name);
+			fragmentEntryKey = generateFragmentEntryKey(groupId, name);
 		}
 
 		fragmentEntryKey = _getFragmentEntryKey(fragmentEntryKey);
@@ -179,6 +229,12 @@ public class FragmentEntryLocalServiceImpl
 		return fragmentEntry;
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #addFragmentEntry(long, long, long, String, String, String,
+	 *             String, int, int, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public FragmentEntry addFragmentEntry(
 			long userId, long groupId, long fragmentCollectionId,
@@ -188,7 +244,7 @@ public class FragmentEntryLocalServiceImpl
 
 		return addFragmentEntry(
 			userId, groupId, fragmentCollectionId, fragmentEntryKey, name,
-			previewFileEntryId, FragmentEntryTypeConstants.TYPE_SECTION, status,
+			previewFileEntryId, FragmentConstants.TYPE_SECTION, status,
 			serviceContext);
 	}
 
@@ -213,8 +269,7 @@ public class FragmentEntryLocalServiceImpl
 
 		return addFragmentEntry(
 			userId, groupId, fragmentCollectionId, StringPool.BLANK, name, css,
-			html, js, FragmentEntryTypeConstants.TYPE_SECTION, status,
-			serviceContext);
+			html, js, FragmentConstants.TYPE_SECTION, status, serviceContext);
 	}
 
 	@Override
@@ -238,8 +293,8 @@ public class FragmentEntryLocalServiceImpl
 
 		return addFragmentEntry(
 			userId, groupId, fragmentCollectionId, StringPool.BLANK, name, css,
-			html, js, previewFileEntryId,
-			FragmentEntryTypeConstants.TYPE_SECTION, status, serviceContext);
+			html, js, previewFileEntryId, FragmentConstants.TYPE_SECTION,
+			status, serviceContext);
 	}
 
 	@Override
@@ -263,7 +318,7 @@ public class FragmentEntryLocalServiceImpl
 
 		return addFragmentEntry(
 			userId, groupId, fragmentCollectionId, fragmentEntryKey, name, css,
-			html, js, 0, FragmentEntryTypeConstants.TYPE_SECTION, status,
+			html, js, 0, FragmentConstants.TYPE_SECTION, status,
 			serviceContext);
 	}
 
@@ -275,12 +330,39 @@ public class FragmentEntryLocalServiceImpl
 			ServiceContext serviceContext)
 		throws PortalException {
 
+		return addFragmentEntry(
+			userId, groupId, fragmentCollectionId, fragmentEntryKey, name, css,
+			html, js, null, previewFileEntryId, type, status, serviceContext);
+	}
+
+	@Override
+	public FragmentEntry addFragmentEntry(
+			long userId, long groupId, long fragmentCollectionId,
+			String fragmentEntryKey, String name, String css, String html,
+			String js, long previewFileEntryId, int status,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		return addFragmentEntry(
+			userId, groupId, fragmentCollectionId, fragmentEntryKey, name, css,
+			html, js, previewFileEntryId, FragmentConstants.TYPE_SECTION,
+			status, serviceContext);
+	}
+
+	@Override
+	public FragmentEntry addFragmentEntry(
+			long userId, long groupId, long fragmentCollectionId,
+			String fragmentEntryKey, String name, String css, String html,
+			String js, String configuration, long previewFileEntryId, int type,
+			int status, ServiceContext serviceContext)
+		throws PortalException {
+
 		// Fragment entry
 
 		User user = userLocalService.getUser(userId);
 
 		if (Validator.isNull(fragmentEntryKey)) {
-			fragmentEntryKey = _generateFragmentEntryKey(groupId, name);
+			fragmentEntryKey = generateFragmentEntryKey(groupId, name);
 		}
 
 		validate(name);
@@ -311,6 +393,7 @@ public class FragmentEntryLocalServiceImpl
 		fragmentEntry.setCss(css);
 		fragmentEntry.setHtml(html);
 		fragmentEntry.setJs(js);
+		fragmentEntry.setConfiguration(configuration);
 		fragmentEntry.setPreviewFileEntryId(previewFileEntryId);
 		fragmentEntry.setType(type);
 		fragmentEntry.setStatus(status);
@@ -325,20 +408,6 @@ public class FragmentEntryLocalServiceImpl
 		resourceLocalService.addModelResources(fragmentEntry, serviceContext);
 
 		return fragmentEntry;
-	}
-
-	@Override
-	public FragmentEntry addFragmentEntry(
-			long userId, long groupId, long fragmentCollectionId,
-			String fragmentEntryKey, String name, String css, String html,
-			String js, long previewFileEntryId, int status,
-			ServiceContext serviceContext)
-		throws PortalException {
-
-		return addFragmentEntry(
-			userId, groupId, fragmentCollectionId, fragmentEntryKey, name, css,
-			html, js, previewFileEntryId,
-			FragmentEntryTypeConstants.TYPE_SECTION, status, serviceContext);
 	}
 
 	@Override
@@ -417,6 +486,29 @@ public class FragmentEntryLocalServiceImpl
 
 		return fragmentEntryPersistence.fetchByG_FEK(
 			groupId, _getFragmentEntryKey(fragmentEntryKey));
+	}
+
+	@Override
+	public String generateFragmentEntryKey(long groupId, String name) {
+		String fragmentEntryKey = _getFragmentEntryKey(name);
+
+		fragmentEntryKey = StringUtil.replace(
+			fragmentEntryKey, CharPool.SPACE, CharPool.DASH);
+
+		String curFragmentEntryKey = fragmentEntryKey;
+
+		int count = 0;
+
+		while (true) {
+			FragmentEntry fragmentEntry = fragmentEntryPersistence.fetchByG_FEK(
+				groupId, curFragmentEntryKey);
+
+			if (fragmentEntry == null) {
+				return curFragmentEntryKey;
+			}
+
+			curFragmentEntryKey = fragmentEntryKey + CharPool.DASH + count++;
+		}
 	}
 
 	@Override
@@ -518,6 +610,7 @@ public class FragmentEntryLocalServiceImpl
 
 		return updateFragmentEntry(
 			userId, fragmentEntryId, name, css, html, js,
+			fragmentEntry.getConfiguration(),
 			fragmentEntry.getPreviewFileEntryId(), status);
 	}
 
@@ -525,6 +618,21 @@ public class FragmentEntryLocalServiceImpl
 	public FragmentEntry updateFragmentEntry(
 			long userId, long fragmentEntryId, String name, String css,
 			String html, String js, long previewFileEntryId, int status)
+		throws PortalException {
+
+		FragmentEntry fragmentEntry = fragmentEntryPersistence.findByPrimaryKey(
+			fragmentEntryId);
+
+		return updateFragmentEntry(
+			userId, fragmentEntryId, name, css, html, js,
+			fragmentEntry.getConfiguration(), previewFileEntryId, status);
+	}
+
+	@Override
+	public FragmentEntry updateFragmentEntry(
+			long userId, long fragmentEntryId, String name, String css,
+			String html, String js, String configuration,
+			long previewFileEntryId, int status)
 		throws PortalException {
 
 		FragmentEntry fragmentEntry = fragmentEntryPersistence.findByPrimaryKey(
@@ -545,6 +653,7 @@ public class FragmentEntryLocalServiceImpl
 		fragmentEntry.setCss(css);
 		fragmentEntry.setHtml(html);
 		fragmentEntry.setJs(js);
+		fragmentEntry.setConfiguration(configuration);
 		fragmentEntry.setPreviewFileEntryId(previewFileEntryId);
 		fragmentEntry.setStatus(status);
 		fragmentEntry.setStatusByUserId(userId);
@@ -552,6 +661,15 @@ public class FragmentEntryLocalServiceImpl
 		fragmentEntry.setStatusDate(new Date());
 
 		fragmentEntryPersistence.update(fragmentEntry);
+
+		FragmentServiceConfiguration fragmentServiceConfiguration =
+			_configurationProvider.getCompanyConfiguration(
+				FragmentServiceConfiguration.class,
+				fragmentEntry.getCompanyId());
+
+		if (fragmentServiceConfiguration.propagateChanges()) {
+			_propagateChanges(fragmentEntryId);
+		}
 
 		return fragmentEntry;
 	}
@@ -606,28 +724,6 @@ public class FragmentEntryLocalServiceImpl
 		}
 	}
 
-	private String _generateFragmentEntryKey(long groupId, String name) {
-		String fragmentEntryKey = _getFragmentEntryKey(name);
-
-		fragmentEntryKey = StringUtil.replace(
-			fragmentEntryKey, CharPool.SPACE, CharPool.DASH);
-
-		String curFragmentEntryKey = fragmentEntryKey;
-
-		int count = 0;
-
-		while (true) {
-			FragmentEntry fragmentEntry = fragmentEntryPersistence.fetchByG_FEK(
-				groupId, curFragmentEntryKey);
-
-			if (fragmentEntry == null) {
-				return curFragmentEntryKey;
-			}
-
-			curFragmentEntryKey = fragmentEntryKey + CharPool.DASH + count++;
-		}
-	}
-
 	private String _getFragmentEntryKey(String fragmentEntryKey) {
 		if (fragmentEntryKey != null) {
 			fragmentEntryKey = fragmentEntryKey.trim();
@@ -660,7 +756,34 @@ public class FragmentEntryLocalServiceImpl
 		return bodyHtml;
 	}
 
-	@ServiceReference(type = FragmentEntryProcessorRegistry.class)
+	private void _propagateChanges(long fragmentEntryId)
+		throws PortalException {
+
+		ActionableDynamicQuery actionableDynamicQuery =
+			_fragmentEntryLinkLocalService.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setAddCriteriaMethod(
+			dynamicQuery -> {
+				Property fragmentEntryIdProperty = PropertyFactoryUtil.forName(
+					"fragmentEntryId");
+
+				dynamicQuery.add(fragmentEntryIdProperty.eq(fragmentEntryId));
+			});
+		actionableDynamicQuery.setPerformActionMethod(
+			(FragmentEntryLink fragmentEntryLink) ->
+				_fragmentEntryLinkLocalService.updateLatestChanges(
+					fragmentEntryLink.getFragmentEntryLinkId()));
+
+		actionableDynamicQuery.performActions();
+	}
+
+	@Reference
+	private ConfigurationProvider _configurationProvider;
+
+	@Reference
+	private FragmentEntryLinkLocalService _fragmentEntryLinkLocalService;
+
+	@Reference
 	private FragmentEntryProcessorRegistry _fragmentEntryProcessorRegistry;
 
 }

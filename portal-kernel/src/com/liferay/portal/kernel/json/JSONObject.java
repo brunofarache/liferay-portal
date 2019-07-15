@@ -14,13 +14,14 @@
 
 package com.liferay.portal.kernel.json;
 
-import aQute.bnd.annotation.ProviderType;
-
 import java.io.Externalizable;
 import java.io.Writer;
 
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Set;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Brian Wing Shun Chan
@@ -59,6 +60,8 @@ public interface JSONObject extends Externalizable, JSONSerializable {
 	public boolean isNull(String key);
 
 	public Iterator<String> keys();
+
+	public Set<String> keySet();
 
 	public int length();
 

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.kernel.internal.service.persistence;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.cache.PortalCache;
 import com.liferay.portal.kernel.cache.PortalCacheListener;
 import com.liferay.portal.kernel.cache.PortalCacheListenerScope;
@@ -25,7 +26,6 @@ import com.liferay.portal.kernel.dao.jdbc.RowMapper;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;
-import com.liferay.portal.kernel.util.StringBundler;
 
 import java.util.Collections;
 import java.util.List;
@@ -107,16 +107,6 @@ public class CachelessTableMapperImpl
 			return Collections.emptyList();
 		}
 
-		/**
-		 * @deprecated As of Judson (7.1.x), replaced by {@link
-		 *             #getPortalCacheName()}
-		 */
-		@Deprecated
-		@Override
-		public String getName() {
-			return getPortalCacheName();
-		}
-
 		@Override
 		public PortalCacheManager<Long, long[]> getPortalCacheManager() {
 			return portalCacheManager;
@@ -125,6 +115,14 @@ public class CachelessTableMapperImpl
 		@Override
 		public String getPortalCacheName() {
 			return portalCacheName;
+		}
+
+		public boolean isBlocking() {
+			return false;
+		}
+
+		public boolean isMVCC() {
+			return false;
 		}
 
 		@Override

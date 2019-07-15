@@ -34,6 +34,7 @@ String displayStyle = oAuth2ApplicationsManagementToolbarDisplayContext.getDispl
 	creationMenu="<%= oAuth2ApplicationsManagementToolbarDisplayContext.getCreationMenu() %>"
 	disabled="<%= oAuth2ApplicationsCount == 0 %>"
 	filterDropdownItems="<%= oAuth2ApplicationsManagementToolbarDisplayContext.getFilterDropdownItems() %>"
+	itemsTotal="<%= oAuth2ApplicationsCount %>"
 	namespace="<%= renderResponse.getNamespace() %>"
 	searchContainerId="oAuth2ApplicationsSearchContainer"
 	selectable="<%= true %>"
@@ -132,11 +133,6 @@ String displayStyle = oAuth2ApplicationsManagementToolbarDisplayContext.getDispl
 						<liferay-ui:search-container-column-text
 							name="authorizations"
 							value="<%= String.valueOf(oAuth2AdminPortletDisplayContext.getOAuth2AuthorizationsCount(oAuth2Application)) %>"
-						/>
-
-						<liferay-ui:search-container-column-text
-							name="scopes"
-							value="<%= String.valueOf(oAuth2AdminPortletDisplayContext.getScopeAliasesSize(oAuth2Application)) %>"
 						/>
 
 						<liferay-ui:search-container-column-jsp

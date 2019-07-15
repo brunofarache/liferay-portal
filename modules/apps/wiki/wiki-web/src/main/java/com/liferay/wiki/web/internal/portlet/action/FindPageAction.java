@@ -14,7 +14,6 @@
 
 package com.liferay.wiki.web.internal.portlet.action;
 
-import com.liferay.portal.kernel.portlet.BasePortletLayoutFinder;
 import com.liferay.portal.kernel.portlet.PortletLayoutFinder;
 import com.liferay.portal.kernel.struts.StrutsAction;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -40,7 +39,8 @@ public class FindPageAction extends FindStrutsAction {
 
 	@Override
 	protected void addRequiredParameters(
-		HttpServletRequest request, String portletId, PortletURL portletURL) {
+		HttpServletRequest httpServletRequest, String portletId,
+		PortletURL portletURL) {
 
 		portletURL.setParameter("struts_action", _getStrutsAction(portletId));
 	}
@@ -57,17 +57,7 @@ public class FindPageAction extends FindStrutsAction {
 
 	@Override
 	protected PortletLayoutFinder getPortletLayoutFinder() {
-		return new BasePortletLayoutFinder() {
-
-			@Override
-			protected String[] getPortletIds() {
-				return new String[] {
-					WikiPortletKeys.WIKI_ADMIN, WikiPortletKeys.WIKI,
-					WikiPortletKeys.WIKI_DISPLAY
-				};
-			}
-
-		};
+		return _portletLayoutFinder;
 	}
 
 	@Override
@@ -77,11 +67,11 @@ public class FindPageAction extends FindStrutsAction {
 
 	@Override
 	protected PortletURL processPortletURL(
-			HttpServletRequest request, PortletURL portletURL)
+			HttpServletRequest httpServletRequest, PortletURL portletURL)
 		throws Exception {
 
 		long pageResourcePrimKey = ParamUtil.getLong(
-			request, getPrimaryKeyParameterName());
+			httpServletRequest, getPrimaryKeyParameterName());
 
 		WikiPageResource pageResource =
 			_wikiPageResourceLocalService.getPageResource(pageResourcePrimKey);
@@ -118,6 +108,9 @@ public class FindPageAction extends FindStrutsAction {
 
 		return "/wiki_display/view";
 	}
+
+	@Reference(target = "(model.class.name=com.liferay.wiki.model.WikiPage)")
+	private PortletLayoutFinder _portletLayoutFinder;
 
 	private WikiNodeLocalService _wikiNodeLocalService;
 	private WikiPageResourceLocalService _wikiPageResourceLocalService;

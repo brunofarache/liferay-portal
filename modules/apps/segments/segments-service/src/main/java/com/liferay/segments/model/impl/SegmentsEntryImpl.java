@@ -14,14 +14,11 @@
 
 package com.liferay.segments.model.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.segments.constants.SegmentsConstants;
 import com.liferay.segments.criteria.Criteria;
 import com.liferay.segments.criteria.CriteriaSerializer;
 
-import java.util.Objects;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Eduardo García
@@ -39,11 +36,6 @@ public class SegmentsEntryImpl extends SegmentsEntryBaseImpl {
 		}
 
 		return _criteria;
-	}
-
-	@Override
-	public boolean isDefaultSegment() {
-		return Objects.equals(SegmentsConstants.KEY_DEFAULT, getKey());
 	}
 
 	private Criteria _criteria;

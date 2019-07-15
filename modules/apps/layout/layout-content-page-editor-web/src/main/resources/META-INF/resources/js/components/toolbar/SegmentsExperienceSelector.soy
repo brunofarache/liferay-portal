@@ -12,6 +12,7 @@
 		segmentsEntryName: string,
 		segmentsEntryId: string
 	]>}
+	{@param? hasEditSegmentsEntryPermission: bool }
 	{@param? defaultSegmentsExperienceId: string }
 	{@param? _closeEditModal: any }
 	{@param? _closeCreateModal: any }
@@ -23,6 +24,7 @@
 	{@param? _handleMoveExperienceUpButtonClick: any }
 	{@param? _handleEditButtonClick: any }
 	{@param? _handleSegmentsExperienceClick: any}
+	{@param? _handleNewSegmentButtonClick: any}
 	{@param? _handleDropdownBlur: any}
 	{@param? _handleDropdownFocus: any}
 	{@param? _handleDropdownButtonClick: any}
@@ -40,7 +42,10 @@
 	{@param? openDropdown: bool}
 	{@param? portletNamespace: string}
 	{@param? modalStates: [
-		creation: bool,
+		creation: [
+			name: string | null,
+			segmentsEntryId: string | null
+		],
 		edition: [
 			name: string | null,
 			segmentsEntryId: string | null
@@ -48,7 +53,17 @@
 	]}
 	{@param spritemap: string}
 
-	{if $availableSegmentsExperiences and length($availableSegmentsExperiences) > 0}
+	{let $canCreateExperiences: (
+			($hasEditSegmentsEntryPermission == true or
+			($availableSegmentsEntries and length($availableSegmentsEntries) > 0))
+		)
+	/}
+
+	{if
+		$availableSegmentsExperiences and
+		length($availableSegmentsExperiences) > 0 and
+		$canCreateExperiences
+	}
 		<div
 			class="segments-experience-selector position-relative"
 			tabindex="0"
@@ -58,7 +73,7 @@
 			</label>
 
 			<button
-				class="btn btn-sm btn-outline-light mr-2 text-left truncate-text"
+				class="btn btn-sm btn-secondary form-control-select mr-2 text-left truncate-text"
 				data-onclick="{$_handleDropdownButtonClick}"
 				data-onblur="{$_handleDropdownBlur}"
 				type="button"
@@ -73,13 +88,25 @@
 				data-onblur="{$_handleDropdownBlur}"
 				tabindex="-1"
 			>
-				<div class="align-items-start d-flex justify-content-between">
-					<h5>{msg desc=""}select-experience{/msg}</h5>
+				<div class="align-items-end d-flex justify-content-between mb-4">
+					<h3 class="mb-0">{msg desc=""}select-experience{/msg}</h3>
 
-					{if $availableSegmentsEntries and length($availableSegmentsEntries) > 0}
-						<button class="btn btn-secondary btn-sm text-dark" data-onclick="{$_openCreateModal}" ref="newExperienceBtn" type="button" >
+					{if $canCreateExperiences == true}
+						{let $newExperience kind="text"}
 							{msg desc=""}new-experience{/msg}
-						</button>
+						{/let}
+
+						{call ClayButton.render}
+							{param ariaLabel: $newExperience /}
+							{param label: $newExperience /}
+							{param events: [
+								'click': $_openCreateModal,
+							] /}
+							{param ref: 'newExperienceBtn' /}
+							{param size: 'sm' /}
+							{param spritemap: $spritemap /}
+							{param style: 'secondary' /}
+						{/call}
 					{/if}
 				</div>
 
@@ -87,6 +114,7 @@
 					{let $errorMessage kind="text"}
 						{msg desc=""}an-unexpected-error-occurred-while-deleting-the-experience{/msg}
 					{/let}
+
 					{call ClayAlert.render}
 						{param elementClasses: 'p-3 pr-5' /}
 						{param closeable: true /}
@@ -100,141 +128,171 @@
 					{/call}
 				{/if}
 
-				<ul class="list-unstyled mt-3">
-					{let $notDefaultExperienceLength: (length($availableSegmentsExperiences) - 2) /}
+				{let $experiencesHelpMessage kind="text"}
+					{if $availableSegmentsEntries and length($availableSegmentsEntries) < 1 or length($availableSegmentsExperiences) < 2}
+						{msg desc=""}experience-help-message-empty-state{/msg}
+					{else}
+						{msg desc=""}experience-help-message-started-state{/msg}
+					{/if}
+				{/let}
 
-					{foreach $experience in $availableSegmentsExperiences}
-						{let $experienceClasses kind="text"}
-							d-flex
-							{sp}dropdown-menu__experience
+				<p class="mb-4 text-secondary">
+					{$experiencesHelpMessage}
+				</p>
 
-							{if $experience.segmentsExperienceId == $segmentsExperienceId }
-								{sp}dropdown-menu__experience--active
-							{/if}
-						{/let}
+				{let $experiencesWarning kind="text"}
+					{msg desc=""}changes-to-experiences-are-applied-immediately{/msg}
+				{/let}
 
-						<li class="{$experienceClasses}" key="{$experience.segmentsExperienceId}">
-							<span class="p-2 w-100">
-								<button
-									class="title p-1 w-100 btn btn-unstyled d-flex justify-content-between align-items-baseline text-dark"
-									data-onclick="{$_handleSegmentsExperienceClick}"
-									data-segments-experience-id="{$experience.segmentsExperienceId}"
-									ref="selectExperienceButton{$experience.segmentsExperienceId}"
-									tabindex="0"
-									type="button"
-								>
-									<span class="d-flex flex-column flex-grow-1 truncate-text">
-										<strong>{$experience.name}</strong>
+				{let $warning kind="text"}
+					{msg desc=""}warning{/msg}:
+				{/let}
 
-										<span class="audience d-block truncate-text">
-											<span class="text-secondary">
-												{msg desc=""}audience{/msg}
-												{sp}-{sp}
+				{call ClayAlert.render}
+					{param elementClasses: 'mx-0  mt-4' /}
+					{param closeable: false /}
+					{param message: $experiencesWarning /}
+					{param spritemap: $spritemap /}
+					{param style: 'warning' /}
+					{param title: $warning /}
+				{/call}
+
+				{let $notDefaultExperienceLength: (length($availableSegmentsExperiences) - 2) /}
+				{if length($availableSegmentsExperiences) > 1}
+					<ul class="list-unstyled mt-4">
+						{foreach $experience in $availableSegmentsExperiences}
+							{let $experienceClasses kind="text"}
+								d-flex
+								{sp}dropdown-menu__experience
+
+								{if $experience.segmentsExperienceId == $segmentsExperienceId }
+									{sp}dropdown-menu__experience--active
+								{/if}
+							{/let}
+
+							<li class="{$experienceClasses}" key="{$experience.segmentsExperienceId}">
+								<span class="overflow-hidden p-2 w-100">
+									<button
+										class="title p-1 w-100 btn btn-unstyled d-flex justify-content-between align-items-baseline text-dark"
+										data-onclick="{$_handleSegmentsExperienceClick}"
+										data-segments-experience-id="{$experience.segmentsExperienceId}"
+										ref="selectExperienceButton{$experience.segmentsExperienceId}"
+										tabindex="0"
+										type="button"
+									>
+										<span class="d-flex flex-column flex-grow-1 truncate-text">
+											<strong class="truncate-text">{$experience.name}</strong>
+
+											<span class="audience d-block truncate-text">
+												<span class="text-secondary">
+													{msg desc=""}audience{/msg}
+													{sp}-{sp}
+												</span>
+
+												{$experience.segmentsEntryName}
 											</span>
-
-											{$experience.segmentsEntryName}
 										</span>
-									</span>
-								</button>
-							</span>
+									</button>
+								</span>
 
-							{if $defaultSegmentsExperienceId != $experience.segmentsExperienceId }
-								<div class="align-items-center d-flex dropdown-menu__experience--btn-group">
-									{let $disbledMoveUp: (isFirst($experience)) /}
-									{let $disbledMoveDown: ($notDefaultExperienceLength == index($experience)) /}
-									{let $priorityUpButtonRef: 'buttonPriorityUp' + $experience.segmentsExperienceId /}
-									{let $priorityDownButtonRef: 'buttonPriorityDown' + $experience.segmentsExperienceId /}
+								{if $defaultSegmentsExperienceId != $experience.segmentsExperienceId }
+									<div class="align-items-center d-flex dropdown-menu__experience--btn-group">
+										{let $disbledMoveUp: (isFirst($experience)) /}
+										{let $disbledMoveDown: ($notDefaultExperienceLength == index($experience)) /}
+										{let $priorityUpButtonRef: 'buttonPriorityUp' + $experience.segmentsExperienceId /}
+										{let $priorityDownButtonRef: 'buttonPriorityDown' + $experience.segmentsExperienceId /}
 
-									{let $prioritizeLabel kind="text"}
-										{msg desc=""}prioritize-experience{/msg}
-									{/let}
+										{let $prioritizeLabel kind="text"}
+											{msg desc=""}prioritize-experience{/msg}
+										{/let}
 
-									{call ClayButton.render}
-										{param ariaLabel: $prioritizeLabel /}
-										{param disabled: $disbledMoveUp /}
-										{param data: [
-											'priority': $experience.priority,
-											'segmentsExperienceId': $experience.segmentsExperienceId
-										]/}
-										{param elementClasses: 'btn-borderless ml-2 mr-0 text-dark' /}
-										{param events: [
-											'click': $_handleMoveExperienceUpButtonClick,
-										] /}
-										{param icon: 'angle-up' /}
-										{param monospaced: true /}
-										{param ref: $priorityUpButtonRef /}
-										{param size: 'sm' /}
-										{param spritemap: $spritemap /}
-										{param style: 'unstyled' /}
-									{/call}
+										{call ClayButton.render}
+											{param ariaLabel: $prioritizeLabel /}
+											{param disabled: $disbledMoveUp /}
+											{param data: [
+												'priority': $experience.priority,
+												'segmentsExperienceId': $experience.segmentsExperienceId
+											]/}
+											{param elementClasses: 'btn-borderless ml-2 mr-0 text-dark' /}
+											{param events: [
+												'click': $_handleMoveExperienceUpButtonClick,
+											] /}
+											{param icon: 'angle-up' /}
+											{param monospaced: true /}
+											{param ref: $priorityUpButtonRef /}
+											{param size: 'sm' /}
+											{param spritemap: $spritemap /}
+											{param style: 'unstyled' /}
+										{/call}
 
-									{let $deprioritizeLabel kind="text"}
-										{msg desc=""}deprioritize-experience{/msg}
-									{/let}
+										{let $deprioritizeLabel kind="text"}
+											{msg desc=""}deprioritize-experience{/msg}
+										{/let}
 
-									{call ClayButton.render}
-										{param ariaLabel: $deprioritizeLabel /}
-										{param disabled: $disbledMoveDown /}
-										{param data: [
-											'priority': $experience.priority,
-											'segmentsExperienceId': $experience.segmentsExperienceId
-										]/}
-										{param elementClasses: 'btn-borderless ml-0 mr-2 text-dark' /}
-										{param events: [
-											'click': $_handleMoveExperienceDownButtonClick
-										] /}
-										{param icon: 'angle-down' /}
-										{param monospaced: true /}
-										{param ref: $priorityDownButtonRef /}
-										{param size: 'sm' /}
-										{param spritemap: $spritemap /}
-										{param style: 'unstyled' /}
-									{/call}
+										{call ClayButton.render}
+											{param ariaLabel: $deprioritizeLabel /}
+											{param disabled: $disbledMoveDown /}
+											{param data: [
+												'priority': $experience.priority,
+												'segmentsExperienceId': $experience.segmentsExperienceId
+											]/}
+											{param elementClasses: 'btn-borderless ml-0 mr-2 text-dark' /}
+											{param events: [
+												'click': $_handleMoveExperienceDownButtonClick
+											] /}
+											{param icon: 'angle-down' /}
+											{param monospaced: true /}
+											{param ref: $priorityDownButtonRef /}
+											{param size: 'sm' /}
+											{param spritemap: $spritemap /}
+											{param style: 'unstyled' /}
+										{/call}
 
-									{let $editLabel kind="text"}
-										{msg desc=""}edit-experience{/msg}
-									{/let}
+										{let $editLabel kind="text"}
+											{msg desc=""}edit-experience{/msg}
+										{/let}
 
-									{call ClayButton.render}
-										{param ariaLabel: $editLabel /}
-										{param data: [
-											'segmentsExperienceId': $experience.segmentsExperienceId,
-											'name': $experience.name,
-											'segmentsEntryId': $experience.segmentsEntryId
-										]/}
-										{param elementClasses: 'btn-borderless mx-2 text-dark' /}
-										{param events: [
-											'click': $_handleEditButtonClick,
-										] /}
-										{param icon: 'pencil' /}
-										{param monospaced: true /}
-										{param spritemap: $spritemap /}
-										{param style: 'unstyled' /}
-									{/call}
+										{call ClayButton.render}
+											{param ariaLabel: $editLabel /}
+											{param data: [
+												'segmentsExperienceId': $experience.segmentsExperienceId,
+												'name': $experience.name,
+												'segmentsEntryId': $experience.segmentsEntryId
+											]/}
+											{param elementClasses: 'btn-borderless mx-2 text-dark' /}
+											{param events: [
+												'click': $_handleEditButtonClick,
+											] /}
+											{param icon: 'pencil' /}
+											{param monospaced: true /}
+											{param spritemap: $spritemap /}
+											{param style: 'unstyled' /}
+										{/call}
 
-									{let $deleteLabel kind="text"}
-										{msg desc=""}delete-experience{/msg}
-									{/let}
+										{let $deleteLabel kind="text"}
+											{msg desc=""}delete-experience{/msg}
+										{/let}
 
-									{call ClayButton.render}
-										{param ariaLabel: $deleteLabel /}
-										{param data: [
-											'segmentsExperienceId': $experience.segmentsExperienceId
-										]/}
-										{param elementClasses: 'btn-borderless mx-2 text-dark' /}
-										{param events: [
-											'click': $_handleDeleteButtonClick,
-										] /}
-										{param icon: 'times-circle' /}
-										{param monospaced: true /}
-										{param spritemap: $spritemap /}
-										{param style: 'unstyled' /}
-									{/call}
-								</div>
-							{/if}
-						</li>
-					{/foreach}
-				</ul>
+										{call ClayButton.render}
+											{param ariaLabel: $deleteLabel /}
+											{param data: [
+												'segmentsExperienceId': $experience.segmentsExperienceId
+											]/}
+											{param elementClasses: 'btn-borderless mx-2 text-dark' /}
+											{param events: [
+												'click': $_handleDeleteButtonClick,
+											] /}
+											{param icon: 'times-circle' /}
+											{param monospaced: true /}
+											{param spritemap: $spritemap /}
+											{param style: 'unstyled' /}
+										{/call}
+									</div>
+								{/if}
+							</li>
+						{/foreach}
+					</ul>
+				{/if}
 			</div>
 		</div>
 
@@ -259,17 +317,17 @@
 		{/let}
 
 		{let $creationModalCondition: ($modalStates and $modalStates.creation) ? true : false /}
-		{let $errorCreationCondition: ($_segmentsExperienceErrors and $_segmentsExperienceErrors.edition) ? true : false /}
+		{let $errorCreationCondition: ($_segmentsExperienceErrors and $_segmentsExperienceErrors.creation) ? true : false /}
 
 		{call com.liferay.layout.content.page.editor.web.SegmentsExperienceSeletorModal.render }
-			{param visibile:  $creationModalCondition /}
+			{param visible:  $creationModalCondition /}
 			{param error: [
-				'visibile': $errorCreationCondition,
+				'visible': $errorCreationCondition,
 				'message': $errorCreatingMessage,
 				'onDismiss': $_dismissCreationError
 			] /}
 			{param title: $creationModalTitle /}
-			{param porletPrefix: $portletNamespace /}
+			{param portletPrefix: $portletNamespace /}
 			{param experienceForm: [
 				'onExperienceSubmit': $_createSegmentsExperience,
 				'formId': 'CreateForm',
@@ -277,19 +335,22 @@
 					'inputId': 'CreateExperience',
 					'placeholder': $experienceNamePlaceHolder,
 					'label': $experienceNameLabel,
-					'value': null
+					'value': ($modalStates and $modalStates.creation) ? $modalStates.creation.name : null
 				],
 				'segmentSelector': [
 					'inputId': 'SegmentSelector',
 					'segments':  $availableSegmentsEntries,
 					'label': $segmentLabel,
-					'value': null
+					'value': ($modalStates and $modalStates.creation) ? $modalStates.creation.segmentsEntryId : null
 				]
 			] /}
 
 			{param onClose: $_toggleCreateModal /}
 			{param spritemap: $spritemap /}
 			{param onDismiss: $_closeCreateModal /}
+			{param hasSegmentsEntryPermission: $hasEditSegmentsEntryPermission /}
+			{param onNewSegmentClick: $_handleNewSegmentButtonClick /}
+			{param type: 'creation' /}
 		{/call}
 
 		{let $editionModalTitle kind="text"}
@@ -304,14 +365,14 @@
 		{let $errorEditionCondition: ($_segmentsExperienceErrors and $_segmentsExperienceErrors.edition) ? true : false /}
 
 		{call com.liferay.layout.content.page.editor.web.SegmentsExperienceSeletorModal.render }
-			{param visibile:  $editionModalCondition /}
+			{param visible:  $editionModalCondition /}
 			{param error: [
-				'visibile': $errorEditionCondition,
+				'visible': $errorEditionCondition,
 				'message': $errorEditionMessage,
 				'onDismiss': $_dismissEditionError
 			] /}
 			{param title: $editionModalTitle /}
-			{param porletPrefix: $portletNamespace /}
+			{param portletPrefix: $portletNamespace /}
 			{param experienceForm: [
 				'onExperienceSubmit': $_handleEditFormSubmit,
 				'formId': 'EditForm',
@@ -332,6 +393,9 @@
 			{param onClose: $_toggleEditModal /}
 			{param spritemap: $spritemap /}
 			{param onDismiss: $_closeEditModal /}
+			{param hasSegmentsEntryPermission: $hasEditSegmentsEntryPermission /}
+			{param onNewSegmentClick: $_handleNewSegmentButtonClick /}
+			{param type: 'edition' /}
 		{/call}
 	{/if}
 {/template}

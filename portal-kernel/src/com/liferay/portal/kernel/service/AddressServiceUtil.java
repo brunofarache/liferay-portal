@@ -14,10 +14,9 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the remote service utility for Address. This utility wraps
@@ -95,9 +94,6 @@ public class AddressServiceUtil {
 		if (_service == null) {
 			_service = (AddressService)PortalBeanLocatorUtil.locate(
 				AddressService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				AddressServiceUtil.class, "_service");
 		}
 
 		return _service;

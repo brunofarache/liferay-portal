@@ -79,20 +79,19 @@ public abstract class BaseMatchPhrasePrefixQueryTestCase
 					"Total hits", expectedValues.size(),
 					searchHits.getTotalHits());
 
-				List<SearchHit> searchHitList = searchHits.getSearchHits();
+				List<SearchHit> searchHitsList = searchHits.getSearchHits();
 
 				Assert.assertEquals(
 					"Retrieved hits", expectedValues.size(),
-					searchHitList.size());
+					searchHitsList.size());
 
 				List<String> actualValues = new ArrayList<>();
 
-				searchHitList.forEach(
+				searchHitsList.forEach(
 					searchHit -> {
 						Document document = searchHit.getDocument();
 
-						actualValues.add(
-							(String)document.getFieldValue(_FIELD_NAME));
+						actualValues.add(document.getString(_FIELD_NAME));
 					});
 
 				Assert.assertEquals(

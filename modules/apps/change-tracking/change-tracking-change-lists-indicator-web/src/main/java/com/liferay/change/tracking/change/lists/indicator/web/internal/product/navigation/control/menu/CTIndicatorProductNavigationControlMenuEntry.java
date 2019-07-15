@@ -14,8 +14,8 @@
 
 package com.liferay.change.tracking.change.lists.indicator.web.internal.product.navigation.control.menu;
 
-import com.liferay.change.tracking.CTEngineManager;
 import com.liferay.change.tracking.constants.CTProductNavigationControlMenuCategoryKeys;
+import com.liferay.change.tracking.engine.CTEngineManager;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -49,9 +49,12 @@ public class CTIndicatorProductNavigationControlMenuEntry
 	}
 
 	@Override
-	public boolean isShow(HttpServletRequest request) throws PortalException {
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+	public boolean isShow(HttpServletRequest httpServletRequest)
+		throws PortalException {
+
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		return _ctEngineManager.isChangeTrackingEnabled(
 			themeDisplay.getCompanyId());

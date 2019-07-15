@@ -48,11 +48,13 @@ page import="com.liferay.portal.kernel.util.ParamUtil" %><%@
 page import="com.liferay.portal.kernel.util.PortalUtil" %><%@
 page import="com.liferay.portal.kernel.util.StringUtil" %><%@
 page import="com.liferay.portal.kernel.util.TextFormatter" %><%@
+page import="com.liferay.portal.kernel.util.Validator" %><%@
 page import="com.liferay.portal.kernel.util.WebKeys" %><%@
 page import="com.liferay.taglib.search.ResultRow" %><%@
 page import="com.liferay.user.associated.data.display.UADDisplay" %><%@
 page import="com.liferay.user.associated.data.web.internal.constants.UADConstants" %><%@
 page import="com.liferay.user.associated.data.web.internal.constants.UADWebKeys" %><%@
+page import="com.liferay.user.associated.data.web.internal.display.ScopeDisplay" %><%@
 page import="com.liferay.user.associated.data.web.internal.display.UADApplicationExportDisplay" %><%@
 page import="com.liferay.user.associated.data.web.internal.display.UADApplicationSummaryDisplay" %><%@
 page import="com.liferay.user.associated.data.web.internal.display.UADEntity" %><%@
@@ -80,7 +82,8 @@ page import="java.util.Map" %><%@
 page import="java.util.Objects" %><%@
 page import="java.util.TreeMap" %>
 
-<%@ page import="javax.portlet.PortletException" %><%@
+<%@ page import="javax.portlet.ActionRequest" %><%@
+page import="javax.portlet.PortletException" %><%@
 page import="javax.portlet.PortletRequest" %><%@
 page import="javax.portlet.PortletURL" %>
 

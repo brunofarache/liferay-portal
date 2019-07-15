@@ -14,13 +14,13 @@
 
 package com.liferay.change.tracking.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * This class is used by SOAP remote services.
@@ -40,10 +40,12 @@ public class CTEntrySoap implements Serializable {
 		soapModel.setUserName(model.getUserName());
 		soapModel.setCreateDate(model.getCreateDate());
 		soapModel.setModifiedDate(model.getModifiedDate());
+		soapModel.setOriginalCTCollectionId(model.getOriginalCTCollectionId());
 		soapModel.setModelClassNameId(model.getModelClassNameId());
 		soapModel.setModelClassPK(model.getModelClassPK());
 		soapModel.setModelResourcePrimKey(model.getModelResourcePrimKey());
 		soapModel.setChangeType(model.getChangeType());
+		soapModel.setCollision(model.isCollision());
 		soapModel.setStatus(model.getStatus());
 
 		return soapModel;
@@ -146,6 +148,14 @@ public class CTEntrySoap implements Serializable {
 		_modifiedDate = modifiedDate;
 	}
 
+	public long getOriginalCTCollectionId() {
+		return _originalCTCollectionId;
+	}
+
+	public void setOriginalCTCollectionId(long originalCTCollectionId) {
+		_originalCTCollectionId = originalCTCollectionId;
+	}
+
 	public long getModelClassNameId() {
 		return _modelClassNameId;
 	}
@@ -178,6 +188,18 @@ public class CTEntrySoap implements Serializable {
 		_changeType = changeType;
 	}
 
+	public boolean getCollision() {
+		return _collision;
+	}
+
+	public boolean isCollision() {
+		return _collision;
+	}
+
+	public void setCollision(boolean collision) {
+		_collision = collision;
+	}
+
 	public int getStatus() {
 		return _status;
 	}
@@ -192,10 +214,12 @@ public class CTEntrySoap implements Serializable {
 	private String _userName;
 	private Date _createDate;
 	private Date _modifiedDate;
+	private long _originalCTCollectionId;
 	private long _modelClassNameId;
 	private long _modelClassPK;
 	private long _modelResourcePrimKey;
 	private int _changeType;
+	private boolean _collision;
 	private int _status;
 
 }

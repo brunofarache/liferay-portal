@@ -14,10 +14,10 @@
 
 package com.liferay.portal.kernel.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.annotation.ImplementationClassName;
 import com.liferay.portal.kernel.util.Accessor;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The extended model interface for the Group service. Represents a row in the &quot;Group_&quot; database table, with each column mapped to a property of this class.
@@ -60,15 +60,6 @@ public interface Group extends GroupModel, PersistedModel, TreeModel {
 	public java.util.List<Group> getAncestors();
 
 	public java.util.List<Group> getChildren(boolean site);
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 #getChildrenWithLayouts(boolean, int, int,
-	 OrderByComparator)}
-	 */
-	@Deprecated
-	public java.util.List<Group> getChildrenWithLayouts(
-		boolean site, int start, int end);
 
 	public java.util.List<Group> getChildrenWithLayouts(
 		boolean site, int start, int end,
@@ -162,12 +153,6 @@ public interface Group extends GroupModel, PersistedModel, TreeModel {
 	public boolean hasRemoteStagingGroup();
 
 	public boolean hasStagingGroup();
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link #hasAncestor}
-	 */
-	@Deprecated
-	public boolean isChild(long groupId);
 
 	public boolean isCompany();
 

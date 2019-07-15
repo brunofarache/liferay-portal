@@ -5,7 +5,7 @@
 	<model-resource>
 		<model-name>com.liferay.data.engine</model-name>
 		<portlet-ref>
-			<portlet-name>com_liferay_data_engine_web_portlet_DEDataDefinitionPortlet</portlet-name>
+			<portlet-name>com_liferay_data_engine_web_portlet_DataDefinitionPortlet</portlet-name>
 		</portlet-ref>
 		<root>true</root>
 		<weight>1</weight>
@@ -25,9 +25,9 @@
 		</permissions>
 	</model-resource>
 	<model-resource>
-		<model-name>com.liferay.data.engine.model.DEDataDefinition</model-name>
+		<model-name>com.liferay.data.engine.rest.internal.model.InternalDataDefinition</model-name>
 		<portlet-ref>
-			<portlet-name>com_liferay_data_engine_web_portlet_DEDataDefinitionPortlet</portlet-name>
+			<portlet-name>com_liferay_data_engine_web_portlet_DataDefinitionPortlet</portlet-name>
 		</portlet-ref>
 		<weight>2</weight>
 		<permissions>
@@ -51,9 +51,9 @@
 		</permissions>
 	</model-resource>
 	<model-resource>
-		<model-name>com.liferay.data.engine.model.DEDataLayout</model-name>
+		<model-name>com.liferay.data.engine.rest.internal.model.InternalDataLayout</model-name>
 		<portlet-ref>
-			<portlet-name>com_liferay_data_engine_web_portlet_DEDataLayout</portlet-name>
+			<portlet-name>com_liferay_data_engine_web_portlet_DataLayoutPortlet</portlet-name>
 		</portlet-ref>
 		<weight>2</weight>
 		<permissions>
@@ -77,9 +77,9 @@
 		</permissions>
 	</model-resource>
 	<model-resource>
-		<model-name>com.liferay.data.engine.model.DEDataRecordCollection</model-name>
+		<model-name>com.liferay.data.engine.rest.internal.model.InternalDataRecordCollection</model-name>
 		<portlet-ref>
-			<portlet-name>com_liferay_data_engine_web_portlet_DEDataRecordCollectionPortlet</portlet-name>
+			<portlet-name>com_liferay_data_engine_web_portlet_DataRecordCollectionPortlet</portlet-name>
 		</portlet-ref>
 		<weight>3</weight>
 		<permissions>

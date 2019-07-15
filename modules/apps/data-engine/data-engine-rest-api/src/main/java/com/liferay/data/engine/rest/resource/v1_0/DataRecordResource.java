@@ -16,10 +16,14 @@ package com.liferay.data.engine.rest.resource.v1_0;
 
 import com.liferay.data.engine.rest.dto.v1_0.DataRecord;
 import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 
 import javax.annotation.Generated;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * To access this resource, run:
@@ -30,6 +34,7 @@ import javax.annotation.Generated;
  * @generated
  */
 @Generated("")
+@ProviderType
 public interface DataRecordResource {
 
 	public Page<DataRecord> getDataRecordCollectionDataRecordsPage(
@@ -40,6 +45,10 @@ public interface DataRecordResource {
 			Long dataRecordCollectionId, DataRecord dataRecord)
 		throws Exception;
 
+	public String getDataRecordCollectionDataRecordExport(
+			Long dataRecordCollectionId, Pagination pagination)
+		throws Exception;
+
 	public void deleteDataRecord(Long dataRecordId) throws Exception;
 
 	public DataRecord getDataRecord(Long dataRecordId) throws Exception;
@@ -47,6 +56,12 @@ public interface DataRecordResource {
 	public DataRecord putDataRecord(Long dataRecordId, DataRecord dataRecord)
 		throws Exception;
 
+	public default void setContextAcceptLanguage(
+		AcceptLanguage contextAcceptLanguage) {
+	}
+
 	public void setContextCompany(Company contextCompany);
+
+	public void setContextUser(User contextUser);
 
 }

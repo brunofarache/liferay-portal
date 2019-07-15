@@ -75,6 +75,12 @@
 					</div>
 				</aui:fieldset>
 
+				<liferay-staging:deletions
+					cmd="<%= Constants.PUBLISH %>"
+					disableInputs="<%= configuredPublish %>"
+					exportImportConfigurationId="<%= exportImportConfigurationId %>"
+				/>
+
 				<c:if test="<%= !group.isCompany() %>">
 					<liferay-staging:select-pages
 						action="<%= Constants.PUBLISH %>"
@@ -91,12 +97,6 @@
 					disableInputs="<%= configuredPublish %>"
 					exportImportConfigurationId="<%= exportImportConfigurationId %>"
 					type="<%= localPublishing ? Constants.PUBLISH_TO_LIVE : Constants.PUBLISH_TO_REMOTE %>"
-				/>
-
-				<liferay-staging:deletions
-					cmd="<%= Constants.PUBLISH %>"
-					disableInputs="<%= configuredPublish %>"
-					exportImportConfigurationId="<%= exportImportConfigurationId %>"
 				/>
 
 				<liferay-staging:permissions
@@ -134,14 +134,14 @@
 	function <portlet:namespace />publishPages() {
 		var exportImport = Liferay.component('<portlet:namespace />ExportImportComponent');
 
-		var deletePortletDataBeforeImportingCheckbox = AUI.$('#<portlet:namespace />deletePortletDataBeforeImportingCheckbox');
+		var deletePortletDataBeforeImportingCheckbox = document.getElementById('<portlet:namespace />deletePortletDataBeforeImportingCheckbox');
 
 		var dateChecker = exportImport.getDateRangeChecker();
 
 		if (dateChecker.validRange) {
-			var form = AUI.$(document.<portlet:namespace />exportPagesFm);
+			var form = document.<portlet:namespace />exportPagesFm;
 
-			if (deletePortletDataBeforeImportingCheckbox.length && deletePortletDataBeforeImportingCheckbox[0].checked) {
+			if (deletePortletDataBeforeImportingCheckbox && deletePortletDataBeforeImportingCheckbox.checked) {
 				confirm('<%= UnicodeLanguageUtil.get(request, "delete-application-data-before-importing-confirmation") %>') && submitForm(form);
 			}
 			else {

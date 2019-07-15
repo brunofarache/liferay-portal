@@ -15,6 +15,9 @@
 package com.liferay.headless.form.client.dto.v1_0;
 
 import com.liferay.headless.form.client.function.UnsafeSupplier;
+import com.liferay.headless.form.client.serdes.v1_0.FormPageSerDes;
+
+import java.util.Objects;
 
 import javax.annotation.Generated;
 
@@ -25,26 +28,26 @@ import javax.annotation.Generated;
 @Generated("")
 public class FormPage {
 
-	public Field[] getFields() {
-		return fields;
+	public FormField[] getFormFields() {
+		return formFields;
 	}
 
-	public void setFields(Field[] fields) {
-		this.fields = fields;
+	public void setFormFields(FormField[] formFields) {
+		this.formFields = formFields;
 	}
 
-	public void setFields(
-		UnsafeSupplier<Field[], Exception> fieldsUnsafeSupplier) {
+	public void setFormFields(
+		UnsafeSupplier<FormField[], Exception> formFieldsUnsafeSupplier) {
 
 		try {
-			fields = fieldsUnsafeSupplier.get();
+			formFields = formFieldsUnsafeSupplier.get();
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	protected Field[] fields;
+	protected FormField[] formFields;
 
 	public String getHeadline() {
 		return headline;
@@ -104,5 +107,31 @@ public class FormPage {
 	}
 
 	protected String text;
+
+	@Override
+	public boolean equals(Object object) {
+		if (this == object) {
+			return true;
+		}
+
+		if (!(object instanceof FormPage)) {
+			return false;
+		}
+
+		FormPage formPage = (FormPage)object;
+
+		return Objects.equals(toString(), formPage.toString());
+	}
+
+	@Override
+	public int hashCode() {
+		String string = toString();
+
+		return string.hashCode();
+	}
+
+	public String toString() {
+		return FormPageSerDes.toJSON(this);
+	}
 
 }

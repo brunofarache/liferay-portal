@@ -14,45 +14,42 @@
 
 package com.liferay.data.engine.rest.resource.v1_0.test;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
-import com.liferay.data.engine.rest.dto.v1_0.DataRecord;
-import com.liferay.data.engine.rest.resource.v1_0.DataRecordResource;
+import com.liferay.data.engine.rest.client.dto.v1_0.DataRecord;
+import com.liferay.data.engine.rest.client.http.HttpInvoker;
+import com.liferay.data.engine.rest.client.pagination.Page;
+import com.liferay.data.engine.rest.client.pagination.Pagination;
+import com.liferay.data.engine.rest.client.resource.v1_0.DataRecordResource;
+import com.liferay.data.engine.rest.client.serdes.v1_0.DataRecordSerDes;
 import com.liferay.petra.string.StringBundler;
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.Base64;
-import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
-import com.liferay.portal.kernel.util.Http;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.odata.entity.EntityField;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.vulcan.pagination.Page;
-import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.resource.EntityModelResource;
 
 import java.lang.reflect.InvocationTargetException;
 
-import java.net.URL;
-
 import java.text.DateFormat;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -62,7 +59,6 @@ import java.util.stream.Stream;
 import javax.annotation.Generated;
 
 import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.Response;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 
@@ -97,7 +93,16 @@ public abstract class BaseDataRecordResourceTestCase {
 		irrelevantGroup = GroupTestUtil.addGroup();
 		testGroup = GroupTestUtil.addGroup();
 
-		_resourceURL = new URL("http://localhost:8080/o/data-engine/v1.0");
+		testCompany = CompanyLocalServiceUtil.getCompany(
+			testGroup.getCompanyId());
+
+		_dataRecordResource.setContextCompany(testCompany);
+
+		DataRecordResource.Builder builder = DataRecordResource.builder();
+
+		dataRecordResource = builder.locale(
+			LocaleUtil.getDefault()
+		).build();
 	}
 
 	@After
@@ -107,7 +112,80 @@ public abstract class BaseDataRecordResourceTestCase {
 	}
 
 	@Test
+	public void testClientSerDesToDTO() throws Exception {
+		ObjectMapper objectMapper = new ObjectMapper() {
+			{
+				configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
+				configure(
+					SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
+				enable(SerializationFeature.INDENT_OUTPUT);
+				setDateFormat(new ISO8601DateFormat());
+				setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+				setSerializationInclusion(JsonInclude.Include.NON_NULL);
+				setVisibility(
+					PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+				setVisibility(
+					PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
+			}
+		};
+
+		DataRecord dataRecord1 = randomDataRecord();
+
+		String json = objectMapper.writeValueAsString(dataRecord1);
+
+		DataRecord dataRecord2 = DataRecordSerDes.toDTO(json);
+
+		Assert.assertTrue(equals(dataRecord1, dataRecord2));
+	}
+
+	@Test
+	public void testClientSerDesToJSON() throws Exception {
+		ObjectMapper objectMapper = new ObjectMapper() {
+			{
+				configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
+				configure(
+					SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
+				setDateFormat(new ISO8601DateFormat());
+				setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+				setSerializationInclusion(JsonInclude.Include.NON_NULL);
+				setVisibility(
+					PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+				setVisibility(
+					PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
+			}
+		};
+
+		DataRecord dataRecord = randomDataRecord();
+
+		String json1 = objectMapper.writeValueAsString(dataRecord);
+		String json2 = DataRecordSerDes.toJSON(dataRecord);
+
+		Assert.assertEquals(
+			objectMapper.readTree(json1), objectMapper.readTree(json2));
+	}
+
+	@Test
+	public void testEscapeRegexInStringFields() throws Exception {
+		String regex = "^[0-9]+(\\.[0-9]{1,2})\"?";
+
+		DataRecord dataRecord = randomDataRecord();
+
+		String json = DataRecordSerDes.toJSON(dataRecord);
+
+		Assert.assertFalse(json.contains(regex));
+
+		dataRecord = DataRecordSerDes.toDTO(json);
+	}
+
+	@Test
 	public void testGetDataRecordCollectionDataRecordsPage() throws Exception {
+		Page<DataRecord> page =
+			dataRecordResource.getDataRecordCollectionDataRecordsPage(
+				testGetDataRecordCollectionDataRecordsPage_getDataRecordCollectionId(),
+				Pagination.of(1, 2));
+
+		Assert.assertEquals(0, page.getTotalCount());
+
 		Long dataRecordCollectionId =
 			testGetDataRecordCollectionDataRecordsPage_getDataRecordCollectionId();
 		Long irrelevantDataRecordCollectionId =
@@ -119,9 +197,8 @@ public abstract class BaseDataRecordResourceTestCase {
 					irrelevantDataRecordCollectionId,
 					randomIrrelevantDataRecord());
 
-			Page<DataRecord> page =
-				invokeGetDataRecordCollectionDataRecordsPage(
-					irrelevantDataRecordCollectionId, Pagination.of(1, 2));
+			page = dataRecordResource.getDataRecordCollectionDataRecordsPage(
+				irrelevantDataRecordCollectionId, Pagination.of(1, 2));
 
 			Assert.assertEquals(1, page.getTotalCount());
 
@@ -139,7 +216,7 @@ public abstract class BaseDataRecordResourceTestCase {
 			testGetDataRecordCollectionDataRecordsPage_addDataRecord(
 				dataRecordCollectionId, randomDataRecord());
 
-		Page<DataRecord> page = invokeGetDataRecordCollectionDataRecordsPage(
+		page = dataRecordResource.getDataRecordCollectionDataRecordsPage(
 			dataRecordCollectionId, Pagination.of(1, 2));
 
 		Assert.assertEquals(2, page.getTotalCount());
@@ -169,15 +246,17 @@ public abstract class BaseDataRecordResourceTestCase {
 			testGetDataRecordCollectionDataRecordsPage_addDataRecord(
 				dataRecordCollectionId, randomDataRecord());
 
-		Page<DataRecord> page1 = invokeGetDataRecordCollectionDataRecordsPage(
-			dataRecordCollectionId, Pagination.of(1, 2));
+		Page<DataRecord> page1 =
+			dataRecordResource.getDataRecordCollectionDataRecordsPage(
+				dataRecordCollectionId, Pagination.of(1, 2));
 
 		List<DataRecord> dataRecords1 = (List<DataRecord>)page1.getItems();
 
 		Assert.assertEquals(dataRecords1.toString(), 2, dataRecords1.size());
 
-		Page<DataRecord> page2 = invokeGetDataRecordCollectionDataRecordsPage(
-			dataRecordCollectionId, Pagination.of(2, 2));
+		Page<DataRecord> page2 =
+			dataRecordResource.getDataRecordCollectionDataRecordsPage(
+				dataRecordCollectionId, Pagination.of(2, 2));
 
 		Assert.assertEquals(3, page2.getTotalCount());
 
@@ -185,14 +264,13 @@ public abstract class BaseDataRecordResourceTestCase {
 
 		Assert.assertEquals(dataRecords2.toString(), 1, dataRecords2.size());
 
+		Page<DataRecord> page3 =
+			dataRecordResource.getDataRecordCollectionDataRecordsPage(
+				dataRecordCollectionId, Pagination.of(1, 3));
+
 		assertEqualsIgnoringOrder(
 			Arrays.asList(dataRecord1, dataRecord2, dataRecord3),
-			new ArrayList<DataRecord>() {
-				{
-					addAll(dataRecords1);
-					addAll(dataRecords2);
-				}
-			});
+			(List<DataRecord>)page3.getItems());
 	}
 
 	protected DataRecord
@@ -200,8 +278,8 @@ public abstract class BaseDataRecordResourceTestCase {
 				Long dataRecordCollectionId, DataRecord dataRecord)
 		throws Exception {
 
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
+		return dataRecordResource.postDataRecordCollectionDataRecord(
+			dataRecordCollectionId, dataRecord);
 	}
 
 	protected Long
@@ -217,62 +295,6 @@ public abstract class BaseDataRecordResourceTestCase {
 		throws Exception {
 
 		return null;
-	}
-
-	protected Page<DataRecord> invokeGetDataRecordCollectionDataRecordsPage(
-			Long dataRecordCollectionId, Pagination pagination)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		String location =
-			_resourceURL +
-				_toPath(
-					"/data-record-collections/{data-record-collection-id}/data-records",
-					dataRecordCollectionId);
-
-		location = HttpUtil.addParameter(
-			location, "page", pagination.getPage());
-		location = HttpUtil.addParameter(
-			location, "pageSize", pagination.getPageSize());
-
-		options.setLocation(location);
-
-		String string = HttpUtil.URLtoString(options);
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("HTTP response: " + string);
-		}
-
-		return _outputObjectMapper.readValue(
-			string,
-			new TypeReference<Page<DataRecord>>() {
-			});
-	}
-
-	protected Http.Response
-			invokeGetDataRecordCollectionDataRecordsPageResponse(
-				Long dataRecordCollectionId, Pagination pagination)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		String location =
-			_resourceURL +
-				_toPath(
-					"/data-record-collections/{data-record-collection-id}/data-records",
-					dataRecordCollectionId);
-
-		location = HttpUtil.addParameter(
-			location, "page", pagination.getPage());
-		location = HttpUtil.addParameter(
-			location, "pageSize", pagination.getPageSize());
-
-		options.setLocation(location);
-
-		HttpUtil.URLtoString(options);
-
-		return options.getResponse();
 	}
 
 	@Test
@@ -291,80 +313,31 @@ public abstract class BaseDataRecordResourceTestCase {
 			DataRecord dataRecord)
 		throws Exception {
 
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
+		return dataRecordResource.postDataRecordCollectionDataRecord(
+			testGetDataRecordCollectionDataRecordsPage_getDataRecordCollectionId(),
+			dataRecord);
 	}
 
-	protected DataRecord invokePostDataRecordCollectionDataRecord(
-			Long dataRecordCollectionId, DataRecord dataRecord)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		options.setBody(
-			_inputObjectMapper.writeValueAsString(dataRecord),
-			ContentTypes.APPLICATION_JSON, StringPool.UTF8);
-
-		String location =
-			_resourceURL +
-				_toPath(
-					"/data-record-collections/{data-record-collection-id}/data-records",
-					dataRecordCollectionId);
-
-		options.setLocation(location);
-
-		options.setPost(true);
-
-		String string = HttpUtil.URLtoString(options);
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("HTTP response: " + string);
-		}
-
-		try {
-			return _outputObjectMapper.readValue(string, DataRecord.class);
-		}
-		catch (Exception e) {
-			_log.error("Unable to process HTTP response: " + string, e);
-
-			throw e;
-		}
-	}
-
-	protected Http.Response invokePostDataRecordCollectionDataRecordResponse(
-			Long dataRecordCollectionId, DataRecord dataRecord)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		options.setBody(
-			_inputObjectMapper.writeValueAsString(dataRecord),
-			ContentTypes.APPLICATION_JSON, StringPool.UTF8);
-
-		String location =
-			_resourceURL +
-				_toPath(
-					"/data-record-collections/{data-record-collection-id}/data-records",
-					dataRecordCollectionId);
-
-		options.setLocation(location);
-
-		options.setPost(true);
-
-		HttpUtil.URLtoString(options);
-
-		return options.getResponse();
+	@Test
+	public void testGetDataRecordCollectionDataRecordExport() throws Exception {
+		Assert.assertTrue(true);
 	}
 
 	@Test
 	public void testDeleteDataRecord() throws Exception {
 		DataRecord dataRecord = testDeleteDataRecord_addDataRecord();
 
-		assertResponseCode(
-			200, invokeDeleteDataRecordResponse(dataRecord.getId()));
+		assertHttpResponseStatusCode(
+			204,
+			dataRecordResource.deleteDataRecordHttpResponse(
+				dataRecord.getId()));
 
-		assertResponseCode(
-			404, invokeGetDataRecordResponse(dataRecord.getId()));
+		assertHttpResponseStatusCode(
+			404,
+			dataRecordResource.getDataRecordHttpResponse(dataRecord.getId()));
+
+		assertHttpResponseStatusCode(
+			404, dataRecordResource.getDataRecordHttpResponse(0L));
 	}
 
 	protected DataRecord testDeleteDataRecord_addDataRecord() throws Exception {
@@ -372,47 +345,12 @@ public abstract class BaseDataRecordResourceTestCase {
 			"This method needs to be implemented");
 	}
 
-	protected void invokeDeleteDataRecord(Long dataRecordId) throws Exception {
-		Http.Options options = _createHttpOptions();
-
-		options.setDelete(true);
-
-		String location =
-			_resourceURL +
-				_toPath("/data-records/{data-record-id}", dataRecordId);
-
-		options.setLocation(location);
-
-		String string = HttpUtil.URLtoString(options);
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("HTTP response: " + string);
-		}
-	}
-
-	protected Http.Response invokeDeleteDataRecordResponse(Long dataRecordId)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		options.setDelete(true);
-
-		String location =
-			_resourceURL +
-				_toPath("/data-records/{data-record-id}", dataRecordId);
-
-		options.setLocation(location);
-
-		HttpUtil.URLtoString(options);
-
-		return options.getResponse();
-	}
-
 	@Test
 	public void testGetDataRecord() throws Exception {
 		DataRecord postDataRecord = testGetDataRecord_addDataRecord();
 
-		DataRecord getDataRecord = invokeGetDataRecord(postDataRecord.getId());
+		DataRecord getDataRecord = dataRecordResource.getDataRecord(
+			postDataRecord.getId());
 
 		assertEquals(postDataRecord, getDataRecord);
 		assertValid(getDataRecord);
@@ -423,62 +361,20 @@ public abstract class BaseDataRecordResourceTestCase {
 			"This method needs to be implemented");
 	}
 
-	protected DataRecord invokeGetDataRecord(Long dataRecordId)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		String location =
-			_resourceURL +
-				_toPath("/data-records/{data-record-id}", dataRecordId);
-
-		options.setLocation(location);
-
-		String string = HttpUtil.URLtoString(options);
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("HTTP response: " + string);
-		}
-
-		try {
-			return _outputObjectMapper.readValue(string, DataRecord.class);
-		}
-		catch (Exception e) {
-			_log.error("Unable to process HTTP response: " + string, e);
-
-			throw e;
-		}
-	}
-
-	protected Http.Response invokeGetDataRecordResponse(Long dataRecordId)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		String location =
-			_resourceURL +
-				_toPath("/data-records/{data-record-id}", dataRecordId);
-
-		options.setLocation(location);
-
-		HttpUtil.URLtoString(options);
-
-		return options.getResponse();
-	}
-
 	@Test
 	public void testPutDataRecord() throws Exception {
 		DataRecord postDataRecord = testPutDataRecord_addDataRecord();
 
 		DataRecord randomDataRecord = randomDataRecord();
 
-		DataRecord putDataRecord = invokePutDataRecord(
+		DataRecord putDataRecord = dataRecordResource.putDataRecord(
 			postDataRecord.getId(), randomDataRecord);
 
 		assertEquals(randomDataRecord, putDataRecord);
 		assertValid(putDataRecord);
 
-		DataRecord getDataRecord = invokeGetDataRecord(putDataRecord.getId());
+		DataRecord getDataRecord = dataRecordResource.getDataRecord(
+			putDataRecord.getId());
 
 		assertEquals(randomDataRecord, getDataRecord);
 		assertValid(getDataRecord);
@@ -489,68 +385,12 @@ public abstract class BaseDataRecordResourceTestCase {
 			"This method needs to be implemented");
 	}
 
-	protected DataRecord invokePutDataRecord(
-			Long dataRecordId, DataRecord dataRecord)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		options.setBody(
-			_inputObjectMapper.writeValueAsString(dataRecord),
-			ContentTypes.APPLICATION_JSON, StringPool.UTF8);
-
-		String location =
-			_resourceURL +
-				_toPath("/data-records/{data-record-id}", dataRecordId);
-
-		options.setLocation(location);
-
-		options.setPut(true);
-
-		String string = HttpUtil.URLtoString(options);
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("HTTP response: " + string);
-		}
-
-		try {
-			return _outputObjectMapper.readValue(string, DataRecord.class);
-		}
-		catch (Exception e) {
-			_log.error("Unable to process HTTP response: " + string, e);
-
-			throw e;
-		}
-	}
-
-	protected Http.Response invokePutDataRecordResponse(
-			Long dataRecordId, DataRecord dataRecord)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		options.setBody(
-			_inputObjectMapper.writeValueAsString(dataRecord),
-			ContentTypes.APPLICATION_JSON, StringPool.UTF8);
-
-		String location =
-			_resourceURL +
-				_toPath("/data-records/{data-record-id}", dataRecordId);
-
-		options.setLocation(location);
-
-		options.setPut(true);
-
-		HttpUtil.URLtoString(options);
-
-		return options.getResponse();
-	}
-
-	protected void assertResponseCode(
-		int expectedResponseCode, Http.Response actualResponse) {
+	protected void assertHttpResponseStatusCode(
+		int expectedHttpResponseStatusCode,
+		HttpInvoker.HttpResponse actualHttpResponse) {
 
 		Assert.assertEquals(
-			expectedResponseCode, actualResponse.getResponseCode());
+			expectedHttpResponseStatusCode, actualHttpResponse.getStatusCode());
 	}
 
 	protected void assertEquals(
@@ -596,14 +436,45 @@ public abstract class BaseDataRecordResourceTestCase {
 	}
 
 	protected void assertValid(DataRecord dataRecord) {
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
+		boolean valid = true;
+
+		if (dataRecord.getId() == null) {
+			valid = false;
+		}
+
+		for (String additionalAssertFieldName :
+				getAdditionalAssertFieldNames()) {
+
+			if (Objects.equals(
+					"dataRecordCollectionId", additionalAssertFieldName)) {
+
+				if (dataRecord.getDataRecordCollectionId() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("dataRecordValues", additionalAssertFieldName)) {
+				if (dataRecord.getDataRecordValues() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			throw new IllegalArgumentException(
+				"Invalid additional assert field name " +
+					additionalAssertFieldName);
+		}
+
+		Assert.assertTrue(valid);
 	}
 
 	protected void assertValid(Page<DataRecord> page) {
 		boolean valid = false;
 
-		Collection<DataRecord> dataRecords = page.getItems();
+		java.util.Collection<DataRecord> dataRecords = page.getItems();
 
 		int size = dataRecords.size();
 
@@ -617,15 +488,67 @@ public abstract class BaseDataRecordResourceTestCase {
 		Assert.assertTrue(valid);
 	}
 
+	protected String[] getAdditionalAssertFieldNames() {
+		return new String[0];
+	}
+
+	protected String[] getIgnoredEntityFieldNames() {
+		return new String[0];
+	}
+
 	protected boolean equals(DataRecord dataRecord1, DataRecord dataRecord2) {
 		if (dataRecord1 == dataRecord2) {
 			return true;
 		}
 
-		return false;
+		for (String additionalAssertFieldName :
+				getAdditionalAssertFieldNames()) {
+
+			if (Objects.equals(
+					"dataRecordCollectionId", additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						dataRecord1.getDataRecordCollectionId(),
+						dataRecord2.getDataRecordCollectionId())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("dataRecordValues", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						dataRecord1.getDataRecordValues(),
+						dataRecord2.getDataRecordValues())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("id", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						dataRecord1.getId(), dataRecord2.getId())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			throw new IllegalArgumentException(
+				"Invalid additional assert field name " +
+					additionalAssertFieldName);
+		}
+
+		return true;
 	}
 
-	protected Collection<EntityField> getEntityFields() throws Exception {
+	protected java.util.Collection<EntityField> getEntityFields()
+		throws Exception {
+
 		if (!(_dataRecordResource instanceof EntityModelResource)) {
 			throw new UnsupportedOperationException(
 				"Resource is not an instance of EntityModelResource");
@@ -646,12 +569,15 @@ public abstract class BaseDataRecordResourceTestCase {
 	protected List<EntityField> getEntityFields(EntityField.Type type)
 		throws Exception {
 
-		Collection<EntityField> entityFields = getEntityFields();
+		java.util.Collection<EntityField> entityFields = getEntityFields();
 
 		Stream<EntityField> stream = entityFields.stream();
 
 		return stream.filter(
-			entityField -> Objects.equals(entityField.getType(), type)
+			entityField ->
+				Objects.equals(entityField.getType(), type) &&
+				!ArrayUtil.contains(
+					getIgnoredEntityFieldNames(), entityField.getName())
 		).collect(
 			Collectors.toList()
 		);
@@ -689,7 +615,7 @@ public abstract class BaseDataRecordResourceTestCase {
 			"Invalid entity field " + entityFieldName);
 	}
 
-	protected DataRecord randomDataRecord() {
+	protected DataRecord randomDataRecord() throws Exception {
 		return new DataRecord() {
 			{
 				dataRecordCollectionId = RandomTestUtil.randomLong();
@@ -698,86 +624,20 @@ public abstract class BaseDataRecordResourceTestCase {
 		};
 	}
 
-	protected DataRecord randomIrrelevantDataRecord() {
+	protected DataRecord randomIrrelevantDataRecord() throws Exception {
+		DataRecord randomIrrelevantDataRecord = randomDataRecord();
+
+		return randomIrrelevantDataRecord;
+	}
+
+	protected DataRecord randomPatchDataRecord() throws Exception {
 		return randomDataRecord();
 	}
 
-	protected DataRecord randomPatchDataRecord() {
-		return randomDataRecord();
-	}
-
+	protected DataRecordResource dataRecordResource;
 	protected Group irrelevantGroup;
+	protected Company testCompany;
 	protected Group testGroup;
-
-	protected static class Page<T> {
-
-		public Collection<T> getItems() {
-			return new ArrayList<>(items);
-		}
-
-		public long getLastPage() {
-			return lastPage;
-		}
-
-		public long getPage() {
-			return page;
-		}
-
-		public long getPageSize() {
-			return pageSize;
-		}
-
-		public long getTotalCount() {
-			return totalCount;
-		}
-
-		@JsonProperty
-		protected Collection<T> items;
-
-		@JsonProperty
-		protected long lastPage;
-
-		@JsonProperty
-		protected long page;
-
-		@JsonProperty
-		protected long pageSize;
-
-		@JsonProperty
-		protected long totalCount;
-
-	}
-
-	private Http.Options _createHttpOptions() {
-		Http.Options options = new Http.Options();
-
-		options.addHeader("Accept", "application/json");
-
-		String userNameAndPassword = "test@liferay.com:test";
-
-		String encodedUserNameAndPassword = Base64.encode(
-			userNameAndPassword.getBytes());
-
-		options.addHeader(
-			"Authorization", "Basic " + encodedUserNameAndPassword);
-
-		options.addHeader("Content-Type", "application/json");
-
-		return options;
-	}
-
-	private String _toPath(String template, Object... values) {
-		if (ArrayUtil.isEmpty(values)) {
-			return template;
-		}
-
-		for (int i = 0; i < values.length; i++) {
-			template = template.replaceFirst(
-				"\\{.*\\}", String.valueOf(values[i]));
-		}
-
-		return template;
-	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		BaseDataRecordResourceTestCase.class);
@@ -795,35 +655,9 @@ public abstract class BaseDataRecordResourceTestCase {
 
 	};
 	private static DateFormat _dateFormat;
-	private final static ObjectMapper _inputObjectMapper = new ObjectMapper() {
-		{
-			setFilterProvider(
-				new SimpleFilterProvider() {
-					{
-						addFilter(
-							"Liferay.Vulcan",
-							SimpleBeanPropertyFilter.serializeAll());
-					}
-				});
-			setSerializationInclusion(JsonInclude.Include.NON_NULL);
-		}
-	};
-	private final static ObjectMapper _outputObjectMapper = new ObjectMapper() {
-		{
-			setFilterProvider(
-				new SimpleFilterProvider() {
-					{
-						addFilter(
-							"Liferay.Vulcan",
-							SimpleBeanPropertyFilter.serializeAll());
-					}
-				});
-		}
-	};
 
 	@Inject
-	private DataRecordResource _dataRecordResource;
-
-	private URL _resourceURL;
+	private com.liferay.data.engine.rest.resource.v1_0.DataRecordResource
+		_dataRecordResource;
 
 }

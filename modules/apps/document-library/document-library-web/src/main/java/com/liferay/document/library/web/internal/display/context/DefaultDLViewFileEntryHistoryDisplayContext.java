@@ -40,20 +40,21 @@ public class DefaultDLViewFileEntryHistoryDisplayContext
 	implements DLViewFileEntryHistoryDisplayContext {
 
 	public DefaultDLViewFileEntryHistoryDisplayContext(
-		HttpServletRequest request, FileVersion fileVersion,
+		HttpServletRequest httpServletRequest, FileVersion fileVersion,
 		ResourceBundle resourceBundle, DLTrashUtil dlTrashUtil,
-		VersioningStrategy versioningStrategy, DLURLHelper dlurlHelper) {
+		VersioningStrategy versioningStrategy, DLURLHelper dlURLHelper) {
 
 		_resourceBundle = resourceBundle;
 
-		DLRequestHelper dlRequestHelper = new DLRequestHelper(request);
+		DLRequestHelper dlRequestHelper = new DLRequestHelper(
+			httpServletRequest);
 
 		_dlPortletInstanceSettingsHelper = new DLPortletInstanceSettingsHelper(
 			dlRequestHelper);
 
 		_uiItemsBuilder = new UIItemsBuilder(
-			request, fileVersion, _resourceBundle, dlTrashUtil,
-			versioningStrategy, dlurlHelper);
+			httpServletRequest, fileVersion, _resourceBundle, dlTrashUtil,
+			versioningStrategy, dlURLHelper);
 	}
 
 	@Override
@@ -65,7 +66,6 @@ public class DefaultDLViewFileEntryHistoryDisplayContext
 		menu.setMenuItems(_getMenuItems());
 		menu.setScroll(false);
 		menu.setShowWhenSingleIcon(true);
-		menu.setTriggerCssClass("component-action");
 
 		return menu;
 	}

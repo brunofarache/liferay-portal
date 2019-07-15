@@ -1,7 +1,26 @@
-import ClayToggle from '../shared/ClayToggle.es';
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 import CriteriaGroup from './CriteriaGroup.es';
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
+import {
+	conjunctionShape,
+	criteriaShape,
+	propertyShape,
+	propertyTypesShape
+} from '../../utils/types.es';
 import {
 	insertAtIndex,
 	removeAtIndex,
@@ -9,42 +28,11 @@ import {
 	sub
 } from '../../utils/utils.es';
 
-const CRITERIA_GROUP_SHAPE = {
-	conjunctionName: PropTypes.string,
-	groupId: PropTypes.string,
-	items: PropTypes.array
-};
-
-const CRITERION_SHAPE = {
-	displayValue: PropTypes.string,
-	operatorName: PropTypes.string,
-	propertyName: PropTypes.string,
-	value: PropTypes.oneOfType(
-		[
-			PropTypes.array,
-			PropTypes.number,
-			PropTypes.string
-		]
-	)
-};
-
 class CriteriaBuilder extends Component {
 	static propTypes = {
-		criteria: PropTypes.shape(
-			{
-				conjunctionName: PropTypes.string,
-				groupId: PropTypes.string,
-				items: PropTypes.arrayOf(
-					PropTypes.oneOfType(
-						[
-							PropTypes.shape(CRITERIA_GROUP_SHAPE),
-							PropTypes.shape(CRITERION_SHAPE)
-						]
-					)
-				)
-			}
-		),
+		criteria: criteriaShape,
 		editing: PropTypes.bool.isRequired,
+		emptyContributors: PropTypes.bool.isRequired,
 
 		/**
 		 * Name of the entity that a set of properties belongs to, for example,
@@ -54,7 +42,6 @@ class CriteriaBuilder extends Component {
 		 * @type {?(string|undefined)}
 		 */
 		entityName: PropTypes.string.isRequired,
-		id: PropTypes.number.isRequired,
 
 		/**
 		 * Name displayed to label a contributor and its' properties.
@@ -63,29 +50,11 @@ class CriteriaBuilder extends Component {
 		 */
 		modelLabel: PropTypes.string,
 		onChange: PropTypes.func,
-		onEditToggle: PropTypes.func,
 		propertyKey: PropTypes.string.isRequired,
-		supportedConjunctions: PropTypes.arrayOf(
-			PropTypes.shape(
-				{
-					label: PropTypes.string,
-					name: PropTypes.string.isRequired
-				}
-			)
-		),
+		supportedConjunctions: PropTypes.arrayOf(conjunctionShape),
 		supportedOperators: PropTypes.array,
-		supportedProperties: PropTypes.arrayOf(
-			PropTypes.shape(
-				{
-					entityUrl: PropTypes.string,
-					label: PropTypes.string,
-					name: PropTypes.string.isRequired,
-					options: PropTypes.array,
-					type: PropTypes.string.isRequired
-				}
-			)
-		).isRequired,
-		supportedPropertyTypes: PropTypes.object
+		supportedProperties: PropTypes.arrayOf(propertyShape).isRequired,
+		supportedPropertyTypes: propertyTypesShape
 	};
 
 	/**
@@ -100,52 +69,39 @@ class CriteriaBuilder extends Component {
 	 */
 	_cleanCriteriaMapItems(criteriaItems, root) {
 		const criteria = criteriaItems
-			.filter(
-				({items}) => {
-					return items ? items.length : true;
-				}
-			)
-			.map(
-				item => {
-					let cleanedItem = item;
+			.filter(({items}) => {
+				return items ? items.length : true;
+			})
+			.map(item => {
+				let cleanedItem = item;
 
-					if (item.items) {
-						if (item.items.length === 1) {
-							const soloItem = item.items[0];
+				if (item.items) {
+					if (item.items.length === 1) {
+						const soloItem = item.items[0];
 
-							if (soloItem.items) {
-								cleanedItem = {
-									conjunctionName: soloItem.conjunctionName,
-									groupId: soloItem.groupId,
-									items: this._cleanCriteriaMapItems(soloItem.items)
-								};
-							}
-							else {
-								cleanedItem = root ? item : soloItem;
-							}
-						}
-						else {
+						if (soloItem.items) {
 							cleanedItem = {
-								...item,
-								items: this._cleanCriteriaMapItems(item.items)
+								conjunctionName: soloItem.conjunctionName,
+								groupId: soloItem.groupId,
+								items: this._cleanCriteriaMapItems(
+									soloItem.items
+								)
 							};
+						} else {
+							cleanedItem = root ? item : soloItem;
 						}
+					} else {
+						cleanedItem = {
+							...item,
+							items: this._cleanCriteriaMapItems(item.items)
+						};
 					}
-
-					return cleanedItem;
 				}
-			);
+
+				return cleanedItem;
+			});
 
 		return criteria;
-	}
-
-	/**
-	 * Switches the edit state between true and false.
-	 */
-	_handleToggleEdit = () => {
-		const {editing, id, onEditToggle} = this.props;
-
-		return onEditToggle && onEditToggle(id, editing);
 	}
 
 	/**
@@ -155,8 +111,8 @@ class CriteriaBuilder extends Component {
 	_handleCriteriaChange = newCriteria => {
 		const items = this._cleanCriteriaMapItems([newCriteria], true);
 
-		this.props.onChange(items[items.length - 1], this.props.id);
-	}
+		this.props.onChange(items[items.length - 1], this.props.propertyKey);
+	};
 
 	/**
 	 * Moves the criterion to the specified index by removing and adding, and
@@ -177,7 +133,7 @@ class CriteriaBuilder extends Component {
 		);
 
 		this._handleCriteriaChange(newCriteria);
-	}
+	};
 
 	/**
 	 * Checks if an item is a group item by checking if it contains an items
@@ -218,34 +174,27 @@ class CriteriaBuilder extends Component {
 		let updatedCriteriaItems = criteria.items;
 
 		if (criteria.groupId === destGroupId) {
-			updatedCriteriaItems = replace ?
-				replaceAtIndex(
-					addCriterion,
-					updatedCriteriaItems,
-					destIndex
-				) :
-				insertAtIndex(
-					addCriterion,
-					updatedCriteriaItems,
-					destIndex
-				);
+			updatedCriteriaItems = replace
+				? replaceAtIndex(addCriterion, updatedCriteriaItems, destIndex)
+				: insertAtIndex(addCriterion, updatedCriteriaItems, destIndex);
 		}
 
 		if (criteria.groupId === startGroupId) {
 			updatedCriteriaItems = removeAtIndex(
 				updatedCriteriaItems,
-				destGroupId === startGroupId && destIndex < startIndex && !replace ?
-					startIndex + 1 :
-					startIndex
+				destGroupId === startGroupId &&
+					destIndex < startIndex &&
+					!replace
+					? startIndex + 1
+					: startIndex
 			);
 		}
 
 		return {
 			...criteria,
-			items: updatedCriteriaItems.map(
-				item => {
-					return this._isGroupItem(item) ?
-						this._searchAndUpdateCriteria(
+			items: updatedCriteriaItems.map(item => {
+				return this._isGroupItem(item)
+					? this._searchAndUpdateCriteria(
 							item,
 							startGroupId,
 							startIndex,
@@ -253,17 +202,17 @@ class CriteriaBuilder extends Component {
 							destIndex,
 							addCriterion,
 							replace
-						) :
-						item;
-				}
-			)
+					  )
+					: item;
+			})
 		};
-	}
+	};
 
 	render() {
 		const {
 			criteria,
 			editing,
+			emptyContributors,
 			entityName,
 			modelLabel,
 			propertyKey,
@@ -274,39 +223,33 @@ class CriteriaBuilder extends Component {
 		} = this.props;
 
 		return (
-			<div className="criteria-builder-root sheet">
-				<div className="criteria-builder-toolbar">
-					<div className="criteria-model-label">
-						{sub(
-							Liferay.Language.get('x-properties'),
-							[modelLabel]
-						)}
-					</div>
+			<div className='criteria-builder-root'>
+				<h4 className='sheet-subtitle'>
+					{sub(
+						Liferay.Language.get('x-with-property-x'),
+						[modelLabel, ''],
+						false
+					)}
+				</h4>
 
-					<ClayToggle
-						checked={editing}
-						className="ml-auto"
-						iconOff="pencil"
-						iconOn="pencil"
-						onChange={this._handleToggleEdit}
+				{(!emptyContributors || editing) && (
+					<CriteriaGroup
+						criteria={criteria}
+						editing={editing}
+						emptyContributors={emptyContributors}
+						entityName={entityName}
+						groupId={criteria && criteria.groupId}
+						modelLabel={modelLabel}
+						onChange={this._handleCriteriaChange}
+						onMove={this._handleCriterionMove}
+						propertyKey={propertyKey}
+						root
+						supportedConjunctions={supportedConjunctions}
+						supportedOperators={supportedOperators}
+						supportedProperties={supportedProperties}
+						supportedPropertyTypes={supportedPropertyTypes}
 					/>
-				</div>
-
-				<CriteriaGroup
-					criteria={criteria}
-					editing={editing}
-					entityName={entityName}
-					groupId={criteria && criteria.groupId}
-					modelLabel={modelLabel}
-					onChange={this._handleCriteriaChange}
-					onMove={this._handleCriterionMove}
-					propertyKey={propertyKey}
-					root
-					supportedConjunctions={supportedConjunctions}
-					supportedOperators={supportedOperators}
-					supportedProperties={supportedProperties}
-					supportedPropertyTypes={supportedPropertyTypes}
-				/>
+				)}
 			</div>
 		);
 	}

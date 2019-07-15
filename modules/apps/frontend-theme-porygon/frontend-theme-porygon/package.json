@@ -4,15 +4,9 @@
 		"url": "https://issues.liferay.com/"
 	},
 	"dependencies": {
-		"metal": "^2.2.0",
-		"metal-dom": "^2.4.0",
-		"metal-state": "^2.3.0"
-	},
-	"devDependencies": {
-		"gulp": "^3.8.10",
-		"liferay-theme-deps-7.1": "8.0.0-rc.2",
-		"liferay-theme-es2015-hook": "8.0.0-rc.2",
-		"liferay-theme-tasks": "8.0.0-rc.2"
+		"metal": "2.16.8",
+		"metal-dom": "2.16.8",
+		"metal-state": "2.16.8"
 	},
 	"keywords": [
 		"liferay-theme"
@@ -31,7 +25,9 @@
 	"name": "liferay-porygon-theme",
 	"repository": "liferay/liferay-portal",
 	"scripts": {
-		"build": "gulp build"
+		"build": "liferay-npm-scripts theme build",
+		"checkFormat": "liferay-npm-scripts check",
+		"format": "liferay-npm-scripts fix"
 	},
-	"version": "2.0.0"
+	"version": "4.0.0"
 }

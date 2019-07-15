@@ -24,7 +24,6 @@ import com.liferay.document.library.kernel.versioning.VersioningStrategy;
 import com.liferay.document.library.preview.DLPreviewRenderer;
 import com.liferay.document.library.preview.DLPreviewRendererProvider;
 import com.liferay.document.library.preview.exception.DLFileEntryPreviewGenerationException;
-import com.liferay.document.library.preview.exception.DLFileEntryPreviewNotAvailableException;
 import com.liferay.document.library.preview.exception.DLPreviewGenerationInProcessException;
 import com.liferay.document.library.preview.exception.DLPreviewSizeException;
 import com.liferay.document.library.util.DLURLHelper;
@@ -74,35 +73,35 @@ public class DefaultDLViewFileVersionDisplayContext
 	implements DLViewFileVersionDisplayContext {
 
 	public DefaultDLViewFileVersionDisplayContext(
-			HttpServletRequest request, HttpServletResponse response,
-			FileShortcut fileShortcut,
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse, FileShortcut fileShortcut,
 			DLMimeTypeDisplayContext dlMimeTypeDisplayContext,
 			ResourceBundle resourceBundle, StorageEngine storageEngine,
 			DLTrashUtil dlTrashUtil,
 			DLPreviewRendererProvider dlPreviewRendererProvider,
-			VersioningStrategy versioningStrategy, DLURLHelper dlurlHelper)
+			VersioningStrategy versioningStrategy, DLURLHelper dlURLHelper)
 		throws PortalException {
 
 		this(
-			request, fileShortcut.getFileVersion(), fileShortcut,
+			httpServletRequest, fileShortcut.getFileVersion(), fileShortcut,
 			dlMimeTypeDisplayContext, resourceBundle, storageEngine,
 			dlTrashUtil, dlPreviewRendererProvider, versioningStrategy,
-			dlurlHelper);
+			dlURLHelper);
 	}
 
 	public DefaultDLViewFileVersionDisplayContext(
-		HttpServletRequest request, HttpServletResponse response,
-		FileVersion fileVersion,
+		HttpServletRequest httpServletRequest,
+		HttpServletResponse httpServletResponse, FileVersion fileVersion,
 		DLMimeTypeDisplayContext dlMimeTypeDisplayContext,
 		ResourceBundle resourceBundle, StorageEngine storageEngine,
 		DLTrashUtil dlTrashUtil,
 		DLPreviewRendererProvider dlPreviewRendererProvider,
-		VersioningStrategy versioningStrategy, DLURLHelper dlurlHelper) {
+		VersioningStrategy versioningStrategy, DLURLHelper dlURLHelper) {
 
 		this(
-			request, fileVersion, null, dlMimeTypeDisplayContext,
+			httpServletRequest, fileVersion, null, dlMimeTypeDisplayContext,
 			resourceBundle, storageEngine, dlTrashUtil,
-			dlPreviewRendererProvider, versioningStrategy, dlurlHelper);
+			dlPreviewRendererProvider, versioningStrategy, dlURLHelper);
 	}
 
 	@Override
@@ -176,6 +175,16 @@ public class DefaultDLViewFileVersionDisplayContext
 	}
 
 	@Override
+	public String getIconFileMimeType() {
+		if (_dlMimeTypeDisplayContext == null) {
+			return "document-default";
+		}
+
+		return _dlMimeTypeDisplayContext.getIconFileMimeType(
+			_fileVersion.getMimeType());
+	}
+
+	@Override
 	public Menu getMenu() throws PortalException {
 		Menu menu = new Menu();
 
@@ -185,7 +194,6 @@ public class DefaultDLViewFileVersionDisplayContext
 		menu.setMessage(LanguageUtil.get(_resourceBundle, "actions"));
 		menu.setScroll(false);
 		menu.setShowWhenSingleIcon(true);
-		menu.setTriggerCssClass("component-action");
 
 		return menu;
 	}
@@ -200,13 +208,13 @@ public class DefaultDLViewFileVersionDisplayContext
 
 		_uiItemsBuilder.addEditToolbarItem(toolbarItems);
 
-		_uiItemsBuilder.addMoveToolbarItem(toolbarItems);
-
 		_uiItemsBuilder.addCheckoutToolbarItem(toolbarItems);
 
 		_uiItemsBuilder.addCancelCheckoutToolbarItem(toolbarItems);
 
 		_uiItemsBuilder.addCheckinToolbarItem(toolbarItems);
+
+		_uiItemsBuilder.addMoveToolbarItem(toolbarItems);
 
 		_uiItemsBuilder.addPermissionsToolbarItem(toolbarItems);
 
@@ -274,7 +282,8 @@ public class DefaultDLViewFileVersionDisplayContext
 
 	@Override
 	public void renderCustomThumbnail(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException, ServletException {
 
 		Optional<DLPreviewRenderer> dlPreviewRendererOptional =
@@ -286,12 +295,14 @@ public class DefaultDLViewFileVersionDisplayContext
 					getThumbnailDLPreviewRendererOptional(_fileVersion);
 		}
 
-		_renderPreview(request, response, dlPreviewRendererOptional);
+		_renderPreview(
+			httpServletRequest, httpServletResponse, dlPreviewRendererOptional);
 	}
 
 	@Override
 	public void renderPreview(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException, ServletException {
 
 		Optional<DLPreviewRenderer> dlPreviewRendererOptional =
@@ -303,17 +314,18 @@ public class DefaultDLViewFileVersionDisplayContext
 					_fileVersion);
 		}
 
-		_renderPreview(request, response, dlPreviewRendererOptional);
+		_renderPreview(
+			httpServletRequest, httpServletResponse, dlPreviewRendererOptional);
 	}
 
 	private DefaultDLViewFileVersionDisplayContext(
-		HttpServletRequest request, FileVersion fileVersion,
+		HttpServletRequest httpServletRequest, FileVersion fileVersion,
 		FileShortcut fileShortcut,
 		DLMimeTypeDisplayContext dlMimeTypeDisplayContext,
 		ResourceBundle resourceBundle, StorageEngine storageEngine,
 		DLTrashUtil dlTrashUtil,
 		DLPreviewRendererProvider dlPreviewRendererProvider,
-		VersioningStrategy versioningStrategy, DLURLHelper dlurlHelper) {
+		VersioningStrategy versioningStrategy, DLURLHelper dlURLHelper) {
 
 		try {
 			_fileVersion = fileVersion;
@@ -322,27 +334,29 @@ public class DefaultDLViewFileVersionDisplayContext
 			_storageEngine = storageEngine;
 			_dlPreviewRendererProvider = dlPreviewRendererProvider;
 
-			DLRequestHelper dlRequestHelper = new DLRequestHelper(request);
+			DLRequestHelper dlRequestHelper = new DLRequestHelper(
+				httpServletRequest);
 
 			_dlPortletInstanceSettingsHelper =
 				new DLPortletInstanceSettingsHelper(dlRequestHelper);
 
+			FileEntry fileEntry = _getFileEntry(fileVersion);
+
 			_fileEntryDisplayContextHelper = new FileEntryDisplayContextHelper(
-				dlRequestHelper.getPermissionChecker(),
-				_getFileEntry(fileVersion));
+				dlRequestHelper.getPermissionChecker(), fileEntry);
 
 			_fileVersionDisplayContextHelper =
 				new FileVersionDisplayContextHelper(fileVersion);
 
 			if (fileShortcut == null) {
 				_uiItemsBuilder = new UIItemsBuilder(
-					request, fileVersion, _resourceBundle, dlTrashUtil,
-					versioningStrategy, dlurlHelper);
+					httpServletRequest, fileEntry, fileVersion, _resourceBundle,
+					dlTrashUtil, versioningStrategy, dlURLHelper);
 			}
 			else {
 				_uiItemsBuilder = new UIItemsBuilder(
-					request, fileShortcut, _resourceBundle, dlTrashUtil,
-					versioningStrategy, dlurlHelper);
+					httpServletRequest, fileShortcut, _resourceBundle,
+					dlTrashUtil, versioningStrategy, dlURLHelper);
 			}
 		}
 		catch (PortalException pe) {
@@ -369,48 +383,81 @@ public class DefaultDLViewFileVersionDisplayContext
 		if (isActionsVisible()) {
 			_uiItemsBuilder.addDownloadMenuItem(menuItems);
 
-			_uiItemsBuilder.addOpenInMsOfficeMenuItem(menuItems);
-
 			_uiItemsBuilder.addViewOriginalFileMenuItem(menuItems);
+
+			_uiItemsBuilder.addOpenInMsOfficeMenuItem(menuItems);
 
 			_uiItemsBuilder.addEditMenuItem(menuItems);
 
-			_uiItemsBuilder.addMoveMenuItem(menuItems);
-
 			_uiItemsBuilder.addCheckoutMenuItem(menuItems);
+
+			_uiItemsBuilder.addCancelCheckoutMenuItem(menuItems);
 
 			_uiItemsBuilder.addCheckinMenuItem(menuItems);
 
-			_uiItemsBuilder.addCancelCheckoutMenuItem(menuItems);
+			_uiItemsBuilder.addMoveMenuItem(menuItems);
+
+			MenuItem menuItem = null;
+
+			if (!menuItems.isEmpty()) {
+				menuItem = menuItems.get(menuItems.size() - 1);
+			}
 
 			_uiItemsBuilder.addPermissionsMenuItem(menuItems);
 
 			_uiItemsBuilder.addDeleteMenuItem(menuItems);
 
 			_uiItemsBuilder.addPublishMenuItem(menuItems, true);
+
+			if ((menuItem != null) &&
+				(menuItem != menuItems.get(menuItems.size() - 1))) {
+
+				menuItem.setSeparator(true);
+			}
 		}
 
 		return menuItems;
 	}
 
+	private void _handleError(
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse, Exception e)
+		throws IOException, ServletException {
+
+		JSPRenderer jspRenderer = new JSPRenderer(
+			"/document_library/view_file_entry_preview_error.jsp");
+
+		jspRenderer.setAttribute(
+			WebKeys.DOCUMENT_LIBRARY_FILE_VERSION, _fileVersion);
+
+		if (e != null) {
+			jspRenderer.setAttribute(
+				DLWebKeys.DOCUMENT_LIBRARY_PREVIEW_EXCEPTION, e);
+		}
+
+		jspRenderer.render(httpServletRequest, httpServletResponse);
+	}
+
 	private void _renderPreview(
-			HttpServletRequest request, HttpServletResponse response,
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse,
 			Optional<DLPreviewRenderer> dlPreviewRendererOptional)
 		throws IOException, ServletException {
 
 		try {
 			if (!dlPreviewRendererOptional.isPresent()) {
-				throw new DLFileEntryPreviewNotAvailableException();
+				_handleError(httpServletRequest, httpServletResponse, null);
+
+				return;
 			}
 
 			DLPreviewRenderer dlPreviewRenderer =
 				dlPreviewRendererOptional.get();
 
-			dlPreviewRenderer.render(request, response);
+			dlPreviewRenderer.render(httpServletRequest, httpServletResponse);
 		}
 		catch (Exception e) {
 			if (e instanceof DLFileEntryPreviewGenerationException ||
-				e instanceof DLFileEntryPreviewNotAvailableException ||
 				e instanceof DLPreviewGenerationInProcessException ||
 				e instanceof DLPreviewSizeException) {
 
@@ -425,15 +472,7 @@ public class DefaultDLViewFileVersionDisplayContext
 					e);
 			}
 
-			JSPRenderer jspRenderer = new JSPRenderer(
-				"/document_library/view_file_entry_preview_error.jsp");
-
-			jspRenderer.setAttribute(
-				WebKeys.DOCUMENT_LIBRARY_FILE_VERSION, _fileVersion);
-			jspRenderer.setAttribute(
-				DLWebKeys.DOCUMENT_LIBRARY_PREVIEW_EXCEPTION, e);
-
-			jspRenderer.render(request, response);
+			_handleError(httpServletRequest, httpServletResponse, e);
 		}
 	}
 

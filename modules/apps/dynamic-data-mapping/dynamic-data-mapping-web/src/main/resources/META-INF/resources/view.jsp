@@ -26,9 +26,11 @@ if (ddmDisplay.getDescription(locale) != null) {
 if (ddmDisplay.getTitle(locale) != null) {
 	renderResponse.setTitle(ddmDisplay.getTitle(locale));
 }
+
+List<DDMDisplayTabItem> ddmDisplayTabItems = ddmDisplay.getTabItems();
 %>
 
-<c:if test="<%= showBackURL && ddmDisplay.isShowBackURLInTitleBar() %>">
+<c:if test="<%= (ddmDisplayTabItems.size() < 2) && ddmDisplay.isShowBackURLInTitleBar() && showBackURL %>">
 
 	<%
 	portletDisplay.setShowBackIcon(true);

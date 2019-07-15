@@ -14,13 +14,17 @@
 
 package com.liferay.change.tracking.service.impl;
 
-import com.liferay.change.tracking.constants.CTConstants;
+import com.liferay.change.tracking.exception.CTCollectionDescriptionException;
 import com.liferay.change.tracking.exception.CTCollectionNameException;
 import com.liferay.change.tracking.model.CTCollection;
 import com.liferay.change.tracking.model.CTEntry;
 import com.liferay.change.tracking.model.CTEntryAggregate;
 import com.liferay.change.tracking.model.CTProcess;
+import com.liferay.change.tracking.service.CTEntryAggregateLocalService;
+import com.liferay.change.tracking.service.CTEntryLocalService;
+import com.liferay.change.tracking.service.CTProcessLocalService;
 import com.liferay.change.tracking.service.base.CTCollectionLocalServiceBaseImpl;
+import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
@@ -29,16 +33,24 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.ModelHintsUtil;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.util.Date;
 import java.util.List;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
 /**
  * @author Brian Wing Shun Chan
  * @author Daniel Kocsis
  */
+@Component(
+	property = "model.class.name=com.liferay.change.tracking.model.CTCollection",
+	service = AopService.class
+)
 public class CTCollectionLocalServiceImpl
 	extends CTCollectionLocalServiceBaseImpl {
 
@@ -48,14 +60,14 @@ public class CTCollectionLocalServiceImpl
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		_validate(name);
+		User user = userLocalService.getUser(userId);
+
+		_validate(name, description);
 
 		long ctCollectionId = counterLocalService.increment();
 
 		CTCollection ctCollection = ctCollectionPersistence.create(
 			ctCollectionId);
-
-		User user = userLocalService.getUser(userId);
 
 		ctCollection.setCompanyId(user.getCompanyId());
 		ctCollection.setUserId(user.getUserId());
@@ -89,7 +101,7 @@ public class CTCollectionLocalServiceImpl
 	public CTCollection deleteCTCollection(CTCollection ctCollection)
 		throws PortalException {
 
-		List<CTEntry> ctEntries = ctCollectionPersistence.getCTEntries(
+		List<CTEntry> ctEntries = ctEntryPersistence.getCTCollectionCTEntries(
 			ctCollection.getCtCollectionId());
 
 		for (CTEntry ctEntry : ctEntries) {
@@ -100,11 +112,11 @@ public class CTCollectionLocalServiceImpl
 				continue;
 			}
 
-			ctEntryLocalService.deleteCTEntry(ctEntry);
+			_ctEntryLocalService.deleteCTEntry(ctEntry);
 		}
 
 		List<CTEntryAggregate> ctEntryAggregates =
-			ctCollectionPersistence.getCTEntryAggregates(
+			ctEntryAggregatePersistence.getCTCollectionCTEntryAggregates(
 				ctCollection.getCtCollectionId());
 
 		for (CTEntryAggregate ctEntryAggregate : ctEntryAggregates) {
@@ -116,15 +128,15 @@ public class CTCollectionLocalServiceImpl
 				continue;
 			}
 
-			ctEntryAggregateLocalService.deleteCTEntryAggregate(
+			_ctEntryAggregateLocalService.deleteCTEntryAggregate(
 				ctEntryAggregate);
 		}
 
-		List<CTProcess> ctProcesses = ctProcessLocalService.getCTProcesses(
+		List<CTProcess> ctProcesses = ctProcessPersistence.findByCollectionId(
 			ctCollection.getCtCollectionId());
 
 		for (CTProcess ctProcess : ctProcesses) {
-			ctProcessLocalService.deleteCTProcess(ctProcess);
+			_ctProcessLocalService.deleteCTProcess(ctProcess);
 		}
 
 		ctCollectionPersistence.remove(ctCollection);
@@ -172,14 +184,61 @@ public class CTCollectionLocalServiceImpl
 
 		dynamicQuery.add(companyIdProperty.eq(companyId));
 
-		Property nameProperty = PropertyFactoryUtil.forName("name");
+		boolean includeActive = GetterUtil.getBoolean(
+			queryDefinition.getAttribute("includeActive"));
 
-		dynamicQuery.add(
-			nameProperty.ne(CTConstants.CT_COLLECTION_NAME_PRODUCTION));
+		if (!includeActive) {
+			Property ctCollectionIdProperty = PropertyFactoryUtil.forName(
+				"ctCollectionId");
+
+			long activeCTCollectionId = GetterUtil.getLong(
+				queryDefinition.getAttribute("activeCTCollectionId"));
+
+			dynamicQuery.add(ctCollectionIdProperty.ne(activeCTCollectionId));
+		}
+
+		int status = queryDefinition.getStatus();
+
+		if (status != WorkflowConstants.STATUS_ANY) {
+			Property statusProperty = PropertyFactoryUtil.forName("status");
+
+			if (queryDefinition.isExcludeStatus()) {
+				dynamicQuery.add(statusProperty.ne(status));
+			}
+			else {
+				dynamicQuery.add(statusProperty.eq(status));
+			}
+		}
 
 		return ctCollectionLocalService.dynamicQuery(
 			dynamicQuery, queryDefinition.getStart(), queryDefinition.getEnd(),
 			queryDefinition.getOrderByComparator());
+	}
+
+	@Override
+	public CTCollection updateCTCollection(
+			long userId, long ctCollectionId, String name, String description,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		User user = userLocalService.getUser(userId);
+
+		_validate(name, description);
+
+		CTCollection ctCollection = ctCollectionPersistence.findByPrimaryKey(
+			ctCollectionId);
+
+		Date modifiedDate = serviceContext.getModifiedDate(new Date());
+
+		ctCollection.setModifiedDate(modifiedDate);
+
+		ctCollection.setName(name);
+		ctCollection.setDescription(description);
+		ctCollection.setStatusByUserId(user.getUserId());
+		ctCollection.setStatusByUserName(user.getFullName());
+		ctCollection.setStatusDate(modifiedDate);
+
+		return ctCollectionPersistence.update(ctCollection);
 	}
 
 	@Override
@@ -204,7 +263,9 @@ public class CTCollectionLocalServiceImpl
 		return ctCollectionPersistence.update(ctCollection);
 	}
 
-	private void _validate(String name) throws CTCollectionNameException {
+	private void _validate(String name, String description)
+		throws PortalException {
+
 		if (Validator.isNull(name)) {
 			throw new CTCollectionNameException();
 		}
@@ -215,6 +276,25 @@ public class CTCollectionLocalServiceImpl
 		if (name.length() > nameMaxLength) {
 			throw new CTCollectionNameException("Name is too long");
 		}
+
+		int descriptionMaxLength = ModelHintsUtil.getMaxLength(
+			CTCollection.class.getName(), "description");
+
+		if ((description != null) &&
+			(description.length() > descriptionMaxLength)) {
+
+			throw new CTCollectionDescriptionException(
+				"Description is too long");
+		}
 	}
+
+	@Reference
+	private CTEntryAggregateLocalService _ctEntryAggregateLocalService;
+
+	@Reference
+	private CTEntryLocalService _ctEntryLocalService;
+
+	@Reference
+	private CTProcessLocalService _ctProcessLocalService;
 
 }

@@ -32,8 +32,8 @@ import com.liferay.portal.kernel.model.LayoutSetPrototype;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
-import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
@@ -740,15 +740,19 @@ public class LayoutSetPrototypePropagationTest
 		if ((layout != null) && (_layout != null)) {
 			layout = LayoutLocalServiceUtil.getLayout(layout.getPlid());
 
-			layout.setLayoutPrototypeLinkEnabled(linkEnabled);
+			Layout draftLayout = LayoutLocalServiceUtil.getDraft(layout);
 
-			LayoutLocalServiceUtil.updateLayout(layout);
+			draftLayout.setLayoutPrototypeLinkEnabled(linkEnabled);
+
+			layout = LayoutLocalServiceUtil.publishDraft(draftLayout);
 
 			_layout = LayoutLocalServiceUtil.getLayout(_layout.getPlid());
 
-			_layout.setLayoutPrototypeLinkEnabled(linkEnabled);
+			draftLayout = LayoutLocalServiceUtil.getDraft(_layout);
 
-			LayoutLocalServiceUtil.updateLayout(_layout);
+			draftLayout.setLayoutPrototypeLinkEnabled(linkEnabled);
+
+			_layout = LayoutLocalServiceUtil.updateLayout(draftLayout);
 		}
 
 		MergeLayoutPrototypesThreadLocal.clearMergeComplete();

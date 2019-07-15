@@ -14,13 +14,13 @@
 
 package com.liferay.oauth2.provider.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.ShardedModel;
 
 import java.util.Date;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The base model interface for the OAuth2Authorization service. Represents a row in the &quot;OAuth2Authorization&quot; database table, with each column mapped to a property of this class.
@@ -229,6 +229,21 @@ public interface OAuth2AuthorizationModel
 	 * @param accessTokenExpirationDate the access token expiration date of this o auth2 authorization
 	 */
 	public void setAccessTokenExpirationDate(Date accessTokenExpirationDate);
+
+	/**
+	 * Returns the remote host info of this o auth2 authorization.
+	 *
+	 * @return the remote host info of this o auth2 authorization
+	 */
+	@AutoEscape
+	public String getRemoteHostInfo();
+
+	/**
+	 * Sets the remote host info of this o auth2 authorization.
+	 *
+	 * @param remoteHostInfo the remote host info of this o auth2 authorization
+	 */
+	public void setRemoteHostInfo(String remoteHostInfo);
 
 	/**
 	 * Returns the remote ip info of this o auth2 authorization.

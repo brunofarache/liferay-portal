@@ -14,9 +14,9 @@
 
 package com.liferay.knowledge.base.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.service.ServiceWrapper;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link KBArticleLocalService}.
@@ -364,8 +364,7 @@ public class KBArticleLocalServiceWrapper
 
 	@Override
 	public com.liferay.knowledge.base.model.KBArticle fetchKBArticleByUrlTitle(
-			long groupId, String kbFolderUrlTitle, String urlTitle)
-		throws com.liferay.portal.kernel.exception.PortalException {
+		long groupId, String kbFolderUrlTitle, String urlTitle) {
 
 		return _kbArticleLocalService.fetchKBArticleByUrlTitle(
 			groupId, kbFolderUrlTitle, urlTitle);

@@ -14,10 +14,10 @@
 
 package com.liferay.portal.search.legacy.stats;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.search.Stats;
 import com.liferay.portal.search.stats.StatsRequestBuilder;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Bryan Engler
@@ -26,12 +26,10 @@ import com.liferay.portal.search.stats.StatsRequestBuilder;
 public interface StatsRequestBuilderFactory {
 
 	/**
-	 * Provides a StatsRequestBuilder object based off a legacy Stats object.
+	 * Creates a new stats request builder from a legacy {@code Stats} object.
 	 *
-	 * @param stats the legacy Stats object to be converted
-	 * @return the converted StatsRequestBuilder object
-	 *
-	 * @review
+	 * @param  stats the legacy {@code Stats} object to be converted
+	 * @return the converted stats request builder
 	 */
 	public StatsRequestBuilder getStatsRequestBuilder(Stats stats);
 

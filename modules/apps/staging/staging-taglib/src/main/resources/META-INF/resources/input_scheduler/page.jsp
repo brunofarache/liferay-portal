@@ -64,6 +64,7 @@
 
 		int[] monthIds = CalendarUtil.getMonthIds();
 		String[] months = CalendarUtil.getMonths(locale);
+		String timeZoneID = timeZone.getID();
 		%>
 
 		<table class="staging-publish-schedule">
@@ -425,23 +426,35 @@
 			</tbody>
 		</table>
 
-		<aui:script sandbox="<%= true %>">
-			var tables = $('#<portlet:namespace />recurrenceTypeDailyTable, #<portlet:namespace />recurrenceTypeMonthlyTable, #<portlet:namespace />recurrenceTypeNeverTable, #<portlet:namespace />recurrenceTypeWeeklyTable, #<portlet:namespace />recurrenceTypeYearlyTable');
+		<aui:input cssClass="calendar-portlet-time-zone-field" label="time-zone" name="timeZoneId" type="timeZone" value="<%= timeZoneID %>" />
 
-			$('#<portlet:namespace />recurrenceType').on(
-				'change',
-				function(event) {
-					var tableId = '<portlet:namespace />' + $(event.currentTarget).find(':selected').attr('id') + 'Table';
+		<script>
+			(function() {
+				var tables = document.querySelectorAll('#<portlet:namespace />recurrenceTypeDailyTable, #<portlet:namespace />recurrenceTypeMonthlyTable, #<portlet:namespace />recurrenceTypeNeverTable, #<portlet:namespace />recurrenceTypeWeeklyTable, #<portlet:namespace />recurrenceTypeYearlyTable');
+				var recurrenceTypeSelect = document.getElementById('<portlet:namespace />recurrenceType');
 
-					tables.each(
-						function(index, item) {
-							item = $(item);
+				if (recurrenceTypeSelect) {
+					recurrenceTypeSelect.addEventListener(
+						'change',
+						function(event) {
+							var selectedTableId = '<portlet:namespace />' + recurrenceTypeSelect[recurrenceTypeSelect.selectedIndex].id + 'Table';
 
-							item.toggleClass('hide', item.attr('id') != tableId);
+							Array.prototype.forEach.call(
+								tables,
+								function(table) {
+									if (table.id !== selectedTableId) {
+										table.classList.add('hide');
+									}
+									else {
+										table.classList.remove('hide');
+									}
+								}
+							);
 						}
 					);
-				});
-		</aui:script>
+				}
+			})();
+		</script>
 
 		<%!
 		private boolean _getWeeklyDayPos(HttpServletRequest req, int day, Recurrence recurrence) {

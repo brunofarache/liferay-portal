@@ -14,14 +14,15 @@
 
 package com.liferay.segments.model;
 
-import aQute.bnd.annotation.ProviderType;
-
+import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.model.ModelWrapper;
 import com.liferay.portal.kernel.model.wrapper.BaseModelWrapper;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * <p>
@@ -45,6 +46,7 @@ public class SegmentsExperienceWrapper
 	public Map<String, Object> getModelAttributes() {
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
+		attributes.put("uuid", getUuid());
 		attributes.put("segmentsExperienceId", getSegmentsExperienceId());
 		attributes.put("groupId", getGroupId());
 		attributes.put("companyId", getCompanyId());
@@ -52,18 +54,26 @@ public class SegmentsExperienceWrapper
 		attributes.put("userName", getUserName());
 		attributes.put("createDate", getCreateDate());
 		attributes.put("modifiedDate", getModifiedDate());
+		attributes.put("segmentsExperienceKey", getSegmentsExperienceKey());
 		attributes.put("segmentsEntryId", getSegmentsEntryId());
 		attributes.put("classNameId", getClassNameId());
 		attributes.put("classPK", getClassPK());
 		attributes.put("name", getName());
 		attributes.put("priority", getPriority());
 		attributes.put("active", isActive());
+		attributes.put("lastPublishDate", getLastPublishDate());
 
 		return attributes;
 	}
 
 	@Override
 	public void setModelAttributes(Map<String, Object> attributes) {
+		String uuid = (String)attributes.get("uuid");
+
+		if (uuid != null) {
+			setUuid(uuid);
+		}
+
 		Long segmentsExperienceId = (Long)attributes.get(
 			"segmentsExperienceId");
 
@@ -107,6 +117,13 @@ public class SegmentsExperienceWrapper
 			setModifiedDate(modifiedDate);
 		}
 
+		String segmentsExperienceKey = (String)attributes.get(
+			"segmentsExperienceKey");
+
+		if (segmentsExperienceKey != null) {
+			setSegmentsExperienceKey(segmentsExperienceKey);
+		}
+
 		Long segmentsEntryId = (Long)attributes.get("segmentsEntryId");
 
 		if (segmentsEntryId != null) {
@@ -141,6 +158,12 @@ public class SegmentsExperienceWrapper
 
 		if (active != null) {
 			setActive(active);
+		}
+
+		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
+
+		if (lastPublishDate != null) {
+			setLastPublishDate(lastPublishDate);
 		}
 	}
 
@@ -222,6 +245,16 @@ public class SegmentsExperienceWrapper
 	@Override
 	public long getGroupId() {
 		return model.getGroupId();
+	}
+
+	/**
+	 * Returns the last publish date of this segments experience.
+	 *
+	 * @return the last publish date of this segments experience
+	 */
+	@Override
+	public Date getLastPublishDate() {
+		return model.getLastPublishDate();
 	}
 
 	/**
@@ -351,6 +384,16 @@ public class SegmentsExperienceWrapper
 	}
 
 	/**
+	 * Returns the segments experience key of this segments experience.
+	 *
+	 * @return the segments experience key of this segments experience
+	 */
+	@Override
+	public String getSegmentsExperienceKey() {
+		return model.getSegmentsExperienceKey();
+	}
+
+	/**
 	 * Returns the user ID of this segments experience.
 	 *
 	 * @return the user ID of this segments experience
@@ -378,6 +421,16 @@ public class SegmentsExperienceWrapper
 	@Override
 	public String getUserUuid() {
 		return model.getUserUuid();
+	}
+
+	/**
+	 * Returns the uuid of this segments experience.
+	 *
+	 * @return the uuid of this segments experience
+	 */
+	@Override
+	public String getUuid() {
+		return model.getUuid();
 	}
 
 	/**
@@ -473,6 +526,16 @@ public class SegmentsExperienceWrapper
 	@Override
 	public void setGroupId(long groupId) {
 		model.setGroupId(groupId);
+	}
+
+	/**
+	 * Sets the last publish date of this segments experience.
+	 *
+	 * @param lastPublishDate the last publish date of this segments experience
+	 */
+	@Override
+	public void setLastPublishDate(Date lastPublishDate) {
+		model.setLastPublishDate(lastPublishDate);
 	}
 
 	/**
@@ -589,6 +652,16 @@ public class SegmentsExperienceWrapper
 	}
 
 	/**
+	 * Sets the segments experience key of this segments experience.
+	 *
+	 * @param segmentsExperienceKey the segments experience key of this segments experience
+	 */
+	@Override
+	public void setSegmentsExperienceKey(String segmentsExperienceKey) {
+		model.setSegmentsExperienceKey(segmentsExperienceKey);
+	}
+
+	/**
 	 * Sets the user ID of this segments experience.
 	 *
 	 * @param userId the user ID of this segments experience
@@ -616,6 +689,21 @@ public class SegmentsExperienceWrapper
 	@Override
 	public void setUserUuid(String userUuid) {
 		model.setUserUuid(userUuid);
+	}
+
+	/**
+	 * Sets the uuid of this segments experience.
+	 *
+	 * @param uuid the uuid of this segments experience
+	 */
+	@Override
+	public void setUuid(String uuid) {
+		model.setUuid(uuid);
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return model.getStagedModelType();
 	}
 
 	@Override

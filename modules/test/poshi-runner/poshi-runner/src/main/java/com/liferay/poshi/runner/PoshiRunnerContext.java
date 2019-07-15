@@ -450,10 +450,10 @@ public class PoshiRunnerContext {
 			return commandElement.attributeValue("summary");
 		}
 
-		if (classType.equals("function")) {
-			if (Validator.isNotNull(rootElement.attributeValue("summary"))) {
-				return rootElement.attributeValue("summary");
-			}
+		if (classType.equals("function") &&
+			Validator.isNotNull(rootElement.attributeValue("summary"))) {
+
+			return rootElement.attributeValue("summary");
 		}
 
 		return classCommandName;
@@ -1628,8 +1628,8 @@ public class PoshiRunnerContext {
 
 	private static final String _DEFAULT_NAMESPACE = "LocalFile";
 
-	private static final String _TEST_BASE_DIR_NAME =
-		PoshiRunnerGetterUtil.getCanonicalPath(PropsValues.TEST_BASE_DIR_NAME);
+	private static final String _TEST_BASE_DIR_NAME = FileUtil.getCanonicalPath(
+		PropsValues.TEST_BASE_DIR_NAME);
 
 	private static final Map<String, Element> _commandElements =
 		new HashMap<>();

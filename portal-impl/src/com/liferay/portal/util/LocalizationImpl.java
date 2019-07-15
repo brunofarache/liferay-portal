@@ -15,6 +15,7 @@
 package com.liferay.portal.util;
 
 import com.liferay.petra.content.ContentUtil;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.xml.XMLUtil;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
@@ -33,7 +34,6 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.PrefsParamUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.kernel.util.Validator;
@@ -247,14 +247,13 @@ public class LocalizationImpl implements Localization {
 
 		if (useDefault &&
 			LanguageUtil.isDuplicateLanguageCode(
-				requestedLocale.getLanguage())) {
+				requestedLocale.getLanguage()) &&
+			!requestedLanguageId.equals(priorityLanguageId)) {
 
-			if (!requestedLanguageId.equals(priorityLanguageId)) {
-				Locale priorityLocale = LanguageUtil.getLocale(
-					requestedLocale.getLanguage());
+			Locale priorityLocale = LanguageUtil.getLocale(
+				requestedLocale.getLanguage());
 
-				priorityLanguageId = LocaleUtil.toLanguageId(priorityLocale);
-			}
+			priorityLanguageId = LocaleUtil.toLanguageId(priorityLocale);
 		}
 
 		XMLStreamReader xmlStreamReader = null;
@@ -397,7 +396,7 @@ public class LocalizationImpl implements Localization {
 
 	@Override
 	public Map<Locale, String> getLocalizationMap(
-		HttpServletRequest request, String parameter) {
+		HttpServletRequest httpServletRequest, String parameter) {
 
 		Map<Locale, String> map = new HashMap<>();
 
@@ -405,7 +404,9 @@ public class LocalizationImpl implements Localization {
 			String localizedParameter = getLocalizedName(
 				parameter, LocaleUtil.toLanguageId(locale));
 
-			map.put(locale, ParamUtil.getString(request, localizedParameter));
+			map.put(
+				locale,
+				ParamUtil.getString(httpServletRequest, localizedParameter));
 		}
 
 		return map;
@@ -666,22 +667,6 @@ public class LocalizationImpl implements Localization {
 		return map;
 	}
 
-	/**
-	 * @deprecated As of Wilberforce (7.0.x)
-	 */
-	@Deprecated
-	@Override
-	public String getPreferencesKey(String key, String languageId) {
-		String defaultLanguageId = LocaleUtil.toLanguageId(
-			LocaleUtil.getSiteDefault());
-
-		if (!languageId.equals(defaultLanguageId)) {
-			key = getLocalizedName(key, languageId);
-		}
-
-		return key;
-	}
-
 	@Override
 	public String getPreferencesValue(
 		PortletPreferences preferences, String key, String languageId) {
@@ -927,6 +912,27 @@ public class LocalizationImpl implements Localization {
 		}
 
 		return StringPool.BLANK;
+	}
+
+	@Override
+	public Map<Locale, String> populateLocalizationMap(
+		Map<Locale, String> localizationMap, String defaultLanguageId,
+		long groupId) {
+
+		String defaultValue = localizationMap.get(
+			LocaleUtil.fromLanguageId(defaultLanguageId));
+
+		for (Locale availableLocale :
+				LanguageUtil.getAvailableLocales(groupId)) {
+
+			if (!localizationMap.containsKey(availableLocale) ||
+				Validator.isNull(localizationMap.get(availableLocale))) {
+
+				localizationMap.put(availableLocale, defaultValue);
+			}
+		}
+
+		return localizationMap;
 	}
 
 	@Override

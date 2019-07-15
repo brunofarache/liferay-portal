@@ -14,10 +14,9 @@
 
 package com.liferay.expando.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the remote service utility for ExpandoColumn. This utility wraps
@@ -100,9 +99,6 @@ public class ExpandoColumnServiceUtil {
 		if (_service == null) {
 			_service = (ExpandoColumnService)PortalBeanLocatorUtil.locate(
 				ExpandoColumnService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				ExpandoColumnServiceUtil.class, "_service");
 		}
 
 		return _service;

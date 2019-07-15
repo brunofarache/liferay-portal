@@ -14,10 +14,9 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service utility for PortletItem. This utility wraps
@@ -313,9 +312,6 @@ public class PortletItemLocalServiceUtil {
 		if (_service == null) {
 			_service = (PortletItemLocalService)PortalBeanLocatorUtil.locate(
 				PortletItemLocalService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				PortletItemLocalServiceUtil.class, "_service");
 		}
 
 		return _service;

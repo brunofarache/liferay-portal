@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.PortletURLUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -46,11 +47,11 @@ public class BaseManagementToolbarDisplayContext
 	public BaseManagementToolbarDisplayContext(
 		LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse,
-		HttpServletRequest request) {
+		HttpServletRequest httpServletRequest) {
 
 		this.liferayPortletRequest = liferayPortletRequest;
 		this.liferayPortletResponse = liferayPortletResponse;
-		this.request = request;
+		request = httpServletRequest;
 
 		currentURLObj = PortletURLUtil.getCurrent(
 			liferayPortletRequest, liferayPortletResponse);
@@ -108,6 +109,12 @@ public class BaseManagementToolbarDisplayContext
 	@Override
 	public String getSortingURL() {
 		PortletURL sortingURL = getPortletURL();
+
+		String orderByCol = getOrderByCol();
+
+		if (Validator.isNotNull(orderByCol)) {
+			sortingURL.setParameter(getOrderByColParam(), orderByCol);
+		}
 
 		sortingURL.setParameter(
 			getOrderByTypeParam(),

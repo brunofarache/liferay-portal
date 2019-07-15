@@ -18,13 +18,17 @@ import com.liferay.data.engine.rest.dto.v1_0.DataDefinition;
 import com.liferay.data.engine.rest.dto.v1_0.DataDefinitionField;
 import com.liferay.data.engine.rest.dto.v1_0.DataDefinitionRule;
 import com.liferay.data.engine.rest.dto.v1_0.DataRecord;
+import com.liferay.data.engine.rest.internal.constants.DataActionKeys;
+import com.liferay.data.engine.rest.internal.dto.v1_0.util.DataDefinitionFieldUtil;
 import com.liferay.data.engine.rest.internal.dto.v1_0.util.DataDefinitionUtil;
-import com.liferay.data.engine.rest.internal.dto.v1_0.util.DataRecordValueUtil;
-import com.liferay.data.engine.rest.internal.rule.function.v1_0.DataRuleFunction;
-import com.liferay.data.engine.rest.internal.rule.function.v1_0.DataRuleFunctionFactory;
-import com.liferay.data.engine.rest.internal.rule.function.v1_0.DataRuleFunctionResult;
-import com.liferay.data.engine.rest.internal.storage.DataStorage;
+import com.liferay.data.engine.rest.internal.model.InternalDataRecordCollection;
+import com.liferay.data.engine.rest.internal.storage.DataRecordExporter;
+import com.liferay.data.engine.rest.internal.storage.DataStorageTracker;
 import com.liferay.data.engine.rest.resource.v1_0.DataRecordResource;
+import com.liferay.data.engine.rule.function.DataRuleFunction;
+import com.liferay.data.engine.rule.function.DataRuleFunctionResult;
+import com.liferay.data.engine.rule.function.DataRuleFunctionTracker;
+import com.liferay.data.engine.storage.DataStorage;
 import com.liferay.dynamic.data.lists.model.DDLRecord;
 import com.liferay.dynamic.data.lists.model.DDLRecordSet;
 import com.liferay.dynamic.data.lists.model.DDLRecordSetVersion;
@@ -33,13 +37,15 @@ import com.liferay.dynamic.data.lists.service.DDLRecordService;
 import com.liferay.dynamic.data.lists.service.DDLRecordSetLocalService;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMStructureVersion;
-import com.liferay.dynamic.data.mapping.service.DDMContentLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStorageLinkLocalService;
-import com.liferay.dynamic.data.mapping.service.DDMStructureService;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 
@@ -71,27 +77,79 @@ public class DataRecordResourceImpl extends BaseDataRecordResourceImpl {
 
 	@Activate
 	public void activate() {
-		_dataStorage = new DataStorage(
-			_ddlRecordSetLocalService, _ddmContentLocalService,
-			_ddmStructureService);
+		_dataRecordExporter = new DataRecordExporter(_ddlRecordSetLocalService);
 	}
 
 	@Override
 	public void deleteDataRecord(Long dataRecordId) throws Exception {
-		_dataStorage.delete(dataRecordId);
+		DDLRecord ddlRecord = _ddlRecordLocalService.getDDLRecord(dataRecordId);
+
+		_modelResourcePermission.check(
+			PermissionThreadLocal.getPermissionChecker(),
+			ddlRecord.getRecordSetId(), DataActionKeys.DELETE_DATA_RECORD);
+
+		DDLRecordSet ddlRecordSet = ddlRecord.getRecordSet();
+
+		DDMStructure ddmStructure = ddlRecordSet.getDDMStructure();
+
+		DataStorage dataStorage = _getDataStorage(
+			ddmStructure.getStorageType());
+
+		dataStorage.delete(dataRecordId);
 
 		_ddlRecordLocalService.deleteDDLRecord(dataRecordId);
 	}
 
 	@Override
 	public DataRecord getDataRecord(Long dataRecordId) throws Exception {
-		return _toDataRecord(_ddlRecordLocalService.getDDLRecord(dataRecordId));
+		DDLRecord ddlRecord = _ddlRecordLocalService.getDDLRecord(dataRecordId);
+
+		_modelResourcePermission.check(
+			PermissionThreadLocal.getPermissionChecker(),
+			ddlRecord.getRecordSetId(), DataActionKeys.VIEW_DATA_RECORD);
+
+		return _toDataRecord(ddlRecord);
+	}
+
+	@Override
+	public String getDataRecordCollectionDataRecordExport(
+			Long dataRecordCollectionId, Pagination pagination)
+		throws Exception {
+
+		if (pagination.getPageSize() > 250) {
+			throw new BadRequestException(
+				LanguageUtil.format(
+					contextAcceptLanguage.getPreferredLocale(),
+					"page-size-is-greater-than-x", 250));
+		}
+
+		_modelResourcePermission.check(
+			PermissionThreadLocal.getPermissionChecker(),
+			dataRecordCollectionId, DataActionKeys.EXPORT_DATA_RECORDS);
+
+		return _dataRecordExporter.export(
+			transform(
+				_ddlRecordLocalService.getRecords(
+					dataRecordCollectionId, pagination.getStartPosition(),
+					pagination.getEndPosition(), null),
+				this::_toDataRecord));
 	}
 
 	@Override
 	public Page<DataRecord> getDataRecordCollectionDataRecordsPage(
 			Long dataRecordCollectionId, Pagination pagination)
 		throws Exception {
+
+		if (pagination.getPageSize() > 250) {
+			throw new BadRequestException(
+				LanguageUtil.format(
+					contextAcceptLanguage.getPreferredLocale(),
+					"page-size-is-greater-than-x", 250));
+		}
+
+		_modelResourcePermission.check(
+			PermissionThreadLocal.getPermissionChecker(),
+			dataRecordCollectionId, DataActionKeys.VIEW_DATA_RECORD);
 
 		return Page.of(
 			transform(
@@ -109,17 +167,30 @@ public class DataRecordResourceImpl extends BaseDataRecordResourceImpl {
 			Long dataRecordCollectionId, DataRecord dataRecord)
 		throws Exception {
 
+		_modelResourcePermission.check(
+			PermissionThreadLocal.getPermissionChecker(),
+			dataRecordCollectionId, DataActionKeys.ADD_DATA_RECORD);
+
 		DDLRecordSet ddlRecordSet = _ddlRecordSetLocalService.getRecordSet(
 			dataRecordCollectionId);
 
+		dataRecord.setDataRecordCollectionId(dataRecordCollectionId);
+
+		DDMStructure ddmStructure = ddlRecordSet.getDDMStructure();
+
 		_validate(
-			DataDefinitionUtil.toDataDefinition(ddlRecordSet.getDDMStructure()),
-			dataRecord);
+			DataDefinitionUtil.toDataDefinition(ddmStructure), dataRecord);
+
+		DataStorage dataStorage = _getDataStorage(
+			ddmStructure.getStorageType());
 
 		return _toDataRecord(
 			_ddlRecordLocalService.addRecord(
 				PrincipalThreadLocal.getUserId(), ddlRecordSet.getGroupId(),
-				_dataStorage.save(ddlRecordSet.getGroupId(), dataRecord),
+				dataStorage.save(
+					ddlRecordSet.getRecordSetId(),
+					dataRecord.getDataRecordValues(),
+					ddlRecordSet.getGroupId()),
 				dataRecord.getDataRecordCollectionId(), new ServiceContext()));
 	}
 
@@ -131,13 +202,25 @@ public class DataRecordResourceImpl extends BaseDataRecordResourceImpl {
 
 		DDLRecordSet ddlRecordSet = ddlRecord.getRecordSet();
 
+		_modelResourcePermission.check(
+			PermissionThreadLocal.getPermissionChecker(),
+			ddlRecordSet.getRecordSetId(), DataActionKeys.UPDATE_DATA_RECORD);
+
+		dataRecord.setDataRecordCollectionId(ddlRecordSet.getRecordSetId());
+
+		dataRecord.setId(dataRecordId);
+
 		DDMStructure ddmStructure = ddlRecordSet.getDDMStructure();
 
 		_validate(
 			DataDefinitionUtil.toDataDefinition(ddmStructure), dataRecord);
 
-		long ddmStorageId = _dataStorage.save(
-			ddlRecord.getGroupId(), dataRecord);
+		DataStorage dataStorage = _getDataStorage(
+			ddmStructure.getStorageType());
+
+		long ddmStorageId = dataStorage.save(
+			ddlRecordSet.getRecordSetId(), dataRecord.getDataRecordValues(),
+			ddlRecord.getGroupId());
 
 		_ddlRecordLocalService.updateRecord(
 			PrincipalThreadLocal.getUserId(), dataRecordId, ddmStorageId,
@@ -156,23 +239,53 @@ public class DataRecordResourceImpl extends BaseDataRecordResourceImpl {
 		return dataRecord;
 	}
 
+	@Reference(
+		target = "(model.class.name=com.liferay.data.engine.rest.internal.model.InternalDataRecordCollection)",
+		unbind = "-"
+	)
+	protected void setModelResourcePermission(
+		ModelResourcePermission<InternalDataRecordCollection>
+			modelResourcePermission) {
+
+		_modelResourcePermission = modelResourcePermission;
+	}
+
+	private DataStorage _getDataStorage(String dataStorageType) {
+		if (Validator.isNull(dataStorageType)) {
+			throw new BadRequestException("Data storage type is null");
+		}
+
+		DataStorage dataStorage = _dataStorageTracker.getDataStorage(
+			dataStorageType);
+
+		if (dataStorage == null) {
+			throw new BadRequestException(
+				"Unsupported data storage type: " + dataStorageType);
+		}
+
+		return dataStorage;
+	}
+
 	private DataRecord _toDataRecord(DDLRecord ddlRecord) throws Exception {
 		DDLRecordSet ddlRecordSet = ddlRecord.getRecordSet();
 
 		DDMStructure ddmStructure = ddlRecordSet.getDDMStructure();
 
+		DataStorage dataStorage = _getDataStorage(
+			ddmStructure.getStorageType());
+
 		return new DataRecord() {
 			{
 				dataRecordCollectionId = ddlRecordSet.getRecordSetId();
-				dataRecordValues = _dataStorage.get(
+				dataRecordValues = dataStorage.get(
 					ddmStructure.getStructureId(), ddlRecord.getDDMStorageId());
 				id = ddlRecord.getRecordId();
 			}
 		};
 	}
 
-	private void _validate(DataDefinition dataDefinition, DataRecord dataRecord)
-		throws Exception {
+	private void _validate(
+		DataDefinition dataDefinition, DataRecord dataRecord) {
 
 		// Field names
 
@@ -184,10 +297,9 @@ public class DataRecordResourceImpl extends BaseDataRecordResourceImpl {
 			Collectors.toSet()
 		);
 
-		Map<String, Object> dataRecordValuesMap = DataRecordValueUtil.toMap(
-			dataRecord.getDataRecordValues());
+		Map<String, ?> dataRecordValues = dataRecord.getDataRecordValues();
 
-		Set<String> fieldNames = dataRecordValuesMap.keySet();
+		Set<String> fieldNames = dataRecordValues.keySet();
 
 		List<String> missingFieldNames = fieldNames.stream(
 		).filter(
@@ -227,7 +339,7 @@ public class DataRecordResourceImpl extends BaseDataRecordResourceImpl {
 
 		for (DataDefinitionRule dataDefinitionRule : dataDefinitionRules) {
 			DataRuleFunction dataRuleFunction =
-				DataRuleFunctionFactory.getDataRuleFunction(
+				_dataRuleFunctionTracker.getDataRuleFunction(
 					dataDefinitionRule.getName());
 
 			if (dataRuleFunction == null) {
@@ -242,11 +354,10 @@ public class DataRecordResourceImpl extends BaseDataRecordResourceImpl {
 
 				DataRuleFunctionResult dataRuleFunctionResult =
 					dataRuleFunction.validate(
-						dataDefinitionField,
 						dataDefinitionRule.getDataDefinitionRuleParameters(),
-						DataRecordValueUtil.getDataDefinitionFieldValue(
-							dataDefinitionField,
-							dataRecord.getDataRecordValues()));
+						DataDefinitionFieldUtil.toSPIDataDefinitionField(
+							dataDefinitionField),
+						dataRecordValues.get(dataDefinitionField.getName()));
 
 				if (dataRuleFunctionResult.isValid()) {
 					continue;
@@ -266,7 +377,13 @@ public class DataRecordResourceImpl extends BaseDataRecordResourceImpl {
 		}
 	}
 
-	private DataStorage _dataStorage;
+	private DataRecordExporter _dataRecordExporter;
+
+	@Reference
+	private DataRuleFunctionTracker _dataRuleFunctionTracker;
+
+	@Reference
+	private DataStorageTracker _dataStorageTracker;
 
 	@Reference
 	private DDLRecordLocalService _ddlRecordLocalService;
@@ -278,13 +395,10 @@ public class DataRecordResourceImpl extends BaseDataRecordResourceImpl {
 	private DDLRecordSetLocalService _ddlRecordSetLocalService;
 
 	@Reference
-	private DDMContentLocalService _ddmContentLocalService;
-
-	@Reference
 	private DDMStorageLinkLocalService _ddmStorageLinkLocalService;
 
-	@Reference
-	private DDMStructureService _ddmStructureService;
+	private ModelResourcePermission<InternalDataRecordCollection>
+		_modelResourcePermission;
 
 	@Reference
 	private Portal _portal;

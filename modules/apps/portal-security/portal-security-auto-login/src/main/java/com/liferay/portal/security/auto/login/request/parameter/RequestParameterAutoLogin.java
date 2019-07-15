@@ -44,16 +44,17 @@ public class RequestParameterAutoLogin extends BaseAutoLogin {
 
 	@Override
 	protected String[] doLogin(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws Exception {
 
-		long companyId = _portal.getCompanyId(request);
+		long companyId = _portal.getCompanyId(httpServletRequest);
 
 		if (!isEnabled(companyId)) {
 			return null;
 		}
 
-		return _autoLogin.login(request, response);
+		return _autoLogin.login(httpServletRequest, httpServletResponse);
 	}
 
 	protected boolean isEnabled(long companyId) {
@@ -84,15 +85,11 @@ public class RequestParameterAutoLogin extends BaseAutoLogin {
 		_getRequestParameterAutoLoginConfiguration(long companyId) {
 
 		try {
-			RequestParameterAutoLoginConfiguration
-				requestParameterAutoLoginConfiguration =
-					_configurationProvider.getConfiguration(
-						RequestParameterAutoLoginConfiguration.class,
-						new CompanyServiceSettingsLocator(
-							companyId,
-							RequestParameterAutoLoginConstants.SERVICE_NAME));
-
-			return requestParameterAutoLoginConfiguration;
+			return _configurationProvider.getConfiguration(
+				RequestParameterAutoLoginConfiguration.class,
+				new CompanyServiceSettingsLocator(
+					companyId,
+					RequestParameterAutoLoginConstants.SERVICE_NAME));
 		}
 		catch (ConfigurationException ce) {
 			_log.error(

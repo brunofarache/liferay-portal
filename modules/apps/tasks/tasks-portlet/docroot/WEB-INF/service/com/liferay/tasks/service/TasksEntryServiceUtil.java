@@ -14,10 +14,9 @@
 
 package com.liferay.tasks.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortletBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the remote service utility for TasksEntry. This utility wraps
@@ -106,9 +105,6 @@ public class TasksEntryServiceUtil {
 			_service = (TasksEntryService)PortletBeanLocatorUtil.locate(
 				ServletContextUtil.getServletContextName(),
 				TasksEntryService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				TasksEntryServiceUtil.class, "_service");
 		}
 
 		return _service;

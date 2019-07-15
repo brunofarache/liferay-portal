@@ -15,8 +15,10 @@
 package com.liferay.headless.form.client.dto.v1_0;
 
 import com.liferay.headless.form.client.function.UnsafeSupplier;
+import com.liferay.headless.form.client.serdes.v1_0.FormRecordSerDes;
 
 import java.util.Date;
+import java.util.Objects;
 
 import javax.annotation.Generated;
 
@@ -132,27 +134,6 @@ public class FormRecord {
 
 	protected Boolean draft;
 
-	public FieldValue[] getFieldValues() {
-		return fieldValues;
-	}
-
-	public void setFieldValues(FieldValue[] fieldValues) {
-		this.fieldValues = fieldValues;
-	}
-
-	public void setFieldValues(
-		UnsafeSupplier<FieldValue[], Exception> fieldValuesUnsafeSupplier) {
-
-		try {
-			fieldValues = fieldValuesUnsafeSupplier.get();
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	protected FieldValue[] fieldValues;
-
 	public Form getForm() {
 		return form;
 	}
@@ -171,6 +152,28 @@ public class FormRecord {
 	}
 
 	protected Form form;
+
+	public FormFieldValue[] getFormFieldValues() {
+		return formFieldValues;
+	}
+
+	public void setFormFieldValues(FormFieldValue[] formFieldValues) {
+		this.formFieldValues = formFieldValues;
+	}
+
+	public void setFormFieldValues(
+		UnsafeSupplier<FormFieldValue[], Exception>
+			formFieldValuesUnsafeSupplier) {
+
+		try {
+			formFieldValues = formFieldValuesUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected FormFieldValue[] formFieldValues;
 
 	public Long getFormId() {
 		return formId;
@@ -211,5 +214,31 @@ public class FormRecord {
 	}
 
 	protected Long id;
+
+	@Override
+	public boolean equals(Object object) {
+		if (this == object) {
+			return true;
+		}
+
+		if (!(object instanceof FormRecord)) {
+			return false;
+		}
+
+		FormRecord formRecord = (FormRecord)object;
+
+		return Objects.equals(toString(), formRecord.toString());
+	}
+
+	@Override
+	public int hashCode() {
+		String string = toString();
+
+		return string.hashCode();
+	}
+
+	public String toString() {
+		return FormRecordSerDes.toJSON(this);
+	}
 
 }

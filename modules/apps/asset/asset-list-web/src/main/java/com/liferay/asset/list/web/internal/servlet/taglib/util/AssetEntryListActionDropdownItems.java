@@ -50,7 +50,8 @@ public class AssetEntryListActionDropdownItems {
 		_assetListEntry = assetListEntry;
 		_liferayPortletResponse = liferayPortletResponse;
 
-		_request = PortalUtil.getHttpServletRequest(liferayPortletRequest);
+		_httpServletRequest = PortalUtil.getHttpServletRequest(
+			liferayPortletRequest);
 		_themeDisplay = (ThemeDisplay)liferayPortletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
@@ -73,7 +74,6 @@ public class AssetEntryListActionDropdownItems {
 					add(_getPermissionsAssetListEntryActionUnsafeConsumer());
 				}
 
-				add(_getViewAssetListContentActionUnsafeConsumer());
 				add(_getViewAssetListEntryUsagesActionUnsafeConsumer());
 
 				if (AssetListEntryPermission.contains(
@@ -104,7 +104,8 @@ public class AssetEntryListActionDropdownItems {
 			dropdownItem.putData("action", "deleteAssetListEntry");
 			dropdownItem.putData(
 				"deleteAssetListEntryURL", deleteAssetListEntryURL.toString());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "delete"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "delete"));
 		};
 	}
 
@@ -117,7 +118,8 @@ public class AssetEntryListActionDropdownItems {
 				"/edit_asset_list_entry.jsp", "redirect",
 				_themeDisplay.getURLCurrent(), "assetListEntryId",
 				_assetListEntry.getAssetListEntryId());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "edit"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "edit"));
 		};
 	}
 
@@ -129,13 +131,14 @@ public class AssetEntryListActionDropdownItems {
 			StringPool.BLANK, AssetListEntry.class.getName(),
 			_assetListEntry.getTitle(), null,
 			String.valueOf(_assetListEntry.getAssetListEntryId()),
-			LiferayWindowState.POP_UP.toString(), null, _request);
+			LiferayWindowState.POP_UP.toString(), null, _httpServletRequest);
 
 		return dropdownItem -> {
 			dropdownItem.putData("action", "permissionsAssetEntryList");
 			dropdownItem.putData(
 				"permissionsAssetEntryListURL", permissionsAssetEntryListURL);
-			dropdownItem.setLabel(LanguageUtil.get(_request, "permissions"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "permissions"));
 		};
 	}
 
@@ -160,28 +163,8 @@ public class AssetEntryListActionDropdownItems {
 				"assetListEntryTitle", _assetListEntry.getTitle());
 			dropdownItem.putData(
 				"renameAssetListEntryURL", renameAssetListEntryURL.toString());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "rename"));
-		};
-	}
-
-	private UnsafeConsumer<DropdownItem, Exception>
-			_getViewAssetListContentActionUnsafeConsumer()
-		throws Exception {
-
-		PortletURL viewAssetListContentURL =
-			_liferayPortletResponse.createRenderURL();
-
-		viewAssetListContentURL.setParameter("mvcPath", "/view_content.jsp");
-		viewAssetListContentURL.setParameter(
-			"assetListEntryId",
-			String.valueOf(_assetListEntry.getAssetListEntryId()));
-		viewAssetListContentURL.setWindowState(LiferayWindowState.POP_UP);
-
-		return dropdownItem -> {
-			dropdownItem.putData("action", "viewAssetListContent");
-			dropdownItem.putData(
-				"viewAssetListContentURL", viewAssetListContentURL.toString());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "view-content"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "rename"));
 		};
 	}
 
@@ -194,13 +177,14 @@ public class AssetEntryListActionDropdownItems {
 				"/view_asset_list_entry_usages.jsp", "redirect",
 				_themeDisplay.getURLCurrent(), "assetListEntryId",
 				_assetListEntry.getAssetListEntryId());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "view-usages"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "view-usages"));
 		};
 	}
 
 	private final AssetListEntry _assetListEntry;
+	private final HttpServletRequest _httpServletRequest;
 	private final LiferayPortletResponse _liferayPortletResponse;
-	private final HttpServletRequest _request;
 	private final ThemeDisplay _themeDisplay;
 
 }

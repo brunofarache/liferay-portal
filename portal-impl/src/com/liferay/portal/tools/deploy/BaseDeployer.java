@@ -15,6 +15,7 @@
 package com.liferay.portal.tools.deploy;
 
 import com.liferay.petra.function.UnsafeConsumer;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.xml.DocUtil;
 import com.liferay.petra.xml.XMLUtil;
@@ -42,7 +43,6 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropertiesUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.ServerDetector;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.TextFormatter;
@@ -260,9 +260,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 				appServerType + " is not a valid application server type");
 		}
 
-		if (appServerType.equals(ServerDetector.GLASSFISH_ID) ||
-			appServerType.equals(ServerDetector.WEBSPHERE_ID)) {
-
+		if (appServerType.equals(ServerDetector.WEBSPHERE_ID)) {
 			unpackWar = false;
 		}
 
@@ -845,10 +843,6 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 					System.currentTimeMillis() + (Time.SECOND * 6));
 			}
 		}
-
-		if (appServerType.equals(ServerDetector.JETTY_ID)) {
-			DeployUtil.redeployJetty(displayName);
-		}
 	}
 
 	public void deployDirectory(
@@ -951,12 +945,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 		else if (appServerType.equals(ServerDetector.WILDFLY_ID)) {
 			deployDir = GetterUtil.getString(wildflyPrefix) + deployDir;
 		}
-		else if (appServerType.equals(ServerDetector.GLASSFISH_ID) ||
-				 appServerType.equals(ServerDetector.JETTY_ID) ||
-				 appServerType.equals(ServerDetector.JONAS_ID) ||
-				 appServerType.equals(ServerDetector.OC4J_ID) ||
-				 appServerType.equals(ServerDetector.RESIN_ID) ||
-				 appServerType.equals(ServerDetector.TOMCAT_ID) ||
+		else if (appServerType.equals(ServerDetector.TOMCAT_ID) ||
 				 appServerType.equals(ServerDetector.WEBLOGIC_ID)) {
 
 			if (unpackWar) {
@@ -1324,11 +1313,9 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 		}
 
 		if (ignoreFiltersEnabled) {
-			String ignoreFiltersContent = FileUtil.read(
+			return FileUtil.read(
 				DeployUtil.getResourcePath(
 					tempDirPaths, "ignore-filters-web.xml"));
-
-			return ignoreFiltersContent;
 		}
 
 		return StringPool.BLANK;
@@ -1585,11 +1572,9 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 	}
 
 	public String getSessionFiltersContent() throws Exception {
-		String sessionFiltersContent = FileUtil.read(
+		return FileUtil.read(
 			DeployUtil.getResourcePath(
 				tempDirPaths, "session-filters-web.xml"));
-
-		return sessionFiltersContent;
 	}
 
 	public String getSpeedFiltersContent(File srcFile) throws Exception {
@@ -1603,11 +1588,9 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 		}
 
 		if (speedFiltersEnabled) {
-			String speedFiltersContent = FileUtil.read(
+			return FileUtil.read(
 				DeployUtil.getResourcePath(
 					tempDirPaths, "speed-filters-web.xml"));
-
-			return speedFiltersContent;
 		}
 
 		return StringPool.BLANK;
@@ -1629,10 +1612,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 	}
 
 	public void postDeploy(String destDir, String deployDir) throws Exception {
-		if (appServerType.equals(ServerDetector.GLASSFISH_ID)) {
-			postDeployGlassfish(destDir, deployDir);
-		}
-		else if (appServerType.equals(ServerDetector.JBOSS_ID)) {
+		if (appServerType.equals(ServerDetector.JBOSS_ID)) {
 			postDeployJBoss(destDir, deployDir);
 		}
 		else if (appServerType.equals(ServerDetector.WILDFLY_ID)) {
@@ -1646,12 +1626,6 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 				deploymentExtension.postDeploy(destDir, deployDir);
 			}
 		}
-	}
-
-	public void postDeployGlassfish(String destDir, String deployDir)
-		throws Exception {
-
-		FileUtil.delete(destDir + "/.autodeploystatus/" + deployDir);
 	}
 
 	public void postDeployJBoss(String destDir, String deployDir)
@@ -1886,8 +1860,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 				if (_log.isWarnEnabled()) {
 					_log.warn(
 						StringBundler.concat(
-							"Unable to format ", String.valueOf(file), ": ",
-							e.getMessage()));
+							"Unable to format ", file, ": ", e.getMessage()));
 				}
 			}
 		}
@@ -2240,8 +2213,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 		if (_log.isDebugEnabled()) {
 			_log.debug(
 				StringBundler.concat(
-					"Modifying Servlet ", String.valueOf(webXmlVersion), " ",
-					String.valueOf(webXml)));
+					"Modifying Servlet ", webXmlVersion, " ", webXml));
 		}
 	}
 

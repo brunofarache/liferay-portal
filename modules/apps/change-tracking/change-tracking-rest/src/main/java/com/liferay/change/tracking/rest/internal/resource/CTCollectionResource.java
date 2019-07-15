@@ -14,24 +14,28 @@
 
 package com.liferay.change.tracking.rest.internal.resource;
 
-import com.liferay.change.tracking.CTEngineManager;
-import com.liferay.change.tracking.CTManager;
 import com.liferay.change.tracking.constants.CTConstants;
+import com.liferay.change.tracking.engine.CTEngineManager;
+import com.liferay.change.tracking.engine.CTManager;
+import com.liferay.change.tracking.engine.exception.CTCollectionDescriptionCTEngineException;
+import com.liferay.change.tracking.engine.exception.CTCollectionNameCTEngineException;
 import com.liferay.change.tracking.model.CTCollection;
-import com.liferay.change.tracking.model.CTEntry;
-import com.liferay.change.tracking.rest.internal.exception.CTJaxRsException;
-import com.liferay.change.tracking.rest.internal.exception.CannotCreateCTCollectionException;
-import com.liferay.change.tracking.rest.internal.exception.CannotDeleteCTCollectionException;
-import com.liferay.change.tracking.rest.internal.exception.NoSuchProductionCTCollectionException;
+import com.liferay.change.tracking.rest.internal.exception.CannotCreateCTCollectionCTEngineException;
+import com.liferay.change.tracking.rest.internal.exception.CannotDeleteCTCollectionCTEngineException;
+import com.liferay.change.tracking.rest.internal.exception.JaxRsCTEngineException;
+import com.liferay.change.tracking.rest.internal.exception.NoSuchProductionCTCollectionCTEngineException;
 import com.liferay.change.tracking.rest.internal.model.collection.CTCollectionModel;
 import com.liferay.change.tracking.rest.internal.model.collection.CTCollectionUpdateModel;
 import com.liferay.change.tracking.rest.internal.util.CTJaxRsUtil;
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
+import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +43,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -65,7 +70,7 @@ import org.osgi.service.component.annotations.ServiceScope;
  */
 @Component(
 	property = {
-		"osgi.jaxrs.application.select=(osgi.jaxrs.name=change-tracking-application)",
+		"osgi.jaxrs.application.select=(osgi.jaxrs.name=Liferay.Change.Tracking.REST)",
 		"osgi.jaxrs.resource=true"
 	},
 	scope = ServiceScope.PROTOTYPE, service = CTCollectionResource.class
@@ -93,35 +98,72 @@ public class CTCollectionResource {
 			@QueryParam("companyId") long companyId,
 			@QueryParam("userId") long userId,
 			CTCollectionUpdateModel ctCollectionUpdateModel)
-		throws CTJaxRsException {
+		throws JaxRsCTEngineException {
 
 		CTJaxRsUtil.checkCompany(companyId);
 
 		User user = CTJaxRsUtil.getUser(userId);
 
+		ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
+			"content.Language", user.getLocale(), getClass());
+
 		CTJaxRsUtil.checkChangeTrackingEnabled(companyId, _ctEngineManager);
 
-		Optional<CTCollection> ctCollectionOptional =
-			_ctEngineManager.createCTCollection(
-				user.getUserId(), ctCollectionUpdateModel.getName(),
-				ctCollectionUpdateModel.getDescription());
+		try {
+			Optional<CTCollection> ctCollectionOptional =
+				_ctEngineManager.createCTCollection(
+					user.getUserId(), ctCollectionUpdateModel.getName(),
+					ctCollectionUpdateModel.getDescription());
 
-		return ctCollectionOptional.map(
-			this::_getCTCollectionModel
-		).orElseThrow(
-			() -> new CannotCreateCTCollectionException(
-				companyId, "Cannot create Change Tracking Collection")
-		);
+			return ctCollectionOptional.map(
+				this::_getCTCollectionModel
+			).orElseThrow(
+				() -> new CannotCreateCTCollectionCTEngineException(
+					companyId,
+					LanguageUtil.get(
+						resourceBundle, "unable-to-create-change-list"))
+			);
+		}
+		catch (PortalException pe) {
+			if (pe instanceof CTCollectionDescriptionCTEngineException) {
+				throw new CannotCreateCTCollectionCTEngineException(
+					companyId,
+					LanguageUtil.get(
+						resourceBundle,
+						"the-change-list-description-is-too-long"));
+			}
+			else if (pe instanceof CTCollectionNameCTEngineException) {
+				if (Validator.isNull(pe.getMessage())) {
+					throw new CannotCreateCTCollectionCTEngineException(
+						companyId,
+						LanguageUtil.get(
+							resourceBundle,
+							"the-change-list-name-is-too-short"));
+				}
+
+				throw new CannotCreateCTCollectionCTEngineException(
+					companyId,
+					LanguageUtil.get(
+						resourceBundle, "the-change-list-name-is-too-long"));
+			}
+			else {
+				throw new CannotCreateCTCollectionCTEngineException(
+					companyId,
+					LanguageUtil.get(
+						resourceBundle, "unable-to-create-change-list"));
+			}
+		}
 	}
 
 	@DELETE
 	@Path("/{ctCollectionId}")
 	public Response deleteCTCollection(
-			@PathParam("ctCollectionId") long ctCollectionId)
-		throws CTJaxRsException {
+			@PathParam("ctCollectionId") long ctCollectionId,
+			@QueryParam("companyId") long companyId)
+		throws JaxRsCTEngineException {
 
 		Optional<CTCollection> ctCollectionOptional =
-			_ctEngineManager.getCTCollectionOptional(ctCollectionId);
+			_ctEngineManager.getCTCollectionOptional(companyId, ctCollectionId);
 
 		if (!ctCollectionOptional.isPresent()) {
 			return Response.status(
@@ -132,10 +174,10 @@ public class CTCollectionResource {
 		_ctEngineManager.deleteCTCollection(ctCollectionId);
 
 		ctCollectionOptional = _ctEngineManager.getCTCollectionOptional(
-			ctCollectionId);
+			companyId, ctCollectionId);
 
 		if (ctCollectionOptional.isPresent()) {
-			throw new CannotDeleteCTCollectionException(
+			throw new CannotDeleteCTCollectionCTEngineException(
 				ctCollectionOptional.map(
 					CTCollection::getCompanyId
 				).get(),
@@ -150,10 +192,11 @@ public class CTCollectionResource {
 	@Path("/{ctCollectionId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public CTCollectionModel getCTCollectionModel(
-		@PathParam("ctCollectionId") long ctCollectionId) {
+		@PathParam("ctCollectionId") long ctCollectionId,
+		@QueryParam("companyId") long companyId) {
 
 		Optional<CTCollection> ctCollectionOptional =
-			_ctEngineManager.getCTCollectionOptional(ctCollectionId);
+			_ctEngineManager.getCTCollectionOptional(companyId, ctCollectionId);
 
 		CTCollection ctCollection = ctCollectionOptional.orElseThrow(
 			() -> new IllegalArgumentException(
@@ -170,7 +213,7 @@ public class CTCollectionResource {
 			@QueryParam("userId") long userId,
 			@DefaultValue(_TYPE_ALL) @QueryParam("type") String type,
 			@QueryParam("limit") int limit, @QueryParam("sort") String sort)
-		throws CTJaxRsException {
+		throws JaxRsCTEngineException {
 
 		List<CTCollection> ctCollections = new ArrayList<>();
 
@@ -178,7 +221,7 @@ public class CTCollectionResource {
 			CTJaxRsUtil.getUser(userId);
 
 			Optional<CTCollection> activeCTCollectionOptional =
-				_ctManager.getActiveCTCollectionOptional(userId);
+				_ctManager.getActiveCTCollectionOptional(companyId, userId);
 
 			activeCTCollectionOptional.ifPresent(ctCollections::add);
 		}
@@ -190,7 +233,7 @@ public class CTCollectionResource {
 
 			CTCollection ctCollection =
 				productionCTCollectionOptional.orElseThrow(
-					() -> new NoSuchProductionCTCollectionException(
+					() -> new NoSuchProductionCTCollectionCTEngineException(
 						companyId,
 						"Unable to get production change tracking collection"));
 
@@ -199,8 +242,22 @@ public class CTCollectionResource {
 		else if (_TYPE_ALL.equals(type)) {
 			CTJaxRsUtil.checkCompany(companyId);
 
-			ctCollections = _ctEngineManager.getNonproductionCTCollections(
-				companyId, _getQueryDefinition(limit, sort));
+			ctCollections = _ctManager.getCTCollections(
+				companyId, userId, false, true,
+				_getQueryDefinition(limit, sort));
+		}
+		else if (_TYPE_RECENT.equals(type)) {
+			CTJaxRsUtil.checkCompany(companyId);
+
+			CTJaxRsUtil.getUser(userId);
+
+			QueryDefinition<CTCollection> queryDefinition = _getQueryDefinition(
+				limit, sort);
+
+			queryDefinition.setStatus(WorkflowConstants.STATUS_DRAFT);
+
+			ctCollections = _ctManager.getCTCollections(
+				companyId, userId, false, false, queryDefinition);
 		}
 		else {
 			throw new IllegalArgumentException(
@@ -221,12 +278,14 @@ public class CTCollectionResource {
 	@POST
 	public Response publishCTCollection(
 			@PathParam("ctCollectionId") long ctCollectionId,
-			@QueryParam("userId") long userId)
-		throws CTJaxRsException {
+			@QueryParam("userId") long userId,
+			@QueryParam("ignoreCollision") boolean ignoreCollision)
+		throws JaxRsCTEngineException {
 
 		User user = CTJaxRsUtil.getUser(userId);
 
-		_ctEngineManager.publishCTCollection(user.getUserId(), ctCollectionId);
+		_ctEngineManager.publishCTCollection(
+			user.getUserId(), ctCollectionId, ignoreCollision);
 
 		return _accepted();
 	}
@@ -242,14 +301,9 @@ public class CTCollectionResource {
 			return CTCollectionModel.EMPTY_CT_COLLECTION_MODEL;
 		}
 
-		List<CTEntry> ctEntries = _ctEngineManager.getCTEntries(
-			ctCollection.getCtCollectionId());
-
-		Stream<CTEntry> ctEntriesStream = ctEntries.stream();
-
-		Map<Integer, Long> ctEntriesChangeTypes = ctEntriesStream.collect(
-			Collectors.groupingBy(
-				CTEntry::getChangeType, Collectors.counting()));
+		Map<Integer, Long> ctEntriesChangeTypes =
+			_ctEngineManager.getCTCollectionChangeTypeCounts(
+				ctCollection.getCtCollectionId());
 
 		CTCollectionModel.Builder builder = CTCollectionModel.forCTCollection(
 			ctCollection);
@@ -302,6 +356,8 @@ public class CTCollectionResource {
 	private static final String _TYPE_ALL = "all";
 
 	private static final String _TYPE_PRODUCTION = "production";
+
+	private static final String _TYPE_RECENT = "recent";
 
 	private static final Set<String> _orderByColumnNames = new HashSet<>(
 		Arrays.asList("createDate", "modifiedDate", "name", "statusDate"));

@@ -14,8 +14,6 @@
 
 package com.liferay.change.tracking.model.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.change.tracking.model.CTEntry;
 import com.liferay.petra.lang.HashUtil;
 import com.liferay.petra.string.StringBundler;
@@ -27,6 +25,8 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import java.util.Date;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The cache model class for representing CTEntry in entity cache.
@@ -63,7 +63,7 @@ public class CTEntryCacheModel implements CacheModel<CTEntry>, Externalizable {
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(23);
+		StringBundler sb = new StringBundler(27);
 
 		sb.append("{ctEntryId=");
 		sb.append(ctEntryId);
@@ -77,6 +77,8 @@ public class CTEntryCacheModel implements CacheModel<CTEntry>, Externalizable {
 		sb.append(createDate);
 		sb.append(", modifiedDate=");
 		sb.append(modifiedDate);
+		sb.append(", originalCTCollectionId=");
+		sb.append(originalCTCollectionId);
 		sb.append(", modelClassNameId=");
 		sb.append(modelClassNameId);
 		sb.append(", modelClassPK=");
@@ -85,6 +87,8 @@ public class CTEntryCacheModel implements CacheModel<CTEntry>, Externalizable {
 		sb.append(modelResourcePrimKey);
 		sb.append(", changeType=");
 		sb.append(changeType);
+		sb.append(", collision=");
+		sb.append(collision);
 		sb.append(", status=");
 		sb.append(status);
 		sb.append("}");
@@ -121,10 +125,12 @@ public class CTEntryCacheModel implements CacheModel<CTEntry>, Externalizable {
 			ctEntryImpl.setModifiedDate(new Date(modifiedDate));
 		}
 
+		ctEntryImpl.setOriginalCTCollectionId(originalCTCollectionId);
 		ctEntryImpl.setModelClassNameId(modelClassNameId);
 		ctEntryImpl.setModelClassPK(modelClassPK);
 		ctEntryImpl.setModelResourcePrimKey(modelResourcePrimKey);
 		ctEntryImpl.setChangeType(changeType);
+		ctEntryImpl.setCollision(collision);
 		ctEntryImpl.setStatus(status);
 
 		ctEntryImpl.resetOriginalValues();
@@ -143,6 +149,8 @@ public class CTEntryCacheModel implements CacheModel<CTEntry>, Externalizable {
 		createDate = objectInput.readLong();
 		modifiedDate = objectInput.readLong();
 
+		originalCTCollectionId = objectInput.readLong();
+
 		modelClassNameId = objectInput.readLong();
 
 		modelClassPK = objectInput.readLong();
@@ -150,6 +158,8 @@ public class CTEntryCacheModel implements CacheModel<CTEntry>, Externalizable {
 		modelResourcePrimKey = objectInput.readLong();
 
 		changeType = objectInput.readInt();
+
+		collision = objectInput.readBoolean();
 
 		status = objectInput.readInt();
 	}
@@ -172,6 +182,8 @@ public class CTEntryCacheModel implements CacheModel<CTEntry>, Externalizable {
 		objectOutput.writeLong(createDate);
 		objectOutput.writeLong(modifiedDate);
 
+		objectOutput.writeLong(originalCTCollectionId);
+
 		objectOutput.writeLong(modelClassNameId);
 
 		objectOutput.writeLong(modelClassPK);
@@ -179,6 +191,8 @@ public class CTEntryCacheModel implements CacheModel<CTEntry>, Externalizable {
 		objectOutput.writeLong(modelResourcePrimKey);
 
 		objectOutput.writeInt(changeType);
+
+		objectOutput.writeBoolean(collision);
 
 		objectOutput.writeInt(status);
 	}
@@ -189,10 +203,12 @@ public class CTEntryCacheModel implements CacheModel<CTEntry>, Externalizable {
 	public String userName;
 	public long createDate;
 	public long modifiedDate;
+	public long originalCTCollectionId;
 	public long modelClassNameId;
 	public long modelClassPK;
 	public long modelResourcePrimKey;
 	public int changeType;
+	public boolean collision;
 	public int status;
 
 }

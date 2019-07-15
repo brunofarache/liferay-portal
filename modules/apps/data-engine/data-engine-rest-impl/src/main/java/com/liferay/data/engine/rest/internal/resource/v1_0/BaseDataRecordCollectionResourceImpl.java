@@ -15,10 +15,11 @@
 package com.liferay.data.engine.rest.internal.resource.v1_0;
 
 import com.liferay.data.engine.rest.dto.v1_0.DataRecordCollection;
+import com.liferay.data.engine.rest.dto.v1_0.DataRecordCollectionPermission;
 import com.liferay.data.engine.rest.resource.v1_0.DataRecordCollectionResource;
 import com.liferay.petra.function.UnsafeFunction;
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
@@ -30,9 +31,6 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
 
-import java.net.URI;
-
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -50,7 +48,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 /**
@@ -66,16 +63,158 @@ public abstract class BaseDataRecordCollectionResourceImpl
 	@GET
 	@Parameters(
 		value = {
+			@Parameter(in = ParameterIn.PATH, name = "dataDefinitionId"),
+			@Parameter(in = ParameterIn.QUERY, name = "keywords"),
 			@Parameter(in = ParameterIn.QUERY, name = "page"),
 			@Parameter(in = ParameterIn.QUERY, name = "pageSize")
 		}
 	)
-	@Path("/content-spaces/{content-space-id}/data-record-collections")
+	@Path("/data-definitions/{dataDefinitionId}/data-record-collections")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "DataRecordCollection")})
+	public Page<DataRecordCollection>
+			getDataDefinitionDataRecordCollectionsPage(
+				@NotNull @Parameter(hidden = true)
+				@PathParam("dataDefinitionId") Long dataDefinitionId,
+				@Parameter(hidden = true) @QueryParam("keywords") String
+					keywords,
+				@Context Pagination pagination)
+		throws Exception {
+
+		return Page.of(Collections.emptyList());
+	}
+
+	@Override
+	@Consumes({"application/json", "application/xml"})
+	@POST
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.PATH, name = "dataDefinitionId")}
+	)
+	@Path("/data-definitions/{dataDefinitionId}/data-record-collections")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "DataRecordCollection")})
+	public DataRecordCollection postDataDefinitionDataRecordCollection(
+			@NotNull @Parameter(hidden = true) @PathParam("dataDefinitionId")
+				Long dataDefinitionId,
+			DataRecordCollection dataRecordCollection)
+		throws Exception {
+
+		return new DataRecordCollection();
+	}
+
+	@Override
+	@DELETE
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.PATH, name = "dataRecordCollectionId")
+		}
+	)
+	@Path("/data-record-collections/{dataRecordCollectionId}")
 	@Produces("application/json")
 	@Tags(value = {@Tag(name = "DataRecordCollection")})
-	public Page<DataRecordCollection> getContentSpaceDataRecordCollectionsPage(
-			@NotNull @PathParam("content-space-id") Long contentSpaceId,
-			@QueryParam("keywords") String keywords,
+	public void deleteDataRecordCollection(
+			@NotNull @Parameter(hidden = true)
+			@PathParam("dataRecordCollectionId") Long dataRecordCollectionId)
+		throws Exception {
+	}
+
+	@Override
+	@GET
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.PATH, name = "dataRecordCollectionId")
+		}
+	)
+	@Path("/data-record-collections/{dataRecordCollectionId}")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "DataRecordCollection")})
+	public DataRecordCollection getDataRecordCollection(
+			@NotNull @Parameter(hidden = true)
+			@PathParam("dataRecordCollectionId") Long dataRecordCollectionId)
+		throws Exception {
+
+		return new DataRecordCollection();
+	}
+
+	@Override
+	@Consumes({"application/json", "application/xml"})
+	@PUT
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.PATH, name = "dataRecordCollectionId")
+		}
+	)
+	@Path("/data-record-collections/{dataRecordCollectionId}")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "DataRecordCollection")})
+	public DataRecordCollection putDataRecordCollection(
+			@NotNull @Parameter(hidden = true)
+			@PathParam("dataRecordCollectionId") Long dataRecordCollectionId,
+			DataRecordCollection dataRecordCollection)
+		throws Exception {
+
+		return new DataRecordCollection();
+	}
+
+	@Override
+	@Consumes({"application/json", "application/xml"})
+	@POST
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.PATH, name = "dataRecordCollectionId"),
+			@Parameter(in = ParameterIn.QUERY, name = "operation")
+		}
+	)
+	@Path(
+		"/data-record-collections/{dataRecordCollectionId}/data-record-collection-permissions"
+	)
+	@Produces("application/json")
+	@Tags(value = {@Tag(name = "DataRecordCollection")})
+	public void postDataRecordCollectionDataRecordCollectionPermission(
+			@NotNull @Parameter(hidden = true)
+			@PathParam("dataRecordCollectionId") Long dataRecordCollectionId,
+			@NotNull @Parameter(hidden = true) @QueryParam("operation") String
+				operation,
+			DataRecordCollectionPermission dataRecordCollectionPermission)
+		throws Exception {
+	}
+
+	@Override
+	@Consumes({"application/json", "application/xml"})
+	@POST
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.PATH, name = "siteId"),
+			@Parameter(in = ParameterIn.QUERY, name = "operation")
+		}
+	)
+	@Path("/sites/{siteId}/data-record-collection-permissions")
+	@Produces("application/json")
+	@Tags(value = {@Tag(name = "DataRecordCollection")})
+	public void postSiteDataRecordCollectionPermission(
+			@NotNull @Parameter(hidden = true) @PathParam("siteId") Long siteId,
+			@NotNull @Parameter(hidden = true) @QueryParam("operation") String
+				operation,
+			DataRecordCollectionPermission dataRecordCollectionPermission)
+		throws Exception {
+	}
+
+	@Override
+	@GET
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.PATH, name = "siteId"),
+			@Parameter(in = ParameterIn.QUERY, name = "keywords"),
+			@Parameter(in = ParameterIn.QUERY, name = "page"),
+			@Parameter(in = ParameterIn.QUERY, name = "pageSize")
+		}
+	)
+	@Path("/sites/{siteId}/data-record-collections")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "DataRecordCollection")})
+	public Page<DataRecordCollection> getSiteDataRecordCollectionsPage(
+			@NotNull @Parameter(hidden = true) @PathParam("siteId") Long siteId,
+			@Parameter(hidden = true) @QueryParam("keywords") String keywords,
 			@Context Pagination pagination)
 		throws Exception {
 
@@ -86,106 +225,42 @@ public abstract class BaseDataRecordCollectionResourceImpl
 	@GET
 	@Parameters(
 		value = {
-			@Parameter(in = ParameterIn.QUERY, name = "page"),
-			@Parameter(in = ParameterIn.QUERY, name = "pageSize")
+			@Parameter(in = ParameterIn.PATH, name = "siteId"),
+			@Parameter(in = ParameterIn.PATH, name = "dataRecordCollectionKey")
 		}
 	)
-	@Path("/data-definitions/{data-definition-id}/data-record-collections")
-	@Produces("application/json")
+	@Path("/sites/{siteId}/data-record-collections/{dataRecordCollectionKey}")
+	@Produces({"application/json", "application/xml"})
 	@Tags(value = {@Tag(name = "DataRecordCollection")})
-	public Page<DataRecordCollection>
-			getDataDefinitionDataRecordCollectionsPage(
-				@NotNull @PathParam("data-definition-id") Long dataDefinitionId,
-				@QueryParam("keywords") String keywords,
-				@Context Pagination pagination)
-		throws Exception {
-
-		return Page.of(Collections.emptyList());
-	}
-
-	@Override
-	@Consumes("application/json")
-	@POST
-	@Path("/data-definitions/{data-definition-id}/data-record-collections")
-	@Produces("application/json")
-	@Tags(value = {@Tag(name = "DataRecordCollection")})
-	public DataRecordCollection postDataDefinitionDataRecordCollection(
-			@NotNull @PathParam("data-definition-id") Long dataDefinitionId,
-			DataRecordCollection dataRecordCollection)
+	public DataRecordCollection getSiteDataRecordCollection(
+			@NotNull @Parameter(hidden = true) @PathParam("siteId") Long siteId,
+			@NotNull @Parameter(hidden = true)
+			@PathParam("dataRecordCollectionKey") String
+				dataRecordCollectionKey)
 		throws Exception {
 
 		return new DataRecordCollection();
 	}
 
-	@Override
-	@DELETE
-	@Path("/data-record-collections/{data-record-collection-id}")
-	@Produces("application/json")
-	@Tags(value = {@Tag(name = "DataRecordCollection")})
-	public void deleteDataRecordCollection(
-			@NotNull @PathParam("data-record-collection-id") Long
-				dataRecordCollectionId)
-		throws Exception {
-	}
-
-	@Override
-	@GET
-	@Path("/data-record-collections/{data-record-collection-id}")
-	@Produces("application/json")
-	@Tags(value = {@Tag(name = "DataRecordCollection")})
-	public DataRecordCollection getDataRecordCollection(
-			@NotNull @PathParam("data-record-collection-id") Long
-				dataRecordCollectionId)
-		throws Exception {
-
-		return new DataRecordCollection();
-	}
-
-	@Override
-	@Consumes("application/json")
-	@PUT
-	@Path("/data-record-collections/{data-record-collection-id}")
-	@Produces("application/json")
-	@Tags(value = {@Tag(name = "DataRecordCollection")})
-	public DataRecordCollection putDataRecordCollection(
-			@NotNull @PathParam("data-record-collection-id") Long
-				dataRecordCollectionId,
-			DataRecordCollection dataRecordCollection)
-		throws Exception {
-
-		return new DataRecordCollection();
+	public void setContextAcceptLanguage(AcceptLanguage contextAcceptLanguage) {
+		this.contextAcceptLanguage = contextAcceptLanguage;
 	}
 
 	public void setContextCompany(Company contextCompany) {
 		this.contextCompany = contextCompany;
 	}
 
-	protected String getJAXRSLink(String methodName, Object... values) {
-		String baseURIString = String.valueOf(contextUriInfo.getBaseUri());
-
-		if (baseURIString.endsWith(StringPool.FORWARD_SLASH)) {
-			baseURIString = baseURIString.substring(
-				0, baseURIString.length() - 1);
-		}
-
-		URI resourceURI = UriBuilder.fromResource(
-			BaseDataRecordCollectionResourceImpl.class
-		).build();
-
-		URI methodURI = UriBuilder.fromMethod(
-			BaseDataRecordCollectionResourceImpl.class, methodName
-		).build(
-			values
-		);
-
-		return baseURIString + resourceURI.toString() + methodURI.toString();
+	public void setContextUser(User contextUser) {
+		this.contextUser = contextUser;
 	}
 
-	protected void preparePatch(DataRecordCollection dataRecordCollection) {
+	protected void preparePatch(
+		DataRecordCollection dataRecordCollection,
+		DataRecordCollection existingDataRecordCollection) {
 	}
 
 	protected <T, R> List<R> transform(
-		Collection<T> collection,
+		java.util.Collection<T> collection,
 		UnsafeFunction<T, R, Exception> unsafeFunction) {
 
 		return TransformUtil.transform(collection, unsafeFunction);
@@ -199,7 +274,7 @@ public abstract class BaseDataRecordCollectionResourceImpl
 	}
 
 	protected <T, R> R[] transformToArray(
-		Collection<T> collection,
+		java.util.Collection<T> collection,
 		UnsafeFunction<T, R, Exception> unsafeFunction, Class<?> clazz) {
 
 		return TransformUtil.transformToArray(
@@ -220,5 +295,8 @@ public abstract class BaseDataRecordCollectionResourceImpl
 
 	@Context
 	protected UriInfo contextUriInfo;
+
+	@Context
+	protected User contextUser;
 
 }

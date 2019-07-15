@@ -14,22 +14,32 @@
 
 package com.liferay.layout.content.page.editor.web.internal.display.context;
 
+import com.liferay.fragment.renderer.FragmentRendererController;
+import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
+import com.liferay.layout.page.template.model.LayoutPageTemplateStructureRel;
+import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalServiceUtil;
+import com.liferay.layout.page.template.service.LayoutPageTemplateStructureRelLocalServiceUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.portlet.PortletProvider;
+import com.liferay.portal.kernel.portlet.PortletProviderUtil;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.template.soy.util.SoyContext;
 import com.liferay.portal.template.soy.util.SoyContextFactoryUtil;
+import com.liferay.segments.constants.SegmentsConstants;
 import com.liferay.segments.model.SegmentsEntry;
 import com.liferay.segments.model.SegmentsExperience;
-import com.liferay.segments.service.SegmentsEntryLocalServiceUtil;
 import com.liferay.segments.service.SegmentsEntryServiceUtil;
-import com.liferay.segments.service.SegmentsExperienceLocalServiceUtil;
 import com.liferay.segments.service.SegmentsExperienceServiceUtil;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import javax.portlet.PortletURL;
 import javax.portlet.RenderResponse;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,10 +51,13 @@ public class ContentPageLayoutEditorDisplayContext
 	extends ContentPageEditorDisplayContext {
 
 	public ContentPageLayoutEditorDisplayContext(
-		HttpServletRequest request, RenderResponse renderResponse,
-		String className, long classPK) {
+		HttpServletRequest httpServletRequest, RenderResponse renderResponse,
+		String className, long classPK,
+		FragmentRendererController fragmentRendererController) {
 
-		super(request, renderResponse, className, classPK);
+		super(
+			httpServletRequest, renderResponse, className, classPK,
+			fragmentRendererController);
 	}
 
 	@Override
@@ -55,16 +68,11 @@ public class ContentPageLayoutEditorDisplayContext
 
 		SoyContext soyContext = super.getEditorSoyContext();
 
-		soyContext.put(
-			"availableSegmentsEntries",
-			_getAvailableSegmentsEntriesSoyContext());
-		soyContext.put(
-			"availableSegmentsExperiences",
-			_getAvailableSegmentsExperiencesSoyContext());
-		soyContext.put("defaultSegmentsEntryId", _getDefaultSegmentsEntryId());
-		soyContext.put(
-			"defaultSegmentsExperienceId", _getDefaultSegmentsExperienceId());
 		soyContext.put("sidebarPanels", getSidebarPanelSoyContexts(false));
+
+		if (_isShowSegmentsExperiences()) {
+			_populateSegmentsExperiencesSoyContext(soyContext);
+		}
 
 		_editorSoyContext = soyContext;
 
@@ -81,26 +89,13 @@ public class ContentPageLayoutEditorDisplayContext
 
 		SoyContext soyContext = super.getFragmentsEditorToolbarSoyContext();
 
-		soyContext.put(
-			"availableSegmentsEntries",
-			_getAvailableSegmentsEntriesSoyContext());
-		soyContext.put(
-			"availableSegmentsExperiences",
-			_getAvailableSegmentsExperiencesSoyContext());
-		soyContext.put("defaultSegmentsEntryId", _getDefaultSegmentsEntryId());
-		soyContext.put(
-			"defaultSegmentsExperienceId", _getDefaultSegmentsExperienceId());
+		if (_isShowSegmentsExperiences()) {
+			_populateSegmentsExperiencesSoyContext(soyContext);
+		}
 
 		_fragmentsEditorToolbarSoyContext = soyContext;
 
 		return _fragmentsEditorToolbarSoyContext;
-	}
-
-	@Override
-	protected long[] getSegmentsExperienceIds() {
-		return new long[] {
-			GetterUtil.getLong(_getDefaultSegmentsExperienceId())
-		};
 	}
 
 	private SoyContext _getAvailableSegmentsEntriesSoyContext() {
@@ -115,21 +110,39 @@ public class ContentPageLayoutEditorDisplayContext
 				SoyContextFactoryUtil.createSoyContext();
 
 			segmentsEntrySoyContext.put(
-				"name", segmentsEntry.getName(themeDisplay.getLocale()));
-			segmentsEntrySoyContext.put(
+				"name", segmentsEntry.getName(themeDisplay.getLocale())
+			).put(
 				"segmentsEntryId",
-				String.valueOf(segmentsEntry.getSegmentsEntryId()));
+				String.valueOf(segmentsEntry.getSegmentsEntryId())
+			);
 
 			availableSegmentsEntriesSoyContext.put(
 				String.valueOf(segmentsEntry.getSegmentsEntryId()),
 				segmentsEntrySoyContext);
 		}
 
+		SoyContext defaultSegmentsEntrySoyContext =
+			SoyContextFactoryUtil.createSoyContext();
+
+		defaultSegmentsEntrySoyContext.put(
+			"name",
+			SegmentsConstants.getDefaultSegmentsEntryName(
+				themeDisplay.getLocale())
+		).put(
+			"segmentsEntryId", SegmentsConstants.SEGMENTS_ENTRY_ID_DEFAULT
+		);
+
+		availableSegmentsEntriesSoyContext.put(
+			String.valueOf(SegmentsConstants.SEGMENTS_ENTRY_ID_DEFAULT),
+			defaultSegmentsEntrySoyContext);
+
 		return availableSegmentsEntriesSoyContext;
 	}
 
-	private SoyContext _getAvailableSegmentsExperiencesSoyContext() {
-		SoyContext availableSegmentsEntriesSoyContext =
+	private SoyContext _getAvailableSegmentsExperiencesSoyContext()
+		throws PortalException {
+
+		SoyContext availableSegmentsExperiencesSoyContext =
 			SoyContextFactoryUtil.createSoyContext();
 
 		List<SegmentsExperience> segmentsExperiences =
@@ -141,74 +154,164 @@ public class ContentPageLayoutEditorDisplayContext
 				SoyContextFactoryUtil.createSoyContext();
 
 			segmentsExperienceSoyContext.put(
-				"name", segmentsExperience.getName(themeDisplay.getLocale()));
-			segmentsExperienceSoyContext.put(
-				"priority", segmentsExperience.getPriority());
-			segmentsExperienceSoyContext.put(
+				"name", segmentsExperience.getName(themeDisplay.getLocale())
+			).put(
+				"priority", segmentsExperience.getPriority()
+			).put(
 				"segmentsEntryId",
-				String.valueOf(segmentsExperience.getSegmentsEntryId()));
-			segmentsExperienceSoyContext.put(
+				String.valueOf(segmentsExperience.getSegmentsEntryId())
+			).put(
 				"segmentsExperienceId",
-				String.valueOf(segmentsExperience.getSegmentsExperienceId()));
+				String.valueOf(segmentsExperience.getSegmentsExperienceId())
+			);
 
-			availableSegmentsEntriesSoyContext.put(
+			availableSegmentsExperiencesSoyContext.put(
 				String.valueOf(segmentsExperience.getSegmentsExperienceId()),
 				segmentsExperienceSoyContext);
 		}
 
-		return availableSegmentsEntriesSoyContext;
+		SoyContext defaultSegmentsExperienceSoyContext =
+			SoyContextFactoryUtil.createSoyContext();
+
+		defaultSegmentsExperienceSoyContext.put(
+			"name",
+			SegmentsConstants.getDefaultSegmentsExperienceName(
+				themeDisplay.getLocale())
+		).put(
+			"priority", SegmentsConstants.SEGMENTS_EXPERIENCE_PRIORITY_DEFAULT
+		).put(
+			"segmentsEntryId",
+			String.valueOf(SegmentsConstants.SEGMENTS_ENTRY_ID_DEFAULT)
+		).put(
+			"segmentsExperienceId",
+			String.valueOf(SegmentsConstants.SEGMENTS_EXPERIENCE_ID_DEFAULT)
+		);
+
+		availableSegmentsExperiencesSoyContext.put(
+			String.valueOf(SegmentsConstants.SEGMENTS_EXPERIENCE_ID_DEFAULT),
+			defaultSegmentsExperienceSoyContext);
+
+		return availableSegmentsExperiencesSoyContext;
 	}
 
-	private String _getDefaultSegmentsEntryId() {
-		if (_defaultSegmentsEntryId != null) {
-			return _defaultSegmentsEntryId;
+	private String _getEditSegmentsEntryURL() throws PortalException {
+		if (_editSegmentsEntryURL != null) {
+			return _editSegmentsEntryURL;
 		}
 
-		_defaultSegmentsEntryId = StringPool.BLANK;
+		PortletURL portletURL = PortletProviderUtil.getPortletURL(
+			request, SegmentsEntry.class.getName(),
+			PortletProvider.Action.EDIT);
 
-		try {
-			SegmentsEntry defaultSegmentsEntry =
-				SegmentsEntryLocalServiceUtil.getDefaultSegmentsEntry(
-					getGroupId());
-
-			_defaultSegmentsEntryId = String.valueOf(
-				defaultSegmentsEntry.getSegmentsEntryId());
+		if (portletURL == null) {
+			_editSegmentsEntryURL = StringPool.BLANK;
 		}
-		catch (PortalException pe) {
-			_log.error("Unable to get default segment", pe);
+		else {
+			portletURL.setParameter("redirect", themeDisplay.getURLCurrent());
+
+			_editSegmentsEntryURL = portletURL.toString();
 		}
 
-		return _defaultSegmentsEntryId;
+		return _editSegmentsEntryURL;
 	}
 
-	private String _getDefaultSegmentsExperienceId() {
-		if (_defaultSegmentsExperienceId != null) {
-			return _defaultSegmentsExperienceId;
+	private List<SoyContext> _getLayoutDataListSoyContext()
+		throws PortalException {
+
+		LayoutPageTemplateStructure layoutPageTemplateStructure =
+			LayoutPageTemplateStructureLocalServiceUtil.
+				fetchLayoutPageTemplateStructure(
+					themeDisplay.getScopeGroupId(), classNameId, classPK, true);
+
+		if (layoutPageTemplateStructure == null) {
+			return Collections.emptyList();
 		}
 
-		_defaultSegmentsExperienceId = StringPool.BLANK;
+		List<SoyContext> soyContexts = new ArrayList<>();
 
-		try {
-			SegmentsExperience defaultSegmentsExperience =
-				SegmentsExperienceLocalServiceUtil.getDefaultSegmentsExperience(
-					getGroupId(), classNameId, classPK);
+		List<LayoutPageTemplateStructureRel> layoutPageTemplateStructureRels =
+			LayoutPageTemplateStructureRelLocalServiceUtil.
+				getLayoutPageTemplateStructureRels(
+					layoutPageTemplateStructure.
+						getLayoutPageTemplateStructureId());
 
-			_defaultSegmentsExperienceId = String.valueOf(
-				defaultSegmentsExperience.getSegmentsExperienceId());
+		for (LayoutPageTemplateStructureRel layoutPageTemplateStructureRel :
+				layoutPageTemplateStructureRels) {
+
+			SoyContext soyContext = SoyContextFactoryUtil.createSoyContext();
+
+			soyContext.put(
+				"layoutData",
+				JSONFactoryUtil.createJSONObject(
+					layoutPageTemplateStructureRel.getData())
+			).put(
+				"segmentsExperienceId",
+				layoutPageTemplateStructureRel.getSegmentsExperienceId()
+			);
+
+			soyContexts.add(soyContext);
 		}
-		catch (PortalException pe) {
-			_log.error("Unable to get default segments experience", pe);
-		}
 
-		return _defaultSegmentsExperienceId;
+		return soyContexts;
 	}
 
-	private static final Log _log = LogFactoryUtil.getLog(
-		ContentPageLayoutEditorDisplayContext.class);
+	private boolean _hasEditSegmentsEntryPermission() throws PortalException {
+		String editSegmentsEntryURL = _getEditSegmentsEntryURL();
 
-	private String _defaultSegmentsEntryId;
-	private String _defaultSegmentsExperienceId;
+		if (Validator.isNull(editSegmentsEntryURL)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	private boolean _isShowSegmentsExperiences() throws PortalException {
+		if (_showSegmentsExperiences != null) {
+			return _showSegmentsExperiences;
+		}
+
+		Group group = GroupLocalServiceUtil.getGroup(getGroupId());
+
+		if (!group.isLayoutSetPrototype() && !group.isUser()) {
+			_showSegmentsExperiences = true;
+		}
+		else {
+			_showSegmentsExperiences = false;
+		}
+
+		return _showSegmentsExperiences;
+	}
+
+	private void _populateSegmentsExperiencesSoyContext(SoyContext soyContext)
+		throws PortalException {
+
+		soyContext.put(
+			"availableSegmentsEntries", _getAvailableSegmentsEntriesSoyContext()
+		).put(
+			"availableSegmentsExperiences",
+			_getAvailableSegmentsExperiencesSoyContext()
+		).put(
+			"defaultSegmentsEntryId",
+			SegmentsConstants.SEGMENTS_ENTRY_ID_DEFAULT
+		).put(
+			"defaultSegmentsExperienceId",
+			String.valueOf(SegmentsConstants.SEGMENTS_EXPERIENCE_ID_DEFAULT)
+		).put(
+			"deleteSegmentsExperienceURL",
+			getFragmentEntryActionURL(
+				"/content_layout/delete_segments_experience")
+		).put(
+			"editSegmentsEntryURL", _getEditSegmentsEntryURL()
+		).put(
+			"hasEditSegmentsEntryPermission", _hasEditSegmentsEntryPermission()
+		).put(
+			"layoutDataList", _getLayoutDataListSoyContext()
+		);
+	}
+
 	private SoyContext _editorSoyContext;
+	private String _editSegmentsEntryURL;
 	private SoyContext _fragmentsEditorToolbarSoyContext;
+	private Boolean _showSegmentsExperiences;
 
 }

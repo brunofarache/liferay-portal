@@ -59,16 +59,7 @@ else {
 
 com.liferay.portal.kernel.lock.Lock lock = fileEntry.getLock();
 
-long assetClassPK = 0;
-
-if (!fileVersion.isApproved() && !fileVersion.getVersion().equals(DLFileEntryConstants.VERSION_DEFAULT) && !fileEntry.isInTrash()) {
-	assetClassPK = fileVersion.getFileVersionId();
-}
-else {
-	assetClassPK = fileEntry.getFileEntryId();
-}
-
-AssetEntry layoutAssetEntry = AssetEntryLocalServiceUtil.fetchEntry(DLFileEntryConstants.getClassName(), assetClassPK);
+AssetEntry layoutAssetEntry = AssetEntryLocalServiceUtil.fetchEntry(DLFileEntryConstants.getClassName(), DLAssetHelperUtil.getAssetClassPK(fileEntry, fileVersion));
 
 request.setAttribute(WebKeys.LAYOUT_ASSET_ENTRY, layoutAssetEntry);
 
@@ -85,10 +76,21 @@ if (portletTitleBasedNavigation) {
 }
 %>
 
+<liferay-util:buffer
+	var="documentTitle"
+>
+	<%= fileVersion.getTitle() %>
+
+	<c:if test="<%= versionSpecific %>">
+		(<liferay-ui:message key="version" /> <%= fileVersion.getVersion() %>)
+	</c:if>
+</liferay-util:buffer>
+
 <c:if test="<%= portletTitleBasedNavigation %>">
 
 	<%
 	request.setAttribute("file_entry_upper_tbar.jsp-dlViewFileVersionDisplayContext", dlViewFileVersionDisplayContext);
+	request.setAttribute("file_entry_upper_tbar.jsp-documentTitle", documentTitle);
 	request.setAttribute("file_entry_upper_tbar.jsp-fileEntry", fileEntry);
 	request.setAttribute("file_entry_upper_tbar.jsp-fileVersion", fileVersion);
 	request.setAttribute("file_entry_upper_tbar.jsp-versionSpecific", versionSpecific);
@@ -122,32 +124,8 @@ if (portletTitleBasedNavigation) {
 		<liferay-ui:header
 			backURL="<%= redirect %>"
 			localizeTitle="<%= false %>"
-			title="<%= fileVersion.getTitle() %>"
+			title="<%= documentTitle %>"
 		/>
-	</c:if>
-
-	<c:if test="<%= !portletTitleBasedNavigation %>">
-		<div class="btn-group">
-			<liferay-frontend:management-bar-sidenav-toggler-button
-				label="info"
-			/>
-
-			<c:if test="<%= dlPortletInstanceSettingsHelper.isShowActions() %>">
-
-				<%
-				for (ToolbarItem toolbarItem : dlViewFileVersionDisplayContext.getToolbarItems()) {
-				%>
-
-					<liferay-ui:toolbar-item
-						toolbarItem="<%= toolbarItem %>"
-					/>
-
-				<%
-				}
-				%>
-
-			</c:if>
-		</div>
 	</c:if>
 
 	<c:choose>
@@ -179,7 +157,31 @@ if (portletTitleBasedNavigation) {
 	<div class="<%= portletTitleBasedNavigation ? "contextual-sidebar-content" : "sidenav-content" %>">
 		<div class="alert alert-danger hide" id="<portlet:namespace />openMSOfficeError"></div>
 
-		<c:if test="<%= (fileEntry.getLock() != null) && DLFileEntryPermission.contains(permissionChecker, fileEntry, ActionKeys.UPDATE) %>">
+		<c:if test="<%= !portletTitleBasedNavigation %>">
+			<div>
+				<liferay-frontend:management-bar-sidenav-toggler-button
+					label="info"
+				/>
+
+				<c:if test="<%= dlPortletInstanceSettingsHelper.isShowActions() %>">
+
+					<%
+						for (ToolbarItem toolbarItem : dlViewFileVersionDisplayContext.getToolbarItems()) {
+					%>
+
+					<liferay-ui:toolbar-item
+						toolbarItem="<%= toolbarItem %>"
+					/>
+
+					<%
+						}
+					%>
+
+				</c:if>
+			</div>
+		</c:if>
+
+		<c:if test="<%= (lock != null) && DLFileEntryPermission.contains(permissionChecker, fileEntry, ActionKeys.UPDATE) %>">
 			<c:choose>
 				<c:when test="<%= fileEntry.hasLock() %>">
 					<div class="alert alert-success">
@@ -225,23 +227,14 @@ if (portletTitleBasedNavigation) {
 			</c:if>
 
 			<c:if test="<%= showComments && fileEntry.isRepositoryCapabilityProvided(CommentCapability.class) %>">
-				<liferay-ui:panel
-					collapsible="<%= true %>"
-					cssClass="lfr-document-library-comments panel-group"
-					extended="<%= true %>"
-					markupView="lexicon"
-					persistState="<%= true %>"
-					title="<%= dlViewFileVersionDisplayContext.getDiscussionLabel(locale) %>"
-				>
-					<liferay-comment:discussion
-						className="<%= dlViewFileVersionDisplayContext.getDiscussionClassName() %>"
-						classPK="<%= dlViewFileVersionDisplayContext.getDiscussionClassPK() %>"
-						formName="fm2"
-						ratingsEnabled="<%= dlPortletInstanceSettings.isEnableCommentRatings() %>"
-						redirect="<%= currentURL %>"
-						userId="<%= fileEntry.getUserId() %>"
-					/>
-				</liferay-ui:panel>
+				<liferay-comment:discussion
+					className="<%= dlViewFileVersionDisplayContext.getDiscussionClassName() %>"
+					classPK="<%= dlViewFileVersionDisplayContext.getDiscussionClassPK() %>"
+					formName="fm2"
+					ratingsEnabled="<%= dlPortletInstanceSettings.isEnableCommentRatings() %>"
+					redirect="<%= currentURL %>"
+					userId="<%= PortalUtil.getValidUserId(fileEntry.getCompanyId(), fileEntry.getUserId()) %>"
+				/>
 			</c:if>
 		</div>
 	</div>
@@ -312,9 +305,14 @@ if (addPortletBreadcrumbEntries) {
 		if (openContextualSidebarButton) {
 			openContextualSidebarButton.addEventListener(
 				'click',
-				function() {
-					document.querySelector('#<portlet:namespace />FileEntry .contextual-sidebar')
-						.classList.toggle('contextual-sidebar-visible');
+				function(event) {
+					event.currentTarget.classList.toggle('active');
+
+					document.querySelector(
+						'#<portlet:namespace />FileEntry .contextual-sidebar'
+					).classList.toggle(
+						'contextual-sidebar-visible'
+					);
 				}
 			);
 		}

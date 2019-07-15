@@ -17,7 +17,9 @@ package com.liferay.dynamic.data.mapping.data.provider.web.internal.display.cont
 import com.liferay.dynamic.data.mapping.constants.DDMActionKeys;
 import com.liferay.dynamic.data.mapping.data.provider.DDMDataProvider;
 import com.liferay.dynamic.data.mapping.data.provider.DDMDataProviderTracker;
+import com.liferay.dynamic.data.mapping.data.provider.display.DDMDataProviderDisplay;
 import com.liferay.dynamic.data.mapping.data.provider.web.internal.constants.DDMDataProviderPortletKeys;
+import com.liferay.dynamic.data.mapping.data.provider.web.internal.display.DDMDataProviderDisplayTracker;
 import com.liferay.dynamic.data.mapping.data.provider.web.internal.display.context.util.DDMDataProviderRequestHelper;
 import com.liferay.dynamic.data.mapping.data.provider.web.internal.search.DDMDataProviderSearch;
 import com.liferay.dynamic.data.mapping.data.provider.web.internal.security.permission.resource.DDMDataProviderInstancePermission;
@@ -35,6 +37,7 @@ import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.service.DDMDataProviderInstanceService;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
+import com.liferay.dynamic.data.mapping.util.DDMDisplayTabItem;
 import com.liferay.dynamic.data.mapping.util.DDMFormFactory;
 import com.liferay.dynamic.data.mapping.util.DDMFormLayoutFactory;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
@@ -52,6 +55,8 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
+import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.PortalPreferences;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletURLUtil;
@@ -59,6 +64,7 @@ import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -68,6 +74,7 @@ import com.liferay.portal.kernel.util.WebKeys;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.portlet.PortletException;
@@ -85,6 +92,7 @@ public class DDMDataProviderDisplayContext {
 
 	public DDMDataProviderDisplayContext(
 		RenderRequest renderRequest, RenderResponse renderResponse,
+		DDMDataProviderDisplayTracker ddmDataProviderDisplayTracker,
 		DDMDataProviderInstanceService ddmDataProviderInstanceService,
 		DDMDataProviderTracker ddmDataProviderTracker,
 		DDMFormRenderer ddmFormRenderer,
@@ -93,6 +101,7 @@ public class DDMDataProviderDisplayContext {
 
 		_renderRequest = renderRequest;
 		_renderResponse = renderResponse;
+		_ddmDataProviderDisplayTracker = ddmDataProviderDisplayTracker;
 		_ddmDataProviderInstanceService = ddmDataProviderInstanceService;
 		_ddmDataProviderTracker = ddmDataProviderTracker;
 		_ddmFormRenderer = ddmFormRenderer;
@@ -234,7 +243,8 @@ public class DDMDataProviderDisplayContext {
 	}
 
 	public List<DropdownItem> getFilterItemsDropdownItems() {
-		HttpServletRequest request = _ddmDataProviderRequestHelper.getRequest();
+		HttpServletRequest httpServletRequest =
+			_ddmDataProviderRequestHelper.getRequest();
 
 		return new DropdownItemList() {
 			{
@@ -243,7 +253,8 @@ public class DDMDataProviderDisplayContext {
 						dropdownGroupItem.setDropdownItems(
 							getFilterNavigationDropdownItems());
 						dropdownGroupItem.setLabel(
-							LanguageUtil.get(request, "filter-by-navigation"));
+							LanguageUtil.get(
+								httpServletRequest, "filter-by-navigation"));
 					});
 
 				addGroup(
@@ -251,25 +262,54 @@ public class DDMDataProviderDisplayContext {
 						dropdownGroupItem.setDropdownItems(
 							getOrderByDropdownItems());
 						dropdownGroupItem.setLabel(
-							LanguageUtil.get(request, "order-by"));
+							LanguageUtil.get(httpServletRequest, "order-by"));
 					});
 			}
 		};
 	}
 
-	public List<NavigationItem> getNavigationItems() {
+	public List<NavigationItem> getNavigationItems(
+			LiferayPortletRequest liferayPortletRequest,
+			LiferayPortletResponse liferayPortletResponse)
+		throws Exception {
+
 		return new NavigationItemList() {
 			{
-				add(
-					navigationItem -> {
-						navigationItem.setActive(true);
-						navigationItem.setHref(
-							getPortletURL(), "currentTab", "data-providers");
-						navigationItem.setLabel(
-							LanguageUtil.get(
-								_ddmDataProviderRequestHelper.getRequest(),
-								"data-providers"));
-					});
+				DDMDataProviderDisplay ddmDataProviderDisplay =
+					getDDMDataProviderDisplay();
+
+				for (DDMDisplayTabItem ddmDisplayTabItem :
+						ddmDataProviderDisplay.getDDMDisplayTabItems()) {
+
+					if (!ddmDisplayTabItem.isShow(liferayPortletRequest)) {
+						continue;
+					}
+
+					String ddmDisplayTabItemTitle = GetterUtil.getString(
+						ddmDisplayTabItem.getTitle(
+							liferayPortletRequest, liferayPortletResponse));
+
+					DDMDisplayTabItem defaultDDMDisplayTabItem =
+						ddmDataProviderDisplay.getDefaultDDMDisplayTabItem();
+
+					String defaultDDMDisplayTabItemTitle = GetterUtil.getString(
+						defaultDDMDisplayTabItem.getTitle(
+							liferayPortletRequest, liferayPortletResponse));
+
+					String ddmDisplayTabItemHREF = GetterUtil.getString(
+						ddmDisplayTabItem.getURL(
+							liferayPortletRequest, liferayPortletResponse));
+
+					add(
+						navigationItem -> {
+							navigationItem.setActive(
+								Objects.equals(
+									ddmDisplayTabItemTitle,
+									defaultDDMDisplayTabItemTitle));
+							navigationItem.setHref(ddmDisplayTabItemHREF);
+							navigationItem.setLabel(ddmDisplayTabItemTitle);
+						});
+				}
 			}
 		};
 	}
@@ -320,6 +360,8 @@ public class DDMDataProviderDisplayContext {
 		if (Validator.isNotNull(orderByType)) {
 			portletURL.setParameter("orderByType", orderByType);
 		}
+
+		portletURL.setParameter("refererPortletName", getRefererPortletName());
 
 		return portletURL;
 	}
@@ -376,6 +418,13 @@ public class DDMDataProviderDisplayContext {
 		return sortingURL.toString();
 	}
 
+	public String getTitle() {
+		DDMDataProviderDisplay ddmDataProviderDisplay =
+			getDDMDataProviderDisplay();
+
+		return ddmDataProviderDisplay.getTitle(_renderRequest.getLocale());
+	}
+
 	public int getTotalItems() {
 		SearchContainer<?> searchContainer = getSearch();
 
@@ -412,6 +461,10 @@ public class DDMDataProviderDisplayContext {
 		}
 
 		return true;
+	}
+
+	public boolean isShowBackIcon() {
+		return ParamUtil.getBoolean(_renderRequest, "showBackIcon", true);
 	}
 
 	public boolean isShowDeleteDataProviderIcon(
@@ -473,22 +526,29 @@ public class DDMDataProviderDisplayContext {
 	protected UnsafeConsumer<DropdownItem, Exception>
 		getCreationMenuDropdownItem(String ddmDataProviderType) {
 
-		HttpServletRequest request = _ddmDataProviderRequestHelper.getRequest();
+		HttpServletRequest httpServletRequest =
+			_ddmDataProviderRequestHelper.getRequest();
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		return dropdownItem -> {
 			dropdownItem.setHref(
 				_renderResponse.createRenderURL(), "mvcPath",
 				"/edit_data_provider.jsp", "redirect",
-				PortalUtil.getCurrentURL(request), "groupId",
+				PortalUtil.getCurrentURL(httpServletRequest), "groupId",
 				String.valueOf(themeDisplay.getScopeGroupId()), "type",
 				ddmDataProviderType);
 
 			dropdownItem.setLabel(
-				LanguageUtil.get(request, ddmDataProviderType));
+				LanguageUtil.get(httpServletRequest, ddmDataProviderType));
 		};
+	}
+
+	protected DDMDataProviderDisplay getDDMDataProviderDisplay() {
+		return _ddmDataProviderDisplayTracker.getDDMDataProviderDisplay(
+			getRefererPortletName());
 	}
 
 	protected Set<String> getDDMDataProviderTypes() {
@@ -568,6 +628,12 @@ public class DDMDataProviderDisplayContext {
 				add(getOrderByDropdownItem("name"));
 			}
 		};
+	}
+
+	protected String getRefererPortletName() {
+		return ParamUtil.getString(
+			_ddmDataProviderRequestHelper.getRequest(), "refererPortletName",
+			_ddmDataProviderRequestHelper.getPortletName());
 	}
 
 	protected boolean hasResults() {
@@ -652,7 +718,7 @@ public class DDMDataProviderDisplayContext {
 		Group scopeGroup = themeDisplay.getScopeGroup();
 
 		if (scopeGroup.isStagingGroup()) {
-			scopeGroupId = scopeGroup.getLiveGroupId();
+			scopeGroupId = scopeGroup.getGroupId();
 		}
 
 		return new long[] {scopeGroupId};
@@ -660,6 +726,7 @@ public class DDMDataProviderDisplayContext {
 
 	private static final String[] _DISPLAY_VIEWS = {"descriptive", "list"};
 
+	private final DDMDataProviderDisplayTracker _ddmDataProviderDisplayTracker;
 	private DDMDataProviderInstance _ddmDataProviderInstance;
 	private final DDMDataProviderInstanceService
 		_ddmDataProviderInstanceService;

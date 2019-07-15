@@ -16,21 +16,32 @@ package com.liferay.portal.tools;
 
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.xml.Dom4jUtil;
+import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.CSVUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.xml.SAXReaderFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
+
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -38,6 +49,7 @@ import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.Node;
 import org.dom4j.QName;
+import org.dom4j.io.DocumentSource;
 import org.dom4j.io.SAXReader;
 
 /**
@@ -57,16 +69,34 @@ public class SPDXBuilder {
 		new SPDXBuilder(StringUtil.split(xmls), args[0]);
 	}
 
-	public SPDXBuilder(String[] xmls, String fileName) {
+	public SPDXBuilder(String[] xmls, String rdf) {
 		try {
 			System.setProperty("line.separator", StringPool.NEW_LINE);
 
-			String content = Dom4jUtil.toString(_getDocument(xmls, fileName));
-			String prefix = fileName.substring(0, fileName.lastIndexOf('.'));
+			Document document = _getDocument(xmls, rdf);
+			File rdfFile = new File(rdf);
 
-			Files.write(
-				Paths.get(prefix + "-complete.rdf"),
-				content.getBytes(StandardCharsets.UTF_8));
+			_write(
+				new File(rdfFile.getParentFile(), "versions-spdx.xml"),
+				Dom4jUtil.toString(document));
+
+			_write(
+				new File(rdfFile.getParentFile(), "versions-spdx.csv"),
+				_toCSV(document));
+
+			TransformerFactory transformerFactory =
+				TransformerFactory.newInstance();
+
+			Transformer transformer = transformerFactory.newTransformer(
+				new StreamSource(
+					new File(rdfFile.getParentFile(), "versions.xsl")));
+
+			File versionHtmlFile = new File(
+				rdfFile.getParentFile(), "versions-spdx.html");
+
+			transformer.transform(
+				new DocumentSource(document),
+				new StreamResult(new FileOutputStream(versionHtmlFile)));
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -74,93 +104,96 @@ public class SPDXBuilder {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Element _createPackageElement(Node libraryNode) {
-		Element packageElement = DocumentHelper.createElement(_QNAME_PACKAGE);
+	private List<Element> _createLibraryElements(Element packageElement) {
+		List<Element> libraryElements = new ArrayList<>();
 
-		packageElement.addAttribute("rdf:about", "spdx");
+		String downloadLocation = packageElement.elementText(
+			_getQName("downloadLocation"));
+		String name = packageElement.elementText(_getQName("name"));
+		String versionInfo = packageElement.elementText(
+			_getQName("versionInfo"));
 
-		Element nameElement = packageElement.addElement(_QNAME_NAME);
+		Element hasFileElement = packageElement.element(_getQName("hasFile"));
 
-		Node projectNameNode = libraryNode.selectSingleNode("project-name");
+		List<Element> fileElements = hasFileElement.elements(_getQName("File"));
 
-		nameElement.addText(projectNameNode.getText());
+		for (Element fileElement : fileElements) {
+			String fileName = fileElement.elementText(_getQName("fileName"));
 
-		Element versionInfoElement = packageElement.addElement(
-			_QNAME_VERSION_INFO);
+			String dirName = fileName.substring(0, fileName.indexOf('/') + 1);
 
-		Node versionNode = libraryNode.selectSingleNode("version");
+			if (dirName.endsWith("portal/") || dirName.endsWith("portal-ee/")) {
+				fileName = fileName.substring(dirName.length());
+			}
 
-		versionInfoElement.addText(versionNode.getText());
+			Element libraryElement = DocumentHelper.createElement("library");
 
-		Node projectURLNode = libraryNode.selectSingleNode("project-url");
+			Element fileNameElement = libraryElement.addElement("file-name");
 
-		if (projectURLNode != null) {
-			Element downloadLocationElement = packageElement.addElement(
-				_QNAME_DOWNLOAD_LOCATION);
+			fileNameElement.addText(fileName);
 
-			downloadLocationElement.addText(projectURLNode.getText());
+			Element versionElement = libraryElement.addElement("version");
+
+			versionElement.addText(versionInfo);
+
+			Element projectNameElement = libraryElement.addElement(
+				"project-name");
+
+			projectNameElement.addText(name);
+
+			if ((downloadLocation != null) &&
+				downloadLocation.startsWith("http")) {
+
+				Element element = libraryElement.addElement("project-url");
+
+				element.addText(downloadLocation);
+			}
+
+			String licenseName = _getLicenseName(packageElement);
+
+			if (licenseName != null) {
+				Element licensesElement = libraryElement.addElement("licenses");
+
+				Element licenseElement = licensesElement.addElement("license");
+
+				Element element = licenseElement.addElement("license-name");
+
+				element.addText(licenseName);
+
+				String licenseURL = _getLicenseURL(packageElement);
+
+				if (licenseURL != null) {
+					element = licenseElement.addElement("license-url");
+
+					element.addText(licenseURL);
+				}
+			}
+
+			libraryElements.add(libraryElement);
 		}
 
-		List<Node> licenseNameNodes = libraryNode.selectNodes(
-			"./licenses/license/license-name");
+		return libraryElements;
+	}
 
-		if (!licenseNameNodes.isEmpty()) {
-			Element licenseConcludedElement = packageElement.addElement(
-				_QNAME_LICENSE_CONCLUDED);
-
-			Node licenseNameNode = licenseNameNodes.get(0);
-
-			licenseConcludedElement.addText(licenseNameNode.getText());
+	private String _encode(Node node) {
+		if (node == null) {
+			return StringPool.BLANK;
 		}
 
-		return packageElement;
+		String text = node.getText();
+
+		text = StringUtil.trim(text.replaceAll("\\s+", " "));
+
+		return CSVUtil.encode(text);
 	}
 
 	@SuppressWarnings("unchecked")
-	private Document _getDocument(String[] xmls, String fileName)
-		throws Exception {
+	private Document _getDocument(String[] xmls, String rdf) throws Exception {
+		Comparator<String> comparator = String.CASE_INSENSITIVE_ORDER;
 
-		Map<String, Element> packageElementMap = new TreeMap<>(
-			String.CASE_INSENSITIVE_ORDER);
+		Map<String, Element> libraryElementMap = new TreeMap<>(comparator);
 
 		SAXReader saxReader = SAXReaderFactory.getSAXReader(null, false, false);
-
-		Document document = saxReader.read(new File(fileName));
-
-		Element rootElement = document.getRootElement();
-
-		Element documentElement = rootElement.element(_QNAME_SPDX_DOCUMENT);
-
-		List<Element> packageElements = documentElement.elements(
-			_QNAME_PACKAGE);
-
-		for (Element packageElement : packageElements) {
-			String name = packageElement.elementText(_QNAME_NAME);
-			String versionInfo = packageElement.elementText(
-				_QNAME_VERSION_INFO);
-
-			List<Element> fileElements = packageElement.elements(_QNAME_FILE);
-
-			for (Element fileElement : fileElements) {
-				String text = fileElement.elementText(_QNAME_FILE_NAME);
-
-				String baseDirName = text.substring(0, text.indexOf('/') + 1);
-
-				if (!baseDirName.endsWith("portal/") ||
-					!baseDirName.endsWith("portal-ee/")) {
-
-					continue;
-				}
-
-				Element fileNameElement = fileElement.element(_QNAME_FILE_NAME);
-
-				fileNameElement.setText(text.substring(text.indexOf('/') + 1));
-			}
-
-			rootElement.remove(packageElement);
-
-			packageElementMap.put(name + ':' + versionInfo, packageElement);
-		}
 
 		for (String xml : xmls) {
 			Document xmlDocument = saxReader.read(new File(xml));
@@ -168,69 +201,191 @@ public class SPDXBuilder {
 			List<Node> fileNameNodes = xmlDocument.selectNodes("//file-name");
 
 			for (Node fileNameNode : fileNameNodes) {
-				Node libraryNode = fileNameNode.getParent();
+				Element libraryElement = fileNameNode.getParent();
 
-				Node projectNameNode = libraryNode.selectSingleNode(
-					"project-name");
-				Node versionNode = libraryNode.selectSingleNode("version");
+				String key = _getKey("portal", libraryElement);
 
-				Element packageElement = packageElementMap.get(
-					projectNameNode.getText() + ':' + versionNode.getText());
-
-				if (packageElement == null) {
-					packageElement = _createPackageElement(libraryNode);
-				}
-
-				Element fileElement = packageElement.addElement(_QNAME_FILE);
-
-				Element fileNameElement = fileElement.addElement(
-					_QNAME_FILE_NAME);
-
-				fileNameElement.addText(fileNameNode.getText());
-
-				packageElementMap.put(
-					projectNameNode.getText() + ':' + versionNode.getText(),
-					packageElement);
+				libraryElementMap.put(key, libraryElement);
 			}
 		}
 
-		for (Element packageElement : packageElementMap.values()) {
-			documentElement.add(packageElement.detach());
+		Document spdxDocument = saxReader.read(new File(rdf));
+
+		Element spdxRootElement = spdxDocument.getRootElement();
+
+		Element spdxDocumentElement = spdxRootElement.element(
+			_getQName("SpdxDocument"));
+
+		List<Element> elements = spdxDocumentElement.elements(
+			_getQName("relationship"));
+
+		for (Element element : elements) {
+			Element relationshipElement = element.element(
+				_getQName("Relationship"));
+
+			Element relatedSPDXElement = relationshipElement.element(
+				_getQName("relatedSpdxElement"));
+
+			Element packageElement = relatedSPDXElement.element(
+				_getQName("Package"));
+
+			List<Element> libraryElements = _createLibraryElements(
+				packageElement);
+
+			for (Element libraryElement : libraryElements) {
+				String key = _getKey("spdx", libraryElement);
+
+				libraryElementMap.put(key, libraryElement);
+			}
+		}
+
+		Document document = DocumentHelper.createDocument();
+
+		Map<String, String> args = new HashMap<>();
+
+		args.put("href", "versions.xsl");
+		args.put("type", "text/xsl");
+
+		document.addProcessingInstruction("xml-stylesheet", args);
+
+		Element versionsElement = document.addElement("versions");
+
+		Element versionElement = versionsElement.addElement("version");
+
+		Element librariesElement = versionElement.addElement("libraries");
+
+		for (Element libraryElement : libraryElementMap.values()) {
+			librariesElement.add(libraryElement.detach());
 		}
 
 		return document;
 	}
 
-	private static final QName _QNAME_DOWNLOAD_LOCATION = new QName(
-		"downloadLocation", new Namespace("spdx", "http://spdx.org/rdf/terms#"),
-		"spdx:downloadLocation");
+	private String _getKey(String type, Element libraryElement) {
+		StringBuilder sb = new StringBuilder();
 
-	private static final QName _QNAME_FILE = new QName(
-		"File", new Namespace("spdx", "http://spdx.org/rdf/terms#"),
-		"spdx:File");
+		sb.append(StringUtil.upperCase(type));
+		sb.append(StringPool.COLON);
 
-	private static final QName _QNAME_FILE_NAME = new QName(
-		"fileName", new Namespace("spdx", "http://spdx.org/rdf/terms#"),
-		"spdx:fileName");
+		Node fileNameNode = libraryElement.selectSingleNode("file-name");
 
-	private static final QName _QNAME_LICENSE_CONCLUDED = new QName(
-		"licenseConcluded", new Namespace("spdx", "http://spdx.org/rdf/terms#"),
-		"spdx:licenseConcluded");
+		sb.append(fileNameNode.getText());
 
-	private static final QName _QNAME_NAME = new QName(
-		"name", new Namespace("spdx", "http://spdx.org/rdf/terms#"),
-		"spdx:name");
+		sb.append(StringPool.COLON);
 
-	private static final QName _QNAME_PACKAGE = new QName(
-		"Package", new Namespace("spdx", "http://spdx.org/rdf/terms#"),
-		"spdx:Package");
+		Node versionNode = libraryElement.selectSingleNode("version");
 
-	private static final QName _QNAME_SPDX_DOCUMENT = new QName(
-		"SpdxDocument", new Namespace("spdx", "http://spdx.org/rdf/terms#"),
-		"spdx:SpdxDocument");
+		sb.append(versionNode.getText());
 
-	private static final QName _QNAME_VERSION_INFO = new QName(
-		"versionInfo", new Namespace("spdx", "http://spdx.org/rdf/terms#"),
-		"spdx:versionInfo");
+		return sb.toString();
+	}
+
+	private String _getLicenseName(Element packageElement) {
+		Element licenseConcludedElement = packageElement.element(
+			_getQName("licenseConcluded"));
+
+		if (licenseConcludedElement == null) {
+			return null;
+		}
+
+		String resource = licenseConcludedElement.attributeValue(
+			_getQName("resource"));
+
+		if (resource.startsWith("http://spdx.org/licenses/")) {
+			return resource.substring(25);
+		}
+
+		if (resource.startsWith("LicenseRef-")) {
+			return resource.substring(11);
+		}
+
+		return null;
+	}
+
+	private String _getLicenseURL(Element packageElement) {
+		Element licenseConcludedElement = packageElement.element(
+			_getQName("licenseConcluded"));
+
+		String resource = licenseConcludedElement.attributeValue(
+			_getQName("resource"));
+
+		if (!resource.startsWith("http")) {
+			return null;
+		}
+
+		return resource;
+	}
+
+	private QName _getQName(String name) {
+		if (!_qNameMap.containsKey(name)) {
+			QName qName = new QName(name, _NAMESPACE_SPDX, "spdx:" + name);
+
+			if (Objects.equals(name, "resource")) {
+				qName = new QName(name, _NAMESPACE_RDF, "rdf:" + name);
+			}
+
+			_qNameMap.put(name, qName);
+		}
+
+		return _qNameMap.get(name);
+	}
+
+	@SuppressWarnings("unchecked")
+	private String _toCSV(Document document) {
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("File Name,Version,Project,License,Comments");
+
+		List<Node> libraryNodes = document.selectNodes("//library");
+
+		for (Node libraryNode : libraryNodes) {
+			sb.append('\n');
+
+			sb.append(_encode(libraryNode.selectSingleNode("file-name")));
+			sb.append(',');
+			sb.append(_encode(libraryNode.selectSingleNode("version")));
+			sb.append(',');
+			sb.append(_encode(libraryNode.selectSingleNode("project-name")));
+			sb.append(',');
+
+			String[] licenses = new String[0];
+
+			List<Node> licenseNameNodes = libraryNode.selectNodes(
+				"./licenses/license/license-name");
+
+			if (!licenseNameNodes.isEmpty()) {
+				String text = StringPool.BLANK;
+
+				if (licenseNameNodes.get(0) != null) {
+					Node node = licenseNameNodes.get(0);
+
+					text = node.getText();
+
+					text = StringUtil.trim(text.replaceAll("\\s+", " "));
+				}
+
+				licenses = ArrayUtil.append(licenses, text);
+			}
+
+			sb.append(CSVUtil.encode(licenses));
+
+			sb.append(',');
+			sb.append(_encode(libraryNode.selectSingleNode("comments")));
+		}
+
+		return sb.toString();
+	}
+
+	private void _write(File file, String s) throws Exception {
+		Files.write(file.toPath(), s.getBytes(StandardCharsets.UTF_8));
+	}
+
+	private static final Namespace _NAMESPACE_RDF = new Namespace(
+		"rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+
+	private static final Namespace _NAMESPACE_SPDX = new Namespace(
+		"spdx", "http://spdx.org/rdf/terms#");
+
+	private static final Map<String, QName> _qNameMap = new HashMap<>();
 
 }

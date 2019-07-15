@@ -14,8 +14,6 @@
 
 package com.liferay.push.notifications.model.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.expando.kernel.util.ExpandoBridgeFactoryUtil;
 import com.liferay.petra.string.StringBundler;
@@ -36,6 +34,9 @@ import com.liferay.push.notifications.model.PushNotificationsDeviceSoap;
 
 import java.io.Serializable;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
+
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -47,6 +48,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The base model implementation for the PushNotificationsDevice service. Represents a row in the &quot;PushNotificationsDevice&quot; database table, with each column mapped to a property of this class.
@@ -274,6 +277,32 @@ public class PushNotificationsDeviceModelImpl
 		return _attributeSetterBiConsumers;
 	}
 
+	private static Function<InvocationHandler, PushNotificationsDevice>
+		_getProxyProviderFunction() {
+
+		Class<?> proxyClass = ProxyUtil.getProxyClass(
+			PushNotificationsDevice.class.getClassLoader(),
+			PushNotificationsDevice.class, ModelWrapper.class);
+
+		try {
+			Constructor<PushNotificationsDevice> constructor =
+				(Constructor<PushNotificationsDevice>)proxyClass.getConstructor(
+					InvocationHandler.class);
+
+			return invocationHandler -> {
+				try {
+					return constructor.newInstance(invocationHandler);
+				}
+				catch (ReflectiveOperationException roe) {
+					throw new InternalError(roe);
+				}
+			};
+		}
+		catch (NoSuchMethodException nsme) {
+			throw new InternalError(nsme);
+		}
+	}
+
 	private static final Map<String, Function<PushNotificationsDevice, Object>>
 		_attributeGetterFunctions;
 	private static final Map
@@ -479,8 +508,12 @@ public class PushNotificationsDeviceModelImpl
 	@Override
 	public PushNotificationsDevice toEscapedModel() {
 		if (_escapedModel == null) {
-			_escapedModel = (PushNotificationsDevice)ProxyUtil.newProxyInstance(
-				_classLoader, _escapedModelInterfaces,
+			Function<InvocationHandler, PushNotificationsDevice>
+				escapedModelProxyProviderFunction =
+					EscapedModelProxyProviderFunctionHolder.
+						_escapedModelProxyProviderFunction;
+
+			_escapedModel = escapedModelProxyProviderFunction.apply(
 				new AutoEscapeBeanHandler(this));
 		}
 
@@ -682,11 +715,14 @@ public class PushNotificationsDeviceModelImpl
 		return sb.toString();
 	}
 
-	private static final ClassLoader _classLoader =
-		PushNotificationsDevice.class.getClassLoader();
-	private static final Class<?>[] _escapedModelInterfaces = new Class[] {
-		PushNotificationsDevice.class, ModelWrapper.class
-	};
+	private static class EscapedModelProxyProviderFunctionHolder {
+
+		private static final Function
+			<InvocationHandler, PushNotificationsDevice>
+				_escapedModelProxyProviderFunction =
+					_getProxyProviderFunction();
+
+	}
 
 	private long _pushNotificationsDeviceId;
 	private long _companyId;

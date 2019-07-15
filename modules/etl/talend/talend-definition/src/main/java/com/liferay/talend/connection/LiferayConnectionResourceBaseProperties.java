@@ -14,7 +14,7 @@
 
 package com.liferay.talend.connection;
 
-import com.liferay.talend.resource.LiferayResourceProperties;
+import com.liferay.talend.resource.BaseLiferayResourceProperties;
 
 import org.apache.avro.Schema;
 
@@ -24,11 +24,11 @@ import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.Connector;
 import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.common.FixedConnectorsComponentProperties;
-import org.talend.components.common.SchemaProperties;
 import org.talend.daikon.properties.presentation.Form;
 
 /**
  * @author Zoltán Takács
+ * @author Ivica Cardic
  */
 public abstract class LiferayConnectionResourceBaseProperties
 	extends FixedConnectorsComponentProperties
@@ -62,13 +62,12 @@ public abstract class LiferayConnectionResourceBaseProperties
 			if (_log.isDebugEnabled()) {
 				_log.debug("Using a reference connection properties");
 				_log.debug(
-					"User ID: " +
-						referencedLiferayConnectionProperties.userId.
+					"API spec URL: " +
+						referencedLiferayConnectionProperties.apiSpecURL.
 							getValue());
 				_log.debug(
-					"Endpoint: " +
-						referencedLiferayConnectionProperties.endpoint.
-							getValue());
+					"User ID: " +
+						referencedLiferayConnectionProperties.getUserId());
 			}
 
 			return referencedLiferayConnectionProperties;
@@ -76,9 +75,9 @@ public abstract class LiferayConnectionResourceBaseProperties
 
 		if (_log.isDebugEnabled()) {
 			_log.debug(
-				"User ID: " + liferayConnectionProperties.userId.getValue());
-			_log.debug(
-				"Endpoint: " + liferayConnectionProperties.endpoint.getValue());
+				"API spec URL: " +
+					liferayConnectionProperties.apiSpecURL.getValue());
+			_log.debug("User ID: " + liferayConnectionProperties.getUserId());
 		}
 
 		return liferayConnectionProperties;
@@ -104,8 +103,6 @@ public abstract class LiferayConnectionResourceBaseProperties
 		for (Form childForm : resource.getForms()) {
 			resource.refreshLayout(childForm);
 		}
-
-		resource.setupResourceURLPrefix();
 	}
 
 	@Override
@@ -118,28 +115,19 @@ public abstract class LiferayConnectionResourceBaseProperties
 
 		mainForm.addRow(resource.getForm(Form.REFERENCE));
 
+		Form advancedForm = new Form(this, Form.ADVANCED);
+
+		advancedForm.addRow(connection.getForm(Form.ADVANCED));
+
 		refreshLayout(mainForm);
-	}
-
-	@Override
-	public void setupProperties() {
-		super.setupProperties();
-
-		resource = new LiferayResourceProperties("resource");
-
-		resource.connection = connection;
-
-		resource.setupProperties();
 	}
 
 	public LiferayConnectionProperties connection =
 		new LiferayConnectionProperties("connection");
-	public LiferayResourceProperties resource;
+	public BaseLiferayResourceProperties resource;
 
 	protected transient PropertyPathConnector mainConnector =
 		new PropertyPathConnector(Connector.MAIN_NAME, "resource.main");
-	protected transient Schema temporaryMainSchema =
-		SchemaProperties.EMPTY_SCHEMA;
 
 	private static final Logger _log = LoggerFactory.getLogger(
 		LiferayConnectionResourceBaseProperties.class);

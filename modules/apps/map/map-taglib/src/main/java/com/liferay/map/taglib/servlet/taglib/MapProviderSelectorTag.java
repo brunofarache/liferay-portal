@@ -25,6 +25,18 @@ import javax.servlet.jsp.PageContext;
  */
 public class MapProviderSelectorTag extends IncludeTag {
 
+	public String getConfigurationPrefix() {
+		return _configurationPrefix;
+	}
+
+	public String getMapProviderKey() {
+		return _mapProviderKey;
+	}
+
+	public String getName() {
+		return _name;
+	}
+
 	public void setConfigurationPrefix(String configurationPrefix) {
 		_configurationPrefix = configurationPrefix;
 	}
@@ -59,17 +71,18 @@ public class MapProviderSelectorTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-map:map-provider-selector:configurationPrefix",
 			_configurationPrefix);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-map:map-provider-selector:mapProviderKey",
 			_mapProviderKey);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-map:map-provider-selector:mapProviders",
 			ServletContextUtil.getMapProviders());
-		request.setAttribute("liferay-map:map-provider-selector:name", _name);
+		httpServletRequest.setAttribute(
+			"liferay-map:map-provider-selector:name", _name);
 	}
 
 	private static final String _PAGE = "/map_provider_selector/page.jsp";

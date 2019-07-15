@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.exception.DuplicateGroupException;
 import com.liferay.portal.kernel.exception.GroupFriendlyURLException;
 import com.liferay.portal.kernel.exception.GroupInheritContentException;
 import com.liferay.portal.kernel.exception.GroupKeyException;
+import com.liferay.portal.kernel.exception.GroupNameException;
 import com.liferay.portal.kernel.exception.GroupParentException;
 import com.liferay.portal.kernel.exception.LayoutSetVirtualHostException;
 import com.liferay.portal.kernel.exception.LocaleException;
@@ -50,8 +51,6 @@ import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutSetPrototype;
 import com.liferay.portal.kernel.model.MembershipRequest;
 import com.liferay.portal.kernel.model.MembershipRequestConstants;
-import com.liferay.portal.kernel.model.Role;
-import com.liferay.portal.kernel.model.Team;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.security.auth.AuthException;
@@ -410,8 +409,7 @@ public class SiteAdminPortlet extends MVCPortlet {
 			}
 		}
 
-		return ArrayUtil.toArray(
-			filteredUserIds.toArray(new Long[filteredUserIds.size()]));
+		return ArrayUtil.toArray(filteredUserIds.toArray(new Long[0]));
 	}
 
 	protected String getHistoryKey(
@@ -458,10 +456,10 @@ public class SiteAdminPortlet extends MVCPortlet {
 		return refererGroupId;
 	}
 
-	protected List<Role> getRoles(PortletRequest portletRequest)
+	protected List<Long> getRoleIds(PortletRequest portletRequest)
 		throws Exception {
 
-		List<Role> roles = new ArrayList<>();
+		List<Long> roleIds = new ArrayList<>();
 
 		long[] siteRolesRoleIds = ArrayUtil.unique(
 			ParamUtil.getLongValues(
@@ -472,12 +470,10 @@ public class SiteAdminPortlet extends MVCPortlet {
 				continue;
 			}
 
-			Role role = roleLocalService.getRole(siteRolesRoleId);
-
-			roles.add(role);
+			roleIds.add(siteRolesRoleId);
 		}
 
-		return roles;
+		return roleIds;
 	}
 
 	protected PortletURL getSiteAdministrationURL(
@@ -495,10 +491,10 @@ public class SiteAdminPortlet extends MVCPortlet {
 			actionRequest, group, portletId, 0, 0, PortletRequest.RENDER_PHASE);
 	}
 
-	protected List<Team> getTeams(PortletRequest portletRequest)
+	protected List<Long> getTeamIds(PortletRequest portletRequest)
 		throws Exception {
 
-		List<Team> teams = new ArrayList<>();
+		List<Long> teamIds = new ArrayList<>();
 
 		long[] teamsTeamIds = ArrayUtil.unique(
 			ParamUtil.getLongValues(
@@ -509,12 +505,10 @@ public class SiteAdminPortlet extends MVCPortlet {
 				continue;
 			}
 
-			Team team = teamLocalService.getTeam(teamsTeamId);
-
-			teams.add(team);
+			teamIds.add(teamsTeamId);
 		}
 
-		return teams;
+		return teamIds;
 	}
 
 	@Override
@@ -526,6 +520,7 @@ public class SiteAdminPortlet extends MVCPortlet {
 			cause instanceof GroupFriendlyURLException ||
 			cause instanceof GroupInheritContentException ||
 			cause instanceof GroupKeyException ||
+			cause instanceof GroupNameException ||
 			cause instanceof GroupParentException ||
 			cause instanceof LayoutSetVirtualHostException ||
 			cause instanceof LocaleException ||
@@ -747,6 +742,17 @@ public class SiteAdminPortlet extends MVCPortlet {
 			active = ParamUtil.getBoolean(
 				actionRequest, "active", liveGroup.isActive());
 
+			UnicodeProperties unicodeProperties =
+				PropertiesParamUtil.getProperties(
+					actionRequest, "TypeSettingsProperties--");
+
+			Locale defaultLocale = LocaleUtil.fromLanguageId(
+				unicodeProperties.getProperty("languageId"));
+
+			if (!liveGroup.isGuest()) {
+				validateDefaultLocaleGroupName(nameMap, defaultLocale);
+			}
+
 			liveGroup = groupService.updateGroup(
 				liveGroupId, parentGroupId, nameMap, descriptionMap, type,
 				manualMembership, membershipRestriction, friendlyURL,
@@ -788,14 +794,10 @@ public class SiteAdminPortlet extends MVCPortlet {
 
 		typeSettingsProperties.setProperty(
 			"defaultSiteRoleIds",
-			ListUtil.toString(
-				getRoles(actionRequest), Role.ROLE_ID_ACCESSOR,
-				StringPool.COMMA));
+			ListUtil.toString(getRoleIds(actionRequest), StringPool.BLANK));
 		typeSettingsProperties.setProperty(
 			"defaultTeamIds",
-			ListUtil.toString(
-				getTeams(actionRequest), Team.TEAM_ID_ACCESSOR,
-				StringPool.COMMA));
+			ListUtil.toString(getTeamIds(actionRequest), StringPool.BLANK));
 
 		String[] analyticsTypes = PrefsPropsUtil.getStringArray(
 			themeDisplay.getCompanyId(), PropsKeys.ADMIN_ANALYTICS_TYPES,
@@ -1066,6 +1068,15 @@ public class SiteAdminPortlet extends MVCPortlet {
 		themeDisplay.setSiteGroupId(liveGroup.getGroupId());
 
 		return liveGroup;
+	}
+
+	protected void validateDefaultLocaleGroupName(
+			Map<Locale, String> nameMap, Locale defaultLocale)
+		throws PortalException {
+
+		if ((nameMap == null) || Validator.isNull(nameMap.get(defaultLocale))) {
+			throw new GroupNameException();
+		}
 	}
 
 	@Reference

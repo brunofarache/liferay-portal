@@ -1,5 +1,6 @@
 @component-name = "support-qa"
 definition {
+
 	property deploy.latest.marketplace.app.disabled = "true";
 	property portal.fixpack.release = "true";
 	property test.ignore.tomcat.ext.environment = "true";
@@ -25,8 +26,7 @@ definition {
 
 		Portlet.startServer(
 			deleteLiferayHome = "true",
-			keepCachedAppServerData = "true"
-		);
+			keepCachedAppServerData = "true");
 
 		SignIn.signIn();
 
@@ -40,8 +40,7 @@ definition {
 
 		Portlet.startServer(
 			deleteLiferayHome = "true",
-			keepCachedAppServerData = "true"
-		);
+			keepCachedAppServerData = "true");
 
 		SignIn.signIn();
 
@@ -53,4 +52,5 @@ definition {
 			GogoShell.viewOutput(outputContent = "${outputContent}");
 		}
 	}
+
 }

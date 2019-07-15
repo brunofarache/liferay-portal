@@ -14,14 +14,14 @@
 
 package com.liferay.portal.kernel.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.model.wrapper.BaseModelWrapper;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * <p>
@@ -517,84 +517,6 @@ public class UserWrapper
 	@Override
 	public String getDisplayEmailAddress() {
 		return model.getDisplayEmailAddress();
-	}
-
-	/**
-	 * Returns the user's display URL, discounting the URL of the user's default
-	 * intranet site home page.
-	 *
-	 * <p>
-	 * The logic for the display URL to return is as follows:
-	 * </p>
-	 *
-	 * <ol>
-	 * <li>
-	 * If the user is the guest user, return an empty string.
-	 * </li>
-	 * <li>
-	 * Else, if a friendly URL is available for the user's profile, return that
-	 * friendly URL.
-	 * </li>
-	 * <li>
-	 * Otherwise, return the URL of the user's default extranet site home page.
-	 * </li>
-	 * </ol>
-	 *
-	 * @param portalURL the portal's URL
-	 * @param mainPath the main path
-	 * @return the user's display URL
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 #getDisplayURL(ThemeDisplay)}
-	 */
-	@Deprecated
-	@Override
-	public String getDisplayURL(String portalURL, String mainPath)
-		throws com.liferay.portal.kernel.exception.PortalException {
-
-		return model.getDisplayURL(portalURL, mainPath);
-	}
-
-	/**
-	 * Returns the user's display URL.
-	 *
-	 * <p>
-	 * The logic for the display URL to return is as follows:
-	 * </p>
-	 *
-	 * <ol>
-	 * <li>
-	 * If the user is the guest user, return an empty string.
-	 * </li>
-	 * <li>
-	 * Else, if a friendly URL is available for the user's profile, return that
-	 * friendly URL.
-	 * </li>
-	 * <li>
-	 * Else, if <code>privateLayout</code> is <code>true</code>, return the URL
-	 * of the user's default intranet site home page.
-	 * </li>
-	 * <li>
-	 * Otherwise, return the URL of the user's default extranet site home page.
-	 * </li>
-	 * </ol>
-	 *
-	 * @param portalURL the portal's URL
-	 * @param mainPath the main path
-	 * @param privateLayout whether to use the URL of the user's default
-	 intranet(versus extranet)  site home page, if no friendly URL
-	 is available for the user's profile
-	 * @return the user's display URL
-	 * @throws PortalException
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 #getDisplayURL(ThemeDisplay)}
-	 */
-	@Deprecated
-	@Override
-	public String getDisplayURL(
-			String portalURL, String mainPath, boolean privateLayout)
-		throws com.liferay.portal.kernel.exception.PortalException {
-
-		return model.getDisplayURL(portalURL, mainPath, privateLayout);
 	}
 
 	/**

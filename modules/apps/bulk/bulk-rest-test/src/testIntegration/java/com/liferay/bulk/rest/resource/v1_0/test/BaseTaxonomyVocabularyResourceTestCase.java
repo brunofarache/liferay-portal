@@ -14,42 +14,40 @@
 
 package com.liferay.bulk.rest.resource.v1_0.test;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
-import com.liferay.bulk.rest.dto.v1_0.DocumentBulkSelection;
-import com.liferay.bulk.rest.dto.v1_0.TaxonomyVocabulary;
-import com.liferay.bulk.rest.resource.v1_0.TaxonomyVocabularyResource;
+import com.liferay.bulk.rest.client.dto.v1_0.TaxonomyVocabulary;
+import com.liferay.bulk.rest.client.http.HttpInvoker;
+import com.liferay.bulk.rest.client.pagination.Page;
+import com.liferay.bulk.rest.client.resource.v1_0.TaxonomyVocabularyResource;
+import com.liferay.bulk.rest.client.serdes.v1_0.TaxonomyVocabularySerDes;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.Base64;
 import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
-import com.liferay.portal.kernel.util.Http;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.odata.entity.EntityField;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.resource.EntityModelResource;
 
 import java.lang.reflect.InvocationTargetException;
 
-import java.net.URL;
-
 import java.text.DateFormat;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -59,7 +57,6 @@ import java.util.stream.Stream;
 import javax.annotation.Generated;
 
 import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.Response;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 
@@ -94,7 +91,17 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 		irrelevantGroup = GroupTestUtil.addGroup();
 		testGroup = GroupTestUtil.addGroup();
 
-		_resourceURL = new URL("http://localhost:8080/o/bulk-rest/v1.0");
+		testCompany = CompanyLocalServiceUtil.getCompany(
+			testGroup.getCompanyId());
+
+		_taxonomyVocabularyResource.setContextCompany(testCompany);
+
+		TaxonomyVocabularyResource.Builder builder =
+			TaxonomyVocabularyResource.builder();
+
+		taxonomyVocabularyResource = builder.locale(
+			LocaleUtil.getDefault()
+		).build();
 	}
 
 	@After
@@ -104,87 +111,87 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 	}
 
 	@Test
-	public void testPostContentSpaceTaxonomyVocabularyCommonPage()
-		throws Exception {
+	public void testClientSerDesToDTO() throws Exception {
+		ObjectMapper objectMapper = new ObjectMapper() {
+			{
+				configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
+				configure(
+					SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
+				enable(SerializationFeature.INDENT_OUTPUT);
+				setDateFormat(new ISO8601DateFormat());
+				setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+				setSerializationInclusion(JsonInclude.Include.NON_NULL);
+				setVisibility(
+					PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+				setVisibility(
+					PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
+			}
+		};
 
-		TaxonomyVocabulary randomTaxonomyVocabulary =
-			randomTaxonomyVocabulary();
+		TaxonomyVocabulary taxonomyVocabulary1 = randomTaxonomyVocabulary();
 
-		TaxonomyVocabulary postTaxonomyVocabulary =
-			testPostContentSpaceTaxonomyVocabularyCommonPage_addTaxonomyVocabulary(
-				randomTaxonomyVocabulary);
+		String json = objectMapper.writeValueAsString(taxonomyVocabulary1);
 
-		assertEquals(randomTaxonomyVocabulary, postTaxonomyVocabulary);
-		assertValid(postTaxonomyVocabulary);
+		TaxonomyVocabulary taxonomyVocabulary2 = TaxonomyVocabularySerDes.toDTO(
+			json);
+
+		Assert.assertTrue(equals(taxonomyVocabulary1, taxonomyVocabulary2));
 	}
 
-	protected TaxonomyVocabulary
-			testPostContentSpaceTaxonomyVocabularyCommonPage_addTaxonomyVocabulary(
-				TaxonomyVocabulary taxonomyVocabulary)
-		throws Exception {
+	@Test
+	public void testClientSerDesToJSON() throws Exception {
+		ObjectMapper objectMapper = new ObjectMapper() {
+			{
+				configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
+				configure(
+					SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
+				setDateFormat(new ISO8601DateFormat());
+				setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+				setSerializationInclusion(JsonInclude.Include.NON_NULL);
+				setVisibility(
+					PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+				setVisibility(
+					PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
+			}
+		};
 
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
-	}
+		TaxonomyVocabulary taxonomyVocabulary = randomTaxonomyVocabulary();
 
-	protected Page<TaxonomyVocabulary>
-			invokePostContentSpaceTaxonomyVocabularyCommonPage(
-				Long contentSpaceId,
-				DocumentBulkSelection documentBulkSelection)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		String location =
-			_resourceURL +
-				_toPath(
-					"/content-spaces/{content-space-id}/taxonomy-vocabularies/common",
-					contentSpaceId);
-
-		options.setLocation(location);
-
-		options.setPost(true);
-
-		String string = HttpUtil.URLtoString(options);
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("HTTP response: " + string);
-		}
-
-		return _outputObjectMapper.readValue(
-			string,
-			new TypeReference<Page<TaxonomyVocabulary>>() {
-			});
-	}
-
-	protected Http.Response
-			invokePostContentSpaceTaxonomyVocabularyCommonPageResponse(
-				Long contentSpaceId,
-				DocumentBulkSelection documentBulkSelection)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		String location =
-			_resourceURL +
-				_toPath(
-					"/content-spaces/{content-space-id}/taxonomy-vocabularies/common",
-					contentSpaceId);
-
-		options.setLocation(location);
-
-		options.setPost(true);
-
-		HttpUtil.URLtoString(options);
-
-		return options.getResponse();
-	}
-
-	protected void assertResponseCode(
-		int expectedResponseCode, Http.Response actualResponse) {
+		String json1 = objectMapper.writeValueAsString(taxonomyVocabulary);
+		String json2 = TaxonomyVocabularySerDes.toJSON(taxonomyVocabulary);
 
 		Assert.assertEquals(
-			expectedResponseCode, actualResponse.getResponseCode());
+			objectMapper.readTree(json1), objectMapper.readTree(json2));
+	}
+
+	@Test
+	public void testEscapeRegexInStringFields() throws Exception {
+		String regex = "^[0-9]+(\\.[0-9]{1,2})\"?";
+
+		TaxonomyVocabulary taxonomyVocabulary = randomTaxonomyVocabulary();
+
+		taxonomyVocabulary.setName(regex);
+
+		String json = TaxonomyVocabularySerDes.toJSON(taxonomyVocabulary);
+
+		Assert.assertFalse(json.contains(regex));
+
+		taxonomyVocabulary = TaxonomyVocabularySerDes.toDTO(json);
+
+		Assert.assertEquals(regex, taxonomyVocabulary.getName());
+	}
+
+	@Test
+	public void testPostSiteTaxonomyVocabulariesCommonPage() throws Exception {
+		Assert.assertTrue(true);
+	}
+
+	protected void assertHttpResponseStatusCode(
+		int expectedHttpResponseStatusCode,
+		HttpInvoker.HttpResponse actualHttpResponse) {
+
+		Assert.assertEquals(
+			expectedHttpResponseStatusCode, actualHttpResponse.getStatusCode());
 	}
 
 	protected void assertEquals(
@@ -241,14 +248,68 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 	}
 
 	protected void assertValid(TaxonomyVocabulary taxonomyVocabulary) {
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
+		boolean valid = true;
+
+		for (String additionalAssertFieldName :
+				getAdditionalAssertFieldNames()) {
+
+			if (Objects.equals("multiValued", additionalAssertFieldName)) {
+				if (taxonomyVocabulary.getMultiValued() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("name", additionalAssertFieldName)) {
+				if (taxonomyVocabulary.getName() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("required", additionalAssertFieldName)) {
+				if (taxonomyVocabulary.getRequired() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"taxonomyCategories", additionalAssertFieldName)) {
+
+				if (taxonomyVocabulary.getTaxonomyCategories() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"taxonomyVocabularyId", additionalAssertFieldName)) {
+
+				if (taxonomyVocabulary.getTaxonomyVocabularyId() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			throw new IllegalArgumentException(
+				"Invalid additional assert field name " +
+					additionalAssertFieldName);
+		}
+
+		Assert.assertTrue(valid);
 	}
 
 	protected void assertValid(Page<TaxonomyVocabulary> page) {
 		boolean valid = false;
 
-		Collection<TaxonomyVocabulary> taxonomyVocabularies = page.getItems();
+		java.util.Collection<TaxonomyVocabulary> taxonomyVocabularies =
+			page.getItems();
 
 		int size = taxonomyVocabularies.size();
 
@@ -262,6 +323,14 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 		Assert.assertTrue(valid);
 	}
 
+	protected String[] getAdditionalAssertFieldNames() {
+		return new String[0];
+	}
+
+	protected String[] getIgnoredEntityFieldNames() {
+		return new String[0];
+	}
+
 	protected boolean equals(
 		TaxonomyVocabulary taxonomyVocabulary1,
 		TaxonomyVocabulary taxonomyVocabulary2) {
@@ -270,10 +339,79 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 			return true;
 		}
 
-		return false;
+		for (String additionalAssertFieldName :
+				getAdditionalAssertFieldNames()) {
+
+			if (Objects.equals("multiValued", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						taxonomyVocabulary1.getMultiValued(),
+						taxonomyVocabulary2.getMultiValued())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("name", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						taxonomyVocabulary1.getName(),
+						taxonomyVocabulary2.getName())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("required", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						taxonomyVocabulary1.getRequired(),
+						taxonomyVocabulary2.getRequired())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"taxonomyCategories", additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						taxonomyVocabulary1.getTaxonomyCategories(),
+						taxonomyVocabulary2.getTaxonomyCategories())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"taxonomyVocabularyId", additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						taxonomyVocabulary1.getTaxonomyVocabularyId(),
+						taxonomyVocabulary2.getTaxonomyVocabularyId())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			throw new IllegalArgumentException(
+				"Invalid additional assert field name " +
+					additionalAssertFieldName);
+		}
+
+		return true;
 	}
 
-	protected Collection<EntityField> getEntityFields() throws Exception {
+	protected java.util.Collection<EntityField> getEntityFields()
+		throws Exception {
+
 		if (!(_taxonomyVocabularyResource instanceof EntityModelResource)) {
 			throw new UnsupportedOperationException(
 				"Resource is not an instance of EntityModelResource");
@@ -294,12 +432,15 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 	protected List<EntityField> getEntityFields(EntityField.Type type)
 		throws Exception {
 
-		Collection<EntityField> entityFields = getEntityFields();
+		java.util.Collection<EntityField> entityFields = getEntityFields();
 
 		Stream<EntityField> stream = entityFields.stream();
 
 		return stream.filter(
-			entityField -> Objects.equals(entityField.getType(), type)
+			entityField ->
+				Objects.equals(entityField.getType(), type) &&
+				!ArrayUtil.contains(
+					getIgnoredEntityFieldNames(), entityField.getName())
 		).collect(
 			Collectors.toList()
 		);
@@ -351,7 +492,7 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 			"Invalid entity field " + entityFieldName);
 	}
 
-	protected TaxonomyVocabulary randomTaxonomyVocabulary() {
+	protected TaxonomyVocabulary randomTaxonomyVocabulary() throws Exception {
 		return new TaxonomyVocabulary() {
 			{
 				multiValued = RandomTestUtil.randomBoolean();
@@ -362,86 +503,25 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 		};
 	}
 
-	protected TaxonomyVocabulary randomIrrelevantTaxonomyVocabulary() {
+	protected TaxonomyVocabulary randomIrrelevantTaxonomyVocabulary()
+		throws Exception {
+
+		TaxonomyVocabulary randomIrrelevantTaxonomyVocabulary =
+			randomTaxonomyVocabulary();
+
+		return randomIrrelevantTaxonomyVocabulary;
+	}
+
+	protected TaxonomyVocabulary randomPatchTaxonomyVocabulary()
+		throws Exception {
+
 		return randomTaxonomyVocabulary();
 	}
 
-	protected TaxonomyVocabulary randomPatchTaxonomyVocabulary() {
-		return randomTaxonomyVocabulary();
-	}
-
+	protected TaxonomyVocabularyResource taxonomyVocabularyResource;
 	protected Group irrelevantGroup;
+	protected Company testCompany;
 	protected Group testGroup;
-
-	protected static class Page<T> {
-
-		public Collection<T> getItems() {
-			return new ArrayList<>(items);
-		}
-
-		public long getLastPage() {
-			return lastPage;
-		}
-
-		public long getPage() {
-			return page;
-		}
-
-		public long getPageSize() {
-			return pageSize;
-		}
-
-		public long getTotalCount() {
-			return totalCount;
-		}
-
-		@JsonProperty
-		protected Collection<T> items;
-
-		@JsonProperty
-		protected long lastPage;
-
-		@JsonProperty
-		protected long page;
-
-		@JsonProperty
-		protected long pageSize;
-
-		@JsonProperty
-		protected long totalCount;
-
-	}
-
-	private Http.Options _createHttpOptions() {
-		Http.Options options = new Http.Options();
-
-		options.addHeader("Accept", "application/json");
-
-		String userNameAndPassword = "test@liferay.com:test";
-
-		String encodedUserNameAndPassword = Base64.encode(
-			userNameAndPassword.getBytes());
-
-		options.addHeader(
-			"Authorization", "Basic " + encodedUserNameAndPassword);
-
-		options.addHeader("Content-Type", "application/json");
-
-		return options;
-	}
-
-	private String _toPath(String template, Object... values) {
-		if (ArrayUtil.isEmpty(values)) {
-			return template;
-		}
-
-		for (int i = 0; i < values.length; i++) {
-			template = template.replaceFirst(
-				"\\{.*\\}", String.valueOf(values[i]));
-		}
-
-		return template;
-	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		BaseTaxonomyVocabularyResourceTestCase.class);
@@ -459,35 +539,9 @@ public abstract class BaseTaxonomyVocabularyResourceTestCase {
 
 	};
 	private static DateFormat _dateFormat;
-	private final static ObjectMapper _inputObjectMapper = new ObjectMapper() {
-		{
-			setFilterProvider(
-				new SimpleFilterProvider() {
-					{
-						addFilter(
-							"Liferay.Vulcan",
-							SimpleBeanPropertyFilter.serializeAll());
-					}
-				});
-			setSerializationInclusion(JsonInclude.Include.NON_NULL);
-		}
-	};
-	private final static ObjectMapper _outputObjectMapper = new ObjectMapper() {
-		{
-			setFilterProvider(
-				new SimpleFilterProvider() {
-					{
-						addFilter(
-							"Liferay.Vulcan",
-							SimpleBeanPropertyFilter.serializeAll());
-					}
-				});
-		}
-	};
 
 	@Inject
-	private TaxonomyVocabularyResource _taxonomyVocabularyResource;
-
-	private URL _resourceURL;
+	private com.liferay.bulk.rest.resource.v1_0.TaxonomyVocabularyResource
+		_taxonomyVocabularyResource;
 
 }

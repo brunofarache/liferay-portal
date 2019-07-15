@@ -58,6 +58,42 @@ public class SocialBookmarksTag extends IncludeTag {
 		return super.doStartTag();
 	}
 
+	public String getClassName() {
+		return _className;
+	}
+
+	public long getClassPK() {
+		return _classPK;
+	}
+
+	public String getDisplayStyle() {
+		return _displayStyle;
+	}
+
+	public int getMaxInlineItems() {
+		return _maxInlineItems;
+	}
+
+	public String getTarget() {
+		return _target;
+	}
+
+	public String getTitle() {
+		return _title;
+	}
+
+	public String getTypes() {
+		return StringUtil.merge(_types);
+	}
+
+	public String getUrl() {
+		return _url;
+	}
+
+	public PortletURL getUrlImpl() {
+		return _urlImpl;
+	}
+
 	public void setClassName(String className) {
 		_className = className;
 	}
@@ -129,19 +165,19 @@ public class SocialBookmarksTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-social-bookmarks:bookmarks:className", _className);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-social-bookmarks:bookmarks:classPK", _classPK);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-social-bookmarks:bookmarks:displayStyle", _displayStyle);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-social-bookmarks:bookmarks:maxInlineItems",
 			_maxInlineItems);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-social-bookmarks:bookmarks:target", _target);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-social-bookmarks:bookmarks:title", _title);
 
 		String[] types = _types;
@@ -153,11 +189,13 @@ public class SocialBookmarksTag extends IncludeTag {
 			types = allTypes.toArray(new String[0]);
 		}
 
-		request.setAttribute("liferay-social-bookmarks:bookmarks:types", types);
+		httpServletRequest.setAttribute(
+			"liferay-social-bookmarks:bookmarks:types", types);
 
 		if ((_url == null) && (_urlImpl != null)) {
-			ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-				WebKeys.THEME_DISPLAY);
+			ThemeDisplay themeDisplay =
+				(ThemeDisplay)httpServletRequest.getAttribute(
+					WebKeys.THEME_DISPLAY);
 
 			try {
 				_url = PortalUtil.getCanonicalURL(
@@ -173,7 +211,8 @@ public class SocialBookmarksTag extends IncludeTag {
 			throw new IllegalArgumentException();
 		}
 
-		request.setAttribute("liferay-social-bookmarks:bookmarks:url", _url);
+		httpServletRequest.setAttribute(
+			"liferay-social-bookmarks:bookmarks:url", _url);
 	}
 
 	private static final String _PAGE = "/bookmarks/page.jsp";

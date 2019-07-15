@@ -15,8 +15,12 @@
 package com.liferay.fragment.entry.processor.editable.parser;
 
 import com.liferay.fragment.exception.FragmentEntryContentException;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.util.GetterUtil;
+
+import java.util.Locale;
 
 import org.jsoup.nodes.Element;
 
@@ -33,10 +37,24 @@ public interface EditableElementParser {
 
 	public String getFieldTemplate();
 
+	public default JSONObject getFieldTemplateConfigJSONObject(
+		String fieldName, Locale locale, Object fieldValue) {
+
+		return JSONFactoryUtil.createJSONObject();
+	}
+
 	public String getValue(Element element);
 
+	/**
+	 * @deprecated As of Judson (7.1.x), with no direct replacement
+	 */
+	@Deprecated
 	public default boolean isCss() {
 		return false;
+	}
+
+	public default String parseFieldValue(Object fieldValue) {
+		return GetterUtil.get(fieldValue, StringPool.BLANK);
 	}
 
 	/**
@@ -51,9 +69,9 @@ public interface EditableElementParser {
 	 * Replaces editable element value with the provided one and apply the
 	 * configuration values
 	 *
-	 * @param element Editable element to replace
-	 * @param value New element value
-	 * @param configJSONObject Configuration values
+	 * @param  element Editable element to replace
+	 * @param  value New element value
+	 * @param  configJSONObject Configuration values
 	 * @review
 	 */
 	public default void replace(

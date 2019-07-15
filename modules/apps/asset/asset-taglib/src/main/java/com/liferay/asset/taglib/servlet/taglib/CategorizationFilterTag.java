@@ -27,6 +27,14 @@ import javax.servlet.jsp.PageContext;
  */
 public class CategorizationFilterTag extends IncludeTag {
 
+	public String getAssetType() {
+		return _assetType;
+	}
+
+	public PortletURL getPortletURL() {
+		return _portletURL;
+	}
+
 	public void setAssetType(String assetType) {
 		_assetType = assetType;
 	}
@@ -56,10 +64,10 @@ public class CategorizationFilterTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-asset:categorization-filter:assetType", _assetType);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-asset:categorization-filter:portletURL", _portletURL);
 	}
 

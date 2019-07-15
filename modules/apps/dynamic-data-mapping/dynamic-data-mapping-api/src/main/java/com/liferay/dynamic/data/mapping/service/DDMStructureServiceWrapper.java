@@ -14,9 +14,9 @@
 
 package com.liferay.dynamic.data.mapping.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.service.ServiceWrapper;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link DDMStructureService}.
@@ -277,11 +277,34 @@ public class DDMStructureServiceWrapper
 	}
 
 	@Override
+	public java.util.List<com.liferay.dynamic.data.mapping.model.DDMStructure>
+		getStructures(
+			long companyId, long[] groupIds, long classNameId, String keywords,
+			int status, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<com.liferay.dynamic.data.mapping.model.DDMStructure>
+					orderByComparator) {
+
+		return _ddmStructureService.getStructures(
+			companyId, groupIds, classNameId, keywords, status, start, end,
+			orderByComparator);
+	}
+
+	@Override
 	public int getStructuresCount(
 		long companyId, long[] groupIds, long classNameId) {
 
 		return _ddmStructureService.getStructuresCount(
 			companyId, groupIds, classNameId);
+	}
+
+	@Override
+	public int getStructuresCount(
+		long companyId, long[] groupIds, long classNameId, String keywords,
+		int status) {
+
+		return _ddmStructureService.getStructuresCount(
+			companyId, groupIds, classNameId, keywords, status);
 	}
 
 	@Override

@@ -43,10 +43,20 @@ import org.osgi.framework.Bundle;
 public class AbsolutePortalURLBuilderImpl implements AbsolutePortalURLBuilder {
 
 	public AbsolutePortalURLBuilderImpl(
-		Portal portal, HttpServletRequest request) {
+		Portal portal, HttpServletRequest httpServletRequest) {
 
 		_portal = portal;
-		_request = request;
+		_httpServletRequest = httpServletRequest;
+
+		String pathContext = portal.getPathContext();
+
+		String pathProxy = portal.getPathProxy();
+
+		_pathContext = pathContext.substring(pathProxy.length());
+
+		_pathImage = _pathContext + Portal.PATH_IMAGE;
+		_pathMain = _pathContext + Portal.PATH_MAIN;
+		_pathModule = _pathContext + Portal.PATH_MODULE;
 	}
 
 	@Override
@@ -55,7 +65,7 @@ public class AbsolutePortalURLBuilderImpl implements AbsolutePortalURLBuilder {
 
 			@Override
 			public String build() {
-				return _build(_portal.getPathImage(), relativeURL);
+				return _build(_pathImage, relativeURL);
 			}
 
 		};
@@ -67,7 +77,7 @@ public class AbsolutePortalURLBuilderImpl implements AbsolutePortalURLBuilder {
 
 			@Override
 			public String build() {
-				return _build(_portal.getPathMain(), relativeURL);
+				return _build(_pathMain, relativeURL);
 			}
 
 		};
@@ -90,8 +100,7 @@ public class AbsolutePortalURLBuilderImpl implements AbsolutePortalURLBuilder {
 					webContextPath += StringPool.SLASH;
 				}
 
-				return _build(
-					_portal.getPathModule() + webContextPath, relativeURL);
+				return _build(_pathModule + webContextPath, relativeURL);
 			}
 
 		};
@@ -169,7 +178,7 @@ public class AbsolutePortalURLBuilderImpl implements AbsolutePortalURLBuilder {
 
 			@Override
 			public String build() {
-				return _build(_portal.getPathContext(), relativeURL);
+				return _build(_pathContext, relativeURL);
 			}
 
 		};
@@ -183,7 +192,7 @@ public class AbsolutePortalURLBuilderImpl implements AbsolutePortalURLBuilder {
 
 			@Override
 			public String build() {
-				return _build(_portal.getPathModule(), servletPattern);
+				return _build(_pathModule, servletPattern);
 			}
 
 		};
@@ -210,7 +219,7 @@ public class AbsolutePortalURLBuilderImpl implements AbsolutePortalURLBuilder {
 		StringBundler sb = new StringBundler(6);
 
 		if (!ignoreCDNHost) {
-			sb.append(_getCDNHost(_request));
+			sb.append(_getCDNHost(_httpServletRequest));
 		}
 
 		if (!ignorePathProxy) {
@@ -244,11 +253,11 @@ public class AbsolutePortalURLBuilderImpl implements AbsolutePortalURLBuilder {
 			_ignoreCDNHost, _ignorePathProxy, pathPrefix, relativeURL);
 	}
 
-	private String _getCDNHost(HttpServletRequest request) {
+	private String _getCDNHost(HttpServletRequest httpServletRequest) {
 		String cdnHost;
 
 		try {
-			cdnHost = _portal.getCDNHost(request);
+			cdnHost = _portal.getCDNHost(httpServletRequest);
 		}
 		catch (PortalException pe) {
 			cdnHost = StringPool.BLANK;
@@ -284,9 +293,13 @@ public class AbsolutePortalURLBuilderImpl implements AbsolutePortalURLBuilder {
 	private static final Log _log = LogFactoryUtil.getLog(
 		AbsolutePortalURLBuilderImpl.class);
 
+	private final HttpServletRequest _httpServletRequest;
 	private boolean _ignoreCDNHost;
 	private boolean _ignorePathProxy;
+	private final String _pathContext;
+	private final String _pathImage;
+	private final String _pathMain;
+	private final String _pathModule;
 	private final Portal _portal;
-	private final HttpServletRequest _request;
 
 }

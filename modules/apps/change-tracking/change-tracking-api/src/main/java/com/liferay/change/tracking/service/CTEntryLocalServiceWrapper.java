@@ -14,9 +14,9 @@
 
 package com.liferay.change.tracking.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.service.ServiceWrapper;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link CTEntryLocalService}.
@@ -375,6 +375,17 @@ public class CTEntryLocalServiceWrapper
 	}
 
 	@Override
+	public java.util.List<com.liferay.change.tracking.model.CTEntry>
+		fetchCTEntriesByModelClassNameId(
+			long ctCollectionId, long modelClassNameId,
+			com.liferay.portal.kernel.dao.orm.QueryDefinition
+				<com.liferay.change.tracking.model.CTEntry> queryDefinition) {
+
+		return _ctEntryLocalService.fetchCTEntriesByModelClassNameId(
+			ctCollectionId, modelClassNameId, queryDefinition);
+	}
+
+	@Override
 	public com.liferay.change.tracking.model.CTEntry fetchCTEntry(
 		long ctEntryId) {
 
@@ -405,11 +416,6 @@ public class CTEntryLocalServiceWrapper
 	}
 
 	@Override
-	public int getAffectedOwnerCTEntriesCount(long ctEntryId) {
-		return _ctEntryLocalService.getAffectedOwnerCTEntriesCount(ctEntryId);
-	}
-
-	@Override
 	public java.util.List<com.liferay.change.tracking.model.CTEntry>
 		getCTCollectionCTEntries(long ctCollectionId) {
 
@@ -422,6 +428,17 @@ public class CTEntryLocalServiceWrapper
 
 		return _ctEntryLocalService.getCTCollectionCTEntries(
 			ctCollectionId, start, end);
+	}
+
+	@Override
+	public java.util.List<com.liferay.change.tracking.model.CTEntry>
+		getCTCollectionCTEntries(
+			long ctCollectionId, int status, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<com.liferay.change.tracking.model.CTEntry> orderByComparator) {
+
+		return _ctEntryLocalService.getCTCollectionCTEntries(
+			ctCollectionId, status, start, end, orderByComparator);
 	}
 
 	@Override
@@ -478,6 +495,16 @@ public class CTEntryLocalServiceWrapper
 	@Override
 	public int getCTEntriesCount() {
 		return _ctEntryLocalService.getCTEntriesCount();
+	}
+
+	@Override
+	public int getCTEntriesCount(
+		long ctCollectionId,
+		com.liferay.portal.kernel.dao.orm.QueryDefinition
+			<com.liferay.change.tracking.model.CTEntry> queryDefinition) {
+
+		return _ctEntryLocalService.getCTEntriesCount(
+			ctCollectionId, queryDefinition);
 	}
 
 	/**
@@ -566,20 +593,45 @@ public class CTEntryLocalServiceWrapper
 
 	@Override
 	public java.util.List<com.liferay.change.tracking.model.CTEntry>
-		getRelatedOwnerCTEntries(long ctEntryId) {
+		getRelatedOwnerCTEntries(
+			long companyId, long ctCollectionId, long ctEntryId,
+			String keywords,
+			com.liferay.portal.kernel.dao.orm.QueryDefinition
+				<com.liferay.change.tracking.model.CTEntry> queryDefinition) {
 
-		return _ctEntryLocalService.getRelatedOwnerCTEntries(ctEntryId);
+		return _ctEntryLocalService.getRelatedOwnerCTEntries(
+			companyId, ctCollectionId, ctEntryId, keywords, queryDefinition);
 	}
 
 	@Override
 	public java.util.List<com.liferay.change.tracking.model.CTEntry>
 		getRelatedOwnerCTEntries(
-			long ctEntryId, int start, int end,
-			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.change.tracking.model.CTEntry> orderByComparator) {
+			long ctEntryId,
+			com.liferay.portal.kernel.dao.orm.QueryDefinition
+				<com.liferay.change.tracking.model.CTEntry> queryDefinition) {
 
 		return _ctEntryLocalService.getRelatedOwnerCTEntries(
-			ctEntryId, start, end, orderByComparator);
+			ctEntryId, queryDefinition);
+	}
+
+	@Override
+	public long getRelatedOwnerCTEntriesCount(
+		long companyId, long ctCollectionId, long ctEntryId, String keywords,
+		com.liferay.portal.kernel.dao.orm.QueryDefinition
+			<com.liferay.change.tracking.model.CTEntry> queryDefinition) {
+
+		return _ctEntryLocalService.getRelatedOwnerCTEntriesCount(
+			companyId, ctCollectionId, ctEntryId, keywords, queryDefinition);
+	}
+
+	@Override
+	public int getRelatedOwnerCTEntriesCount(
+		long ctEntryId,
+		com.liferay.portal.kernel.dao.orm.QueryDefinition
+			<com.liferay.change.tracking.model.CTEntry> queryDefinition) {
+
+		return _ctEntryLocalService.getRelatedOwnerCTEntriesCount(
+			ctEntryId, queryDefinition);
 	}
 
 	@Override
@@ -611,26 +663,48 @@ public class CTEntryLocalServiceWrapper
 	public java.util.List<com.liferay.change.tracking.model.CTEntry> search(
 		com.liferay.change.tracking.model.CTCollection ctCollection,
 		long[] groupIds, long[] userIds, long[] classNameIds, int[] changeTypes,
-		boolean collision, long otherCTCollectionId,
+		Boolean collision,
 		com.liferay.portal.kernel.dao.orm.QueryDefinition
 			<com.liferay.change.tracking.model.CTEntry> queryDefinition) {
 
 		return _ctEntryLocalService.search(
 			ctCollection, groupIds, userIds, classNameIds, changeTypes,
-			collision, otherCTCollectionId, queryDefinition);
+			collision, queryDefinition);
+	}
+
+	@Override
+	public java.util.List<com.liferay.change.tracking.model.CTEntry> search(
+		com.liferay.change.tracking.model.CTCollection ctCollection,
+		String keywords,
+		com.liferay.portal.kernel.dao.orm.QueryDefinition
+			<com.liferay.change.tracking.model.CTEntry> queryDefinition) {
+
+		return _ctEntryLocalService.search(
+			ctCollection, keywords, queryDefinition);
 	}
 
 	@Override
 	public long searchCount(
 		com.liferay.change.tracking.model.CTCollection ctCollection,
 		long[] groupIds, long[] userIds, long[] classNameIds, int[] changeTypes,
-		boolean collision, long otherCTCollectionId,
+		Boolean collision,
 		com.liferay.portal.kernel.dao.orm.QueryDefinition
 			<com.liferay.change.tracking.model.CTEntry> queryDefinition) {
 
 		return _ctEntryLocalService.searchCount(
 			ctCollection, groupIds, userIds, classNameIds, changeTypes,
-			collision, otherCTCollectionId, queryDefinition);
+			collision, queryDefinition);
+	}
+
+	@Override
+	public int searchCount(
+		com.liferay.change.tracking.model.CTCollection ctCollection,
+		String keywords,
+		com.liferay.portal.kernel.dao.orm.QueryDefinition
+			<com.liferay.change.tracking.model.CTEntry> queryDefinition) {
+
+		return _ctEntryLocalService.searchCount(
+			ctCollection, keywords, queryDefinition);
 	}
 
 	@Override
@@ -647,6 +721,13 @@ public class CTEntryLocalServiceWrapper
 
 		_ctEntryLocalService.setCTEntryAggregateCTEntries(
 			ctEntryAggregateId, ctEntryIds);
+	}
+
+	@Override
+	public com.liferay.change.tracking.model.CTEntry updateCollision(
+		long ctEntryId, boolean collision) {
+
+		return _ctEntryLocalService.updateCollision(ctEntryId, collision);
 	}
 
 	/**

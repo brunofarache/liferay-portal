@@ -14,6 +14,7 @@
 
 package com.liferay.fragment.processor;
 
+import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.fragment.constants.FragmentEntryLinkConstants;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -28,14 +29,59 @@ import java.util.Locale;
  */
 public interface FragmentEntryProcessorRegistry {
 
+	public void deleteFragmentEntryLinkData(
+		FragmentEntryLink fragmentEntryLink);
+
 	public default JSONArray getAvailableTagsJSONArray() {
 		return null;
 	}
 
-	public JSONObject getDefaultEditableValuesJSONObject(String html);
+	/**
+	 * @deprecated As of Mueller (7.2.x)
+	 */
+	@Deprecated
+	public default JSONObject getDefaultEditableValuesJSONObject(String html) {
+		return null;
+	}
+
+	public JSONObject getDefaultEditableValuesJSONObject(
+		String html, String configuration);
 
 	public default String processFragmentEntryLinkCSS(
-			FragmentEntryLink fragmentEntryLink, String mode, Locale locale)
+			FragmentEntryLink fragmentEntryLink,
+			FragmentEntryProcessorContext fragmentEntryProcessorContext)
+		throws PortalException {
+
+		return processFragmentEntryLinkCSS(
+			fragmentEntryLink, fragmentEntryProcessorContext.getMode(),
+			fragmentEntryProcessorContext.getLocale(),
+			fragmentEntryProcessorContext.getSegmentsExperienceIds(),
+			fragmentEntryProcessorContext.getPreviewClassPK(),
+			fragmentEntryProcessorContext.getPreviewType());
+	}
+
+	public default String processFragmentEntryLinkCSS(
+			FragmentEntryLink fragmentEntryLink, String mode, Locale locale,
+			long[] segmentsExperienceIds)
+		throws PortalException {
+
+		return processFragmentEntryLinkCSS(
+			fragmentEntryLink, mode, locale, segmentsExperienceIds, 0);
+	}
+
+	public default String processFragmentEntryLinkCSS(
+			FragmentEntryLink fragmentEntryLink, String mode, Locale locale,
+			long[] segmentsExperienceIds, long previewClassPK)
+		throws PortalException {
+
+		return processFragmentEntryLinkCSS(
+			fragmentEntryLink, mode, locale, segmentsExperienceIds,
+			previewClassPK, AssetRendererFactory.TYPE_LATEST_APPROVED);
+	}
+
+	public default String processFragmentEntryLinkCSS(
+			FragmentEntryLink fragmentEntryLink, String mode, Locale locale,
+			long[] segmentsExperienceIds, long previewClassPK, int previewType)
 		throws PortalException {
 
 		return fragmentEntryLink.getCss();
@@ -47,6 +93,19 @@ public interface FragmentEntryProcessorRegistry {
 
 		return processFragmentEntryLinkHTML(
 			fragmentEntryLink, FragmentEntryLinkConstants.EDIT);
+	}
+
+	public default String processFragmentEntryLinkHTML(
+			FragmentEntryLink fragmentEntryLink,
+			FragmentEntryProcessorContext fragmentEntryProcessorContext)
+		throws PortalException {
+
+		return processFragmentEntryLinkHTML(
+			fragmentEntryLink, fragmentEntryProcessorContext.getMode(),
+			fragmentEntryProcessorContext.getLocale(),
+			fragmentEntryProcessorContext.getSegmentsExperienceIds(),
+			fragmentEntryProcessorContext.getPreviewClassPK(),
+			fragmentEntryProcessorContext.getPreviewType());
 	}
 
 	public default String processFragmentEntryLinkHTML(
@@ -65,9 +124,28 @@ public interface FragmentEntryProcessorRegistry {
 			fragmentEntryLink, mode, locale, new long[0]);
 	}
 
-	public String processFragmentEntryLinkHTML(
+	public default String processFragmentEntryLinkHTML(
 			FragmentEntryLink fragmentEntryLink, String mode, Locale locale,
 			long[] segmentsExperienceIds)
+		throws PortalException {
+
+		return processFragmentEntryLinkHTML(
+			fragmentEntryLink, mode, locale, segmentsExperienceIds, 0);
+	}
+
+	public default String processFragmentEntryLinkHTML(
+			FragmentEntryLink fragmentEntryLink, String mode, Locale locale,
+			long[] segmentsExperienceIds, long previewClassPK)
+		throws PortalException {
+
+		return processFragmentEntryLinkHTML(
+			fragmentEntryLink, mode, locale, segmentsExperienceIds,
+			previewClassPK, AssetRendererFactory.TYPE_LATEST_APPROVED);
+	}
+
+	public String processFragmentEntryLinkHTML(
+			FragmentEntryLink fragmentEntryLink, String mode, Locale locale,
+			long[] segmentsExperienceIds, long previewClassPK, int previewType)
 		throws PortalException;
 
 	public void validateFragmentEntryHTML(String html) throws PortalException;

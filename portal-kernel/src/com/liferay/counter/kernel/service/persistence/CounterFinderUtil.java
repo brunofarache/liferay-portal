@@ -14,10 +14,9 @@
 
 package com.liferay.counter.kernel.service.persistence;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Brian Wing Shun Chan
@@ -66,9 +65,6 @@ public class CounterFinderUtil {
 		if (_finder == null) {
 			_finder = (CounterFinder)PortalBeanLocatorUtil.locate(
 				CounterFinder.class.getName());
-
-			ReferenceRegistry.registerReference(
-				CounterFinderUtil.class, "_finder");
 		}
 
 		return _finder;
@@ -76,8 +72,6 @@ public class CounterFinderUtil {
 
 	public void setFinder(CounterFinder finder) {
 		_finder = finder;
-
-		ReferenceRegistry.registerReference(CounterFinderUtil.class, "_finder");
 	}
 
 	private static CounterFinder _finder;

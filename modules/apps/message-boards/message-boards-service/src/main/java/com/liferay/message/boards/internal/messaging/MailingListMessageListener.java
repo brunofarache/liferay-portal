@@ -151,9 +151,7 @@ public class MailingListMessageListener extends BaseMessageListener {
 		URLName urlName = new URLName(
 			protocol, host, port, StringPool.BLANK, user, password);
 
-		Store store = session.getStore(urlName);
-
-		return store;
+		return session.getStore(urlName);
 	}
 
 	protected void processMessage(
@@ -172,7 +170,9 @@ public class MailingListMessageListener extends BaseMessageListener {
 			Address address = addresses[0];
 
 			if (address instanceof InternetAddress) {
-				from = ((InternetAddress)address).getAddress();
+				InternetAddress internetAddress = (InternetAddress)address;
+
+				from = internetAddress.getAddress();
 			}
 			else {
 				from = address.toString();

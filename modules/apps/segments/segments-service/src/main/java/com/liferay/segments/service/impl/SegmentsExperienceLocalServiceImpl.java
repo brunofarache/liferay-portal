@@ -14,9 +14,7 @@
 
 package com.liferay.segments.service.impl;
 
-import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.SystemEventConstants;
@@ -24,13 +22,12 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
-import com.liferay.portal.kernel.util.ResourceBundleLoaderUtil;
-import com.liferay.portal.kernel.util.ResourceBundleUtil;
-import com.liferay.segments.exception.DefaultSegmentsExperienceException;
+import com.liferay.portal.kernel.util.Validator;
+import com.liferay.segments.constants.SegmentsConstants;
+import com.liferay.segments.exception.SegmentsExperienceNameException;
 import com.liferay.segments.exception.SegmentsExperiencePriorityException;
-import com.liferay.segments.model.SegmentsEntry;
 import com.liferay.segments.model.SegmentsExperience;
 import com.liferay.segments.service.base.SegmentsExperienceLocalServiceBaseImpl;
 
@@ -46,28 +43,6 @@ import java.util.Map;
  */
 public class SegmentsExperienceLocalServiceImpl
 	extends SegmentsExperienceLocalServiceBaseImpl {
-
-	@Override
-	public SegmentsExperience addDefaultSegmentsExperience(
-			long groupId, long classNameId, long classPK)
-		throws PortalException {
-
-		SegmentsEntry defaultSegmentsEntry =
-			segmentsEntryLocalService.getDefaultSegmentsEntry(groupId);
-
-		SegmentsExperience defaultSegmentsExperience =
-			segmentsExperiencePersistence.fetchByG_S_C_C_First(
-				groupId, defaultSegmentsEntry.getSegmentsEntryId(), classNameId,
-				_getPublishedLayoutClassPK(classPK), null);
-
-		if (defaultSegmentsExperience != null) {
-			return defaultSegmentsExperience;
-		}
-
-		return _addDefaultSegmentsExperience(
-			groupId, defaultSegmentsEntry.getSegmentsEntryId(), classNameId,
-			classPK);
-	}
 
 	@Override
 	public SegmentsExperience addSegmentsExperience(
@@ -97,14 +72,15 @@ public class SegmentsExperienceLocalServiceImpl
 		long groupId = serviceContext.getScopeGroupId();
 		long publishedClassPK = _getPublishedLayoutClassPK(classPK);
 
-		_validate(
-			segmentsEntryId, groupId, classNameId, publishedClassPK, priority);
+		_validateName(nameMap);
+		_validatePriority(groupId, classNameId, publishedClassPK, priority);
 
 		long segmentsExperienceId = counterLocalService.increment();
 
 		SegmentsExperience segmentsExperience =
 			segmentsExperiencePersistence.create(segmentsExperienceId);
 
+		segmentsExperience.setUuid(serviceContext.getUuid());
 		segmentsExperience.setGroupId(groupId);
 		segmentsExperience.setCompanyId(user.getCompanyId());
 		segmentsExperience.setUserId(user.getUserId());
@@ -113,6 +89,8 @@ public class SegmentsExperienceLocalServiceImpl
 			serviceContext.getCreateDate(new Date()));
 		segmentsExperience.setModifiedDate(
 			serviceContext.getModifiedDate(new Date()));
+		segmentsExperience.setSegmentsExperienceKey(
+			String.valueOf(counterLocalService.increment()));
 		segmentsExperience.setSegmentsEntryId(segmentsEntryId);
 		segmentsExperience.setClassNameId(classNameId);
 		segmentsExperience.setClassPK(publishedClassPK);
@@ -223,34 +201,20 @@ public class SegmentsExperienceLocalServiceImpl
 	}
 
 	@Override
-	public SegmentsExperience getDefaultSegmentsExperience(
-			long groupId, long classNameId, long classPK)
-		throws PortalException {
-
-		SegmentsEntry defaultSegmentsEntry =
-			segmentsEntryLocalService.getDefaultSegmentsEntry(groupId);
-
-		SegmentsExperience defaultSegmentsExperience =
-			segmentsExperiencePersistence.fetchByG_S_C_C_First(
-				groupId, defaultSegmentsEntry.getSegmentsEntryId(), classNameId,
-				_getPublishedLayoutClassPK(classPK), null);
-
-		if (defaultSegmentsExperience != null) {
-			return defaultSegmentsExperience;
-		}
-
-		throw new DefaultSegmentsExperienceException(
-			StringBundler.concat(
-				"Default segments experience is not available for class ",
-				classNameId, " with ID ", classPK));
-	}
-
-	@Override
 	public SegmentsExperience getSegmentsExperience(long segmentsExperienceId)
 		throws PortalException {
 
 		return segmentsExperiencePersistence.findByPrimaryKey(
 			segmentsExperienceId);
+	}
+
+	@Override
+	public List<SegmentsExperience> getSegmentsExperiences(
+			long groupId, long classNameId, long classPK, boolean active)
+		throws PortalException {
+
+		return segmentsExperiencePersistence.findByG_C_C_A(
+			groupId, classNameId, _getPublishedLayoutClassPK(classPK), active);
 	}
 
 	@Override
@@ -297,6 +261,8 @@ public class SegmentsExperienceLocalServiceImpl
 			Map<Locale, String> nameMap, boolean active)
 		throws PortalException {
 
+		_validateName(nameMap);
+
 		SegmentsExperience segmentsExperience =
 			segmentsExperiencePersistence.findByPrimaryKey(
 				segmentsExperienceId);
@@ -340,11 +306,13 @@ public class SegmentsExperienceLocalServiceImpl
 
 		final int originalPriority = segmentsExperience.getPriority();
 
-		segmentsExperience.setPriority(-1);
+		segmentsExperience.setPriority(
+			SegmentsConstants.SEGMENTS_EXPERIENCE_PRIORITY_DEFAULT - 1);
 
 		segmentsExperiencePersistence.update(segmentsExperience);
 
-		swapSegmentsExperience.setPriority(-2);
+		swapSegmentsExperience.setPriority(
+			SegmentsConstants.SEGMENTS_EXPERIENCE_PRIORITY_DEFAULT - 2);
 
 		segmentsExperiencePersistence.update(swapSegmentsExperience);
 
@@ -366,31 +334,6 @@ public class SegmentsExperienceLocalServiceImpl
 		return segmentsExperience;
 	}
 
-	private SegmentsExperience _addDefaultSegmentsExperience(
-			long groupId, long segmentsEntryId, long classNameId, long classPK)
-		throws PortalException {
-
-		Map<Locale, String> nameMap = ResourceBundleUtil.getLocalizationMap(
-			_getResourceBundleLoader(), "default-experience-name");
-
-		ServiceContext serviceContext = new ServiceContext();
-
-		serviceContext.setAddGuestPermissions(true);
-		serviceContext.setAddGroupPermissions(true);
-		serviceContext.setScopeGroupId(groupId);
-
-		Group group = groupLocalService.getGroup(groupId);
-
-		long defaultUserId = userLocalService.getDefaultUserId(
-			group.getCompanyId());
-
-		serviceContext.setUserId(defaultUserId);
-
-		return segmentsExperienceLocalService.addSegmentsExperience(
-			segmentsEntryId, classNameId, classPK, nameMap, 0, true,
-			serviceContext);
-	}
-
 	private long _getPublishedLayoutClassPK(long classPK) {
 		Layout layout = layoutLocalService.fetchLayout(classPK);
 
@@ -405,15 +348,18 @@ public class SegmentsExperienceLocalServiceImpl
 		return classPK;
 	}
 
-	private ResourceBundleLoader _getResourceBundleLoader() {
-		return ResourceBundleLoaderUtil.
-			getResourceBundleLoaderByBundleSymbolicName(
-				"com.liferay.segments.lang");
+	private void _validateName(Map<Locale, String> nameMap)
+		throws PortalException {
+
+		Locale locale = LocaleUtil.getDefault();
+
+		if (nameMap.isEmpty() || Validator.isNull(nameMap.get(locale))) {
+			throw new SegmentsExperienceNameException();
+		}
 	}
 
-	private void _validate(
-			long segmentsEntryId, long groupId, long classNameId, long classPK,
-			int priority)
+	private void _validatePriority(
+			long groupId, long classNameId, long classPK, int priority)
 		throws PortalException {
 
 		SegmentsExperience segmentsExperience =
@@ -425,34 +371,6 @@ public class SegmentsExperienceLocalServiceImpl
 				"A segments experience with the priority " + priority +
 					" already exists");
 		}
-
-		SegmentsEntry defaultSegmentsEntry =
-			segmentsEntryLocalService.getDefaultSegmentsEntry(groupId);
-
-		if ((priority == 0) &&
-			(defaultSegmentsEntry.getSegmentsEntryId() != segmentsEntryId)) {
-
-			throw new SegmentsExperiencePriorityException(
-				"Priority 0 is reserved for the default segments experience");
-		}
-
-		if (defaultSegmentsEntry.getSegmentsEntryId() != segmentsEntryId) {
-			return;
-		}
-
-		segmentsExperience = segmentsExperiencePersistence.fetchByG_S_C_C_First(
-			groupId, defaultSegmentsEntry.getSegmentsEntryId(), classNameId,
-			classPK, null);
-
-		if (segmentsExperience == null) {
-			return;
-		}
-
-		throw new DefaultSegmentsExperienceException(
-			StringBundler.concat(
-				"A default segments experience with the group ", groupId,
-				", class name ID ", classNameId, " and class PK ", classPK,
-				" already exists"));
 	}
 
 }

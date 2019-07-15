@@ -14,17 +14,19 @@
 
 package com.liferay.talend.runtime;
 
+import com.liferay.talend.common.oas.OASParameter;
 import com.liferay.talend.connection.LiferayConnectionPropertiesProvider;
-import com.liferay.talend.runtime.apio.operation.Operation;
 
 import java.io.IOException;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.avro.Schema;
 
 import org.talend.components.api.component.runtime.SourceOrSink;
-import org.talend.daikon.NamedThing;
+import org.talend.components.api.container.RuntimeContainer;
 import org.talend.daikon.properties.ValidationResult;
 
 /**
@@ -32,28 +34,20 @@ import org.talend.daikon.properties.ValidationResult;
  */
 public interface LiferaySourceOrSinkRuntime extends SourceOrSink {
 
-	public String getActualWebSiteName(String webSiteURL) throws IOException;
+	public Set<String> getEndpointList(String operation) throws IOException;
 
-	public List<NamedThing> getAvailableWebSites() throws IOException;
-
-	public Schema getExpectedFormSchema(Operation operation) throws IOException;
-
-	public String getResourceCollectionType(String resourceURL)
+	public Map<String, String> getEndpointMap(String operation)
 		throws IOException;
 
-	public List<NamedThing> getResourceList(String webSiteURL)
+	public Schema getEndpointSchema(String endpoint, String operation)
 		throws IOException;
 
-	public Schema getResourceSchemaByType(String resourceType)
-		throws IOException;
+	public List<OASParameter> getParameters(String endpoint, String operation);
 
-	public List<Operation> getResourceSupportedOperations(String resourceURL)
-		throws IOException;
-
-	public boolean hasWebSiteResource();
+	public Set<String> getSupportedOperations(String endpoint);
 
 	public ValidationResult validateConnection(
-		LiferayConnectionPropertiesProvider
-			liferayConnectionPropertiesProvider);
+		LiferayConnectionPropertiesProvider liferayConnectionPropertiesProvider,
+		RuntimeContainer runtimeContainer);
 
 }

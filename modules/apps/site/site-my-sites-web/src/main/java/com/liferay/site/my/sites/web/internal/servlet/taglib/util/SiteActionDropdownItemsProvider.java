@@ -53,9 +53,9 @@ public class SiteActionDropdownItemsProvider {
 		_renderResponse = renderResponse;
 		_tabs1 = tabs1;
 
-		_request = PortalUtil.getHttpServletRequest(renderRequest);
+		_httpServletRequest = PortalUtil.getHttpServletRequest(renderRequest);
 
-		_themeDisplay = (ThemeDisplay)_request.getAttribute(
+		_themeDisplay = (ThemeDisplay)_httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
 
@@ -63,15 +63,17 @@ public class SiteActionDropdownItemsProvider {
 		return new DropdownItemList() {
 			{
 				if (Objects.equals(_tabs1, "my-sites")) {
-					if (LayoutServiceUtil.getLayoutsCount(
-							_group.getGroupId(), false) > 0) {
+					int count = LayoutServiceUtil.getLayoutsCount(
+						_group.getGroupId(), false);
 
+					if (count > 0) {
 						add(_getViewSitePublicPagesActionUnsafeConsumer());
 					}
 
-					if (LayoutServiceUtil.getLayoutsCount(
-							_group.getGroupId(), true) > 0) {
+					count = LayoutServiceUtil.getLayoutsCount(
+						_group.getGroupId(), true);
 
+					if (count > 0) {
 						add(_getViewSitePrivatePagesActionUnsafeConsumer());
 					}
 
@@ -123,7 +125,8 @@ public class SiteActionDropdownItemsProvider {
 		return dropdownItem -> {
 			dropdownItem.putData("action", "joinSite");
 			dropdownItem.putData("joinSiteURL", joinSiteURL.toString());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "join"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "join"));
 		};
 	}
 
@@ -144,7 +147,8 @@ public class SiteActionDropdownItemsProvider {
 		return dropdownItem -> {
 			dropdownItem.putData("action", "leaveSite");
 			dropdownItem.putData("leaveSiteURL", leaveSiteURL.toString());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "leave"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "leave"));
 		};
 	}
 
@@ -156,7 +160,7 @@ public class SiteActionDropdownItemsProvider {
 				_renderResponse.createRenderURL(), "mvcPath",
 				"/post_membership_request.jsp", "groupId", _group.getGroupId());
 			dropdownItem.setLabel(
-				LanguageUtil.get(_request, "request-membership"));
+				LanguageUtil.get(_httpServletRequest, "request-membership"));
 		};
 	}
 
@@ -166,7 +170,7 @@ public class SiteActionDropdownItemsProvider {
 		return dropdownItem -> {
 			dropdownItem.putData("action", "membershipRequested");
 			dropdownItem.setLabel(
-				LanguageUtil.get(_request, "membership-requested"));
+				LanguageUtil.get(_httpServletRequest, "membership-requested"));
 		};
 	}
 
@@ -177,7 +181,7 @@ public class SiteActionDropdownItemsProvider {
 			dropdownItem.setHref(_group.getDisplayURL(_themeDisplay, true));
 			dropdownItem.setTarget("_blank");
 			dropdownItem.setLabel(
-				LanguageUtil.get(_request, "go-to-private-pages"));
+				LanguageUtil.get(_httpServletRequest, "go-to-private-pages"));
 		};
 	}
 
@@ -188,7 +192,7 @@ public class SiteActionDropdownItemsProvider {
 			dropdownItem.setHref(_group.getDisplayURL(_themeDisplay, false));
 			dropdownItem.setTarget("_blank");
 			dropdownItem.setLabel(
-				LanguageUtil.get(_request, "go-to-public-pages"));
+				LanguageUtil.get(_httpServletRequest, "go-to-public-pages"));
 		};
 	}
 
@@ -247,8 +251,8 @@ public class SiteActionDropdownItemsProvider {
 	}
 
 	private final Group _group;
+	private final HttpServletRequest _httpServletRequest;
 	private final RenderResponse _renderResponse;
-	private final HttpServletRequest _request;
 	private final String _tabs1;
 	private final ThemeDisplay _themeDisplay;
 

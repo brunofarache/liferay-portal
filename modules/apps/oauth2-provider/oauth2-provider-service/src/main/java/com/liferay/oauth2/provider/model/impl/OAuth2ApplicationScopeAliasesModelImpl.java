@@ -14,8 +14,6 @@
 
 package com.liferay.oauth2.provider.model.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.expando.kernel.util.ExpandoBridgeFactoryUtil;
 import com.liferay.oauth2.provider.model.OAuth2ApplicationScopeAliases;
@@ -33,6 +31,9 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 
 import java.io.Serializable;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
+
 import java.sql.Types;
 
 import java.util.Collections;
@@ -42,6 +43,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The base model implementation for the OAuth2ApplicationScopeAliases service. Represents a row in the &quot;OAuth2ApplicationScopeAliases&quot; database table, with each column mapped to a property of this class.
@@ -69,8 +72,7 @@ public class OAuth2ApplicationScopeAliasesModelImpl
 	public static final Object[][] TABLE_COLUMNS = {
 		{"oA2AScopeAliasesId", Types.BIGINT}, {"companyId", Types.BIGINT},
 		{"userId", Types.BIGINT}, {"userName", Types.VARCHAR},
-		{"createDate", Types.TIMESTAMP}, {"oAuth2ApplicationId", Types.BIGINT},
-		{"scopeAliases", Types.CLOB}, {"scopeAliasesHash", Types.BIGINT}
+		{"createDate", Types.TIMESTAMP}, {"oAuth2ApplicationId", Types.BIGINT}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -83,12 +85,10 @@ public class OAuth2ApplicationScopeAliasesModelImpl
 		TABLE_COLUMNS_MAP.put("userName", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("createDate", Types.TIMESTAMP);
 		TABLE_COLUMNS_MAP.put("oAuth2ApplicationId", Types.BIGINT);
-		TABLE_COLUMNS_MAP.put("scopeAliases", Types.CLOB);
-		TABLE_COLUMNS_MAP.put("scopeAliasesHash", Types.BIGINT);
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table OAuth2ApplicationScopeAliases (oA2AScopeAliasesId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,oAuth2ApplicationId LONG,scopeAliases TEXT null,scopeAliasesHash LONG)";
+		"create table OAuth2ApplicationScopeAliases (oA2AScopeAliasesId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,oAuth2ApplicationId LONG)";
 
 	public static final String TABLE_SQL_DROP =
 		"drop table OAuth2ApplicationScopeAliases";
@@ -109,10 +109,8 @@ public class OAuth2ApplicationScopeAliasesModelImpl
 
 	public static final long OAUTH2APPLICATIONID_COLUMN_BITMASK = 2L;
 
-	public static final long SCOPEALIASESHASH_COLUMN_BITMASK = 4L;
-
 	public static final long OAUTH2APPLICATIONSCOPEALIASESID_COLUMN_BITMASK =
-		8L;
+		4L;
 
 	public static void setEntityCacheEnabled(boolean entityCacheEnabled) {
 		_entityCacheEnabled = entityCacheEnabled;
@@ -212,6 +210,32 @@ public class OAuth2ApplicationScopeAliasesModelImpl
 		return _attributeSetterBiConsumers;
 	}
 
+	private static Function<InvocationHandler, OAuth2ApplicationScopeAliases>
+		_getProxyProviderFunction() {
+
+		Class<?> proxyClass = ProxyUtil.getProxyClass(
+			OAuth2ApplicationScopeAliases.class.getClassLoader(),
+			OAuth2ApplicationScopeAliases.class, ModelWrapper.class);
+
+		try {
+			Constructor<OAuth2ApplicationScopeAliases> constructor =
+				(Constructor<OAuth2ApplicationScopeAliases>)
+					proxyClass.getConstructor(InvocationHandler.class);
+
+			return invocationHandler -> {
+				try {
+					return constructor.newInstance(invocationHandler);
+				}
+				catch (ReflectiveOperationException roe) {
+					throw new InternalError(roe);
+				}
+			};
+		}
+		catch (NoSuchMethodException nsme) {
+			throw new InternalError(nsme);
+		}
+	}
+
 	private static final Map
 		<String, Function<OAuth2ApplicationScopeAliases, Object>>
 			_attributeGetterFunctions;
@@ -268,19 +292,6 @@ public class OAuth2ApplicationScopeAliasesModelImpl
 			"oAuth2ApplicationId",
 			(BiConsumer<OAuth2ApplicationScopeAliases, Long>)
 				OAuth2ApplicationScopeAliases::setOAuth2ApplicationId);
-		attributeGetterFunctions.put(
-			"scopeAliases", OAuth2ApplicationScopeAliases::getScopeAliases);
-		attributeSetterBiConsumers.put(
-			"scopeAliases",
-			(BiConsumer<OAuth2ApplicationScopeAliases, String>)
-				OAuth2ApplicationScopeAliases::setScopeAliases);
-		attributeGetterFunctions.put(
-			"scopeAliasesHash",
-			OAuth2ApplicationScopeAliases::getScopeAliasesHash);
-		attributeSetterBiConsumers.put(
-			"scopeAliasesHash",
-			(BiConsumer<OAuth2ApplicationScopeAliases, Long>)
-				OAuth2ApplicationScopeAliases::setScopeAliasesHash);
 
 		_attributeGetterFunctions = Collections.unmodifiableMap(
 			attributeGetterFunctions);
@@ -395,43 +406,6 @@ public class OAuth2ApplicationScopeAliasesModelImpl
 		return _originalOAuth2ApplicationId;
 	}
 
-	@Override
-	public String getScopeAliases() {
-		if (_scopeAliases == null) {
-			return "";
-		}
-		else {
-			return _scopeAliases;
-		}
-	}
-
-	@Override
-	public void setScopeAliases(String scopeAliases) {
-		_scopeAliases = scopeAliases;
-	}
-
-	@Override
-	public long getScopeAliasesHash() {
-		return _scopeAliasesHash;
-	}
-
-	@Override
-	public void setScopeAliasesHash(long scopeAliasesHash) {
-		_columnBitmask |= SCOPEALIASESHASH_COLUMN_BITMASK;
-
-		if (!_setOriginalScopeAliasesHash) {
-			_setOriginalScopeAliasesHash = true;
-
-			_originalScopeAliasesHash = _scopeAliasesHash;
-		}
-
-		_scopeAliasesHash = scopeAliasesHash;
-	}
-
-	public long getOriginalScopeAliasesHash() {
-		return _originalScopeAliasesHash;
-	}
-
 	public long getColumnBitmask() {
 		return _columnBitmask;
 	}
@@ -453,10 +427,13 @@ public class OAuth2ApplicationScopeAliasesModelImpl
 	@Override
 	public OAuth2ApplicationScopeAliases toEscapedModel() {
 		if (_escapedModel == null) {
-			_escapedModel =
-				(OAuth2ApplicationScopeAliases)ProxyUtil.newProxyInstance(
-					_classLoader, _escapedModelInterfaces,
-					new AutoEscapeBeanHandler(this));
+			Function<InvocationHandler, OAuth2ApplicationScopeAliases>
+				escapedModelProxyProviderFunction =
+					EscapedModelProxyProviderFunctionHolder.
+						_escapedModelProxyProviderFunction;
+
+			_escapedModel = escapedModelProxyProviderFunction.apply(
+				new AutoEscapeBeanHandler(this));
 		}
 
 		return _escapedModel;
@@ -475,9 +452,6 @@ public class OAuth2ApplicationScopeAliasesModelImpl
 		oAuth2ApplicationScopeAliasesImpl.setCreateDate(getCreateDate());
 		oAuth2ApplicationScopeAliasesImpl.setOAuth2ApplicationId(
 			getOAuth2ApplicationId());
-		oAuth2ApplicationScopeAliasesImpl.setScopeAliases(getScopeAliases());
-		oAuth2ApplicationScopeAliasesImpl.setScopeAliasesHash(
-			getScopeAliasesHash());
 
 		oAuth2ApplicationScopeAliasesImpl.resetOriginalValues();
 
@@ -555,12 +529,6 @@ public class OAuth2ApplicationScopeAliasesModelImpl
 		oAuth2ApplicationScopeAliasesModelImpl._setOriginalOAuth2ApplicationId =
 			false;
 
-		oAuth2ApplicationScopeAliasesModelImpl._originalScopeAliasesHash =
-			oAuth2ApplicationScopeAliasesModelImpl._scopeAliasesHash;
-
-		oAuth2ApplicationScopeAliasesModelImpl._setOriginalScopeAliasesHash =
-			false;
-
 		oAuth2ApplicationScopeAliasesModelImpl._columnBitmask = 0;
 	}
 
@@ -598,19 +566,6 @@ public class OAuth2ApplicationScopeAliasesModelImpl
 
 		oAuth2ApplicationScopeAliasesCacheModel.oAuth2ApplicationId =
 			getOAuth2ApplicationId();
-
-		oAuth2ApplicationScopeAliasesCacheModel.scopeAliases =
-			getScopeAliases();
-
-		String scopeAliases =
-			oAuth2ApplicationScopeAliasesCacheModel.scopeAliases;
-
-		if ((scopeAliases != null) && (scopeAliases.length() == 0)) {
-			oAuth2ApplicationScopeAliasesCacheModel.scopeAliases = null;
-		}
-
-		oAuth2ApplicationScopeAliasesCacheModel.scopeAliasesHash =
-			getScopeAliasesHash();
 
 		return oAuth2ApplicationScopeAliasesCacheModel;
 	}
@@ -682,11 +637,15 @@ public class OAuth2ApplicationScopeAliasesModelImpl
 		return sb.toString();
 	}
 
-	private static final ClassLoader _classLoader =
-		OAuth2ApplicationScopeAliases.class.getClassLoader();
-	private static final Class<?>[] _escapedModelInterfaces = new Class[] {
-		OAuth2ApplicationScopeAliases.class, ModelWrapper.class
-	};
+	private static class EscapedModelProxyProviderFunctionHolder {
+
+		private static final Function
+			<InvocationHandler, OAuth2ApplicationScopeAliases>
+				_escapedModelProxyProviderFunction =
+					_getProxyProviderFunction();
+
+	}
+
 	private static boolean _entityCacheEnabled;
 	private static boolean _finderCacheEnabled;
 
@@ -700,10 +659,6 @@ public class OAuth2ApplicationScopeAliasesModelImpl
 	private long _oAuth2ApplicationId;
 	private long _originalOAuth2ApplicationId;
 	private boolean _setOriginalOAuth2ApplicationId;
-	private String _scopeAliases;
-	private long _scopeAliasesHash;
-	private long _originalScopeAliasesHash;
-	private boolean _setOriginalScopeAliasesHash;
 	private long _columnBitmask;
 	private OAuth2ApplicationScopeAliases _escapedModel;
 

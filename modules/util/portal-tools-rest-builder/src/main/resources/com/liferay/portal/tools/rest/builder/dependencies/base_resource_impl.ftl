@@ -1,6 +1,6 @@
 package ${configYAML.apiPackagePath}.internal.resource.${escapedVersion};
 
-<#list openAPIYAML.components.schemas?keys as schemaName>
+<#list allSchemas?keys as schemaName>
 	import ${configYAML.apiPackagePath}.dto.${escapedVersion}.${schemaName};
 </#list>
 
@@ -9,9 +9,9 @@ import ${configYAML.apiPackagePath}.resource.${escapedVersion}.${schemaName}Reso
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.multipart.MultipartBody;
 import com.liferay.portal.vulcan.pagination.Page;
@@ -26,9 +26,6 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
 
-import java.net.URI;
-
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,6 +35,7 @@ import javax.validation.constraints.NotNull;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.HeaderParam;
@@ -51,7 +49,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 /**
@@ -65,7 +62,7 @@ public abstract class Base${schemaName}ResourceImpl implements ${schemaName}Reso
 	<#list freeMarkerTool.getResourceJavaMethodSignatures(configYAML, openAPIYAML, schemaName) as javaMethodSignature>
 		@Override
 		${freeMarkerTool.getResourceMethodAnnotations(javaMethodSignature)}
-		public ${javaMethodSignature.returnType} ${javaMethodSignature.methodName}(${freeMarkerTool.getResourceParameters(javaMethodSignature.javaMethodParameters, javaMethodSignature.operation, true)}) throws Exception {
+		public ${javaMethodSignature.returnType} ${javaMethodSignature.methodName}(${freeMarkerTool.getResourceParameters(javaMethodSignature.javaMethodParameters, openAPIYAML, javaMethodSignature.operation, true)}) throws Exception {
 			<#if stringUtil.equals(javaMethodSignature.returnType, "boolean")>
 				return false;
 			<#elseif stringUtil.equals(javaMethodSignature.returnType, "java.lang.String")>
@@ -74,12 +71,11 @@ public abstract class Base${schemaName}ResourceImpl implements ${schemaName}Reso
 				Response.ResponseBuilder responseBuilder = Response.ok();
 
 				return responseBuilder.build();
+			<#elseif stringUtil.equals(javaMethodSignature.returnType, "void")>
 			<#elseif javaMethodSignature.returnType?contains("Page<")>
 				return Page.of(Collections.emptyList());
 			<#elseif freeMarkerTool.hasHTTPMethod(javaMethodSignature, "patch") && !javaMethodSignature.operation.requestBody.content?keys?seq_contains("multipart/form-data")>
 				<#assign firstJavaMethodParameter = javaMethodSignature.javaMethodParameters[0] />
-
-				preparePatch(${schemaVarName});
 
 				${schemaName} existing${schemaName} = get${schemaName}(${firstJavaMethodParameter.parameterName});
 
@@ -87,49 +83,37 @@ public abstract class Base${schemaName}ResourceImpl implements ${schemaName}Reso
 
 				<#list properties?keys as propertyName>
 					<#if !freeMarkerTool.isDTOSchemaProperty(openAPIYAML, propertyName, schema) && !stringUtil.equals(propertyName, "id")>
-						if (Validator.isNotNull(${schemaVarName}.get${propertyName?cap_first}())) {
+						if (${schemaVarName}.get${propertyName?cap_first}() != null) {
 							existing${schemaName}.set${propertyName?cap_first}(${schemaVarName}.get${propertyName?cap_first}());
 						}
 					</#if>
 				</#list>
 
+				preparePatch(${schemaVarName}, existing${schemaName});
+
 				return put${schemaName}(${firstJavaMethodParameter.parameterName}, existing${schemaName});
-			<#elseif !stringUtil.equals(javaMethodSignature.returnType, "void")>
+			<#else>
 				return new ${javaMethodSignature.returnType}();
 			</#if>
 		}
 	</#list>
 
+	public void setContextAcceptLanguage(AcceptLanguage contextAcceptLanguage) {
+		this.contextAcceptLanguage = contextAcceptLanguage;
+	}
+
 	public void setContextCompany(Company contextCompany) {
 		this.contextCompany = contextCompany;
 	}
 
-	protected String getJAXRSLink(String methodName, Object... values) {
-		String baseURIString = String.valueOf(
-			contextUriInfo.getBaseUri());
-
-		if (baseURIString.endsWith(StringPool.FORWARD_SLASH)) {
-			baseURIString = baseURIString.substring(
-				0, baseURIString.length() - 1);
-		}
-
-		URI resourceURI = UriBuilder.fromResource(
-			Base${schemaName}ResourceImpl.class
-		).build();
-
-		URI methodURI = UriBuilder.fromMethod(
-			Base${schemaName}ResourceImpl.class, methodName
-		).build(
-			values
-		);
-
-		return baseURIString + resourceURI.toString() + methodURI.toString();
+	public void setContextUser(User contextUser) {
+		this.contextUser = contextUser;
 	}
 
-	protected void preparePatch(${schemaName} ${schemaVarName}) {
+	protected void preparePatch(${schemaName} ${schemaVarName}, ${schemaName} existing${schemaVarName?cap_first}) {
 	}
 
-	protected <T, R> List<R> transform(Collection<T> collection, UnsafeFunction<T, R, Exception> unsafeFunction) {
+	protected <T, R> List<R> transform(java.util.Collection<T> collection, UnsafeFunction<T, R, Exception> unsafeFunction) {
 		return TransformUtil.transform(collection, unsafeFunction);
 	}
 
@@ -137,7 +121,7 @@ public abstract class Base${schemaName}ResourceImpl implements ${schemaName}Reso
 		return TransformUtil.transform(array, unsafeFunction, clazz);
 	}
 
-	protected <T, R> R[] transformToArray(Collection<T> collection, UnsafeFunction<T, R, Exception> unsafeFunction, Class<?> clazz) {
+	protected <T, R> R[] transformToArray(java.util.Collection<T> collection, UnsafeFunction<T, R, Exception> unsafeFunction, Class<?> clazz) {
 		return TransformUtil.transformToArray(collection, unsafeFunction, clazz);
 	}
 
@@ -153,5 +137,8 @@ public abstract class Base${schemaName}ResourceImpl implements ${schemaName}Reso
 
 	@Context
 	protected UriInfo contextUriInfo;
+
+	@Context
+	protected User contextUser;
 
 }

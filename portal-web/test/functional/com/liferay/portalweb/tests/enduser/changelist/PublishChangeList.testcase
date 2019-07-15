@@ -1,5 +1,6 @@
 @component-name = "portal-staging"
 definition {
+
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Change Lists";
@@ -12,23 +13,20 @@ definition {
 		ProductMenu.gotoPortlet(
 			category = "Change Lists",
 			panel = "Control Panel",
-			portlet = "Settings"
-		);
+			portlet = "Settings");
 
 		ChangeList.enableChangeList();
 
-		Refresh();
+		ChangeList.changeUserSettingsPopuConfirmation(changeUserPopupConfirmation = "disable");
 
 		ProductMenu.gotoPortlet(
 			category = "Change Lists",
 			panel = "Control Panel",
-			portlet = "Overview"
-		);
+			portlet = "Overview");
 
 		ChangeList.addNewChangeList(
 			changeListDescription = "Change List Description",
-			changeListName = "Change List Name"
-		);
+			changeListName = "Change List Name");
 	}
 
 	tearDown {
@@ -41,8 +39,9 @@ definition {
 			ProductMenu.gotoPortlet(
 				category = "Change Lists",
 				panel = "Control Panel",
-				portlet = "Settings"
-			);
+				portlet = "Settings");
+
+			ChangeList.changeUserSettingsPopuConfirmation(changeUserPopupConfirmation = "enable");
 
 			ChangeList.disableChangeList();
 		}
@@ -50,46 +49,48 @@ definition {
 
 	@priority = "5"
 	test PublishChangeList {
+		property portal.acceptance = "true";
+
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
 			panel = "Site Administration",
-			portlet = "Web Content"
-		);
+			portlet = "Web Content");
 
 		WebContentNavigator.gotoAddCP();
 
 		WebContent.addCP(
 			webContentContent = "WC WebContent Content",
-			webContentTitle = "Web Content Title"
-		);
+			webContentTitle = "Web Content Title");
 
-		PortletEntry.publish();
-
-		ProductMenu.gotoPortlet(
-			category = "Change Lists",
-			panel = "Control Panel",
-			portlet = "Overview"
-		);
-
-		ChangeList.publishChangeList(
-			changeListName = "Change List Name"
-		);
+		Button.clickPublishToChangeList();
 
 		ProductMenu.gotoPortlet(
 			category = "Change Lists",
 			panel = "Control Panel",
-			portlet = "Overview"
-		);
+			portlet = "Overview");
+
+		ChangeList.publishChangeList(changeListName = "Change List Name");
+
+		ProductMenu.gotoPortlet(
+			category = "Change Lists",
+			panel = "Control Panel",
+			portlet = "Overview");
 
 		ChangeList.addNewChangeList(
 			changeListDescription = "Change List Description",
-			changeListName = "New Change List Name"
-		);
+			changeListName = "New Change List Name");
 
 		ChangeList.viewPublishedChangeListDetails(
 			changeListDescription = "Change List Description",
 			changeListName = "Change List Name",
-			changeListPublishedBy = "Test Test"
-		);
+			changeListPublishedBy = "Test Test");
+
+		ProductMenu.gotoPortlet(
+			category = "Change Lists",
+			panel = "Control Panel",
+			portlet = "Overview");
+
+		ChangeList.viewNoChangeListInSelectDropdown(changeListName = "Change List Name");
 	}
+
 }

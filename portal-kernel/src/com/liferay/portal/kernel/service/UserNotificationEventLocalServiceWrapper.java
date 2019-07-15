@@ -14,7 +14,7 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link UserNotificationEventLocalService}.
@@ -81,24 +81,6 @@ public class UserNotificationEventLocalServiceWrapper
 
 		return _userNotificationEventLocalService.addUserNotificationEvent(
 			userId, type, timestamp, deliveryType, deliverBy, payload, archived,
-			serviceContext);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), {@link
-	 #addUserNotificationEvent(long, String, long, int, long,
-	 String, boolean, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public com.liferay.portal.kernel.model.UserNotificationEvent
-			addUserNotificationEvent(
-				long userId, String type, long timestamp, long deliverBy,
-				String payload, boolean archived, ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException {
-
-		return _userNotificationEventLocalService.addUserNotificationEvent(
-			userId, type, timestamp, deliverBy, payload, archived,
 			serviceContext);
 	}
 

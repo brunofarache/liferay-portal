@@ -14,8 +14,6 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.expando.kernel.model.CustomAttributesDisplay;
 import com.liferay.portal.kernel.cluster.Clusterable;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
@@ -44,6 +42,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import javax.servlet.ServletContext;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service interface for Portlet. Methods of this
@@ -87,15 +87,6 @@ public interface PortletLocalService
 
 	@Transactional(enabled = false)
 	public void clearCache();
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 #clearPortletsMap)}
-	 */
-	@Clusterable
-	@Deprecated
-	@Transactional(enabled = false)
-	public void clearCompanyPortletsPool();
 
 	@Clusterable
 	@Transactional(enabled = false)
@@ -344,14 +335,6 @@ public interface PortletLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public Map<String, Portlet> loadGetPortletsMap(long companyId);
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 #loadGetPortletsMap(long))}
-	 */
-	@Deprecated
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public Map<String, Portlet> loadGetPortletsPool(long companyId);
 
 	@Clusterable
 	@Transactional(enabled = false)

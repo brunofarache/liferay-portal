@@ -14,8 +14,6 @@
 
 package com.liferay.sync.service.persistence.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
@@ -26,8 +24,7 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.service.persistence.CompanyProvider;
-import com.liferay.portal.kernel.service.persistence.CompanyProviderWrapper;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -45,13 +42,14 @@ import java.io.Serializable;
 
 import java.lang.reflect.InvocationHandler;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The persistence implementation for the sync dl object service.
@@ -5014,9 +5012,7 @@ public class SyncDLObjectPersistenceImpl
 				events[i] = Objects.toString(events[i], "");
 			}
 
-			events = ArrayUtil.unique(events);
-
-			Arrays.sort(events);
+			events = ArrayUtil.sortedUnique(events);
 		}
 
 		if (events.length == 1) {
@@ -5274,9 +5270,7 @@ public class SyncDLObjectPersistenceImpl
 				events[i] = Objects.toString(events[i], "");
 			}
 
-			events = ArrayUtil.unique(events);
-
-			Arrays.sort(events);
+			events = ArrayUtil.sortedUnique(events);
 		}
 
 		Object[] finderArgs = new Object[] {
@@ -6003,9 +5997,7 @@ public class SyncDLObjectPersistenceImpl
 				types[i] = Objects.toString(types[i], "");
 			}
 
-			types = ArrayUtil.unique(types);
-
-			Arrays.sort(types);
+			types = ArrayUtil.sortedUnique(types);
 		}
 
 		if (types.length == 1) {
@@ -6263,9 +6255,7 @@ public class SyncDLObjectPersistenceImpl
 				types[i] = Objects.toString(types[i], "");
 			}
 
-			types = ArrayUtil.unique(types);
-
-			Arrays.sort(types);
+			types = ArrayUtil.sortedUnique(types);
 		}
 
 		Object[] finderArgs = new Object[] {
@@ -6517,7 +6507,7 @@ public class SyncDLObjectPersistenceImpl
 		syncDLObject.setNew(true);
 		syncDLObject.setPrimaryKey(syncDLObjectId);
 
-		syncDLObject.setCompanyId(companyProvider.getCompanyId());
+		syncDLObject.setCompanyId(CompanyThreadLocal.getCompanyId());
 
 		return syncDLObject;
 	}
@@ -7317,9 +7307,6 @@ public class SyncDLObjectPersistenceImpl
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
-
-	@ServiceReference(type = CompanyProviderWrapper.class)
-	protected CompanyProvider companyProvider;
 
 	@ServiceReference(type = EntityCache.class)
 	protected EntityCache entityCache;

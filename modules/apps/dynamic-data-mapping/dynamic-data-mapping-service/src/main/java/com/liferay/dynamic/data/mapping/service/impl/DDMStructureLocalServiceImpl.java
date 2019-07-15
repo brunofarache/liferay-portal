@@ -542,25 +542,28 @@ public class DDMStructureLocalServiceImpl
 		throws PortalException {
 
 		if (!GroupThreadLocal.isDeleteInProcess()) {
-			if (ddmStructureLinkPersistence.countByStructureId(
-					structure.getStructureId()) > 0) {
+			int count = ddmStructureLinkPersistence.countByStructureId(
+				structure.getStructureId());
 
+			if (count > 0) {
 				throw new RequiredStructureException.
 					MustNotDeleteStructureReferencedByStructureLinks(
 						structure.getStructureId());
 			}
 
-			if (ddmStructurePersistence.countByParentStructureId(
-					structure.getStructureId()) > 0) {
+			count = ddmStructurePersistence.countByParentStructureId(
+				structure.getStructureId());
 
+			if (count > 0) {
 				throw new RequiredStructureException.
 					MustNotDeleteStructureThatHasChild(
 						structure.getStructureId());
 			}
 
-			if (ddmTemplatePersistence.countByClassPK(
-					structure.getStructureId()) > 0) {
+			count = ddmTemplatePersistence.countByClassPK(
+				structure.getStructureId());
 
+			if (count > 0) {
 				throw new RequiredStructureException.
 					MustNotDeleteStructureReferencedByTemplates(
 						structure.getStructureId());
@@ -1117,6 +1120,17 @@ public class DDMStructureLocalServiceImpl
 
 	@Override
 	public List<DDMStructure> getStructures(
+		long companyId, long[] groupIds, long classNameId, String keywords,
+		int status, int start, int end,
+		OrderByComparator<DDMStructure> orderByComparator) {
+
+		return ddmStructureFinder.findByKeywords(
+			companyId, groupIds, classNameId, keywords, status, start, end,
+			orderByComparator);
+	}
+
+	@Override
+	public List<DDMStructure> getStructures(
 		long groupId, String name, String description) {
 
 		return ddmStructurePersistence.findByG_N_D(groupId, name, description);
@@ -1243,6 +1257,15 @@ public class DDMStructureLocalServiceImpl
 	@Override
 	public int getStructuresCount(long groupId, long classNameId) {
 		return ddmStructurePersistence.countByG_C(groupId, classNameId);
+	}
+
+	@Override
+	public int getStructuresCount(
+		long companyId, long[] groupIds, long classNameId, String keywords,
+		int status) {
+
+		return ddmStructureFinder.countByKeywords(
+			companyId, groupIds, classNameId, keywords, status);
 	}
 
 	/**
@@ -1534,6 +1557,7 @@ public class DDMStructureLocalServiceImpl
 			ddmFormLayout, serviceContext, structure);
 	}
 
+	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public DDMStructure updateStructure(
 			long userId, long structureId, long parentStructureId,

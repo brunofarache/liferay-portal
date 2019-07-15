@@ -74,7 +74,7 @@
 <!--DESCRIPTIVE_VIEW-->
 <tr>
 	<td>DESCRIPTIVE_VIEW_ARTICLE_PRIORITY</td>
-	<td>//div[contains(.,'${key_kbArticleTitle}')]//span[@class='kb-descriptive-details' and contains(.,'Priority')]</td>
+	<td>//li[contains(.,'${key_kbArticleTitle}')]//span[@class='kb-descriptive-details' and contains(.,'Priority')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -112,11 +112,6 @@
 <tr>
 	<td>DISPLAY_TITLE</td>
 	<td>//h3[@class='header-title']//span</td>
-	<td></td>
-</tr>
-<tr>
-	<td>DISPLAY_VOTES</td>
-	<td>//div[@class='kb-article-container']//div[contains(@class,'rating-content')]/a</td>
 	<td></td>
 </tr>
 <tr>

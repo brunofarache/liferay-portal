@@ -304,6 +304,10 @@ public interface LiferaySelenium {
 
 	public void javaScriptClick(String locator);
 
+	public void javaScriptDragAndDropToObject(
+			String sourceLocator, String targetLocator)
+		throws Exception;
+
 	public void javaScriptMouseDown(String locator);
 
 	public void javaScriptMouseUp(String locator);
@@ -469,9 +473,13 @@ public interface LiferaySelenium {
 
 	public void waitForConsoleTextPresent(String text) throws Exception;
 
+	public void waitForEditable(String locator) throws Exception;
+
 	public void waitForElementNotPresent(String locator) throws Exception;
 
 	public void waitForElementPresent(String locator) throws Exception;
+
+	public void waitForNotEditable(String locator) throws Exception;
 
 	public void waitForNotPartialText(String locator, String value)
 		throws Exception;

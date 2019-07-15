@@ -22,55 +22,54 @@
 	}
 </script>
 
-<aui:script require="metal-dom/src/all/dom as dom,metal-uri/src/Uri" sandbox="<%= true %>">
-	var Uri = metalUriSrcUri.default;
+<aui:script sandbox="<%= true %>">
 	var pathnameRegexp = /\/documents\/(\d+)\/(\d+)\/(.+?)\/([^&]+)/;
 
-	var downloadClickHandler = dom.delegate(
-		document.body,
-		'click',
-		'a',
-		function(event) {
-			if (window.Analytics) {
-				var anchor = event.delegateTarget;
-				var uri = new Uri(anchor.href);
+	function handleDownloadClick(event) {
+		if (event.target.nodeName.toLowerCase() === 'a' && window.Analytics) {
+			var anchor = event.target;
+			var match = pathnameRegexp.exec(anchor.pathname);
 
-				var match = pathnameRegexp.exec(uri.getPathname());
+			if (anchor.dataset.analyticsFileEntryId && match) {
+				var getParameterValue = function(parameterName) {
+					var result = null;
 
-				if (match) {
-					var groupId = match[1];
-					var fileEntryUUID = match[4];
+					anchor
+						.search
+						.substr(1)
+						.split("&")
+						.forEach(
+							function(item) {
+								var tmp = item.split("=");
 
-					fetch(
-						'<%= PortalUtil.getPortalURL(request) %><%= Portal.PATH_MODULE %><%= DocumentLibraryAnalyticsConstants.PATH_RESOLVE_FILE_ENTRY %>?groupId=' + encodeURIComponent(groupId) + '&uuid=' + encodeURIComponent(fileEntryUUID),
-						{
-							credentials: 'include',
-							method: 'GET'
-						}
-					).then(function(response) {
-						return response.json();
-					}).then(function(response) {
-						Analytics.send(
-							'documentDownloaded',
-							'Document',
-							{
-								groupId: groupId,
-								fileEntryId: response.fileEntryId,
-								preview: !!window.<%= DocumentLibraryAnalyticsConstants.JS_PREFIX %>isViewFileEntry,
-								title: decodeURIComponent(match[3].replace(/\+/ig, ' ')),
-								version: uri.getParameterValue('version')
+								if (tmp[0] === parameterName) {
+									result = decodeURIComponent(tmp[1]);
+								}
 							}
 						);
-					}).catch(function() {
-						return;
-					});
+
+					return result;
 				}
+
+				Analytics.send(
+					'documentDownloaded',
+					'Document',
+					{
+						groupId: match[1],
+						fileEntryId: anchor.dataset.analyticsFileEntryId,
+						preview: !!window.<%= DocumentLibraryAnalyticsConstants.JS_PREFIX %>isViewFileEntry,
+						title: decodeURIComponent(match[3].replace(/\+/ig, ' ')),
+						version: getParameterValue('version')
+					}
+				);
 			}
 		}
-	);
+	}
+
+	document.body.addEventListener('click', handleDownloadClick);
 
 	var onDestroyPortlet = function() {
-		downloadClickHandler.removeListener()
+		document.body.removeEventListener('click', handleDownloadClick);
 		Liferay.detach('destroyPortlet', onDestroyPortlet);
 	}
 

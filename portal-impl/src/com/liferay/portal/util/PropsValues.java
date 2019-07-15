@@ -51,6 +51,12 @@ public class PropsValues {
 	public static String ADMIN_EMAIL_FROM_NAME = PropsUtil.get(
 		PropsKeys.ADMIN_EMAIL_FROM_NAME);
 
+	public static final String ADMIN_EMAIL_PASSWORD_CHANGED_BODY =
+		PropsUtil.get(PropsKeys.ADMIN_EMAIL_PASSWORD_CHANGED_BODY);
+
+	public static final String ADMIN_EMAIL_PASSWORD_CHANGED_SUBJECT =
+		PropsUtil.get(PropsKeys.ADMIN_EMAIL_PASSWORD_CHANGED_SUBJECT);
+
 	public static final String ADMIN_EMAIL_PASSWORD_RESET_BODY = PropsUtil.get(
 		PropsKeys.ADMIN_EMAIL_PASSWORD_RESET_BODY);
 
@@ -68,6 +74,9 @@ public class PropsValues {
 
 	public static final String ADMIN_EMAIL_USER_ADDED_NO_PASSWORD_BODY =
 		PropsUtil.get(PropsKeys.ADMIN_EMAIL_USER_ADDED_NO_PASSWORD_BODY);
+
+	public static final String ADMIN_EMAIL_USER_ADDED_RESET_PASSWORD_BODY =
+		PropsUtil.get(PropsKeys.ADMIN_EMAIL_USER_ADDED_RESET_PASSWORD_BODY);
 
 	public static final String ADMIN_EMAIL_USER_ADDED_SUBJECT = PropsUtil.get(
 		PropsKeys.ADMIN_EMAIL_USER_ADDED_SUBJECT);
@@ -149,13 +158,6 @@ public class PropsValues {
 			PropsUtil.get(
 				PropsKeys.BUFFERED_INCREMENT_ENABLED,
 				new Filter("AssetEntry")));
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), with no direct replacement
-	 */
-	@Deprecated
-	public static final String ASSET_ENTRY_VALIDATOR = PropsUtil.get(
-		PropsKeys.ASSET_ENTRY_VALIDATOR);
 
 	public static final int ASSET_FILTER_SEARCH_LIMIT = GetterUtil.getInteger(
 		PropsUtil.get(PropsKeys.ASSET_FILTER_SEARCH_LIMIT));
@@ -322,6 +324,10 @@ public class PropsValues {
 					PropsKeys.
 						BLOGS_ENTRY_PREVIOUS_AND_NEXT_NAVIGATION_ENABLED));
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final long BLOGS_IMAGE_MAX_SIZE = GetterUtil.getLong(
 		PropsUtil.get(PropsKeys.BLOGS_IMAGE_MAX_SIZE));
 
@@ -376,6 +382,10 @@ public class PropsValues {
 			PropsUtil.get(
 				PropsKeys.BUFFERED_INCREMENT_STANDBY_TIME_UPPER_LIMIT));
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final boolean CACHE_CLEAR_ON_CONTEXT_INITIALIZATION =
 		GetterUtil.getBoolean(
 			PropsUtil.get(PropsKeys.CACHE_CLEAR_ON_CONTEXT_INITIALIZATION));
@@ -1118,6 +1128,13 @@ public class PropsValues {
 	public static String DL_WEBDAV_SUBSTITUTION_CHAR = PropsUtil.get(
 		PropsKeys.DL_WEBDAV_SUBSTITUTION_CHAR);
 
+	public static final int DNS_SECURITY_ADDRESS_TIMEOUT_SECONDS =
+		GetterUtil.getInteger(
+			PropsUtil.get(PropsKeys.DNS_SECURITY_ADDRESS_TIMEOUT_SECONDS));
+
+	public static final int DNS_SECURITY_THREAD_LIMIT = GetterUtil.getInteger(
+		PropsUtil.get(PropsKeys.DNS_SECURITY_THREAD_LIMIT));
+
 	public static final String[] DYNAMIC_RESOURCE_SERVLET_ALLOWED_PATHS =
 		PropsUtil.getArray(PropsKeys.DYNAMIC_RESOURCE_SERVLET_ALLOWED_PATHS);
 
@@ -1628,6 +1645,10 @@ public class PropsValues {
 	public static final String LIFERAY_WEB_PORTAL_DIR = PropsUtil.get(
 		PropsKeys.LIFERAY_WEB_PORTAL_DIR);
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final boolean LIVE_USERS_ENABLED = GetterUtil.getBoolean(
 		PropsUtil.get(PropsKeys.LIVE_USERS_ENABLED));
 
@@ -1663,10 +1684,10 @@ public class PropsValues {
 	public static final String LOGIN_EMAIL_FROM_NAME = PropsUtil.get(
 		PropsKeys.LOGIN_EMAIL_FROM_NAME);
 
-	public static final String[] LOGIN_EVENTS_POST = PropsUtil.getArray(
+	public static String[] LOGIN_EVENTS_POST = PropsUtil.getArray(
 		PropsKeys.LOGIN_EVENTS_POST);
 
-	public static final String[] LOGIN_EVENTS_PRE = PropsUtil.getArray(
+	public static String[] LOGIN_EVENTS_PRE = PropsUtil.getArray(
 		PropsKeys.LOGIN_EVENTS_PRE);
 
 	public static String[] LOGIN_FORM_NAVIGATION_POST = PropsUtil.getArray(
@@ -1863,6 +1884,11 @@ public class PropsValues {
 			PropsUtil.get(
 				PropsKeys.MODULE_FRAMEWORK_DYNAMIC_INSTALL_START_LEVEL));
 
+	public static final boolean MODULE_FRAMEWORK_EXPORT_PASSWORD_ATTRIBUTES =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				PropsKeys.MODULE_FRAMEWORK_EXPORT_PASSWORD_ATTRIBUTES));
+
 	/**
 	 * @deprecated As of Judson (7.1.x), with no direct replacement
 	 */
@@ -1935,6 +1961,12 @@ public class PropsValues {
 	public static final String
 		MODULE_FRAMEWORK_WEB_GENERATOR_GENERATED_WABS_STORE_DIR = PropsUtil.get(
 			PropsKeys.MODULE_FRAMEWORK_WEB_GENERATOR_GENERATED_WABS_STORE_DIR);
+
+	public static final String[]
+		MODULE_FRAMEWORK_WEB_SERVLET_ANNOTATION_SCANNING_BLACKLIST =
+			PropsUtil.getArray(
+				PropsKeys.
+					MODULE_FRAMEWORK_WEB_SERVLET_ANNOTATION_SCANNING_BLACKLIST);
 
 	public static final String[] MY_SITES_DIRECTORY_SITE_EXCLUDES =
 		PropsUtil.getArray(PropsKeys.MY_SITES_DIRECTORY_SITE_EXCLUDES);
@@ -2799,14 +2831,26 @@ public class PropsValues {
 	public static final int SESSION_TIMEOUT_WARNING = GetterUtil.getInteger(
 		PropsUtil.get(PropsKeys.SESSION_TIMEOUT_WARNING));
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final boolean SESSION_TRACKER_FRIENDLY_PATHS_ENABLED =
 		GetterUtil.getBoolean(
 			PropsUtil.get(PropsKeys.SESSION_TRACKER_FRIENDLY_PATHS_ENABLED));
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final boolean SESSION_TRACKER_MEMORY_ENABLED =
 		GetterUtil.getBoolean(
 			PropsUtil.get(PropsKeys.SESSION_TRACKER_MEMORY_ENABLED));
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final boolean SESSION_TRACKER_PERSISTENCE_ENABLED =
 		GetterUtil.getBoolean(
 			PropsUtil.get(PropsKeys.SESSION_TRACKER_PERSISTENCE_ENABLED));
@@ -2918,6 +2962,9 @@ public class PropsValues {
 	@Deprecated
 	public static final String[] SPRING_PORTLET_CONFIGS = PropsUtil.getArray(
 		PropsKeys.SPRING_PORTLET_CONFIGS);
+
+	public static final boolean SPRITE_ENABLED = GetterUtil.getBoolean(
+		PropsUtil.get(PropsKeys.SPRITE_ENABLED));
 
 	public static final String SPRITE_FILE_NAME = PropsUtil.get(
 		PropsKeys.SPRITE_FILE_NAME);

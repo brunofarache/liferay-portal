@@ -14,6 +14,8 @@
 
 package com.liferay.portal.vulcan.internal.jaxrs.validation;
 
+import com.liferay.portal.kernel.util.ListUtil;
+
 import java.io.IOException;
 
 import java.lang.reflect.Method;
@@ -106,15 +108,19 @@ public class BeanValidationInterceptor
 		ResourceProvider resourceProvider =
 			classResourceInfo.getResourceProvider();
 
-		return resourceProvider.getInstance(message);
+		Object instance = resourceProvider.getInstance(message);
+
+		resourceProvider.releaseInstance(message, instance);
+
+		return instance;
 	}
 
 	@Override
 	protected void handleValidation(
-		Message message, Object resourceInstance, Method method,
+		Message message, Object resource, Method method,
 		List<Object> arguments) {
 
-		if (arguments.isEmpty()) {
+		if (ListUtil.isEmpty(arguments)) {
 			return;
 		}
 
@@ -124,7 +130,7 @@ public class BeanValidationInterceptor
 
 		Set<ConstraintViolation<Object>> constraintViolations =
 			executableValidator.validateParameters(
-				resourceInstance, method, arguments.toArray());
+				resource, method, arguments.toArray());
 
 		if (!constraintViolations.isEmpty()) {
 			throw new ConstraintViolationException(constraintViolations);

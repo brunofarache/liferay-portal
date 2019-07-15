@@ -14,7 +14,7 @@
 
 package com.liferay.asset.categories.navigation.web.internal.display.context;
 
-import com.liferay.asset.categories.navigation.web.configuration.AssetCategoriesNavigationPortletInstanceConfiguration;
+import com.liferay.asset.categories.navigation.web.internal.configuration.AssetCategoriesNavigationPortletInstanceConfiguration;
 import com.liferay.asset.kernel.model.AssetVocabulary;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalServiceUtil;
 import com.liferay.asset.kernel.service.AssetVocabularyServiceUtil;
@@ -48,13 +48,15 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class AssetCategoriesNavigationDisplayContext {
 
-	public AssetCategoriesNavigationDisplayContext(HttpServletRequest request)
+	public AssetCategoriesNavigationDisplayContext(
+			HttpServletRequest httpServletRequest)
 		throws ConfigurationException {
 
-		_request = request;
+		_httpServletRequest = httpServletRequest;
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		PortletDisplay portletDisplay = themeDisplay.getPortletDisplay();
 
@@ -74,8 +76,9 @@ public class AssetCategoriesNavigationDisplayContext {
 			return _assetVocabularies;
 		}
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)_request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)_httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		long[] groupIds = new long[0];
 
@@ -102,14 +105,16 @@ public class AssetCategoriesNavigationDisplayContext {
 
 		_assetVocabularyIds = getAvailableAssetVocabularyIds();
 
+		String[] assetVocabularyIdsArray =
+			_assetCategoriesNavigationPortletInstanceConfiguration.
+				assetVocabularyIds();
+
 		if (!_assetCategoriesNavigationPortletInstanceConfiguration.
 				allAssetVocabularies() &&
-			(_assetCategoriesNavigationPortletInstanceConfiguration.
-				assetVocabularyIds() != null)) {
+			(assetVocabularyIdsArray != null)) {
 
 			String assetVocabularyIds = StringUtil.merge(
-				_assetCategoriesNavigationPortletInstanceConfiguration.
-					assetVocabularyIds());
+				assetVocabularyIdsArray);
 
 			long[] configuredAssetVocabularyIds = StringUtil.split(
 				assetVocabularyIds, 0L);
@@ -240,8 +245,9 @@ public class AssetCategoriesNavigationDisplayContext {
 				displayStyleGroupId();
 
 		if (_displayStyleGroupId <= 0) {
-			ThemeDisplay themeDisplay = (ThemeDisplay)_request.getAttribute(
-				WebKeys.THEME_DISPLAY);
+			ThemeDisplay themeDisplay =
+				(ThemeDisplay)_httpServletRequest.getAttribute(
+					WebKeys.THEME_DISPLAY);
 
 			_displayStyleGroupId = themeDisplay.getScopeGroupId();
 		}
@@ -250,14 +256,16 @@ public class AssetCategoriesNavigationDisplayContext {
 	}
 
 	protected String getTitle(AssetVocabulary assetVocabulary) {
-		ThemeDisplay themeDisplay = (ThemeDisplay)_request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)_httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		String title = HtmlUtil.escape(
 			assetVocabulary.getTitle(themeDisplay.getLanguageId()));
 
 		if (assetVocabulary.getGroupId() == themeDisplay.getCompanyGroupId()) {
-			title += " (" + LanguageUtil.get(_request, "global") + ")";
+			title +=
+				" (" + LanguageUtil.get(_httpServletRequest, "global") + ")";
 		}
 
 		return title;
@@ -273,6 +281,6 @@ public class AssetCategoriesNavigationDisplayContext {
 	private long[] _availableAssetVocabularyIds;
 	private List<AssetVocabulary> _ddmTemplateAssetVocabularies;
 	private long _displayStyleGroupId;
-	private final HttpServletRequest _request;
+	private final HttpServletRequest _httpServletRequest;
 
 }

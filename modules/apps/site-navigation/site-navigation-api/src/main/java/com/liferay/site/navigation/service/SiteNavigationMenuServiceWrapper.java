@@ -14,9 +14,9 @@
 
 package com.liferay.site.navigation.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.service.ServiceWrapper;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link SiteNavigationMenuService}.
@@ -34,6 +34,17 @@ public class SiteNavigationMenuServiceWrapper
 		SiteNavigationMenuService siteNavigationMenuService) {
 
 		_siteNavigationMenuService = siteNavigationMenuService;
+	}
+
+	@Override
+	public com.liferay.site.navigation.model.SiteNavigationMenu
+			addSiteNavigationMenu(
+				long groupId, String name, int type, boolean auto,
+				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _siteNavigationMenuService.addSiteNavigationMenu(
+			groupId, name, type, auto, serviceContext);
 	}
 
 	@Override

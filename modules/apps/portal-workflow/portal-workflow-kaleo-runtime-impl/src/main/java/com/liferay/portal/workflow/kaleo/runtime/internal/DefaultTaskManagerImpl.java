@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowException;
 import com.liferay.portal.kernel.workflow.WorkflowTask;
+import com.liferay.portal.kernel.workflow.WorkflowTaskDueDateException;
 import com.liferay.portal.workflow.kaleo.KaleoWorkflowModelConverter;
 import com.liferay.portal.workflow.kaleo.definition.ExecutionType;
 import com.liferay.portal.workflow.kaleo.model.KaleoInstance;
@@ -53,6 +54,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.util.tracker.ServiceTracker;
@@ -252,6 +254,12 @@ public class DefaultTaskManagerImpl
 			}
 
 			if (dueDate != null) {
+				Date createDate = kaleoTaskInstanceToken.getCreateDate();
+
+				if (createDate.after(dueDate)) {
+					throw new WorkflowTaskDueDateException();
+				}
+
 				kaleoTaskInstanceToken =
 					kaleoTaskInstanceTokenLocalService.updateDueDate(
 						workflowTaskInstanceId, dueDate, serviceContext);
@@ -428,7 +436,9 @@ public class DefaultTaskManagerImpl
 
 	private static final ServiceTracker
 		<FormDefinitionRetriever, FormDefinitionRetriever> _serviceTracker =
-			ServiceTrackerFactory.open(FormDefinitionRetriever.class);
+			ServiceTrackerFactory.open(
+				FrameworkUtil.getBundle(DefaultTaskManagerImpl.class),
+				FormDefinitionRetriever.class);
 
 	@Reference
 	private KaleoActionExecutor _kaleoActionExecutor;

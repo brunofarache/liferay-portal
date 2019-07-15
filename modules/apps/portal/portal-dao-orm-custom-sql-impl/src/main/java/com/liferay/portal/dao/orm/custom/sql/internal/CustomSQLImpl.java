@@ -526,7 +526,7 @@ public class CustomSQLImpl implements CustomSQL {
 			}
 		}
 
-		return keywordsList.toArray(new String[keywordsList.size()]);
+		return keywordsList.toArray(new String[0]);
 	}
 
 	@Override
@@ -914,8 +914,6 @@ public class CustomSQLImpl implements CustomSQL {
 				sb.insert(i, CharPool.BACK_SLASH);
 
 				i++;
-
-				continue;
 			}
 		}
 

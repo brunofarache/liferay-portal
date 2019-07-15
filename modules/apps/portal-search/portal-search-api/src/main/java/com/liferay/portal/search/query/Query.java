@@ -14,9 +14,9 @@
 
 package com.liferay.portal.search.query;
 
-import aQute.bnd.annotation.ProviderType;
-
 import java.io.Serializable;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Michael C. Han
@@ -24,14 +24,14 @@ import java.io.Serializable;
 @ProviderType
 public interface Query extends Serializable {
 
-	public static final float BOOST_DEFAULT = 1.0F;
-
 	public <T> T accept(QueryVisitor<T> queryVisitor);
 
 	public Float getBoost();
 
-	public boolean isDefaultBoost();
+	public String getQueryName();
 
 	public void setBoost(Float boost);
+
+	public void setQueryName(String queryName);
 
 }

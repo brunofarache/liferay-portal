@@ -14,10 +14,9 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service utility for UserGroupGroupRole. This utility wraps
@@ -397,9 +396,6 @@ public class UserGroupGroupRoleLocalServiceUtil {
 			_service =
 				(UserGroupGroupRoleLocalService)PortalBeanLocatorUtil.locate(
 					UserGroupGroupRoleLocalService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				UserGroupGroupRoleLocalServiceUtil.class, "_service");
 		}
 
 		return _service;

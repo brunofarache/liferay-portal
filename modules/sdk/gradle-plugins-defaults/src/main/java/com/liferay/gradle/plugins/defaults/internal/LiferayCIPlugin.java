@@ -14,10 +14,10 @@
 
 package com.liferay.gradle.plugins.defaults.internal;
 
-import com.liferay.gradle.plugins.LiferayBasePlugin;
 import com.liferay.gradle.plugins.cache.CachePlugin;
 import com.liferay.gradle.plugins.defaults.internal.util.CIUtil;
 import com.liferay.gradle.plugins.defaults.internal.util.GradleUtil;
+import com.liferay.gradle.plugins.node.NodePlugin;
 import com.liferay.gradle.plugins.node.tasks.DownloadNodeTask;
 import com.liferay.gradle.plugins.node.tasks.ExecuteNodeTask;
 import com.liferay.gradle.plugins.node.tasks.ExecuteNpmTask;
@@ -31,6 +31,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
@@ -41,8 +42,10 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.logging.Logger;
+import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskContainer;
+import org.gradle.api.tasks.TaskOutputs;
 
 /**
  * @author Andrea Di Giorgi
@@ -51,21 +54,11 @@ public class LiferayCIPlugin implements Plugin<Project> {
 
 	public static final Plugin<Project> INSTANCE = new LiferayCIPlugin();
 
-	public static final String RESTORE_HOTFIX_VERSION_TASK_NAME =
-		"restoreHotfixVersion";
-
-	public static final String UPDATE_HOTFIX_VERSION_TASK_NAME =
-		"updateHotfixVersion";
-
 	@Override
 	public void apply(final Project project) {
-		Task restoreHotfixVersionTask = _addTaskRestoreHotfixVersion(project);
-		Task updateHotfixVersionTask = _addTaskUpdateHotfixVersion(project);
-
 		_configureTasksDownloadNode(project);
 		_configureTasksExecuteNode(project);
-		_configureTasksExecuteNpm(
-			project, restoreHotfixVersionTask, updateHotfixVersionTask);
+		_configureTasksExecuteNpm(project);
 		_configureTasksNpmInstall(project);
 
 		GradleUtil.withPlugin(
@@ -93,52 +86,6 @@ public class LiferayCIPlugin implements Plugin<Project> {
 	}
 
 	private LiferayCIPlugin() {
-	}
-
-	private Task _addTaskRestoreHotfixVersion(final Project project) {
-		Task task = project.task(RESTORE_HOTFIX_VERSION_TASK_NAME);
-
-		task.setDescription("Restores the project hotfix version.");
-
-		task.doLast(
-			new Action<Task>() {
-
-				@Override
-				public void execute(Task task) {
-					CIUtil.restoreHotfixVersion(
-						project, _BND_HOTFIX_VERSION_FILE_NAME);
-
-					for (String fileName : _JSON_HOTFIX_VERSION_FILE_NAMES) {
-						CIUtil.restoreHotfixVersion(project, fileName);
-					}
-				}
-
-			});
-
-		return task;
-	}
-
-	private Task _addTaskUpdateHotfixVersion(final Project project) {
-		Task task = project.task(UPDATE_HOTFIX_VERSION_TASK_NAME);
-
-		task.setDescription("Updates the project hotfix version.");
-
-		task.doLast(
-			new Action<Task>() {
-
-				@Override
-				public void execute(Task task) {
-					CIUtil.updateHotfixVersion(
-						project, _BND_HOTFIX_VERSION_FILE_NAME);
-
-					for (String fileName : _JSON_HOTFIX_VERSION_FILE_NAMES) {
-						CIUtil.updateHotfixVersion(project, fileName);
-					}
-				}
-
-			});
-
-		return task;
 	}
 
 	private void _configureTaskDownloadNode(DownloadNodeTask downloadNodeTask) {
@@ -195,29 +142,10 @@ public class LiferayCIPlugin implements Plugin<Project> {
 	}
 
 	private void _configureTaskExecuteNpm(
-		ExecuteNpmTask executeNpmTask, String registry,
-		Task restoreHotfixVersionTask, Task updateHotfixVersionTask) {
+		ExecuteNpmTask executeNpmTask, String registry) {
 
 		if (Validator.isNotNull(registry)) {
 			executeNpmTask.setRegistry(registry);
-		}
-
-		Project project = executeNpmTask.getProject();
-
-		TaskContainer taskContainer = project.getTasks();
-
-		Task deployTask = taskContainer.findByName(
-			LiferayBasePlugin.DEPLOY_TASK_NAME);
-
-		if (deployTask != null) {
-			String hotfixVersion = CIUtil.getBNDHotfixVersion(
-				deployTask.getProject(), _BND_HOTFIX_VERSION_FILE_NAME);
-
-			if (hotfixVersion != null) {
-				executeNpmTask.dependsOn(updateHotfixVersionTask);
-
-				deployTask.finalizedBy(restoreHotfixVersionTask);
-			}
 		}
 	}
 
@@ -228,6 +156,24 @@ public class LiferayCIPlugin implements Plugin<Project> {
 
 		npmInstallTask.setRemoveShrinkwrappedUrls(Boolean.TRUE);
 		npmInstallTask.setUseNpmCI(Boolean.FALSE);
+	}
+
+	private void _configureTaskNpmRunBuild(ExecuteNpmTask executeNpmTask) {
+		if (Validator.isNull(System.getenv("FIX_PACKS_RELEASE_ENVIRONMENT"))) {
+			return;
+		}
+
+		TaskOutputs taskOutputs = executeNpmTask.getOutputs();
+
+		taskOutputs.upToDateWhen(
+			new Spec<Task>() {
+
+				@Override
+				public boolean isSatisfiedBy(Task task) {
+					return false;
+				}
+
+			});
 	}
 
 	private void _configureTasksDownloadNode(Project project) {
@@ -260,10 +206,7 @@ public class LiferayCIPlugin implements Plugin<Project> {
 			});
 	}
 
-	private void _configureTasksExecuteNpm(
-		Project project, final Task restoreHotfixVersionTask,
-		final Task updateHotfixVersionTask) {
-
+	private void _configureTasksExecuteNpm(Project project) {
 		final String ciRegistry = GradleUtil.getProperty(
 			project, "nodejs.npm.ci.registry", (String)null);
 
@@ -275,9 +218,15 @@ public class LiferayCIPlugin implements Plugin<Project> {
 
 				@Override
 				public void execute(ExecuteNpmTask executeNpmTask) {
-					_configureTaskExecuteNpm(
-						executeNpmTask, ciRegistry, restoreHotfixVersionTask,
-						updateHotfixVersionTask);
+					_configureTaskExecuteNpm(executeNpmTask, ciRegistry);
+
+					String taskName = executeNpmTask.getName();
+
+					if (Objects.equals(
+							taskName, NodePlugin.NPM_RUN_BUILD_TASK_NAME)) {
+
+						_configureTaskNpmRunBuild(executeNpmTask);
+					}
 				}
 
 			});
@@ -392,12 +341,6 @@ public class LiferayCIPlugin implements Plugin<Project> {
 
 		testIntegrationTask.doFirst(action);
 	}
-
-	private static final String _BND_HOTFIX_VERSION_FILE_NAME = "bnd.bnd";
-
-	private static final String[] _JSON_HOTFIX_VERSION_FILE_NAMES = {
-		"package-lock.json", "package.json"
-	};
 
 	private static final File _NODE_MODULES_CACHE_DIR = new File(
 		System.getProperty("user.home"), ".liferay/node-modules-cache");

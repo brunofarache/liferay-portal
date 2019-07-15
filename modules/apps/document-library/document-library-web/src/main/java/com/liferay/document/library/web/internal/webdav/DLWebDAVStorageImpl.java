@@ -137,13 +137,12 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 
 			int status = HttpServletResponse.SC_CREATED;
 
-			if (overwrite) {
-				if (deleteResource(
-						groupId, parentFolderId, name,
-						webDAVRequest.getLockUuid())) {
+			if (overwrite &&
+				deleteResource(
+					groupId, parentFolderId, name,
+					webDAVRequest.getLockUuid())) {
 
-					status = HttpServletResponse.SC_NO_CONTENT;
-				}
+				status = HttpServletResponse.SC_NO_CONTENT;
 			}
 
 			if (depth == 0) {
@@ -214,13 +213,12 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 
 			int status = HttpServletResponse.SC_CREATED;
 
-			if (overwrite) {
-				if (deleteResource(
-						groupId, parentFolderId, title,
-						webDAVRequest.getLockUuid())) {
+			if (overwrite &&
+				deleteResource(
+					groupId, parentFolderId, title,
+					webDAVRequest.getLockUuid())) {
 
-					status = HttpServletResponse.SC_NO_CONTENT;
-				}
+				status = HttpServletResponse.SC_NO_CONTENT;
 			}
 
 			_dlAppService.addFileEntry(
@@ -522,9 +520,10 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 		throws WebDAVException {
 
 		try {
-			HttpServletRequest request = webDAVRequest.getHttpServletRequest();
+			HttpServletRequest httpServletRequest =
+				webDAVRequest.getHttpServletRequest();
 
-			if (request.getContentLength() > 0) {
+			if (httpServletRequest.getContentLength() > 0) {
 				return new Status(
 					HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
 			}
@@ -598,13 +597,12 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 
 			int status = HttpServletResponse.SC_CREATED;
 
-			if (overwrite) {
-				if (deleteResource(
-						groupId, parentFolderId, name,
-						webDAVRequest.getLockUuid())) {
+			if (overwrite &&
+				deleteResource(
+					groupId, parentFolderId, name,
+					webDAVRequest.getLockUuid())) {
 
-					status = HttpServletResponse.SC_NO_CONTENT;
-				}
+				status = HttpServletResponse.SC_NO_CONTENT;
 			}
 
 			if (parentFolderId != folder.getParentFolderId()) {
@@ -672,13 +670,12 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 
 			int status = HttpServletResponse.SC_CREATED;
 
-			if (overwrite) {
-				if (deleteResource(
-						groupId, newParentFolderId, title,
-						webDAVRequest.getLockUuid())) {
+			if (overwrite &&
+				deleteResource(
+					groupId, newParentFolderId, title,
+					webDAVRequest.getLockUuid())) {
 
-					status = HttpServletResponse.SC_NO_CONTENT;
-				}
+				status = HttpServletResponse.SC_NO_CONTENT;
 			}
 
 			// LPS-5415
@@ -761,7 +758,8 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 		File file = null;
 
 		try {
-			HttpServletRequest request = webDAVRequest.getHttpServletRequest();
+			HttpServletRequest httpServletRequest =
+				webDAVRequest.getHttpServletRequest();
 
 			String[] pathArray = webDAVRequest.getPathArray();
 
@@ -774,9 +772,10 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 
 			file = FileUtil.createTempFile(FileUtil.getExtension(title));
 
-			FileUtil.write(file, request.getInputStream());
+			FileUtil.write(file, httpServletRequest.getInputStream());
 
-			String contentType = getContentType(request, file, title);
+			String contentType = getContentType(
+				httpServletRequest, file, title);
 
 			try {
 				FileEntry fileEntry = _dlAppService.getFileEntry(
@@ -978,10 +977,10 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 	}
 
 	protected String getContentType(
-		HttpServletRequest request, File file, String title) {
+		HttpServletRequest httpServletRequest, File file, String title) {
 
 		String contentType = GetterUtil.getString(
-			request.getHeader(HttpHeaders.CONTENT_TYPE),
+			httpServletRequest.getHeader(HttpHeaders.CONTENT_TYPE),
 			ContentTypes.APPLICATION_OCTET_STREAM);
 
 		if (contentType.equals(ContentTypes.APPLICATION_OCTET_STREAM) ||

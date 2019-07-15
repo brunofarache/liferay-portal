@@ -14,13 +14,13 @@
 
 package com.liferay.portal.service.http;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.service.TeamServiceUtil;
 
 import java.rmi.RemoteException;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the SOAP utility for the
@@ -63,29 +63,6 @@ import java.rmi.RemoteException;
  */
 @ProviderType
 public class TeamServiceSoap {
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link #addTeam(long,
-	 String, String, ServiceContext)}
-	 */
-	@Deprecated
-	public static com.liferay.portal.kernel.model.TeamSoap addTeam(
-			long groupId, String name, String description)
-		throws RemoteException {
-
-		try {
-			com.liferay.portal.kernel.model.Team returnValue =
-				TeamServiceUtil.addTeam(groupId, name, description);
-
-			return com.liferay.portal.kernel.model.TeamSoap.toSoapModel(
-				returnValue);
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
 
 	public static com.liferay.portal.kernel.model.TeamSoap addTeam(
 			long groupId, String name, String description,

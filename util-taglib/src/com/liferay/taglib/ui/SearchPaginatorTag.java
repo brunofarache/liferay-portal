@@ -24,6 +24,18 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class SearchPaginatorTag<R> extends SearchFormTag<R> {
 
+	public String getId() {
+		return _id;
+	}
+
+	public String getMarkupView() {
+		return _markupView;
+	}
+
+	public String getType() {
+		return _type;
+	}
+
 	public void setId(String id) {
 		_id = id;
 	}
@@ -56,12 +68,13 @@ public class SearchPaginatorTag<R> extends SearchFormTag<R> {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		super.setAttributes(request);
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		super.setAttributes(httpServletRequest);
 
-		request.setAttribute("liferay-ui:search:id", _id);
-		request.setAttribute("liferay-ui:search:markupView", _markupView);
-		request.setAttribute("liferay-ui:search:type", _type);
+		httpServletRequest.setAttribute("liferay-ui:search:id", _id);
+		httpServletRequest.setAttribute(
+			"liferay-ui:search:markupView", _markupView);
+		httpServletRequest.setAttribute("liferay-ui:search:type", _type);
 	}
 
 	private String _id;

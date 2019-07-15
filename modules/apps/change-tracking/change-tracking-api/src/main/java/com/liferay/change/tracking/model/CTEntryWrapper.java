@@ -14,14 +14,14 @@
 
 package com.liferay.change.tracking.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.model.ModelWrapper;
 import com.liferay.portal.kernel.model.wrapper.BaseModelWrapper;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * <p>
@@ -51,10 +51,12 @@ public class CTEntryWrapper
 		attributes.put("userName", getUserName());
 		attributes.put("createDate", getCreateDate());
 		attributes.put("modifiedDate", getModifiedDate());
+		attributes.put("originalCTCollectionId", getOriginalCTCollectionId());
 		attributes.put("modelClassNameId", getModelClassNameId());
 		attributes.put("modelClassPK", getModelClassPK());
 		attributes.put("modelResourcePrimKey", getModelResourcePrimKey());
 		attributes.put("changeType", getChangeType());
+		attributes.put("collision", isCollision());
 		attributes.put("status", getStatus());
 
 		return attributes;
@@ -98,6 +100,13 @@ public class CTEntryWrapper
 			setModifiedDate(modifiedDate);
 		}
 
+		Long originalCTCollectionId = (Long)attributes.get(
+			"originalCTCollectionId");
+
+		if (originalCTCollectionId != null) {
+			setOriginalCTCollectionId(originalCTCollectionId);
+		}
+
 		Long modelClassNameId = (Long)attributes.get("modelClassNameId");
 
 		if (modelClassNameId != null) {
@@ -123,6 +132,12 @@ public class CTEntryWrapper
 			setChangeType(changeType);
 		}
 
+		Boolean collision = (Boolean)attributes.get("collision");
+
+		if (collision != null) {
+			setCollision(collision);
+		}
+
 		Integer status = (Integer)attributes.get("status");
 
 		if (status != null) {
@@ -138,6 +153,16 @@ public class CTEntryWrapper
 	@Override
 	public int getChangeType() {
 		return model.getChangeType();
+	}
+
+	/**
+	 * Returns the collision of this ct entry.
+	 *
+	 * @return the collision of this ct entry
+	 */
+	@Override
+	public boolean getCollision() {
+		return model.getCollision();
 	}
 
 	/**
@@ -216,6 +241,16 @@ public class CTEntryWrapper
 	}
 
 	/**
+	 * Returns the original ct collection ID of this ct entry.
+	 *
+	 * @return the original ct collection ID of this ct entry
+	 */
+	@Override
+	public long getOriginalCTCollectionId() {
+		return model.getOriginalCTCollectionId();
+	}
+
+	/**
 	 * Returns the primary key of this ct entry.
 	 *
 	 * @return the primary key of this ct entry
@@ -270,6 +305,16 @@ public class CTEntryWrapper
 		return model.hasCTEntryAggregate();
 	}
 
+	/**
+	 * Returns <code>true</code> if this ct entry is collision.
+	 *
+	 * @return <code>true</code> if this ct entry is collision; <code>false</code> otherwise
+	 */
+	@Override
+	public boolean isCollision() {
+		return model.isCollision();
+	}
+
 	@Override
 	public void persist() {
 		model.persist();
@@ -283,6 +328,16 @@ public class CTEntryWrapper
 	@Override
 	public void setChangeType(int changeType) {
 		model.setChangeType(changeType);
+	}
+
+	/**
+	 * Sets whether this ct entry is collision.
+	 *
+	 * @param collision the collision of this ct entry
+	 */
+	@Override
+	public void setCollision(boolean collision) {
+		model.setCollision(collision);
 	}
 
 	/**
@@ -353,6 +408,16 @@ public class CTEntryWrapper
 	@Override
 	public void setModifiedDate(Date modifiedDate) {
 		model.setModifiedDate(modifiedDate);
+	}
+
+	/**
+	 * Sets the original ct collection ID of this ct entry.
+	 *
+	 * @param originalCTCollectionId the original ct collection ID of this ct entry
+	 */
+	@Override
+	public void setOriginalCTCollectionId(long originalCTCollectionId) {
+		model.setOriginalCTCollectionId(originalCTCollectionId);
 	}
 
 	/**

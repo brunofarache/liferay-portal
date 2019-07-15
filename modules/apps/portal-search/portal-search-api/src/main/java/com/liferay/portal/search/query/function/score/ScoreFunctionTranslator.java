@@ -14,7 +14,7 @@
 
 package com.liferay.portal.search.query.function.score;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Michael C. Han
@@ -28,7 +28,7 @@ public interface ScoreFunctionTranslator<T> {
 	public T translate(
 		FieldValueFactorScoreFunction fieldValueFactorScoreFunction);
 
-	public T translate(GuassianDecayScoreFunction guassianDecayScoreFunction);
+	public T translate(GaussianDecayScoreFunction gaussianDecayScoreFunction);
 
 	public T translate(LinearDecayScoreFunction linearDecayScoreFunction);
 

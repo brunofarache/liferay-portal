@@ -14,7 +14,6 @@
 
 package com.liferay.layout.page.template.service.impl;
 
-import com.liferay.fragment.service.FragmentEntryService;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateActionKeys;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.base.LayoutPageTemplateEntryServiceBaseImpl;
@@ -619,20 +618,6 @@ public class LayoutPageTemplateEntryServiceImpl
 
 	@Override
 	public LayoutPageTemplateEntry updateLayoutPageTemplateEntry(
-			long layoutPageTemplateEntryId, int status)
-		throws PortalException {
-
-		_layoutPageTemplateEntryModelResourcePermission.check(
-			getPermissionChecker(), layoutPageTemplateEntryId,
-			ActionKeys.UPDATE);
-
-		return layoutPageTemplateEntryLocalService.
-			updateLayoutPageTemplateEntry(
-				getUserId(), layoutPageTemplateEntryId, status);
-	}
-
-	@Override
-	public LayoutPageTemplateEntry updateLayoutPageTemplateEntry(
 			long layoutPageTemplateEntryId, long previewFileEntryId)
 		throws PortalException {
 
@@ -703,6 +688,19 @@ public class LayoutPageTemplateEntryServiceImpl
 				StringPool.BLANK, serviceContext);
 	}
 
+	@Override
+	public LayoutPageTemplateEntry updateStatus(
+			long layoutPageTemplateEntryId, int status)
+		throws PortalException {
+
+		_layoutPageTemplateEntryModelResourcePermission.check(
+			getPermissionChecker(), layoutPageTemplateEntryId,
+			ActionKeys.UPDATE);
+
+		return layoutPageTemplateEntryLocalService.updateStatus(
+			getUserId(), layoutPageTemplateEntryId, status);
+	}
+
 	private static volatile ModelResourcePermission<LayoutPageTemplateEntry>
 		_layoutPageTemplateEntryModelResourcePermission =
 			ModelResourcePermissionFactory.getInstance(
@@ -719,8 +717,5 @@ public class LayoutPageTemplateEntryServiceImpl
 
 	@ServiceReference(type = CustomSQL.class)
 	private CustomSQL _customSQL;
-
-	@ServiceReference(type = FragmentEntryService.class)
-	private FragmentEntryService _fragmentEntryService;
 
 }

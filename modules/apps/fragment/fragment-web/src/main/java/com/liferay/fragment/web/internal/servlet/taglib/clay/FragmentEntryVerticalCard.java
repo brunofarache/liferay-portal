@@ -14,9 +14,11 @@
 
 package com.liferay.fragment.web.internal.servlet.taglib.clay;
 
-import com.liferay.fragment.constants.FragmentEntryTypeConstants;
+import com.liferay.fragment.constants.FragmentActionKeys;
+import com.liferay.fragment.constants.FragmentConstants;
 import com.liferay.fragment.model.FragmentEntry;
 import com.liferay.fragment.web.internal.constants.FragmentWebKeys;
+import com.liferay.fragment.web.internal.security.permission.resource.FragmentPermission;
 import com.liferay.fragment.web.internal.servlet.taglib.util.FragmentEntryActionDropdownItemsProvider;
 import com.liferay.frontend.taglib.clay.servlet.taglib.soy.BaseBaseClayCard;
 import com.liferay.frontend.taglib.clay.servlet.taglib.soy.VerticalCard;
@@ -55,7 +57,7 @@ public class FragmentEntryVerticalCard
 		_renderResponse = renderResponse;
 
 		_fragmentEntry = (FragmentEntry)baseModel;
-		_request = PortalUtil.getHttpServletRequest(renderRequest);
+		_httpServletRequest = PortalUtil.getHttpServletRequest(renderRequest);
 		_themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
@@ -84,6 +86,14 @@ public class FragmentEntryVerticalCard
 
 	@Override
 	public String getHref() {
+		if (!FragmentPermission.contains(
+				_themeDisplay.getPermissionChecker(),
+				_themeDisplay.getScopeGroupId(),
+				FragmentActionKeys.MANAGE_FRAGMENT_ENTRIES)) {
+
+			return null;
+		}
+
 		PortletURL editFragmentEntryURL = _renderResponse.createRenderURL();
 
 		editFragmentEntryURL.setParameter(
@@ -115,18 +125,15 @@ public class FragmentEntryVerticalCard
 		return new LabelItemList() {
 			{
 				add(
-					labelItem -> {
-						labelItem.setStatus(_fragmentEntry.getStatus());
-					});
+					labelItem -> labelItem.setStatus(
+						_fragmentEntry.getStatus()));
 			}
 		};
 	}
 
 	@Override
 	public String getStickerCssClass() {
-		if (_fragmentEntry.getType() ==
-				FragmentEntryTypeConstants.TYPE_COMPONENT) {
-
+		if (_fragmentEntry.getType() == FragmentConstants.TYPE_COMPONENT) {
 			return "file-icon-color-4";
 		}
 
@@ -135,9 +142,7 @@ public class FragmentEntryVerticalCard
 
 	@Override
 	public String getStickerIcon() {
-		if (_fragmentEntry.getType() ==
-				FragmentEntryTypeConstants.TYPE_COMPONENT) {
-
+		if (_fragmentEntry.getType() == FragmentConstants.TYPE_COMPONENT) {
 			return "cards2";
 		}
 
@@ -149,9 +154,11 @@ public class FragmentEntryVerticalCard
 		Date statusDate = _fragmentEntry.getStatusDate();
 
 		String statusDateDescription = LanguageUtil.getTimeDescription(
-			_request, System.currentTimeMillis() - statusDate.getTime(), true);
+			_httpServletRequest,
+			System.currentTimeMillis() - statusDate.getTime(), true);
 
-		return LanguageUtil.format(_request, "x-ago", statusDateDescription);
+		return LanguageUtil.format(
+			_httpServletRequest, "x-ago", statusDateDescription);
 	}
 
 	@Override
@@ -160,9 +167,9 @@ public class FragmentEntryVerticalCard
 	}
 
 	private final FragmentEntry _fragmentEntry;
+	private final HttpServletRequest _httpServletRequest;
 	private final RenderRequest _renderRequest;
 	private final RenderResponse _renderResponse;
-	private final HttpServletRequest _request;
 	private final ThemeDisplay _themeDisplay;
 
 }

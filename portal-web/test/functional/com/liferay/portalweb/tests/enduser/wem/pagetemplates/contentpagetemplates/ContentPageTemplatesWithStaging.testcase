@@ -1,5 +1,6 @@
 @component-name = "portal-wcm"
 definition {
+
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Layout Page Templates";
@@ -38,16 +39,18 @@ definition {
 		task ("Assert content page templates admin is accessible in the staging site") {
 			SitePages.openPagesAdmin(siteURLKey = "test-site-name-staging");
 
-			AssertVisible(locator1 = "NavBar#NAV_ITEM_LINK", key_navItem = "Page Templates");
+			AssertVisible(
+				key_navItem = "Page Templates",
+				locator1 = "NavBar#NAV_ITEM_LINK");
 		}
 
 		task ("Assert content page templates admin is not accessible in the live site") {
 			SitePages.openPagesAdmin(siteURLKey = "test-site-name");
 
 			AssertElementNotPresent(
-				locator1 = "NavBar#NAV_ITEM_LINK",
-				key_navItem = "Page Templates"
-			);
+				key_navItem = "Page Templates",
+				locator1 = "NavBar#NAV_ITEM_LINK");
 		}
 	}
+
 }

@@ -60,11 +60,13 @@ import com.liferay.portal.kernel.util.ThemeFactoryUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Element;
+import com.liferay.portal.service.impl.LayoutLocalServiceHelper;
 import com.liferay.sites.kernel.util.Sites;
 import com.liferay.sites.kernel.util.SitesUtil;
 
 import java.io.File;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -137,7 +139,11 @@ public class StagedLayoutSetStagedModelDataHandler
 				layout.getSourcePrototypeLayoutUuid(),
 				layoutSetPrototype.getGroupId(), true);
 
-			if (sourcePrototypeLayout == null) {
+			if ((sourcePrototypeLayout == null) &&
+				_layoutLocalService.hasLayout(
+					layout.getUuid(), layout.getGroupId(),
+					layout.isPrivateLayout())) {
+
 				_layoutLocalService.deleteLayout(
 					layout, false,
 					ServiceContextThreadLocal.getServiceContext());
@@ -183,11 +189,30 @@ public class StagedLayoutSetStagedModelDataHandler
 			if (!sourceLayoutUuids.contains(layout.getUuid()) &&
 				!layoutPlids.containsValue(layout.getPlid())) {
 
+				String layoutUUID = layout.getUuid();
+				long stagingGroupID = portletDataContext.getSourceGroupId();
+
 				try {
+					Layout stagedLayout =
+						_layoutLocalService.fetchLayoutByUuidAndGroupId(
+							layoutUUID, stagingGroupID,
+							!layout.isPublicLayout());
+
+					if ((stagedLayout != null) &&
+						_exportImportHelper.isLayoutRevisionInReview(
+							stagedLayout)) {
+
+						continue;
+					}
+
 					_layoutLocalService.deleteLayout(
 						layout, false, serviceContext);
 				}
 				catch (Exception e) {
+					if (_log.isWarnEnabled()) {
+						_log.warn(
+							"Unable to delete layout with UUID " + layoutUUID);
+					}
 				}
 			}
 		}
@@ -381,6 +406,9 @@ public class StagedLayoutSetStagedModelDataHandler
 					layout);
 
 				layoutElement.addAttribute(Constants.ACTION, Constants.SKIP);
+				layoutElement.addAttribute(
+					"layout-parent-layout-id",
+					String.valueOf(layout.getParentLayoutId()));
 
 				continue;
 			}
@@ -527,6 +555,35 @@ public class StagedLayoutSetStagedModelDataHandler
 		}
 	}
 
+	protected boolean hasSiblingLayoutWithSamePriority(
+		Layout layout, List<Layout> siblingLayouts) {
+
+		for (Layout siblingLayout : siblingLayouts) {
+			if ((layout.getPlid() != siblingLayout.getPlid()) &&
+				(layout.getPriority() == siblingLayout.getPriority())) {
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	protected boolean hasSkippedSiblingLayout(
+		Element layoutElement, Map<Long, List<String>> siblingActionsMap) {
+
+		long parentLayoutId = GetterUtil.getLong(
+			layoutElement.attributeValue("layout-parent-layout-id"));
+
+		List<String> actions = siblingActionsMap.get(parentLayoutId);
+
+		if (actions.contains(Constants.SKIP)) {
+			return true;
+		}
+
+		return false;
+	}
+
 	protected void importLogo(PortletDataContext portletDataContext) {
 		boolean logo = MapUtil.getBoolean(
 			portletDataContext.getParameterMap(), PortletDataHandlerKeys.LOGO);
@@ -656,8 +713,9 @@ public class StagedLayoutSetStagedModelDataHandler
 	}
 
 	protected void updateLayoutPriorities(
-		PortletDataContext portletDataContext, List<Element> layoutElements,
-		boolean privateLayout) {
+			PortletDataContext portletDataContext, List<Element> layoutElements,
+			boolean privateLayout)
+		throws PortalException {
 
 		Map<Long, Layout> layouts =
 			(Map<Long, Layout>)portletDataContext.getNewPrimaryKeysMap(
@@ -665,17 +723,36 @@ public class StagedLayoutSetStagedModelDataHandler
 
 		Map<Long, Integer> layoutPriorities = new HashMap<>();
 
-		int maxPriority = Integer.MIN_VALUE;
+		Map<Long, List<String>> siblingActionsMap = new HashMap<>();
+
+		for (Element layoutElement : layoutElements) {
+			long elementParentLayoutId = GetterUtil.getLong(
+				layoutElement.attributeValue("layout-parent-layout-id"));
+
+			List<String> actions = siblingActionsMap.get(elementParentLayoutId);
+
+			if (actions == null) {
+				actions = new ArrayList<>();
+			}
+			else if (actions.contains(Constants.SKIP)) {
+				continue;
+			}
+
+			actions.add(layoutElement.attributeValue(Constants.ACTION));
+
+			siblingActionsMap.put(elementParentLayoutId, actions);
+		}
 
 		for (Element layoutElement : layoutElements) {
 			String action = layoutElement.attributeValue(Constants.ACTION);
 
-			if (action.equals(Constants.SKIP)) {
+			if (action.equals(Constants.SKIP) ||
+				hasSkippedSiblingLayout(layoutElement, siblingActionsMap)) {
 
-				// We only want to update priorites if there are no elements
-				// with the SKIP action
+				// We do not want to update priorities if there are elements at
+				// the same level of the page hierarchy with the SKIP action
 
-				return;
+				continue;
 			}
 
 			if (action.equals(Constants.ADD)) {
@@ -694,26 +771,48 @@ public class StagedLayoutSetStagedModelDataHandler
 				int layoutPriority = GetterUtil.getInteger(
 					layoutElement.attributeValue("layout-priority"));
 
-				layoutPriorities.put(layout.getPlid(), layoutPriority);
+				layoutPriority = _layoutLocalServiceHelper.getNextPriority(
+					layout.getGroupId(), layout.isPrivateLayout(),
+					layout.getParentLayoutId(),
+					layout.getSourcePrototypeLayoutUuid(), layoutPriority);
 
-				if (maxPriority < layoutPriority) {
-					maxPriority = layoutPriority;
-				}
+				layoutPriorities.put(layout.getPlid(), layoutPriority);
 			}
 		}
 
-		List<Layout> layoutSetLayouts = _layoutLocalService.getLayouts(
-			portletDataContext.getGroupId(), privateLayout);
+		Set<Long> parentLayoutIds = new HashSet<>();
 
-		for (Layout layout : layoutSetLayouts) {
-			if (layoutPriorities.containsKey(layout.getPlid())) {
-				layout.setPriority(layoutPriorities.get(layout.getPlid()));
-			}
-			else {
-				layout.setPriority(++maxPriority);
-			}
+		Set<Long> updatedPlids = layoutPriorities.keySet();
+
+		for (long plid : updatedPlids) {
+			Layout layout = _layoutLocalService.fetchLayout(plid);
+
+			layout.setPriority(layoutPriorities.get(plid));
 
 			_layoutLocalService.updateLayout(layout);
+
+			parentLayoutIds.add(layout.getParentLayoutId());
+		}
+
+		for (long parentLayoutId : parentLayoutIds) {
+			List<Layout> siblingLayouts = _layoutLocalService.getLayouts(
+				portletDataContext.getGroupId(), privateLayout, parentLayoutId);
+
+			for (Layout layout : siblingLayouts) {
+				if (!updatedPlids.contains(layout.getPlid()) &&
+					hasSiblingLayoutWithSamePriority(layout, siblingLayouts)) {
+
+					do {
+						int priority = layout.getPriority();
+
+						layout.setPriority(++priority);
+					}
+					while (hasSiblingLayoutWithSamePriority(
+								layout, siblingLayouts));
+
+					_layoutLocalService.updateLayout(layout);
+				}
+			}
 		}
 	}
 
@@ -801,6 +900,9 @@ public class StagedLayoutSetStagedModelDataHandler
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;
+
+	@Reference
+	private LayoutLocalServiceHelper _layoutLocalServiceHelper;
 
 	@Reference
 	private LayoutSetBranchLocalService _layoutSetBranchLocalService;

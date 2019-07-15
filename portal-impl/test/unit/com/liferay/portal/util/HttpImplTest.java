@@ -15,6 +15,7 @@
 package com.liferay.portal.util;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.test.CaptureHandler;
 import com.liferay.portal.kernel.test.JDKLoggerTestUtil;
@@ -23,7 +24,6 @@ import com.liferay.portal.kernel.test.rule.CodeCoverageAssertor;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.URLCodec;
 
 import java.lang.reflect.Method;
@@ -517,30 +517,31 @@ public class HttpImplTest {
 		// Remove redirect three deep
 
 		String encodedURL2 = URLCodec.encodeURL(
+			"www.liferay.com?key1=value1&redirect=" +
+				URLCodec.encodeURL("www.liferay.com?key1=value1"));
+
+		String encodedURL3 = URLCodec.encodeURL(
 			"www.liferay.com?key1=value1&redirect=" + encodedURL);
 
 		Assert.assertEquals(
-			"www.liferay.com?key1=value1&redirect=" +
-				URLCodec.encodeURL(
-					"www.liferay.com?key1=value1&redirect=" +
-						URLCodec.encodeURL("www.liferay.com?key1=value1")),
+			"www.liferay.com?key1=value1&redirect=" + encodedURL2,
 			_httpImpl.shortenURL(
-				"www.liferay.com?redirect=" + encodedURL2 + "&key1=value1"));
+				"www.liferay.com?redirect=" + encodedURL3 + "&key1=value1"));
 
 		// Remove redirect three deep and keep _returnToFullPageURL two deep
 
-		String encodedURL3 = URLCodec.encodeURL(
+		String encodedURL4 = URLCodec.encodeURL(
+			"www.liferay.com?key1=value1&_returnToFullPageURL=test&redirect=" +
+				URLCodec.encodeURL("www.liferay.com?key1=value1"));
+
+		String encodedURL5 = URLCodec.encodeURL(
 			"www.liferay.com?_returnToFullPageURL=test&key1=value1&redirect=" +
 				encodedURL);
 
 		Assert.assertEquals(
-			"www.liferay.com?key1=value1&redirect=" +
-				URLCodec.encodeURL(
-					"www.liferay.com?key1=value1&_returnToFullPageURL=test" +
-						"&redirect=" +
-							URLCodec.encodeURL("www.liferay.com?key1=value1")),
+			"www.liferay.com?key1=value1&redirect=" + encodedURL4,
 			_httpImpl.shortenURL(
-				"www.liferay.com?redirect=" + encodedURL3 + "&key1=value1"));
+				"www.liferay.com?redirect=" + encodedURL5 + "&key1=value1"));
 	}
 
 	protected void testDecodeURLWithInvalidURLEncoding(String url) {

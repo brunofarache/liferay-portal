@@ -87,25 +87,6 @@ public abstract class BaseWorkflowHandler<T> implements WorkflowHandler<T> {
 		return StringPool.BLANK;
 	}
 
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), with no direct replacement
-	 */
-	@Deprecated
-	@Override
-	public String getIconPath(LiferayPortletRequest liferayPortletRequest) {
-		return StringPool.BLANK;
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #getSummary(long, PortletRequest, PortletResponse)}
-	 */
-	@Deprecated
-	@Override
-	public String getSummary(long classPK, Locale locale) {
-		return getSummary(classPK, null, null);
-	}
-
 	@Override
 	public String getSummary(
 		long classPK, PortletRequest portletRequest,
@@ -251,14 +232,15 @@ public abstract class BaseWorkflowHandler<T> implements WorkflowHandler<T> {
 
 	@Override
 	public boolean include(
-		long classPK, HttpServletRequest request, HttpServletResponse response,
-		String template) {
+		long classPK, HttpServletRequest httpServletRequest,
+		HttpServletResponse httpServletResponse, String template) {
 
 		try {
 			AssetRenderer<?> assetRenderer = getAssetRenderer(classPK);
 
 			if (assetRenderer != null) {
-				return assetRenderer.include(request, response, template);
+				return assetRenderer.include(
+					httpServletRequest, httpServletResponse, template);
 			}
 		}
 		catch (Exception e) {

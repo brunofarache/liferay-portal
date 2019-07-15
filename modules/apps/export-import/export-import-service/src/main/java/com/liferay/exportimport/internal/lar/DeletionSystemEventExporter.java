@@ -14,8 +14,6 @@
 
 package com.liferay.exportimport.internal.lar;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.exportimport.kernel.lar.ExportImportDateUtil;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
@@ -33,6 +31,7 @@ import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.SystemEvent;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.service.SystemEventLocalServiceUtil;
@@ -44,6 +43,8 @@ import com.liferay.portal.kernel.xml.SAXReaderUtil;
 
 import java.util.Date;
 import java.util.Set;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Zsolt Berentey
@@ -70,6 +71,14 @@ public class DeletionSystemEventExporter {
 			MapUtil.getBoolean(
 				portletDataContext.getParameterMap(),
 				PortletDataHandlerKeys.DELETIONS)) {
+
+			if (!MapUtil.getBoolean(
+					portletDataContext.getParameterMap(),
+					PortletDataHandlerKeys.DELETE_LAYOUTS)) {
+
+				deletionSystemEventStagedModelTypes.remove(
+					new StagedModelType(Layout.class));
+			}
 
 			doExportDeletionSystemEvents(
 				portletDataContext, rootElement,
@@ -139,6 +148,20 @@ public class DeletionSystemEventExporter {
 							stagedModelType.getReferrerClassNameId()));
 				}
 
+				String className = stagedModelType.getClassName();
+
+				if (className.equals(Layout.class.getName())) {
+					Property extraDataProperty = PropertyFactoryUtil.forName(
+						"extraData");
+
+					boolean privateLayout = MapUtil.getBoolean(
+						portletDataContext.getParameterMap(), "privateLayout");
+
+					conjunction.add(
+						extraDataProperty.like(
+							"%\"privateLayout\":\"" + privateLayout + "\"%"));
+				}
+
 				referrerClassNameIdDisjunction.add(conjunction);
 			}
 
@@ -164,17 +187,13 @@ public class DeletionSystemEventExporter {
 			SystemEventLocalServiceUtil.getActionableDynamicQuery();
 
 		actionableDynamicQuery.setAddCriteriaMethod(
-			dynamicQuery -> {
-				doAddCriteria(
-					portletDataContext, deletionSystemEventStagedModelTypes,
-					dynamicQuery);
-			});
+			dynamicQuery -> doAddCriteria(
+				portletDataContext, deletionSystemEventStagedModelTypes,
+				dynamicQuery));
 		actionableDynamicQuery.setCompanyId(portletDataContext.getCompanyId());
 		actionableDynamicQuery.setPerformActionMethod(
-			(SystemEvent systemEvent) -> {
-				exportDeletionSystemEvent(
-					portletDataContext, systemEvent, rootElement);
-			});
+			(SystemEvent systemEvent) -> exportDeletionSystemEvent(
+				portletDataContext, systemEvent, rootElement));
 
 		actionableDynamicQuery.performActions();
 	}

@@ -1,18 +1,16 @@
 {
 	"dependencies": {
-		"clay-button": "2.10.0",
-		"clay-icon": "2.10.0",
-		"metal-soy": "^2.5.11",
-		"metal-state": "^2.13.2"
-	},
-	"devDependencies": {
-		"liferay-npm-scripts": "1.4.3"
+		"clay-button": "2.16.1",
+		"clay-icon": "2.16.1",
+		"frontend-js-web": "^4.0.0",
+		"metal-soy": "2.16.8",
+		"metal-state": "2.16.8"
 	},
 	"name": "flags-taglib",
 	"scripts": {
-		"build": "liferay-npm-scripts build --soy --bundler",
-		"csf": "liferay-npm-scripts lint",
-		"format": "liferay-npm-scripts format"
+		"build": "liferay-npm-scripts build",
+		"checkFormat": "liferay-npm-scripts check",
+		"format": "liferay-npm-scripts fix"
 	},
-	"version": "4.0.0"
+	"version": "5.0.0"
 }

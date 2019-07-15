@@ -14,12 +14,12 @@
 
 package com.liferay.oauth2.provider.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * This class is used by SOAP remote services.
@@ -40,6 +40,7 @@ public class OAuth2ScopeGrantSoap implements Serializable {
 		soapModel.setApplicationName(model.getApplicationName());
 		soapModel.setBundleSymbolicName(model.getBundleSymbolicName());
 		soapModel.setScope(model.getScope());
+		soapModel.setScopeAliases(model.getScopeAliases());
 
 		return soapModel;
 	}
@@ -151,11 +152,20 @@ public class OAuth2ScopeGrantSoap implements Serializable {
 		_scope = scope;
 	}
 
+	public String getScopeAliases() {
+		return _scopeAliases;
+	}
+
+	public void setScopeAliases(String scopeAliases) {
+		_scopeAliases = scopeAliases;
+	}
+
 	private long _oAuth2ScopeGrantId;
 	private long _companyId;
 	private long _oAuth2ApplicationScopeAliasesId;
 	private String _applicationName;
 	private String _bundleSymbolicName;
 	private String _scope;
+	private String _scopeAliases;
 
 }

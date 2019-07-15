@@ -14,14 +14,17 @@
 
 package com.liferay.fragment.web.internal.portlet;
 
+import com.liferay.fragment.constants.FragmentActionKeys;
 import com.liferay.fragment.constants.FragmentPortletKeys;
 import com.liferay.fragment.model.FragmentCollection;
 import com.liferay.fragment.processor.FragmentEntryProcessorRegistry;
+import com.liferay.fragment.renderer.FragmentRendererController;
 import com.liferay.fragment.service.FragmentCollectionService;
 import com.liferay.fragment.web.internal.configuration.FragmentPortletConfiguration;
 import com.liferay.fragment.web.internal.constants.FragmentWebKeys;
 import com.liferay.item.selector.ItemSelector;
-import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
+import com.liferay.portal.kernel.module.configuration.ConfigurationException;
+import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -29,16 +32,13 @@ import com.liferay.portal.kernel.util.WebKeys;
 import java.io.IOException;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.portlet.Portlet;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 
 /**
@@ -68,13 +68,6 @@ import org.osgi.service.component.annotations.Reference;
 )
 public class FragmentPortlet extends MVCPortlet {
 
-	@Activate
-	@Modified
-	protected void activate(Map<String, Object> properties) {
-		_fragmentPortletConfiguration = ConfigurableUtil.createConfigurable(
-			FragmentPortletConfiguration.class, properties);
-	}
-
 	@Override
 	protected void doDispatch(
 			RenderRequest renderRequest, RenderResponse renderResponse)
@@ -82,6 +75,18 @@ public class FragmentPortlet extends MVCPortlet {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
+
+		FragmentPortletConfiguration fragmentPortletConfiguration = null;
+
+		try {
+			fragmentPortletConfiguration =
+				_configurationProvider.getCompanyConfiguration(
+					FragmentPortletConfiguration.class,
+					themeDisplay.getCompanyId());
+		}
+		catch (ConfigurationException ce) {
+			throw new PortletException(ce);
+		}
 
 		List<FragmentCollection> fragmentCollections =
 			_fragmentCollectionService.getFragmentCollections(
@@ -92,10 +97,14 @@ public class FragmentPortlet extends MVCPortlet {
 
 		renderRequest.setAttribute(
 			FragmentPortletConfiguration.class.getName(),
-			_fragmentPortletConfiguration);
+			fragmentPortletConfiguration);
 		renderRequest.setAttribute(
 			FragmentWebKeys.FRAGMENT_ENTRY_PROCESSOR_REGISTRY,
 			_fragmentEntryProcessorRegistry);
+		renderRequest.setAttribute(
+			FragmentActionKeys.FRAGMENT_RENDERER_CONTROLLER,
+			_fragmentRendererController);
+
 		renderRequest.setAttribute(
 			FragmentWebKeys.ITEM_SELECTOR, _itemSelector);
 
@@ -103,12 +112,16 @@ public class FragmentPortlet extends MVCPortlet {
 	}
 
 	@Reference
+	private ConfigurationProvider _configurationProvider;
+
+	@Reference
 	private FragmentCollectionService _fragmentCollectionService;
 
 	@Reference
 	private FragmentEntryProcessorRegistry _fragmentEntryProcessorRegistry;
 
-	private volatile FragmentPortletConfiguration _fragmentPortletConfiguration;
+	@Reference
+	private FragmentRendererController _fragmentRendererController;
 
 	@Reference
 	private ItemSelector _itemSelector;

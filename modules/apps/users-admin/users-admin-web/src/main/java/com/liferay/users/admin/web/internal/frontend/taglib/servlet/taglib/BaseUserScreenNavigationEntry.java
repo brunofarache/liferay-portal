@@ -22,7 +22,7 @@ import com.liferay.portal.kernel.util.AggregateResourceBundle;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
-import com.liferay.users.admin.constants.UserFormConstants;
+import com.liferay.users.admin.constants.UserScreenNavigationEntryConstants;
 import com.liferay.users.admin.web.internal.constants.UsersAdminWebKeys;
 
 import java.io.IOException;
@@ -52,11 +52,12 @@ public abstract class BaseUserScreenNavigationEntry
 
 	@Override
 	public String getScreenNavigationKey() {
-		return UserFormConstants.SCREEN_NAVIGATION_KEY_USERS;
+		return UserScreenNavigationEntryConstants.SCREEN_NAVIGATION_KEY_USERS;
 	}
 
 	public boolean isEditable(
-		HttpServletRequest request, HttpServletResponse response) {
+		HttpServletRequest httpServletRequest,
+		HttpServletResponse httpServletResponse) {
 
 		return true;
 	}
@@ -70,24 +71,33 @@ public abstract class BaseUserScreenNavigationEntry
 	}
 
 	@Override
-	public void render(HttpServletRequest request, HttpServletResponse response)
+	public void render(
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException {
 
 		if (getJspPath() == null) {
 			return;
 		}
 
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			UsersAdminWebKeys.ACTION_COMMAND_NAME, getActionCommandName());
-		request.setAttribute(
-			UsersAdminWebKeys.EDITABLE, isEditable(request, response));
-		request.setAttribute(
-			UsersAdminWebKeys.FORM_LABEL, getLabel(request.getLocale()));
-		request.setAttribute(UsersAdminWebKeys.JSP_PATH, getJspPath());
-		request.setAttribute(UsersAdminWebKeys.SHOW_CONTROLS, isShowControls());
-		request.setAttribute(UsersAdminWebKeys.SHOW_TITLE, isShowTitle());
+		httpServletRequest.setAttribute(
+			UsersAdminWebKeys.EDITABLE,
+			isEditable(httpServletRequest, httpServletResponse));
+		httpServletRequest.setAttribute(
+			UsersAdminWebKeys.FORM_LABEL,
+			getLabel(httpServletRequest.getLocale()));
+		httpServletRequest.setAttribute(
+			UsersAdminWebKeys.JSP_PATH, getJspPath());
+		httpServletRequest.setAttribute(
+			UsersAdminWebKeys.SHOW_CONTROLS, isShowControls());
+		httpServletRequest.setAttribute(
+			UsersAdminWebKeys.SHOW_TITLE, isShowTitle());
 
-		jspRenderer.renderJSP(request, response, "/edit_user_navigation.jsp");
+		jspRenderer.renderJSP(
+			httpServletRequest, httpServletResponse,
+			"/edit_user_navigation.jsp");
 	}
 
 	protected ResourceBundle getResourceBundle(Locale locale) {

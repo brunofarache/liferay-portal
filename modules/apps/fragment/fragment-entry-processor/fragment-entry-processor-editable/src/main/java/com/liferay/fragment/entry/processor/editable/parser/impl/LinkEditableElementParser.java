@@ -18,9 +18,11 @@ import com.liferay.fragment.entry.processor.editable.EditableFragmentEntryProces
 import com.liferay.fragment.entry.processor.editable.parser.EditableElementParser;
 import com.liferay.fragment.entry.processor.editable.parser.util.EditableElementParserUtil;
 import com.liferay.fragment.exception.FragmentEntryContentException;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -48,21 +50,11 @@ public class LinkEditableElementParser implements EditableElementParser {
 
 		List<Element> elements = element.getElementsByTag("a");
 
+		if (ListUtil.isEmpty(elements)) {
+			return jsonObject;
+		}
+
 		Element replaceableElement = elements.get(0);
-
-		if (replaceableElement.hasClass("btn") &&
-			replaceableElement.hasClass("btn-primary")) {
-
-			jsonObject.put("buttonType", "primary");
-		}
-		else if (replaceableElement.hasClass("btn") &&
-				 replaceableElement.hasClass("btn-secondary")) {
-
-			jsonObject.put("buttonType", "secondary");
-		}
-		else {
-			jsonObject.put("buttonType", "link");
-		}
 
 		String href = replaceableElement.attr("href");
 
@@ -82,6 +74,10 @@ public class LinkEditableElementParser implements EditableElementParser {
 	public String getValue(Element element) {
 		List<Element> elements = element.getElementsByTag("a");
 
+		if (ListUtil.isEmpty(elements)) {
+			return StringPool.BLANK;
+		}
+
 		Element replaceableElement = elements.get(0);
 
 		return replaceableElement.html();
@@ -98,6 +94,10 @@ public class LinkEditableElementParser implements EditableElementParser {
 
 		List<Element> elements = element.getElementsByTag("a");
 
+		if (ListUtil.isEmpty(elements)) {
+			return;
+		}
+
 		Element replaceableElement = elements.get(0);
 
 		Element bodyElement = EditableElementParserUtil.getDocumentBody(value);
@@ -113,22 +113,25 @@ public class LinkEditableElementParser implements EditableElementParser {
 		EditableElementParserUtil.addAttribute(
 			replaceableElement, configJSONObject, "target", "target");
 
-		for (String className : replaceableElement.classNames()) {
-			if (className.startsWith("btn-") ||
-				Objects.equals(className, "btn")) {
-
-				replaceableElement.removeClass(className);
-			}
-		}
-
 		String buttonType = configJSONObject.getString("buttonType");
 
-		if (Objects.equals(buttonType, "link")) {
-			replaceableElement.addClass("link");
-		}
-		else {
-			EditableElementParserUtil.addClass(
-				replaceableElement, configJSONObject, "btn btn-", "buttonType");
+		if (!buttonType.isEmpty()) {
+			for (String className : replaceableElement.classNames()) {
+				if (className.startsWith("btn-") ||
+					Objects.equals(className, "btn")) {
+
+					replaceableElement.removeClass(className);
+				}
+			}
+
+			if (Objects.equals(buttonType, "link")) {
+				replaceableElement.addClass("link");
+			}
+			else {
+				EditableElementParserUtil.addClass(
+					replaceableElement, configJSONObject, "btn btn-",
+					"buttonType");
+			}
 		}
 
 		replaceableElement.html(bodyElement.html());

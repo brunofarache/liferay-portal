@@ -1,4 +1,19 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 import debounce from 'metal-debounce';
+import {DEBOUNCE} from '../utils/constants';
 import {ScrollTracker} from '../utils/scroll';
 
 const applicationId = 'Page';
@@ -14,7 +29,7 @@ function scrolling(analytics) {
 		scrollTracker.onDepthReached(depth => {
 			analytics.send('pageDepthReached', applicationId, {depth});
 		});
-	}, 1500);
+	}, DEBOUNCE);
 
 	document.addEventListener('scroll', onScroll);
 

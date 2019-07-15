@@ -27,6 +27,7 @@ import com.liferay.exportimport.kernel.staging.StagingConstants;
 import com.liferay.exportimport.kernel.staging.StagingURLHelperUtil;
 import com.liferay.exportimport.kernel.staging.StagingUtil;
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTask;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskConstants;
@@ -72,12 +73,12 @@ import com.liferay.portal.kernel.model.ResourceAction;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.ResourcePermission;
 import com.liferay.portal.kernel.model.Role;
-import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserGroup;
 import com.liferay.portal.kernel.model.UserGroupRole;
 import com.liferay.portal.kernel.model.UserPersonalSite;
 import com.liferay.portal.kernel.model.WorkflowDefinitionLink;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.scheduler.SchedulerEngineHelperUtil;
 import com.liferay.portal.kernel.scheduler.StorageType;
 import com.liferay.portal.kernel.search.Document;
@@ -113,7 +114,6 @@ import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.PropsKeys;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
@@ -477,53 +477,6 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	}
 
 	/**
-	 * Adds a group.
-	 *
-	 * @param      userId the primary key of the group's creator/owner
-	 * @param      parentGroupId the primary key of the parent group
-	 * @param      className the entity's class name
-	 * @param      classPK the primary key of the entity's instance
-	 * @param      liveGroupId the primary key of the live group
-	 * @param      name the entity's name
-	 * @param      description the group's description (optionally
-	 *             <code>null</code>)
-	 * @param      type the group's type. For more information see {@link
-	 *             GroupConstants}.
-	 * @param      manualMembership whether manual membership is allowed for the
-	 *             group
-	 * @param      membershipRestriction the group's membership restriction. For
-	 *             more information see {@link GroupConstants}.
-	 * @param      friendlyURL the group's friendlyURL (optionally
-	 *             <code>null</code>)
-	 * @param      site whether the group is to be associated with a main site
-	 * @param      active whether the group is active
-	 * @param      serviceContext the service context to be applied (optionally
-	 *             <code>null</code>). Can set asset category IDs and asset tag
-	 *             names for the group, and whether the group is for staging.
-	 * @return     the group
-	 * @throws     PortalException if a portal exception occured
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link #addGroup(long,
-	 *             long, String, long, long, Map, Map, int, boolean, int,
-	 *             String, boolean, boolean, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public Group addGroup(
-			long userId, long parentGroupId, String className, long classPK,
-			long liveGroupId, String name, String description, int type,
-			boolean manualMembership, int membershipRestriction,
-			String friendlyURL, boolean site, boolean active,
-			ServiceContext serviceContext)
-		throws PortalException {
-
-		return addGroup(
-			userId, parentGroupId, className, classPK, liveGroupId,
-			getLocalizationMap(name), getLocalizationMap(description), type,
-			manualMembership, membershipRestriction, friendlyURL, site, false,
-			active, serviceContext);
-	}
-
-	/**
 	 * Adds the group to the organization.
 	 *
 	 * @param organizationId the primary key of the organization
@@ -707,14 +660,12 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 		nameMap.put(LocaleUtil.getDefault(), String.valueOf(layout.getPlid()));
 
-		Group scopeGroup = groupLocalService.addGroup(
+		return groupLocalService.addGroup(
 			userId, GroupConstants.DEFAULT_PARENT_GROUP_ID,
 			Layout.class.getName(), layout.getPlid(),
 			GroupConstants.DEFAULT_LIVE_GROUP_ID, nameMap, null, 0, true,
 			GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION, null, false, true,
 			null);
-
-		return scopeGroup;
 	}
 
 	/**
@@ -874,9 +825,10 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 					group.getGroupId());
 			}
 
-			if (groupPersistence.countByC_P_S(
-					group.getCompanyId(), group.getGroupId(), true) > 0) {
+			int count = groupPersistence.countByC_P_S(
+				group.getCompanyId(), group.getGroupId(), true);
 
+			if (count > 0) {
 				throw new RequiredGroupException.MustNotDeleteGroupThatHasChild(
 					group.getGroupId());
 			}
@@ -886,7 +838,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 					group.getGroupId(),
 					BackgroundTaskConstants.STATUS_IN_PROGRESS);
 
-			if (!backgroundTasks.isEmpty()) {
+			if (ListUtil.isNotNull(backgroundTasks)) {
 				throw new PendingBackgroundTaskException(
 					"Unable to delete group with pending background tasks");
 			}
@@ -1663,32 +1615,6 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		}
 
 		return groupLocalService.loadGetGroup(companyId, groupKey);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             Group#getDescriptiveName(Locale)}
-	 */
-	@Deprecated
-	@Override
-	public String getGroupDescriptiveName(Group group, Locale locale)
-		throws PortalException {
-
-		return group.getDescriptiveName(locale);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             Group#getDescriptiveName(Locale)}
-	 */
-	@Deprecated
-	@Override
-	public String getGroupDescriptiveName(long groupId, Locale locale)
-		throws PortalException {
-
-		Group group = groupPersistence.findByPrimaryKey(groupId);
-
-		return group.getDescriptiveName(locale);
 	}
 
 	/**
@@ -3754,9 +3680,12 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		}
 
 		if ((nameMap != null) &&
-			Validator.isNotNull(nameMap.get(LocaleUtil.getDefault()))) {
+			Validator.isNotNull(
+				nameMap.get(
+					LocaleUtil.fromLanguageId(group.getDefaultLanguageId())))) {
 
-			groupKey = nameMap.get(LocaleUtil.getDefault());
+			groupKey = nameMap.get(
+				LocaleUtil.fromLanguageId(group.getDefaultLanguageId()));
 		}
 
 		friendlyURL = getFriendlyURL(
@@ -3837,9 +3766,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			return group;
 		}
 
-		User user = null;
-
-		user = userPersistence.fetchByPrimaryKey(group.getCreatorUserId());
+		User user = userPersistence.fetchByPrimaryKey(group.getCreatorUserId());
 
 		if (user == null) {
 			user = userPersistence.fetchByPrimaryKey(
@@ -3855,50 +3782,6 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			serviceContext.getAssetTagNames());
 
 		return group;
-	}
-
-	/**
-	 * Updates the group.
-	 *
-	 * @param      groupId the primary key of the group
-	 * @param      parentGroupId the primary key of the parent group
-	 * @param      name the name's key
-	 * @param      description the group's new description (optionally
-	 *             <code>null</code>)
-	 * @param      type the group's new type. For more information see {@link
-	 *             GroupConstants}.
-	 * @param      manualMembership whether manual membership is allowed for the
-	 *             group
-	 * @param      membershipRestriction the group's membership restriction. For
-	 *             more information see {@link GroupConstants}.
-	 * @param      friendlyURL the group's new friendlyURL (optionally
-	 *             <code>null</code>)
-	 * @param      inheritContent whether to inherit content from the parent
-	 *             group
-	 * @param      active whether the group is active
-	 * @param      serviceContext the service context to be applied (optionally
-	 *             <code>null</code>). Can set asset category IDs and asset tag
-	 *             names for the group.
-	 * @return     the group
-	 * @throws     PortalException if a portal exception occurred
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #updateGroup(long, long, Map, Map, int, boolean, int, String,
-	 *             boolean, boolean, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public Group updateGroup(
-			long groupId, long parentGroupId, String name, String description,
-			int type, boolean manualMembership, int membershipRestriction,
-			String friendlyURL, boolean inheritContent, boolean active,
-			ServiceContext serviceContext)
-		throws PortalException {
-
-		return updateGroup(
-			groupId, parentGroupId, getLocalizationMap(name),
-			getLocalizationMap(description), type, manualMembership,
-			membershipRestriction, friendlyURL, inheritContent, active,
-			serviceContext);
 	}
 
 	/**
@@ -3934,6 +3817,30 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 				"languageId", LocaleUtil.toLanguageId(LocaleUtil.getDefault()));
 
 			validateLanguageIds(defaultLanguageId, newLanguageIds);
+
+			if (!Objects.equals(
+					group.getDefaultLanguageId(), defaultLanguageId)) {
+
+				Locale defaultLocale = LocaleUtil.fromLanguageId(
+					defaultLanguageId);
+
+				Map<Locale, String> oldNameMap = group.getNameMap();
+
+				group.setNameMap(oldNameMap, defaultLocale);
+
+				Map<Locale, String> oldDecriptionMap =
+					group.getDescriptionMap();
+
+				group.setDescriptionMap(oldDecriptionMap, defaultLocale);
+
+				Map<Locale, String> nameMap = group.getNameMap();
+
+				if ((nameMap != null) &&
+					Validator.isNotNull(nameMap.get(defaultLocale))) {
+
+					group.setGroupKey(nameMap.get(defaultLocale));
+				}
+			}
 
 			if (!Objects.equals(oldLanguageIds, newLanguageIds)) {
 				LanguageUtil.resetAvailableGroupLocales(groupId);
@@ -4180,7 +4087,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 					StringBundler.concat(
 						"Unable to add default data for portlet ",
 						portletDataHandler.getPortletId(), " in group ",
-						String.valueOf(group.getGroupId())));
+						group.getGroupId()));
 
 				if (portletDataHandler.isRollbackOnException()) {
 					throw new SystemException(e);
@@ -4208,7 +4115,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 					StringBundler.concat(
 						"Unable to delete data for portlet ",
 						portletDataHandler.getPortletId(), " in group ",
-						String.valueOf(group.getGroupId())),
+						group.getGroupId()),
 					e);
 
 				if (portletDataHandler.isRollbackOnException()) {
@@ -4308,12 +4215,10 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 			// Filter by active
 
-			if (active != null) {
-				if (active != isLiveGroupActive(group)) {
-					iterator.remove();
+			if ((active != null) && (active != isLiveGroupActive(group))) {
+				iterator.remove();
 
-					continue;
-				}
+				continue;
 			}
 
 			// Filter by excluded group IDs
@@ -4374,12 +4279,10 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 			// Filter by site
 
-			if (site != null) {
-				if (site != group.isSite()) {
-					iterator.remove();
+			if ((site != null) && (site != group.isSite())) {
+				iterator.remove();
 
-					continue;
-				}
+				continue;
 			}
 
 			// Filter by type and types
@@ -4394,8 +4297,6 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 			if ((types != null) && !types.contains(type)) {
 				iterator.remove();
-
-				continue;
 			}
 		}
 
@@ -4884,8 +4785,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		List<String> actions = ResourceActionsUtil.getModelResourceActions(
 			name);
 
-		setRolePermissions(
-			group, role, name, actions.toArray(new String[actions.size()]));
+		setRolePermissions(group, role, name, actions.toArray(new String[0]));
 	}
 
 	protected void setRolePermissions(

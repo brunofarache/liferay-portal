@@ -14,6 +14,8 @@
 
 package com.liferay.journal.web.internal.servlet.taglib.ui;
 
+import com.liferay.journal.model.JournalArticle;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.servlet.taglib.ui.FormNavigatorEntry;
 
 import javax.servlet.ServletContext;
@@ -25,7 +27,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Pavel Savinov
  */
 @Component(
-	property = "form.navigator.entry.order:Integer=40",
+	property = "form.navigator.entry.order:Integer=50",
 	service = FormNavigatorEntry.class
 )
 public class JournalFriendlyURLFormNavigatorEntry
@@ -34,6 +36,15 @@ public class JournalFriendlyURLFormNavigatorEntry
 	@Override
 	public String getKey() {
 		return "friendly-url";
+	}
+
+	@Override
+	public boolean isVisible(User user, JournalArticle article) {
+		if (isEditDefaultValues(article)) {
+			return false;
+		}
+
+		return true;
 	}
 
 	@Override

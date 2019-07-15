@@ -36,6 +36,7 @@ import com.liferay.exportimport.kernel.lar.UserIdStrategy;
 import com.liferay.message.boards.model.MBMessage;
 import com.liferay.message.boards.service.MBMessageLocalServiceUtil;
 import com.liferay.portal.kernel.comment.CommentManagerUtil;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.StagedGroupedModel;
@@ -63,9 +64,9 @@ import com.liferay.portal.kernel.zip.ZipReaderFactoryUtil;
 import com.liferay.portal.kernel.zip.ZipWriter;
 import com.liferay.portal.kernel.zip.ZipWriterFactoryUtil;
 import com.liferay.portal.service.test.ServiceTestUtil;
-import com.liferay.portlet.ratings.util.test.RatingsTestUtil;
 import com.liferay.ratings.kernel.model.RatingsEntry;
 import com.liferay.ratings.kernel.service.RatingsEntryLocalServiceUtil;
+import com.liferay.ratings.test.util.RatingsTestUtil;
 
 import java.io.Serializable;
 
@@ -80,7 +81,6 @@ import java.util.Map;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -107,7 +107,6 @@ public abstract class BaseStagedModelDataHandlerTestCase {
 		ServiceContextThreadLocal.popServiceContext();
 	}
 
-	@Ignore
 	@Test
 	public void testCleanAssetCategoriesAndTags() throws Exception {
 		Map<String, List<StagedModel>> dependentStagedModelsMap =
@@ -195,11 +194,11 @@ public abstract class BaseStagedModelDataHandlerTestCase {
 
 		assetTags = importedAssetEntry.getTags();
 
-		Assert.assertFalse(assetTags.toString(), assetTags.isEmpty());
+		Assert.assertTrue(assetTags.toString(), assetTags.isEmpty());
 
 		assetCategories = importedAssetEntry.getCategories();
 
-		Assert.assertFalse(
+		Assert.assertTrue(
 			assetCategories.toString(), assetCategories.isEmpty());
 	}
 
@@ -690,7 +689,8 @@ public abstract class BaseStagedModelDataHandlerTestCase {
 		return parameterMap;
 	}
 
-	protected abstract StagedModel getStagedModel(String uuid, Group group);
+	protected abstract StagedModel getStagedModel(String uuid, Group group)
+		throws PortalException;
 
 	protected abstract Class<? extends StagedModel> getStagedModelClass();
 
@@ -793,11 +793,8 @@ public abstract class BaseStagedModelDataHandlerTestCase {
 	protected StagedModel readExportedStagedModel(StagedModel stagedModel) {
 		String stagedModelPath = ExportImportPathUtil.getModelPath(stagedModel);
 
-		StagedModel exportedStagedModel =
-			(StagedModel)portletDataContext.getZipEntryAsObject(
-				stagedModelPath);
-
-		return exportedStagedModel;
+		return (StagedModel)portletDataContext.getZipEntryAsObject(
+			stagedModelPath);
 	}
 
 	protected boolean supportLastPublishDateUpdate() {

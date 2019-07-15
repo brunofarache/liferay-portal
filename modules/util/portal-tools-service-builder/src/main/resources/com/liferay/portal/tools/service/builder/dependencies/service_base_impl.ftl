@@ -1,6 +1,8 @@
 package ${packagePath}.service.base;
 
-import aQute.bnd.annotation.ProviderType;
+import ${serviceBuilder.getCompatJavaClassName("ProviderType")};
+
+import ${apiPackagePath}.service.${entity.name}${sessionTypeName}Service;
 
 import com.liferay.exportimport.kernel.lar.ExportImportHelperUtil;
 import com.liferay.exportimport.kernel.lar.ManifestSummary;
@@ -63,7 +65,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
-import ${apiPackagePath}.service.${entity.name}${sessionTypeName}Service;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Reference;
@@ -1761,7 +1762,7 @@ import org.osgi.service.component.annotations.Reference;
 			<#list entity.entityColumns as entityColumn>
 				<#if stringUtil.equals(entityColumn.methodName, "HeadId")>
 					draft${entity.name}.setHeadId(published${entity.name}.getPrimaryKey());
-				<#elseif !entityColumn.isPrimary() && !stringUtil.equals(entityColumn.methodName, "MvccVersion")>
+				<#elseif !entityColumn.isPrimary() && !stringUtil.equals(entityColumn.methodName, "MvccVersion") && !entityColumn.isMappingManyToMany()>
 					draft${entity.name}.set${entityColumn.methodName}(published${entity.name}.get${entityColumn.methodName}());
 				</#if>
 			</#list>

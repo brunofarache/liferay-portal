@@ -14,8 +14,6 @@
 
 package com.liferay.external.reference.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.model.Organization;
@@ -23,6 +21,8 @@ import com.liferay.portal.kernel.service.BaseLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Transactional;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service interface for EROrganization. Methods of this
@@ -50,7 +50,7 @@ public interface EROrganizationLocalService extends BaseLocalService {
 			String externalReferenceCode, long userId,
 			long parentOrganizationId, String name, String type, long regionId,
 			long countryId, long statusId, String comments, boolean site,
-			boolean logo, byte[] logoBytes, ServiceContext serviceContext)
+			boolean hasLogo, byte[] logoBytes, ServiceContext serviceContext)
 		throws PortalException;
 
 	/**

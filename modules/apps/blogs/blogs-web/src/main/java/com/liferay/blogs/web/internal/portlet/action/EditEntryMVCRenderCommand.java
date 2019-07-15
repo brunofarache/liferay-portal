@@ -17,8 +17,8 @@ package com.liferay.blogs.web.internal.portlet.action;
 import com.liferay.blogs.constants.BlogsPortletKeys;
 import com.liferay.blogs.exception.NoSuchEntryException;
 import com.liferay.blogs.model.BlogsEntry;
-import com.liferay.blogs.web.constants.BlogsWebKeys;
 import com.liferay.blogs.web.internal.BlogsItemSelectorHelper;
+import com.liferay.blogs.web.internal.constants.BlogsWebKeys;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
@@ -71,10 +71,10 @@ public class EditEntryMVCRenderCommand implements MVCRenderCommand {
 					ActionKeys.UPDATE);
 			}
 
-			HttpServletRequest request = _portal.getHttpServletRequest(
-				renderRequest);
+			HttpServletRequest httpServletRequest =
+				_portal.getHttpServletRequest(renderRequest);
 
-			request.setAttribute(WebKeys.BLOGS_ENTRY, entry);
+			httpServletRequest.setAttribute(WebKeys.BLOGS_ENTRY, entry);
 
 			renderRequest.setAttribute(
 				BlogsWebKeys.BLOGS_ITEM_SELECTOR_HELPER,
@@ -95,17 +95,11 @@ public class EditEntryMVCRenderCommand implements MVCRenderCommand {
 		return "/blogs/edit_entry.jsp";
 	}
 
-	@Reference(unbind = "-")
-	public void setItemSelectorHelper(
-		BlogsItemSelectorHelper blogsItemSelectorHelper) {
-
-		_blogsItemSelectorHelper = blogsItemSelectorHelper;
-	}
-
 	@Reference(target = "(model.class.name=com.liferay.blogs.model.BlogsEntry)")
 	private volatile ModelResourcePermission<BlogsEntry>
 		_blogsEntryModelResourcePermission;
 
+	@Reference
 	private BlogsItemSelectorHelper _blogsItemSelectorHelper;
 
 	@Reference

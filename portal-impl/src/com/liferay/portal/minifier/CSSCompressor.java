@@ -14,8 +14,8 @@
 
 package com.liferay.portal.minifier;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.IOException;
@@ -24,6 +24,7 @@ import java.io.Writer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -379,8 +380,7 @@ public class CSSCompressor {
 
 			String preserver = StringBundler.concat(
 				Character.toString(quote), "___YUICSSMIN_PRESERVED_TOKEN_",
-				String.valueOf(preservedTokens.size() - 1), "___",
-				Character.toString(quote));
+				preservedTokens.size() - 1, "___", Character.toString(quote));
 
 			matcher.appendReplacement(sb, preserver);
 		}
@@ -428,7 +428,7 @@ public class CSSCompressor {
 				else if ((endIndex > 0) && (css.charAt(endIndex - 1) != '\\')) {
 					foundTerminator = true;
 
-					if (!")".equals(terminator)) {
+					if (!Objects.equals(terminator, ")")) {
 						endIndex = css.indexOf(")", endIndex);
 					}
 				}
@@ -450,7 +450,7 @@ public class CSSCompressor {
 
 				String preserver = StringBundler.concat(
 					preservedToken, "(___YUICSSMIN_PRESERVED_TOKEN_",
-					String.valueOf(preservedTokens.size() - 1), "___)");
+					preservedTokens.size() - 1, "___)");
 
 				sb.append(preserver);
 
@@ -758,7 +758,9 @@ public class CSSCompressor {
 
 			boolean filter = false;
 
-			if ((matcher.group(1) != null) && !"".equals(matcher.group(1))) {
+			if ((matcher.group(1) != null) &&
+				!Objects.equals(matcher.group(1), "")) {
+
 				filter = true;
 			}
 

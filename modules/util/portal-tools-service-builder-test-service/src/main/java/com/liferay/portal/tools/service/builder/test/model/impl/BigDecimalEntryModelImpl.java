@@ -31,6 +31,9 @@ import com.liferay.portal.tools.service.builder.test.model.BigDecimalEntryModel;
 
 import java.io.Serializable;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
+
 import java.math.BigDecimal;
 
 import java.sql.Types;
@@ -65,7 +68,8 @@ public class BigDecimalEntryModelImpl
 	public static final String TABLE_NAME = "BigDecimalEntry";
 
 	public static final Object[][] TABLE_COLUMNS = {
-		{"bigDecimalEntryId", Types.BIGINT}, {"bigDecimalValue", Types.DECIMAL}
+		{"bigDecimalEntryId", Types.BIGINT}, {"companyId", Types.BIGINT},
+		{"bigDecimalValue", Types.DECIMAL}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -73,11 +77,12 @@ public class BigDecimalEntryModelImpl
 
 	static {
 		TABLE_COLUMNS_MAP.put("bigDecimalEntryId", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("companyId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("bigDecimalValue", Types.DECIMAL);
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table BigDecimalEntry (bigDecimalEntryId LONG not null primary key,bigDecimalValue DECIMAL(30, 16) null)";
+		"create table BigDecimalEntry (bigDecimalEntryId LONG not null primary key,companyId LONG,bigDecimalValue DECIMAL(30, 16) null)";
 
 	public static final String TABLE_SQL_DROP = "drop table BigDecimalEntry";
 
@@ -112,6 +117,27 @@ public class BigDecimalEntryModelImpl
 		true);
 
 	public static final long BIGDECIMALVALUE_COLUMN_BITMASK = 1L;
+
+	public static final String MAPPING_TABLE_BIGDECIMALENTRIES_LVENTRIES_NAME =
+		"BigDecimalEntries_LVEntries";
+
+	public static final Object[][]
+		MAPPING_TABLE_BIGDECIMALENTRIES_LVENTRIES_COLUMNS = {
+			{"companyId", Types.BIGINT}, {"bigDecimalEntryId", Types.BIGINT},
+			{"lvEntryId", Types.BIGINT}
+		};
+
+	public static final String
+		MAPPING_TABLE_BIGDECIMALENTRIES_LVENTRIES_SQL_CREATE =
+			"create table BigDecimalEntries_LVEntries (companyId LONG not null,bigDecimalEntryId LONG not null,lvEntryId LONG not null,primary key (bigDecimalEntryId, lvEntryId))";
+
+	public static final boolean
+		FINDER_CACHE_ENABLED_BIGDECIMALENTRIES_LVENTRIES =
+			GetterUtil.getBoolean(
+				com.liferay.portal.tools.service.builder.test.service.util.
+					ServiceProps.get(
+						"value.object.finder.cache.enabled.BigDecimalEntries_LVEntries"),
+				true);
 
 	public static final long LOCK_EXPIRATION_TIME = GetterUtil.getLong(
 		com.liferay.portal.tools.service.builder.test.service.util.ServiceProps.
@@ -206,6 +232,32 @@ public class BigDecimalEntryModelImpl
 		return _attributeSetterBiConsumers;
 	}
 
+	private static Function<InvocationHandler, BigDecimalEntry>
+		_getProxyProviderFunction() {
+
+		Class<?> proxyClass = ProxyUtil.getProxyClass(
+			BigDecimalEntry.class.getClassLoader(), BigDecimalEntry.class,
+			ModelWrapper.class);
+
+		try {
+			Constructor<BigDecimalEntry> constructor =
+				(Constructor<BigDecimalEntry>)proxyClass.getConstructor(
+					InvocationHandler.class);
+
+			return invocationHandler -> {
+				try {
+					return constructor.newInstance(invocationHandler);
+				}
+				catch (ReflectiveOperationException roe) {
+					throw new InternalError(roe);
+				}
+			};
+		}
+		catch (NoSuchMethodException nsme) {
+			throw new InternalError(nsme);
+		}
+	}
+
 	private static final Map<String, Function<BigDecimalEntry, Object>>
 		_attributeGetterFunctions;
 	private static final Map<String, BiConsumer<BigDecimalEntry, Object>>
@@ -238,6 +290,28 @@ public class BigDecimalEntryModelImpl
 
 					bigDecimalEntry.setBigDecimalEntryId(
 						(Long)bigDecimalEntryId);
+				}
+
+			});
+		attributeGetterFunctions.put(
+			"companyId",
+			new Function<BigDecimalEntry, Object>() {
+
+				@Override
+				public Object apply(BigDecimalEntry bigDecimalEntry) {
+					return bigDecimalEntry.getCompanyId();
+				}
+
+			});
+		attributeSetterBiConsumers.put(
+			"companyId",
+			new BiConsumer<BigDecimalEntry, Object>() {
+
+				@Override
+				public void accept(
+					BigDecimalEntry bigDecimalEntry, Object companyId) {
+
+					bigDecimalEntry.setCompanyId((Long)companyId);
 				}
 
 			});
@@ -282,6 +356,16 @@ public class BigDecimalEntryModelImpl
 	}
 
 	@Override
+	public long getCompanyId() {
+		return _companyId;
+	}
+
+	@Override
+	public void setCompanyId(long companyId) {
+		_companyId = companyId;
+	}
+
+	@Override
 	public BigDecimal getBigDecimalValue() {
 		return _bigDecimalValue;
 	}
@@ -308,7 +392,7 @@ public class BigDecimalEntryModelImpl
 	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(
-			0, BigDecimalEntry.class.getName(), getPrimaryKey());
+			getCompanyId(), BigDecimalEntry.class.getName(), getPrimaryKey());
 	}
 
 	@Override
@@ -321,8 +405,12 @@ public class BigDecimalEntryModelImpl
 	@Override
 	public BigDecimalEntry toEscapedModel() {
 		if (_escapedModel == null) {
-			_escapedModel = (BigDecimalEntry)ProxyUtil.newProxyInstance(
-				_classLoader, _escapedModelInterfaces,
+			Function<InvocationHandler, BigDecimalEntry>
+				escapedModelProxyProviderFunction =
+					EscapedModelProxyProviderFunctionHolder.
+						_escapedModelProxyProviderFunction;
+
+			_escapedModel = escapedModelProxyProviderFunction.apply(
 				new AutoEscapeBeanHandler(this));
 		}
 
@@ -334,6 +422,7 @@ public class BigDecimalEntryModelImpl
 		BigDecimalEntryImpl bigDecimalEntryImpl = new BigDecimalEntryImpl();
 
 		bigDecimalEntryImpl.setBigDecimalEntryId(getBigDecimalEntryId());
+		bigDecimalEntryImpl.setCompanyId(getCompanyId());
 		bigDecimalEntryImpl.setBigDecimalValue(getBigDecimalValue());
 
 		bigDecimalEntryImpl.resetOriginalValues();
@@ -409,6 +498,8 @@ public class BigDecimalEntryModelImpl
 
 		bigDecimalEntryCacheModel.bigDecimalEntryId = getBigDecimalEntryId();
 
+		bigDecimalEntryCacheModel.companyId = getCompanyId();
+
 		bigDecimalEntryCacheModel.bigDecimalValue = getBigDecimalValue();
 
 		return bigDecimalEntryCacheModel;
@@ -477,13 +568,15 @@ public class BigDecimalEntryModelImpl
 		return sb.toString();
 	}
 
-	private static final ClassLoader _classLoader =
-		BigDecimalEntry.class.getClassLoader();
-	private static final Class<?>[] _escapedModelInterfaces = new Class[] {
-		BigDecimalEntry.class, ModelWrapper.class
-	};
+	private static class EscapedModelProxyProviderFunctionHolder {
+
+		private static final Function<InvocationHandler, BigDecimalEntry>
+			_escapedModelProxyProviderFunction = _getProxyProviderFunction();
+
+	}
 
 	private long _bigDecimalEntryId;
+	private long _companyId;
 	private BigDecimal _bigDecimalValue;
 	private BigDecimal _originalBigDecimalValue;
 	private long _columnBitmask;

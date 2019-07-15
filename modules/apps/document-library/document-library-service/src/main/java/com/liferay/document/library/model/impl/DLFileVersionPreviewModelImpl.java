@@ -14,8 +14,6 @@
 
 package com.liferay.document.library.model.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.document.library.model.DLFileVersionPreview;
 import com.liferay.document.library.model.DLFileVersionPreviewModel;
 import com.liferay.expando.kernel.model.ExpandoBridge;
@@ -26,10 +24,12 @@ import com.liferay.portal.kernel.model.CacheModel;
 import com.liferay.portal.kernel.model.ModelWrapper;
 import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 
 import java.io.Serializable;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
 
 import java.sql.Types;
 
@@ -39,6 +39,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The base model implementation for the DLFileVersionPreview service. Represents a row in the &quot;DLFileVersionPreview&quot; database table, with each column mapped to a property of this class.
@@ -98,21 +100,6 @@ public class DLFileVersionPreviewModelImpl
 
 	public static final String TX_MANAGER = "liferayTransactionManager";
 
-	public static final boolean ENTITY_CACHE_ENABLED = GetterUtil.getBoolean(
-		com.liferay.document.library.service.util.ServiceProps.get(
-			"value.object.entity.cache.enabled.com.liferay.document.library.model.DLFileVersionPreview"),
-		true);
-
-	public static final boolean FINDER_CACHE_ENABLED = GetterUtil.getBoolean(
-		com.liferay.document.library.service.util.ServiceProps.get(
-			"value.object.finder.cache.enabled.com.liferay.document.library.model.DLFileVersionPreview"),
-		true);
-
-	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(
-		com.liferay.document.library.service.util.ServiceProps.get(
-			"value.object.column.bitmask.enabled.com.liferay.document.library.model.DLFileVersionPreview"),
-		true);
-
 	public static final long FILEENTRYID_COLUMN_BITMASK = 1L;
 
 	public static final long FILEVERSIONID_COLUMN_BITMASK = 2L;
@@ -121,9 +108,13 @@ public class DLFileVersionPreviewModelImpl
 
 	public static final long DLFILEVERSIONPREVIEWID_COLUMN_BITMASK = 8L;
 
-	public static final long LOCK_EXPIRATION_TIME = GetterUtil.getLong(
-		com.liferay.document.library.service.util.ServiceProps.get(
-			"lock.expiration.time.com.liferay.document.library.model.DLFileVersionPreview"));
+	public static void setEntityCacheEnabled(boolean entityCacheEnabled) {
+		_entityCacheEnabled = entityCacheEnabled;
+	}
+
+	public static void setFinderCacheEnabled(boolean finderCacheEnabled) {
+		_finderCacheEnabled = finderCacheEnabled;
+	}
 
 	public DLFileVersionPreviewModelImpl() {
 	}
@@ -211,6 +202,32 @@ public class DLFileVersionPreviewModelImpl
 		getAttributeSetterBiConsumers() {
 
 		return _attributeSetterBiConsumers;
+	}
+
+	private static Function<InvocationHandler, DLFileVersionPreview>
+		_getProxyProviderFunction() {
+
+		Class<?> proxyClass = ProxyUtil.getProxyClass(
+			DLFileVersionPreview.class.getClassLoader(),
+			DLFileVersionPreview.class, ModelWrapper.class);
+
+		try {
+			Constructor<DLFileVersionPreview> constructor =
+				(Constructor<DLFileVersionPreview>)proxyClass.getConstructor(
+					InvocationHandler.class);
+
+			return invocationHandler -> {
+				try {
+					return constructor.newInstance(invocationHandler);
+				}
+				catch (ReflectiveOperationException roe) {
+					throw new InternalError(roe);
+				}
+			};
+		}
+		catch (NoSuchMethodException nsme) {
+			throw new InternalError(nsme);
+		}
 	}
 
 	private static final Map<String, Function<DLFileVersionPreview, Object>>
@@ -374,8 +391,12 @@ public class DLFileVersionPreviewModelImpl
 	@Override
 	public DLFileVersionPreview toEscapedModel() {
 		if (_escapedModel == null) {
-			_escapedModel = (DLFileVersionPreview)ProxyUtil.newProxyInstance(
-				_classLoader, _escapedModelInterfaces,
+			Function<InvocationHandler, DLFileVersionPreview>
+				escapedModelProxyProviderFunction =
+					EscapedModelProxyProviderFunctionHolder.
+						_escapedModelProxyProviderFunction;
+
+			_escapedModel = escapedModelProxyProviderFunction.apply(
 				new AutoEscapeBeanHandler(this));
 		}
 
@@ -455,12 +476,12 @@ public class DLFileVersionPreviewModelImpl
 
 	@Override
 	public boolean isEntityCacheEnabled() {
-		return ENTITY_CACHE_ENABLED;
+		return _entityCacheEnabled;
 	}
 
 	@Override
 	public boolean isFinderCacheEnabled() {
-		return FINDER_CACHE_ENABLED;
+		return _finderCacheEnabled;
 	}
 
 	@Override
@@ -569,11 +590,15 @@ public class DLFileVersionPreviewModelImpl
 		return sb.toString();
 	}
 
-	private static final ClassLoader _classLoader =
-		DLFileVersionPreview.class.getClassLoader();
-	private static final Class<?>[] _escapedModelInterfaces = new Class[] {
-		DLFileVersionPreview.class, ModelWrapper.class
-	};
+	private static class EscapedModelProxyProviderFunctionHolder {
+
+		private static final Function<InvocationHandler, DLFileVersionPreview>
+			_escapedModelProxyProviderFunction = _getProxyProviderFunction();
+
+	}
+
+	private static boolean _entityCacheEnabled;
+	private static boolean _finderCacheEnabled;
 
 	private long _dlFileVersionPreviewId;
 	private long _groupId;

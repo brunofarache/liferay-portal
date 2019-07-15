@@ -51,12 +51,12 @@ public class PullRequest {
 	}
 
 	public PullRequest(String gitHubURL) {
-		this(gitHubURL, _TEST_SUITE_NAME_DEFAULT);
+		this(gitHubURL, _NAME_TEST_SUITE_DEFAULT);
 	}
 
 	public PullRequest(String gitHubURL, String testSuiteName) {
 		if ((testSuiteName == null) || testSuiteName.isEmpty()) {
-			testSuiteName = _TEST_SUITE_NAME_DEFAULT;
+			testSuiteName = _NAME_TEST_SUITE_DEFAULT;
 		}
 
 		_testSuiteName = testSuiteName;
@@ -435,7 +435,7 @@ public class PullRequest {
 
 		sb.append("ci:test");
 
-		if (!_testSuiteName.equals(_TEST_SUITE_NAME_DEFAULT)) {
+		if (!_testSuiteName.equals(_NAME_TEST_SUITE_DEFAULT)) {
 			sb.append(":");
 			sb.append(_testSuiteName);
 		}
@@ -467,13 +467,11 @@ public class PullRequest {
 		GitHubRemoteGitRepository.Label testSuiteLabel =
 			gitHubRemoteGitRepository.getLabel(sb.toString());
 
-		if (testSuiteLabel == null) {
-			if (gitHubRemoteGitRepository.addLabel(
-					testSuiteStatus.getColor(), "", sb.toString())) {
+		if ((testSuiteLabel == null) &&
+			gitHubRemoteGitRepository.addLabel(
+				testSuiteStatus.getColor(), "", sb.toString())) {
 
-				testSuiteLabel = gitHubRemoteGitRepository.getLabel(
-					sb.toString());
-			}
+			testSuiteLabel = gitHubRemoteGitRepository.getLabel(sb.toString());
 		}
 
 		addLabel(testSuiteLabel);
@@ -492,9 +490,9 @@ public class PullRequest {
 		GitHubRemoteGitCommit.Status status =
 			GitHubRemoteGitCommit.Status.valueOf(testSuiteStatus.toString());
 
-		String context = _TEST_SUITE_NAME_DEFAULT;
+		String context = _NAME_TEST_SUITE_DEFAULT;
 
-		if (!_testSuiteName.equals(_TEST_SUITE_NAME_DEFAULT)) {
+		if (!_testSuiteName.equals(_NAME_TEST_SUITE_DEFAULT)) {
 			context = "liferay/ci:test:" + _testSuiteName;
 		}
 
@@ -502,7 +500,7 @@ public class PullRequest {
 
 		sb.append("\"ci:test");
 
-		if (!_testSuiteName.equals(_TEST_SUITE_NAME_DEFAULT)) {
+		if (!_testSuiteName.equals(_NAME_TEST_SUITE_DEFAULT)) {
 			sb.append(":");
 			sb.append(_testSuiteName);
 		}
@@ -564,7 +562,7 @@ public class PullRequest {
 
 		public Date getCreatedDate() {
 			try {
-				return _ISO8601_UTC_DATE_FORMAT.parse(
+				return _UtcIso8601SimpleDateFormat.parse(
 					_commentJSONObject.getString("created_at"));
 			}
 			catch (ParseException pe) {
@@ -581,7 +579,7 @@ public class PullRequest {
 
 		public Date getModifiedDate() {
 			try {
-				return _ISO8601_UTC_DATE_FORMAT.parse(
+				return _UtcIso8601SimpleDateFormat.parse(
 					_commentJSONObject.getString("modified_at"));
 			}
 			catch (ParseException pe) {
@@ -592,7 +590,7 @@ public class PullRequest {
 			}
 		}
 
-		private static final SimpleDateFormat _ISO8601_UTC_DATE_FORMAT;
+		private static final SimpleDateFormat _UtcIso8601SimpleDateFormat;
 
 		static {
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
@@ -600,7 +598,7 @@ public class PullRequest {
 
 			simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-			_ISO8601_UTC_DATE_FORMAT = simpleDateFormat;
+			_UtcIso8601SimpleDateFormat = simpleDateFormat;
 		}
 
 		private final JSONObject _commentJSONObject;
@@ -648,7 +646,7 @@ public class PullRequest {
 		}
 	}
 
-	private static final String _TEST_SUITE_NAME_DEFAULT = "default";
+	private static final String _NAME_TEST_SUITE_DEFAULT = "default";
 
 	private static final Pattern _gitHubPullRequestURLPattern = Pattern.compile(
 		JenkinsResultsParserUtil.combine(

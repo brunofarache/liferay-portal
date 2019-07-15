@@ -54,7 +54,7 @@ public class MergeCentralGitSubrepositoryUtil {
 		List<String> failedGitrepoPaths = new ArrayList<>();
 		List<String> subrepoMergeBlacklist =
 			JenkinsResultsParserUtil.getBuildPropertyAsList(
-				"subrepo.merge.blacklist");
+				false, "subrepo.merge.blacklist");
 
 		List<File> gitrepoFiles = JenkinsResultsParserUtil.findFiles(
 			modulesDir, ".gitrepo");
@@ -68,12 +68,11 @@ public class MergeCentralGitSubrepositoryUtil {
 
 				Matcher matcher = _githubRemotePattern.matcher(remote);
 
-				if (matcher.find() && !subrepoMergeBlacklist.isEmpty()) {
-					if (subrepoMergeBlacklist.contains(
-							matcher.group("gitSubrepositoryName"))) {
+				if (matcher.find() && !subrepoMergeBlacklist.isEmpty() &&
+					subrepoMergeBlacklist.contains(
+						matcher.group("gitSubrepositoryName"))) {
 
-						continue;
-					}
+					continue;
 				}
 
 				CentralGitSubrepository centralGitSubrepository =
@@ -132,8 +131,6 @@ public class MergeCentralGitSubrepositoryUtil {
 				failedGitrepoPaths.add(gitrepoFile.getParent());
 
 				e.printStackTrace();
-
-				continue;
 			}
 		}
 

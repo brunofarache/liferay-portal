@@ -47,6 +47,22 @@ public class ConfigYAML {
 		return _testDir;
 	}
 
+	public boolean isForcePredictableContentApplicationXML() {
+		return _forcePredictableContentApplicationXML;
+	}
+
+	public boolean isForcePredictableOperationId() {
+		return _forcePredictableOperationId;
+	}
+
+	public boolean isForcePredictableSchemaPropertyName() {
+		return _forcePredictableSchemaPropertyName;
+	}
+
+	public boolean isWarningsEnabled() {
+		return _warningsEnabled;
+	}
+
 	public void setApiDir(String apiDir) {
 		_apiDir = apiDir;
 	}
@@ -67,6 +83,26 @@ public class ConfigYAML {
 		_clientDir = clientDir;
 	}
 
+	public void setForcePredictableContentApplicationXML(
+		boolean forcePredictableContentApplicationXML) {
+
+		_forcePredictableContentApplicationXML =
+			forcePredictableContentApplicationXML;
+	}
+
+	public void setForcePredictableOperationId(
+		boolean forcePredictableOperationId) {
+
+		_forcePredictableOperationId = forcePredictableOperationId;
+	}
+
+	public void setForcePredictableSchemaPropertyName(
+		boolean forcePredictableSchemaPropertyName) {
+
+		_forcePredictableSchemaPropertyName =
+			forcePredictableSchemaPropertyName;
+	}
+
 	public void setImplDir(String implDir) {
 		_implDir = implDir;
 	}
@@ -75,12 +111,20 @@ public class ConfigYAML {
 		_testDir = testDir;
 	}
 
+	public void setWarningsEnabled(boolean warningsEnabled) {
+		_warningsEnabled = warningsEnabled;
+	}
+
 	private String _apiDir;
 	private String _apiPackagePath;
 	private Application _application;
 	private String _author;
 	private String _clientDir;
+	private boolean _forcePredictableContentApplicationXML = true;
+	private boolean _forcePredictableOperationId = true;
+	private boolean _forcePredictableSchemaPropertyName = true;
 	private String _implDir = "src/main/java";
 	private String _testDir;
+	private boolean _warningsEnabled = true;
 
 }

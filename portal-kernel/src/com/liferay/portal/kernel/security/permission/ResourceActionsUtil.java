@@ -19,8 +19,6 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.model.Role;
 
-import java.io.InputStream;
-
 import java.util.List;
 import java.util.Locale;
 
@@ -46,8 +44,10 @@ public class ResourceActionsUtil {
 		getResourceActions().checkAction(name, actionId);
 	}
 
-	public static String getAction(HttpServletRequest request, String action) {
-		return getResourceActions().getAction(request, action);
+	public static String getAction(
+		HttpServletRequest httpServletRequest, String action) {
+
+		return getResourceActions().getAction(httpServletRequest, action);
 	}
 
 	public static String getAction(Locale locale, String action) {
@@ -56,26 +56,6 @@ public class ResourceActionsUtil {
 
 	public static String getActionNamePrefix() {
 		return getResourceActions().getActionNamePrefix();
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x)
-	 */
-	@Deprecated
-	public static List<String> getActionsNames(
-		HttpServletRequest request, List<String> actions) {
-
-		return getResourceActions().getActionsNames(request, actions);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x)
-	 */
-	@Deprecated
-	public static List<String> getActionsNames(
-		HttpServletRequest request, String name, long actionIds) {
-
-		return getResourceActions().getActionsNames(request, name, actionIds);
 	}
 
 	public static String getCompositeModelName(String... classNames) {
@@ -95,9 +75,9 @@ public class ResourceActionsUtil {
 	}
 
 	public static String getModelResource(
-		HttpServletRequest request, String name) {
+		HttpServletRequest httpServletRequest, String name) {
 
-		return getResourceActions().getModelResource(request, name);
+		return getResourceActions().getModelResource(httpServletRequest, name);
 	}
 
 	public static String getModelResource(Locale locale, String name) {
@@ -265,16 +245,6 @@ public class ResourceActionsUtil {
 		throws Exception {
 
 		getResourceActions().read(servletContextName, classLoader, sources);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x)
-	 */
-	@Deprecated
-	public static void read(String servletContextName, InputStream inputStream)
-		throws Exception {
-
-		getResourceActions().read(servletContextName, inputStream);
 	}
 
 	public static void readAndCheck(

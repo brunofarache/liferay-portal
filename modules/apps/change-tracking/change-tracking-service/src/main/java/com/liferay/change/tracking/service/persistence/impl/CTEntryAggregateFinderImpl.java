@@ -24,21 +24,24 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.SQLQuery;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.spring.extender.service.ServiceReference;
 
 import java.util.List;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Gergely Mathe
  */
+@Component(service = CTEntryAggregateFinder.class)
 public class CTEntryAggregateFinderImpl
 	extends CTEntryAggregateFinderBaseImpl implements CTEntryAggregateFinder {
 
-	public static final String FIND_BY_C_O =
-		CTEntryAggregateFinder.class.getName() + ".findByC_O";
+	public static final String FIND_BY_CTCI_OCTEI =
+		CTEntryAggregateFinder.class.getName() + ".findByCTCI_OCTEI";
 
 	@Override
-	public List<CTEntryAggregate> findByC_O(
+	public List<CTEntryAggregate> findByCTCI_OCTEI(
 		long ctCollectionId, long ownerCTEntryId,
 		QueryDefinition<CTEntryAggregate> queryDefinition) {
 
@@ -47,7 +50,7 @@ public class CTEntryAggregateFinderImpl
 		try {
 			session = openSession();
 
-			String sql = _customSQL.get(getClass(), FIND_BY_C_O);
+			String sql = _customSQL.get(getClass(), FIND_BY_CTCI_OCTEI);
 
 			sql = _customSQL.replaceOrderBy(
 				sql, queryDefinition.getOrderByComparator());
@@ -73,7 +76,7 @@ public class CTEntryAggregateFinderImpl
 		}
 	}
 
-	@ServiceReference(type = CustomSQL.class)
+	@Reference
 	private CustomSQL _customSQL;
 
 }

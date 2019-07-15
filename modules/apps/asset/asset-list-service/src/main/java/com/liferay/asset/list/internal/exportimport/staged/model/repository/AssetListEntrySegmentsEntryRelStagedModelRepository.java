@@ -16,7 +16,6 @@ package com.liferay.asset.list.internal.exportimport.staged.model.repository;
 
 import com.liferay.asset.list.model.AssetListEntrySegmentsEntryRel;
 import com.liferay.asset.list.service.AssetListEntrySegmentsEntryRelLocalService;
-import com.liferay.asset.util.StagingAssetEntryHelper;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelModifiedDateComparator;
 import com.liferay.exportimport.staged.model.repository.StagedModelRepository;
@@ -25,6 +24,7 @@ import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.segments.service.SegmentsEntryLocalService;
 
 import java.util.List;
 
@@ -150,6 +150,10 @@ public class AssetListEntrySegmentsEntryRelStagedModelRepository
 			AssetListEntrySegmentsEntryRel assetListEntrySegmentsEntryRel)
 		throws PortalException {
 
+		if (assetListEntrySegmentsEntryRel.getTypeSettings() == null) {
+			return assetListEntrySegmentsEntryRel;
+		}
+
 		return _assetListEntrySegmentsEntryRelLocalService.
 			updateAssetListEntrySegmentsEntryRelTypeSettings(
 				assetListEntrySegmentsEntryRel.getAssetListEntryId(),
@@ -162,9 +166,9 @@ public class AssetListEntrySegmentsEntryRelStagedModelRepository
 		_assetListEntrySegmentsEntryRelLocalService;
 
 	@Reference
-	private StagedModelRepositoryHelper _stagedModelRepositoryHelper;
+	private SegmentsEntryLocalService _segmentsEntryLocalService;
 
 	@Reference
-	private StagingAssetEntryHelper _stagingAssetEntryHelper;
+	private StagedModelRepositoryHelper _stagedModelRepositoryHelper;
 
 }

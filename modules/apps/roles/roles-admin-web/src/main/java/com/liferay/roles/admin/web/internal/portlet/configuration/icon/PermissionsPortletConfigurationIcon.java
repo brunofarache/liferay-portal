@@ -17,7 +17,7 @@ package com.liferay.roles.admin.web.internal.portlet.configuration.icon;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Role;
-import com.liferay.portal.kernel.model.RoleConstants;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.configuration.icon.BasePortletConfigurationIcon;
 import com.liferay.portal.kernel.portlet.configuration.icon.PortletConfigurationIcon;
@@ -140,10 +140,10 @@ public class PermissionsPortletConfigurationIcon
 	}
 
 	private long _getRoleId(PortletRequest portletRequest) {
-		HttpServletRequest request = _portal.getHttpServletRequest(
+		HttpServletRequest httpServletRequest = _portal.getHttpServletRequest(
 			portletRequest);
 
-		return ParamUtil.getLong(request, "roleId");
+		return ParamUtil.getLong(httpServletRequest, "roleId");
 	}
 
 	@Reference

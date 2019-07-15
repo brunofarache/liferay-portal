@@ -23,14 +23,7 @@ boolean hideActions = GetterUtil.getBoolean(request.getAttribute("info_panel_fil
 
 DLViewFileVersionDisplayContext dlViewFileVersionDisplayContext = dlDisplayContextProvider.getDLViewFileVersionDisplayContext(request, response, fileVersion);
 
-long assetClassPK = 0;
-
-if (!fileVersion.isApproved() && !fileVersion.getVersion().equals(DLFileEntryConstants.VERSION_DEFAULT) && !fileEntry.isInTrash()) {
-	assetClassPK = fileVersion.getFileVersionId();
-}
-else {
-	assetClassPK = fileEntry.getFileEntryId();
-}
+long assetClassPK = DLAssetHelperUtil.getAssetClassPK(fileEntry, fileVersion);
 %>
 
 <div class="sidebar-header">
@@ -42,7 +35,9 @@ else {
 		</ul>
 	</c:if>
 
-	<h4><%= HtmlUtil.escape(fileEntry.getTitle()) %></h4>
+	<h1 class="sidebar-title">
+		<%= HtmlUtil.escape(fileVersion.getTitle()) %>
+	</h1>
 
 	<c:if test="<%= dlViewFileVersionDisplayContext.isVersionInfoVisible() %>">
 		<clay:label
@@ -58,21 +53,20 @@ else {
 
 <div class="sidebar-body">
 
-<%
-String tabsNames = "details";
+	<%
+	String tabsNames = "details";
 
-if (dlViewFileVersionDisplayContext.isVersionInfoVisible()) {
-	tabsNames += ",versions";
-}
-%>
+	if (dlViewFileVersionDisplayContext.isVersionInfoVisible()) {
+		tabsNames += ",versions";
+	}
+	%>
 
-<liferay-ui:tabs
-	cssClass="navbar-no-collapse"
-	names="<%= tabsNames %>"
-	refresh="<%= false %>"
-	type="tabs nav-tabs-default"
->
-	<liferay-ui:section>
+	<liferay-ui:tabs
+		cssClass="navbar-no-collapse"
+		names="<%= tabsNames %>"
+		refresh="<%= false %>"
+	>
+		<liferay-ui:section>
 
 			<%
 			String thumbnailSrc = DLURLHelperUtil.getThumbnailSrc(fileEntry, fileVersion, themeDisplay);
@@ -92,16 +86,9 @@ if (dlViewFileVersionDisplayContext.isVersionInfoVisible()) {
 
 						<%
 						User owner = UserLocalServiceUtil.fetchUser(fileEntry.getUserId());
-
-						String ownerURL = StringPool.BLANK;
-
-						if ((owner != null) && !owner.isDefaultUser()) {
-							ownerURL = owner.getDisplayURL(themeDisplay);
-						}
 						%>
 
 						<liferay-ui:user-portrait
-							cssClass="sticker-lg"
 							user="<%= owner %>"
 						/>
 					</div>
@@ -110,7 +97,9 @@ if (dlViewFileVersionDisplayContext.isVersionInfoVisible()) {
 						<div class="autofit-row">
 							<div class="autofit-col autofit-col-expand">
 								<div class="component-title h4 username">
-									<a href="<%= ownerURL %>"><%= owner.getFullName() %></a>
+									<c:if test="<%= owner != null %>">
+										<a href="<%= owner.isDefaultUser() ? StringPool.BLANK : owner.getDisplayURL(themeDisplay) %>"><%= owner.getFullName() %></a>
+									</c:if>
 								</div>
 
 								<small class="text-muted">
@@ -126,12 +115,20 @@ if (dlViewFileVersionDisplayContext.isVersionInfoVisible()) {
 				<div class="sidebar-section">
 					<div class="btn-group sidebar-panel">
 						<div class="btn-group-item">
+
+							<%
+							Map<String, String> data = new HashMap<>(1);
+
+							data.put("analytics-file-entry-id", String.valueOf(fileEntry.getFileEntryId()));
+							%>
+
 							<clay:link
 								buttonStyle="primary"
+								data="<%= data %>"
 								elementClasses='<%= "btn-sm" %>'
-								href="<%= DLURLHelperUtil.getDownloadURL(fileEntry, fileVersion, themeDisplay, StringPool.BLANK) %>"
+								href="<%= DLURLHelperUtil.getDownloadURL(fileEntry, fileVersion, themeDisplay, StringPool.BLANK, false, true) %>"
 								label='<%= LanguageUtil.get(resourceBundle, "download") %>'
-								title='<%= LanguageUtil.get(resourceBundle, "download") + " (" + TextFormatter.formatStorageSize(fileVersion.getSize(), locale) + ")" %>'
+								title='<%= LanguageUtil.format(resourceBundle, "file-size-x", TextFormatter.formatStorageSize(fileVersion.getSize(), locale), false) %>'
 							/>
 						</div>
 
@@ -183,9 +180,32 @@ if (dlViewFileVersionDisplayContext.isVersionInfoVisible()) {
 						else {
 							urlLabel = LanguageUtil.format(request, "version-x-url", fileVersion.getVersion());
 						}
+
+						String urlInputId = liferayPortletResponse.getNamespace() + "urlInput";
+
+						Map<String, String> urlButtonData = new HashMap<>();
+
+						urlButtonData.put("clipboard-target", "#" + urlInputId);
 						%>
 
-						<aui:input label="<%= urlLabel %>" name="url" type="resource" value="<%= DLURLHelperUtil.getPreviewURL(fileEntry, fileVersion, themeDisplay, StringPool.BLANK, !isLatestVersion, true) %>" />
+						<div class="form-group">
+							<label for="<%= urlInputId %>"><%= urlLabel %></label>
+
+							<div class="input-group input-group-sm">
+								<div class="input-group-item input-group-prepend">
+									<input class="form-control" id="<%= urlInputId %>" value="<%= DLURLHelperUtil.getPreviewURL(fileEntry, fileVersion, themeDisplay, StringPool.BLANK, !isLatestVersion, true) %>" />
+								</div>
+
+								<span class="input-group-append input-group-item input-group-item-shrink">
+									<clay:button
+										data="<%= urlButtonData %>"
+										elementClasses="btn-secondary dm-infopanel-copy-clipboard"
+										icon="paste"
+										style="secondary"
+									/>
+								</span>
+							</div>
+						</div>
 
 						<c:if test="<%= portletDisplay.isWebDAVEnabled() && fileEntry.isSupportsSocial() && isLatestVersion %>">
 
@@ -198,9 +218,36 @@ if (dlViewFileVersionDisplayContext.isVersionInfoVisible()) {
 							else {
 								webDavHelpMessage = LanguageUtil.format(request, "webdav-help", "https://dev.liferay.com/discover/portal/-/knowledge_base/7-0/publishing-files#desktop-access-to-documents-and-media", false);
 							}
+
+							String webDavURLInputId = liferayPortletResponse.getNamespace() + "webDavURLInput";
+
+							Map<String, String> webDavButtonData = new HashMap<>();
+
+							webDavButtonData.put("clipboard-target", "#" + webDavURLInputId);
 							%>
 
-							<aui:input helpMessage="<%= webDavHelpMessage %>" name="webDavURL" type="resource" value="<%= DLURLHelperUtil.getWebDavURL(themeDisplay, fileEntry.getFolder(), fileEntry) %>" />
+							<div class="form-group">
+								<label for="<%= webDavURLInputId %>">
+									<liferay-ui:message key='<%= TextFormatter.format("webDavURL", TextFormatter.K) %>' />
+
+									<liferay-ui:icon-help message="<%= webDavHelpMessage %>" />
+								</label>
+
+								<div class="input-group input-group-sm">
+									<div class="input-group-item input-group-prepend">
+										<input class="form-control" id="<%= webDavURLInputId %>" value="<%= DLURLHelperUtil.getWebDavURL(themeDisplay, fileEntry.getFolder(), fileEntry) %>" />
+									</div>
+
+									<span class="input-group-append input-group-item input-group-item-shrink">
+										<clay:button
+											data="<%= webDavButtonData %>"
+											elementClasses="btn-secondary dm-infopanel-copy-clipboard"
+											icon="paste"
+											style="secondary"
+										/>
+									</span>
+								</div>
+							</div>
 						</c:if>
 					</div>
 				</div>
@@ -284,7 +331,7 @@ if (dlViewFileVersionDisplayContext.isVersionInfoVisible()) {
 						<liferay-ui:message key="description" />
 					</dt>
 					<dd class="sidebar-dd">
-						<%= HtmlUtil.replaceNewLine(HtmlUtil.escape(fileEntry.getDescription())) %>
+						<%= HtmlUtil.replaceNewLine(HtmlUtil.escape(fileVersion.getDescription())) %>
 					</dd>
 				</c:if>
 
@@ -357,6 +404,7 @@ if (dlViewFileVersionDisplayContext.isVersionInfoVisible()) {
 										classPK="<%= ddmStructure.getPrimaryKey() %>"
 										ddmFormValues="<%= ddmFormValues %>"
 										fieldsNamespace="<%= String.valueOf(ddmStructure.getPrimaryKey()) %>"
+										groupId="<%= fileVersion.getGroupId() %>"
 										readOnly="<%= true %>"
 										requestedLocale="<%= locale %>"
 										showEmptyFieldLabel="<%= false %>"
@@ -403,12 +451,10 @@ if (dlViewFileVersionDisplayContext.isVersionInfoVisible()) {
 					for (DDMStructure ddmStructure : ddmStructures) {
 						DDMFormValues ddmFormValues = null;
 
-						try {
-							DLFileEntryMetadata fileEntryMetadata = DLFileEntryMetadataLocalServiceUtil.getFileEntryMetadata(ddmStructure.getStructureId(), fileVersion.getFileVersionId());
+						DLFileEntryMetadata fileEntryMetadata = DLFileEntryMetadataLocalServiceUtil.fetchFileEntryMetadata(ddmStructure.getStructureId(), fileVersion.getFileVersionId());
 
+						if (fileEntryMetadata != null) {
 							ddmFormValues = dlViewFileVersionDisplayContext.getDDMFormValues(fileEntryMetadata.getDDMStorageId());
-						}
-						catch (Exception e) {
 						}
 
 						if (ddmFormValues != null) {
@@ -429,6 +475,7 @@ if (dlViewFileVersionDisplayContext.isVersionInfoVisible()) {
 									classPK="<%= ddmStructure.getPrimaryKey() %>"
 									ddmFormValues="<%= ddmFormValues %>"
 									fieldsNamespace="<%= String.valueOf(ddmStructure.getPrimaryKey()) %>"
+									groupId="<%= fileVersion.getGroupId() %>"
 									readOnly="<%= true %>"
 									requestedLocale="<%= ddmFormValues.getDefaultLocale() %>"
 									showEmptyFieldLabel="<%= false %>"
@@ -444,17 +491,21 @@ if (dlViewFileVersionDisplayContext.isVersionInfoVisible()) {
 				%>
 
 			</liferay-ui:panel-container>
-	</liferay-ui:section>
+		</liferay-ui:section>
 
-	<c:if test="<%= dlViewFileVersionDisplayContext.isVersionInfoVisible() %>">
-		<liferay-ui:section>
+		<c:if test="<%= dlViewFileVersionDisplayContext.isVersionInfoVisible() %>">
+			<liferay-ui:section>
 
 				<%
 				request.setAttribute("info_panel.jsp-fileEntry", fileEntry);
 				%>
 
 				<liferay-util:include page="/document_library/file_entry_history.jsp" servletContext="<%= application %>" />
-		</liferay-ui:section>
-	</c:if>
-	</div>
-</liferay-ui:tabs>
+			</liferay-ui:section>
+		</c:if>
+	</liferay-ui:tabs>
+</div>
+
+<liferay-frontend:component
+	module="document_library/js/InfoPanel.es"
+/>

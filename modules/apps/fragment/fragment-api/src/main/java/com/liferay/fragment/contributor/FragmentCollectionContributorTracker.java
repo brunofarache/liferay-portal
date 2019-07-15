@@ -19,14 +19,23 @@ import com.liferay.fragment.model.FragmentEntry;
 import java.util.List;
 import java.util.Map;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * @author Jürgen Kappler
  */
+@ProviderType
 public interface FragmentCollectionContributorTracker {
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by #getFragmentEntries
+	 */
+	@Deprecated
 	public Map<String, FragmentEntry> getFragmentCollectionContributorEntries();
 
 	public List<FragmentCollectionContributor>
 		getFragmentCollectionContributors();
+
+	public Map<String, FragmentEntry> getFragmentEntries();
 
 }

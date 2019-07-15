@@ -20,11 +20,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
+import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
 
-import graphql.annotations.annotationTypes.GraphQLField;
-import graphql.annotations.annotationTypes.GraphQLName;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import javax.annotation.Generated;
 
@@ -40,30 +48,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "DataDefinition")
 public class DataDefinition {
 
-	public Long getContentSpaceId() {
-		return contentSpaceId;
-	}
-
-	public void setContentSpaceId(Long contentSpaceId) {
-		this.contentSpaceId = contentSpaceId;
-	}
-
-	@JsonIgnore
-	public void setContentSpaceId(
-		UnsafeSupplier<Long, Exception> contentSpaceIdUnsafeSupplier) {
-
-		try {
-			contentSpaceId = contentSpaceIdUnsafeSupplier.get();
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Long contentSpaceId;
-
+	@Schema
 	public DataDefinitionField[] getDataDefinitionFields() {
 		return dataDefinitionFields;
 	}
@@ -82,6 +67,9 @@ public class DataDefinition {
 		try {
 			dataDefinitionFields = dataDefinitionFieldsUnsafeSupplier.get();
 		}
+		catch (RuntimeException re) {
+			throw re;
+		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -91,6 +79,35 @@ public class DataDefinition {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected DataDefinitionField[] dataDefinitionFields;
 
+	@Schema
+	public String getDataDefinitionKey() {
+		return dataDefinitionKey;
+	}
+
+	public void setDataDefinitionKey(String dataDefinitionKey) {
+		this.dataDefinitionKey = dataDefinitionKey;
+	}
+
+	@JsonIgnore
+	public void setDataDefinitionKey(
+		UnsafeSupplier<String, Exception> dataDefinitionKeyUnsafeSupplier) {
+
+		try {
+			dataDefinitionKey = dataDefinitionKeyUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String dataDefinitionKey;
+
+	@Schema
 	public DataDefinitionRule[] getDataDefinitionRules() {
 		return dataDefinitionRules;
 	}
@@ -109,6 +126,9 @@ public class DataDefinition {
 		try {
 			dataDefinitionRules = dataDefinitionRulesUnsafeSupplier.get();
 		}
+		catch (RuntimeException re) {
+			throw re;
+		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -118,6 +138,7 @@ public class DataDefinition {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected DataDefinitionRule[] dataDefinitionRules;
 
+	@Schema
 	public Date getDateCreated() {
 		return dateCreated;
 	}
@@ -133,6 +154,9 @@ public class DataDefinition {
 		try {
 			dateCreated = dateCreatedUnsafeSupplier.get();
 		}
+		catch (RuntimeException re) {
+			throw re;
+		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -142,6 +166,7 @@ public class DataDefinition {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Date dateCreated;
 
+	@Schema
 	public Date getDateModified() {
 		return dateModified;
 	}
@@ -157,6 +182,9 @@ public class DataDefinition {
 		try {
 			dateModified = dateModifiedUnsafeSupplier.get();
 		}
+		catch (RuntimeException re) {
+			throw re;
+		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -166,20 +194,25 @@ public class DataDefinition {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Date dateModified;
 
-	public LocalizedValue[] getDescription() {
+	@Schema
+	public Map<String, Object> getDescription() {
 		return description;
 	}
 
-	public void setDescription(LocalizedValue[] description) {
+	public void setDescription(Map<String, Object> description) {
 		this.description = description;
 	}
 
 	@JsonIgnore
 	public void setDescription(
-		UnsafeSupplier<LocalizedValue[], Exception> descriptionUnsafeSupplier) {
+		UnsafeSupplier<Map<String, Object>, Exception>
+			descriptionUnsafeSupplier) {
 
 		try {
 			description = descriptionUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -188,8 +221,9 @@ public class DataDefinition {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected LocalizedValue[] description;
+	protected Map<String, Object> description;
 
+	@Schema
 	public Long getId() {
 		return id;
 	}
@@ -203,6 +237,9 @@ public class DataDefinition {
 		try {
 			id = idUnsafeSupplier.get();
 		}
+		catch (RuntimeException re) {
+			throw re;
+		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -212,20 +249,24 @@ public class DataDefinition {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Long id;
 
-	public LocalizedValue[] getName() {
+	@Schema
+	public Map<String, Object> getName() {
 		return name;
 	}
 
-	public void setName(LocalizedValue[] name) {
+	public void setName(Map<String, Object> name) {
 		this.name = name;
 	}
 
 	@JsonIgnore
 	public void setName(
-		UnsafeSupplier<LocalizedValue[], Exception> nameUnsafeSupplier) {
+		UnsafeSupplier<Map<String, Object>, Exception> nameUnsafeSupplier) {
 
 		try {
 			name = nameUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -234,8 +275,37 @@ public class DataDefinition {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected LocalizedValue[] name;
+	protected Map<String, Object> name;
 
+	@Schema
+	public Long getSiteId() {
+		return siteId;
+	}
+
+	public void setSiteId(Long siteId) {
+		this.siteId = siteId;
+	}
+
+	@JsonIgnore
+	public void setSiteId(
+		UnsafeSupplier<Long, Exception> siteIdUnsafeSupplier) {
+
+		try {
+			siteId = siteIdUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Long siteId;
+
+	@Schema
 	public String getStorageType() {
 		return storageType;
 	}
@@ -251,6 +321,9 @@ public class DataDefinition {
 		try {
 			storageType = storageTypeUnsafeSupplier.get();
 		}
+		catch (RuntimeException re) {
+			throw re;
+		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -260,6 +333,7 @@ public class DataDefinition {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String storageType;
 
+	@Schema
 	public Long getUserId() {
 		return userId;
 	}
@@ -275,6 +349,9 @@ public class DataDefinition {
 		try {
 			userId = userIdUnsafeSupplier.get();
 		}
+		catch (RuntimeException re) {
+			throw re;
+		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -284,26 +361,47 @@ public class DataDefinition {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Long userId;
 
+	@Override
+	public boolean equals(Object object) {
+		if (this == object) {
+			return true;
+		}
+
+		if (!(object instanceof DataDefinition)) {
+			return false;
+		}
+
+		DataDefinition dataDefinition = (DataDefinition)object;
+
+		return Objects.equals(toString(), dataDefinition.toString());
+	}
+
+	@Override
+	public int hashCode() {
+		String string = toString();
+
+		return string.hashCode();
+	}
+
 	public String toString() {
 		StringBundler sb = new StringBundler();
 
 		sb.append("{");
 
-		sb.append("\"contentSpaceId\": ");
+		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
+			"yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-		sb.append(contentSpaceId);
-		sb.append(", ");
+		if (dataDefinitionFields != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
 
-		sb.append("\"dataDefinitionFields\": ");
+			sb.append("\"dataDefinitionFields\": ");
 
-		if (dataDefinitionFields == null) {
-			sb.append("null");
-		}
-		else {
 			sb.append("[");
 
 			for (int i = 0; i < dataDefinitionFields.length; i++) {
-				sb.append(dataDefinitionFields[i]);
+				sb.append(String.valueOf(dataDefinitionFields[i]));
 
 				if ((i + 1) < dataDefinitionFields.length) {
 					sb.append(", ");
@@ -313,18 +411,31 @@ public class DataDefinition {
 			sb.append("]");
 		}
 
-		sb.append(", ");
+		if (dataDefinitionKey != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
 
-		sb.append("\"dataDefinitionRules\": ");
+			sb.append("\"dataDefinitionKey\": ");
 
-		if (dataDefinitionRules == null) {
-			sb.append("null");
+			sb.append("\"");
+
+			sb.append(_escape(dataDefinitionKey));
+
+			sb.append("\"");
 		}
-		else {
+
+		if (dataDefinitionRules != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"dataDefinitionRules\": ");
+
 			sb.append("[");
 
 			for (int i = 0; i < dataDefinitionRules.length; i++) {
-				sb.append(dataDefinitionRules[i]);
+				sb.append(String.valueOf(dataDefinitionRules[i]));
 
 				if ((i + 1) < dataDefinitionRules.length) {
 					sb.append(", ");
@@ -334,79 +445,132 @@ public class DataDefinition {
 			sb.append("]");
 		}
 
-		sb.append(", ");
-
-		sb.append("\"dateCreated\": ");
-
-		sb.append("\"");
-		sb.append(dateCreated);
-		sb.append("\"");
-		sb.append(", ");
-
-		sb.append("\"dateModified\": ");
-
-		sb.append("\"");
-		sb.append(dateModified);
-		sb.append("\"");
-		sb.append(", ");
-
-		sb.append("\"description\": ");
-
-		if (description == null) {
-			sb.append("null");
-		}
-		else {
-			sb.append("[");
-
-			for (int i = 0; i < description.length; i++) {
-				sb.append(description[i]);
-
-				if ((i + 1) < description.length) {
-					sb.append(", ");
-				}
+		if (dateCreated != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
 			}
 
-			sb.append("]");
+			sb.append("\"dateCreated\": ");
+
+			sb.append("\"");
+
+			sb.append(liferayToJSONDateFormat.format(dateCreated));
+
+			sb.append("\"");
 		}
 
-		sb.append(", ");
-
-		sb.append("\"id\": ");
-
-		sb.append(id);
-		sb.append(", ");
-
-		sb.append("\"name\": ");
-
-		if (name == null) {
-			sb.append("null");
-		}
-		else {
-			sb.append("[");
-
-			for (int i = 0; i < name.length; i++) {
-				sb.append(name[i]);
-
-				if ((i + 1) < name.length) {
-					sb.append(", ");
-				}
+		if (dateModified != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
 			}
 
-			sb.append("]");
+			sb.append("\"dateModified\": ");
+
+			sb.append("\"");
+
+			sb.append(liferayToJSONDateFormat.format(dateModified));
+
+			sb.append("\"");
 		}
 
-		sb.append(", ");
+		if (description != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
 
-		sb.append("\"storageType\": ");
+			sb.append("\"description\": ");
 
-		sb.append("\"");
-		sb.append(storageType);
-		sb.append("\"");
-		sb.append(", ");
+			sb.append(_toJSON(description));
+		}
 
-		sb.append("\"userId\": ");
+		if (id != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
 
-		sb.append(userId);
+			sb.append("\"id\": ");
+
+			sb.append(id);
+		}
+
+		if (name != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"name\": ");
+
+			sb.append(_toJSON(name));
+		}
+
+		if (siteId != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"siteId\": ");
+
+			sb.append(siteId);
+		}
+
+		if (storageType != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"storageType\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(storageType));
+
+			sb.append("\"");
+		}
+
+		if (userId != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"userId\": ");
+
+			sb.append(userId);
+		}
+
+		sb.append("}");
+
+		return sb.toString();
+	}
+
+	private static String _escape(Object object) {
+		String string = String.valueOf(object);
+
+		return string.replaceAll("\"", "\\\\\"");
+	}
+
+	private static String _toJSON(Map<String, ?> map) {
+		StringBuilder sb = new StringBuilder("{");
+
+		@SuppressWarnings("unchecked")
+		Set set = map.entrySet();
+
+		@SuppressWarnings("unchecked")
+		Iterator<Map.Entry<String, ?>> iterator = set.iterator();
+
+		while (iterator.hasNext()) {
+			Map.Entry<String, ?> entry = iterator.next();
+
+			sb.append("\"");
+			sb.append(entry.getKey());
+			sb.append("\":");
+			sb.append("\"");
+			sb.append(entry.getValue());
+			sb.append("\"");
+
+			if (iterator.hasNext()) {
+				sb.append(",");
+			}
+		}
 
 		sb.append("}");
 

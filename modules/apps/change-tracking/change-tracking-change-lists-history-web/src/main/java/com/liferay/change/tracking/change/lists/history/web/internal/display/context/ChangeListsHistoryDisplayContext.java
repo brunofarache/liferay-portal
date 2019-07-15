@@ -14,6 +14,7 @@
 
 package com.liferay.change.tracking.change.lists.history.web.internal.display.context;
 
+import com.liferay.change.tracking.constants.CTConstants;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -43,7 +44,6 @@ public class ChangeListsHistoryDisplayContext {
 		RenderResponse renderResponse) {
 
 		_httpServletRequest = httpServletRequest;
-		_renderRequest = renderRequest;
 		_renderResponse = renderResponse;
 
 		_themeDisplay = (ThemeDisplay)_httpServletRequest.getAttribute(
@@ -53,21 +53,40 @@ public class ChangeListsHistoryDisplayContext {
 	public SoyContext getChangeListsHistoryContext() {
 		SoyContext soyContext = SoyContextFactoryUtil.createSoyContext();
 
-		soyContext.put("baseURL", String.valueOf(_getPortletURL()));
-		soyContext.put("filterStatus", _getFilterByStatus());
-		soyContext.put("filterUser", _getFilterByUser());
-		soyContext.put("orderByCol", _getOrderByCol());
-		soyContext.put("orderByType", getOrderByType());
 		soyContext.put(
+			"baseURL", String.valueOf(_getPortletURL())
+		).put(
+			"filterStatus", _getFilterByStatus()
+		).put(
+			"filterUser", _getFilterByUser()
+		).put(
+			"keywords", _getKeywords()
+		).put(
+			"orderByCol", _getOrderByCol()
+		).put(
+			"orderByType", getOrderByType()
+		).put(
 			"spritemap",
-			_themeDisplay.getPathThemeImages() + "/lexicon/icons.svg");
-		soyContext.put(
+			_themeDisplay.getPathThemeImages() + "/lexicon/icons.svg"
+		).put(
 			"urlProcesses",
 			_themeDisplay.getPortalURL() +
 				"/o/change-tracking/processes?companyId=" +
-					_themeDisplay.getCompanyId());
+					_themeDisplay.getCompanyId()
+		).put(
+			"urlProcessUsers",
+			_themeDisplay.getPortalURL() +
+				"/o/change-tracking/processes/users?companyId=" +
+					_themeDisplay.getCompanyId()
+		);
 
 		return soyContext;
+	}
+
+	public String getClearResultsActionURL() {
+		PortletURL portletURL = _getPortletURL();
+
+		return portletURL.toString();
 	}
 
 	public List<DropdownItem> getFilterDropdownItems() {
@@ -112,7 +131,7 @@ public class ChangeListsHistoryDisplayContext {
 	}
 
 	public String getSortingURL() {
-		PortletURL sortingURL = _getPortletURL();
+		PortletURL sortingURL = _getKeywordsURL();
 
 		sortingURL.setParameter(
 			"orderByType",
@@ -122,7 +141,7 @@ public class ChangeListsHistoryDisplayContext {
 	}
 
 	public String getViewSearchActionURL() {
-		PortletURL portletURL = _renderResponse.createRenderURL();
+		PortletURL portletURL = _getKeywordsURL();
 
 		return portletURL.toString();
 	}
@@ -149,12 +168,13 @@ public class ChangeListsHistoryDisplayContext {
 		return _filterByStatus;
 	}
 
-	private String _getFilterByUser() {
+	private long _getFilterByUser() {
 		if (_filterByUser != null) {
 			return _filterByUser;
 		}
 
-		_filterByUser = ParamUtil.getString(_httpServletRequest, "user", "all");
+		_filterByUser = ParamUtil.getLong(
+			_httpServletRequest, "user", CTConstants.USER_FILTER_ALL);
 
 		return _filterByUser;
 	}
@@ -166,7 +186,8 @@ public class ChangeListsHistoryDisplayContext {
 					dropdownItem -> {
 						dropdownItem.setActive(
 							Objects.equals(_getFilterByStatus(), "all"));
-						dropdownItem.setHref(_getPortletURL(), "status", "all");
+						dropdownItem.setHref(
+							_getKeywordsURL(), "status", "all");
 						dropdownItem.setLabel(
 							LanguageUtil.get(_httpServletRequest, "all"));
 					});
@@ -175,7 +196,7 @@ public class ChangeListsHistoryDisplayContext {
 						dropdownItem.setActive(
 							Objects.equals(_getFilterByStatus(), "published"));
 						dropdownItem.setHref(
-							_getPortletURL(), "status", "published");
+							_getKeywordsURL(), "status", "published");
 						dropdownItem.setLabel(
 							LanguageUtil.get(_httpServletRequest, "published"));
 					});
@@ -184,7 +205,7 @@ public class ChangeListsHistoryDisplayContext {
 						dropdownItem.setActive(
 							Objects.equals(_getFilterByStatus(), "failed"));
 						dropdownItem.setHref(
-							_getPortletURL(), "status", "failed");
+							_getKeywordsURL(), "status", "failed");
 						dropdownItem.setLabel(
 							LanguageUtil.get(_httpServletRequest, "failed"));
 					});
@@ -194,7 +215,7 @@ public class ChangeListsHistoryDisplayContext {
 							Objects.equals(
 								_getFilterByStatus(), "in-progress"));
 						dropdownItem.setHref(
-							_getPortletURL(), "status", "in-progress");
+							_getKeywordsURL(), "status", "in-progress");
 						dropdownItem.setLabel(
 							LanguageUtil.get(
 								_httpServletRequest, "in-progress"));
@@ -204,7 +225,7 @@ public class ChangeListsHistoryDisplayContext {
 						dropdownItem.setActive(
 							Objects.equals(_getFilterByStatus(), "scheduled"));
 						dropdownItem.setHref(
-							_getPortletURL(), "status", "scheduled");
+							_getKeywordsURL(), "status", "scheduled");
 						dropdownItem.setLabel(
 							LanguageUtil.get(_httpServletRequest, "scheduled"));
 					});
@@ -218,13 +239,37 @@ public class ChangeListsHistoryDisplayContext {
 				add(
 					dropdownItem -> {
 						dropdownItem.setActive(
-							Objects.equals(_getFilterByUser(), "all"));
-						dropdownItem.setHref(_getPortletURL(), "user", "all");
+							_getFilterByUser() == CTConstants.USER_FILTER_ALL);
+						dropdownItem.setHref(
+							_getKeywordsURL(), "user",
+							CTConstants.USER_FILTER_ALL);
 						dropdownItem.setLabel(
 							LanguageUtil.get(_httpServletRequest, "all"));
 					});
 			}
 		};
+	}
+
+	private String _getKeywords() {
+		if (_keywords != null) {
+			return _keywords;
+		}
+
+		_keywords = ParamUtil.getString(_httpServletRequest, "keywords", null);
+
+		return _keywords;
+	}
+
+	private PortletURL _getKeywordsURL() {
+		PortletURL portletURL = _getPortletURL();
+
+		String keywords = _getKeywords();
+
+		if (Validator.isNotNull(keywords)) {
+			portletURL.setParameter("keywords", keywords);
+		}
+
+		return portletURL;
 	}
 
 	private String _getOrderByCol() {
@@ -246,7 +291,7 @@ public class ChangeListsHistoryDisplayContext {
 						dropdownItem.setActive(
 							Objects.equals(_getOrderByCol(), "publishDate"));
 						dropdownItem.setHref(
-							_getPortletURL(), "orderByCol", "publishDate");
+							_getKeywordsURL(), "orderByCol", "publishDate");
 						dropdownItem.setLabel(
 							LanguageUtil.get(
 								_httpServletRequest, "publish-date"));
@@ -256,7 +301,7 @@ public class ChangeListsHistoryDisplayContext {
 						dropdownItem.setActive(
 							Objects.equals(_getOrderByCol(), "name"));
 						dropdownItem.setHref(
-							_getPortletURL(), "orderByCol", "name");
+							_getKeywordsURL(), "orderByCol", "name");
 						dropdownItem.setLabel(
 							LanguageUtil.get(_httpServletRequest, "name"));
 					});
@@ -291,11 +336,11 @@ public class ChangeListsHistoryDisplayContext {
 
 	private String _displayStyle;
 	private String _filterByStatus;
-	private String _filterByUser;
+	private Long _filterByUser;
 	private final HttpServletRequest _httpServletRequest;
+	private String _keywords;
 	private String _orderByCol;
 	private String _orderByType;
-	private final RenderRequest _renderRequest;
 	private final RenderResponse _renderResponse;
 	private final ThemeDisplay _themeDisplay;
 

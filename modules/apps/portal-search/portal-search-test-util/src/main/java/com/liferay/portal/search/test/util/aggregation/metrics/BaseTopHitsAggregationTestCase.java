@@ -99,16 +99,16 @@ public abstract class BaseTopHitsAggregationTestCase
 					String userName = bucket.getKey();
 
 					if (Objects.equals(userName, "Jonh")) {
-						assertBucket(bucket, 3, "3");
+						assertBucket(bucket, 3, 3);
 					}
 					else if (Objects.equals(userName, "Bob")) {
-						assertBucket(bucket, 2, "5");
+						assertBucket(bucket, 2, 5);
 					}
 				}
 			});
 	}
 
-	protected void assertBucket(Bucket bucket, long count, String priority) {
+	protected void assertBucket(Bucket bucket, long count, Integer priority) {
 		Assert.assertEquals(count, bucket.getDocCount());
 
 		Map<String, AggregationResult> childrenAggregationResults =
@@ -119,19 +119,20 @@ public abstract class BaseTopHitsAggregationTestCase
 
 		SearchHits searchHits = topHitsAggregationResult.getSearchHits();
 
-		List<SearchHit> searchHitList = searchHits.getSearchHits();
+		List<SearchHit> searchHitsList = searchHits.getSearchHits();
 
-		SearchHit searchHit = searchHitList.get(0);
+		SearchHit searchHit = searchHitsList.get(0);
 
 		Document document = searchHit.getDocument();
 
 		if (MapUtil.isNotEmpty(document.getFields())) {
-			Assert.assertEquals(priority, document.getField(Field.PRIORITY));
+			Assert.assertEquals(priority, document.getInteger(Field.PRIORITY));
 		}
 		else {
 			Map<String, Object> sourceMap = searchHit.getSourcesMap();
 
-			Assert.assertEquals(priority, sourceMap.get(Field.PRIORITY));
+			Assert.assertEquals(
+				priority.toString(), sourceMap.get(Field.PRIORITY));
 		}
 	}
 

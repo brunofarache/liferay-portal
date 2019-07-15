@@ -250,10 +250,6 @@ public class DisplayPortlet extends BaseKBPortlet {
 		throws IOException, PortletException {
 
 		try {
-			renderRequest.setAttribute(
-				KBWebKeys.DL_MIME_TYPE_DISPLAY_CONTEXT,
-				dlMimeTypeDisplayContext);
-
 			KBArticleSelection kbArticleSelection = getKBArticle(renderRequest);
 
 			renderRequest.setAttribute(
@@ -287,10 +283,10 @@ public class DisplayPortlet extends BaseKBPortlet {
 				 mvcPath.equals("/display/view_article.jsp")) &&
 				!kbArticleSelection.isExactMatch()) {
 
-				HttpServletResponse response = _portal.getHttpServletResponse(
-					renderResponse);
+				HttpServletResponse httpServletResponse =
+					_portal.getHttpServletResponse(renderResponse);
 
-				response.setStatus(404);
+				httpServletResponse.setStatus(404);
 			}
 		}
 		catch (Exception e) {

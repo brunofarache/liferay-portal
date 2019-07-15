@@ -21,6 +21,8 @@ String redirect = ParamUtil.getString(request, "redirect");
 
 FileEntry fileEntry = (FileEntry)request.getAttribute(WebKeys.DOCUMENT_LIBRARY_FILE_ENTRY);
 
+long groupId = BeanParamUtil.getLong(fileEntry, request, "groupId");
+
 long repositoryId = BeanParamUtil.getLong(fileEntry, request, "repositoryId");
 
 if (repositoryId <= 0) {
@@ -180,6 +182,10 @@ else {
 								}
 								catch (Exception e) {
 								}
+
+								if (groupId <= 0) {
+									groupId = ddmStructure.getGroupId();
+								}
 					%>
 
 								<aui:input name="ddmFormFieldNamespace" type="hidden" value="<%= String.valueOf(ddmStructure.getPrimaryKey()) %>" />
@@ -190,6 +196,7 @@ else {
 										classPK="<%= ddmStructure.getPrimaryKey() %>"
 										ddmFormValues="<%= ddmFormValues %>"
 										fieldsNamespace="<%= String.valueOf(ddmStructure.getPrimaryKey()) %>"
+										groupId="<%= groupId %>"
 										localizable="<%= false %>"
 										requestedLocale="<%= locale %>"
 										synchronousFormSubmission="<%= false %>"
@@ -204,7 +211,7 @@ else {
 					}
 					%>
 
-					<aui:script require="metal-dom/src/all/dom as dom">
+					<aui:script position="inline" require="metal-dom/src/all/dom as dom">
 						var documentTypeMenuList = document.querySelector('#<portlet:namespace/>documentTypeSelector .lfr-menu-list');
 
 						if (documentTypeMenuList) {
@@ -295,7 +302,7 @@ else {
 			id="dlFileEntryDisplayPagePanel"
 			markupView="lexicon"
 			persistState="<%= true %>"
-			title="display-page"
+			title="display-page-template"
 		>
 			<aui:fieldset>
 				<liferay-asset:select-asset-display-page

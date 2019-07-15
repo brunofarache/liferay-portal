@@ -38,6 +38,12 @@ public interface PropsKeys {
 
 	public static final String ADMIN_EMAIL_FROM_NAME = "admin.email.from.name";
 
+	public static final String ADMIN_EMAIL_PASSWORD_CHANGED_BODY =
+		"admin.email.password.changed.body";
+
+	public static final String ADMIN_EMAIL_PASSWORD_CHANGED_SUBJECT =
+		"admin.email.password.changed.subject";
+
 	public static final String ADMIN_EMAIL_PASSWORD_RESET_BODY =
 		"admin.email.password.reset.body";
 
@@ -58,6 +64,9 @@ public interface PropsKeys {
 
 	public static final String ADMIN_EMAIL_USER_ADDED_NO_PASSWORD_BODY =
 		"admin.email.user.added.no.password.body";
+
+	public static final String ADMIN_EMAIL_USER_ADDED_RESET_PASSWORD_BODY =
+		"admin.email.user.added.reset.password.body";
 
 	public static final String ADMIN_EMAIL_USER_ADDED_SUBJECT =
 		"admin.email.user.added.subject";
@@ -129,12 +138,6 @@ public interface PropsKeys {
 
 	public static final String ASSET_CATEGORIES_SELECTOR_MAX_ENTRIES =
 		"asset.categories.selector.max.entries";
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), with no direct replacement
-	 */
-	@Deprecated
-	public static final String ASSET_ENTRY_VALIDATOR = "asset.entry.validator";
 
 	public static final String ASSET_FILTER_SEARCH_LIMIT =
 		"asset.filter.search.limit";
@@ -331,9 +334,17 @@ public interface PropsKeys {
 		BLOGS_ENTRY_PREVIOUS_AND_NEXT_NAVIGATION_ENABLED =
 			"blogs.entry.previous.and.next.navigation.enabled";
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String BLOGS_IMAGE_EXTENSIONS =
 		"blogs.image.extensions";
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String BLOGS_IMAGE_MAX_SIZE = "blogs.image.max.size";
 
 	public static final String BLOGS_LINKBACK_EXCERPT_LENGTH =
@@ -383,6 +394,10 @@ public interface PropsKeys {
 	public static final String BUFFERED_INCREMENT_THREADPOOL_MAX_SIZE =
 		"buffered.increment.threadpool.max.size";
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String CACHE_CLEAR_ON_CONTEXT_INITIALIZATION =
 		"cache.clear.on.context.initialization";
 
@@ -876,11 +891,23 @@ public interface PropsKeys {
 	public static final String DISCUSSION_COMMENTS_FORMAT =
 		"discussion.comments.format";
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String DISCUSSION_EMAIL_BODY = "discussion.email.body";
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String DISCUSSION_EMAIL_COMMENTS_ADDED_ENABLED =
 		"discussion.email.comments.added.enabled";
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String DISCUSSION_EMAIL_SUBJECT =
 		"discussion.email.subject";
 
@@ -1180,10 +1207,20 @@ public interface PropsKeys {
 
 	public static final String DL_SUBFOLDERS_VISIBLE = "dl.subfolders.visible";
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String DL_TABS_VISIBLE = "dl.tabs.visible";
 
 	public static final String DL_WEBDAV_SUBSTITUTION_CHAR =
 		"dl.webdav.substitution.char";
+
+	public static final String DNS_SECURITY_ADDRESS_TIMEOUT_SECONDS =
+		"dns.security.address.timeout.seconds";
+
+	public static final String DNS_SECURITY_THREAD_LIMIT =
+		"dns.security.thread.limit";
 
 	public static final String DYNAMIC_RESOURCE_SERVLET_ALLOWED_PATHS =
 		"dynamic.resource.servlet.allowed.paths";
@@ -1839,6 +1876,10 @@ public interface PropsKeys {
 	public static final String LIFERAY_WEB_PORTAL_DIR =
 		"liferay.web.portal.dir";
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String LIVE_USERS_ENABLED = "live.users.enabled";
 
 	public static final String LOCALE_DEFAULT_REQUEST =
@@ -2169,6 +2210,9 @@ public interface PropsKeys {
 	public static final String MODULE_FRAMEWORK_DYNAMIC_INSTALL_START_LEVEL =
 		"module.framework.dynamic.install.start.level";
 
+	public static final String MODULE_FRAMEWORK_EXPORT_PASSWORD_ATTRIBUTES =
+		"module.framework.export.password.attributes";
+
 	/**
 	 * @deprecated As of Judson (7.1.x), with no direct replacement
 	 */
@@ -2240,6 +2284,10 @@ public interface PropsKeys {
 	public static final String
 		MODULE_FRAMEWORK_WEB_GENERATOR_JSP_COMPILER_DEPENDENCIES =
 			"module.framework.web.generator.jsp.compiler.dependencies";
+
+	public static final String
+		MODULE_FRAMEWORK_WEB_SERVLET_ANNOTATION_SCANNING_BLACKLIST =
+			"module.framework.web.servlet.annotation.scanning.blacklist";
 
 	public static final String MULTI_VALUE_MAP = "multi.value.map.";
 
@@ -3084,15 +3132,31 @@ public interface PropsKeys {
 	public static final String SESSION_TIMEOUT_WARNING =
 		"session.timeout.warning";
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String SESSION_TRACKER_FRIENDLY_PATHS_ENABLED =
 		"session.tracker.friendly.paths.enabled";
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String SESSION_TRACKER_IGNORE_PATHS =
 		"session.tracker.ignore.paths";
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String SESSION_TRACKER_MEMORY_ENABLED =
 		"session.tracker.memory.enabled";
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String SESSION_TRACKER_PERSISTENCE_ENABLED =
 		"session.tracker.persistence.enabled";
 
@@ -3303,6 +3367,8 @@ public interface PropsKeys {
 	@Deprecated
 	public static final String SPRING_PORTLET_CONFIGS =
 		"spring.portlet.configs";
+
+	public static final String SPRITE_ENABLED = "sprite.enabled";
 
 	public static final String SPRITE_FILE_NAME = "sprite.file.name";
 

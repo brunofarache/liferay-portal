@@ -41,9 +41,10 @@ public class AppManagerSearchResultsManagementToolbarDisplayContext
 	public AppManagerSearchResultsManagementToolbarDisplayContext(
 		LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse,
-		HttpServletRequest request) {
+		HttpServletRequest httpServletRequest) {
 
-		super(liferayPortletRequest, liferayPortletResponse, request);
+		super(
+			liferayPortletRequest, liferayPortletResponse, httpServletRequest);
 	}
 
 	public String getKeywords() {
@@ -97,7 +98,7 @@ public class AppManagerSearchResultsManagementToolbarDisplayContext
 		List<Bundle> bundles = BundleManagerUtil.getBundles();
 
 		List<Object> results = MarketplaceAppManagerSearchUtil.getResults(
-			bundles, getKeywords());
+			bundles, getKeywords(), request.getLocale());
 
 		results = ListUtil.sort(
 			results, new MarketplaceAppManagerComparator(getOrderByType()));

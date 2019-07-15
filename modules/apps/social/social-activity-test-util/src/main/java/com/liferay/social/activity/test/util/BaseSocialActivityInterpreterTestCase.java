@@ -22,7 +22,6 @@ import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
-import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -80,22 +79,20 @@ public abstract class BaseSocialActivityInterpreterTestCase {
 
 		trashHelper = _serviceTracker.getService();
 
-		HttpServletRequest request = new MockHttpServletRequest();
+		HttpServletRequest httpServletRequest = new MockHttpServletRequest();
 
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			WebKeys.COMPANY_ID, TestPropsValues.getCompanyId());
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			WebKeys.CURRENT_URL, "http://localhost:80/web/guest/home");
-		request.setAttribute(WebKeys.USER, TestPropsValues.getUser());
+		httpServletRequest.setAttribute(
+			WebKeys.USER, TestPropsValues.getUser());
 
 		ServicePreAction servicePreAction = new ServicePreAction();
 
-		ThemeDisplay themeDisplay = servicePreAction.initThemeDisplay(
-			request, new MockHttpServletResponse());
+		servicePreAction.run(httpServletRequest, new MockHttpServletResponse());
 
-		request.setAttribute(WebKeys.THEME_DISPLAY, themeDisplay);
-
-		serviceContext = ServiceContextFactory.getInstance(request);
+		serviceContext = ServiceContextFactory.getInstance(httpServletRequest);
 	}
 
 	@Test

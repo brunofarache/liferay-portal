@@ -23,11 +23,11 @@ import com.liferay.petra.process.ProcessExecutor;
 import com.liferay.petra.process.local.LocalProcessExecutor;
 import com.liferay.petra.process.local.LocalProcessLauncher;
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MethodKey;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.Validator;
@@ -429,8 +429,7 @@ public class NewEnvTestRule implements TestRule {
 
 	}
 
-	private class RunInNewClassLoaderStatement
-		extends BaseTestRule.StatementWrapper {
+	private class RunInNewClassLoaderStatement extends StatementWrapper {
 
 		public RunInNewClassLoaderStatement(
 			Statement statement, Description description) {
@@ -507,7 +506,7 @@ public class NewEnvTestRule implements TestRule {
 
 	}
 
-	private class RunInNewJVMStatment extends BaseTestRule.StatementWrapper {
+	private class RunInNewJVMStatment extends StatementWrapper {
 
 		public RunInNewJVMStatment(
 			ProcessConfig processConfig, Statement statement,
@@ -548,8 +547,8 @@ public class NewEnvTestRule implements TestRule {
 			catch (ExecutionException ee) {
 				Throwable cause = ee.getCause();
 
-				while ((cause instanceof ProcessException) ||
-					   (cause instanceof InvocationTargetException)) {
+				while (cause instanceof InvocationTargetException ||
+					   cause instanceof ProcessException) {
 
 					cause = cause.getCause();
 				}

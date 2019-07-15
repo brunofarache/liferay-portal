@@ -14,8 +14,7 @@
 
 package com.liferay.asset.list.service;
 
-import aQute.bnd.annotation.ProviderType;
-
+import org.osgi.annotation.versioning.ProviderType;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.util.tracker.ServiceTracker;
@@ -80,15 +79,6 @@ public class AssetListEntrySegmentsEntryRelLocalServiceUtil {
 
 		return getService().createAssetListEntrySegmentsEntryRel(
 			assetListEntrySegmentsEntryRelId);
-	}
-
-	public static com.liferay.asset.list.model.AssetListEntrySegmentsEntryRel
-			deleteAssetListEntrySegmentsEntryRel(
-				com.liferay.asset.list.model.AssetListEntry assetListEntry)
-		throws com.liferay.portal.kernel.exception.PortalException {
-
-		return getService().deleteAssetListEntrySegmentsEntryRel(
-			assetListEntry);
 	}
 
 	/**

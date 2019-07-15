@@ -82,6 +82,14 @@ renderResponse.setTitle((fileEntryType == null) ? LanguageUtil.get(request, "new
 
 		<aui:fieldset-group cssClass="edit-file-entry-type" markupView="lexicon">
 			<aui:fieldset collapsible="<%= true %>" extended="<%= false %>" id="detailsMetadataFields" persistState="<%= true %>" title="details">
+				<aui:field-wrapper>
+					<c:if test="<%= (ddmStructure != null) && (ddmStructure.getGroupId() != scopeGroupId) %>">
+						<div class="alert alert-warning">
+							<liferay-ui:message key="this-document-type-does-not-belong-to-this-site.-you-may-affect-other-sites-if-you-edit-this-document-type" />
+						</div>
+					</c:if>
+				</aui:field-wrapper>
+
 				<aui:input name="name" />
 
 				<aui:input name="description" />
@@ -174,15 +182,17 @@ renderResponse.setTitle((fileEntryType == null) ? LanguageUtil.get(request, "new
 				title: '<%= UnicodeLanguageUtil.get(request, "metadata-sets") %>'
 			},
 			function(event) {
-				var A = AUI();
-
 				var searchContainer = Liferay.SearchContainer.get('<portlet:namespace />ddmStructuresSearchContainer');
 
-				var ddmStructureLink = '<a class="modify-link" data-rowId="' + event.ddmstructureid + '" href="javascript:;" title="<%= LanguageUtil.get(request, "remove") %>"><%= UnicodeFormatter.toString(removeStructureIcon) %></a>';
+				var data = searchContainer.getData(false);
 
-				searchContainer.addRow([event.name, ddmStructureLink], event.ddmstructureid);
+				if (!data.includes(event.ddmstructureid)) {
+					var ddmStructureLink = '<a class="modify-link" data-rowId="' + event.ddmstructureid + '" href="javascript:;" title="<%= LanguageUtil.get(request, "remove") %>"><%= UnicodeFormatter.toString(removeStructureIcon) %></a>';
 
-				searchContainer.updateDataStore();
+					searchContainer.addRow([event.name, ddmStructureLink], event.ddmstructureid);
+
+					searchContainer.updateDataStore();
+				}
 			}
 		);
 	}

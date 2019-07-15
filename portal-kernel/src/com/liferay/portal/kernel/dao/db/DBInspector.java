@@ -14,10 +14,10 @@
 
 package com.liferay.portal.kernel.dao.db;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeException;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -80,13 +80,24 @@ public class DBInspector {
 		return false;
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 * 				#hasColumnType(String, String, String)}
+	 */
+	@Deprecated
 	public boolean hasColumnType(
 			Class<?> tableClass, String columnName, String columnType)
 		throws Exception {
 
 		Field tableNameField = tableClass.getField("TABLE_NAME");
 
-		String tableName = (String)tableNameField.get(null);
+		return hasColumnType(
+			(String)tableNameField.get(null), columnName, columnType);
+	}
+
+	public boolean hasColumnType(
+			String tableName, String columnName, String columnType)
+		throws Exception {
 
 		DatabaseMetaData databaseMetaData = _connection.getMetaData();
 
@@ -109,12 +120,13 @@ public class DBInspector {
 				return false;
 			}
 
-			int expectedColumnDataType = _getColumnDataType(
-				tableClass, columnName);
+			Integer expectedColumnDataType = _getColumnDataType(columnType);
 
 			int actualColumnDataType = rs.getInt("DATA_TYPE");
 
-			if (expectedColumnDataType != actualColumnDataType) {
+			if ((expectedColumnDataType == null) ||
+				(expectedColumnDataType != actualColumnDataType)) {
+
 				return false;
 			}
 
@@ -196,23 +208,16 @@ public class DBInspector {
 		return name;
 	}
 
-	private int _getColumnDataType(Class<?> tableClass, String columnName)
-		throws Exception {
+	private Integer _getColumnDataType(String columnType) {
+		Matcher matcher = _columnTypePattern.matcher(columnType);
 
-		Field tableColumnsField = tableClass.getField("TABLE_COLUMNS");
-
-		Object[][] tableColumns = (Object[][])tableColumnsField.get(null);
-
-		for (Object[] tableColumn : tableColumns) {
-			if (tableColumn[0].equals(columnName)) {
-				return (int)tableColumn[1];
-			}
+		if (!matcher.lookingAt()) {
+			return null;
 		}
 
-		throw new UpgradeException(
-			StringBundler.concat(
-				"Table class ", String.valueOf(tableClass),
-				" does not have column ", columnName));
+		DB db = DBManagerUtil.getDB();
+
+		return db.getSQLType(matcher.group(1));
 	}
 
 	private int _getColumnSize(String columnType) throws UpgradeException {
@@ -278,6 +283,8 @@ public class DBInspector {
 
 	private static final Pattern _columnSizePattern = Pattern.compile(
 		"^\\w+(?:\\((\\d+)\\))?.*", Pattern.CASE_INSENSITIVE);
+	private static final Pattern _columnTypePattern = Pattern.compile(
+		"(^\\w+)", Pattern.CASE_INSENSITIVE);
 
 	private final Connection _connection;
 

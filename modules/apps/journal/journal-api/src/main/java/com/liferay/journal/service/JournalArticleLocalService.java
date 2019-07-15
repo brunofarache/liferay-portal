@@ -14,8 +14,6 @@
 
 package com.liferay.journal.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.model.JournalArticleDisplay;
@@ -55,6 +53,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service interface for JournalArticle. Methods of this
@@ -346,6 +346,15 @@ public interface JournalArticleLocalService
 			long userId, long groupId, long folderId,
 			Map<Locale, String> titleMap, Map<Locale, String> descriptionMap,
 			String content, String ddmStructureKey, String ddmTemplateKey,
+			ServiceContext serviceContext)
+		throws PortalException;
+
+	public JournalArticle addArticleDefaultValues(
+			long userId, long groupId, long classNameId, long classPK,
+			Map<Locale, String> titleMap, Map<Locale, String> descriptionMap,
+			String content, String ddmStructureKey, String ddmTemplateKey,
+			String layoutUuid, boolean indexable, boolean smallImage,
+			String smallImageURL, File smallImageFile,
 			ServiceContext serviceContext)
 		throws PortalException;
 
@@ -814,6 +823,10 @@ public interface JournalArticleLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public JournalArticle fetchArticleByUrlTitle(long groupId, String urlTitle);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public JournalArticle fetchArticleByUrlTitle(
+		long groupId, String urlTitle, double version);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public JournalArticle fetchDisplayArticle(long groupId, String articleId);
@@ -3577,6 +3590,15 @@ public interface JournalArticleLocalService
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	public JournalArticle updateArticle(long id, String urlTitle)
+		throws PortalException;
+
+	public JournalArticle updateArticleDefaultValues(
+			long userId, long groupId, String articleId,
+			Map<Locale, String> titleMap, Map<Locale, String> descriptionMap,
+			String content, String ddmStructureKey, String ddmTemplateKey,
+			String layoutUuid, boolean indexable, boolean smallImage,
+			String smallImageURL, File smallImageFile,
+			ServiceContext serviceContext)
 		throws PortalException;
 
 	/**

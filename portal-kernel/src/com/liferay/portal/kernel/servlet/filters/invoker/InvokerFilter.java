@@ -14,6 +14,7 @@
 
 package com.liferay.portal.kernel.servlet.filters.invoker;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.cache.PortalCache;
 import com.liferay.portal.kernel.cache.PortalCacheHelperUtil;
@@ -30,7 +31,6 @@ import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.ServerDetector;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -65,31 +65,36 @@ public class InvokerFilter extends BasePortalLifecycle implements Filter {
 			FilterChain filterChain)
 		throws IOException, ServletException {
 
-		HttpServletRequest request = (HttpServletRequest)servletRequest;
+		HttpServletRequest httpServletRequest =
+			(HttpServletRequest)servletRequest;
 
-		HttpServletResponse response = (HttpServletResponse)servletResponse;
+		HttpServletResponse httpServletResponse =
+			(HttpServletResponse)servletResponse;
 
-		String originalURI = getOriginalRequestURI(request);
+		String originalURI = getOriginalRequestURI(httpServletRequest);
 
-		if (!handleLongRequestURL(request, response, originalURI)) {
+		if (!handleLongRequestURL(
+				httpServletRequest, httpServletResponse, originalURI)) {
+
 			return;
 		}
 
-		request = handleNonSerializableRequest(request);
+		httpServletRequest = handleNonSerializableRequest(httpServletRequest);
 
-		response =
+		httpServletResponse =
 			HttpOnlyCookieServletResponse.getHttpOnlyCookieServletResponse(
-				response);
+				httpServletResponse);
 
-		response = secureResponseHeaders(request, response);
+		httpServletResponse = secureResponseHeaders(
+			httpServletRequest, httpServletResponse);
 
 		String uri = getURI(originalURI);
 
-		request.setAttribute(WebKeys.INVOKER_FILTER_URI, uri);
+		httpServletRequest.setAttribute(WebKeys.INVOKER_FILTER_URI, uri);
 
 		try {
 			InvokerFilterChain invokerFilterChain = getInvokerFilterChain(
-				request, uri, filterChain);
+				httpServletRequest, uri, filterChain);
 
 			Thread currentThread = Thread.currentThread();
 
@@ -98,10 +103,11 @@ public class InvokerFilter extends BasePortalLifecycle implements Filter {
 
 			invokerFilterChain.setContextClassLoader(contextClassLoader);
 
-			invokerFilterChain.doFilter(request, response);
+			invokerFilterChain.doFilter(
+				httpServletRequest, httpServletResponse);
 		}
 		finally {
-			request.removeAttribute(WebKeys.INVOKER_FILTER_URI);
+			httpServletRequest.removeAttribute(WebKeys.INVOKER_FILTER_URI);
 		}
 	}
 
@@ -188,60 +194,65 @@ public class InvokerFilter extends BasePortalLifecycle implements Filter {
 	}
 
 	protected InvokerFilterChain getInvokerFilterChain(
-		HttpServletRequest request, String uri, FilterChain filterChain) {
+		HttpServletRequest httpServletRequest, String uri,
+		FilterChain filterChain) {
 
-		if ((_filterChains == null) ||
-			Validator.isNotNull(request.getQueryString())) {
-
+		if (_filterChains == null) {
 			return _invokerFilterHelper.createInvokerFilterChain(
-				request, _dispatcher, uri, filterChain);
+				httpServletRequest, _dispatcher, uri, filterChain);
 		}
 
-		InvokerFilterChain invokerFilterChain = _filterChains.get(uri);
+		String key = uri;
+
+		String queryString = httpServletRequest.getQueryString();
+
+		if (Validator.isNotNull(queryString)) {
+			key = key.concat(
+				StringPool.QUESTION
+			).concat(
+				queryString
+			);
+		}
+
+		InvokerFilterChain invokerFilterChain = _filterChains.get(key);
 
 		if (invokerFilterChain == null) {
 			invokerFilterChain = _invokerFilterHelper.createInvokerFilterChain(
-				request, _dispatcher, uri, filterChain);
+				httpServletRequest, _dispatcher, uri, filterChain);
 
-			_filterChains.put(uri, invokerFilterChain);
+			_filterChains.put(key, invokerFilterChain);
 		}
 
 		return invokerFilterChain.clone(filterChain);
 	}
 
-	protected String getOriginalRequestURI(HttpServletRequest request) {
+	protected String getOriginalRequestURI(
+		HttpServletRequest httpServletRequest) {
+
 		String uri = null;
 
 		if (_dispatcher == Dispatcher.ERROR) {
-			uri = (String)request.getAttribute(
+			uri = (String)httpServletRequest.getAttribute(
 				JavaConstants.JAVAX_SERVLET_ERROR_REQUEST_URI);
 		}
 		else if (_dispatcher == Dispatcher.INCLUDE) {
-			uri = (String)request.getAttribute(
+			uri = (String)httpServletRequest.getAttribute(
 				JavaConstants.JAVAX_SERVLET_INCLUDE_REQUEST_URI);
 		}
 		else {
-			uri = request.getRequestURI();
+			uri = httpServletRequest.getRequestURI();
 		}
 
 		return uri;
 	}
 
 	/**
-	 * @deprecated As of Judson (7.1.x), replaced by {@link
-	 *             #getURI(HttpServletRequest, String)}
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link #getURI(String)}
 	 */
 	@Deprecated
-	protected String getURI(HttpServletRequest request) {
-		return null;
-	}
+	protected String getURI(
+		HttpServletRequest httpServletRequest, String originalURI) {
 
-	/**
-	 * @deprecated As of Mueller (7.2.x), replaced by {@link
-	 *             #getURI(String)}
-	 */
-	@Deprecated
-	protected String getURI(HttpServletRequest request, String originalURI) {
 		return getURI(originalURI);
 	}
 
@@ -256,33 +267,12 @@ public class InvokerFilter extends BasePortalLifecycle implements Filter {
 		return HttpUtil.normalizePath(originalURI);
 	}
 
-	/**
-	 * @deprecated As of Judson (7.1.x), with no direct replacement
-	 */
-	@Deprecated
-	protected String getURL(HttpServletRequest request) {
-		StringBuffer requestURL = request.getRequestURL();
-
-		if (requestURL == null) {
-			return StringPool.BLANK;
-		}
-
-		String queryString = request.getQueryString();
-
-		if (!Validator.isBlank(queryString)) {
-			requestURL.append(StringPool.QUESTION);
-			requestURL.append(request.getQueryString());
-		}
-
-		return requestURL.toString();
-	}
-
 	protected boolean handleLongRequestURL(
-			HttpServletRequest request, HttpServletResponse response,
-			String originalURI)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse, String originalURI)
 		throws IOException {
 
-		String queryString = request.getQueryString();
+		String queryString = httpServletRequest.getQueryString();
 
 		int length = originalURI.length();
 
@@ -294,7 +284,8 @@ public class InvokerFilter extends BasePortalLifecycle implements Filter {
 			return true;
 		}
 
-		response.sendError(HttpServletResponse.SC_REQUEST_URI_TOO_LONG);
+		httpServletResponse.sendError(
+			HttpServletResponse.SC_REQUEST_URI_TOO_LONG);
 
 		if (_log.isWarnEnabled()) {
 			StringBundler sb = new StringBundler(5);
@@ -314,28 +305,33 @@ public class InvokerFilter extends BasePortalLifecycle implements Filter {
 	}
 
 	protected HttpServletRequest handleNonSerializableRequest(
-		HttpServletRequest request) {
+		HttpServletRequest httpServletRequest) {
 
-		if (ServerDetector.isWebLogic()) {
-			if (!NonSerializableObjectRequestWrapper.isWrapped(request)) {
-				request = new NonSerializableObjectRequestWrapper(request);
-			}
+		if (ServerDetector.isWebLogic() &&
+			!NonSerializableObjectRequestWrapper.isWrapped(
+				httpServletRequest)) {
+
+			httpServletRequest = new NonSerializableObjectRequestWrapper(
+				httpServletRequest);
 		}
 
-		return request;
+		return httpServletRequest;
 	}
 
 	protected HttpServletResponse secureResponseHeaders(
-		HttpServletRequest request, HttpServletResponse response) {
+		HttpServletRequest httpServletRequest,
+		HttpServletResponse httpServletResponse) {
 
-		if (Boolean.FALSE.equals(request.getAttribute(_SECURE_RESPONSE))) {
-			return response;
+		if (Boolean.FALSE.equals(
+				httpServletRequest.getAttribute(_SECURE_RESPONSE))) {
+
+			return httpServletResponse;
 		}
 
-		request.setAttribute(_SECURE_RESPONSE, Boolean.FALSE);
+		httpServletRequest.setAttribute(_SECURE_RESPONSE, Boolean.FALSE);
 
 		return SanitizedServletResponse.getSanitizedServletResponse(
-			request, response);
+			httpServletRequest, httpServletResponse);
 	}
 
 	private String _getPortalCacheName() {

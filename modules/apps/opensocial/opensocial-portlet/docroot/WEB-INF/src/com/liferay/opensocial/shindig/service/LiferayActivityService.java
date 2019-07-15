@@ -20,6 +20,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
@@ -300,13 +301,14 @@ public class LiferayActivityService implements ActivityService {
 				String.valueOf(socialActivity.getClassPK()),
 				String.valueOf(socialActivity.getUserId()));
 
-			HttpServletRequest request =
+			HttpServletRequest httpServletRequest =
 				HttpServletRequestThreadLocal.getHttpServletRequest();
 
-			request.setAttribute(WebKeys.THEME_DISPLAY, themeDisplay);
+			httpServletRequest.setAttribute(
+				WebKeys.THEME_DISPLAY, themeDisplay);
 
 			ServiceContext serviceContext = ServiceContextFactory.getInstance(
-				request);
+				httpServletRequest);
 
 			serviceContext.setCompanyId(themeDisplay.getCompanyId());
 			serviceContext.setUserId(themeDisplay.getUserId());
@@ -369,13 +371,13 @@ public class LiferayActivityService implements ActivityService {
 		JSONArray mediaItemsJSONArray = JSONFactoryUtil.createJSONArray();
 
 		for (MediaItem mediaItem : mediaItems) {
-			JSONObject mediaItemsJSONObject =
-				JSONFactoryUtil.createJSONObject();
-
-			mediaItemsJSONObject.put("mimeType", mediaItem.getMimeType());
-			mediaItemsJSONObject.put(
-				"type", String.valueOf(mediaItem.getType()));
-			mediaItemsJSONObject.put("url", mediaItem.getUrl());
+			JSONObject mediaItemsJSONObject = JSONUtil.put(
+				"mimeType", mediaItem.getMimeType()
+			).put(
+				"type", String.valueOf(mediaItem.getType())
+			).put(
+				"url", mediaItem.getUrl()
+			);
 
 			mediaItemsJSONArray.put(mediaItemsJSONObject);
 		}
@@ -418,13 +420,10 @@ public class LiferayActivityService implements ActivityService {
 		JSONArray templateParamsJSONArray = JSONFactoryUtil.createJSONArray();
 
 		for (Map.Entry<String, String> entry : map.entrySet()) {
-			JSONObject templateParamJSONObject =
-				JSONFactoryUtil.createJSONObject();
-
 			String name = entry.getKey();
 			String value = entry.getValue();
 
-			templateParamJSONObject.put(name, value);
+			JSONObject templateParamJSONObject = JSONUtil.put(name, value);
 
 			templateParamsJSONArray.put(templateParamJSONObject);
 		}

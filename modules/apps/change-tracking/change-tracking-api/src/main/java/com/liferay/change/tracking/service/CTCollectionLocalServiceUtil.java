@@ -14,8 +14,7 @@
 
 package com.liferay.change.tracking.service;
 
-import aQute.bnd.annotation.ProviderType;
-
+import org.osgi.annotation.versioning.ProviderType;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.util.tracker.ServiceTracker;
@@ -564,6 +563,17 @@ public class CTCollectionLocalServiceUtil {
 			com.liferay.change.tracking.model.CTCollection ctCollection) {
 
 		return getService().updateCTCollection(ctCollection);
+	}
+
+	public static com.liferay.change.tracking.model.CTCollection
+			updateCTCollection(
+				long userId, long ctCollectionId, String name,
+				String description,
+				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().updateCTCollection(
+			userId, ctCollectionId, name, description, serviceContext);
 	}
 
 	public static com.liferay.change.tracking.model.CTCollection updateStatus(

@@ -14,15 +14,17 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link ClusterGroupLocalService}.
  *
  * @author Brian Wing Shun Chan
  * @see ClusterGroupLocalService
+ * @deprecated
  * @generated
  */
+@Deprecated
 @ProviderType
 public class ClusterGroupLocalServiceWrapper
 	implements ClusterGroupLocalService,

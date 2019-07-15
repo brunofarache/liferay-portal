@@ -25,7 +25,7 @@ import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.ResourceAction;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.ResourcePermission;
-import com.liferay.portal.kernel.model.RoleConstants;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.transaction.Propagation;
@@ -265,7 +265,8 @@ public class ResourceActionLocalServiceImpl
 						actionIds &= ~bitwiseValue;
 
 						resourcePermission.setActionIds(actionIds);
-						resourcePermission.setViewActionId(actionIds % 2 == 1);
+						resourcePermission.setViewActionId(
+							(actionIds % 2) == 1);
 
 						resourcePermissionPersistence.update(
 							resourcePermission);

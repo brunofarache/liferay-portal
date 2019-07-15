@@ -14,10 +14,9 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service utility for LayoutRevision. This utility wraps
@@ -509,9 +508,6 @@ public class LayoutRevisionLocalServiceUtil {
 		if (_service == null) {
 			_service = (LayoutRevisionLocalService)PortalBeanLocatorUtil.locate(
 				LayoutRevisionLocalService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				LayoutRevisionLocalServiceUtil.class, "_service");
 		}
 
 		return _service;

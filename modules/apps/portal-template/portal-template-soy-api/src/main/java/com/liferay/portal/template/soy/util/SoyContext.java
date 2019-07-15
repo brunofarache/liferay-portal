@@ -14,6 +14,8 @@
 
 package com.liferay.portal.template.soy.util;
 
+import com.liferay.petra.function.UnsafeSupplier;
+
 import java.util.Map;
 
 /**
@@ -21,21 +23,27 @@ import java.util.Map;
  */
 public interface SoyContext extends Map<String, Object> {
 
-	public void clearInjectedData();
+	public SoyContext clearInjectedData();
+
+	public SoyContext put(String key, Object value);
+
+	public SoyContext put(
+		String key, UnsafeSupplier<?, Exception> unsafeSupplier);
 
 	/**
 	 * Put an HTML parameter in the SoyContext container. This is the same as
-	 * calling {@link SoyContext#put(Object, Object)} with a
-	 * {@link com.liferay.portal.template.soy.data.SoyHTMLData} value.
-	 * @param key
-	 * @param value
-	 * @see com.liferay.portal.template.soy.data.SoyHTMLData
+	 * calling {@link SoyContext#put(Object, Object)} with a {@link
+	 * com.liferay.portal.template.soy.data.SoyHTMLData} value.
+	 *
+	 * @param  key
+	 * @param  value
+	 * @see    com.liferay.portal.template.soy.data.SoyHTMLData
 	 * @review
 	 */
-	public void putHTML(String key, String value);
+	public SoyContext putHTML(String key, String value);
 
-	public void putInjectedData(String key, Object value);
+	public SoyContext putInjectedData(String key, Object value);
 
-	public void removeInjectedData(String key);
+	public SoyContext removeInjectedData(String key);
 
 }

@@ -14,164 +14,25 @@
 
 package com.liferay.change.tracking.configuration;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.metatype.Meta;
 
-import com.liferay.portal.kernel.model.BaseModel;
-
-import java.io.Serializable;
-
-import java.util.List;
-import java.util.function.Function;
+import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
 
 /**
- * @author Máté Thurzó
+ * @author Tomas Polesovsky
  */
-@ProviderType
-public interface CTConfiguration<T extends BaseModel, U extends BaseModel> {
+@ExtendedObjectClassDefinition(category = "infrastructure")
+@Meta.OCD(
+	id = "com.liferay.change.tracking.configuration.CTConfiguration",
+	localization = "content/Language",
+	name = "change-tracking-portal-configuration-name"
+)
+public interface CTConfiguration {
 
-	/**
-	 * Returns the content type human readable text for this configuration. It
-	 * is a group name of the entities handled in this configuration, such as
-	 * JournalArticle, JournalResource has the content type Web Content.
-	 *
-	 * @return the content type handled in this configuration
-	 * @review
-	 */
-	public String getContentType();
-
-	/**
-	 * Returns the language key for the content type. The content type might be
-	 * written in a language, but the application set to a different one. The
-	 * language key would provide the language agnostic display of the content
-	 * type.
-	 *
-	 * @return the language key for the content type
-	 * @review
-	 */
-	public String getContentTypeLanguageKey();
-
-	/**
-	 * Returns the function from the configuration that retrieves the list of
-	 * resources entities from a given company.
-	 *
-	 * @return The function from the configuration that retrieves the list of
-	 *         resources entities from a given company.
-	 */
-	public Function<Long, List<T>> getResourceEntitiesByCompanyIdFunction();
-
-	/**
-	 * Returns the function from the configuration that retrieves the resource
-	 * entity by it's primary key
-	 *
-	 * @return The function from the configuration that retrieves the resource
-	 *         entity by it's primary key
-	 */
-	public Function<Long, T> getResourceEntityByResourceEntityIdFunction();
-
-	/**
-	 * Returns the resource entity's class from the configuration
-	 *
-	 * @return The resource entity's class from the configuration
-	 */
-	public Class<T> getResourceEntityClass();
-
-	/**
-	 * Returns the function from the configuration that retrieves the resource
-	 * entity's primary key from the resource entity
-	 *
-	 * @return The function from the configuration that retrieves the resource
-	 *         entity's primary key from the resource entity
-	 */
-	public Function<T, Serializable>
-		getResourceEntityIdFromResourceEntityFunction();
-
-	/**
-	 * Returns the function from the configuration that retrieves the resource
-	 * entity's primary key from the version entity
-	 *
-	 * @return The function from the configuration that retrieves the resource
-	 *         entity's primary key from the version entity
-	 */
-	public Function<U, Serializable>
-		getResourceEntityIdFromVersionEntityFunction();
-
-	/**
-	 * Returns the function from the configuration that retrieves the list of
-	 * version entities for a given resource entity.
-	 *
-	 * @return The function from the configuration that retrieves the list of
-	 *         version entities for a given resource entity.
-	 */
-	public Function<T, List<U>> getVersionEntitiesFromResourceEntityFunction();
-
-	/**
-	 * Returns an array of the allowed workflow statuses for the version entity
-	 * from the configuration
-	 *
-	 * @return An array of the allowed workflow statuses for the version entity
-	 *         from the configuration
-	 */
-	public Integer[] getVersionEntityAllowedStatuses();
-
-	/**
-	 * Returns the function from the configuration that retrieves the version
-	 * entity by it's primary key
-	 *
-	 * @return The function from the configuration that retrieves the version
-	 *         entity by it's primary key
-	 */
-	public Function<Long, U> getVersionEntityByVersionEntityIdFunction();
-
-	/**
-	 * Returns the version entity's class from the configuration
-	 *
-	 * @return The version entity's class from the configuration
-	 */
-	public Class<U> getVersionEntityClass();
-
-	/**
-	 * Returns the function from the configuration that retrieves the version
-	 * entity's primary key from the resource entity
-	 *
-	 * @return The function from the configuration that retrieves the version
-	 *         entity's primary key from the resource entity
-	 */
-	public Function<T, Serializable>
-		getVersionEntityIdFromResourceEntityFunction();
-
-	/**
-	 * Returns the function from the configuration that retrieves the version
-	 * entity's primary key from the version entity
-	 *
-	 * @return The function from the configuration that retrieves the version
-	 *         entity's primary key from the version entity
-	 */
-	public Function<U, Serializable>
-		getVersionEntityIdFromVersionEntityFunction();
-
-	/**
-	 * Returns the list of functions that each retrieve a related entity of a
-	 * version entity
-	 *
-	 * @return the list of functions that each retrieve a related entity of a
-	 *         version entity
-	 */
-	public List<Function<U, ? extends BaseModel>>
-		getVersionEntityRelatedEntityFunctions();
-
-	public Function<U, String> getVersionEntitySiteNameFunction();
-
-	/**
-	 * Returns the function from the configuration that retrieves the version
-	 * entity's workflow status from the version entity
-	 *
-	 * @return The function from the configuration that retrieves the version
-	 *         entity's workflow status from the version entity
-	 */
-	public Function<U, Integer> getVersionEntityStatusFunction();
-
-	public Function<U, String> getVersionEntityTitleFunction();
-
-	public Function<U, Serializable> getVersionEntityVersionFunction();
+	@Meta.AD(
+		deflt = "Administrator", name = "administrator-role-names",
+		required = false
+	)
+	public String[] administratorRoleNames();
 
 }

@@ -14,8 +14,8 @@
 
 package com.liferay.portal.search.internal.searcher;
 
-import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.search.internal.legacy.searcher.SearchRequestBuilderImpl;
+import com.liferay.portal.search.searcher.SearchRequest;
 import com.liferay.portal.search.searcher.SearchRequestBuilder;
 import com.liferay.portal.search.searcher.SearchRequestBuilderFactory;
 
@@ -29,8 +29,13 @@ public class SearchRequestBuilderFactoryImpl
 	implements SearchRequestBuilderFactory {
 
 	@Override
-	public SearchRequestBuilder getSearchRequestBuilder() {
-		return new SearchRequestBuilderImpl(new SearchContext());
+	public SearchRequestBuilder builder() {
+		return new SearchRequestBuilderImpl(this);
+	}
+
+	@Override
+	public SearchRequestBuilder builder(SearchRequest searchRequest) {
+		return new SearchRequestBuilderImpl(this, searchRequest);
 	}
 
 }

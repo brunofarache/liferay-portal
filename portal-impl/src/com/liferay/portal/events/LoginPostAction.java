@@ -51,17 +51,19 @@ import javax.servlet.http.HttpSession;
 public class LoginPostAction extends Action {
 
 	@Override
-	public void run(HttpServletRequest request, HttpServletResponse response)
+	public void run(
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws ActionException {
 
 		try {
 			if (_log.isDebugEnabled()) {
-				_log.debug("Running " + request.getRemoteUser());
+				_log.debug("Running " + httpServletRequest.getRemoteUser());
 			}
 
-			HttpSession session = request.getSession();
+			HttpSession session = httpServletRequest.getSession();
 
-			long companyId = PortalUtil.getCompanyId(request);
+			long companyId = PortalUtil.getCompanyId(httpServletRequest);
 			long userId = 0;
 
 			// Language
@@ -81,17 +83,24 @@ public class LoginPostAction extends Action {
 						"clusterNodeId", clusterNode.getClusterNodeId());
 				}
 
-				jsonObject.put("command", "signIn");
-				jsonObject.put("companyId", companyId);
-				jsonObject.put("remoteAddr", request.getRemoteAddr());
-				jsonObject.put("remoteHost", request.getRemoteHost());
-				jsonObject.put("sessionId", session.getId());
+				jsonObject.put(
+					"command", "signIn"
+				).put(
+					"companyId", companyId
+				).put(
+					"remoteAddr", httpServletRequest.getRemoteAddr()
+				).put(
+					"remoteHost", httpServletRequest.getRemoteHost()
+				).put(
+					"sessionId", session.getId()
+				);
 
-				String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
+				String userAgent = httpServletRequest.getHeader(
+					HttpHeaders.USER_AGENT);
 
 				jsonObject.put("userAgent", userAgent);
 
-				userId = PortalUtil.getUserId(request);
+				userId = PortalUtil.getUserId(httpServletRequest);
 
 				jsonObject.put("userId", userId);
 
@@ -103,7 +112,7 @@ public class LoginPostAction extends Action {
 					companyId, PropsKeys.ADMIN_SYNC_DEFAULT_ASSOCIATIONS)) {
 
 				if (userId == 0) {
-					userId = PortalUtil.getUserId(request);
+					userId = PortalUtil.getUserId(httpServletRequest);
 				}
 
 				UserLocalServiceUtil.addDefaultGroups(userId);
@@ -116,14 +125,15 @@ public class LoginPostAction extends Action {
 				userIndexer.reindex(User.class.getName(), userId);
 			}
 
-			User user = PortalUtil.getUser(request);
+			User user = PortalUtil.getUser(httpServletRequest);
 
 			PasswordPolicy passwordPolicy = user.getPasswordPolicy();
 
 			if ((passwordPolicy != null) && passwordPolicy.isExpireable() &&
 				(passwordPolicy.getWarningTime() > 0)) {
 
-				_setPasswordExpirationMessage(request, passwordPolicy, user);
+				_setPasswordExpirationMessage(
+					httpServletRequest, passwordPolicy, user);
 			}
 		}
 		catch (Exception e) {
@@ -132,8 +142,8 @@ public class LoginPostAction extends Action {
 	}
 
 	private void _setPasswordExpirationMessage(
-			HttpServletRequest request, PasswordPolicy passwordPolicy,
-			User user)
+			HttpServletRequest httpServletRequest,
+			PasswordPolicy passwordPolicy, User user)
 		throws PortalException {
 
 		Date now = new Date();
@@ -159,14 +169,16 @@ public class LoginPostAction extends Action {
 
 			if (passwordExpiresInXDays >= 0) {
 				SessionMessages.add(
-					request, "passwordExpiresInXDays", passwordExpiresInXDays);
+					httpServletRequest, "passwordExpiresInXDays",
+					passwordExpiresInXDays);
 			}
 			else {
 				int remainingGraceLogins =
 					passwordPolicy.getGraceLimit() - user.getGraceLoginCount();
 
 				SessionMessages.add(
-					request, "remainingGraceLogins", remainingGraceLogins);
+					httpServletRequest, "remainingGraceLogins",
+					remainingGraceLogins);
 			}
 		}
 	}

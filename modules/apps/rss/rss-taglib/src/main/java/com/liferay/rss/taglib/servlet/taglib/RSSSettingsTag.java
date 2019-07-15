@@ -27,6 +27,34 @@ import javax.servlet.jsp.PageContext;
  */
 public class RSSSettingsTag extends IncludeTag {
 
+	public int getDelta() {
+		return _delta;
+	}
+
+	public String getDisplayStyle() {
+		return _displayStyle;
+	}
+
+	public String[] getDisplayStyles() {
+		return _displayStyles;
+	}
+
+	public String getFeedType() {
+		return _feedType;
+	}
+
+	public String getName() {
+		return _name;
+	}
+
+	public boolean isEnabled() {
+		return _enabled;
+	}
+
+	public boolean isNameEnabled() {
+		return _nameEnabled;
+	}
+
 	public void setDelta(int delta) {
 		_delta = delta;
 	}
@@ -86,18 +114,19 @@ public class RSSSettingsTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-rss:rss-settings:delta", String.valueOf(_delta));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-rss:rss-settings:displayStyle", _displayStyle);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-rss:rss-settings:displayStyles", _displayStyles);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-rss:rss-settings:enabled", String.valueOf(_enabled));
-		request.setAttribute("liferay-rss:rss-settings:feedType", _feedType);
-		request.setAttribute("liferay-rss:rss-settings:name", _name);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
+			"liferay-rss:rss-settings:feedType", _feedType);
+		httpServletRequest.setAttribute("liferay-rss:rss-settings:name", _name);
+		httpServletRequest.setAttribute(
 			"liferay-rss:rss-settings:nameEnabled",
 			String.valueOf(_nameEnabled));
 	}

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE service-builder PUBLIC "-//Liferay//DTD Service Builder 7.2.0//EN" "http://www.liferay.com/dtd/liferay-service-builder_7_2_0.dtd">
 
-<service-builder auto-import-default-references="false" auto-namespace-tables="false" package-path="com.liferay.fragment">
+<service-builder auto-import-default-references="false" auto-namespace-tables="false" dependency-injector="ds" package-path="com.liferay.fragment">
 	<namespace>Fragment</namespace>
 	<entity local-service="true" name="FragmentCollection" remote-service="true" uuid="true">
 
@@ -80,6 +80,7 @@
 		<column name="css" type="String" />
 		<column name="html" type="String" />
 		<column name="js" type="String" />
+		<column name="configuration" type="String" />
 		<column name="previewFileEntryId" type="long" />
 		<column name="type" type="int" />
 		<column name="lastPublishDate" type="Date" />
@@ -144,7 +145,7 @@
 		<reference entity="Resource" package-path="com.liferay.portal" />
 		<reference entity="User" package-path="com.liferay.portal" />
 	</entity>
-	<entity local-service="true" name="FragmentEntryLink" remote-service="false" uuid="true">
+	<entity local-service="true" name="FragmentEntryLink" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
 
@@ -171,10 +172,12 @@
 		<column name="css" type="String" />
 		<column name="html" type="String" />
 		<column name="js" type="String" />
+		<column name="configuration" type="String" />
 		<column name="editableValues" type="String" />
-		<column name="position" type="int" />
-		<column name="lastPropagationDate" type="Date" />
 		<column name="namespace" type="String" />
+		<column name="position" type="int" />
+		<column name="rendererKey" type="String" />
+		<column name="lastPropagationDate" type="Date" />
 		<column name="lastPublishDate" type="Date" />
 
 		<!-- Order -->
@@ -189,6 +192,9 @@
 
 		<finder name="GroupId" return-type="Collection">
 			<finder-column name="groupId" />
+		</finder>
+		<finder name="RendererKey" return-type="Collection">
+			<finder-column name="rendererKey" />
 		</finder>
 		<finder name="G_F" return-type="Collection">
 			<finder-column name="groupId" />

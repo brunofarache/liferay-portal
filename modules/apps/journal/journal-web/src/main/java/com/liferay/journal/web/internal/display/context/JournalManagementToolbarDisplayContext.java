@@ -25,7 +25,7 @@ import com.liferay.journal.constants.JournalPortletKeys;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.model.JournalFolder;
 import com.liferay.journal.model.JournalFolderConstants;
-import com.liferay.journal.web.configuration.JournalWebConfiguration;
+import com.liferay.journal.web.internal.configuration.JournalWebConfiguration;
 import com.liferay.journal.web.internal.security.permission.resource.JournalArticlePermission;
 import com.liferay.journal.web.internal.security.permission.resource.JournalFolderPermission;
 import com.liferay.petra.function.UnsafeConsumer;
@@ -44,6 +44,7 @@ import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -69,22 +70,22 @@ public class JournalManagementToolbarDisplayContext
 	public JournalManagementToolbarDisplayContext(
 			LiferayPortletRequest liferayPortletRequest,
 			LiferayPortletResponse liferayPortletResponse,
-			HttpServletRequest request,
+			HttpServletRequest httpServletRequest,
 			JournalDisplayContext journalDisplayContext,
 			TrashHelper trashHelper)
 		throws PortalException {
 
 		super(
-			liferayPortletRequest, liferayPortletResponse, request,
+			liferayPortletRequest, liferayPortletResponse, httpServletRequest,
 			journalDisplayContext.getSearchContainer(false));
 
 		_journalDisplayContext = journalDisplayContext;
 		_trashHelper = trashHelper;
 
 		_journalWebConfiguration =
-			(JournalWebConfiguration)request.getAttribute(
+			(JournalWebConfiguration)httpServletRequest.getAttribute(
 				JournalWebConfiguration.class.getName());
-		_themeDisplay = (ThemeDisplay)request.getAttribute(
+		_themeDisplay = (ThemeDisplay)httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
 
@@ -99,7 +100,8 @@ public class JournalManagementToolbarDisplayContext
 						boolean trashEnabled = _trashHelper.isTrashEnabled(
 							_themeDisplay.getScopeGroupId());
 
-						dropdownItem.setIcon(trashEnabled ? "trash" : "times");
+						dropdownItem.setIcon(
+							trashEnabled ? "trash" : "times-circle");
 
 						String label = "delete";
 
@@ -124,7 +126,7 @@ public class JournalManagementToolbarDisplayContext
 				add(
 					dropdownItem -> {
 						dropdownItem.putData("action", "moveEntries");
-						dropdownItem.setIcon("change");
+						dropdownItem.setIcon("move-folder");
 						dropdownItem.setLabel(
 							LanguageUtil.get(request, "move"));
 						dropdownItem.setQuickAction(true);
@@ -189,8 +191,9 @@ public class JournalManagementToolbarDisplayContext
 	public String getClearResultsURL() {
 		PortletURL clearResultsURL = getPortletURL();
 
-		clearResultsURL.setParameter("keywords", StringPool.BLANK);
 		clearResultsURL.setParameter("navigation", StringPool.BLANK);
+		clearResultsURL.setParameter("ddmStructureKey", StringPool.BLANK);
+		clearResultsURL.setParameter("keywords", StringPool.BLANK);
 		clearResultsURL.setParameter(
 			"status", String.valueOf(WorkflowConstants.STATUS_ANY));
 
@@ -214,6 +217,23 @@ public class JournalManagementToolbarDisplayContext
 		componentContext.put(
 			"folderId",
 			String.valueOf(JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID));
+
+		PortletURL moveEntriesURL = liferayPortletResponse.createRenderURL();
+
+		moveEntriesURL.setParameter("mvcPath", "/move_entries.jsp");
+
+		String redirect = ParamUtil.getString(
+			liferayPortletRequest, "redirect", _themeDisplay.getURLCurrent());
+
+		moveEntriesURL.setParameter("redirect", redirect);
+
+		String referringPortletResource = ParamUtil.getString(
+			liferayPortletRequest, "referringPortletResource");
+
+		moveEntriesURL.setParameter(
+			"referringPortletResource", referringPortletResource);
+
+		componentContext.put("moveEntriesURL", moveEntriesURL.toString());
 
 		PortletURL openViewMoreStructuresURL =
 			liferayPortletResponse.createRenderURL();
@@ -334,31 +354,24 @@ public class JournalManagementToolbarDisplayContext
 
 				if (_journalDisplayContext.isNavigationRecent()) {
 					add(
-						labelItem -> {
-							labelItem.setLabel(
-								LanguageUtil.get(request, "recent"));
-						});
+						labelItem -> labelItem.setLabel(
+							LanguageUtil.get(request, "recent")));
 				}
 
 				if (_journalDisplayContext.isNavigationStructure()) {
 					add(
-						labelItem -> {
-							labelItem.setLabel(
-								LanguageUtil.get(request, "structures") + ": " +
-									_journalDisplayContext.
-										getDDMStructureName());
-						});
+						labelItem -> labelItem.setLabel(
+							LanguageUtil.get(request, "structures") + ": " +
+								_journalDisplayContext.getDDMStructureName()));
 				}
 
 				int status = _journalDisplayContext.getStatus();
 
-				if (status != WorkflowConstants.STATUS_ANY) {
+				if (status != _journalDisplayContext.getDefaultStatus()) {
 					add(
-						labelItem -> {
-							labelItem.setLabel(
-								LanguageUtil.get(request, "status") + ": " +
-									WorkflowConstants.getStatusLabel(status));
-						});
+						labelItem -> labelItem.setLabel(
+							LanguageUtil.get(request, "status") + ": " +
+								WorkflowConstants.getStatusLabel(status)));
 				}
 			}
 		};

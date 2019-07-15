@@ -1,31 +1,28 @@
 definition {
+
 	macro configureLookAndFeelShowHeaderSearch {
 		if ("${showHeaderSearch}" == "true") {
 			Check.checkToggleSwitch(
-				locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH",
-				key_toggleSwitchLabel = "Show Header Search"
-			);
+				key_toggleSwitchLabel = "Show Header Search",
+				locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH");
 		}
 		else if ("${showHeaderSearch}" == "false") {
 			Uncheck.uncheckToggleSwitch(
-				locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH",
-				key_toggleSwitchLabel = "Show Header Search"
-			);
+				key_toggleSwitchLabel = "Show Header Search",
+				locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH");
 		}
 	}
 
 	macro configureLookAndFeelShowMaxMinAppLinks {
 		if ("${showMaxMinAppLinks}" == "true") {
 			Check.checkToggleSwitch(
-				locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH",
-				key_toggleSwitchLabel = "Show Maximize/Minimize Application Links"
-			);
+				key_toggleSwitchLabel = "Show Maximize/Minimize Application Links",
+				locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH");
 		}
 		else if ("${showMaxMinAppLinks}" == "false") {
 			Uncheck.uncheckToggleSwitch(
-				locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH",
-				key_toggleSwitchLabel = "Show Maximize/Minimize Application Links"
-			);
+				key_toggleSwitchLabel = "Show Maximize/Minimize Application Links",
+				locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH");
 		}
 	}
 
@@ -33,17 +30,30 @@ definition {
 		Click(locator1 = "Radio#SPECIFIC_LOOK");
 	}
 
-	macro viewMaxMinPortletOptions {
+	macro viewMaxPortletOption {
 		AssertTextEquals(
+			key_menuItem = "Maximize",
 			locator1 = "MenuItem#ANY_MENU_ITEM",
-			value1 = "Maximize",
-			key_menuItem = "Maximize"
-		);
+			value1 = "Maximize");
 
-		AssertTextEquals(
-			locator1 = "MenuItem#ANY_MENU_ITEM",
-			value1 = "Minimize",
-			key_menuItem = "Minimize"
-		);
 	}
+
+	macro viewMinPortlet {
+		AssertClick(
+			key_menuItem = "Minimize",
+			locator1 = "MenuItem#ANY_MENU_ITEM",
+			value1 = "Minimize");
+	}
+
+	macro viewRestorePortlet {
+		Click(
+			key_menuItem = "Restore",
+			locator1 = "MenuItem#ANY_MENU_ITEM",
+			value1 = "Restore");
+
+		// Refresh step is a workaround for LPS-91762
+
+		Refresh();
+	}
+
 }

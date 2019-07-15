@@ -14,7 +14,7 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link PortletLocalService}.
@@ -66,16 +66,6 @@ public class PortletLocalServiceWrapper
 	@Override
 	public void clearCache() {
 		_portletLocalService.clearCache();
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 #clearPortletsMap)}
-	 */
-	@Deprecated
-	@Override
-	public void clearCompanyPortletsPool() {
-		_portletLocalService.clearCompanyPortletsPool();
 	}
 
 	@Override
@@ -504,18 +494,6 @@ public class PortletLocalServiceWrapper
 		loadGetPortletsMap(long companyId) {
 
 		return _portletLocalService.loadGetPortletsMap(companyId);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 #loadGetPortletsMap(long))}
-	 */
-	@Deprecated
-	@Override
-	public java.util.Map<String, com.liferay.portal.kernel.model.Portlet>
-		loadGetPortletsPool(long companyId) {
-
-		return _portletLocalService.loadGetPortletsPool(companyId);
 	}
 
 	@Override

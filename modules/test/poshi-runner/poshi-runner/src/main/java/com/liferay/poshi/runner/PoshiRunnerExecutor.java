@@ -32,12 +32,20 @@ import groovy.lang.Binding;
 
 import groovy.util.GroovyScriptEngine;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -606,8 +614,7 @@ public class PoshiRunnerExecutor {
 						executeArgElement.attributeValue("value")));
 			}
 
-			binding.setVariable(
-				"args", arguments.toArray(new String[arguments.size()]));
+			binding.setVariable("args", arguments.toArray(new String[0]));
 		}
 
 		String status = "fail";
@@ -1008,43 +1015,10 @@ public class PoshiRunnerExecutor {
 		Class<?> clazz = liferaySelenium.getClass();
 
 		Method method = clazz.getMethod(
-			selenium,
-			parameterClasses.toArray(new Class<?>[parameterClasses.size()]));
+			selenium, parameterClasses.toArray(new Class<?>[0]));
 
-		try {
-			_returnObject = method.invoke(
-				liferaySelenium,
-				arguments.toArray(new String[arguments.size()]));
-		}
-		catch (Exception e1) {
-			Throwable throwable = e1.getCause();
-
-			if (throwable instanceof StaleElementReferenceException) {
-				StringBuilder sb = new StringBuilder();
-
-				sb.append("\nElement turned stale while running ");
-				sb.append(selenium);
-				sb.append(". Retrying in ");
-				sb.append(PropsValues.TEST_RETRY_COMMAND_WAIT_TIME);
-				sb.append("seconds.");
-
-				System.out.println(sb.toString());
-
-				try {
-					_returnObject = method.invoke(
-						liferaySelenium,
-						arguments.toArray(new String[arguments.size()]));
-				}
-				catch (Exception e2) {
-					throwable = e2.getCause();
-
-					throw new Exception(throwable.getMessage(), e2);
-				}
-			}
-			else {
-				throw new Exception(throwable.getMessage(), e1);
-			}
-		}
+		_returnObject = invokeLiferaySeleniumMethod(
+			method, arguments.toArray(new String[0]));
 	}
 
 	public void runTaskElement(Element element) throws Exception {
@@ -1159,6 +1133,107 @@ public class PoshiRunnerExecutor {
 		}
 	}
 
+	protected Object callWithTimeout(
+			Callable<?> callable, String description, long timeoutSeconds)
+		throws Exception {
+
+		ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+		Future<?> future = executorService.submit(callable);
+
+		try {
+			return future.get(timeoutSeconds, TimeUnit.SECONDS);
+		}
+		catch (ExecutionException ee) {
+			if (PropsValues.DEBUG_STACKTRACE) {
+				throw ee;
+			}
+
+			throw (Exception)ee.getCause();
+		}
+		catch (InterruptedException | TimeoutException e) {
+			future.cancel(true);
+
+			if (e instanceof TimeoutException) {
+				System.out.println(
+					"Timed out after " + timeoutSeconds +
+						" seconds while executing " + description);
+			}
+
+			throw new Exception(
+				"An error occurred while executing " + description, e);
+		}
+	}
+
+	protected Object invokeLiferaySeleniumMethod(Method method, Object... args)
+		throws Exception {
+
+		LiferaySelenium liferaySelenium = SeleniumUtil.getSelenium();
+
+		String methodName = method.getName();
+
+		Callable<Object> task = new Callable<Object>() {
+
+			public Object call() throws Exception {
+				try {
+					return method.invoke(liferaySelenium, args);
+				}
+				catch (InvocationTargetException ite) {
+					Throwable throwable = ite.getCause();
+
+					if (throwable instanceof StaleElementReferenceException) {
+						StringBuilder sb = new StringBuilder();
+
+						sb.append("\nElement turned stale while running ");
+						sb.append(methodName);
+						sb.append(". Retrying in ");
+						sb.append(PropsValues.TEST_RETRY_COMMAND_WAIT_TIME);
+						sb.append("seconds.");
+
+						System.out.println(sb.toString());
+
+						try {
+							return method.invoke(liferaySelenium, args);
+						}
+						catch (Exception e) {
+							throwable = e.getCause();
+
+							if (PropsValues.DEBUG_STACKTRACE) {
+								throw new Exception(throwable.getMessage(), e);
+							}
+
+							if (throwable instanceof Error) {
+								throw (Error)throwable;
+							}
+
+							throw (Exception)throwable;
+						}
+					}
+					else {
+						if (PropsValues.DEBUG_STACKTRACE) {
+							throw new Exception(throwable.getMessage(), ite);
+						}
+
+						if (throwable instanceof Error) {
+							throw (Error)throwable;
+						}
+
+						throw (Exception)throwable;
+					}
+				}
+			}
+
+		};
+
+		Long timeout = Long.valueOf(PropsValues.TIMEOUT_EXPLICIT_WAIT) + 60L;
+
+		if (methodName.equals("antCommand") | methodName.equals("pause")) {
+			timeout = 3600L;
+		}
+
+		return callWithTimeout(task, methodName, timeout);
+	}
+
 	private Object _getVarValue(Element element) throws Exception {
 		Object varValue = element.attributeValue("value");
 
@@ -1179,9 +1254,8 @@ public class PoshiRunnerExecutor {
 
 						throw new Exception(throwable.getMessage(), e);
 					}
-					else {
-						throw e;
-					}
+
+					throw e;
 				}
 			}
 			else if (element.attributeValue("type") != null) {
@@ -1219,11 +1293,15 @@ public class PoshiRunnerExecutor {
 					element.attributeValue("from"));
 
 				if (element.attributeValue("hash") != null) {
-					varValue = ((LinkedHashMap)varFrom).get(
-						element.attributeValue("hash"));
+					LinkedHashMap<?, ?> varFromMap =
+						(LinkedHashMap<?, ?>)varFrom;
+
+					varValue = varFromMap.get(element.attributeValue("hash"));
 				}
 				else if (element.attributeValue("index") != null) {
-					varValue = ((List)varFrom).get(
+					List<?> varFromList = (List<?>)varFrom;
+
+					varValue = varFromList.get(
 						GetterUtil.getInteger(element.attributeValue("index")));
 				}
 			}

@@ -1,6 +1,20 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 import Component from 'metal-component';
 import {Config} from 'metal-state';
-import {Drag, DragDrop} from 'metal-drag-drop';
+import {DragDrop} from 'metal-drag-drop';
 import position from 'metal-position';
 import Soy from 'metal-soy';
 
@@ -8,22 +22,26 @@ import './FragmentsEditorSidebarCard.es';
 import {
 	ADD_FRAGMENT_ENTRY_LINK,
 	CLEAR_DROP_TARGET,
-	UPDATE_DROP_TARGET,
-	UPDATE_LAST_SAVE_DATE,
-	UPDATE_SAVING_CHANGES_STATUS
+	UPDATE_DROP_TARGET
 } from '../../../actions/actions.es';
+import {
+	disableSavingChangesStatusAction,
+	enableSavingChangesStatusAction,
+	updateLastSaveDateAction
+} from '../../../actions/saveChanges.es';
 import {
 	FRAGMENTS_EDITOR_ITEM_BORDERS,
 	FRAGMENTS_EDITOR_ITEM_TYPES
 } from '../../../utils/constants';
 import {getConnectedComponent} from '../../../store/ConnectedComponent.es';
+import {initializeDragDrop} from '../../../utils/FragmentsEditorDragDrop.es';
+import {setDraggingItemPosition} from '../../../utils/FragmentsEditorUpdateUtils.es';
 import templates from './SidebarAvailableElements.soy';
 
 /**
  * SidebarAvailableElements
  */
 class SidebarAvailableElements extends Component {
-
 	/**
 	 * @inheritDoc
 	 * @private
@@ -43,9 +61,18 @@ class SidebarAvailableElements extends Component {
 	}
 
 	/**
+	 * Handle layoutData changed
+	 * @inheritDoc
+	 * @review
+	 */
+	syncLayoutData() {
+		this._initializeDragAndDrop();
+	}
+
+	/**
 	 * Callback that is executed when an item is being dragged.
 	 * @param {object} eventData
-	 * @param {MouseEvent} data.originalEvent
+	 * @param {MouseEvent} eventData.originalEvent
 	 * @private
 	 * @review
 	 */
@@ -53,11 +80,13 @@ class SidebarAvailableElements extends Component {
 		const targetItem = eventData.target;
 
 		const data = targetItem ? targetItem.dataset : null;
-		const targetIsColumn = targetItem && ('columnId' in data);
-		const targetIsFragment = targetItem && ('fragmentEntryLinkId' in data);
-		const targetIsSection = targetItem && ('layoutSectionId' in data);
+		const targetIsColumn = targetItem && 'columnId' in data;
+		const targetIsFragment = targetItem && 'fragmentEntryLinkId' in data;
+		const targetIsRow = targetItem && 'layoutRowId' in data;
 
-		if (targetIsColumn || targetIsFragment || targetIsSection) {
+		setDraggingItemPosition(eventData.originalEvent);
+
+		if (targetIsColumn || targetIsFragment || targetIsRow) {
 			const mouseY = eventData.originalEvent.clientY;
 			const targetItemRegion = position.getRegion(targetItem);
 
@@ -76,24 +105,20 @@ class SidebarAvailableElements extends Component {
 			if (targetIsColumn) {
 				dropTargetItemId = data.columnId;
 				dropTargetItemType = FRAGMENTS_EDITOR_ITEM_TYPES.column;
-			}
-			else if (targetIsFragment) {
+			} else if (targetIsFragment) {
 				dropTargetItemId = data.fragmentEntryLinkId;
 				dropTargetItemType = FRAGMENTS_EDITOR_ITEM_TYPES.fragment;
-			}
-			else if (targetIsSection) {
-				dropTargetItemId = data.layoutSectionId;
-				dropTargetItemType = FRAGMENTS_EDITOR_ITEM_TYPES.section;
+			} else if (targetIsRow) {
+				dropTargetItemId = data.layoutRowId;
+				dropTargetItemType = FRAGMENTS_EDITOR_ITEM_TYPES.row;
 			}
 
-			this.store.dispatchAction(
-				UPDATE_DROP_TARGET,
-				{
-					dropTargetBorder: nearestBorder,
-					dropTargetItemId,
-					dropTargetItemType
-				}
-			);
+			this.store.dispatch({
+				dropTargetBorder: nearestBorder,
+				dropTargetItemId,
+				dropTargetItemType,
+				type: UPDATE_DROP_TARGET
+			});
 		}
 	}
 
@@ -103,9 +128,9 @@ class SidebarAvailableElements extends Component {
 	 * @review
 	 */
 	_handleDragEnd() {
-		this.store.dispatchAction(
-			CLEAR_DROP_TARGET
-		);
+		this.store.dispatch({
+			type: CLEAR_DROP_TARGET
+		});
 	}
 
 	/**
@@ -121,41 +146,22 @@ class SidebarAvailableElements extends Component {
 		if (data.target) {
 			const {itemId, itemName} = data.source.dataset;
 
-			requestAnimationFrame(
-				() => {
-					this._initializeDragAndDrop();
-				}
-			);
+			requestAnimationFrame(() => {
+				this._initializeDragAndDrop();
+			});
 
 			this.store
-				.dispatchAction(
-					UPDATE_SAVING_CHANGES_STATUS,
-					{
-						savingChanges: true
-					}
-				)
-				.dispatchAction(
-					ADD_FRAGMENT_ENTRY_LINK,
-					{
-						fragmentEntryKey: itemId,
-						fragmentName: itemName
-					}
-				)
-				.dispatchAction(
-					UPDATE_LAST_SAVE_DATE,
-					{
-						lastSaveDate: new Date()
-					}
-				)
-				.dispatchAction(
-					UPDATE_SAVING_CHANGES_STATUS,
-					{
-						savingChanges: false
-					}
-				)
-				.dispatchAction(
-					CLEAR_DROP_TARGET
-				);
+				.dispatch(enableSavingChangesStatusAction())
+				.dispatch({
+					fragmentEntryKey: itemId,
+					fragmentName: itemName,
+					type: ADD_FRAGMENT_ENTRY_LINK
+				})
+				.dispatch(updateLastSaveDateAction())
+				.dispatch(disableSavingChangesStatusAction())
+				.dispatch({
+					type: CLEAR_DROP_TARGET
+				});
 		}
 	}
 
@@ -169,31 +175,14 @@ class SidebarAvailableElements extends Component {
 	 */
 	_handleEntryClick(event) {
 		this.store
-			.dispatchAction(
-				UPDATE_SAVING_CHANGES_STATUS,
-				{
-					savingChanges: true
-				}
-			)
-			.dispatchAction(
-				ADD_FRAGMENT_ENTRY_LINK,
-				{
-					fragmentEntryKey: event.itemId,
-					fragmentName: event.itemName
-				}
-			)
-			.dispatchAction(
-				UPDATE_LAST_SAVE_DATE,
-				{
-					lastSaveDate: new Date()
-				}
-			)
-			.dispatchAction(
-				UPDATE_SAVING_CHANGES_STATUS,
-				{
-					savingChanges: false
-				}
-			);
+			.dispatch(enableSavingChangesStatusAction())
+			.dispatch({
+				fragmentEntryKey: event.itemId,
+				fragmentName: event.itemName,
+				type: ADD_FRAGMENT_ENTRY_LINK
+			})
+			.dispatch(updateLastSaveDateAction())
+			.dispatch(disableSavingChangesStatusAction());
 	}
 
 	/**
@@ -205,32 +194,21 @@ class SidebarAvailableElements extends Component {
 			this._dragDrop.dispose();
 		}
 
-		this._dragDrop = new DragDrop(
-			{
-				autoScroll: true,
-				dragPlaceholder: Drag.Placeholder.CLONE,
-				handles: '.fragments-editor__drag-handler',
-				sources: '.fragments-editor__drag-source--sidebar-fragment',
-				targets: '.fragments-editor__drop-target--sidebar-fragment'
-			}
-		);
+		this._dragDrop = initializeDragDrop({
+			handles: '.fragments-editor__drag-handler',
+			sources: '.fragments-editor__drag-source--sidebar-fragment',
+			targets: '.fragments-editor__drop-target--sidebar-fragment'
+		});
 
-		this._dragDrop.on(
-			DragDrop.Events.DRAG,
-			this._handleDrag.bind(this)
-		);
+		this._dragDrop.on(DragDrop.Events.DRAG, this._handleDrag.bind(this));
 
-		this._dragDrop.on(
-			DragDrop.Events.END,
-			this._handleDrop.bind(this)
-		);
+		this._dragDrop.on(DragDrop.Events.END, this._handleDrop.bind(this));
 
 		this._dragDrop.on(
 			DragDrop.Events.TARGET_LEAVE,
 			this._handleDragEnd.bind(this)
 		);
 	}
-
 }
 
 /**
@@ -239,7 +217,6 @@ class SidebarAvailableElements extends Component {
  * @static
  */
 SidebarAvailableElements.STATE = {
-
 	/**
 	 * Internal DragDrop instance.
 	 * @default null
@@ -253,10 +230,7 @@ SidebarAvailableElements.STATE = {
 
 const ConnectedSidebarAvailableElements = getConnectedComponent(
 	SidebarAvailableElements,
-	[
-		'elements',
-		'spritemap'
-	]
+	['layoutData', 'elements', 'spritemap']
 );
 
 Soy.register(ConnectedSidebarAvailableElements, templates);

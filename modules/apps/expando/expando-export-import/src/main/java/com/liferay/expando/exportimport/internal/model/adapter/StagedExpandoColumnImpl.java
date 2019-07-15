@@ -20,12 +20,12 @@ import com.liferay.expando.kernel.model.ExpandoTable;
 import com.liferay.expando.kernel.model.adapter.StagedExpandoColumn;
 import com.liferay.expando.kernel.service.ExpandoTableLocalServiceUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.CacheModel;
 import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 
 import java.io.Serializable;
@@ -64,7 +64,15 @@ public class StagedExpandoColumnImpl implements StagedExpandoColumn {
 
 	@Override
 	public Object clone() {
-		return new StagedExpandoColumnImpl(_expandoColumn);
+		StagedExpandoColumnImpl stagedExpandoColumn =
+			new StagedExpandoColumnImpl();
+
+		stagedExpandoColumn._expandoColumn =
+			(ExpandoColumn)_expandoColumn.clone();
+		stagedExpandoColumn._expandoTableClassName = _expandoTableClassName;
+		stagedExpandoColumn._expandoTableName = _expandoTableName;
+
+		return stagedExpandoColumn;
 	}
 
 	@Override

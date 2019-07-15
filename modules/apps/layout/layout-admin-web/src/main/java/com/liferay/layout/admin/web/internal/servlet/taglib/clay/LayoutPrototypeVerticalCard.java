@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.LayoutPrototype;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HtmlUtil;
+import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 
@@ -57,7 +58,7 @@ public class LayoutPrototypeVerticalCard
 		_layoutPrototype = (LayoutPrototype)baseModel;
 		_themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
-		_request = PortalUtil.getHttpServletRequest(renderRequest);
+		_httpServletRequest = PortalUtil.getHttpServletRequest(renderRequest);
 	}
 
 	@Override
@@ -92,7 +93,11 @@ public class LayoutPrototypeVerticalCard
 		try {
 			Group layoutPrototypeGroup = _layoutPrototype.getGroup();
 
-			return layoutPrototypeGroup.getDisplayURL(_themeDisplay, true);
+			String layoutFullURL = layoutPrototypeGroup.getDisplayURL(
+				_themeDisplay, true);
+
+			return HttpUtil.setParameter(
+				layoutFullURL, "p_l_back_url", _themeDisplay.getURLCurrent());
 		}
 		catch (Exception e) {
 		}
@@ -117,7 +122,8 @@ public class LayoutPrototypeVerticalCard
 							label = "active";
 						}
 
-						labelItem.setLabel(LanguageUtil.get(_request, label));
+						labelItem.setLabel(
+							LanguageUtil.get(_httpServletRequest, label));
 
 						String style = "warning";
 
@@ -136,10 +142,11 @@ public class LayoutPrototypeVerticalCard
 		Date createDate = _layoutPrototype.getModifiedDate();
 
 		String createdDateDescription = LanguageUtil.getTimeDescription(
-			_request, System.currentTimeMillis() - createDate.getTime(), true);
+			_httpServletRequest,
+			System.currentTimeMillis() - createDate.getTime(), true);
 
 		return LanguageUtil.format(
-			_request, "created-x-ago", createdDateDescription);
+			_httpServletRequest, "created-x-ago", createdDateDescription);
 	}
 
 	@Override
@@ -152,10 +159,10 @@ public class LayoutPrototypeVerticalCard
 		return null;
 	}
 
+	private final HttpServletRequest _httpServletRequest;
 	private final LayoutPrototype _layoutPrototype;
 	private final RenderRequest _renderRequest;
 	private final RenderResponse _renderResponse;
-	private final HttpServletRequest _request;
 	private final ThemeDisplay _themeDisplay;
 
 }

@@ -14,10 +14,9 @@
 
 package com.liferay.social.kernel.service.persistence;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Brian Wing Shun Chan
@@ -120,9 +119,6 @@ public class SocialActivityFinderUtil {
 		if (_finder == null) {
 			_finder = (SocialActivityFinder)PortalBeanLocatorUtil.locate(
 				SocialActivityFinder.class.getName());
-
-			ReferenceRegistry.registerReference(
-				SocialActivityFinderUtil.class, "_finder");
 		}
 
 		return _finder;
@@ -130,9 +126,6 @@ public class SocialActivityFinderUtil {
 
 	public void setFinder(SocialActivityFinder finder) {
 		_finder = finder;
-
-		ReferenceRegistry.registerReference(
-			SocialActivityFinderUtil.class, "_finder");
 	}
 
 	private static SocialActivityFinder _finder;

@@ -41,7 +41,7 @@ import org.osgi.service.component.annotations.Component;
  * @author Marcellus Tavares
  * @author Ryan Park
  */
-@Component(immediate = true, service = OpenSearch.class)
+@Component(service = OpenSearch.class)
 public class DirectoryOpenSearchImpl extends HitsOpenSearchImpl {
 
 	public static final String TITLE = "Liferay Directory Search: ";
@@ -68,11 +68,12 @@ public class DirectoryOpenSearchImpl extends HitsOpenSearchImpl {
 
 	@Override
 	protected PortletURL getPortletURL(
-			HttpServletRequest request, String portletId, long scopeGroupId)
+			HttpServletRequest httpServletRequest, String portletId,
+			long scopeGroupId)
 		throws Exception {
 
 		return super.getPortletURL(
-			request, PortletKeys.DIRECTORY, scopeGroupId);
+			httpServletRequest, PortletKeys.DIRECTORY, scopeGroupId);
 	}
 
 	protected LinkedHashMap<String, Object> getUserParams(

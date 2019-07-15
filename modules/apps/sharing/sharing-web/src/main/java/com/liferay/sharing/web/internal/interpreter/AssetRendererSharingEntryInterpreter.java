@@ -17,6 +17,7 @@ package com.liferay.sharing.web.internal.interpreter;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetRenderer;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
+import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
@@ -53,7 +54,11 @@ public class AssetRendererSharingEntryInterpreter
 		AssetRenderer assetRenderer = AssetRendererSharingUtil.getAssetRenderer(
 			sharingEntry);
 
-		AssetRendererFactory assetRendererFactory =
+		if (assetRenderer == null) {
+			return StringPool.BLANK;
+		}
+
+		AssetRendererFactory<?> assetRendererFactory =
 			assetRenderer.getAssetRendererFactory();
 
 		return assetRendererFactory.getTypeName(locale);
@@ -75,6 +80,10 @@ public class AssetRendererSharingEntryInterpreter
 			AssetRenderer assetRenderer =
 				AssetRendererSharingUtil.getAssetRenderer(sharingEntry);
 
+			if (assetRenderer == null) {
+				return StringPool.BLANK;
+			}
+
 			AssetRendererFactory assetRendererFactory =
 				assetRenderer.getAssetRendererFactory();
 
@@ -91,6 +100,29 @@ public class AssetRendererSharingEntryInterpreter
 		return StringPool.BLANK;
 	}
 
+	@Override
+	public boolean isVisible(SharingEntry sharingEntry) throws PortalException {
+		AssetRenderer assetRenderer = AssetRendererSharingUtil.getAssetRenderer(
+			sharingEntry);
+
+		if (assetRenderer == null) {
+			return false;
+		}
+
+		if (!assetRenderer.isDisplayable()) {
+			return false;
+		}
+
+		AssetEntry assetEntry = _assetEntryLocalService.fetchEntry(
+			sharingEntry.getClassNameId(), sharingEntry.getClassPK());
+
+		if ((assetEntry == null) || !assetEntry.isVisible()) {
+			return false;
+		}
+
+		return true;
+	}
+
 	@Activate
 	protected void activate() {
 		_assetRendererSharingEntryEditRenderer =
@@ -101,6 +133,9 @@ public class AssetRendererSharingEntryInterpreter
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		AssetRendererSharingEntryInterpreter.class);
+
+	@Reference
+	private AssetEntryLocalService _assetEntryLocalService;
 
 	private AssetRendererSharingEntryEditRenderer
 		_assetRendererSharingEntryEditRenderer;

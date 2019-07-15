@@ -21,7 +21,9 @@ import com.liferay.portal.search.engine.adapter.search.SearchSearchRequest;
 import com.liferay.portal.search.engine.adapter.search.SearchSearchResponse;
 import com.liferay.portal.search.hits.SearchHit;
 import com.liferay.portal.search.hits.SearchHits;
+import com.liferay.portal.search.query.BooleanQuery;
 import com.liferay.portal.search.query.StringQuery;
+import com.liferay.portal.search.query.TermQuery;
 import com.liferay.portal.search.test.util.indexing.BaseIndexingTestCase;
 import com.liferay.portal.search.test.util.indexing.DocumentCreationHelpers;
 
@@ -79,10 +81,10 @@ public abstract class BaseStringQueryTestCase extends BaseIndexingTestCase {
 
 		assertSearch(
 			"alpha OR charlie",
-			Arrays.asList("alpha charlie", "alpha bravo", "charlie delta"));
+			Arrays.asList("alpha bravo", "alpha charlie", "charlie delta"));
 		assertSearch(
 			"alpha OR delta",
-			Arrays.asList("charlie delta", "alpha bravo", "alpha charlie"));
+			Arrays.asList("alpha bravo", "alpha charlie", "charlie delta"));
 		assertSearch(
 			"bravo OR delta", Arrays.asList("alpha bravo", "charlie delta"));
 	}
@@ -169,6 +171,7 @@ public abstract class BaseStringQueryTestCase extends BaseIndexingTestCase {
 						new SearchSearchRequest() {
 							{
 								addSorts(sorts.field(Field.USER_NAME));
+
 								setIndexNames("_all");
 								setQuery(stringQuery);
 								setSize(30);
@@ -180,16 +183,16 @@ public abstract class BaseStringQueryTestCase extends BaseIndexingTestCase {
 				Assert.assertEquals(
 					"Total hits", 20, searchHits.getTotalHits());
 
-				List<SearchHit> searchHitList = searchHits.getSearchHits();
+				List<SearchHit> searchHitsList = searchHits.getSearchHits();
 
-				Assert.assertEquals("Retrieved hits", 20, searchHitList.size());
+				Assert.assertEquals(
+					"Retrieved hits", 20, searchHitsList.size());
 
-				searchHitList.forEach(
+				searchHitsList.forEach(
 					searchHit -> {
 						Document document = searchHit.getDocument();
 
-						String userName = (String)document.getFieldValue(
-							Field.USER_NAME);
+						String userName = document.getString(Field.USER_NAME);
 
 						Assert.assertTrue(
 							userName.startsWith("OtherUser") ||
@@ -207,50 +210,58 @@ public abstract class BaseStringQueryTestCase extends BaseIndexingTestCase {
 	protected void assertSearch(
 		String queryString, List<String> expectedValues) {
 
+		StringQuery stringQuery = queries.string(queryString);
+
+		stringQuery.setDefaultField(_FIELD_NAME);
+
+		TermQuery termQuery = queries.term(
+			Field.ENTRY_CLASS_NAME, getEntryClassName());
+
+		BooleanQuery booleanQuery = queries.booleanQuery();
+
+		booleanQuery.addFilterQueryClauses(stringQuery, termQuery);
+
 		assertSearch(
 			indexingTestHelper -> {
-				StringQuery stringQuery = queries.string(queryString);
-
-				stringQuery.setDefaultField(_FIELD_NAME);
-
-				SearchSearchRequest searchSearchRequest =
-					new SearchSearchRequest();
-
-				searchSearchRequest.setIndexNames("_all");
-				searchSearchRequest.setQuery(stringQuery);
-				searchSearchRequest.setSize(30);
-
 				SearchEngineAdapter searchEngineAdapter =
 					getSearchEngineAdapter();
 
 				SearchSearchResponse searchSearchResponse =
-					searchEngineAdapter.execute(searchSearchRequest);
+					searchEngineAdapter.execute(
+						new SearchSearchRequest() {
+							{
+								addSorts(sorts.field(Field.USER_NAME));
+
+								setIndexNames("_all");
+								setQuery(booleanQuery);
+								setSize(30);
+							}
+						});
 
 				SearchHits searchHits = searchSearchResponse.getSearchHits();
 
-				Assert.assertEquals(
-					"Total hits", expectedValues.size(),
-					searchHits.getTotalHits());
-
-				List<SearchHit> searchHitList = searchHits.getSearchHits();
-
-				Assert.assertEquals(
-					"Retrieved hits", expectedValues.size(),
-					searchHitList.size());
+				List<SearchHit> searchHitsList = searchHits.getSearchHits();
 
 				List<String> actualValues = new ArrayList<>();
 
-				searchHitList.forEach(
+				searchHitsList.forEach(
 					searchHit -> {
 						Document document = searchHit.getDocument();
 
-						actualValues.add(
-							(String)document.getFieldValue(_FIELD_NAME));
+						actualValues.add(document.getString(_FIELD_NAME));
 					});
 
 				Assert.assertEquals(
 					"Retrieved hits ->" + actualValues,
 					expectedValues.toString(), actualValues.toString());
+
+				Assert.assertEquals(
+					"Retrieved hits", expectedValues.size(),
+					searchHitsList.size());
+
+				Assert.assertEquals(
+					"Total hits", expectedValues.size(),
+					searchHits.getTotalHits());
 			});
 	}
 

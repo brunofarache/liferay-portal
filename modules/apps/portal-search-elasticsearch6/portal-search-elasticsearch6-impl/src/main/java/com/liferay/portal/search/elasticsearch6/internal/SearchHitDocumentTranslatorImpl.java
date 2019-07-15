@@ -85,11 +85,8 @@ public class SearchHitDocumentTranslatorImpl
 
 		Collection<Object> values = documentField.getValues();
 
-		Field field = new Field(
-			name,
-			ArrayUtil.toStringArray(values.toArray(new Object[values.size()])));
-
-		return field;
+		return new Field(
+			name, ArrayUtil.toStringArray(values.toArray(new Object[0])));
 	}
 
 	protected Field translateGeoPoint(DocumentField documentField) {

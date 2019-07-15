@@ -14,8 +14,6 @@
 
 package com.liferay.portlet;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.LiferayEventResponse;
@@ -29,6 +27,8 @@ import javax.portlet.filter.EventRequestWrapper;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * @author Brian Wing Shun Chan
  * @author Neil Griffin
@@ -37,18 +37,21 @@ import javax.servlet.http.HttpServletResponse;
 public class EventResponseFactory {
 
 	public static LiferayEventResponse create(
-			EventRequest eventRequest, HttpServletResponse response, User user,
-			Layout layout)
+			EventRequest eventRequest, HttpServletResponse httpServletResponse,
+			User user, Layout layout)
 		throws PortletModeException, WindowStateException {
 
 		while (eventRequest instanceof EventRequestWrapper) {
-			eventRequest = ((EventRequestWrapper)eventRequest).getRequest();
+			EventRequestWrapper eventRequestWrapper =
+				(EventRequestWrapper)eventRequest;
+
+			eventRequest = eventRequestWrapper.getRequest();
 		}
 
 		EventResponseImpl eventResponseImpl = new EventResponseImpl();
 
 		eventResponseImpl.init(
-			(EventRequestImpl)eventRequest, response, user, layout);
+			(EventRequestImpl)eventRequest, httpServletResponse, user, layout);
 
 		return eventResponseImpl;
 	}

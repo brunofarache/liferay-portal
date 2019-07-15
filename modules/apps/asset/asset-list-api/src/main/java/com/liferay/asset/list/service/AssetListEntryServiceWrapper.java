@@ -14,9 +14,9 @@
 
 package com.liferay.asset.list.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.service.ServiceWrapper;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link AssetListEntryService}.
@@ -160,6 +160,32 @@ public class AssetListEntryServiceWrapper
 		return _assetListEntryService.getAssetListEntriesCount(groupId, title);
 	}
 
+	@Override
+	public com.liferay.asset.list.model.AssetListEntry getAssetListEntry(
+			long assetListEntryId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _assetListEntryService.getAssetListEntry(assetListEntryId);
+	}
+
+	@Override
+	public com.liferay.asset.list.model.AssetListEntry getAssetListEntry(
+			long groupId, String assetListEntryKey)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _assetListEntryService.getAssetListEntry(
+			groupId, assetListEntryKey);
+	}
+
+	@Override
+	public com.liferay.asset.list.model.AssetListEntry
+			getAssetListEntryByUuidAndGroupId(String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _assetListEntryService.getAssetListEntryByUuidAndGroupId(
+			uuid, groupId);
+	}
+
 	/**
 	 * Returns the OSGi service identifier.
 	 *
@@ -206,16 +232,6 @@ public class AssetListEntryServiceWrapper
 
 		_assetListEntryService.updateAssetListEntryTypeSettings(
 			assetListEntryId, segmentsEntryId, typeSettings);
-	}
-
-	@Override
-	public void updateAssetListEntryTypeSettingsProperties(
-			long assetListEntryId, long segmentsEntryId,
-			String typeSettingsProperties)
-		throws com.liferay.portal.kernel.exception.PortalException {
-
-		_assetListEntryService.updateAssetListEntryTypeSettingsProperties(
-			assetListEntryId, segmentsEntryId, typeSettingsProperties);
 	}
 
 	@Override

@@ -64,12 +64,16 @@ public abstract class BaseUADMVCActionCommand extends BaseMVCActionCommand {
 
 		long selectedUserId = getSelectedUserId(actionRequest);
 
-		if (uadApplicationSummaryHelper.getTotalNonreviewableUADEntitiesCount(
-				selectedUserId) == 0) {
+		int totalNonreviewableUADEntitiesCount =
+			uadApplicationSummaryHelper.getTotalNonreviewableUADEntitiesCount(
+				selectedUserId);
 
-			if (uadApplicationSummaryHelper.getTotalReviewableUADEntitiesCount(
-					selectedUserId) == 0) {
+		if (totalNonreviewableUADEntitiesCount == 0) {
+			int totalReviewableUADEntitiesCount =
+				uadApplicationSummaryHelper.getTotalReviewableUADEntitiesCount(
+					selectedUserId);
 
+			if (totalReviewableUADEntitiesCount == 0) {
 				mvcRenderCommandName = "/completed_data_erasure";
 			}
 			else {
@@ -102,13 +106,16 @@ public abstract class BaseUADMVCActionCommand extends BaseMVCActionCommand {
 
 		long selectedUserId = getSelectedUserId(actionRequest);
 
-		if (uadApplicationSummaryHelper.getTotalReviewableUADEntitiesCount(
-				selectedUserId) == 0) {
+		int totalReviewableUADEntitiesCount =
+			uadApplicationSummaryHelper.getTotalReviewableUADEntitiesCount(
+				selectedUserId);
 
-			if (uadApplicationSummaryHelper.
-					getTotalNonreviewableUADEntitiesCount(selectedUserId) ==
-						0) {
+		if (totalReviewableUADEntitiesCount == 0) {
+			int totalNonreviewableUADEntitiesCount =
+				uadApplicationSummaryHelper.
+					getTotalNonreviewableUADEntitiesCount(selectedUserId);
 
+			if (totalNonreviewableUADEntitiesCount == 0) {
 				mvcRenderCommandName = "/completed_data_erasure";
 			}
 			else {
@@ -131,6 +138,17 @@ public abstract class BaseUADMVCActionCommand extends BaseMVCActionCommand {
 
 		sendRedirect(
 			actionRequest, actionResponse, liferayPortletURL.toString());
+	}
+
+	protected String[] getApplicationKeys(ActionRequest actionRequest) {
+		String applicationKey = ParamUtil.getString(
+			actionRequest, "applicationKey");
+
+		if (Validator.isNotNull(applicationKey)) {
+			return new String[] {applicationKey};
+		}
+
+		return ParamUtil.getStringValues(actionRequest, "applicationKeys");
 	}
 
 	protected List<String> getEntityTypes(ActionRequest actionRequest) {
@@ -157,10 +175,8 @@ public abstract class BaseUADMVCActionCommand extends BaseMVCActionCommand {
 			return new String[] {primaryKey};
 		}
 
-		String[] primaryKeys = ParamUtil.getStringValues(
+		return ParamUtil.getStringValues(
 			actionRequest, "primaryKeys__" + entityType);
-
-		return primaryKeys;
 	}
 
 	protected User getSelectedUser(ActionRequest actionRequest)

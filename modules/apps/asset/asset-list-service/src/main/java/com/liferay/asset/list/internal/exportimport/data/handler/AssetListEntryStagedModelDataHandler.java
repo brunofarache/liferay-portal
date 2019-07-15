@@ -160,6 +160,10 @@ public class AssetListEntryStagedModelDataHandler
 			_assetListEntryAssetEntryRelLocalService.
 				deleteAssetListEntryAssetEntryRelByAssetListEntryId(
 					existingAssetListEntry.getAssetListEntryId());
+
+			_assetListEntrySegmentsEntryRelLocalService.
+				deleteAssetListEntrySegmentsEntryRelByAssetListEntryId(
+					existingAssetListEntry.getAssetListEntryId());
 		}
 
 		_importAssetObjects(portletDataContext);
@@ -347,8 +351,7 @@ public class AssetListEntryStagedModelDataHandler
 		_assetListEntrySegmentsEntryRelLocalService;
 
 	@Reference(
-		target = "(model.class.name=com.liferay.asset.list.model.AssetListEntry)",
-		unbind = "-"
+		target = "(model.class.name=com.liferay.asset.list.model.AssetListEntry)"
 	)
 	private StagedModelRepository<AssetListEntry> _stagedModelRepository;
 

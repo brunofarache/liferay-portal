@@ -14,8 +14,7 @@
 
 package com.liferay.dynamic.data.mapping.service;
 
-import aQute.bnd.annotation.ProviderType;
-
+import org.osgi.annotation.versioning.ProviderType;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.util.tracker.ServiceTracker;
@@ -60,6 +59,20 @@ public class DDMStructureLayoutServiceUtil {
 
 	public static int getStructureLayoutsCount(long groupId) {
 		return getService().getStructureLayoutsCount(groupId);
+	}
+
+	public static java.util.List
+		<com.liferay.dynamic.data.mapping.model.DDMStructureLayout> search(
+				long companyId, long[] groupIds, long classNameId,
+				String keywords, int start, int end,
+				com.liferay.portal.kernel.util.OrderByComparator
+					<com.liferay.dynamic.data.mapping.model.DDMStructureLayout>
+						orderByComparator)
+			throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().search(
+			companyId, groupIds, classNameId, keywords, start, end,
+			orderByComparator);
 	}
 
 	public static DDMStructureLayoutService getService() {

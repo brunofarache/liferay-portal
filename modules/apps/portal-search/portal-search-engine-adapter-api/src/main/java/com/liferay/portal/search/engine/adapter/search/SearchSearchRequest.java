@@ -14,11 +14,10 @@
 
 package com.liferay.portal.search.engine.adapter.search;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.search.GroupBy;
 import com.liferay.portal.kernel.search.QueryConfig;
 import com.liferay.portal.kernel.search.Stats;
+import com.liferay.portal.search.groupby.GroupByRequest;
 import com.liferay.portal.search.highlight.Highlight;
 import com.liferay.portal.search.sort.Sort;
 
@@ -29,6 +28,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Dylan Rebelak
@@ -56,8 +57,16 @@ public class SearchSearchRequest
 		return _fetchSource;
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by GroupByRequest
+	 */
+	@Deprecated
 	public GroupBy getGroupBy() {
 		return _groupBy;
+	}
+
+	public List<GroupByRequest> getGroupByRequests() {
+		return Collections.unmodifiableList(_groupByRequests);
 	}
 
 	public Highlight getHighlight() {
@@ -110,8 +119,7 @@ public class SearchSearchRequest
 	}
 
 	/**
-	 * @deprecated As of Mueller (7.2.x), replaced by
-	 * 		Sort
+	 * @deprecated As of Mueller (7.2.x), replaced by Sort
 	 */
 	@Deprecated
 	public com.liferay.portal.kernel.search.Sort[] getSorts71() {
@@ -124,7 +132,7 @@ public class SearchSearchRequest
 
 	/**
 	 * @deprecated As of Mueller (7.2.x), replaced by
-	 * 		com.liferay.portal.search.stats.StatsRequest
+	 *             com.liferay.portal.search.stats.StatsRequest
 	 */
 	@Deprecated
 	public Map<String, Stats> getStats() {
@@ -171,8 +179,16 @@ public class SearchSearchRequest
 		_fetchSource = fetchSource;
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by GroupByRequest
+	 */
+	@Deprecated
 	public void setGroupBy(GroupBy groupBy) {
 		_groupBy = groupBy;
+	}
+
+	public void setGroupByRequests(Collection<GroupByRequest> groupByRequests) {
+		_groupByRequests = new ArrayList<>(groupByRequests);
 	}
 
 	public void setHighlight(Highlight highlight) {
@@ -221,7 +237,7 @@ public class SearchSearchRequest
 		_selectedFieldNames = selectedFieldNames;
 	}
 
-	public void setSize(int size) {
+	public void setSize(Integer size) {
 		_size = size;
 	}
 
@@ -230,21 +246,20 @@ public class SearchSearchRequest
 	}
 
 	/**
-	 * @deprecated As of Mueller (7.2.x), replaced by
-	 * 		Sort
+	 * @deprecated As of Mueller (7.2.x), replaced by Sort
 	 */
 	@Deprecated
 	public void setSorts(com.liferay.portal.kernel.search.Sort[] sorts) {
 		_legacySorts = sorts;
 	}
 
-	public void setStart(int start) {
+	public void setStart(Integer start) {
 		_start = start;
 	}
 
 	/**
 	 * @deprecated As of Mueller (7.2.x), replaced by
-	 * 		com.liferay.portal.search.stats.StatsRequest
+	 *             com.liferay.portal.search.stats.StatsRequest
 	 */
 	@Deprecated
 	public void setStats(Map<String, Stats> stats) {
@@ -258,6 +273,7 @@ public class SearchSearchRequest
 	private String _alternateUidFieldName;
 	private Boolean _fetchSource;
 	private GroupBy _groupBy;
+	private List<GroupByRequest> _groupByRequests = Collections.emptyList();
 	private Highlight _highlight;
 	private boolean _highlightEnabled;
 	private String[] _highlightFieldNames = {};

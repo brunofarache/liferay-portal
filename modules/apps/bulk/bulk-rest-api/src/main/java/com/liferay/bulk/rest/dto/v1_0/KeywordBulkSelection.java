@@ -20,9 +20,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
+import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
 
-import graphql.annotations.annotationTypes.GraphQLField;
-import graphql.annotations.annotationTypes.GraphQLName;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import javax.annotation.Generated;
 
@@ -38,6 +44,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "KeywordBulkSelection")
 public class KeywordBulkSelection {
 
+	@Schema
 	public DocumentBulkSelection getDocumentBulkSelection() {
 		return documentBulkSelection;
 	}
@@ -56,6 +63,9 @@ public class KeywordBulkSelection {
 		try {
 			documentBulkSelection = documentBulkSelectionUnsafeSupplier.get();
 		}
+		catch (RuntimeException re) {
+			throw re;
+		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -65,6 +75,7 @@ public class KeywordBulkSelection {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected DocumentBulkSelection documentBulkSelection;
 
+	@Schema
 	public String[] getKeywordsToAdd() {
 		return keywordsToAdd;
 	}
@@ -80,6 +91,9 @@ public class KeywordBulkSelection {
 		try {
 			keywordsToAdd = keywordsToAddUnsafeSupplier.get();
 		}
+		catch (RuntimeException re) {
+			throw re;
+		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -89,6 +103,7 @@ public class KeywordBulkSelection {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String[] keywordsToAdd;
 
+	@Schema
 	public String[] getKeywordsToRemove() {
 		return keywordsToRemove;
 	}
@@ -104,6 +119,9 @@ public class KeywordBulkSelection {
 		try {
 			keywordsToRemove = keywordsToRemoveUnsafeSupplier.get();
 		}
+		catch (RuntimeException re) {
+			throw re;
+		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -113,27 +131,58 @@ public class KeywordBulkSelection {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String[] keywordsToRemove;
 
+	@Override
+	public boolean equals(Object object) {
+		if (this == object) {
+			return true;
+		}
+
+		if (!(object instanceof KeywordBulkSelection)) {
+			return false;
+		}
+
+		KeywordBulkSelection keywordBulkSelection =
+			(KeywordBulkSelection)object;
+
+		return Objects.equals(toString(), keywordBulkSelection.toString());
+	}
+
+	@Override
+	public int hashCode() {
+		String string = toString();
+
+		return string.hashCode();
+	}
+
 	public String toString() {
 		StringBundler sb = new StringBundler();
 
 		sb.append("{");
 
-		sb.append("\"documentBulkSelection\": ");
+		if (documentBulkSelection != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
 
-		sb.append(documentBulkSelection);
-		sb.append(", ");
+			sb.append("\"documentBulkSelection\": ");
 
-		sb.append("\"keywordsToAdd\": ");
-
-		if (keywordsToAdd == null) {
-			sb.append("null");
+			sb.append(String.valueOf(documentBulkSelection));
 		}
-		else {
+
+		if (keywordsToAdd != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"keywordsToAdd\": ");
+
 			sb.append("[");
 
 			for (int i = 0; i < keywordsToAdd.length; i++) {
 				sb.append("\"");
-				sb.append(keywordsToAdd[i]);
+
+				sb.append(_escape(keywordsToAdd[i]));
+
 				sb.append("\"");
 
 				if ((i + 1) < keywordsToAdd.length) {
@@ -144,19 +193,20 @@ public class KeywordBulkSelection {
 			sb.append("]");
 		}
 
-		sb.append(", ");
+		if (keywordsToRemove != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
 
-		sb.append("\"keywordsToRemove\": ");
+			sb.append("\"keywordsToRemove\": ");
 
-		if (keywordsToRemove == null) {
-			sb.append("null");
-		}
-		else {
 			sb.append("[");
 
 			for (int i = 0; i < keywordsToRemove.length; i++) {
 				sb.append("\"");
-				sb.append(keywordsToRemove[i]);
+
+				sb.append(_escape(keywordsToRemove[i]));
+
 				sb.append("\"");
 
 				if ((i + 1) < keywordsToRemove.length) {
@@ -165,6 +215,41 @@ public class KeywordBulkSelection {
 			}
 
 			sb.append("]");
+		}
+
+		sb.append("}");
+
+		return sb.toString();
+	}
+
+	private static String _escape(Object object) {
+		String string = String.valueOf(object);
+
+		return string.replaceAll("\"", "\\\\\"");
+	}
+
+	private static String _toJSON(Map<String, ?> map) {
+		StringBuilder sb = new StringBuilder("{");
+
+		@SuppressWarnings("unchecked")
+		Set set = map.entrySet();
+
+		@SuppressWarnings("unchecked")
+		Iterator<Map.Entry<String, ?>> iterator = set.iterator();
+
+		while (iterator.hasNext()) {
+			Map.Entry<String, ?> entry = iterator.next();
+
+			sb.append("\"");
+			sb.append(entry.getKey());
+			sb.append("\":");
+			sb.append("\"");
+			sb.append(entry.getValue());
+			sb.append("\"");
+
+			if (iterator.hasNext()) {
+				sb.append(",");
+			}
 		}
 
 		sb.append("}");

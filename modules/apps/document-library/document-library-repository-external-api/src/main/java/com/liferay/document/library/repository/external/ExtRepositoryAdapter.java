@@ -19,6 +19,7 @@ import com.liferay.document.library.kernel.exception.NoSuchFileVersionException;
 import com.liferay.document.library.kernel.exception.NoSuchFolderException;
 import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
 import com.liferay.document.library.kernel.model.DLFolder;
+import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.model.DLVersionNumberIncrease;
 import com.liferay.document.library.kernel.service.DLFolderLocalServiceUtil;
 import com.liferay.document.library.repository.external.model.ExtRepositoryFileEntryAdapter;
@@ -153,7 +154,9 @@ public class ExtRepositoryAdapter extends BaseRepositoryImpl {
 	}
 
 	/**
-	 * @deprecated As of Judson (7.1.x), replaced by {@link #checkInFileEntry(long, long, DLVersionNumberIncrease, String, ServiceContext)}
+	 * @deprecated As of Judson (7.1.x), replaced by {@link
+	 *             #checkInFileEntry(long, long, DLVersionNumberIncrease,
+	 *             String, ServiceContext)}
 	 */
 	@Deprecated
 	@Override
@@ -722,11 +725,6 @@ public class ExtRepositoryAdapter extends BaseRepositoryImpl {
 	}
 
 	@Override
-	public String[] getSupportedConfigurations() {
-		return _extRepository.getSupportedConfigurations();
-	}
-
-	@Override
 	public String[][] getSupportedParameters() {
 		return _extRepository.getSupportedParameters();
 	}
@@ -1004,12 +1002,12 @@ public class ExtRepositoryAdapter extends BaseRepositoryImpl {
 
 		Hits hits = new HitsImpl();
 
-		hits.setDocs(documents.toArray(new Document[documents.size()]));
+		hits.setDocs(documents.toArray(new Document[0]));
 		hits.setLength(total);
 		hits.setQueryTerms(new String[0]);
 		hits.setScores(ArrayUtil.toFloatArray(scores));
 		hits.setSearchTime(searchTime);
-		hits.setSnippets(snippets.toArray(new String[snippets.size()]));
+		hits.setSnippets(snippets.toArray(new String[0]));
 		hits.setStart(startTime);
 
 		return hits;
@@ -1024,7 +1022,10 @@ public class ExtRepositoryAdapter extends BaseRepositoryImpl {
 	}
 
 	/**
-	 * @deprecated As of Judson (7.1.x), replaced by {@link #updateFileEntry(long, long, String, String, String, String, String, DLVersionNumberIncrease, InputStream, long, ServiceContext)}
+	 * @deprecated As of Judson (7.1.x), replaced by {@link
+	 *             #updateFileEntry(long, long, String, String, String, String,
+	 *             String, DLVersionNumberIncrease, InputStream, long,
+	 *             ServiceContext)}
 	 */
 	@Deprecated
 	@Override
@@ -1187,6 +1188,10 @@ public class ExtRepositoryAdapter extends BaseRepositoryImpl {
 
 	protected String getExtRepositoryObjectKey(long repositoryEntryId)
 		throws PortalException {
+
+		if (repositoryEntryId == DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+			return _extRepository.getRootFolderKey();
+		}
 
 		RepositoryEntry repositoryEntry =
 			repositoryEntryLocalService.fetchRepositoryEntry(repositoryEntryId);

@@ -14,11 +14,10 @@
 
 package com.liferay.portal.util;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.petra.memory.FinalizeAction;
 import com.liferay.petra.memory.FinalizeManager;
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
@@ -31,8 +30,8 @@ import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.InetAddressUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.URLCodec;
@@ -109,6 +108,8 @@ import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.pool.PoolStats;
 import org.apache.http.util.EntityUtils;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Brian Wing Shun Chan
@@ -306,16 +307,6 @@ public class HttpImpl implements Http {
 		return StringPool.BLANK;
 	}
 
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #decodeURL(String)}
-	 */
-	@Deprecated
-	@Override
-	public String decodeURL(String url, boolean unescapeSpaces) {
-		return decodeURL(url);
-	}
-
 	public void destroy() {
 		int retry = 0;
 
@@ -332,8 +323,8 @@ public class HttpImpl implements Http {
 			if (_log.isDebugEnabled()) {
 				_log.debug(
 					StringBundler.concat(
-						toString(), " is waiting on ",
-						String.valueOf(availableConnections), " connections"));
+						toString(), " is waiting on ", availableConnections,
+						" connections"));
 			}
 
 			_poolingHttpClientConnectionManager.closeIdleConnections(
@@ -461,16 +452,16 @@ public class HttpImpl implements Http {
 	}
 
 	@Override
-	public String getCompleteURL(HttpServletRequest request) {
-		StringBuffer sb = request.getRequestURL();
+	public String getCompleteURL(HttpServletRequest httpServletRequest) {
+		StringBuffer sb = httpServletRequest.getRequestURL();
 
 		if (sb == null) {
 			sb = new StringBuffer();
 		}
 
-		if (request.getQueryString() != null) {
+		if (httpServletRequest.getQueryString() != null) {
 			sb.append(StringPool.QUESTION);
-			sb.append(request.getQueryString());
+			sb.append(httpServletRequest.getQueryString());
 		}
 
 		String proxyPath = PortalUtil.getPathProxy();
@@ -487,8 +478,8 @@ public class HttpImpl implements Http {
 
 		String completeURL = sb.toString();
 
-		if (request.isRequestedSessionIdFromURL()) {
-			HttpSession session = request.getSession();
+		if (httpServletRequest.isRequestedSessionIdFromURL()) {
+			HttpSession session = httpServletRequest.getSession();
 
 			String sessionId = session.getId();
 
@@ -496,10 +487,8 @@ public class HttpImpl implements Http {
 				completeURL, sessionId);
 		}
 
-		if (_log.isWarnEnabled()) {
-			if (completeURL.contains("?&")) {
-				_log.warn("Invalid url " + completeURL);
-			}
+		if (_log.isWarnEnabled() && completeURL.contains("?&")) {
+			_log.warn("Invalid url " + completeURL);
 		}
 
 		return completeURL;
@@ -557,7 +546,8 @@ public class HttpImpl implements Http {
 		try {
 			URL urlObj = new URL(url);
 
-			InetAddress address = InetAddress.getByName(urlObj.getHost());
+			InetAddress address = InetAddressUtil.getInetAddressByName(
+				urlObj.getHost());
 
 			return address.getHostAddress();
 		}
@@ -643,8 +633,8 @@ public class HttpImpl implements Http {
 	}
 
 	@Override
-	public String getProtocol(HttpServletRequest request) {
-		return getProtocol(request.isSecure());
+	public String getProtocol(HttpServletRequest httpServletRequest) {
+		return getProtocol(httpServletRequest.isSecure());
 	}
 
 	@Override
@@ -681,8 +671,8 @@ public class HttpImpl implements Http {
 	}
 
 	@Override
-	public String getRequestURL(HttpServletRequest request) {
-		return String.valueOf(request.getRequestURL());
+	public String getRequestURL(HttpServletRequest httpServletRequest) {
+		return String.valueOf(httpServletRequest.getRequestURL());
 	}
 
 	@Override
@@ -935,8 +925,10 @@ public class HttpImpl implements Http {
 	}
 
 	@Override
-	public String protocolize(String url, HttpServletRequest request) {
-		return protocolize(url, request.isSecure());
+	public String protocolize(
+		String url, HttpServletRequest httpServletRequest) {
+
+		return protocolize(url, httpServletRequest.isSecure());
 	}
 
 	@Override
@@ -1085,11 +1077,11 @@ public class HttpImpl implements Http {
 			if (pos == -1) {
 				sb.append(StringPool.SLASH);
 				sb.append(uriPart);
-			}
-			else if (pos == 0) {
+
 				continue;
 			}
-			else {
+
+			if (pos != 0) {
 				sb.append(StringPool.SLASH);
 				sb.append(uriPart.substring(0, pos));
 			}
@@ -1262,19 +1254,37 @@ public class HttpImpl implements Http {
 
 	@Override
 	public String URLtoString(Http.Options options) throws IOException {
-		return new String(URLtoByteArray(options));
+		byte[] bytes = URLtoByteArray(options);
+
+		if (bytes == null) {
+			return null;
+		}
+
+		return new String(bytes);
 	}
 
 	@Override
 	public String URLtoString(String location) throws IOException {
-		return new String(URLtoByteArray(location));
+		byte[] bytes = URLtoByteArray(location);
+
+		if (bytes == null) {
+			return null;
+		}
+
+		return new String(bytes);
 	}
 
 	@Override
 	public String URLtoString(String location, boolean post)
 		throws IOException {
 
-		return new String(URLtoByteArray(location, post));
+		byte[] bytes = URLtoByteArray(location, post);
+
+		if (bytes == null) {
+			return null;
+		}
+
+		return new String(bytes);
 	}
 
 	/**
@@ -1447,8 +1457,8 @@ public class HttpImpl implements Http {
 	}
 
 	protected void processPostMethod(
-		RequestBuilder requestBuilder, List<Http.FilePart> fileParts,
-		Map<String, String> parts) {
+		RequestBuilder requestBuilder, Map<String, String> headers,
+		List<Http.FilePart> fileParts, Map<String, String> parts) {
 
 		if ((fileParts == null) || fileParts.isEmpty()) {
 			if (parts != null) {
@@ -1464,6 +1474,17 @@ public class HttpImpl implements Http {
 		else {
 			MultipartEntityBuilder multipartEntityBuilder =
 				MultipartEntityBuilder.create();
+
+			if (headers.containsKey(HttpHeaders.CONTENT_TYPE)) {
+				ContentType contentType = ContentType.parse(
+					headers.get(HttpHeaders.CONTENT_TYPE));
+
+				String boundary = contentType.getParameter("boundary");
+
+				if (boundary != null) {
+					multipartEntityBuilder.setBoundary(boundary);
+				}
+			}
 
 			if (parts != null) {
 				for (Map.Entry<String, String> entry : parts.entrySet()) {
@@ -1781,7 +1802,8 @@ public class HttpImpl implements Http {
 							targetHttpHost, connectionConfigBuilder.build());
 					}
 
-					processPostMethod(requestBuilder, fileParts, parts);
+					processPostMethod(
+						requestBuilder, headers, fileParts, parts);
 				}
 			}
 			else if (method.equals(Http.Method.DELETE)) {

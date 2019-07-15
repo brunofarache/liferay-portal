@@ -92,24 +92,36 @@ import javax.servlet.http.HttpServletRequest;
 public class UIItemsBuilder {
 
 	public UIItemsBuilder(
-			HttpServletRequest request, FileShortcut fileShortcut,
-			ResourceBundle resourceBundle, DLTrashUtil dlTrashUtil,
-			VersioningStrategy versioningStrategy, DLURLHelper dlurlHelper)
-		throws PortalException {
+		HttpServletRequest httpServletRequest, FileEntry fileEntry,
+		FileVersion fileVersion, ResourceBundle resourceBundle,
+		DLTrashUtil dlTrashUtil, VersioningStrategy versioningStrategy,
+		DLURLHelper dlURLHelper) {
 
 		this(
-			request, fileShortcut.getFileVersion(), fileShortcut,
-			resourceBundle, dlTrashUtil, versioningStrategy, dlurlHelper);
+			httpServletRequest, fileEntry, null, fileVersion, resourceBundle,
+			dlTrashUtil, versioningStrategy, dlURLHelper);
 	}
 
 	public UIItemsBuilder(
-		HttpServletRequest request, FileVersion fileVersion,
-		ResourceBundle resourceBundle, DLTrashUtil dlTrashUtil,
-		VersioningStrategy versioningStrategy, DLURLHelper dlurlHelper) {
+			HttpServletRequest httpServletRequest, FileShortcut fileShortcut,
+			ResourceBundle resourceBundle, DLTrashUtil dlTrashUtil,
+			VersioningStrategy versioningStrategy, DLURLHelper dlURLHelper)
+		throws PortalException {
 
 		this(
-			request, fileVersion, null, resourceBundle, dlTrashUtil,
-			versioningStrategy, dlurlHelper);
+			httpServletRequest, null, fileShortcut,
+			fileShortcut.getFileVersion(), resourceBundle, dlTrashUtil,
+			versioningStrategy, dlURLHelper);
+	}
+
+	public UIItemsBuilder(
+		HttpServletRequest httpServletRequest, FileVersion fileVersion,
+		ResourceBundle resourceBundle, DLTrashUtil dlTrashUtil,
+		VersioningStrategy versioningStrategy, DLURLHelper dlURLHelper) {
+
+		this(
+			httpServletRequest, null, null, fileVersion, resourceBundle,
+			dlTrashUtil, versioningStrategy, dlURLHelper);
 	}
 
 	public void addCancelCheckoutMenuItem(List<MenuItem> menuItems)
@@ -193,14 +205,6 @@ public class UIItemsBuilder {
 		Template template = TemplateManagerUtil.getTemplate(
 			TemplateConstants.LANG_TYPE_FTL, urlTemplateResource, false);
 
-		template.put(
-			"dialogCancelButtonLabel",
-			LanguageUtil.get(_resourceBundle, "cancel"));
-		template.put(
-			"dialogSaveButtonLabel", LanguageUtil.get(_resourceBundle, "save"));
-		template.put(
-			"dialogTitle",
-			UnicodeLanguageUtil.get(_resourceBundle, "describe-your-changes"));
 		template.put("namespace", getNamespace());
 
 		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
@@ -280,8 +284,7 @@ public class UIItemsBuilder {
 
 		compareVersionURL.setParameter("backURL", _getCurrentURL());
 
-		String jsNamespace =
-			getNamespace() + String.valueOf(_fileVersion.getFileVersionId());
+		String jsNamespace = getNamespace() + _fileVersion.getFileVersionId();
 
 		StringBundler sb = new StringBundler(4);
 
@@ -311,7 +314,7 @@ public class UIItemsBuilder {
 		template.put("compareVersionURL", compareVersionURL.toString());
 		template.put(
 			"dialogTitle",
-			UnicodeLanguageUtil.get(_request, "compare-versions"));
+			UnicodeLanguageUtil.get(_httpServletRequest, "compare-versions"));
 		template.put("jsNamespace", jsNamespace);
 		template.put("namespace", getNamespace());
 
@@ -351,7 +354,7 @@ public class UIItemsBuilder {
 			mvcActionCommandName = "/document_library/edit_file_shortcut";
 		}
 
-		PortletURL portletURL = _getActionURL(mvcActionCommandName, cmd);
+		PortletURL portletURL = _getDeleteActionURL(mvcActionCommandName, cmd);
 
 		if (_fileShortcut == null) {
 			portletURL.setParameter(
@@ -417,10 +420,15 @@ public class UIItemsBuilder {
 		if ((_fileEntry == null) ||
 			(_fileVersion.getStatus() != WorkflowConstants.STATUS_APPROVED) ||
 			!_fileEntryDisplayContextHelper.hasDeletePermission() ||
-			!(_fileEntry.getModel() instanceof DLFileEntry) ||
-			(_fileEntry.getFileVersionsCount(
-				WorkflowConstants.STATUS_APPROVED) <= 1)) {
+			!(_fileEntry.getModel() instanceof DLFileEntry)) {
 
+			return;
+		}
+
+		int fileVersionsCount = _fileEntry.getFileVersionsCount(
+			WorkflowConstants.STATUS_APPROVED);
+
+		if (fileVersionsCount <= 1) {
 			return;
 		}
 
@@ -469,7 +477,7 @@ public class UIItemsBuilder {
 			appendVersion = true;
 		}
 
-		String url = _dlurlHelper.getDownloadURL(
+		String url = _dlURLHelper.getDownloadURL(
 			_fileEntry, _fileVersion, _themeDisplay, StringPool.BLANK,
 			appendVersion, true);
 
@@ -483,7 +491,6 @@ public class UIItemsBuilder {
 		urlMenuItem.setData(data);
 
 		urlMenuItem.setMethod("get");
-		urlMenuItem.setTarget("_blank");
 	}
 
 	public void addDownloadToolbarItem(List<ToolbarItem> toolbarItems)
@@ -493,10 +500,15 @@ public class UIItemsBuilder {
 			return;
 		}
 
+		String label = TextFormatter.formatStorageSize(
+			_fileEntry.getSize(), _themeDisplay.getLocale());
+
 		_addURLUIItem(
 			new URLToolbarItem(), toolbarItems, DLUIItemKeys.DOWNLOAD,
-			LanguageUtil.get(_resourceBundle, "download"),
-			_dlurlHelper.getDownloadURL(
+			StringBundler.concat(
+				LanguageUtil.get(_resourceBundle, "download"), " (", label,
+				")"),
+			_dlURLHelper.getDownloadURL(
 				_fileEntry, _fileVersion, _themeDisplay, StringPool.BLANK));
 	}
 
@@ -615,7 +627,7 @@ public class UIItemsBuilder {
 			return;
 		}
 
-		String webDavURL = _dlurlHelper.getWebDavURL(
+		String webDavURL = _dlURLHelper.getWebDavURL(
 			_themeDisplay, _fileEntry.getFolder(), _fileEntry,
 			PropsValues.
 				DL_FILE_ENTRY_OPEN_IN_MS_OFFICE_MANUAL_CHECK_IN_REQUIRED,
@@ -662,7 +674,7 @@ public class UIItemsBuilder {
 			return;
 		}
 
-		String webDavURL = _dlurlHelper.getWebDavURL(
+		String webDavURL = _dlURLHelper.getWebDavURL(
 			_themeDisplay, _fileEntry.getFolder(), _fileEntry,
 			PropsValues.
 				DL_FILE_ENTRY_OPEN_IN_MS_OFFICE_MANUAL_CHECK_IN_REQUIRED);
@@ -700,14 +712,16 @@ public class UIItemsBuilder {
 					null, DLFileShortcutConstants.getClassName(),
 					HtmlUtil.unescape(_fileShortcut.getToTitle()), null,
 					String.valueOf(_fileShortcut.getFileShortcutId()),
-					LiferayWindowState.POP_UP.toString(), null, _request);
+					LiferayWindowState.POP_UP.toString(), null,
+					_httpServletRequest);
 			}
 			else {
 				url = PermissionsURLTag.doTag(
 					null, DLFileEntryConstants.getClassName(),
 					HtmlUtil.unescape(_fileEntry.getTitle()), null,
 					String.valueOf(_fileEntry.getFileEntryId()),
-					LiferayWindowState.POP_UP.toString(), null, _request);
+					LiferayWindowState.POP_UP.toString(), null,
+					_httpServletRequest);
 			}
 		}
 		catch (Exception e) {
@@ -736,7 +750,8 @@ public class UIItemsBuilder {
 				null, DLFileEntryConstants.getClassName(),
 				HtmlUtil.unescape(_fileEntry.getTitle()), null,
 				String.valueOf(_fileEntry.getFileEntryId()),
-				LiferayWindowState.POP_UP.toString(), null, _request);
+				LiferayWindowState.POP_UP.toString(), null,
+				_httpServletRequest);
 		}
 		catch (Exception e) {
 			throw new SystemException("Unable to create permissions URL", e);
@@ -932,17 +947,7 @@ public class UIItemsBuilder {
 		Template template = TemplateManagerUtil.getTemplate(
 			TemplateConstants.LANG_TYPE_FTL, urlTemplateResource, false);
 
-		template.put(
-			"dialogCancelButtonLabel",
-			LanguageUtil.get(_resourceBundle, "cancel"));
-		template.put(
-			"dialogSaveButtonLabel", LanguageUtil.get(_resourceBundle, "save"));
-		template.put(
-			"dialogTitle",
-			UnicodeLanguageUtil.get(_resourceBundle, "describe-your-changes"));
 		template.put("namespace", getNamespace());
-		template.put(
-			"randomNamespace", _request.getAttribute("randomNamespace"));
 
 		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
 
@@ -1030,29 +1035,28 @@ public class UIItemsBuilder {
 	}
 
 	private UIItemsBuilder(
-		HttpServletRequest request, FileVersion fileVersion,
-		FileShortcut fileShortcut, ResourceBundle resourceBundle,
-		DLTrashUtil dlTrashUtil, VersioningStrategy versioningStrategy,
-		DLURLHelper dlurlHelper) {
+		HttpServletRequest httpServletRequest, FileEntry fileEntry,
+		FileShortcut fileShortcut, FileVersion fileVersion,
+		ResourceBundle resourceBundle, DLTrashUtil dlTrashUtil,
+		VersioningStrategy versioningStrategy, DLURLHelper dlURLHelper) {
 
 		try {
-			_request = request;
-			_fileVersion = fileVersion;
-			_fileShortcut = fileShortcut;
-			_resourceBundle = resourceBundle;
-			_dlTrashUtil = dlTrashUtil;
-			_versioningStrategy = versioningStrategy;
-			_dlurlHelper = dlurlHelper;
+			_httpServletRequest = httpServletRequest;
 
-			FileEntry fileEntry = null;
-
-			if (fileVersion != null) {
+			if ((fileEntry == null) && (fileVersion != null)) {
 				fileEntry = fileVersion.getFileEntry();
 			}
 
 			_fileEntry = fileEntry;
 
-			_themeDisplay = (ThemeDisplay)request.getAttribute(
+			_fileShortcut = fileShortcut;
+			_fileVersion = fileVersion;
+			_resourceBundle = resourceBundle;
+			_dlTrashUtil = dlTrashUtil;
+			_versioningStrategy = versioningStrategy;
+			_dlURLHelper = dlURLHelper;
+
+			_themeDisplay = (ThemeDisplay)httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
 			_fileEntryDisplayContextHelper = new FileEntryDisplayContextHelper(
@@ -1144,16 +1148,45 @@ public class UIItemsBuilder {
 		return _currentURL;
 	}
 
+	private PortletURL _getDeleteActionURL(
+		String mvcActionCommandName, String cmd) {
+
+		String currentMVCRenderCommandName = ParamUtil.getString(
+			_httpServletRequest, "mvcRenderCommandName");
+
+		if (currentMVCRenderCommandName.equals(
+				"/document_library/view_file_entry")) {
+
+			String redirect = ParamUtil.getString(
+				_httpServletRequest, "redirect");
+
+			if (Validator.isNull(redirect)) {
+				LiferayPortletResponse liferayPortletResponse =
+					_getLiferayPortletResponse();
+
+				PortletURL portletURL =
+					liferayPortletResponse.createRenderURL();
+
+				redirect = portletURL.toString();
+			}
+
+			return _getActionURL(mvcActionCommandName, cmd, redirect);
+		}
+
+		return _getActionURL(mvcActionCommandName, cmd);
+	}
+
 	private LiferayPortletRequest _getLiferayPortletRequest() {
-		PortletRequest portletRequest = (PortletRequest)_request.getAttribute(
-			JavaConstants.JAVAX_PORTLET_REQUEST);
+		PortletRequest portletRequest =
+			(PortletRequest)_httpServletRequest.getAttribute(
+				JavaConstants.JAVAX_PORTLET_REQUEST);
 
 		return PortalUtil.getLiferayPortletRequest(portletRequest);
 	}
 
 	private LiferayPortletResponse _getLiferayPortletResponse() {
 		PortletResponse portletResponse =
-			(PortletResponse)_request.getAttribute(
+			(PortletResponse)_httpServletRequest.getAttribute(
 				JavaConstants.JAVAX_PORTLET_RESPONSE);
 
 		return PortalUtil.getLiferayPortletResponse(portletResponse);
@@ -1181,7 +1214,7 @@ public class UIItemsBuilder {
 
 	private String _getRedirect() {
 		if (_redirect == null) {
-			_redirect = ParamUtil.getString(_request, "redirect");
+			_redirect = ParamUtil.getString(_httpServletRequest, "redirect");
 		}
 
 		return _redirect;
@@ -1274,7 +1307,7 @@ public class UIItemsBuilder {
 
 	private boolean _isIEOnWin32() {
 		if (_ieOnWin32 == null) {
-			_ieOnWin32 = BrowserSnifferUtil.isIeOnWin32(_request);
+			_ieOnWin32 = BrowserSnifferUtil.isIeOnWin32(_httpServletRequest);
 		}
 
 		return _ieOnWin32;
@@ -1305,7 +1338,7 @@ public class UIItemsBuilder {
 
 	private String _currentURL;
 	private final DLTrashUtil _dlTrashUtil;
-	private final DLURLHelper _dlurlHelper;
+	private final DLURLHelper _dlURLHelper;
 	private final FileEntry _fileEntry;
 	private final FileEntryDisplayContextHelper _fileEntryDisplayContextHelper;
 	private FileShortcut _fileShortcut;
@@ -1314,9 +1347,9 @@ public class UIItemsBuilder {
 	private final FileVersion _fileVersion;
 	private final FileVersionDisplayContextHelper
 		_fileVersionDisplayContextHelper;
+	private final HttpServletRequest _httpServletRequest;
 	private Boolean _ieOnWin32;
 	private String _redirect;
-	private final HttpServletRequest _request;
 	private final ResourceBundle _resourceBundle;
 	private final ThemeDisplay _themeDisplay;
 	private Boolean _trashEnabled;

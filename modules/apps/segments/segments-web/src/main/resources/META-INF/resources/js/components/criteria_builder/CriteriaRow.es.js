@@ -1,7 +1,24 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
+/* eslint no-unused-vars: "warn" */
+
 import BooleanInput from '../inputs/BooleanInput.es';
-import ClayButton from '../shared/ClayButton.es';
-import ClayIcon from '../shared/ClayIcon.es';
-import ClaySelect from '../shared/ClaySelect.es';
+import ClayAlert from '@clayui/alert';
+import ClayButton from '@clayui/button';
+import ClayIcon from '@clayui/icon';
+import {ClaySelectWithOption} from '@clayui/select';
 import CollectionInput from '../inputs/CollectionInput.es';
 import DateInput from '../inputs/DateInput.es';
 import DateTimeInput from '../inputs/DateTimeInput.es';
@@ -16,18 +33,14 @@ import {
 	createNewGroup,
 	dateToInternationalHuman,
 	getSupportedOperatorsFromType,
-	objectToFormData,
-	sub
+	objectToFormData
 } from '../../utils/utils.es';
 import {DragSource as dragSource, DropTarget as dropTarget} from 'react-dnd';
 import {DragTypes} from '../../utils/drag-types.es';
 import {PROPERTY_TYPES} from '../../utils/constants.es';
 import {PropTypes} from 'prop-types';
 
-const acceptedDragTypes = [
-	DragTypes.CRITERIA_ROW,
-	DragTypes.PROPERTY
-];
+const acceptedDragTypes = [DragTypes.CRITERIA_ROW, DragTypes.PROPERTY];
 
 /**
  * Prevents rows from dropping onto itself and adding properties to not matching
@@ -50,8 +63,10 @@ function canDrop(props, monitor) {
 		propertyKey: sidebarItemPropertyKey
 	} = monitor.getItem();
 
-	return (destGroupId !== startGroupId || destIndex !== startIndex) &&
-		contributorPropertyKey === sidebarItemPropertyKey;
+	return (
+		(destGroupId !== startGroupId || destIndex !== startIndex) &&
+		contributorPropertyKey === sidebarItemPropertyKey
+	);
 }
 
 /**
@@ -97,9 +112,7 @@ function drop(props, monitor) {
 
 	const newCriterion = {
 		displayValue,
-		operatorName: operatorName ?
-			operatorName :
-			operators[0].name,
+		operatorName: operatorName ? operatorName : operators[0].name,
 		propertyName,
 		value: droppedCriterionValue
 	};
@@ -110,8 +123,7 @@ function drop(props, monitor) {
 
 	if (itemType === DragTypes.PROPERTY) {
 		onChange(newGroup);
-	}
-	else if (itemType === DragTypes.CRITERIA_ROW) {
+	} else if (itemType === DragTypes.CRITERIA_ROW) {
 		onMove(
 			startGroupId,
 			startIndex,
@@ -178,7 +190,8 @@ class CriteriaRow extends Component {
 			propertyName
 		);
 
-		if (this._selectedProperty.type === PROPERTY_TYPES.ID &&
+		if (
+			this._selectedProperty.type === PROPERTY_TYPES.ID &&
 			value &&
 			!displayValue
 		) {
@@ -191,62 +204,42 @@ class CriteriaRow extends Component {
 
 		const {propertyName, value} = criterion;
 
-		const data = Liferay.Util.ns(
-			this.context.namespace,
-			{
-				entityName,
-				fieldName: propertyName,
-				fieldValue: value
-			}
-		);
+		const data = Liferay.Util.ns(this.context.namespace, {
+			entityName,
+			fieldName: propertyName,
+			fieldValue: value
+		});
 
-		fetch(
-			this.context.requestFieldValueNameURL,
-			{
-				body: objectToFormData(data),
-				method: 'POST'
-			}
-		)
-			.then(
-				response => response.text()
-			)
-			.then(
-				displayValue => {
-					onChange({...criterion, displayValue});
-				}
-			);
-	}
+		fetch(this.context.requestFieldValueNameURL, {
+			body: objectToFormData(data),
+			method: 'POST'
+		})
+			.then(response => response.text())
+			.then(displayValue => {
+				onChange({...criterion, displayValue});
+			});
+	};
 
-	_getReadableCriteriaString = (
-		modelLabel,
+	_getReadableCriteriaString = ({
 		propertyLabel,
 		operatorLabel,
 		value,
-		type
-	) => {
-		const parsedValue = (type === PROPERTY_TYPES.DATE || type === PROPERTY_TYPES.DATE_TIME) ?
-			dateToInternationalHuman(value) :
-			value;
+		type,
+		error
+	}) => {
+		const parsedValue =
+			type === PROPERTY_TYPES.DATE || type === PROPERTY_TYPES.DATE_TIME
+				? dateToInternationalHuman(value)
+				: value;
 
-		return sub(
-			Liferay.Language.get('x-with-property-x-x-x'),
-			[
-				<span key="model-name">
-					{modelLabel}
-				</span>,
-				<b key="property">
-					{propertyLabel}
-				</b>,
-				<span className="operator" key="operator">
-					{operatorLabel}
-				</span>,
-				<b key="value">
-					{parsedValue}
-				</b>
-			],
-			false
+		return (
+			<span>
+				<b className='mr-1 text-dark'>{propertyLabel}</b>
+				<span className='operator mr-1'>{operatorLabel}</span>
+				<b>{parsedValue}</b>
+			</span>
 		);
-	}
+	};
 
 	/**
 	 * Gets the selected item object with a `name` and `label` property for a
@@ -259,14 +252,15 @@ class CriteriaRow extends Component {
 	_getSelectedItem = (list, idSelected) => {
 		const selectedItem = list.find(item => item.name === idSelected);
 
-		return selectedItem ?
-			selectedItem :
-			{
-				label: idSelected,
-				name: idSelected,
-				type: PROPERTY_TYPES.STRING
-			};
-	}
+		return selectedItem
+			? selectedItem
+			: {
+					label: idSelected,
+					name: idSelected,
+					notFound: true,
+					type: PROPERTY_TYPES.STRING
+			  };
+	};
 
 	_handleDelete = event => {
 		event.preventDefault();
@@ -274,7 +268,7 @@ class CriteriaRow extends Component {
 		const {index, onDelete} = this.props;
 
 		onDelete(index);
-	}
+	};
 
 	_handleDuplicate = event => {
 		event.preventDefault();
@@ -282,17 +276,15 @@ class CriteriaRow extends Component {
 		const {criterion, index, onAdd} = this.props;
 
 		onAdd(index + 1, criterion);
-	}
+	};
 
 	_handleInputChange = propertyName => event => {
 		const {criterion, onChange} = this.props;
 
-		onChange(
-			{
-				...criterion,
-				[propertyName]: event.target.value
-			}
-		);
+		onChange({
+			...criterion,
+			[propertyName]: event.target.value
+		});
 	};
 
 	/**
@@ -307,26 +299,21 @@ class CriteriaRow extends Component {
 		const {criterion, onChange} = this.props;
 
 		if (Array.isArray(value)) {
-			const items = value.map(
-				item => ({
-					...criterion,
-					...item
-				})
-			);
+			const items = value.map(item => ({
+				...criterion,
+				...item
+			}));
 
 			onChange(createNewGroup(items));
+		} else {
+			onChange({
+				...criterion,
+				...value
+			});
 		}
-		else {
-			onChange(
-				{
-					...criterion,
-					...value
-				}
-			);
-		}
-	}
+	};
 
-	_renderValueInput = (selectedProperty, value) => {
+	_renderValueInput = (selectedProperty, value, disabled) => {
 		const inputComponentsMap = {
 			[PROPERTY_TYPES.BOOLEAN]: BooleanInput,
 			[PROPERTY_TYPES.COLLECTION]: CollectionInput,
@@ -338,11 +325,13 @@ class CriteriaRow extends Component {
 			[PROPERTY_TYPES.STRING]: StringInput
 		};
 
-		const InputComponent = inputComponentsMap[selectedProperty.type] ||
+		const InputComponent =
+			inputComponentsMap[selectedProperty.type] ||
 			inputComponentsMap[PROPERTY_TYPES.STRING];
 
 		return (
 			<InputComponent
+				disabled={disabled}
 				displayValue={this.props.criterion.displayValue || ''}
 				onChange={this._handleTypedInputChange}
 				options={selectedProperty.options}
@@ -350,22 +339,118 @@ class CriteriaRow extends Component {
 				value={value}
 			/>
 		);
+	};
+
+	_renderErrorMessage() {
+		const {editing} = this.props;
+		const message = editing
+			? Liferay.Language.get('criteria-error-message-edit')
+			: Liferay.Language.get('criteria-error-message-view');
+
+		return (
+			<ClayAlert
+				className='bg-transparent p-1 mt-1 border-0'
+				displayType='danger'
+				title={Liferay.Language.get('error')}
+			>
+				{message}
+			</ClayAlert>
+		);
+	}
+
+	_renderEditContainer({
+		error,
+		propertyLabel,
+		selectedOperator,
+		selectedProperty,
+		value
+	}) {
+		const {
+			connectDragSource,
+			supportedOperators,
+			supportedPropertyTypes
+		} = this.props;
+
+		const propertyType = selectedProperty ? selectedProperty.type : '';
+
+		const filteredSupportedOperators = getSupportedOperatorsFromType(
+			supportedOperators,
+			supportedPropertyTypes,
+			propertyType
+		);
+
+		const disabledInput = !!error;
+
+		return (
+			<div className='edit-container'>
+				{connectDragSource(
+					<div className='drag-icon'>
+						<ClayIcon symbol='drag' />
+					</div>
+				)}
+
+				<span className='criterion-string'>
+					<b>{propertyLabel}</b>
+				</span>
+
+				<ClaySelectWithOption
+					className='criterion-input operator-input form-control'
+					disabled={disabledInput}
+					onChange={this._handleInputChange('operatorName')}
+					options={filteredSupportedOperators.map(
+						({label, name}) => ({
+							label,
+							value: name
+						})
+					)}
+					value={selectedOperator && selectedOperator.name}
+				/>
+
+				{this._renderValueInput(selectedProperty, value, disabledInput)}
+
+				{error ? (
+					<ClayButton
+						onClick={this._handleDelete}
+						className='btn-outline-danger'
+					>
+						{Liferay.Language.get('delete')}
+					</ClayButton>
+				) : (
+					<React.Fragment>
+						<ClayButton
+							className='btn-outline-borderless'
+							displayType='secondary'
+							monospaced
+							onClick={this._handleDuplicate}
+						>
+							<ClayIcon symbol='paste' />
+						</ClayButton>
+
+						<ClayButton
+							className='btn-outline-borderless'
+							displayType='secondary'
+							monospaced
+							onClick={this._handleDelete}
+						>
+							<ClayIcon symbol='times-circle' />
+						</ClayButton>
+					</React.Fragment>
+				)}
+			</div>
+		);
 	}
 
 	render() {
 		const {
 			canDrop,
 			connectDragPreview,
-			connectDragSource,
 			connectDropTarget,
 			criterion,
 			dragging,
 			editing,
 			hover,
-			modelLabel,
 			supportedOperators,
-			supportedProperties,
-			supportedPropertyTypes
+			supportedProperties
 		} = this.props;
 
 		const selectedOperator = this._getSelectedItem(
@@ -378,101 +463,47 @@ class CriteriaRow extends Component {
 			criterion.propertyName
 		);
 
+		const errorOnProperty = selectedProperty.notFound;
 		const operatorLabel = selectedOperator ? selectedOperator.label : '';
 		const propertyLabel = selectedProperty ? selectedProperty.label : '';
 
 		const value = criterion ? criterion.value : '';
 
-		const propertyType = selectedProperty ? selectedProperty.type : '';
+		const classes = getCN('criterion-row-root', {
+			'criterion-row-root-error': errorOnProperty,
+			'dnd-drag': dragging,
+			'dnd-hover': hover && canDrop
+		});
 
-		const filteredSupportedOperators = getSupportedOperatorsFromType(
-			supportedOperators,
-			supportedPropertyTypes,
-			propertyType
-		);
-
-		const classes = getCN(
-			'criterion-row-root',
-			{
-				'dnd-drag': dragging,
-				'dnd-hover': hover && canDrop
-			}
-		);
-
-		return connectDropTarget(
-			connectDragPreview(
-				<div
-					className={classes}
-				>
-					{editing ? (
-						<div className="edit-container">
-							{connectDragSource(
-								<div className="drag-icon">
-									<ClayIcon iconName="drag" />
-								</div>
-							)}
-
-							<span className="criterion-string">
-								{sub(
-									Liferay.Language.get('x-with-property-x'),
-									[
-										<span key="model-name">
-											{modelLabel}
-										</span>,
-										<b key="property">
-											{propertyLabel}
-										</b>
-									],
-									false
-								)}
-							</span>
-
-							<ClaySelect
-								className="criterion-input operator-input form-control"
-								onChange={this._handleInputChange(
-									'operatorName'
-								)}
-								options={filteredSupportedOperators.map(
-									({label, name}) => ({
-										label,
-										value: name
-									})
-								)}
-								selected={selectedOperator && selectedOperator.name}
-							/>
-
-							{this._renderValueInput(selectedProperty, value)}
-
-							<ClayButton
-								borderless
-								className="duplicate-button"
-								iconName="paste"
-								monospaced
-								onClick={this._handleDuplicate}
-							/>
-
-							<ClayButton
-								borderless
-								iconName="trash"
-								monospaced
-								onClick={this._handleDelete}
-							/>
-						</div>
-					) : (
-						<div className="read-only-container">
-							<span className="criterion-string">
-								{this._getReadableCriteriaString(
-									modelLabel,
+		return (
+			<React.Fragment>
+				{connectDropTarget(
+					connectDragPreview(
+						<div className={classes}>
+							{editing ? (
+								this._renderEditContainer({
+									error: errorOnProperty,
 									propertyLabel,
-									operatorLabel,
-									criterion.displayValue || value,
-									selectedProperty.type
-								)}
-							</span>
+									selectedOperator,
+									selectedProperty,
+									value
+								})
+							) : (
+								<span className='criterion-string'>
+									{this._getReadableCriteriaString({
+										error: errorOnProperty,
+										operatorLabel,
+										propertyLabel,
+										type: selectedProperty.type,
+										value: criterion.displayValue || value
+									})}
+								</span>
+							)}
 						</div>
-					)}
-				</div>
-			)
+					)
+				)}
+				{errorOnProperty && this._renderErrorMessage()}
+			</React.Fragment>
 		);
 	}
 }

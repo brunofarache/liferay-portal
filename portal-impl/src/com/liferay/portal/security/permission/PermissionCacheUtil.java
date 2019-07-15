@@ -16,7 +16,6 @@ package com.liferay.portal.security.permission;
 
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.petra.lang.HashUtil;
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.cache.PortalCache;
 import com.liferay.portal.kernel.cache.PortalCacheHelperUtil;
 import com.liferay.portal.kernel.cache.PortalCacheManagerNames;
@@ -27,6 +26,7 @@ import com.liferay.portal.kernel.cluster.ClusterInvokeThreadLocal;
 import com.liferay.portal.kernel.cluster.ClusterRequest;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.security.permission.ResourceBlockIdsBag;
 import com.liferay.portal.kernel.security.permission.UserBag;
@@ -36,7 +36,9 @@ import com.liferay.portal.util.PropsValues;
 
 import java.io.Serializable;
 
+import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -75,6 +77,8 @@ public class PermissionCacheUtil {
 			return;
 		}
 
+		_clearPermissionChecksMap();
+
 		_userRolePortalCache.removeAll();
 		_userGroupRoleIdsPortalCache.removeAll();
 		_permissionPortalCache.removeAll();
@@ -86,6 +90,8 @@ public class PermissionCacheUtil {
 		if (ExportImportThreadLocal.isImportInProcess()) {
 			return;
 		}
+
+		_clearPermissionChecksMap();
 
 		for (long userId : userIds) {
 			_userBagPortalCache.remove(userId);
@@ -105,6 +111,8 @@ public class PermissionCacheUtil {
 			return;
 		}
 
+		_clearPermissionChecksMap();
+
 		_permissionPortalCache.removeAll();
 		_userPrimaryKeyRolePortalCache.removeAll();
 	}
@@ -121,6 +129,8 @@ public class PermissionCacheUtil {
 		if (!ExportImportThreadLocal.isImportInProcess()) {
 			_permissionPortalCache.removeAll();
 		}
+
+		_clearPermissionChecksMap();
 	}
 
 	public static void clearResourcePermissionCache(
@@ -132,6 +142,8 @@ public class PermissionCacheUtil {
 
 			return;
 		}
+
+		_clearPermissionChecksMap();
 
 		if (scope == ResourceConstants.SCOPE_INDIVIDUAL) {
 			_permissionPortalCacheNamePrimKeyIndexer.removeKeys(
@@ -313,6 +325,20 @@ public class PermissionCacheUtil {
 		_userPrimaryKeyRolePortalCache.remove(userPrimaryKeyRoleKey);
 	}
 
+	private static void _clearPermissionChecksMap() {
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		if (permissionChecker != null) {
+			Map<Object, Object> permissionChecksMap =
+				permissionChecker.getPermissionChecksMap();
+
+			if (permissionChecksMap != null) {
+				permissionChecksMap.clear();
+			}
+		}
+	}
+
 	private static void _sendClearCacheClusterMessage(
 		MethodKey methodKey, Object... arguments) {
 
@@ -341,9 +367,11 @@ public class PermissionCacheUtil {
 	private static final PortalCacheIndexer<Long, PermissionKey, Boolean>
 		_permissionPortalCacheGroupIdIndexer = new PortalCacheIndexer<>(
 			new PermissionKeyGroupIdIndexEncoder(), _permissionPortalCache);
-	private static final PortalCacheIndexer<String, PermissionKey, Boolean>
-		_permissionPortalCacheNamePrimKeyIndexer = new PortalCacheIndexer<>(
-			new PermissionKeyNamePrimKeyIndexEncoder(), _permissionPortalCache);
+	private static final PortalCacheIndexer
+		<Map.Entry<?, ?>, PermissionKey, Boolean>
+			_permissionPortalCacheNamePrimKeyIndexer = new PortalCacheIndexer<>(
+				new PermissionKeyNamePrimKeyIndexEncoder(),
+				_permissionPortalCache);
 	private static final PortalCache<Long, UserBag> _userBagPortalCache =
 		PortalCacheHelperUtil.getPortalCache(
 			PortalCacheManagerNames.MULTI_VM, USER_BAG_CACHE_NAME,
@@ -441,18 +469,14 @@ public class PermissionCacheUtil {
 	}
 
 	private static class PermissionKeyNamePrimKeyIndexEncoder
-		implements IndexEncoder<String, PermissionKey> {
+		implements IndexEncoder<Map.Entry<?, ?>, PermissionKey> {
 
-		public static String encode(String name, String primKey) {
-			return name.concat(
-				StringPool.UNDERLINE
-			).concat(
-				primKey
-			);
+		public static Map.Entry<?, ?> encode(String name, String primKey) {
+			return new AbstractMap.SimpleImmutableEntry<>(name, primKey);
 		}
 
 		@Override
-		public String encode(PermissionKey permissionKey) {
+		public Map.Entry<?, ?> encode(PermissionKey permissionKey) {
 			return encode(permissionKey._name, permissionKey._primKey);
 		}
 

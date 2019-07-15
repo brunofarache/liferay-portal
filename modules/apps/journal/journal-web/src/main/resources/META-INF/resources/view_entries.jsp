@@ -43,7 +43,7 @@ String referringPortletResource = ParamUtil.getString(request, "referringPortlet
 			curFolder = (JournalFolder)result;
 		}
 		else {
-			curArticle = (JournalArticle)result;
+			curArticle = journalDisplayContext.getLatestArticle((JournalArticle)result);
 		}
 		%>
 
@@ -54,7 +54,7 @@ String referringPortletResource = ParamUtil.getString(request, "referringPortlet
 				Map<String, Object> rowData = new HashMap<String, Object>();
 
 				rowData.put("actions", journalManagementToolbarDisplayContext.getAvailableActions(curArticle));
-				rowData.put("draggable", JournalArticlePermission.contains(permissionChecker, curArticle, ActionKeys.DELETE) || JournalArticlePermission.contains(permissionChecker, curArticle, ActionKeys.UPDATE));
+				rowData.put("draggable", !BrowserSnifferUtil.isMobile(request) && (JournalArticlePermission.contains(permissionChecker, curArticle, ActionKeys.DELETE) || JournalArticlePermission.contains(permissionChecker, curArticle, ActionKeys.UPDATE)));
 
 				String title = curArticle.getTitle(locale);
 
@@ -107,13 +107,13 @@ String referringPortletResource = ParamUtil.getString(request, "referringPortlet
 								<liferay-ui:message arguments="<%= new String[] {HtmlUtil.escape(curArticle.getUserName()), modifiedDateDescription} %>" key="x-modified-x-ago" />
 							</span>
 
-							<h2 class="h5">
+							<p class="font-weight-bold h5">
 								<aui:a href="<%= editURL %>">
 									<%= HtmlUtil.escape(title) %>
 								</aui:a>
-							</h2>
+							</p>
 
-							<c:if test="<%= journalDisplayContext.isSearch() %>">
+							<c:if test="<%= journalDisplayContext.isSearch() && ((curArticle.getFolderId() <= 0) || JournalFolderPermission.contains(permissionChecker, curArticle.getFolder(), ActionKeys.VIEW)) %>">
 								<h5>
 									<%= JournalHelperUtil.getAbsolutePath(liferayPortletRequest, curArticle.getFolderId()) %>
 								</h5>
@@ -174,19 +174,21 @@ String referringPortletResource = ParamUtil.getString(request, "referringPortlet
 
 						<c:if test="<%= journalDisplayContext.isChangeListColumnVisible() %>">
 							<liferay-ui:search-container-column-text
-								cssClass="check-circle-center progress-success table-cell-expand table-cell-minw-50 table-column-text-center"
+								cssClass="check-circle-center table-cell-expand table-cell-minw-50 table-column-text-center"
 								name="change-list"
 							>
 								<c:if test="<%= journalDisplayContext.isJournalArticleInChangeList(curArticle) %>">
 									<liferay-ui:icon
+										cssClass="green"
 										icon="check-circle"
 										markupView="lexicon"
+										toolTip=""
 									/>
 								</c:if>
 							</liferay-ui:search-container-column-text>
 						</c:if>
 
-						<c:if test="<%= journalDisplayContext.isSearch() %>">
+						<c:if test="<%= journalDisplayContext.isSearch() && ((curArticle.getFolderId() <= 0) || JournalFolderPermission.contains(permissionChecker, curArticle.getFolder(), ActionKeys.VIEW)) %>">
 							<liferay-ui:search-container-column-text
 								cssClass="table-cell-expand-smallest table-cell-minw-200"
 								name="path"
@@ -227,10 +229,14 @@ String referringPortletResource = ParamUtil.getString(request, "referringPortlet
 							value="<%= curArticle.getDisplayDate() %>"
 						/>
 
+						<%
+						DDMStructure ddmStructure = curArticle.getDDMStructure();
+						%>
+
 						<liferay-ui:search-container-column-text
 							cssClass="table-cell-expand-smallest table-cell-minw-100"
 							name="type"
-							value="<%= HtmlUtil.escape(title) %>"
+							value="<%= HtmlUtil.escape(ddmStructure.getName(locale)) %>"
 						/>
 
 						<liferay-ui:search-container-column-text>
@@ -248,7 +254,7 @@ String referringPortletResource = ParamUtil.getString(request, "referringPortlet
 				Map<String, Object> rowData = new HashMap<String, Object>();
 
 				rowData.put("actions", journalManagementToolbarDisplayContext.getAvailableActions(curFolder));
-				rowData.put("draggable", JournalFolderPermission.contains(permissionChecker, curFolder, ActionKeys.DELETE) || JournalFolderPermission.contains(permissionChecker, curFolder, ActionKeys.UPDATE));
+				rowData.put("draggable", !BrowserSnifferUtil.isMobile(request) && (JournalFolderPermission.contains(permissionChecker, curFolder, ActionKeys.DELETE) || JournalFolderPermission.contains(permissionChecker, curFolder, ActionKeys.UPDATE)));
 				rowData.put("folder", true);
 				rowData.put("folder-id", curFolder.getFolderId());
 				rowData.put("title", HtmlUtil.escape(curFolder.getName()));
@@ -284,11 +290,11 @@ String referringPortletResource = ParamUtil.getString(request, "referringPortlet
 								<liferay-ui:message arguments="<%= new String[] {HtmlUtil.escape(curFolder.getUserName()), createDateDescription} %>" key="x-modified-x-ago" />
 							</span>
 
-							<h2 class="h5">
+							<p class="font-weight-bold h5">
 								<aui:a href="<%= rowURL.toString() %>">
 									<%= HtmlUtil.escape(curFolder.getName()) %>
 								</aui:a>
-							</h2>
+							</p>
 
 							<span class="text-default">
 								<aui:workflow-status markupView="lexicon" showIcon="<%= false %>" showLabel="<%= false %>" status="<%= curFolder.getStatus() %>" />
@@ -336,6 +342,14 @@ String referringPortletResource = ParamUtil.getString(request, "referringPortlet
 							name="description"
 							value="<%= HtmlUtil.escape(curFolder.getDescription()) %>"
 						/>
+
+						<c:if test="<%= journalDisplayContext.isChangeListColumnVisible() %>">
+							<liferay-ui:search-container-column-text
+								cssClass="check-circle-center table-cell-expand table-cell-minw-50 table-column-text-center"
+								name="change-list"
+							>
+							</liferay-ui:search-container-column-text>
+						</c:if>
 
 						<liferay-ui:search-container-column-text
 							cssClass="table-cell-expand-smallest table-cell-minw-150"

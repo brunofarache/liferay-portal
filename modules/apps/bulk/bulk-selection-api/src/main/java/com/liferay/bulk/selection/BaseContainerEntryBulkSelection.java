@@ -14,15 +14,12 @@
 
 package com.liferay.bulk.selection;
 
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.util.ResourceBundleLoader;
 
 import java.io.Serializable;
 
-import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 /**
  * @author Adolfo Pérez
@@ -31,23 +28,22 @@ public abstract class BaseContainerEntryBulkSelection<T>
 	implements BulkSelection<T> {
 
 	public BaseContainerEntryBulkSelection(
-		long containerId, Map<String, String[]> parameterMap,
-		ResourceBundleLoader resourceBundleLoader, Language language) {
+		long containerId, Map<String, String[]> parameterMap) {
 
 		_containerId = containerId;
 		_parameterMap = parameterMap;
-		_resourceBundleLoader = resourceBundleLoader;
-		_language = language;
 	}
 
-	@Override
-	public String describe(Locale locale) throws PortalException {
-		ResourceBundle resourceBundle =
-			_resourceBundleLoader.loadResourceBundle(locale);
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #BaseContainerEntryBulkSelection(long, Map)}
+	 */
+	@Deprecated
+	public BaseContainerEntryBulkSelection(
+		long containerId, Map<String, String[]> parameterMap,
+		ResourceBundleLoader resourceBundleLoader, Language language) {
 
-		return _language.format(
-			resourceBundle, "these-changes-will-be-applied-to-x-items",
-			getEntriesCount());
+		this(containerId, parameterMap);
 	}
 
 	@Override
@@ -56,20 +52,11 @@ public abstract class BaseContainerEntryBulkSelection<T>
 	}
 
 	@Override
-	public boolean isMultiple() {
-		return true;
-	}
-
-	@Override
 	public Serializable serialize() {
 		return "all:" + _containerId;
 	}
 
-	protected abstract int getEntriesCount() throws PortalException;
-
 	private final long _containerId;
-	private final Language _language;
 	private final Map<String, String[]> _parameterMap;
-	private final ResourceBundleLoader _resourceBundleLoader;
 
 }

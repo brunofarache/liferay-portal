@@ -14,11 +14,11 @@
 
 package com.liferay.asset.list.model.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
 import com.liferay.portal.kernel.util.Validator;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Brian Wing Shun Chan
@@ -44,6 +44,11 @@ public class AssetListEntryAssetEntryRelImpl
 		}
 
 		return _assetEntryUuid;
+	}
+
+	@Override
+	public void setAssetEntryUuid(String assetEntryUuid) {
+		_assetEntryUuid = assetEntryUuid;
 	}
 
 	private String _assetEntryUuid;

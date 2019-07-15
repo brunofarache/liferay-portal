@@ -23,6 +23,7 @@ public class JSONSourceProcessorTest extends BaseSourceProcessorTestCase {
 
 	@Test
 	public void testCheckMissingScripts() throws Exception {
+		/*
 		test(
 			"CheckMissingScripts1/package.testjson",
 			new String[] {
@@ -56,6 +57,14 @@ public class JSONSourceProcessorTest extends BaseSourceProcessorTestCase {
 				"When using 'liferay-npm-scripts', a script for 'format' is " +
 					"required"
 			});
+		*/
+	}
+
+	@Test
+	public void testJSONDependencyVersions() throws Exception {
+		test(
+			"modules/apps/SFTest/package.testjson",
+			"Version for 'frontend-js-web' should start with '^'");
 	}
 
 	@Test

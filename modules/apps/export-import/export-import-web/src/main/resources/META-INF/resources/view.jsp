@@ -32,6 +32,15 @@ if (tabs1.equals("private-pages")) {
 String rootNodeName = liveGroup.getLayoutRootNodeName(privateLayout, themeDisplay.getLocale());
 %>
 
+<c:if test="<%= StagingUtil.isChangeTrackingEnabled(company.getCompanyId()) %>">
+	<liferay-staging:alert
+		dismissible="<%= true %>"
+		type="WARNING"
+	>
+		<liferay-ui:message key='<%= LanguageUtil.get(request, "export-import-change-lists-warning") %>' />
+	</liferay-staging:alert>
+</c:if>
+
 <liferay-portlet:renderURL varImpl="portletURL">
 	<portlet:param name="mvcPath" value="/view.jsp" />
 </liferay-portlet:renderURL>
@@ -41,7 +50,6 @@ String rootNodeName = liveGroup.getLayoutRootNodeName(privateLayout, themeDispla
 		names="public-pages,private-pages"
 		param="tabs1"
 		portletURL="<%= portletURL %>"
-		type="pills"
 	/>
 
 	<aui:nav-bar>

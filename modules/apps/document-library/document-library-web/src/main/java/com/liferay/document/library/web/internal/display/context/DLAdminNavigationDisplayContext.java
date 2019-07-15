@@ -55,33 +55,30 @@ public class DLAdminNavigationDisplayContext {
 
 		_currentURLObj = PortletURLUtil.getCurrent(
 			liferayPortletRequest, liferayPortletResponse);
-		_request = liferayPortletRequest.getHttpServletRequest();
+		_httpServletRequest = liferayPortletRequest.getHttpServletRequest();
 
-		_dlRequestHelper = new DLRequestHelper(_request);
+		_dlRequestHelper = new DLRequestHelper(_httpServletRequest);
 
-		_themeDisplay = (ThemeDisplay)_request.getAttribute(
+		_themeDisplay = (ThemeDisplay)_httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
 
 	public List<NavigationItem> getNavigationItems() {
-		String navigation = ParamUtil.getString(_request, "navigation");
+		String navigation = ParamUtil.getString(
+			_httpServletRequest, "navigation");
 
 		return new NavigationItemList() {
 			{
 				add(
-					navigationItem -> {
-						_populateDocumentLibraryNavigationItem(
-							navigationItem, navigation);
-					});
+					navigationItem -> _populateDocumentLibraryNavigationItem(
+						navigationItem, navigation));
 
 				if (DLPortletKeys.DOCUMENT_LIBRARY_ADMIN.equals(
 						_dlRequestHelper.getPortletName())) {
 
 					add(
-						navigationItem -> {
-							_populateFileEntryTypesNavigationItem(
-								navigationItem, navigation);
-						});
+						navigationItem -> _populateFileEntryTypesNavigationItem(
+							navigationItem, navigation));
 
 					add(
 						DLAdminNavigationDisplayContext.this::
@@ -175,9 +172,9 @@ public class DLAdminNavigationDisplayContext {
 
 	private final PortletURL _currentURLObj;
 	private final DLRequestHelper _dlRequestHelper;
+	private final HttpServletRequest _httpServletRequest;
 	private final LiferayPortletRequest _liferayPortletRequest;
 	private final LiferayPortletResponse _liferayPortletResponse;
-	private final HttpServletRequest _request;
 	private final ThemeDisplay _themeDisplay;
 
 }

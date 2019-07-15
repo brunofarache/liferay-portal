@@ -24,7 +24,6 @@ import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.item.selector.ItemSelectorCriterion;
-import com.liferay.item.selector.ItemSelectorReturnType;
 import com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType;
 import com.liferay.item.selector.criteria.upload.criterion.UploadItemSelectorCriterion;
 import com.liferay.petra.function.UnsafeConsumer;
@@ -36,7 +35,6 @@ import com.liferay.portal.kernel.upload.UploadServletRequestConfigurationHelperU
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.portlet.ActionRequest;
@@ -59,14 +57,14 @@ public class FragmentEntryActionDropdownItemsProvider {
 		_fragmentEntry = fragmentEntry;
 		_renderResponse = renderResponse;
 
-		_request = PortalUtil.getHttpServletRequest(renderRequest);
+		_httpServletRequest = PortalUtil.getHttpServletRequest(renderRequest);
 
 		_fragmentPortletConfiguration =
-			(FragmentPortletConfiguration)_request.getAttribute(
+			(FragmentPortletConfiguration)_httpServletRequest.getAttribute(
 				FragmentPortletConfiguration.class.getName());
-		_itemSelector = (ItemSelector)_request.getAttribute(
+		_itemSelector = (ItemSelector)_httpServletRequest.getAttribute(
 			FragmentWebKeys.ITEM_SELECTOR);
-		_themeDisplay = (ThemeDisplay)_request.getAttribute(
+		_themeDisplay = (ThemeDisplay)_httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
 
@@ -83,6 +81,11 @@ public class FragmentEntryActionDropdownItemsProvider {
 					add(_getMoveFragmentEntryActionUnsafeConsumer());
 					add(_getCopyFragmentEntryActionUnsafeConsumer());
 					add(_getUpdateFragmentEntryPreviewActionUnsafeConsumer());
+
+					if (_fragmentEntry.getPreviewFileEntryId() > 0) {
+						add(
+							_getDeleteFragmentEntryPreviewActionUnsafeConsumer());
+					}
 				}
 
 				add(_getExportFragmentEntryActionUnsafeConsumer());
@@ -134,7 +137,8 @@ public class FragmentEntryActionDropdownItemsProvider {
 			dropdownItem.putData(
 				"selectFragmentCollectionURL",
 				selectFragmentCollectionURL.toString());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "make-a-copy"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "make-a-copy"));
 		};
 	}
 
@@ -145,7 +149,6 @@ public class FragmentEntryActionDropdownItemsProvider {
 
 		deleteFragmentEntryURL.setParameter(
 			ActionRequest.ACTION_NAME, "/fragment/delete_fragment_entries");
-
 		deleteFragmentEntryURL.setParameter(
 			"redirect", _themeDisplay.getURLCurrent());
 		deleteFragmentEntryURL.setParameter(
@@ -156,7 +159,34 @@ public class FragmentEntryActionDropdownItemsProvider {
 			dropdownItem.putData("action", "deleteFragmentEntry");
 			dropdownItem.putData(
 				"deleteFragmentEntryURL", deleteFragmentEntryURL.toString());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "delete"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "delete"));
+		};
+	}
+
+	private UnsafeConsumer<DropdownItem, Exception>
+		_getDeleteFragmentEntryPreviewActionUnsafeConsumer() {
+
+		PortletURL deleteFragmentEntryPreviewURL =
+			_renderResponse.createActionURL();
+
+		deleteFragmentEntryPreviewURL.setParameter(
+			ActionRequest.ACTION_NAME,
+			"/fragment/delete_fragment_entry_preview");
+		deleteFragmentEntryPreviewURL.setParameter(
+			"fragmentEntryId",
+			String.valueOf(_fragmentEntry.getFragmentEntryId()));
+
+		return dropdownItem -> {
+			dropdownItem.putData("action", "deleteFragmentEntryPreview");
+			dropdownItem.putData(
+				"deleteFragmentEntryPreviewURL",
+				deleteFragmentEntryPreviewURL.toString());
+			dropdownItem.putData(
+				"fragmentEntryId",
+				String.valueOf(_fragmentEntry.getFragmentEntryId()));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "remove-thumbnail"));
 		};
 	}
 
@@ -170,7 +200,8 @@ public class FragmentEntryActionDropdownItemsProvider {
 				_themeDisplay.getURLCurrent(), "fragmentCollectionId",
 				_fragmentEntry.getFragmentCollectionId(), "fragmentEntryId",
 				_fragmentEntry.getFragmentEntryId());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "edit"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "edit"));
 		};
 	}
 
@@ -188,7 +219,8 @@ public class FragmentEntryActionDropdownItemsProvider {
 
 		return dropdownItem -> {
 			dropdownItem.setHref(exportFragmentEntryURL);
-			dropdownItem.setLabel(LanguageUtil.get(_request, "export"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "export"));
 		};
 	}
 
@@ -199,26 +231,20 @@ public class FragmentEntryActionDropdownItemsProvider {
 			ActionRequest.ACTION_NAME,
 			"/fragment/upload_fragment_entry_preview");
 
-		ItemSelectorCriterion uploadItemSelectorCriterion =
+		ItemSelectorCriterion itemSelectorCriterion =
 			new UploadItemSelectorCriterion(
 				FragmentPortletKeys.FRAGMENT, uploadURL.toString(),
 				LanguageUtil.get(_themeDisplay.getLocale(), "fragments"),
 				UploadServletRequestConfigurationHelperUtil.getMaxSize(),
 				_fragmentPortletConfiguration.thumbnailExtensions());
 
-		List<ItemSelectorReturnType> uploadDesiredItemSelectorReturnTypes =
-			new ArrayList<>();
-
-		uploadDesiredItemSelectorReturnTypes.add(
+		itemSelectorCriterion.setDesiredItemSelectorReturnTypes(
 			new FileEntryItemSelectorReturnType());
 
-		uploadItemSelectorCriterion.setDesiredItemSelectorReturnTypes(
-			uploadDesiredItemSelectorReturnTypes);
-
 		PortletURL itemSelectorURL = _itemSelector.getItemSelectorURL(
-			RequestBackedPortletURLFactoryUtil.create(_request),
+			RequestBackedPortletURLFactoryUtil.create(_httpServletRequest),
 			_renderResponse.getNamespace() + "changePreview",
-			uploadItemSelectorCriterion);
+			itemSelectorCriterion);
 
 		itemSelectorURL.setParameter(
 			"fragmentEntryId",
@@ -256,7 +282,8 @@ public class FragmentEntryActionDropdownItemsProvider {
 			dropdownItem.putData(
 				"selectFragmentCollectionURL",
 				selectFragmentCollectionURL.toString());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "move"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "move"));
 		};
 	}
 
@@ -283,7 +310,8 @@ public class FragmentEntryActionDropdownItemsProvider {
 				"fragmentEntryId",
 				String.valueOf(_fragmentEntry.getFragmentEntryId()));
 			dropdownItem.putData("fragmentEntryName", _fragmentEntry.getName());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "rename"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "rename"));
 		};
 	}
 
@@ -297,7 +325,7 @@ public class FragmentEntryActionDropdownItemsProvider {
 				String.valueOf(_fragmentEntry.getFragmentEntryId()));
 			dropdownItem.putData("itemSelectorURL", _getItemSelectorURL());
 			dropdownItem.setLabel(
-				LanguageUtil.get(_request, "change-thumbnail"));
+				LanguageUtil.get(_httpServletRequest, "change-thumbnail"));
 		};
 	}
 
@@ -311,15 +339,16 @@ public class FragmentEntryActionDropdownItemsProvider {
 				_themeDisplay.getURLCurrent(), "fragmentCollectionId",
 				_fragmentEntry.getFragmentCollectionId(), "fragmentEntryId",
 				_fragmentEntry.getFragmentEntryId());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "view-usages"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "view-usages"));
 		};
 	}
 
 	private final FragmentEntry _fragmentEntry;
 	private final FragmentPortletConfiguration _fragmentPortletConfiguration;
+	private final HttpServletRequest _httpServletRequest;
 	private final ItemSelector _itemSelector;
 	private final RenderResponse _renderResponse;
-	private final HttpServletRequest _request;
 	private final ThemeDisplay _themeDisplay;
 
 }

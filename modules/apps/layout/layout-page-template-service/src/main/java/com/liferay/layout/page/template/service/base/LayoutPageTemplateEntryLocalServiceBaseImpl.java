@@ -14,8 +14,6 @@
 
 package com.liferay.layout.page.template.service.base;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.exportimport.kernel.lar.ExportImportHelperUtil;
 import com.liferay.exportimport.kernel.lar.ManifestSummary;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
@@ -54,6 +52,7 @@ import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
 import com.liferay.portal.kernel.service.persistence.ClassNamePersistence;
 import com.liferay.portal.kernel.service.persistence.LayoutPersistence;
+import com.liferay.portal.kernel.service.persistence.LayoutSetPersistence;
 import com.liferay.portal.kernel.service.persistence.UserPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -66,6 +65,8 @@ import java.io.Serializable;
 import java.util.List;
 
 import javax.sql.DataSource;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the base implementation for the layout page template entry local service.
@@ -753,6 +754,49 @@ public abstract class LayoutPageTemplateEntryLocalServiceBaseImpl
 	}
 
 	/**
+	 * Returns the layout set local service.
+	 *
+	 * @return the layout set local service
+	 */
+	public com.liferay.portal.kernel.service.LayoutSetLocalService
+		getLayoutSetLocalService() {
+
+		return layoutSetLocalService;
+	}
+
+	/**
+	 * Sets the layout set local service.
+	 *
+	 * @param layoutSetLocalService the layout set local service
+	 */
+	public void setLayoutSetLocalService(
+		com.liferay.portal.kernel.service.LayoutSetLocalService
+			layoutSetLocalService) {
+
+		this.layoutSetLocalService = layoutSetLocalService;
+	}
+
+	/**
+	 * Returns the layout set persistence.
+	 *
+	 * @return the layout set persistence
+	 */
+	public LayoutSetPersistence getLayoutSetPersistence() {
+		return layoutSetPersistence;
+	}
+
+	/**
+	 * Sets the layout set persistence.
+	 *
+	 * @param layoutSetPersistence the layout set persistence
+	 */
+	public void setLayoutSetPersistence(
+		LayoutSetPersistence layoutSetPersistence) {
+
+		this.layoutSetPersistence = layoutSetPersistence;
+	}
+
+	/**
 	 * Returns the resource local service.
 	 *
 	 * @return the resource local service
@@ -900,6 +944,15 @@ public abstract class LayoutPageTemplateEntryLocalServiceBaseImpl
 
 	@ServiceReference(type = LayoutPersistence.class)
 	protected LayoutPersistence layoutPersistence;
+
+	@ServiceReference(
+		type = com.liferay.portal.kernel.service.LayoutSetLocalService.class
+	)
+	protected com.liferay.portal.kernel.service.LayoutSetLocalService
+		layoutSetLocalService;
+
+	@ServiceReference(type = LayoutSetPersistence.class)
+	protected LayoutSetPersistence layoutSetPersistence;
 
 	@ServiceReference(
 		type = com.liferay.portal.kernel.service.ResourceLocalService.class

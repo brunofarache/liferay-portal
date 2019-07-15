@@ -14,8 +14,6 @@
 
 package com.liferay.portal.search.web.search.request;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.search.BooleanClause;
 import com.liferay.portal.kernel.search.Query;
 import com.liferay.portal.kernel.search.QueryConfig;
@@ -24,6 +22,8 @@ import com.liferay.portal.kernel.search.facet.Facet;
 import com.liferay.portal.search.searcher.SearchRequestBuilder;
 
 import java.util.Optional;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author André de Oliveira
@@ -34,6 +34,9 @@ public interface SearchSettings {
 	public void addCondition(BooleanClause<Query> booleanClause);
 
 	public void addFacet(Facet facet);
+
+	public SearchRequestBuilder getFederatedSearchRequestBuilder(
+		Optional<String> federatedSearchKeyOptional);
 
 	public Optional<String> getKeywordsParameterName();
 

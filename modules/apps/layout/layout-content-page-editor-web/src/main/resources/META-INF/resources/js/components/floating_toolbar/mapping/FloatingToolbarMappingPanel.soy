@@ -40,7 +40,7 @@
 	{@param? spritemap: string}
 
 	<div
-		class="floating-toolbar-mapping-panel"
+		class="floating-toolbar-mapping-panel p-3"
 		ref="panel"
 		tabindex="-1"
 	>
@@ -117,7 +117,7 @@
 				type="button"
 			>
 				<svg class="lexicon-icon">
-					<use xlink:href="{$spritemap ?: ''}#plus"></use>
+					<use xlink:href="{$spritemap ?: ''}#caret-bottom"></use>
 				</svg>
 			</button>
 
@@ -185,10 +185,14 @@
 		id="floatingToolbarMappingPanelFieldSelect"
 		{$fieldsDisabled}
 	>
+		{let $unmappedLabel kind="text"}
+			-- {msg desc=""}unmapped{/msg} --
+		{/let}
+
 		{call .selectOption}
 			{param optionId: '' /}
-			{param optionLabel: '-' /}
-			{param selectedId: $mappedFieldId or '-' /}
+			{param optionLabel: $unmappedLabel /}
+			{param selectedId: $mappedFieldId or $unmappedLabel /}
 		{/call}
 
 		{foreach $field in $fields}

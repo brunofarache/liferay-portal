@@ -14,8 +14,6 @@
 
 package com.liferay.fragment.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.kernel.model.AttachedModel;
 import com.liferay.portal.kernel.model.BaseModel;
@@ -23,6 +21,8 @@ import com.liferay.portal.kernel.model.ShardedModel;
 import com.liferay.portal.kernel.model.StagedGroupedModel;
 
 import java.util.Date;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The base model interface for the FragmentEntryLink service. Represents a row in the &quot;FragmentEntryLink&quot; database table, with each column mapped to a property of this class.
@@ -321,6 +321,21 @@ public interface FragmentEntryLinkModel
 	public void setJs(String js);
 
 	/**
+	 * Returns the configuration of this fragment entry link.
+	 *
+	 * @return the configuration of this fragment entry link
+	 */
+	@AutoEscape
+	public String getConfiguration();
+
+	/**
+	 * Sets the configuration of this fragment entry link.
+	 *
+	 * @param configuration the configuration of this fragment entry link
+	 */
+	public void setConfiguration(String configuration);
+
+	/**
 	 * Returns the editable values of this fragment entry link.
 	 *
 	 * @return the editable values of this fragment entry link
@@ -334,6 +349,21 @@ public interface FragmentEntryLinkModel
 	 * @param editableValues the editable values of this fragment entry link
 	 */
 	public void setEditableValues(String editableValues);
+
+	/**
+	 * Returns the namespace of this fragment entry link.
+	 *
+	 * @return the namespace of this fragment entry link
+	 */
+	@AutoEscape
+	public String getNamespace();
+
+	/**
+	 * Sets the namespace of this fragment entry link.
+	 *
+	 * @param namespace the namespace of this fragment entry link
+	 */
+	public void setNamespace(String namespace);
 
 	/**
 	 * Returns the position of this fragment entry link.
@@ -350,6 +380,21 @@ public interface FragmentEntryLinkModel
 	public void setPosition(int position);
 
 	/**
+	 * Returns the renderer key of this fragment entry link.
+	 *
+	 * @return the renderer key of this fragment entry link
+	 */
+	@AutoEscape
+	public String getRendererKey();
+
+	/**
+	 * Sets the renderer key of this fragment entry link.
+	 *
+	 * @param rendererKey the renderer key of this fragment entry link
+	 */
+	public void setRendererKey(String rendererKey);
+
+	/**
 	 * Returns the last propagation date of this fragment entry link.
 	 *
 	 * @return the last propagation date of this fragment entry link
@@ -362,21 +407,6 @@ public interface FragmentEntryLinkModel
 	 * @param lastPropagationDate the last propagation date of this fragment entry link
 	 */
 	public void setLastPropagationDate(Date lastPropagationDate);
-
-	/**
-	 * Returns the namespace of this fragment entry link.
-	 *
-	 * @return the namespace of this fragment entry link
-	 */
-	@AutoEscape
-	public String getNamespace();
-
-	/**
-	 * Sets the namespace of this fragment entry link.
-	 *
-	 * @param namespace the namespace of this fragment entry link
-	 */
-	public void setNamespace(String namespace);
 
 	/**
 	 * Returns the last publish date of this fragment entry link.

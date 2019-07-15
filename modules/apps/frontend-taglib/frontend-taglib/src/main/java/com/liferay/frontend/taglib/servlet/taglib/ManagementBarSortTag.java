@@ -47,6 +47,22 @@ public class ManagementBarSortTag extends IncludeTag implements BodyTag {
 		return super.doStartTag();
 	}
 
+	public String getOrderByCol() {
+		return _orderByCol;
+	}
+
+	public String getOrderByType() {
+		return _orderByType;
+	}
+
+	public Map<String, String> getOrderColumns() {
+		return _orderColumns;
+	}
+
+	public PortletURL getPortletURL() {
+		return _portletURL;
+	}
+
 	public void setDisabled(boolean disabled) {
 		_disabled = disabled;
 	}
@@ -157,20 +173,20 @@ public class ManagementBarSortTag extends IncludeTag implements BodyTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-frontend:management-bar-sort:disabled", isDisabled());
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-frontend:management-bar-sort:managementBarFilterItems",
 			getManagementBarFilterItems());
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-frontend:management-bar-sort:orderByCol", _orderByCol);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-frontend:management-bar-sort:orderByColLabel",
 			_orderColumns.get(_orderByCol));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-frontend:management-bar-sort:orderByType", _orderByType);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-frontend:management-bar-sort:portletURL", _portletURL);
 	}
 

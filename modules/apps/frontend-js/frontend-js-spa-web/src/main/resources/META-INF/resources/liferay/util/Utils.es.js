@@ -1,4 +1,18 @@
-'use strict';
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
+/* eslint no-unused-vars: "warn" */
 
 const MAX_TIMEOUT = Math.pow(2, 31) - 1;
 
@@ -9,7 +23,6 @@ const MAX_TIMEOUT = Math.pow(2, 31) - 1;
  */
 
 class Utils {
-
 	/**
 	 * Returns the maximum number allowed by the `setTimeout` function
 	 * @return {!Number} The number
@@ -36,11 +49,9 @@ class Utils {
 	 */
 
 	static getPortletBoundaryIds(portletIds) {
-		return portletIds.map(
-			function(portletId) {
-				return Utils.getPortletBoundaryId(portletId);
-			}
-		);
+		return portletIds.map(function(portletId) {
+			return Utils.getPortletBoundaryId(portletId);
+		});
 	}
 
 	/**
@@ -48,27 +59,24 @@ class Utils {
 	 */
 
 	static resetAllPortlets() {
-		Utils.getPortletBoundaryIds(Liferay.Portlet.list).forEach(
-			function(value, index, collection) {
-				let portlet = document.querySelector('#' + value);
+		Utils.getPortletBoundaryIds(Liferay.Portlet.list).forEach(function(
+			value
+		) {
+			const portlet = document.querySelector('#' + value);
 
-				if (portlet) {
-					Liferay.Portlet.destroy(portlet);
+			if (portlet) {
+				Liferay.Portlet.destroy(portlet);
 
-					portlet.portletProcessed = false;
-				}
+				portlet.portletProcessed = false;
 			}
-		);
+		});
 
 		Liferay.Portlet.readyCounter = 0;
 
-		Liferay.destroyComponents(
-			function(component, componentConfig) {
-				return componentConfig.destroyOnNavigate;
-			}
-		);
+		Liferay.destroyComponents(function(component, componentConfig) {
+			return componentConfig.destroyOnNavigate;
+		});
 	}
-
 }
 
 export default Utils;

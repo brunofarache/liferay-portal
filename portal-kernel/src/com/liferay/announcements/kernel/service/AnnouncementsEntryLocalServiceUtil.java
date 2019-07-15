@@ -14,10 +14,9 @@
 
 package com.liferay.announcements.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service utility for AnnouncementsEntry. This utility wraps
@@ -578,9 +577,6 @@ public class AnnouncementsEntryLocalServiceUtil {
 			_service =
 				(AnnouncementsEntryLocalService)PortalBeanLocatorUtil.locate(
 					AnnouncementsEntryLocalService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				AnnouncementsEntryLocalServiceUtil.class, "_service");
 		}
 
 		return _service;

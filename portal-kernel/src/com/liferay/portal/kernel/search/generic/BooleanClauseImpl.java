@@ -14,9 +14,9 @@
 
 package com.liferay.portal.kernel.search.generic;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.search.BooleanClause;
 import com.liferay.portal.kernel.search.BooleanClauseOccur;
-import com.liferay.portal.kernel.util.StringBundler;
 
 /**
  * @author Michael C. Han
@@ -36,15 +36,6 @@ public class BooleanClauseImpl<T> implements BooleanClause<T> {
 	@Override
 	public T getClause() {
 		return _t;
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link #getClause}
-	 */
-	@Deprecated
-	@Override
-	public T getQuery() {
-		return getClause();
 	}
 
 	@Override

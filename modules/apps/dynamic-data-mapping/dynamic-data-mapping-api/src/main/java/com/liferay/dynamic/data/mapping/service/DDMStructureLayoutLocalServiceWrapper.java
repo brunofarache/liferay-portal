@@ -14,9 +14,9 @@
 
 package com.liferay.dynamic.data.mapping.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.service.ServiceWrapper;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link DDMStructureLayoutLocalService}.
@@ -65,6 +65,12 @@ public class DDMStructureLayoutLocalServiceWrapper
 			userId, groupId, structureVersionId, ddmFormLayout, serviceContext);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 #addStructureLayout(long, long, long, long, Map, Map, String,
+	 String, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public com.liferay.dynamic.data.mapping.model.DDMStructureLayout
 			addStructureLayout(
@@ -78,6 +84,22 @@ public class DDMStructureLayoutLocalServiceWrapper
 		return _ddmStructureLayoutLocalService.addStructureLayout(
 			userId, groupId, structureVersionId, name, description, definition,
 			serviceContext);
+	}
+
+	@Override
+	public com.liferay.dynamic.data.mapping.model.DDMStructureLayout
+			addStructureLayout(
+				long userId, long groupId, long classNameId,
+				String structureLayoutKey, long structureVersionId,
+				java.util.Map<java.util.Locale, String> name,
+				java.util.Map<java.util.Locale, String> description,
+				String definition,
+				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _ddmStructureLayoutLocalService.addStructureLayout(
+			userId, groupId, classNameId, structureLayoutKey,
+			structureVersionId, name, description, definition, serviceContext);
 	}
 
 	/**
@@ -269,6 +291,15 @@ public class DDMStructureLayoutLocalServiceWrapper
 	}
 
 	@Override
+	public com.liferay.dynamic.data.mapping.model.DDMStructureLayout
+		fetchStructureLayout(
+			long groupId, long classNameId, String structureLayoutKey) {
+
+		return _ddmStructureLayoutLocalService.fetchStructureLayout(
+			groupId, classNameId, structureLayoutKey);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
 		getActionableDynamicQuery() {
 
@@ -426,6 +457,16 @@ public class DDMStructureLayoutLocalServiceWrapper
 
 	@Override
 	public com.liferay.dynamic.data.mapping.model.DDMStructureLayout
+			getStructureLayout(
+				long groupId, long classNameId, String structureLayoutKey)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _ddmStructureLayoutLocalService.getStructureLayout(
+			groupId, classNameId, structureLayoutKey);
+	}
+
+	@Override
+	public com.liferay.dynamic.data.mapping.model.DDMStructureLayout
 			getStructureLayoutByStructureVersionId(long structureVersionId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
@@ -457,6 +498,30 @@ public class DDMStructureLayoutLocalServiceWrapper
 	public int getStructureLayoutsCount(long groupId) {
 		return _ddmStructureLayoutLocalService.getStructureLayoutsCount(
 			groupId);
+	}
+
+	@Override
+	public java.util.List
+		<com.liferay.dynamic.data.mapping.model.DDMStructureLayout> search(
+				long companyId, long[] groupIds, long classNameId,
+				String keywords, int start, int end,
+				com.liferay.portal.kernel.util.OrderByComparator
+					<com.liferay.dynamic.data.mapping.model.DDMStructureLayout>
+						orderByComparator)
+			throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _ddmStructureLayoutLocalService.search(
+			companyId, groupIds, classNameId, keywords, start, end,
+			orderByComparator);
+	}
+
+	@Override
+	public int searchCount(
+			long companyId, long[] groupIds, long classNameId, String keywords)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _ddmStructureLayoutLocalService.searchCount(
+			companyId, groupIds, classNameId, keywords);
 	}
 
 	/**

@@ -14,7 +14,7 @@
 
 package com.liferay.portal.deploy.hot;
 
-import com.liferay.portal.deploy.RequiredPluginsUtil;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.deploy.hot.HotDeploy;
 import com.liferay.portal.kernel.deploy.hot.HotDeployEvent;
 import com.liferay.portal.kernel.deploy.hot.HotDeployException;
@@ -29,7 +29,6 @@ import com.liferay.portal.kernel.util.BasePortalLifecycle;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.PortalLifecycle;
 import com.liferay.portal.kernel.util.PortalLifecycleUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import java.util.ArrayList;
@@ -123,8 +122,6 @@ public class HotDeployImpl implements HotDeploy {
 		ClassLoader classLoader = hotDeployEvent.getContextClassLoader();
 
 		TemplateManagerUtil.destroy(classLoader);
-
-		RequiredPluginsUtil.startCheckingRequiredPlugins();
 	}
 
 	@Override

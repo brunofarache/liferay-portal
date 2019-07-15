@@ -1,9 +1,8 @@
 package ${apiPackagePath}.service.persistence;
 
 import ${serviceBuilder.getCompatJavaClassName("HashUtil")};
+import ${serviceBuilder.getCompatJavaClassName("ProviderType")};
 import ${serviceBuilder.getCompatJavaClassName("StringBundler")};
-
-import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.DateUtil;
 

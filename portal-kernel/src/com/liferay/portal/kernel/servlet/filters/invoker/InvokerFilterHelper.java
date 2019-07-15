@@ -14,6 +14,7 @@
 
 package com.liferay.portal.kernel.servlet.filters.invoker;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -26,7 +27,6 @@ import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Document;
@@ -145,9 +145,10 @@ public class InvokerFilterHelper {
 			}
 
 			if (newFilterMappings.length == 1) {
-				if (_filterMappingsMap.putIfAbsent(
-						filterName, newFilterMappings) == null) {
+				FilterMapping[] filterMappings = _filterMappingsMap.putIfAbsent(
+					filterName, newFilterMappings);
 
+				if (filterMappings == null) {
 					int index = _filterNames.indexOf(positionFilterName);
 
 					if (index == -1) {
@@ -262,8 +263,8 @@ public class InvokerFilterHelper {
 	}
 
 	protected InvokerFilterChain createInvokerFilterChain(
-		HttpServletRequest request, Dispatcher dispatcher, String uri,
-		FilterChain filterChain) {
+		HttpServletRequest httpServletRequest, Dispatcher dispatcher,
+		String uri, FilterChain filterChain) {
 
 		InvokerFilterChain invokerFilterChain = new InvokerFilterChain(
 			filterChain);
@@ -276,7 +277,9 @@ public class InvokerFilterHelper {
 			}
 
 			for (FilterMapping filterMapping : filterMappings) {
-				if (filterMapping.isMatch(request, dispatcher, uri)) {
+				if (filterMapping.isMatch(
+						httpServletRequest, dispatcher, uri)) {
+
 					invokerFilterChain.addFilter(filterMapping.getFilter());
 				}
 			}
@@ -330,18 +333,6 @@ public class InvokerFilterHelper {
 				currentThread.setContextClassLoader(contextClassLoader);
 			}
 		}
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #initFilter(ServletContext, String, FilterConfig)}
-	 */
-	@Deprecated
-	protected Filter initFilter(
-		ServletContext servletContext, String filterClassName,
-		String filterName, FilterConfig filterConfig) {
-
-		return initFilter(servletContext, filterClassName, filterConfig);
 	}
 
 	protected void readLiferayFilterWebXML(
@@ -511,13 +502,11 @@ public class InvokerFilterHelper {
 
 			Set<Dispatcher> dispatchers = new HashSet<>();
 
-			String[] dispatcherStrings = (String[])serviceReference.getProperty(
-				"dispatcher");
+			for (String dispatcherString :
+					StringPlus.asList(
+						serviceReference.getProperty("dispatcher"))) {
 
-			if (dispatcherStrings != null) {
-				for (String dispatcher : dispatcherStrings) {
-					dispatchers.add(Dispatcher.valueOf(dispatcher));
-				}
+				dispatchers.add(Dispatcher.valueOf(dispatcherString));
 			}
 
 			FilterMapping filterMapping = new FilterMapping(

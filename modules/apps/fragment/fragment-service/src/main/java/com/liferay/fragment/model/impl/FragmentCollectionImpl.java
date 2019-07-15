@@ -22,8 +22,8 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
@@ -46,6 +46,13 @@ public class FragmentCollectionImpl extends FragmentCollectionBaseImpl {
 
 	@Override
 	public long getResourcesFolderId() throws PortalException {
+		return getResourcesFolderId(true);
+	}
+
+	@Override
+	public long getResourcesFolderId(boolean createIfAbsent)
+		throws PortalException {
+
 		if (_resourcesFolderId != 0) {
 			return _resourcesFolderId;
 		}
@@ -72,15 +79,20 @@ public class FragmentCollectionImpl extends FragmentCollectionBaseImpl {
 				String.valueOf(getFragmentCollectionId()));
 		}
 		catch (Exception e) {
-			ServiceContext serviceContext = new ServiceContext();
+			if (createIfAbsent) {
+				ServiceContext serviceContext = new ServiceContext();
 
-			serviceContext.setAddGroupPermissions(true);
-			serviceContext.setAddGuestPermissions(true);
+				serviceContext.setAddGroupPermissions(true);
+				serviceContext.setAddGuestPermissions(true);
 
-			folder = PortletFileRepositoryUtil.addPortletFolder(
-				getUserId(), repository.getRepositoryId(),
-				repository.getDlFolderId(),
-				String.valueOf(getFragmentCollectionId()), serviceContext);
+				folder = PortletFileRepositoryUtil.addPortletFolder(
+					getUserId(), repository.getRepositoryId(),
+					repository.getDlFolderId(),
+					String.valueOf(getFragmentCollectionId()), serviceContext);
+			}
+			else {
+				return 0;
+			}
 		}
 
 		_resourcesFolderId = folder.getFolderId();
@@ -105,10 +117,11 @@ public class FragmentCollectionImpl extends FragmentCollectionBaseImpl {
 	public void populateZipWriter(ZipWriter zipWriter) throws Exception {
 		String path = StringPool.SLASH + getFragmentCollectionKey();
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
-
-		jsonObject.put("description", getDescription());
-		jsonObject.put("name", getName());
+		JSONObject jsonObject = JSONUtil.put(
+			"description", getDescription()
+		).put(
+			"name", getName()
+		);
 
 		zipWriter.addEntry(
 			path + StringPool.SLASH +

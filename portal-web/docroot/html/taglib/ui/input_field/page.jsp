@@ -305,6 +305,12 @@ if (hints != null) {
 									yearElement.disabled = checked;
 								}
 
+								var label = A.one('label[for="<portlet:namespace /><%= fieldParam %>"]');
+
+								if (label) {
+									label.toggleClass('disabled', checked);
+								}
+
 								<c:if test="<%= showTime %>">
 									var timeElement = Liferay.Util.getFormElement(form, '<%= fieldParam %>Time');
 
@@ -438,7 +444,7 @@ if (hints != null) {
 
 			if (localized) {
 				if (ModelHintsUtil.hasField(model, "groupId")) {
-					availableLocales = LanguageUtil.getAvailableLocales(themeDisplay.getSiteGroupId());
+					availableLocales = LanguageUtil.getAvailableLocales(BeanPropertiesUtil.getLongSilent(bean, "groupId", themeDisplay.getSiteGroupId()));
 				}
 				else {
 					availableLocales = LanguageUtil.getAvailableLocales();

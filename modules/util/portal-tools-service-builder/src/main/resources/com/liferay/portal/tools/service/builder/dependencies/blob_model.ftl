@@ -1,10 +1,10 @@
 package ${apiPackagePath}.model;
 
+import ${serviceBuilder.getCompatJavaClassName("ProviderType")};
+
 <#if entity.hasCompoundPK()>
 	import ${apiPackagePath}.service.persistence.${entity.name}PK;
 </#if>
-
-import aQute.bnd.annotation.ProviderType;
 
 import java.sql.Blob;
 

@@ -14,6 +14,7 @@
 
 package com.liferay.data.engine.rest.internal.dto.v1_0.util;
 
+import com.liferay.data.engine.field.type.util.LocalizedValueUtil;
 import com.liferay.data.engine.rest.dto.v1_0.DataDefinition;
 import com.liferay.data.engine.rest.dto.v1_0.DataDefinitionField;
 import com.liferay.data.engine.rest.dto.v1_0.DataDefinitionRule;
@@ -40,17 +41,19 @@ public class DataDefinitionUtil {
 					jsonObject.getJSONArray("fields"),
 					fieldJSONObject -> _toDataDefinitionField(fieldJSONObject),
 					DataDefinitionField.class);
+				dataDefinitionKey = ddmStructure.getStructureKey();
 				dataDefinitionRules = JSONUtil.toArray(
 					jsonObject.getJSONArray("rules"),
 					ruleJSONObject -> _toDataDefinitionRule(ruleJSONObject),
-					DataDefinitionField.class);
+					DataDefinitionRule.class);
 				dateCreated = ddmStructure.getCreateDate();
 				dateModified = ddmStructure.getModifiedDate();
-				description = LocalizedValueUtil.toLocalizedValues(
+				description = LocalizedValueUtil.toStringObjectMap(
 					ddmStructure.getDescriptionMap());
 				id = ddmStructure.getStructureId();
-				name = LocalizedValueUtil.toLocalizedValues(
+				name = LocalizedValueUtil.toStringObjectMap(
 					ddmStructure.getNameMap());
+				siteId = ddmStructure.getGroupId();
 				storageType = ddmStructure.getStorageType();
 				userId = ddmStructure.getUserId();
 			}
@@ -79,7 +82,10 @@ public class DataDefinitionUtil {
 
 		return new DataDefinitionField() {
 			{
-				defaultValue = jsonObject.getString("defaultValue");
+				if (jsonObject.has("predefinedValue")) {
+					defaultValue = LocalizedValueUtil.toLocalizedValues(
+						jsonObject.getJSONObject("predefinedValue"));
+				}
 
 				if (!jsonObject.has("type")) {
 					throw new Exception("Type is required");
@@ -137,32 +143,11 @@ public class DataDefinitionUtil {
 			DataDefinitionField dataDefinitionField)
 		throws Exception {
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
-
-		Object defaultValue = dataDefinitionField.getDefaultValue();
-
-		if (defaultValue != null) {
-			jsonObject.put("defaultValue", defaultValue);
-		}
-
-		jsonObject.put("indexable", dataDefinitionField.getIndexable());
-		jsonObject.put(
-			"label",
-			LocalizedValueUtil.toJSONObject(dataDefinitionField.getLabel()));
-		jsonObject.put("localizable", dataDefinitionField.getLocalizable());
-
 		String name = dataDefinitionField.getName();
 
 		if (Validator.isNull(name)) {
 			throw new Exception("Name is required");
 		}
-
-		jsonObject.put("name", name);
-
-		jsonObject.put("repeatable", dataDefinitionField.getRepeatable());
-		jsonObject.put(
-			"tip",
-			LocalizedValueUtil.toJSONObject(dataDefinitionField.getTip()));
 
 		String type = dataDefinitionField.getFieldType();
 
@@ -170,9 +155,24 @@ public class DataDefinitionUtil {
 			throw new Exception("Type is required");
 		}
 
-		jsonObject.put("type", type);
-
-		return jsonObject;
+		return JSONUtil.put(
+			"defaultValue", dataDefinitionField.getDefaultValue()
+		).put(
+			"indexable", dataDefinitionField.getIndexable()
+		).put(
+			"label",
+			LocalizedValueUtil.toJSONObject(dataDefinitionField.getLabel())
+		).put(
+			"localizable", dataDefinitionField.getLocalizable()
+		).put(
+			"name", name
+		).put(
+			"repeatable", dataDefinitionField.getRepeatable()
+		).put(
+			"tip", LocalizedValueUtil.toJSONObject(dataDefinitionField.getTip())
+		).put(
+			"type", type
+		);
 	}
 
 	private static JSONObject _toJSONObject(

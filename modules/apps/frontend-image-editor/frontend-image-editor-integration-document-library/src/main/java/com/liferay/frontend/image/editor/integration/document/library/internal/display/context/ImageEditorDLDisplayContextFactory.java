@@ -43,7 +43,8 @@ public class ImageEditorDLDisplayContextFactory
 	@Override
 	public DLEditFileEntryDisplayContext getDLEditFileEntryDisplayContext(
 		DLEditFileEntryDisplayContext parentDLEditFileEntryDisplayContext,
-		HttpServletRequest request, HttpServletResponse response,
+		HttpServletRequest httpServletRequest,
+		HttpServletResponse httpServletResponse,
 		DLFileEntryType dlFileEntryType) {
 
 		return parentDLEditFileEntryDisplayContext;
@@ -52,8 +53,8 @@ public class ImageEditorDLDisplayContextFactory
 	@Override
 	public DLEditFileEntryDisplayContext getDLEditFileEntryDisplayContext(
 		DLEditFileEntryDisplayContext parentDLEditFileEntryDisplayContext,
-		HttpServletRequest request, HttpServletResponse response,
-		FileEntry fileEntry) {
+		HttpServletRequest httpServletRequest,
+		HttpServletResponse httpServletResponse, FileEntry fileEntry) {
 
 		return parentDLEditFileEntryDisplayContext;
 	}
@@ -61,8 +62,8 @@ public class ImageEditorDLDisplayContextFactory
 	@Override
 	public DLViewFileVersionDisplayContext getDLViewFileVersionDisplayContext(
 		DLViewFileVersionDisplayContext parentDLViewFileVersionDisplayContext,
-		HttpServletRequest request, HttpServletResponse response,
-		FileShortcut fileShortcut) {
+		HttpServletRequest httpServletRequest,
+		HttpServletResponse httpServletResponse, FileShortcut fileShortcut) {
 
 		return parentDLViewFileVersionDisplayContext;
 	}
@@ -70,19 +71,20 @@ public class ImageEditorDLDisplayContextFactory
 	@Override
 	public DLViewFileVersionDisplayContext getDLViewFileVersionDisplayContext(
 		DLViewFileVersionDisplayContext parentDLViewFileVersionDisplayContext,
-		HttpServletRequest request, HttpServletResponse response,
-		FileVersion fileVersion) {
+		HttpServletRequest httpServletRequest,
+		HttpServletResponse httpServletResponse, FileVersion fileVersion) {
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		return new ImageEditorDLViewFileVersionDisplayContext(
-			parentDLViewFileVersionDisplayContext, request, response,
-			fileVersion,
+			parentDLViewFileVersionDisplayContext, httpServletRequest,
+			httpServletResponse, fileVersion,
 			ResourceBundleUtil.getBundle(
 				themeDisplay.getLocale(),
 				ImageEditorDLDisplayContextFactory.class),
-			_dlurlHelper);
+			_dlURLHelper);
 	}
 
 	@Reference(unbind = "-")
@@ -93,6 +95,6 @@ public class ImageEditorDLDisplayContextFactory
 	private DLAppService _dlAppService;
 
 	@Reference
-	private DLURLHelper _dlurlHelper;
+	private DLURLHelper _dlURLHelper;
 
 }

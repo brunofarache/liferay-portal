@@ -15,11 +15,11 @@
 package com.liferay.change.tracking.service.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
-import com.liferay.change.tracking.CTEngineManager;
-import com.liferay.change.tracking.configuration.CTConfiguration;
-import com.liferay.change.tracking.configuration.CTConfigurationRegistrar;
-import com.liferay.change.tracking.configuration.builder.CTConfigurationBuilder;
 import com.liferay.change.tracking.constants.CTConstants;
+import com.liferay.change.tracking.definition.CTDefinition;
+import com.liferay.change.tracking.definition.CTDefinitionRegistrar;
+import com.liferay.change.tracking.definition.builder.CTDefinitionBuilder;
+import com.liferay.change.tracking.engine.CTEngineManager;
 import com.liferay.change.tracking.model.CTCollection;
 import com.liferay.change.tracking.model.CTProcess;
 import com.liferay.change.tracking.service.CTCollectionLocalService;
@@ -41,7 +41,7 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.PermissionCheckerTestRule;
+import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 
 import java.util.Collections;
 
@@ -64,7 +64,7 @@ public class CTProcessLocalServiceTest {
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
-			PermissionCheckerTestRule.INSTANCE,
+			PermissionCheckerMethodTestRule.INSTANCE,
 			SynchronousDestinationTestRule.INSTANCE);
 
 	@Before
@@ -81,7 +81,7 @@ public class CTProcessLocalServiceTest {
 		_className = _classNameLocalService.addClassName(
 			TestVersionModelClass.class.getName());
 
-		_ctConfiguration = _ctConfigurationBuilder.setContentType(
+		_ctDefinition = _ctDefinitionBuilder.setContentType(
 			"Test Object"
 		).setContentTypeLanguageKey(
 			"test-object"
@@ -107,7 +107,7 @@ public class CTProcessLocalServiceTest {
 			testVersion -> WorkflowConstants.STATUS_APPROVED
 		).build();
 
-		_ctConfigurationRegistrar.register(_ctConfiguration);
+		_ctDefinitionRegistrar.register(_ctDefinition);
 	}
 
 	@After
@@ -121,8 +121,8 @@ public class CTProcessLocalServiceTest {
 				TestPropsValues.getCompanyId());
 		}
 
-		if (_ctConfiguration != null) {
-			_ctConfigurationRegistrar.unregister(_ctConfiguration);
+		if (_ctDefinition != null) {
+			_ctDefinitionRegistrar.unregister(_ctDefinition);
 		}
 	}
 
@@ -143,7 +143,7 @@ public class CTProcessLocalServiceTest {
 
 		CTProcess ctProcess = _ctProcessLocalService.addCTProcess(
 			TestPropsValues.getUserId(), _ctCollection.getCtCollectionId(),
-			new ServiceContext());
+			true, new ServiceContext());
 
 		Assert.assertNotNull(ctProcess);
 		Assert.assertEquals(
@@ -173,14 +173,14 @@ public class CTProcessLocalServiceTest {
 	@Inject
 	private CTCollectionLocalService _ctCollectionLocalService;
 
-	private CTConfiguration _ctConfiguration;
+	private CTDefinition _ctDefinition;
 
 	@Inject
-	private CTConfigurationBuilder
-		<TestResourceModelClass, TestVersionModelClass> _ctConfigurationBuilder;
+	private CTDefinitionBuilder<TestResourceModelClass, TestVersionModelClass>
+		_ctDefinitionBuilder;
 
 	@Inject
-	private CTConfigurationRegistrar _ctConfigurationRegistrar;
+	private CTDefinitionRegistrar _ctDefinitionRegistrar;
 
 	@Inject
 	private CTEngineManager _ctEngineManager;

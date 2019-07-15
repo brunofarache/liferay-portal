@@ -20,9 +20,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
+import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
 
-import graphql.annotations.annotationTypes.GraphQLField;
-import graphql.annotations.annotationTypes.GraphQLName;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import javax.annotation.Generated;
 
@@ -38,6 +44,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "Validation")
 public class Validation {
 
+	@Schema
 	public String getErrorMessage() {
 		return errorMessage;
 	}
@@ -53,6 +60,9 @@ public class Validation {
 		try {
 			errorMessage = errorMessageUnsafeSupplier.get();
 		}
+		catch (RuntimeException re) {
+			throw re;
+		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -62,6 +72,7 @@ public class Validation {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String errorMessage;
 
+	@Schema
 	public String getExpression() {
 		return expression;
 	}
@@ -77,6 +88,9 @@ public class Validation {
 		try {
 			expression = expressionUnsafeSupplier.get();
 		}
+		catch (RuntimeException re) {
+			throw re;
+		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -86,6 +100,7 @@ public class Validation {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String expression;
 
+	@Schema
 	public Long getId() {
 		return id;
 	}
@@ -99,6 +114,9 @@ public class Validation {
 		try {
 			id = idUnsafeSupplier.get();
 		}
+		catch (RuntimeException re) {
+			throw re;
+		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -108,28 +126,105 @@ public class Validation {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Long id;
 
+	@Override
+	public boolean equals(Object object) {
+		if (this == object) {
+			return true;
+		}
+
+		if (!(object instanceof Validation)) {
+			return false;
+		}
+
+		Validation validation = (Validation)object;
+
+		return Objects.equals(toString(), validation.toString());
+	}
+
+	@Override
+	public int hashCode() {
+		String string = toString();
+
+		return string.hashCode();
+	}
+
 	public String toString() {
 		StringBundler sb = new StringBundler();
 
 		sb.append("{");
 
-		sb.append("\"errorMessage\": ");
+		if (errorMessage != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
 
-		sb.append("\"");
-		sb.append(errorMessage);
-		sb.append("\"");
-		sb.append(", ");
+			sb.append("\"errorMessage\": ");
 
-		sb.append("\"expression\": ");
+			sb.append("\"");
 
-		sb.append("\"");
-		sb.append(expression);
-		sb.append("\"");
-		sb.append(", ");
+			sb.append(_escape(errorMessage));
 
-		sb.append("\"id\": ");
+			sb.append("\"");
+		}
 
-		sb.append(id);
+		if (expression != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"expression\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(expression));
+
+			sb.append("\"");
+		}
+
+		if (id != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"id\": ");
+
+			sb.append(id);
+		}
+
+		sb.append("}");
+
+		return sb.toString();
+	}
+
+	private static String _escape(Object object) {
+		String string = String.valueOf(object);
+
+		return string.replaceAll("\"", "\\\\\"");
+	}
+
+	private static String _toJSON(Map<String, ?> map) {
+		StringBuilder sb = new StringBuilder("{");
+
+		@SuppressWarnings("unchecked")
+		Set set = map.entrySet();
+
+		@SuppressWarnings("unchecked")
+		Iterator<Map.Entry<String, ?>> iterator = set.iterator();
+
+		while (iterator.hasNext()) {
+			Map.Entry<String, ?> entry = iterator.next();
+
+			sb.append("\"");
+			sb.append(entry.getKey());
+			sb.append("\":");
+			sb.append("\"");
+			sb.append(entry.getValue());
+			sb.append("\"");
+
+			if (iterator.hasNext()) {
+				sb.append(",");
+			}
+		}
 
 		sb.append("}");
 

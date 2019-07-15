@@ -14,14 +14,14 @@
 
 package com.liferay.asset.auto.tagger.internal.osgi.commands;
 
-import com.liferay.asset.auto.tagger.AssetAutoTagProvider;
 import com.liferay.asset.auto.tagger.AssetAutoTagger;
 import com.liferay.asset.auto.tagger.configuration.AssetAutoTaggerConfiguration;
 import com.liferay.asset.auto.tagger.configuration.AssetAutoTaggerConfigurationFactory;
+import com.liferay.asset.auto.tagger.internal.AssetAutoTaggerImpl;
+import com.liferay.asset.auto.tagger.model.AssetAutoTaggerEntry;
+import com.liferay.asset.auto.tagger.service.AssetAutoTaggerEntryLocalService;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
-import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
-import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Criterion;
@@ -39,10 +39,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 /**
@@ -51,12 +48,38 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
 	immediate = true,
 	property = {
+		"osgi.command.function=commitAutoTags",
 		"osgi.command.function=tagAllUntagged",
 		"osgi.command.function=untagAll", "osgi.command.scope=assetAutoTagger"
 	},
 	service = AssetAutoTaggerOSGiCommands.class
 )
 public class AssetAutoTaggerOSGiCommands {
+
+	public void commitAutoTags(String companyId, String... classNames) {
+		_forEachAssetEntry(
+			companyId, classNames,
+			assetEntry -> {
+				List<AssetAutoTaggerEntry> assetAutoTaggerEntries =
+					_assetAutoTaggerEntryLocalService.getAssetAutoTaggerEntries(
+						assetEntry);
+
+				for (AssetAutoTaggerEntry assetAutoTaggerEntry :
+						assetAutoTaggerEntries) {
+
+					_assetAutoTaggerEntryLocalService.
+						deleteAssetAutoTaggerEntry(assetAutoTaggerEntry);
+				}
+
+				if (!assetAutoTaggerEntries.isEmpty()) {
+					System.out.println(
+						String.format(
+							"Commited %d auto tags for asset entry %s",
+							assetAutoTaggerEntries.size(),
+							assetEntry.getTitle()));
+				}
+			});
+	}
 
 	public void tagAllUntagged(String companyId, String... classNames) {
 		AssetAutoTaggerConfiguration assetAutoTaggerConfiguration =
@@ -71,12 +94,11 @@ public class AssetAutoTaggerOSGiCommands {
 
 		if (ArrayUtil.isEmpty(classNames)) {
 			Set<String> classNamesSet = new HashSet<>(
-				_serviceTrackerMap.keySet());
+				_assetAutoTaggerImpl.getClassNames());
 
 			classNamesSet.remove("*");
 
-			classNames = classNamesSet.toArray(
-				new String[classNamesSet.size()]);
+			classNames = classNamesSet.toArray(new String[0]);
 		}
 
 		_forEachAssetEntry(
@@ -120,17 +142,6 @@ public class AssetAutoTaggerOSGiCommands {
 							assetEntry.getTitle()));
 				}
 			});
-	}
-
-	@Activate
-	protected void activate(BundleContext bundleContext) {
-		_serviceTrackerMap = ServiceTrackerMapFactory.openMultiValueMap(
-			bundleContext, AssetAutoTagProvider.class, "model.class.name");
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		_serviceTrackerMap.close();
 	}
 
 	private void _forEachAssetEntry(
@@ -189,12 +200,15 @@ public class AssetAutoTaggerOSGiCommands {
 		_assetAutoTaggerConfigurationFactory;
 
 	@Reference
+	private AssetAutoTaggerEntryLocalService _assetAutoTaggerEntryLocalService;
+
+	@Reference
+	private AssetAutoTaggerImpl _assetAutoTaggerImpl;
+
+	@Reference
 	private AssetEntryLocalService _assetEntryLocalService;
 
 	@Reference
 	private ClassNameLocalService _classNameLocalService;
-
-	private ServiceTrackerMap<String, List<AssetAutoTagProvider>>
-		_serviceTrackerMap;
 
 }

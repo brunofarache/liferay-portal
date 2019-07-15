@@ -1,33 +1,18 @@
 {
-	"csfConfig": {
-		"path:**/*.js": {
-			"js": {
-				"lint": {
-					"globals": {
-						"$": true,
-						"MODULE_PATH": true,
-						"_": true
-					}
-				}
-			}
-		}
-	},
 	"dependencies": {
-		"metal": "^2.16.5",
-		"metal-component": "^2.16.3",
-		"metal-dom": "^2.5.18",
-		"metal-position": "^2.1.1",
-		"metal-soy": "^2.13.2",
-		"metal-state": "^2.13.2"
-	},
-	"devDependencies": {
-		"liferay-npm-scripts": "1.4.3"
+		"frontend-js-web": "^4.0.0",
+		"metal": "2.16.8",
+		"metal-component": "2.16.8",
+		"metal-dom": "2.16.8",
+		"metal-position": "2.1.2",
+		"metal-soy": "2.16.8",
+		"metal-state": "2.16.8"
 	},
 	"name": "product-navigation-control-menu-web",
 	"scripts": {
-		"build": "liferay-npm-scripts build --soy --bundler",
-		"csf": "liferay-npm-scripts lint",
-		"format": "liferay-npm-scripts format"
+		"build": "liferay-npm-scripts build",
+		"checkFormat": "liferay-npm-scripts check",
+		"format": "liferay-npm-scripts fix"
 	},
-	"version": "4.0.0"
+	"version": "5.0.0"
 }

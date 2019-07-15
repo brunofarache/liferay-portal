@@ -14,8 +14,6 @@
 
 package com.liferay.layout.page.template.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
@@ -41,6 +39,8 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import java.io.Serializable;
 
 import java.util.List;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service interface for LayoutPageTemplateStructure. Methods of this
@@ -98,6 +98,7 @@ public interface LayoutPageTemplateStructureLocalService
 	 * @return the layout page template structure that was removed
 	 */
 	@Indexable(type = IndexableType.DELETE)
+	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
 	public LayoutPageTemplateStructure deleteLayoutPageTemplateStructure(
 		LayoutPageTemplateStructure layoutPageTemplateStructure);
 
@@ -113,7 +114,6 @@ public interface LayoutPageTemplateStructureLocalService
 			long layoutPageTemplateStructureId)
 		throws PortalException;
 
-	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
 	public LayoutPageTemplateStructure deleteLayoutPageTemplateStructure(
 			long groupId, long classNameId, long classPK)
 		throws PortalException;
@@ -316,6 +316,10 @@ public interface LayoutPageTemplateStructureLocalService
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
 		throws PortalException;
 
+	public LayoutPageTemplateStructure rebuildLayoutPageTemplateStructure(
+			long groupId, long classNameId, long classPK)
+		throws PortalException;
+
 	/**
 	 * Updates the layout page template structure in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
@@ -325,6 +329,11 @@ public interface LayoutPageTemplateStructureLocalService
 	@Indexable(type = IndexableType.REINDEX)
 	public LayoutPageTemplateStructure updateLayoutPageTemplateStructure(
 		LayoutPageTemplateStructure layoutPageTemplateStructure);
+
+	public LayoutPageTemplateStructure updateLayoutPageTemplateStructure(
+			long groupId, long classNameId, long classPK,
+			long segmentsExperienceId, String data)
+		throws PortalException;
 
 	public LayoutPageTemplateStructure updateLayoutPageTemplateStructure(
 			long groupId, long classNameId, long classPK, String data)

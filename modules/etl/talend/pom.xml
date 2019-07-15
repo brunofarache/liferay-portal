@@ -22,9 +22,13 @@
 		</pluginRepository>
 	</pluginRepositories>
 	<properties>
+		<liferay.javadoc.formatter.version>1.0.28</liferay.javadoc.formatter.version>
+		<liferay.source.formatter.version>1.0.864</liferay.source.formatter.version>
+		<liferay.xml.formatter.version>1.0.5</liferay.xml.formatter.version>
 		<maven.deploy.skip>true</maven.deploy.skip>
 	</properties>
 	<modules>
+		<module>talend-common</module>
 		<module>talend-definition</module>
 		<module>talend-runtime</module>
 	</modules>
@@ -34,17 +38,17 @@
 				<plugin>
 					<groupId>com.liferay</groupId>
 					<artifactId>com.liferay.javadoc.formatter</artifactId>
-					<version>1.0.30</version>
+					<version>1.0.33</version>
 				</plugin>
 				<plugin>
 					<groupId>com.liferay</groupId>
 					<artifactId>com.liferay.source.formatter</artifactId>
-					<version>1.0.808</version>
+					<version>1.0.883</version>
 				</plugin>
 				<plugin>
 					<groupId>com.liferay</groupId>
 					<artifactId>com.liferay.xml.formatter</artifactId>
-					<version>1.0.5</version>
+					<version>${liferay.xml.formatter.version}</version>
 					<configuration>
 						<fileName>pom.xml</fileName>
 					</configuration>

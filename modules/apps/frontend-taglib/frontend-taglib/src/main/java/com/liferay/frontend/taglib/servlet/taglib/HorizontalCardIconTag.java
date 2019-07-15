@@ -33,6 +33,10 @@ public class HorizontalCardIconTag extends IncludeTag {
 		return super.doStartTag();
 	}
 
+	public String getIcon() {
+		return _icon;
+	}
+
 	public void setIcon(String icon) {
 		_icon = icon;
 	}
@@ -62,10 +66,10 @@ public class HorizontalCardIconTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		super.setAttributes(request);
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		super.setAttributes(httpServletRequest);
 
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-frontend:horizontal-card-icon:icon", _icon);
 	}
 

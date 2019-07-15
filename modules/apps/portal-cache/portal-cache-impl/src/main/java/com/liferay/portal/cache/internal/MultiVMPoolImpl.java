@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.cache.PortalCacheManager;
 import com.liferay.portal.kernel.cache.PortalCacheManagerNames;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.resiliency.spi.SPIUtil;
 import com.liferay.portal.kernel.resiliency.spi.cache.SPIPortalCacheManagerConfigurator;
 
 import java.io.Serializable;
@@ -48,42 +49,6 @@ public class MultiVMPoolImpl implements MultiVMPool {
 			portalCacheManager = getPortalCacheManager();
 
 		portalCacheManager.clearAll();
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #getPortalCache(String)}
-	 */
-	@Deprecated
-	@Override
-	public PortalCache<? extends Serializable, ? extends Serializable> getCache(
-		String portalCacheName) {
-
-		return getPortalCache(portalCacheName);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #getPortalCache(String, boolean)}
-	 */
-	@Deprecated
-	@Override
-	public PortalCache<? extends Serializable, ? extends Serializable> getCache(
-		String portalCacheName, boolean blocking) {
-
-		return getPortalCache(portalCacheName, blocking);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #getPortalCacheManager()}
-	 */
-	@Deprecated
-	@Override
-	public PortalCacheManager<? extends Serializable, ? extends Serializable>
-		getCacheManager() {
-
-		return getPortalCacheManager();
 	}
 
 	@Override
@@ -131,16 +96,6 @@ public class MultiVMPoolImpl implements MultiVMPool {
 		return _portalCacheManager;
 	}
 
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #removePortalCache(String)}
-	 */
-	@Deprecated
-	@Override
-	public void removeCache(String portalCacheName) {
-		removePortalCache(portalCacheName);
-	}
-
 	@Override
 	public void removePortalCache(String portalCacheName) {
 		PortalCacheManager<? extends Serializable, ? extends Serializable>
@@ -154,16 +109,20 @@ public class MultiVMPoolImpl implements MultiVMPool {
 	protected void activate(BundleContext bundleContext) {
 		_bundleContext = bundleContext;
 
-		_serviceTracker = ServiceTrackerFactory.open(
-			bundleContext, SPIPortalCacheManagerConfigurator.class,
-			new SPIPortalCacheManagerConfiguratorServiceTrackerCustomizer());
+		if (SPIUtil.isSPI()) {
+			_serviceTracker = ServiceTrackerFactory.open(
+				bundleContext, SPIPortalCacheManagerConfigurator.class,
+				new SPIPortalCacheManagerConfiguratorServiceTrackerCustomizer());
+		}
 	}
 
 	@Deactivate
 	protected void deactivate() {
-		_serviceTracker.close();
+		if (_serviceTracker != null) {
+			_serviceTracker.close();
 
-		_serviceTracker = null;
+			_serviceTracker = null;
+		}
 	}
 
 	@Reference(

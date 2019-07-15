@@ -14,14 +14,14 @@
 
 package com.liferay.changeset.service.persistence.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.changeset.exception.NoSuchCollectionException;
 import com.liferay.changeset.model.ChangesetCollection;
 import com.liferay.changeset.model.impl.ChangesetCollectionImpl;
 import com.liferay.changeset.model.impl.ChangesetCollectionModelImpl;
 import com.liferay.changeset.service.persistence.ChangesetCollectionPersistence;
+import com.liferay.changeset.service.persistence.impl.constants.ChangesetPersistenceConstants;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.configuration.Configuration;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -29,16 +29,16 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
+import com.liferay.portal.kernel.dao.orm.SessionFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.CompanyProvider;
-import com.liferay.portal.kernel.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ProxyUtil;
-import com.liferay.portal.spring.extender.service.ServiceReference;
 
 import java.io.Serializable;
 
@@ -50,6 +50,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.sql.DataSource;
+
+import org.osgi.annotation.versioning.ProviderType;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+
 /**
  * The persistence implementation for the changeset collection service.
  *
@@ -60,6 +68,7 @@ import java.util.Objects;
  * @author Brian Wing Shun Chan
  * @generated
  */
+@Component(service = ChangesetCollectionPersistence.class)
 @ProviderType
 public class ChangesetCollectionPersistenceImpl
 	extends BasePersistenceImpl<ChangesetCollection>
@@ -2513,8 +2522,6 @@ public class ChangesetCollectionPersistenceImpl
 
 		setModelImplClass(ChangesetCollectionImpl.class);
 		setModelPKClass(long.class);
-		setEntityCacheEnabled(
-			ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED);
 	}
 
 	/**
@@ -2525,9 +2532,8 @@ public class ChangesetCollectionPersistenceImpl
 	@Override
 	public void cacheResult(ChangesetCollection changesetCollection) {
 		entityCache.putResult(
-			ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED,
-			ChangesetCollectionImpl.class, changesetCollection.getPrimaryKey(),
-			changesetCollection);
+			entityCacheEnabled, ChangesetCollectionImpl.class,
+			changesetCollection.getPrimaryKey(), changesetCollection);
 
 		finderCache.putResult(
 			_finderPathFetchByG_N,
@@ -2548,8 +2554,7 @@ public class ChangesetCollectionPersistenceImpl
 	public void cacheResult(List<ChangesetCollection> changesetCollections) {
 		for (ChangesetCollection changesetCollection : changesetCollections) {
 			if (entityCache.getResult(
-					ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED,
-					ChangesetCollectionImpl.class,
+					entityCacheEnabled, ChangesetCollectionImpl.class,
 					changesetCollection.getPrimaryKey()) == null) {
 
 				cacheResult(changesetCollection);
@@ -2586,8 +2591,8 @@ public class ChangesetCollectionPersistenceImpl
 	@Override
 	public void clearCache(ChangesetCollection changesetCollection) {
 		entityCache.removeResult(
-			ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED,
-			ChangesetCollectionImpl.class, changesetCollection.getPrimaryKey());
+			entityCacheEnabled, ChangesetCollectionImpl.class,
+			changesetCollection.getPrimaryKey());
 
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
@@ -2603,8 +2608,7 @@ public class ChangesetCollectionPersistenceImpl
 
 		for (ChangesetCollection changesetCollection : changesetCollections) {
 			entityCache.removeResult(
-				ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED,
-				ChangesetCollectionImpl.class,
+				entityCacheEnabled, ChangesetCollectionImpl.class,
 				changesetCollection.getPrimaryKey());
 
 			clearUniqueFindersCache(
@@ -2666,7 +2670,7 @@ public class ChangesetCollectionPersistenceImpl
 		changesetCollection.setNew(true);
 		changesetCollection.setPrimaryKey(changesetCollectionId);
 
-		changesetCollection.setCompanyId(companyProvider.getCompanyId());
+		changesetCollection.setCompanyId(CompanyThreadLocal.getCompanyId());
 
 		return changesetCollection;
 	}
@@ -2835,7 +2839,7 @@ public class ChangesetCollectionPersistenceImpl
 
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 
-		if (!ChangesetCollectionModelImpl.COLUMN_BITMASK_ENABLED) {
+		if (!_columnBitmaskEnabled) {
 			finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 		}
 		else if (isNew) {
@@ -2964,9 +2968,8 @@ public class ChangesetCollectionPersistenceImpl
 		}
 
 		entityCache.putResult(
-			ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED,
-			ChangesetCollectionImpl.class, changesetCollection.getPrimaryKey(),
-			changesetCollection, false);
+			entityCacheEnabled, ChangesetCollectionImpl.class,
+			changesetCollection.getPrimaryKey(), changesetCollection, false);
 
 		clearUniqueFindersCache(changesetCollectionModelImpl, false);
 		cacheUniqueFindersCache(changesetCollectionModelImpl);
@@ -3246,29 +3249,29 @@ public class ChangesetCollectionPersistenceImpl
 	/**
 	 * Initializes the changeset collection persistence.
 	 */
-	public void afterPropertiesSet() {
+	@Activate
+	public void activate() {
+		ChangesetCollectionModelImpl.setEntityCacheEnabled(entityCacheEnabled);
+		ChangesetCollectionModelImpl.setFinderCacheEnabled(finderCacheEnabled);
+
 		_finderPathWithPaginationFindAll = new FinderPath(
-			ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED,
-			ChangesetCollectionModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			ChangesetCollectionImpl.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
 
 		_finderPathWithoutPaginationFindAll = new FinderPath(
-			ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED,
-			ChangesetCollectionModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			ChangesetCollectionImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll",
 			new String[0]);
 
 		_finderPathCountAll = new FinderPath(
-			ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED,
-			ChangesetCollectionModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll",
 			new String[0]);
 
 		_finderPathWithPaginationFindByGroupId = new FinderPath(
-			ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED,
-			ChangesetCollectionModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			ChangesetCollectionImpl.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByGroupId",
 			new String[] {
@@ -3277,22 +3280,19 @@ public class ChangesetCollectionPersistenceImpl
 			});
 
 		_finderPathWithoutPaginationFindByGroupId = new FinderPath(
-			ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED,
-			ChangesetCollectionModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			ChangesetCollectionImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByGroupId",
 			new String[] {Long.class.getName()},
 			ChangesetCollectionModelImpl.GROUPID_COLUMN_BITMASK);
 
 		_finderPathCountByGroupId = new FinderPath(
-			ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED,
-			ChangesetCollectionModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByGroupId",
 			new String[] {Long.class.getName()});
 
 		_finderPathWithPaginationFindByCompanyId = new FinderPath(
-			ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED,
-			ChangesetCollectionModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			ChangesetCollectionImpl.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByCompanyId",
 			new String[] {
@@ -3301,22 +3301,19 @@ public class ChangesetCollectionPersistenceImpl
 			});
 
 		_finderPathWithoutPaginationFindByCompanyId = new FinderPath(
-			ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED,
-			ChangesetCollectionModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			ChangesetCollectionImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByCompanyId",
 			new String[] {Long.class.getName()},
 			ChangesetCollectionModelImpl.COMPANYID_COLUMN_BITMASK);
 
 		_finderPathCountByCompanyId = new FinderPath(
-			ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED,
-			ChangesetCollectionModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByCompanyId",
 			new String[] {Long.class.getName()});
 
 		_finderPathWithPaginationFindByG_U = new FinderPath(
-			ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED,
-			ChangesetCollectionModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			ChangesetCollectionImpl.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByG_U",
 			new String[] {
@@ -3326,8 +3323,7 @@ public class ChangesetCollectionPersistenceImpl
 			});
 
 		_finderPathWithoutPaginationFindByG_U = new FinderPath(
-			ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED,
-			ChangesetCollectionModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			ChangesetCollectionImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByG_U",
 			new String[] {Long.class.getName(), Long.class.getName()},
@@ -3335,14 +3331,12 @@ public class ChangesetCollectionPersistenceImpl
 			ChangesetCollectionModelImpl.USERID_COLUMN_BITMASK);
 
 		_finderPathCountByG_U = new FinderPath(
-			ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED,
-			ChangesetCollectionModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByG_U",
 			new String[] {Long.class.getName(), Long.class.getName()});
 
 		_finderPathFetchByG_N = new FinderPath(
-			ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED,
-			ChangesetCollectionModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			ChangesetCollectionImpl.class, FINDER_CLASS_NAME_ENTITY,
 			"fetchByG_N",
 			new String[] {Long.class.getName(), String.class.getName()},
@@ -3350,14 +3344,12 @@ public class ChangesetCollectionPersistenceImpl
 			ChangesetCollectionModelImpl.NAME_COLUMN_BITMASK);
 
 		_finderPathCountByG_N = new FinderPath(
-			ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED,
-			ChangesetCollectionModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByG_N",
 			new String[] {Long.class.getName(), String.class.getName()});
 
 		_finderPathWithPaginationFindByC_N = new FinderPath(
-			ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED,
-			ChangesetCollectionModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			ChangesetCollectionImpl.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_N",
 			new String[] {
@@ -3367,8 +3359,7 @@ public class ChangesetCollectionPersistenceImpl
 			});
 
 		_finderPathWithoutPaginationFindByC_N = new FinderPath(
-			ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED,
-			ChangesetCollectionModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			ChangesetCollectionImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByC_N",
 			new String[] {Long.class.getName(), String.class.getName()},
@@ -3376,26 +3367,57 @@ public class ChangesetCollectionPersistenceImpl
 			ChangesetCollectionModelImpl.NAME_COLUMN_BITMASK);
 
 		_finderPathCountByC_N = new FinderPath(
-			ChangesetCollectionModelImpl.ENTITY_CACHE_ENABLED,
-			ChangesetCollectionModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_N",
 			new String[] {Long.class.getName(), String.class.getName()});
 	}
 
-	public void destroy() {
+	@Deactivate
+	public void deactivate() {
 		entityCache.removeCache(ChangesetCollectionImpl.class.getName());
 		finderCache.removeCache(FINDER_CLASS_NAME_ENTITY);
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
-	@ServiceReference(type = CompanyProviderWrapper.class)
-	protected CompanyProvider companyProvider;
+	@Override
+	@Reference(
+		target = ChangesetPersistenceConstants.ORIGIN_BUNDLE_SYMBOLIC_NAME_FILTER,
+		unbind = "-"
+	)
+	public void setConfiguration(Configuration configuration) {
+		super.setConfiguration(configuration);
 
-	@ServiceReference(type = EntityCache.class)
+		_columnBitmaskEnabled = GetterUtil.getBoolean(
+			configuration.get(
+				"value.object.column.bitmask.enabled.com.liferay.changeset.model.ChangesetCollection"),
+			true);
+	}
+
+	@Override
+	@Reference(
+		target = ChangesetPersistenceConstants.ORIGIN_BUNDLE_SYMBOLIC_NAME_FILTER,
+		unbind = "-"
+	)
+	public void setDataSource(DataSource dataSource) {
+		super.setDataSource(dataSource);
+	}
+
+	@Override
+	@Reference(
+		target = ChangesetPersistenceConstants.ORIGIN_BUNDLE_SYMBOLIC_NAME_FILTER,
+		unbind = "-"
+	)
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		super.setSessionFactory(sessionFactory);
+	}
+
+	private boolean _columnBitmaskEnabled;
+
+	@Reference
 	protected EntityCache entityCache;
 
-	@ServiceReference(type = FinderCache.class)
+	@Reference
 	protected FinderCache finderCache;
 
 	private static final String _SQL_SELECT_CHANGESETCOLLECTION =

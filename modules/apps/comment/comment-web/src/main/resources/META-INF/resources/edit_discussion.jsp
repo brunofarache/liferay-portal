@@ -19,6 +19,8 @@
 <%
 String redirect = ParamUtil.getString(request, "redirect");
 
+String backURL = ParamUtil.getString(request, "backURL", redirect);
+
 if (Validator.isNull(redirect)) {
 	redirect = currentURL;
 }
@@ -49,15 +51,15 @@ if (comment instanceof WorkflowableComment) {
 %>
 
 <liferay-ui:header
-	backURL="<%= redirect %>"
+	backURL="<%= backURL %>"
 	title='<%= (comment == null) ? "new-message" : "edit-message" %>'
 />
 
-<portlet:actionURL name="invokeTaglibDiscussion" var="editCommentURL" />
-
 <div class="container-fluid-1280">
-	<aui:form action="<%= editCommentURL %>" enctype="multipart/form-data" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "saveComment();" %>'>
-		<aui:input name="p_auth" type="hidden" value="<%= AuthTokenUtil.getToken(request) %>" />
+	<aui:form action='<%= themeDisplay.getPathMain() + "/portal/comment/discussion/edit" %>' enctype="multipart/form-data" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "saveComment();" %>'>
+		<input name="p_auth" type="hidden" value="<%= AuthTokenUtil.getToken(request) %>" />
+		<input name="namespace" type="hidden" value="<%= renderResponse.getNamespace() %>" />
+
 		<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= Constants.UPDATE %>" />
 		<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 		<aui:input name="commentId" type="hidden" value="<%= commentId %>" />
@@ -66,6 +68,7 @@ if (comment instanceof WorkflowableComment) {
 		<aui:input name="ajax" type="hidden" value="<%= false %>" />
 
 		<liferay-ui:error exception="<%= CaptchaConfigurationException.class %>" message="a-captcha-error-occurred-please-contact-an-administrator" />
+		<liferay-ui:error exception="<%= CaptchaException.class %>" message="captcha-verification-failed" />
 		<liferay-ui:error exception="<%= CaptchaTextException.class %>" message="text-verification-failed" />
 		<liferay-ui:error exception="<%= DiscussionMaxCommentsException.class %>" message="maximum-number-of-comments-has-been-reached" />
 		<liferay-ui:error exception="<%= MessageBodyException.class %>" message="please-enter-a-valid-message" />

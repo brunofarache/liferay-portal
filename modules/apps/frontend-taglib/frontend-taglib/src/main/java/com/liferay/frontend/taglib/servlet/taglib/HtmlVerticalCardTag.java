@@ -21,6 +21,10 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class HtmlVerticalCardTag extends VerticalCardTag {
 
+	public String getHtml() {
+		return _html;
+	}
+
 	public void setHtml(String html) {
 		_html = html;
 	}
@@ -43,10 +47,10 @@ public class HtmlVerticalCardTag extends VerticalCardTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		super.setAttributes(request);
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		super.setAttributes(httpServletRequest);
 
-		request.setAttribute("liferay-frontend:card:html", _html);
+		httpServletRequest.setAttribute("liferay-frontend:card:html", _html);
 	}
 
 	private String _html;

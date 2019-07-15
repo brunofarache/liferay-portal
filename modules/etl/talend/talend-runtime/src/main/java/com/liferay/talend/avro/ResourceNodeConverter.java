@@ -14,14 +14,15 @@
 
 package com.liferay.talend.avro;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.liferay.talend.common.json.JsonFinder;
+import com.liferay.talend.common.oas.OASException;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
+
+import javax.json.JsonNumber;
+import javax.json.JsonObject;
+import javax.json.JsonString;
+import javax.json.JsonValue;
 
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -30,84 +31,160 @@ import org.apache.avro.generic.IndexedRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.talend.daikon.avro.NameUtil;
+import org.talend.daikon.avro.AvroUtils;
+import org.talend.daikon.avro.converter.AvroConverter;
 
 /**
  * @author Zoltán Takács
+ * @author Igor Beslic
  */
 @SuppressWarnings("rawtypes")
 public class ResourceNodeConverter
-	extends BaseConverter<JsonNode, IndexedRecord> {
+	extends BaseConverter<JsonObject, IndexedRecord> {
 
 	public ResourceNodeConverter(Schema schema) {
-		super(JsonNode.class, schema);
+		super(JsonObject.class, schema);
 
 		initConverters(schema);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public IndexedRecord convertToAvro(JsonNode resource) {
+	public IndexedRecord convertToAvro(JsonObject contentJsonObject) {
 		IndexedRecord record = new GenericData.Record(getSchema());
 
-		Iterator<Map.Entry<String, JsonNode>> jsonFields = resource.fields();
+		schemaFields.forEach(
+			schemaEntry -> {
+				String valueFinderPath = _getValueFinderPath(
+					schemaEntry.name());
 
-		// Already used names for the fields
+				JsonValue jsonValue = _jsonFinder.getDescendantJsonValue(
+					valueFinderPath, contentJsonObject);
 
-		int i = 0;
-		Set<String> normalizedJsonFieldNames = new HashSet<>();
-		int pos = -1;
+				if (jsonValue == JsonValue.NULL) {
+					if (AvroUtils.isNullable(schemaEntry.schema())) {
+						if (_log.isDebugEnabled()) {
+							_log.debug(
+								"Ignoring content's absent path {}",
+								valueFinderPath);
+						}
 
-		while (jsonFields.hasNext()) {
-			Map.Entry<String, JsonNode> field = jsonFields.next();
+						return;
+					}
 
-			String fieldName = NameUtil.correct(
-				field.getKey(), i, normalizedJsonFieldNames);
-
-			normalizedJsonFieldNames.add(fieldName);
-
-			i++;
-
-			for (Schema.Field schemaField : schemaFields) {
-				if (fieldName.equals(schemaField.name())) {
-					pos = schemaField.pos();
-
-					break;
+					throw new OASException(
+						"Missing non-nullable value at " + valueFinderPath);
 				}
-			}
 
-			if (pos >= 0) {
-				JsonNode resourceJsonNode = field.getValue();
+				AvroConverter avroConverter = avroConverters[schemaEntry.pos()];
+				Schema fieldSchema = AvroUtils.unwrapIfNullable(
+					schemaEntry.schema());
 
-				Object value = avroConverters[pos].convertToAvro(
-					resourceJsonNode.asText());
+				if (AvroUtils.isSameType(fieldSchema, AvroUtils._boolean())) {
+					record.put(schemaEntry.pos(), _asBoolean(jsonValue));
+				}
+				else if (AvroUtils.isSameType(
+							fieldSchema, AvroUtils._bytes())) {
 
-				record.put(pos, value);
+					record.put(
+						schemaEntry.pos(),
+						avroConverter.convertToAvro(_asText(jsonValue)));
+				}
+				else if (AvroUtils.isSameType(
+							fieldSchema, AvroUtils._double())) {
 
-				pos = -1;
-			}
-			else if (!_blacklistedJsonLDKeywords.contains(fieldName) &&
-					 _log.isDebugEnabled()) {
+					record.put(schemaEntry.pos(), _asDouble(jsonValue));
+				}
+				else if (AvroUtils.isSameType(fieldSchema, AvroUtils._long())) {
+					record.put(schemaEntry.pos(), _asLong(jsonValue));
+				}
+				else if (AvroUtils.isSameType(fieldSchema, AvroUtils._int())) {
+					record.put(schemaEntry.pos(), _asInteger(jsonValue));
+				}
+				else if (fieldSchema.getType() == Schema.Type.RECORD) {
+					BaseConverter recordConverter = new OASDictionaryConverter(
+						fieldSchema);
 
-				_log.debug(
-					"{} is not present in the runtime schema. It will be " +
-						"ignored.",
-					fieldName);
-			}
-		}
+					if (!Objects.equals("Dictionary", fieldSchema.getName())) {
+						recordConverter = new ResourceNodeConverter(
+							fieldSchema);
+					}
+
+					record.put(
+						schemaEntry.pos(),
+						recordConverter.convertToAvro(
+							jsonValue.asJsonObject()));
+				}
+				else {
+					if (jsonValue instanceof JsonString) {
+						record.put(
+							schemaEntry.pos(),
+							avroConverter.convertToAvro(_asText(jsonValue)));
+
+						return;
+					}
+
+					record.put(
+						schemaEntry.pos(),
+						avroConverter.convertToAvro(jsonValue.toString()));
+				}
+			});
 
 		return record;
 	}
 
 	@Override
-	public JsonNode convertToDatum(IndexedRecord value) {
+	public JsonObject convertToDatum(IndexedRecord value) {
 		throw new UnsupportedOperationException();
+	}
+
+	private Boolean _asBoolean(JsonValue jsonValue) {
+		if (jsonValue == JsonValue.TRUE) {
+			return Boolean.TRUE;
+		}
+
+		return Boolean.FALSE;
+	}
+
+	private Double _asDouble(JsonValue jsonValue) {
+		JsonNumber jsonNumber = _asJsonNumber(jsonValue);
+
+		return jsonNumber.doubleValue();
+	}
+
+	private Integer _asInteger(JsonValue jsonValue) {
+		JsonNumber jsonNumber = _asJsonNumber(jsonValue);
+
+		return jsonNumber.intValue();
+	}
+
+	private JsonNumber _asJsonNumber(JsonValue jsonValue) {
+		return (JsonNumber)jsonValue;
+	}
+
+	private Long _asLong(JsonValue jsonValue) {
+		JsonNumber jsonNumber = _asJsonNumber(jsonValue);
+
+		return jsonNumber.longValue();
+	}
+
+	private String _asText(JsonValue jsonValue) {
+		JsonString jsonString = (JsonString)jsonValue;
+
+		return jsonString.getString();
+	}
+
+	private String _getValueFinderPath(String name) {
+		if (name.indexOf("_") == -1) {
+			return name;
+		}
+
+		return name.replaceFirst("_", ">");
 	}
 
 	private static final Logger _log = LoggerFactory.getLogger(
 		ResourceNodeConverter.class);
 
-	private static final List<String> _blacklistedJsonLDKeywords =
-		Arrays.asList("_context", "_type");
+	private static final JsonFinder _jsonFinder = new JsonFinder();
 
 }

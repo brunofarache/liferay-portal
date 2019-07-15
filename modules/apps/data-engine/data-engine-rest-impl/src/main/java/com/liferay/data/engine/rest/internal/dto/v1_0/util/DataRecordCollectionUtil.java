@@ -14,6 +14,7 @@
 
 package com.liferay.data.engine.rest.internal.dto.v1_0.util;
 
+import com.liferay.data.engine.field.type.util.LocalizedValueUtil;
 import com.liferay.data.engine.rest.dto.v1_0.DataRecordCollection;
 import com.liferay.dynamic.data.lists.model.DDLRecordSet;
 
@@ -28,11 +29,13 @@ public class DataRecordCollectionUtil {
 		return new DataRecordCollection() {
 			{
 				dataDefinitionId = ddlRecordSet.getDDMStructureId();
-				description = LocalizedValueUtil.toLocalizedValues(
+				dataRecordCollectionKey = ddlRecordSet.getRecordSetKey();
+				description = LocalizedValueUtil.toStringObjectMap(
 					ddlRecordSet.getDescriptionMap());
 				id = ddlRecordSet.getRecordSetId();
-				name = LocalizedValueUtil.toLocalizedValues(
+				name = LocalizedValueUtil.toStringObjectMap(
 					ddlRecordSet.getNameMap());
+				siteId = ddlRecordSet.getGroupId();
 			}
 		};
 	}

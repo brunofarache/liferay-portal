@@ -58,7 +58,7 @@ import org.osgi.service.component.annotations.Reference;
 	immediate = true, service = {CacheRegistryItem.class, EntityCache.class}
 )
 public class EntityCacheImpl
-	implements PortalCacheManagerListener, CacheRegistryItem, EntityCache {
+	implements CacheRegistryItem, EntityCache, PortalCacheManagerListener {
 
 	@Override
 	public void clearCache() {
@@ -245,7 +245,9 @@ public class EntityCacheImpl
 						result = StringPool.BLANK;
 					}
 					else {
-						result = ((BaseModel<?>)loadResult).toCacheModel();
+						BaseModel<?> baseModel = (BaseModel<?>)loadResult;
+
+						result = baseModel.toCacheModel();
 
 						PortalCacheHelperUtil.putWithoutReplicator(
 							portalCache, primaryKey, result);
@@ -298,7 +300,9 @@ public class EntityCacheImpl
 			return;
 		}
 
-		result = ((BaseModel<?>)result).toCacheModel();
+		BaseModel<?> baseModel = (BaseModel<?>)result;
+
+		result = baseModel.toCacheModel();
 
 		if (_isLocalCacheEnabled()) {
 			Map<Serializable, Serializable> localCache = _localCache.get();

@@ -14,8 +14,7 @@
 
 package com.liferay.external.reference.service;
 
-import aQute.bnd.annotation.ProviderType;
-
+import org.osgi.annotation.versioning.ProviderType;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.util.tracker.ServiceTracker;
@@ -45,13 +44,13 @@ public class EROrganizationLocalServiceUtil {
 				String externalReferenceCode, long userId,
 				long parentOrganizationId, String name, String type,
 				long regionId, long countryId, long statusId, String comments,
-				boolean site, boolean logo, byte[] logoBytes,
+				boolean site, boolean hasLogo, byte[] logoBytes,
 				com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().addOrUpdateOrganization(
 			externalReferenceCode, userId, parentOrganizationId, name, type,
-			regionId, countryId, statusId, comments, site, logo, logoBytes,
+			regionId, countryId, statusId, comments, site, hasLogo, logoBytes,
 			serviceContext);
 	}
 

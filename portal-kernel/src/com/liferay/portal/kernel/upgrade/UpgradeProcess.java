@@ -14,6 +14,7 @@
 
 package com.liferay.portal.kernel.upgrade;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.db.BaseDBProcess;
 import com.liferay.portal.kernel.dao.db.DB;
@@ -33,7 +34,6 @@ import com.liferay.portal.kernel.util.ClassUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.IOException;
@@ -107,8 +107,7 @@ public abstract class UpgradeProcess
 				_log.info(
 					StringBundler.concat(
 						message, ClassUtil.getClassName(this), " in ",
-						String.valueOf(System.currentTimeMillis() - start),
-						" ms"));
+						System.currentTimeMillis() - start, " ms"));
 			}
 		}
 	}
@@ -478,35 +477,41 @@ public abstract class UpgradeProcess
 		throws IOException {
 
 		if (!PortalClassLoaderUtil.isPortalClassLoader(classLoader)) {
-			List<ObjectValuePair<String, IndexMetadata>> objectValuePairs =
-				new ArrayList<>();
-
 			try (InputStream is = classLoader.getResourceAsStream(
-					"META-INF/sql/indexes.sql");
-				Reader reader = new InputStreamReader(is);
-				UnsyncBufferedReader unsyncBufferedReader =
-					new UnsyncBufferedReader(reader)) {
+					"META-INF/sql/indexes.sql")) {
 
-				String line = null;
+				if (is == null) {
+					return null;
+				}
 
-				while ((line = unsyncBufferedReader.readLine()) != null) {
-					line = line.trim();
+				List<ObjectValuePair<String, IndexMetadata>> objectValuePairs =
+					new ArrayList<>();
 
-					if (line.isEmpty()) {
-						continue;
-					}
+				try (Reader reader = new InputStreamReader(is);
+					UnsyncBufferedReader unsyncBufferedReader =
+						new UnsyncBufferedReader(reader)) {
 
-					IndexMetadata indexMetadata =
-						IndexMetadataFactoryUtil.createIndexMetadata(line);
+					String line = null;
 
-					if (tableName.equals(indexMetadata.getTableName())) {
-						objectValuePairs.add(
-							new ObjectValuePair<>(line, indexMetadata));
+					while ((line = unsyncBufferedReader.readLine()) != null) {
+						line = line.trim();
+
+						if (line.isEmpty()) {
+							continue;
+						}
+
+						IndexMetadata indexMetadata =
+							IndexMetadataFactoryUtil.createIndexMetadata(line);
+
+						if (tableName.equals(indexMetadata.getTableName())) {
+							objectValuePairs.add(
+								new ObjectValuePair<>(line, indexMetadata));
+						}
 					}
 				}
-			}
 
-			return objectValuePairs;
+				return objectValuePairs;
+			}
 		}
 
 		if (!_portalIndexesSQL.isEmpty()) {

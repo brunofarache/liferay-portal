@@ -15,25 +15,37 @@
 package com.liferay.segments.web.internal.display.context;
 
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.bean.BeanParamUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.segments.constants.SegmentsConstants;
 import com.liferay.segments.criteria.Criteria;
 import com.liferay.segments.criteria.contributor.SegmentsCriteriaContributor;
 import com.liferay.segments.criteria.contributor.SegmentsCriteriaContributorRegistry;
 import com.liferay.segments.model.SegmentsEntry;
-import com.liferay.segments.provider.SegmentsEntryProvider;
+import com.liferay.segments.provider.SegmentsEntryProviderRegistry;
 import com.liferay.segments.service.SegmentsEntryService;
+import com.liferay.segments.web.internal.security.permission.resource.SegmentsEntryPermission;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.portlet.PortletURL;
 import javax.portlet.RenderRequest;
@@ -47,19 +59,32 @@ import javax.servlet.http.HttpServletRequest;
 public class EditSegmentsEntryDisplayContext {
 
 	public EditSegmentsEntryDisplayContext(
-		HttpServletRequest request, RenderRequest renderRequest,
+		HttpServletRequest httpServletRequest, RenderRequest renderRequest,
 		RenderResponse renderResponse,
 		SegmentsCriteriaContributorRegistry segmentsCriteriaContributorRegistry,
-		SegmentsEntryProvider segmentsEntryProvider,
+		SegmentsEntryProviderRegistry segmentsEntryProviderRegistry,
 		SegmentsEntryService segmentsEntryService) {
 
-		_request = request;
+		_httpServletRequest = httpServletRequest;
 		_renderRequest = renderRequest;
 		_renderResponse = renderResponse;
 		_segmentsCriteriaContributorRegistry =
 			segmentsCriteriaContributorRegistry;
-		_segmentsEntryProvider = segmentsEntryProvider;
+		_segmentsEntryProviderRegistry = segmentsEntryProviderRegistry;
 		_segmentsEntryService = segmentsEntryService;
+
+		_themeDisplay = (ThemeDisplay)_httpServletRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+	}
+
+	public Set<Locale> getAvailableLocales() throws PortalException {
+		if (_availableLocales != null) {
+			return _availableLocales;
+		}
+
+		_availableLocales = LanguageUtil.getAvailableLocales(getGroupId());
+
+		return _availableLocales;
 	}
 
 	public JSONArray getContributorsJSONArray() throws PortalException {
@@ -74,23 +99,21 @@ public class EditSegmentsEntryDisplayContext {
 			Criteria.Criterion criterion =
 				segmentsCriteriaContributor.getCriterion(getCriteria());
 
-			JSONObject jsonContributorObject =
-				JSONFactoryUtil.createJSONObject();
-
-			jsonContributorObject.put(
-				"conjunctionId", _getCriterionConjunction(criterion));
-			jsonContributorObject.put(
+			JSONObject jsonContributorObject = JSONUtil.put(
+				"conjunctionId", _getCriterionConjunction(criterion)
+			).put(
 				"conjunctionInputId",
 				_renderResponse.getNamespace() + "criterionConjunction" +
-					segmentsCriteriaContributor.getKey());
-			jsonContributorObject.put(
-				"initialQuery", _getCriterionFilterString(criterion));
-			jsonContributorObject.put(
+					segmentsCriteriaContributor.getKey()
+			).put(
+				"initialQuery", _getCriterionFilterString(criterion)
+			).put(
 				"inputId",
 				_renderResponse.getNamespace() + "criterionFilter" +
-					segmentsCriteriaContributor.getKey());
-			jsonContributorObject.put(
-				"propertyKey", segmentsCriteriaContributor.getKey());
+					segmentsCriteriaContributor.getKey()
+			).put(
+				"propertyKey", segmentsCriteriaContributor.getKey()
+			);
 
 			jsonContributorsArray.put(jsonContributorObject);
 		}
@@ -110,6 +133,47 @@ public class EditSegmentsEntryDisplayContext {
 		return segmentsEntry.getCriteriaObj();
 	}
 
+	public String getDefaultLanguageId() throws PortalException {
+		if (_defaultLanguageId != null) {
+			return _defaultLanguageId;
+		}
+
+		Locale siteDefaultLocale = null;
+
+		try {
+			siteDefaultLocale = PortalUtil.getSiteDefaultLocale(getGroupId());
+		}
+		catch (PortalException pe) {
+			_log.error(pe, pe);
+
+			siteDefaultLocale = LocaleUtil.getSiteDefault();
+		}
+
+		SegmentsEntry segmentsEntry = getSegmentsEntry();
+
+		if (segmentsEntry == null) {
+			_defaultLanguageId = LocaleUtil.toLanguageId(siteDefaultLocale);
+		}
+		else {
+			_defaultLanguageId = LocalizationUtil.getDefaultLanguageId(
+				segmentsEntry.getName(), siteDefaultLocale);
+		}
+
+		return _defaultLanguageId;
+	}
+
+	public long getGroupId() throws PortalException {
+		if (_groupId != null) {
+			return _groupId;
+		}
+
+		_groupId = BeanParamUtil.getLong(
+			getSegmentsEntry(), _httpServletRequest, "groupId",
+			_themeDisplay.getScopeGroupId());
+
+		return _groupId;
+	}
+
 	public JSONArray getPropertyGroupsJSONArray(Locale locale)
 		throws PortalException {
 
@@ -121,21 +185,18 @@ public class EditSegmentsEntryDisplayContext {
 		for (SegmentsCriteriaContributor segmentsCriteriaContributor :
 				segmentsCriteriaContributors) {
 
-			JSONObject jsonContributorObject =
-				JSONFactoryUtil.createJSONObject();
-
-			jsonContributorObject.put(
-				"entityName", segmentsCriteriaContributor.getEntityName());
-			jsonContributorObject.put(
-				"name", segmentsCriteriaContributor.getLabel(locale));
-			jsonContributorObject.put(
+			JSONObject jsonContributorObject = JSONUtil.put(
+				"entityName", segmentsCriteriaContributor.getEntityName()
+			).put(
+				"name", segmentsCriteriaContributor.getLabel(locale)
+			).put(
 				"properties",
 				JSONFactoryUtil.createJSONArray(
 					JSONFactoryUtil.looseSerializeDeep(
-						segmentsCriteriaContributor.getFields(
-							_renderRequest))));
-			jsonContributorObject.put(
-				"propertyKey", segmentsCriteriaContributor.getKey());
+						segmentsCriteriaContributor.getFields(_renderRequest)))
+			).put(
+				"propertyKey", segmentsCriteriaContributor.getKey()
+			);
 
 			jsonContributorsArray.put(jsonContributorObject);
 		}
@@ -148,7 +209,7 @@ public class EditSegmentsEntryDisplayContext {
 			return _redirect;
 		}
 
-		_redirect = ParamUtil.getString(_request, "redirect");
+		_redirect = ParamUtil.getString(_httpServletRequest, "redirect");
 
 		if (Validator.isNull(_redirect)) {
 			PortletURL portletURL = _renderResponse.createRenderURL();
@@ -181,22 +242,34 @@ public class EditSegmentsEntryDisplayContext {
 		return _segmentsEntry;
 	}
 
-	public int getSegmentsEntryClassPKsCount() throws PortalException {
-		if (_segmentsEntryClassPKsCount != null) {
+	public int getSegmentsEntryClassPKsCount() {
+		try {
+			if (_segmentsEntryClassPKsCount != null) {
+				return _segmentsEntryClassPKsCount;
+			}
+
+			SegmentsEntry segmentsEntry = null;
+
+			segmentsEntry = getSegmentsEntry();
+
+			if (segmentsEntry == null) {
+				return 0;
+			}
+
+			_segmentsEntryClassPKsCount =
+				_segmentsEntryProviderRegistry.getSegmentsEntryClassPKsCount(
+					segmentsEntry.getSegmentsEntryId());
+
 			return _segmentsEntryClassPKsCount;
 		}
+		catch (PortalException pe) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Unable to get the segments entry class PKs count", pe);
+			}
 
-		SegmentsEntry segmentsEntry = getSegmentsEntry();
-
-		if (segmentsEntry == null) {
 			return 0;
 		}
-
-		_segmentsEntryClassPKsCount =
-			_segmentsEntryProvider.getSegmentsEntryClassPKsCount(
-				segmentsEntry.getSegmentsEntryId());
-
-		return _segmentsEntryClassPKsCount;
 	}
 
 	public long getSegmentsEntryId() {
@@ -204,9 +277,27 @@ public class EditSegmentsEntryDisplayContext {
 			return _segmentsEntryId;
 		}
 
-		_segmentsEntryId = ParamUtil.getLong(_request, "segmentsEntryId");
+		_segmentsEntryId = ParamUtil.getLong(
+			_httpServletRequest, "segmentsEntryId");
 
 		return _segmentsEntryId;
+	}
+
+	public String getSegmentsEntryKey() throws PortalException {
+		if (_segmentsEntryKey != null) {
+			return _segmentsEntryKey;
+		}
+
+		SegmentsEntry segmentsEntry = getSegmentsEntry();
+
+		if (segmentsEntry == null) {
+			_segmentsEntryKey = StringPool.BLANK;
+		}
+		else {
+			_segmentsEntryKey = segmentsEntry.getSegmentsEntryKey();
+		}
+
+		return _segmentsEntryKey;
 	}
 
 	public String getSource() throws PortalException {
@@ -217,7 +308,7 @@ public class EditSegmentsEntryDisplayContext {
 		}
 
 		return ParamUtil.getString(
-			_request, "source", SegmentsConstants.SOURCE_DEFAULT);
+			_httpServletRequest, "source", SegmentsConstants.SOURCE_DEFAULT);
 	}
 
 	public String getTitle(Locale locale) throws PortalException {
@@ -235,7 +326,7 @@ public class EditSegmentsEntryDisplayContext {
 				locale, getType());
 
 			_title = LanguageUtil.format(
-				_request, "new-x-segment", type, false);
+				_httpServletRequest, "new-x-segment", type, false);
 		}
 
 		return _title;
@@ -248,7 +339,38 @@ public class EditSegmentsEntryDisplayContext {
 			return segmentsEntry.getType();
 		}
 
-		return ParamUtil.getString(_request, "type", User.class.getName());
+		return ParamUtil.getString(
+			_httpServletRequest, "type", User.class.getName());
+	}
+
+	public boolean hasUpdatePermission() throws PortalException {
+		if (_hasUpdatePermission != null) {
+			return _hasUpdatePermission;
+		}
+
+		SegmentsEntry segmentsEntry = getSegmentsEntry();
+
+		if (segmentsEntry != null) {
+			_hasUpdatePermission = SegmentsEntryPermission.contains(
+				_themeDisplay.getPermissionChecker(), segmentsEntry,
+				ActionKeys.UPDATE);
+		}
+		else {
+			_hasUpdatePermission = true;
+		}
+
+		return _hasUpdatePermission;
+	}
+
+	public boolean isShowInEditMode() {
+		if (_showInEditMode != null) {
+			return _showInEditMode;
+		}
+
+		_showInEditMode = ParamUtil.getBoolean(
+			_httpServletRequest, "showInEditMode", true);
+
+		return _showInEditMode;
 	}
 
 	private String _getCriterionConjunction(Criteria.Criterion criterion) {
@@ -267,17 +389,27 @@ public class EditSegmentsEntryDisplayContext {
 		return criterion.getFilterString();
 	}
 
+	private static final Log _log = LogFactoryUtil.getLog(
+		EditSegmentsEntryDisplayContext.class);
+
+	private Set<Locale> _availableLocales;
+	private String _defaultLanguageId;
+	private Long _groupId;
+	private Boolean _hasUpdatePermission;
+	private final HttpServletRequest _httpServletRequest;
 	private String _redirect;
 	private final RenderRequest _renderRequest;
 	private final RenderResponse _renderResponse;
-	private final HttpServletRequest _request;
 	private final SegmentsCriteriaContributorRegistry
 		_segmentsCriteriaContributorRegistry;
 	private SegmentsEntry _segmentsEntry;
 	private Integer _segmentsEntryClassPKsCount;
 	private Long _segmentsEntryId;
-	private final SegmentsEntryProvider _segmentsEntryProvider;
+	private String _segmentsEntryKey;
+	private final SegmentsEntryProviderRegistry _segmentsEntryProviderRegistry;
 	private final SegmentsEntryService _segmentsEntryService;
+	private Boolean _showInEditMode;
+	private final ThemeDisplay _themeDisplay;
 	private String _title;
 
 }

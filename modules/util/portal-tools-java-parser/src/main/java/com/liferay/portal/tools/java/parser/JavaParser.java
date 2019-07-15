@@ -76,13 +76,13 @@ public class JavaParser {
 
 		_maxLineLength = maxLineLength;
 
+		String newContent = _parse(file, content);
+
 		ImportsFormatter importsFormatter = new JavaImportsFormatter();
 
-		String newContent = importsFormatter.format(
-			_trimContent(content), ToolsUtil.getPackagePath(file),
+		newContent = importsFormatter.format(
+			_trimContent(newContent), ToolsUtil.getPackagePath(file),
 			StringUtil.replaceLast(file.getName(), ".java", StringPool.BLANK));
-
-		newContent = _parse(file, newContent);
 
 		if (writeFile && !newContent.equals(content)) {
 			FileUtil.write(file, newContent);
@@ -837,15 +837,13 @@ public class JavaParser {
 				return false;
 			}
 
-			if (precedingCommentToken.getType() ==
-					TokenTypes.SINGLE_LINE_COMMENT) {
+			if ((precedingCommentToken.getType() ==
+					TokenTypes.SINGLE_LINE_COMMENT) &&
+				StringUtil.startsWith(
+					StringUtil.trim(precedingCommentToken.getText()),
+					"Skip JavaParser")) {
 
-				if (StringUtil.startsWith(
-						StringUtil.trim(precedingCommentToken.getText()),
-						"Skip JavaParser")) {
-
-					return true;
-				}
+				return true;
 			}
 
 			precedingCommentToken = precedingCommentToken.getHiddenBefore();

@@ -1,4 +1,18 @@
 /**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
+/**
  * Returns the current scroll position of the page
  * @return {number} Scroll position of the page
  */
@@ -14,21 +28,33 @@ function getDocumentHeight() {
 	const heights = [
 		document.body.clientHeight,
 		document.documentElement.clientHeight,
-		document.documentElement.scrollHeight,
+		document.documentElement.scrollHeight
 	];
 
 	return Math.max(...heights);
 }
 
 function getDimensions(element) {
+	const height = getDocumentHeight();
+	const top = getCurrentScrollPosition();
+
+	let positions = {
+		height,
+		top
+	};
+
 	if (element) {
 		const boundingClientRect = element.getBoundingClientRect();
 		const {bottom, height, top} = boundingClientRect;
-		return {bottom, height, top};
+
+		positions = {
+			bottom,
+			height,
+			top
+		};
 	}
-	const height = getDocumentHeight();
-	const top = getCurrentScrollPosition();
-	return {height, top};
+
+	return positions;
 }
 
 class ScrollTracker {
@@ -45,6 +71,7 @@ class ScrollTracker {
 	getDepthValue(element) {
 		const {bottom, height, top} = getDimensions(element);
 		const visibleArea = window.innerHeight;
+
 		let depthValue = (visibleArea - top) / height;
 
 		if (top <= 0 && bottom >= 0) {
@@ -65,6 +92,7 @@ class ScrollTracker {
 	 */
 	getDepth(element) {
 		const value = this.getDepthValue(element);
+
 		const depth = Math.round(value * 100);
 
 		return Math.min(Math.max(depth, 0), 100);

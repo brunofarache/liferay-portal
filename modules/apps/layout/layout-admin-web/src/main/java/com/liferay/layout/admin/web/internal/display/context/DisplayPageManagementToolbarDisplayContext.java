@@ -48,14 +48,14 @@ public class DisplayPageManagementToolbarDisplayContext
 	public DisplayPageManagementToolbarDisplayContext(
 		LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse,
-		HttpServletRequest request,
+		HttpServletRequest httpServletRequest,
 		DisplayPageDisplayContext displayPageDisplayContext) {
 
 		super(
-			liferayPortletRequest, liferayPortletResponse, request,
+			liferayPortletRequest, liferayPortletResponse, httpServletRequest,
 			displayPageDisplayContext.getDisplayPagesSearchContainer());
 
-		_themeDisplay = (ThemeDisplay)request.getAttribute(
+		_themeDisplay = (ThemeDisplay)httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
 
@@ -113,6 +113,8 @@ public class DisplayPageManagementToolbarDisplayContext
 			"/layout/add_layout_page_template_entry");
 		addDisplayPageURL.setParameter(
 			"mvcRenderCommandName", "/layout/edit_layout_page_template_entry");
+		addDisplayPageURL.setParameter(
+			"backURL", _themeDisplay.getURLCurrent());
 		addDisplayPageURL.setParameter(
 			"type",
 			String.valueOf(

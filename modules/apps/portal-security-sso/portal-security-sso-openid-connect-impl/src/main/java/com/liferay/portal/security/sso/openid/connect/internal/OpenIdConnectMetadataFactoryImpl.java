@@ -18,6 +18,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.security.sso.openid.connect.OpenIdConnectServiceException;
 
 import com.nimbusds.jose.JWEAlgorithm;
@@ -50,9 +51,10 @@ public class OpenIdConnectMetadataFactoryImpl
 	implements OpenIdConnectMetadataFactory {
 
 	public OpenIdConnectMetadataFactoryImpl(
-			String providerName, String issuerURL, String[] subjectTypes,
-			String jwksURL, String authorizationEndPointURL,
-			String tokenEndPointURL, String userInfoEndPointURL)
+			String providerName, String[] idTokenSigningAlgValues,
+			String issuerURL, String[] subjectTypes, String jwksURL,
+			String authorizationEndPointURL, String tokenEndPointURL,
+			String userInfoEndPointURL)
 		throws OpenIdConnectServiceException.ProviderException {
 
 		_providerName = providerName;
@@ -72,6 +74,15 @@ public class OpenIdConnectMetadataFactoryImpl
 
 			_oidcProviderMetadata.setAuthorizationEndpointURI(
 				new URI(authorizationEndPointURL));
+
+			List<JWSAlgorithm> jwsAlgorithms = new ArrayList<>();
+
+			for (String idTokenSigningAlgValue : idTokenSigningAlgValues) {
+				jwsAlgorithms.add(JWSAlgorithm.parse(idTokenSigningAlgValue));
+			}
+
+			_oidcProviderMetadata.setIDTokenJWSAlgs(jwsAlgorithms);
+
 			_oidcProviderMetadata.setTokenEndpointURI(
 				new URI(tokenEndPointURL));
 			_oidcProviderMetadata.setUserInfoEndpointURI(
@@ -81,13 +92,17 @@ public class OpenIdConnectMetadataFactoryImpl
 		}
 		catch (ParseException pe) {
 			throw new OpenIdConnectServiceException.ProviderException(
-				"Invalid subject types for OpenId Connect provider " +
-					_providerName,
+				StringBundler.concat(
+					"Invalid subject types ", StringUtil.merge(subjectTypes),
+					"for OpenId Connect provider ", _providerName, ": ",
+					pe.getMessage()),
 				pe);
 		}
 		catch (URISyntaxException urise) {
 			throw new OpenIdConnectServiceException.ProviderException(
-				"Invalid URLs for OpenId Connect provider " + _providerName,
+				StringBundler.concat(
+					"Invalid URLs for OpenId Connect provider ", _providerName,
+					": ", urise.getMessage()),
 				urise);
 		}
 	}
@@ -176,8 +191,10 @@ public class OpenIdConnectMetadataFactoryImpl
 			}
 			catch (IOException | ParseException e) {
 				throw new OpenIdConnectServiceException.ProviderException(
-					"Unable to get OpenId Connect provider metadata for " +
-						_providerName,
+					StringBundler.concat(
+						"Unable to get metadata for OpenId Connect provider ",
+						_providerName, " from ", _discoveryEndPointURL, ": ",
+						e.getMessage()),
 					e);
 			}
 			finally {

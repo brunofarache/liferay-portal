@@ -16,12 +16,12 @@ package com.liferay.slim.runtime.internal.servlet;
 
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.events.ShutdownHook;
+import com.liferay.portal.events.StartupHelperUtil;
 import com.liferay.portal.kernel.cache.thread.local.Lifecycle;
 import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCacheManager;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.db.DBType;
-import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
@@ -30,8 +30,6 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.tools.DBUpgrader;
-import com.liferay.portal.upgrade.PortalUpgradeProcess;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
 import com.liferay.registry.ServiceRegistration;
@@ -147,26 +145,9 @@ public class SlimRuntimeServlet extends HttpServlet {
 					"longer supports older versions of MySQL.");
 		}
 
-		// Check required build number
+		// Check required schema version
 
-		if (_log.isDebugEnabled()) {
-			_log.debug("Check required build number");
-		}
-
-		DBUpgrader.checkRequiredBuildNumber(ReleaseInfo.getParentBuildNumber());
-
-		if (!PortalUpgradeProcess.isInRequiredSchemaVersion(
-				DataAccess.getConnection())) {
-
-			String msg =
-				"You must first upgrade the portal to the required schema " +
-					"version " +
-						PortalUpgradeProcess.getRequiredSchemaVersion();
-
-			System.out.println(msg);
-
-			throw new RuntimeException(msg);
-		}
+		StartupHelperUtil.verifyRequiredSchemaVersion();
 
 		Registry registry = RegistryUtil.getRegistry();
 
@@ -219,7 +200,8 @@ public class SlimRuntimeServlet extends HttpServlet {
 
 	@Override
 	protected void service(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException, ServletException {
 
 		if (_log.isDebugEnabled()) {
@@ -230,10 +212,10 @@ public class SlimRuntimeServlet extends HttpServlet {
 			_log.debug("Set portal port");
 		}
 
-		PortalUtil.setPortalInetSocketAddresses(request);
+		PortalUtil.setPortalInetSocketAddresses(httpServletRequest);
 
 		if (_httpServlets.isEmpty()) {
-			response.sendError(
+			httpServletResponse.sendError(
 				HttpServletResponse.SC_SERVICE_UNAVAILABLE,
 				"Module framework is unavailable");
 
@@ -242,7 +224,7 @@ public class SlimRuntimeServlet extends HttpServlet {
 
 		HttpServlet httpServlet = _httpServlets.get(0);
 
-		httpServlet.service(request, response);
+		httpServlet.service(httpServletRequest, httpServletResponse);
 	}
 
 	private String _toString(InputStream inputStream) {

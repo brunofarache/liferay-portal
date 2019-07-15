@@ -64,14 +64,14 @@ import javax.servlet.http.HttpServletRequest;
 public class ImageEditorDLDisplayContextHelper {
 
 	public ImageEditorDLDisplayContextHelper(
-		FileVersion fileVersion, HttpServletRequest request,
-		DLURLHelper dlurlHelper) {
+		FileVersion fileVersion, HttpServletRequest httpServletRequest,
+		DLURLHelper dlURLHelper) {
 
 		_fileVersion = fileVersion;
-		_request = request;
-		_dlurlHelper = dlurlHelper;
+		_httpServletRequest = httpServletRequest;
+		_dlURLHelper = dlURLHelper;
 
-		_themeDisplay = (ThemeDisplay)request.getAttribute(
+		_themeDisplay = (ThemeDisplay)httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
 		try {
@@ -181,7 +181,8 @@ public class ImageEditorDLDisplayContextHelper {
 		Template template = TemplateManagerUtil.getTemplate(
 			TemplateConstants.LANG_TYPE_FTL, urlTemplateResource, false);
 
-		template.put("editLanguageKey", LanguageUtil.get(_request, "edit"));
+		template.put(
+			"editLanguageKey", LanguageUtil.get(_httpServletRequest, "edit"));
 
 		LiferayPortletResponse liferayPortletResponse =
 			_getLiferayPortletResponse();
@@ -197,7 +198,7 @@ public class ImageEditorDLDisplayContextHelper {
 
 	private LiferayPortletResponse _getLiferayPortletResponse() {
 		PortletResponse portletResponse =
-			(PortletResponse)_request.getAttribute(
+			(PortletResponse)_httpServletRequest.getAttribute(
 				JavaConstants.JAVAX_PORTLET_RESPONSE);
 
 		return PortalUtil.getLiferayPortletResponse(portletResponse);
@@ -208,7 +209,8 @@ public class ImageEditorDLDisplayContextHelper {
 			Image.class.getName(), PortletProvider.Action.EDIT);
 
 		PortletURL imageEditorURL = PortletURLFactoryUtil.create(
-			_request, imageEditorPortletId, PortletRequest.RENDER_PHASE);
+			_httpServletRequest, imageEditorPortletId,
+			PortletRequest.RENDER_PHASE);
 
 		imageEditorURL.setParameter(
 			"mvcRenderCommandName", "/image_editor/view");
@@ -232,7 +234,7 @@ public class ImageEditorDLDisplayContextHelper {
 		editURL.setParameter(
 			"fileEntryId", String.valueOf(_fileEntry.getFileEntryId()));
 
-		String fileEntryPreviewURL = _dlurlHelper.getPreviewURL(
+		String fileEntryPreviewURL = _dlURLHelper.getPreviewURL(
 			_fileEntry, _fileVersion, _themeDisplay, StringPool.BLANK);
 
 		StringBundler sb = new StringBundler(12);
@@ -253,10 +255,10 @@ public class ImageEditorDLDisplayContextHelper {
 		return sb.toString();
 	}
 
-	private final DLURLHelper _dlurlHelper;
+	private final DLURLHelper _dlURLHelper;
 	private final FileEntry _fileEntry;
 	private final FileVersion _fileVersion;
-	private final HttpServletRequest _request;
+	private final HttpServletRequest _httpServletRequest;
 	private Boolean _showImageEditorAction;
 	private final ThemeDisplay _themeDisplay;
 

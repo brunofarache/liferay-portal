@@ -17,8 +17,11 @@ package com.liferay.asset.display.contributor;
 import java.util.List;
 
 /**
- * @author Lance Ji
+ * @author     Lance Ji
+ * @deprecated As of Judson (7.1.x), replaced by {@link
+ *             InfoDisplayContributorFieldTracker}
  */
+@Deprecated
 public interface AssetDisplayContributorTracker {
 
 	public AssetDisplayContributor getAssetDisplayContributor(String className);

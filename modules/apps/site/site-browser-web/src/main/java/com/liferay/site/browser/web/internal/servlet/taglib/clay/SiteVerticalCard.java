@@ -44,7 +44,7 @@ public class SiteVerticalCard implements VerticalCard {
 		_group = group;
 		_siteBrowserDisplayContext = siteBrowserDisplayContext;
 
-		_request = PortalUtil.getHttpServletRequest(renderRequest);
+		_httpServletRequest = PortalUtil.getHttpServletRequest(renderRequest);
 		_themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
@@ -64,7 +64,8 @@ public class SiteVerticalCard implements VerticalCard {
 				_group.getDescriptiveName(_themeDisplay.getLocale()));
 			data.put("grouptarget", _siteBrowserDisplayContext.getTarget());
 			data.put(
-				"grouptype", LanguageUtil.get(_request, _group.getTypeLabel()));
+				"grouptype",
+				LanguageUtil.get(_httpServletRequest, _group.getTypeLabel()));
 			data.put("url", _group.getDisplayURL(_themeDisplay));
 
 			return data;
@@ -78,7 +79,8 @@ public class SiteVerticalCard implements VerticalCard {
 	@Override
 	public String getElementClasses() {
 		if (_siteBrowserDisplayContext.isShowLink(_group)) {
-			return "selector-button";
+			return "card-interactive card-interactive-secondary " +
+				"selector-button";
 		}
 
 		return null;
@@ -103,7 +105,7 @@ public class SiteVerticalCard implements VerticalCard {
 		List<Group> childSites = _group.getChildren(true);
 
 		return LanguageUtil.format(
-			_request, "x-child-sites", childSites.size());
+			_httpServletRequest, "x-child-sites", childSites.size());
 	}
 
 	@Override
@@ -124,7 +126,7 @@ public class SiteVerticalCard implements VerticalCard {
 	}
 
 	private final Group _group;
-	private final HttpServletRequest _request;
+	private final HttpServletRequest _httpServletRequest;
 	private final SiteBrowserDisplayContext _siteBrowserDisplayContext;
 	private final ThemeDisplay _themeDisplay;
 

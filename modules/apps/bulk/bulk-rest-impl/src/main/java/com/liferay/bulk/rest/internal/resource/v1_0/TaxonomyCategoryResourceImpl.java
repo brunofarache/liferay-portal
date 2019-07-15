@@ -45,23 +45,19 @@ public class TaxonomyCategoryResourceImpl
 	extends BaseTaxonomyCategoryResourceImpl {
 
 	@Override
-	public boolean patchTaxonomyCategoryBatch(
+	public void patchTaxonomyCategoryBatch(
 			TaxonomyCategoryBulkSelection taxonomyCategoryBulkSelection)
 		throws Exception {
 
 		_update(true, taxonomyCategoryBulkSelection);
-
-		return true;
 	}
 
 	@Override
-	public boolean putTaxonomyCategoryBatch(
+	public void putTaxonomyCategoryBatch(
 			TaxonomyCategoryBulkSelection documentSelection)
 		throws Exception {
 
 		_update(false, documentSelection);
-
-		return true;
 	}
 
 	private void _update(

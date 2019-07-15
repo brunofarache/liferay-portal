@@ -14,14 +14,14 @@
 
 package com.liferay.fragment.service.persistence.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.fragment.exception.NoSuchEntryLinkException;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.model.impl.FragmentEntryLinkImpl;
 import com.liferay.fragment.model.impl.FragmentEntryLinkModelImpl;
 import com.liferay.fragment.service.persistence.FragmentEntryLinkPersistence;
+import com.liferay.fragment.service.persistence.impl.constants.FragmentPersistenceConstants;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.configuration.Configuration;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -29,19 +29,19 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
+import com.liferay.portal.kernel.dao.orm.SessionFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.CompanyProvider;
-import com.liferay.portal.kernel.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
-import com.liferay.portal.spring.extender.service.ServiceReference;
 
 import java.io.Serializable;
 
@@ -55,6 +55,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.sql.DataSource;
+
+import org.osgi.annotation.versioning.ProviderType;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+
 /**
  * The persistence implementation for the fragment entry link service.
  *
@@ -65,6 +73,7 @@ import java.util.Set;
  * @author Brian Wing Shun Chan
  * @generated
  */
+@Component(service = FragmentEntryLinkPersistence.class)
 @ProviderType
 public class FragmentEntryLinkPersistenceImpl
 	extends BasePersistenceImpl<FragmentEntryLink>
@@ -1985,6 +1994,569 @@ public class FragmentEntryLinkPersistenceImpl
 
 	private static final String _FINDER_COLUMN_GROUPID_GROUPID_2 =
 		"fragmentEntryLink.groupId = ?";
+
+	private FinderPath _finderPathWithPaginationFindByRendererKey;
+	private FinderPath _finderPathWithoutPaginationFindByRendererKey;
+	private FinderPath _finderPathCountByRendererKey;
+
+	/**
+	 * Returns all the fragment entry links where rendererKey = &#63;.
+	 *
+	 * @param rendererKey the renderer key
+	 * @return the matching fragment entry links
+	 */
+	@Override
+	public List<FragmentEntryLink> findByRendererKey(String rendererKey) {
+		return findByRendererKey(
+			rendererKey, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
+	}
+
+	/**
+	 * Returns a range of all the fragment entry links where rendererKey = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not <code>QueryUtil#ALL_POS</code>), then the query will include the default ORDER BY logic from <code>FragmentEntryLinkModelImpl</code>. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param rendererKey the renderer key
+	 * @param start the lower bound of the range of fragment entry links
+	 * @param end the upper bound of the range of fragment entry links (not inclusive)
+	 * @return the range of matching fragment entry links
+	 */
+	@Override
+	public List<FragmentEntryLink> findByRendererKey(
+		String rendererKey, int start, int end) {
+
+		return findByRendererKey(rendererKey, start, end, null);
+	}
+
+	/**
+	 * Returns an ordered range of all the fragment entry links where rendererKey = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not <code>QueryUtil#ALL_POS</code>), then the query will include the default ORDER BY logic from <code>FragmentEntryLinkModelImpl</code>. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param rendererKey the renderer key
+	 * @param start the lower bound of the range of fragment entry links
+	 * @param end the upper bound of the range of fragment entry links (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching fragment entry links
+	 */
+	@Override
+	public List<FragmentEntryLink> findByRendererKey(
+		String rendererKey, int start, int end,
+		OrderByComparator<FragmentEntryLink> orderByComparator) {
+
+		return findByRendererKey(
+			rendererKey, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the fragment entry links where rendererKey = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not <code>QueryUtil#ALL_POS</code>), then the query will include the default ORDER BY logic from <code>FragmentEntryLinkModelImpl</code>. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param rendererKey the renderer key
+	 * @param start the lower bound of the range of fragment entry links
+	 * @param end the upper bound of the range of fragment entry links (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching fragment entry links
+	 */
+	@Override
+	public List<FragmentEntryLink> findByRendererKey(
+		String rendererKey, int start, int end,
+		OrderByComparator<FragmentEntryLink> orderByComparator,
+		boolean retrieveFromCache) {
+
+		rendererKey = Objects.toString(rendererKey, "");
+
+		boolean pagination = true;
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			pagination = false;
+			finderPath = _finderPathWithoutPaginationFindByRendererKey;
+			finderArgs = new Object[] {rendererKey};
+		}
+		else {
+			finderPath = _finderPathWithPaginationFindByRendererKey;
+			finderArgs = new Object[] {
+				rendererKey, start, end, orderByComparator
+			};
+		}
+
+		List<FragmentEntryLink> list = null;
+
+		if (retrieveFromCache) {
+			list = (List<FragmentEntryLink>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (FragmentEntryLink fragmentEntryLink : list) {
+					if (!rendererKey.equals(
+							fragmentEntryLink.getRendererKey())) {
+
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler query = null;
+
+			if (orderByComparator != null) {
+				query = new StringBundler(
+					3 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				query = new StringBundler(3);
+			}
+
+			query.append(_SQL_SELECT_FRAGMENTENTRYLINK_WHERE);
+
+			boolean bindRendererKey = false;
+
+			if (rendererKey.isEmpty()) {
+				query.append(_FINDER_COLUMN_RENDERERKEY_RENDERERKEY_3);
+			}
+			else {
+				bindRendererKey = true;
+
+				query.append(_FINDER_COLUMN_RENDERERKEY_RENDERERKEY_2);
+			}
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					query, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else if (pagination) {
+				query.append(FragmentEntryLinkModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				if (bindRendererKey) {
+					qPos.add(rendererKey);
+				}
+
+				if (!pagination) {
+					list = (List<FragmentEntryLink>)QueryUtil.list(
+						q, getDialect(), start, end, false);
+
+					Collections.sort(list);
+
+					list = Collections.unmodifiableList(list);
+				}
+				else {
+					list = (List<FragmentEntryLink>)QueryUtil.list(
+						q, getDialect(), start, end);
+				}
+
+				cacheResult(list);
+
+				finderCache.putResult(finderPath, finderArgs, list);
+			}
+			catch (Exception e) {
+				finderCache.removeResult(finderPath, finderArgs);
+
+				throw processException(e);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
+	}
+
+	/**
+	 * Returns the first fragment entry link in the ordered set where rendererKey = &#63;.
+	 *
+	 * @param rendererKey the renderer key
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching fragment entry link
+	 * @throws NoSuchEntryLinkException if a matching fragment entry link could not be found
+	 */
+	@Override
+	public FragmentEntryLink findByRendererKey_First(
+			String rendererKey,
+			OrderByComparator<FragmentEntryLink> orderByComparator)
+		throws NoSuchEntryLinkException {
+
+		FragmentEntryLink fragmentEntryLink = fetchByRendererKey_First(
+			rendererKey, orderByComparator);
+
+		if (fragmentEntryLink != null) {
+			return fragmentEntryLink;
+		}
+
+		StringBundler msg = new StringBundler(4);
+
+		msg.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		msg.append("rendererKey=");
+		msg.append(rendererKey);
+
+		msg.append("}");
+
+		throw new NoSuchEntryLinkException(msg.toString());
+	}
+
+	/**
+	 * Returns the first fragment entry link in the ordered set where rendererKey = &#63;.
+	 *
+	 * @param rendererKey the renderer key
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching fragment entry link, or <code>null</code> if a matching fragment entry link could not be found
+	 */
+	@Override
+	public FragmentEntryLink fetchByRendererKey_First(
+		String rendererKey,
+		OrderByComparator<FragmentEntryLink> orderByComparator) {
+
+		List<FragmentEntryLink> list = findByRendererKey(
+			rendererKey, 0, 1, orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the last fragment entry link in the ordered set where rendererKey = &#63;.
+	 *
+	 * @param rendererKey the renderer key
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching fragment entry link
+	 * @throws NoSuchEntryLinkException if a matching fragment entry link could not be found
+	 */
+	@Override
+	public FragmentEntryLink findByRendererKey_Last(
+			String rendererKey,
+			OrderByComparator<FragmentEntryLink> orderByComparator)
+		throws NoSuchEntryLinkException {
+
+		FragmentEntryLink fragmentEntryLink = fetchByRendererKey_Last(
+			rendererKey, orderByComparator);
+
+		if (fragmentEntryLink != null) {
+			return fragmentEntryLink;
+		}
+
+		StringBundler msg = new StringBundler(4);
+
+		msg.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		msg.append("rendererKey=");
+		msg.append(rendererKey);
+
+		msg.append("}");
+
+		throw new NoSuchEntryLinkException(msg.toString());
+	}
+
+	/**
+	 * Returns the last fragment entry link in the ordered set where rendererKey = &#63;.
+	 *
+	 * @param rendererKey the renderer key
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching fragment entry link, or <code>null</code> if a matching fragment entry link could not be found
+	 */
+	@Override
+	public FragmentEntryLink fetchByRendererKey_Last(
+		String rendererKey,
+		OrderByComparator<FragmentEntryLink> orderByComparator) {
+
+		int count = countByRendererKey(rendererKey);
+
+		if (count == 0) {
+			return null;
+		}
+
+		List<FragmentEntryLink> list = findByRendererKey(
+			rendererKey, count - 1, count, orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the fragment entry links before and after the current fragment entry link in the ordered set where rendererKey = &#63;.
+	 *
+	 * @param fragmentEntryLinkId the primary key of the current fragment entry link
+	 * @param rendererKey the renderer key
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next fragment entry link
+	 * @throws NoSuchEntryLinkException if a fragment entry link with the primary key could not be found
+	 */
+	@Override
+	public FragmentEntryLink[] findByRendererKey_PrevAndNext(
+			long fragmentEntryLinkId, String rendererKey,
+			OrderByComparator<FragmentEntryLink> orderByComparator)
+		throws NoSuchEntryLinkException {
+
+		rendererKey = Objects.toString(rendererKey, "");
+
+		FragmentEntryLink fragmentEntryLink = findByPrimaryKey(
+			fragmentEntryLinkId);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			FragmentEntryLink[] array = new FragmentEntryLinkImpl[3];
+
+			array[0] = getByRendererKey_PrevAndNext(
+				session, fragmentEntryLink, rendererKey, orderByComparator,
+				true);
+
+			array[1] = fragmentEntryLink;
+
+			array[2] = getByRendererKey_PrevAndNext(
+				session, fragmentEntryLink, rendererKey, orderByComparator,
+				false);
+
+			return array;
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	protected FragmentEntryLink getByRendererKey_PrevAndNext(
+		Session session, FragmentEntryLink fragmentEntryLink,
+		String rendererKey,
+		OrderByComparator<FragmentEntryLink> orderByComparator,
+		boolean previous) {
+
+		StringBundler query = null;
+
+		if (orderByComparator != null) {
+			query = new StringBundler(
+				4 + (orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
+		}
+		else {
+			query = new StringBundler(3);
+		}
+
+		query.append(_SQL_SELECT_FRAGMENTENTRYLINK_WHERE);
+
+		boolean bindRendererKey = false;
+
+		if (rendererKey.isEmpty()) {
+			query.append(_FINDER_COLUMN_RENDERERKEY_RENDERERKEY_3);
+		}
+		else {
+			bindRendererKey = true;
+
+			query.append(_FINDER_COLUMN_RENDERERKEY_RENDERERKEY_2);
+		}
+
+		if (orderByComparator != null) {
+			String[] orderByConditionFields =
+				orderByComparator.getOrderByConditionFields();
+
+			if (orderByConditionFields.length > 0) {
+				query.append(WHERE_AND);
+			}
+
+			for (int i = 0; i < orderByConditionFields.length; i++) {
+				query.append(_ORDER_BY_ENTITY_ALIAS);
+				query.append(orderByConditionFields[i]);
+
+				if ((i + 1) < orderByConditionFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(WHERE_GREATER_THAN_HAS_NEXT);
+					}
+					else {
+						query.append(WHERE_LESSER_THAN_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(WHERE_GREATER_THAN);
+					}
+					else {
+						query.append(WHERE_LESSER_THAN);
+					}
+				}
+			}
+
+			query.append(ORDER_BY_CLAUSE);
+
+			String[] orderByFields = orderByComparator.getOrderByFields();
+
+			for (int i = 0; i < orderByFields.length; i++) {
+				query.append(_ORDER_BY_ENTITY_ALIAS);
+				query.append(orderByFields[i]);
+
+				if ((i + 1) < orderByFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(ORDER_BY_ASC_HAS_NEXT);
+					}
+					else {
+						query.append(ORDER_BY_DESC_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(ORDER_BY_ASC);
+					}
+					else {
+						query.append(ORDER_BY_DESC);
+					}
+				}
+			}
+		}
+		else {
+			query.append(FragmentEntryLinkModelImpl.ORDER_BY_JPQL);
+		}
+
+		String sql = query.toString();
+
+		Query q = session.createQuery(sql);
+
+		q.setFirstResult(0);
+		q.setMaxResults(2);
+
+		QueryPos qPos = QueryPos.getInstance(q);
+
+		if (bindRendererKey) {
+			qPos.add(rendererKey);
+		}
+
+		if (orderByComparator != null) {
+			for (Object orderByConditionValue :
+					orderByComparator.getOrderByConditionValues(
+						fragmentEntryLink)) {
+
+				qPos.add(orderByConditionValue);
+			}
+		}
+
+		List<FragmentEntryLink> list = q.list();
+
+		if (list.size() == 2) {
+			return list.get(1);
+		}
+		else {
+			return null;
+		}
+	}
+
+	/**
+	 * Removes all the fragment entry links where rendererKey = &#63; from the database.
+	 *
+	 * @param rendererKey the renderer key
+	 */
+	@Override
+	public void removeByRendererKey(String rendererKey) {
+		for (FragmentEntryLink fragmentEntryLink :
+				findByRendererKey(
+					rendererKey, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
+
+			remove(fragmentEntryLink);
+		}
+	}
+
+	/**
+	 * Returns the number of fragment entry links where rendererKey = &#63;.
+	 *
+	 * @param rendererKey the renderer key
+	 * @return the number of matching fragment entry links
+	 */
+	@Override
+	public int countByRendererKey(String rendererKey) {
+		rendererKey = Objects.toString(rendererKey, "");
+
+		FinderPath finderPath = _finderPathCountByRendererKey;
+
+		Object[] finderArgs = new Object[] {rendererKey};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_FRAGMENTENTRYLINK_WHERE);
+
+			boolean bindRendererKey = false;
+
+			if (rendererKey.isEmpty()) {
+				query.append(_FINDER_COLUMN_RENDERERKEY_RENDERERKEY_3);
+			}
+			else {
+				bindRendererKey = true;
+
+				query.append(_FINDER_COLUMN_RENDERERKEY_RENDERERKEY_2);
+			}
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				if (bindRendererKey) {
+					qPos.add(rendererKey);
+				}
+
+				count = (Long)q.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception e) {
+				finderCache.removeResult(finderPath, finderArgs);
+
+				throw processException(e);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_RENDERERKEY_RENDERERKEY_2 =
+		"fragmentEntryLink.rendererKey = ?";
+
+	private static final String _FINDER_COLUMN_RENDERERKEY_RENDERERKEY_3 =
+		"(fragmentEntryLink.rendererKey IS NULL OR fragmentEntryLink.rendererKey = '')";
 
 	private FinderPath _finderPathWithPaginationFindByG_F;
 	private FinderPath _finderPathWithoutPaginationFindByG_F;
@@ -4385,7 +4957,6 @@ public class FragmentEntryLinkPersistenceImpl
 
 		setModelImplClass(FragmentEntryLinkImpl.class);
 		setModelPKClass(long.class);
-		setEntityCacheEnabled(FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED);
 
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
 
@@ -4402,9 +4973,8 @@ public class FragmentEntryLinkPersistenceImpl
 	@Override
 	public void cacheResult(FragmentEntryLink fragmentEntryLink) {
 		entityCache.putResult(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkImpl.class, fragmentEntryLink.getPrimaryKey(),
-			fragmentEntryLink);
+			entityCacheEnabled, FragmentEntryLinkImpl.class,
+			fragmentEntryLink.getPrimaryKey(), fragmentEntryLink);
 
 		finderCache.putResult(
 			_finderPathFetchByUUID_G,
@@ -4425,8 +4995,7 @@ public class FragmentEntryLinkPersistenceImpl
 	public void cacheResult(List<FragmentEntryLink> fragmentEntryLinks) {
 		for (FragmentEntryLink fragmentEntryLink : fragmentEntryLinks) {
 			if (entityCache.getResult(
-					FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-					FragmentEntryLinkImpl.class,
+					entityCacheEnabled, FragmentEntryLinkImpl.class,
 					fragmentEntryLink.getPrimaryKey()) == null) {
 
 				cacheResult(fragmentEntryLink);
@@ -4463,8 +5032,8 @@ public class FragmentEntryLinkPersistenceImpl
 	@Override
 	public void clearCache(FragmentEntryLink fragmentEntryLink) {
 		entityCache.removeResult(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkImpl.class, fragmentEntryLink.getPrimaryKey());
+			entityCacheEnabled, FragmentEntryLinkImpl.class,
+			fragmentEntryLink.getPrimaryKey());
 
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
@@ -4480,8 +5049,8 @@ public class FragmentEntryLinkPersistenceImpl
 
 		for (FragmentEntryLink fragmentEntryLink : fragmentEntryLinks) {
 			entityCache.removeResult(
-				FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-				FragmentEntryLinkImpl.class, fragmentEntryLink.getPrimaryKey());
+				entityCacheEnabled, FragmentEntryLinkImpl.class,
+				fragmentEntryLink.getPrimaryKey());
 
 			clearUniqueFindersCache(
 				(FragmentEntryLinkModelImpl)fragmentEntryLink, true);
@@ -4546,7 +5115,7 @@ public class FragmentEntryLinkPersistenceImpl
 
 		fragmentEntryLink.setUuid(uuid);
 
-		fragmentEntryLink.setCompanyId(companyProvider.getCompanyId());
+		fragmentEntryLink.setCompanyId(CompanyThreadLocal.getCompanyId());
 
 		return fragmentEntryLink;
 	}
@@ -4719,7 +5288,7 @@ public class FragmentEntryLinkPersistenceImpl
 
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 
-		if (!FragmentEntryLinkModelImpl.COLUMN_BITMASK_ENABLED) {
+		if (!_columnBitmaskEnabled) {
 			finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 		}
 		else if (isNew) {
@@ -4743,6 +5312,12 @@ public class FragmentEntryLinkPersistenceImpl
 			finderCache.removeResult(_finderPathCountByGroupId, args);
 			finderCache.removeResult(
 				_finderPathWithoutPaginationFindByGroupId, args);
+
+			args = new Object[] {fragmentEntryLinkModelImpl.getRendererKey()};
+
+			finderCache.removeResult(_finderPathCountByRendererKey, args);
+			finderCache.removeResult(
+				_finderPathWithoutPaginationFindByRendererKey, args);
 
 			args = new Object[] {
 				fragmentEntryLinkModelImpl.getGroupId(),
@@ -4851,6 +5426,27 @@ public class FragmentEntryLinkPersistenceImpl
 			}
 
 			if ((fragmentEntryLinkModelImpl.getColumnBitmask() &
+				 _finderPathWithoutPaginationFindByRendererKey.
+					 getColumnBitmask()) != 0) {
+
+				Object[] args = new Object[] {
+					fragmentEntryLinkModelImpl.getOriginalRendererKey()
+				};
+
+				finderCache.removeResult(_finderPathCountByRendererKey, args);
+				finderCache.removeResult(
+					_finderPathWithoutPaginationFindByRendererKey, args);
+
+				args = new Object[] {
+					fragmentEntryLinkModelImpl.getRendererKey()
+				};
+
+				finderCache.removeResult(_finderPathCountByRendererKey, args);
+				finderCache.removeResult(
+					_finderPathWithoutPaginationFindByRendererKey, args);
+			}
+
+			if ((fragmentEntryLinkModelImpl.getColumnBitmask() &
 				 _finderPathWithoutPaginationFindByG_F.getColumnBitmask()) !=
 					 0) {
 
@@ -4952,9 +5548,8 @@ public class FragmentEntryLinkPersistenceImpl
 		}
 
 		entityCache.putResult(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkImpl.class, fragmentEntryLink.getPrimaryKey(),
-			fragmentEntryLink, false);
+			entityCacheEnabled, FragmentEntryLinkImpl.class,
+			fragmentEntryLink.getPrimaryKey(), fragmentEntryLink, false);
 
 		clearUniqueFindersCache(fragmentEntryLinkModelImpl, false);
 		cacheUniqueFindersCache(fragmentEntryLinkModelImpl);
@@ -5238,40 +5833,35 @@ public class FragmentEntryLinkPersistenceImpl
 	/**
 	 * Initializes the fragment entry link persistence.
 	 */
-	public void afterPropertiesSet() {
+	@Activate
+	public void activate() {
+		FragmentEntryLinkModelImpl.setEntityCacheEnabled(entityCacheEnabled);
+		FragmentEntryLinkModelImpl.setFinderCacheEnabled(finderCacheEnabled);
+
 		_finderPathWithPaginationFindAll = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED,
-			FragmentEntryLinkImpl.class, FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
-			"findAll", new String[0]);
+			entityCacheEnabled, finderCacheEnabled, FragmentEntryLinkImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
 
 		_finderPathWithoutPaginationFindAll = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED,
-			FragmentEntryLinkImpl.class,
+			entityCacheEnabled, finderCacheEnabled, FragmentEntryLinkImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll",
 			new String[0]);
 
 		_finderPathCountAll = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll",
 			new String[0]);
 
 		_finderPathWithPaginationFindByUuid = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED,
-			FragmentEntryLinkImpl.class, FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
-			"findByUuid",
+			entityCacheEnabled, finderCacheEnabled, FragmentEntryLinkImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByUuid",
 			new String[] {
 				String.class.getName(), Integer.class.getName(),
 				Integer.class.getName(), OrderByComparator.class.getName()
 			});
 
 		_finderPathWithoutPaginationFindByUuid = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED,
-			FragmentEntryLinkImpl.class,
+			entityCacheEnabled, finderCacheEnabled, FragmentEntryLinkImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByUuid",
 			new String[] {String.class.getName()},
 			FragmentEntryLinkModelImpl.UUID_COLUMN_BITMASK |
@@ -5280,31 +5870,25 @@ public class FragmentEntryLinkPersistenceImpl
 			FragmentEntryLinkModelImpl.POSITION_COLUMN_BITMASK);
 
 		_finderPathCountByUuid = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByUuid",
 			new String[] {String.class.getName()});
 
 		_finderPathFetchByUUID_G = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED,
-			FragmentEntryLinkImpl.class, FINDER_CLASS_NAME_ENTITY,
-			"fetchByUUID_G",
+			entityCacheEnabled, finderCacheEnabled, FragmentEntryLinkImpl.class,
+			FINDER_CLASS_NAME_ENTITY, "fetchByUUID_G",
 			new String[] {String.class.getName(), Long.class.getName()},
 			FragmentEntryLinkModelImpl.UUID_COLUMN_BITMASK |
 			FragmentEntryLinkModelImpl.GROUPID_COLUMN_BITMASK);
 
 		_finderPathCountByUUID_G = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByUUID_G",
 			new String[] {String.class.getName(), Long.class.getName()});
 
 		_finderPathWithPaginationFindByUuid_C = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED,
-			FragmentEntryLinkImpl.class, FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
-			"findByUuid_C",
+			entityCacheEnabled, finderCacheEnabled, FragmentEntryLinkImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByUuid_C",
 			new String[] {
 				String.class.getName(), Long.class.getName(),
 				Integer.class.getName(), Integer.class.getName(),
@@ -5312,9 +5896,7 @@ public class FragmentEntryLinkPersistenceImpl
 			});
 
 		_finderPathWithoutPaginationFindByUuid_C = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED,
-			FragmentEntryLinkImpl.class,
+			entityCacheEnabled, finderCacheEnabled, FragmentEntryLinkImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByUuid_C",
 			new String[] {String.class.getName(), Long.class.getName()},
 			FragmentEntryLinkModelImpl.UUID_COLUMN_BITMASK |
@@ -5324,25 +5906,20 @@ public class FragmentEntryLinkPersistenceImpl
 			FragmentEntryLinkModelImpl.POSITION_COLUMN_BITMASK);
 
 		_finderPathCountByUuid_C = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByUuid_C",
 			new String[] {String.class.getName(), Long.class.getName()});
 
 		_finderPathWithPaginationFindByGroupId = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED,
-			FragmentEntryLinkImpl.class, FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
-			"findByGroupId",
+			entityCacheEnabled, finderCacheEnabled, FragmentEntryLinkImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByGroupId",
 			new String[] {
 				Long.class.getName(), Integer.class.getName(),
 				Integer.class.getName(), OrderByComparator.class.getName()
 			});
 
 		_finderPathWithoutPaginationFindByGroupId = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED,
-			FragmentEntryLinkImpl.class,
+			entityCacheEnabled, finderCacheEnabled, FragmentEntryLinkImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByGroupId",
 			new String[] {Long.class.getName()},
 			FragmentEntryLinkModelImpl.GROUPID_COLUMN_BITMASK |
@@ -5351,16 +5928,35 @@ public class FragmentEntryLinkPersistenceImpl
 			FragmentEntryLinkModelImpl.POSITION_COLUMN_BITMASK);
 
 		_finderPathCountByGroupId = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByGroupId",
 			new String[] {Long.class.getName()});
 
+		_finderPathWithPaginationFindByRendererKey = new FinderPath(
+			entityCacheEnabled, finderCacheEnabled, FragmentEntryLinkImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByRendererKey",
+			new String[] {
+				String.class.getName(), Integer.class.getName(),
+				Integer.class.getName(), OrderByComparator.class.getName()
+			});
+
+		_finderPathWithoutPaginationFindByRendererKey = new FinderPath(
+			entityCacheEnabled, finderCacheEnabled, FragmentEntryLinkImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByRendererKey",
+			new String[] {String.class.getName()},
+			FragmentEntryLinkModelImpl.RENDERERKEY_COLUMN_BITMASK |
+			FragmentEntryLinkModelImpl.CLASSNAMEID_COLUMN_BITMASK |
+			FragmentEntryLinkModelImpl.CLASSPK_COLUMN_BITMASK |
+			FragmentEntryLinkModelImpl.POSITION_COLUMN_BITMASK);
+
+		_finderPathCountByRendererKey = new FinderPath(
+			entityCacheEnabled, finderCacheEnabled, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByRendererKey",
+			new String[] {String.class.getName()});
+
 		_finderPathWithPaginationFindByG_F = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED,
-			FragmentEntryLinkImpl.class, FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
-			"findByG_F",
+			entityCacheEnabled, finderCacheEnabled, FragmentEntryLinkImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByG_F",
 			new String[] {
 				Long.class.getName(), Long.class.getName(),
 				Integer.class.getName(), Integer.class.getName(),
@@ -5368,9 +5964,7 @@ public class FragmentEntryLinkPersistenceImpl
 			});
 
 		_finderPathWithoutPaginationFindByG_F = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED,
-			FragmentEntryLinkImpl.class,
+			entityCacheEnabled, finderCacheEnabled, FragmentEntryLinkImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByG_F",
 			new String[] {Long.class.getName(), Long.class.getName()},
 			FragmentEntryLinkModelImpl.GROUPID_COLUMN_BITMASK |
@@ -5380,16 +5974,13 @@ public class FragmentEntryLinkPersistenceImpl
 			FragmentEntryLinkModelImpl.POSITION_COLUMN_BITMASK);
 
 		_finderPathCountByG_F = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByG_F",
 			new String[] {Long.class.getName(), Long.class.getName()});
 
 		_finderPathWithPaginationFindByG_F_C = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED,
-			FragmentEntryLinkImpl.class, FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
-			"findByG_F_C",
+			entityCacheEnabled, finderCacheEnabled, FragmentEntryLinkImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByG_F_C",
 			new String[] {
 				Long.class.getName(), Long.class.getName(),
 				Long.class.getName(), Integer.class.getName(),
@@ -5397,9 +5988,7 @@ public class FragmentEntryLinkPersistenceImpl
 			});
 
 		_finderPathWithoutPaginationFindByG_F_C = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED,
-			FragmentEntryLinkImpl.class,
+			entityCacheEnabled, finderCacheEnabled, FragmentEntryLinkImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByG_F_C",
 			new String[] {
 				Long.class.getName(), Long.class.getName(), Long.class.getName()
@@ -5411,18 +6000,15 @@ public class FragmentEntryLinkPersistenceImpl
 			FragmentEntryLinkModelImpl.POSITION_COLUMN_BITMASK);
 
 		_finderPathCountByG_F_C = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByG_F_C",
 			new String[] {
 				Long.class.getName(), Long.class.getName(), Long.class.getName()
 			});
 
 		_finderPathWithPaginationFindByG_C_C = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED,
-			FragmentEntryLinkImpl.class, FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
-			"findByG_C_C",
+			entityCacheEnabled, finderCacheEnabled, FragmentEntryLinkImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByG_C_C",
 			new String[] {
 				Long.class.getName(), Long.class.getName(),
 				Long.class.getName(), Integer.class.getName(),
@@ -5430,9 +6016,7 @@ public class FragmentEntryLinkPersistenceImpl
 			});
 
 		_finderPathWithoutPaginationFindByG_C_C = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED,
-			FragmentEntryLinkImpl.class,
+			entityCacheEnabled, finderCacheEnabled, FragmentEntryLinkImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByG_C_C",
 			new String[] {
 				Long.class.getName(), Long.class.getName(), Long.class.getName()
@@ -5443,18 +6027,15 @@ public class FragmentEntryLinkPersistenceImpl
 			FragmentEntryLinkModelImpl.POSITION_COLUMN_BITMASK);
 
 		_finderPathCountByG_C_C = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByG_C_C",
 			new String[] {
 				Long.class.getName(), Long.class.getName(), Long.class.getName()
 			});
 
 		_finderPathWithPaginationFindByG_F_C_C = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED,
-			FragmentEntryLinkImpl.class, FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
-			"findByG_F_C_C",
+			entityCacheEnabled, finderCacheEnabled, FragmentEntryLinkImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByG_F_C_C",
 			new String[] {
 				Long.class.getName(), Long.class.getName(),
 				Long.class.getName(), Long.class.getName(),
@@ -5463,9 +6044,7 @@ public class FragmentEntryLinkPersistenceImpl
 			});
 
 		_finderPathWithoutPaginationFindByG_F_C_C = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED,
-			FragmentEntryLinkImpl.class,
+			entityCacheEnabled, finderCacheEnabled, FragmentEntryLinkImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByG_F_C_C",
 			new String[] {
 				Long.class.getName(), Long.class.getName(),
@@ -5478,8 +6057,7 @@ public class FragmentEntryLinkPersistenceImpl
 			FragmentEntryLinkModelImpl.POSITION_COLUMN_BITMASK);
 
 		_finderPathCountByG_F_C_C = new FinderPath(
-			FragmentEntryLinkModelImpl.ENTITY_CACHE_ENABLED,
-			FragmentEntryLinkModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByG_F_C_C",
 			new String[] {
 				Long.class.getName(), Long.class.getName(),
@@ -5487,20 +6065,52 @@ public class FragmentEntryLinkPersistenceImpl
 			});
 	}
 
-	public void destroy() {
+	@Deactivate
+	public void deactivate() {
 		entityCache.removeCache(FragmentEntryLinkImpl.class.getName());
 		finderCache.removeCache(FINDER_CLASS_NAME_ENTITY);
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
-	@ServiceReference(type = CompanyProviderWrapper.class)
-	protected CompanyProvider companyProvider;
+	@Override
+	@Reference(
+		target = FragmentPersistenceConstants.ORIGIN_BUNDLE_SYMBOLIC_NAME_FILTER,
+		unbind = "-"
+	)
+	public void setConfiguration(Configuration configuration) {
+		super.setConfiguration(configuration);
 
-	@ServiceReference(type = EntityCache.class)
+		_columnBitmaskEnabled = GetterUtil.getBoolean(
+			configuration.get(
+				"value.object.column.bitmask.enabled.com.liferay.fragment.model.FragmentEntryLink"),
+			true);
+	}
+
+	@Override
+	@Reference(
+		target = FragmentPersistenceConstants.ORIGIN_BUNDLE_SYMBOLIC_NAME_FILTER,
+		unbind = "-"
+	)
+	public void setDataSource(DataSource dataSource) {
+		super.setDataSource(dataSource);
+	}
+
+	@Override
+	@Reference(
+		target = FragmentPersistenceConstants.ORIGIN_BUNDLE_SYMBOLIC_NAME_FILTER,
+		unbind = "-"
+	)
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		super.setSessionFactory(sessionFactory);
+	}
+
+	private boolean _columnBitmaskEnabled;
+
+	@Reference
 	protected EntityCache entityCache;
 
-	@ServiceReference(type = FinderCache.class)
+	@Reference
 	protected FinderCache finderCache;
 
 	private static final String _SQL_SELECT_FRAGMENTENTRYLINK =

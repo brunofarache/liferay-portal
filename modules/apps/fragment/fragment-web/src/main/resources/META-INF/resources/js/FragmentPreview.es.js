@@ -1,12 +1,27 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 import {Config} from 'metal-state';
 import debounce from 'metal-debounce';
-import PortletBase from 'frontend-js-web/liferay/PortletBase.es';
+import {PortletBase} from 'frontend-js-web';
 import Soy from 'metal-soy';
 
 import templates from './FragmentPreview.soy';
 
 /**
  * Defined ratios for preview sizing.
+ *
  * @type {Object}
  */
 const SIZE_RATIO = {
@@ -26,6 +41,7 @@ const SIZE_RATIO = {
 
 /**
  * Available preview sizes.
+ *
  * @type {Array<string>}
  */
 const PREVIEW_SIZES = Object.keys(SIZE_RATIO);
@@ -34,20 +50,15 @@ const PREVIEW_SIZES = Object.keys(SIZE_RATIO);
  * Renders the preview of a fragment and allows modifications to the preview.
  */
 class FragmentPreview extends PortletBase {
-
 	/**
 	 * @inheritDoc
 	 */
-
 	attached() {
-		this._updatePreview = debounce(
-			this._updatePreview.bind(this),
-			500
-		);
+		this._updatePreview = debounce(this._updatePreview.bind(this), 500);
 
 		this._updatePreviewSize = debounce(
 			this._updatePreviewSize.bind(this),
-			100,
+			100
 		);
 
 		window.addEventListener('resize', this._updatePreviewSize);
@@ -55,6 +66,14 @@ class FragmentPreview extends PortletBase {
 		this.on('cssChanged', this._updatePreview);
 		this.on('htmlChanged', this._updatePreview);
 		this.on('jsChanged', this._updatePreview);
+
+		if (this.refs.previewFrame && this.refs.previewFrame.contentWindow) {
+			this.refs.previewFrame.contentWindow.addEventListener(
+				'click',
+				this._handleIframeClick,
+				true
+			);
+		}
 	}
 
 	/**
@@ -72,6 +91,10 @@ class FragmentPreview extends PortletBase {
 				JSON.stringify({data: ''}),
 				'*'
 			);
+			this.refs.previewFrame.contentWindow.removeEventListener(
+				'click',
+				this._handleIframeClick
+			);
 		}
 	}
 
@@ -83,7 +106,18 @@ class FragmentPreview extends PortletBase {
 	}
 
 	/**
+	 * Handle iframe clicks, preventing any click event to be executed
+	 * @param {Event} event
+	 * @review
+	 */
+	_handleIframeClick(event) {
+		event.preventDefault();
+		event.stopPropagation();
+	}
+
+	/**
 	 * Callback executed when the preview frame content is loaded.
+	 *
 	 * @private
 	 */
 	_handlePreviewLoaded() {
@@ -92,15 +126,18 @@ class FragmentPreview extends PortletBase {
 
 	/**
 	 * Changes the preview size.
+	 *
 	 * @param {Event} event
 	 * @protected
 	 */
 	_handlePreviewSizeButtonClick(event) {
-		this._currentPreviewSize = event.delegateTarget.dataset.previewSize || null;
+		this._currentPreviewSize =
+			event.delegateTarget.dataset.previewSize || null;
 	}
 
 	/**
-	 * Sets the <code>previewSize</code> property and queues an update.
+	 * Sets the preview size property and queues an update.
+	 *
 	 * @param {string} previewSize
 	 * @protected
 	 * @return {string}
@@ -114,36 +151,32 @@ class FragmentPreview extends PortletBase {
 	/**
 	 * Updates the rendered preview with the given content. It encapsulates the
 	 * given code inside a frame and renders it.
+	 *
 	 * @protected
 	 */
 	_updatePreview() {
 		if (!this._loading) {
 			this._loading = true;
 
-			this.fetch(
-				this.urls.render,
-				{
-					css: this.css,
-					html: this.html,
-					js: this.js
-				}
-			)
-				.then(
-					response => response.text()
-				).then(
-					response => {
-						this._loading = false;
-						this.refs.previewFrame.contentWindow.postMessage(
-							JSON.stringify({data: response}),
-							'*'
-						);
-					}
-				);
+			this.fetch(this.urls.render, {
+				css: this.css,
+				html: this.html,
+				js: this.js
+			})
+				.then(response => response.text())
+				.then(response => {
+					this._loading = false;
+					this.refs.previewFrame.contentWindow.postMessage(
+						JSON.stringify({data: response}),
+						'*'
+					);
+				});
 		}
 	}
 
 	/**
 	 * Updates the preview size using the corresponding ratio.
+	 *
 	 * @protected
 	 */
 	_updatePreviewSize() {
@@ -158,15 +191,14 @@ class FragmentPreview extends PortletBase {
 					const wrapperRect = wrapper.getBoundingClientRect();
 
 					const scale = Math.min(
-						wrapperRect.width * 0.9 / ratio.width,
-						wrapperRect.height * 0.8 / ratio.height,
+						(wrapperRect.width * 0.9) / ratio.width,
+						(wrapperRect.height * 0.8) / ratio.height
 					);
 
 					preview.style.width = `${ratio.width * scale}px`;
 					preview.style.height = `${ratio.height * scale}px`;
 				}
-			}
-			else {
+			} else {
 				preview.style.width = '';
 				preview.style.height = '';
 			}
@@ -176,13 +208,14 @@ class FragmentPreview extends PortletBase {
 
 /**
  * State definition.
+ *
  * @type {!Object}
  * @static
  */
 FragmentPreview.STATE = {
-
 	/**
 	 * CSS content of the preview.
+	 *
 	 * @instance
 	 * @memberOf FragmentPreview
 	 * @type {!string}
@@ -191,6 +224,7 @@ FragmentPreview.STATE = {
 
 	/**
 	 * HTML content of the preview.
+	 *
 	 * @instance
 	 * @memberOf FragmentPreview
 	 * @type {!string}
@@ -199,6 +233,7 @@ FragmentPreview.STATE = {
 
 	/**
 	 * JS content of the preview.
+	 *
 	 * @instance
 	 * @memberOf FragmentPreview
 	 * @type {!string}
@@ -207,6 +242,7 @@ FragmentPreview.STATE = {
 
 	/**
 	 * Path of the available icons.
+	 *
 	 * @instance
 	 * @memberOf FragmentEditor
 	 * @type {!string}
@@ -215,22 +251,22 @@ FragmentPreview.STATE = {
 
 	/**
 	 * URLs used for communicating with the back-end logic.
+	 *
 	 * @instance
 	 * @memberOf FragmentPreview
 	 * @type {{
 	 *  render: !string
 	 * }}
 	 */
-	urls: Config.shapeOf(
-		{
-			render: Config.string().required()
-		}
-	).required(),
+	urls: Config.shapeOf({
+		render: Config.string().required()
+	}).required(),
 
 	/**
 	 * Ratio of the preview being rendered. This property is modified internally
 	 * with the UI buttons presented to the user, but it can be safely altered
 	 * externally.
+	 *
 	 * @default 'full'
 	 * @instance
 	 * @memberOf FragmentPreview
@@ -244,6 +280,7 @@ FragmentPreview.STATE = {
 
 	/**
 	 * Flag that checks if the preview content is loading.
+	 *
 	 * @default false
 	 * @instance
 	 * @memberOf FragmentPreview
@@ -256,6 +293,7 @@ FragmentPreview.STATE = {
 
 	/**
 	 * List of available sizes.
+	 *
 	 * @default PREVIEW_SIZES
 	 * @instance
 	 * @memberOf FragmentPreview

@@ -26,12 +26,14 @@ import java.util.TreeSet;
 public class PortalAcceptancePullRequestJob
 	extends PortalGitRepositoryJob implements TestSuiteJob {
 
-	public PortalAcceptancePullRequestJob(String url) {
-		this(url, "default");
+	public PortalAcceptancePullRequestJob(String jobName) {
+		this(jobName, "default");
 	}
 
-	public PortalAcceptancePullRequestJob(String url, String testSuiteName) {
-		super(url);
+	public PortalAcceptancePullRequestJob(
+		String jobName, String testSuiteName) {
+
+		super(jobName);
 
 		_testSuiteName = testSuiteName;
 	}
@@ -50,7 +52,7 @@ public class PortalAcceptancePullRequestJob
 
 		Set<String> testBatchNamesSet = getSetFromString(testBatchNames);
 
-		if (_isPortalWebOnly()) {
+		if (_isRelevantTestSuite() && _isPortalWebOnly()) {
 			String[] portalWebOnlyBatchNameMarkers = {
 				"compile-jsp", "functional", "portal-web", "source-format"
 			};
@@ -137,6 +139,10 @@ public class PortalAcceptancePullRequestJob
 		}
 
 		return true;
+	}
+
+	private boolean _isRelevantTestSuite() {
+		return _testSuiteName.equals("relevant");
 	}
 
 	private final String _testSuiteName;

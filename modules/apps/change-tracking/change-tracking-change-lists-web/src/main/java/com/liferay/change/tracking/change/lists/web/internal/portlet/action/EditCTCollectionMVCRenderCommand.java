@@ -14,11 +14,13 @@
 
 package com.liferay.change.tracking.change.lists.web.internal.portlet.action;
 
-import com.liferay.change.tracking.CTEngineManager;
 import com.liferay.change.tracking.constants.CTPortletKeys;
+import com.liferay.change.tracking.engine.CTEngineManager;
 import com.liferay.change.tracking.model.CTCollection;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.WebKeys;
 
 import java.util.Optional;
 
@@ -48,15 +50,22 @@ public class EditCTCollectionMVCRenderCommand implements MVCRenderCommand {
 			RenderRequest renderRequest, RenderResponse renderResponse)
 		throws PortletException {
 
+		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
 		long ctCollectionId = ParamUtil.getLong(
 			renderRequest, "ctCollectionId");
 
 		Optional<CTCollection> ctCollectionOptional =
-			_ctEngineManager.getCTCollectionOptional(ctCollectionId);
+			_ctEngineManager.getCTCollectionOptional(
+				themeDisplay.getCompanyId(), ctCollectionId);
 
-		ctCollectionOptional.ifPresent(
+		ctCollectionOptional.filter(
+			ctCollection -> !ctCollection.isProduction()
+		).ifPresent(
 			ctCollection -> renderRequest.setAttribute(
-				"ctCollection", ctCollection));
+				"ctCollection", ctCollection)
+		);
 
 		return "/edit_ct_collection.jsp";
 	}

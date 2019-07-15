@@ -14,8 +14,7 @@
 
 package com.liferay.fragment.service;
 
-import aQute.bnd.annotation.ProviderType;
-
+import org.osgi.annotation.versioning.ProviderType;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.util.tracker.ServiceTracker;
@@ -124,6 +123,19 @@ public class FragmentEntryServiceUtil {
 		return getService().addFragmentEntry(
 			groupId, fragmentCollectionId, fragmentEntryKey, name, css, html,
 			js, status, serviceContext);
+	}
+
+	public static com.liferay.fragment.model.FragmentEntry addFragmentEntry(
+			long groupId, long fragmentCollectionId, String fragmentEntryKey,
+			String name, String css, String html, String js,
+			String configuration, long previewFileEntryId, int type, int status,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().addFragmentEntry(
+			groupId, fragmentCollectionId, fragmentEntryKey, name, css, html,
+			js, configuration, previewFileEntryId, type, status,
+			serviceContext);
 	}
 
 	public static com.liferay.fragment.model.FragmentEntry copyFragmentEntry(
@@ -330,6 +342,17 @@ public class FragmentEntryServiceUtil {
 
 		return getService().updateFragmentEntry(
 			fragmentEntryId, name, css, html, js, previewFileEntryId, status);
+	}
+
+	public static com.liferay.fragment.model.FragmentEntry updateFragmentEntry(
+			long fragmentEntryId, String name, String css, String html,
+			String js, String configuration, long previewFileEntryId,
+			int status)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().updateFragmentEntry(
+			fragmentEntryId, name, css, html, js, configuration,
+			previewFileEntryId, status);
 	}
 
 	public static FragmentEntryService getService() {

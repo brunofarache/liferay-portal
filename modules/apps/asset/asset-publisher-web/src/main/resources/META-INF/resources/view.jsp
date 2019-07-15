@@ -24,46 +24,50 @@ if (assetPublisherDisplayContext.isEnableTagBasedNavigation() && !assetPublisher
 }
 %>
 
-<div class="subscribe-action">
-	<c:if test="<%= assetPublisherDisplayContext.isSubscriptionEnabled() %>">
-		<c:choose>
-			<c:when test="<%= assetPublisherWebUtil.isSubscribed(themeDisplay.getCompanyId(), user.getUserId(), themeDisplay.getPlid(), portletDisplay.getId()) %>">
-				<portlet:actionURL name="unsubscribe" var="unsubscribeURL">
-					<portlet:param name="redirect" value="<%= currentURL %>" />
-				</portlet:actionURL>
+<liferay-ui:success key='<%= AssetPublisherPortletKeys.ASSET_PUBLISHER + "requestProcessed" %>' message="your-request-completed-successfully" />
 
-				<liferay-ui:icon
-					icon="start"
-					label="<%= true %>"
-					markupView="lexicon"
-					message="unsubscribe"
-					url="<%= unsubscribeURL %>"
-				/>
-			</c:when>
-			<c:otherwise>
-				<portlet:actionURL name="subscribe" var="subscribeURL">
-					<portlet:param name="redirect" value="<%= currentURL %>" />
-				</portlet:actionURL>
+<c:if test="<%= assetPublisherDisplayContext.isEnableSubscriptions() %>">
+	<div class="subscribe-action">
+		<c:if test="<%= assetPublisherDisplayContext.isSubscriptionEnabled() %>">
+			<c:choose>
+				<c:when test="<%= assetPublisherWebUtil.isSubscribed(themeDisplay.getCompanyId(), user.getUserId(), themeDisplay.getPlid(), portletDisplay.getId()) %>">
+					<portlet:actionURL name="unsubscribe" var="unsubscribeURL">
+						<portlet:param name="redirect" value="<%= currentURL %>" />
+					</portlet:actionURL>
 
-				<liferay-ui:icon
-					icon="start-o"
-					label="<%= true %>"
-					markupView="lexicon"
-					message="subscribe"
-					url="<%= subscribeURL %>"
-				/>
-			</c:otherwise>
-		</c:choose>
-	</c:if>
+					<liferay-ui:icon
+						label="<%= true %>"
+						linkCssClass="btn btn-secondary btn-sm mb-4"
+						markupView="lexicon"
+						message="unsubscribe"
+						url="<%= unsubscribeURL %>"
+					/>
+				</c:when>
+				<c:otherwise>
+					<portlet:actionURL name="subscribe" var="subscribeURL">
+						<portlet:param name="redirect" value="<%= currentURL %>" />
+					</portlet:actionURL>
 
-	<c:if test="<%= PortalUtil.isRSSFeedsEnabled() && assetPublisherDisplayContext.isEnableRSS() %>">
-		<liferay-portlet:resourceURL id="getRSS" varImpl="rssURL" />
+					<liferay-ui:icon
+						label="<%= true %>"
+						linkCssClass="btn btn-secondary btn-sm mb-4"
+						markupView="lexicon"
+						message="subscribe"
+						url="<%= subscribeURL %>"
+					/>
+				</c:otherwise>
+			</c:choose>
+		</c:if>
 
-		<liferay-rss:rss
-			resourceURL="<%= rssURL %>"
-		/>
-	</c:if>
-</div>
+		<c:if test="<%= PortalUtil.isRSSFeedsEnabled() && assetPublisherDisplayContext.isEnableRSS() %>">
+			<liferay-portlet:resourceURL id="getRSS" varImpl="rssURL" />
+
+			<liferay-rss:rss
+				resourceURL="<%= rssURL %>"
+			/>
+		</c:if>
+	</div>
+</c:if>
 
 <c:if test="<%= assetPublisherDisplayContext.isShowMetadataDescriptions() %>">
 	<liferay-asset:categorization-filter
@@ -105,13 +109,13 @@ if (assetPublisherDisplayContext.isEnableTagBasedNavigation() && !assetPublisher
 
 			<div class="alert alert-info text-center">
 				<c:choose>
-					<c:when test="<%= assetPublisherDisplayContext.isSelectionStyleAssetList() && !portletName.equals(AssetPublisherPortletKeys.RELATED_ASSETS) %>">
+					<c:when test="<%= assetPublisherDisplayContext.isSelectionStyleAssetList() && (assetPublisherDisplayContext.fetchAssetListEntry() == null) && !portletName.equals(AssetPublisherPortletKeys.RELATED_ASSETS) %>">
 						<div>
 							<liferay-ui:message key="this-application-is-not-visible-to-users-yet" />
 						</div>
 
 						<div>
-							<aui:a href="javascript:;" onClick="<%= portletDisplay.getURLConfigurationJS() %>"><liferay-ui:message key="select-an-asset-list-to-make-it-visible" /></aui:a>
+							<aui:a href="javascript:;" onClick="<%= portletDisplay.getURLConfigurationJS() %>"><liferay-ui:message key="select-a-content-set-to-make-it-visible" /></aui:a>
 						</div>
 					</c:when>
 					<c:when test="<%= !portletName.equals(AssetPublisherPortletKeys.RELATED_ASSETS) %>">
@@ -137,12 +141,8 @@ SearchContainer searchContainer = assetPublisherDisplayContext.getSearchContaine
 	/>
 </c:if>
 
-<aui:script use="querystring-parse">
-	var queryString = window.location.search.substring(1);
-
-	var queryParamObj = new A.QueryString.parse(queryString);
-
-	var assetEntryId = queryParamObj['<portlet:namespace />assetEntryId'];
+<aui:script sandbox="<%= true %>">
+	const assetEntryId = '<%= assetPublisherDisplayContext.getAssetEntryId() %>';
 
 	if (assetEntryId) {
 		window.location.hash = assetEntryId;

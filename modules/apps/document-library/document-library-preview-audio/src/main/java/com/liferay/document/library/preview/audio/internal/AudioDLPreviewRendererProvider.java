@@ -49,10 +49,10 @@ public class AudioDLPreviewRendererProvider
 
 	public AudioDLPreviewRendererProvider(
 		DLFileVersionPreviewLocalService dlFileVersionPreviewLocalService,
-		DLURLHelper dlurlHelper, ServletContext servletContext) {
+		DLURLHelper dlURLHelper, ServletContext servletContext) {
 
 		_dlFileVersionPreviewLocalService = dlFileVersionPreviewLocalService;
-		_dlurlHelper = dlurlHelper;
+		_dlURLHelper = dlURLHelper;
 		_servletContext = servletContext;
 	}
 
@@ -109,11 +109,11 @@ public class AudioDLPreviewRendererProvider
 	}
 
 	private List<String> _getPreviewFileURLs(
-			FileVersion fileVersion, HttpServletRequest request)
+			FileVersion fileVersion, HttpServletRequest httpServletRequest)
 		throws PortalException {
 
 		int status = ParamUtil.getInteger(
-			request, "status", WorkflowConstants.STATUS_ANY);
+			httpServletRequest, "status", WorkflowConstants.STATUS_ANY);
 
 		String previewQueryString = "&audioPreview=1";
 
@@ -121,8 +121,9 @@ public class AudioDLPreviewRendererProvider
 			previewQueryString += "&status=" + status;
 		}
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		List<String> previewFileURLs = new ArrayList<>();
 
@@ -130,11 +131,12 @@ public class AudioDLPreviewRendererProvider
 			for (String dlFileEntryPreviewAudioContainer :
 					PropsValues.DL_FILE_ENTRY_PREVIEW_AUDIO_CONTAINERS) {
 
-				if (AudioProcessorUtil.getPreviewFileSize(
-						fileVersion, dlFileEntryPreviewAudioContainer) > 0) {
+				long previewFileSize = AudioProcessorUtil.getPreviewFileSize(
+					fileVersion, dlFileEntryPreviewAudioContainer);
 
+				if (previewFileSize > 0) {
 					previewFileURLs.add(
-						_dlurlHelper.getPreviewURL(
+						_dlURLHelper.getPreviewURL(
 							fileVersion.getFileEntry(), fileVersion,
 							themeDisplay,
 							previewQueryString + "&type=" +
@@ -156,7 +158,7 @@ public class AudioDLPreviewRendererProvider
 
 	private final DLFileVersionPreviewLocalService
 		_dlFileVersionPreviewLocalService;
-	private final DLURLHelper _dlurlHelper;
+	private final DLURLHelper _dlURLHelper;
 	private final ServletContext _servletContext;
 
 }

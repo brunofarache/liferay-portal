@@ -298,6 +298,8 @@ public class StringUtilTest {
 		Assert.assertEquals("1", StringUtil.merge(new int[] {1}));
 		Assert.assertEquals("1,2,3", StringUtil.merge(new long[] {1, 2, 3}));
 		Assert.assertEquals("1", StringUtil.merge(new long[] {1}));
+		Assert.assertEquals(
+			"123", StringUtil.merge(Arrays.asList("1", "2", "3"), ""));
 	}
 
 	@Test
@@ -1080,12 +1082,12 @@ public class StringUtilTest {
 
 	@Test
 	public void testUnquote() {
+		Assert.assertEquals("", StringUtil.unquote(""));
+		Assert.assertEquals("Hello World", StringUtil.unquote("'Hello World'"));
+		Assert.assertEquals("'Hello World", StringUtil.unquote("'Hello World"));
 		Assert.assertEquals(
 			"Hello World", StringUtil.unquote("\"Hello World\""));
-
-		// String with single character
-
-		Assert.assertEquals("\"", StringUtil.unquote("\""));
+		Assert.assertEquals("Hello World", StringUtil.unquote("Hello World"));
 	}
 
 	@Test

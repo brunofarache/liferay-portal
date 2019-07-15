@@ -15,15 +15,139 @@
 package com.liferay.data.engine.rest.resource.v1_0.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.data.engine.rest.client.dto.v1_0.DataRecordCollection;
+import com.liferay.data.engine.rest.resource.v1_0.test.util.DataDefinitionTestUtil;
+import com.liferay.dynamic.data.mapping.model.DDMStructure;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
 
-import org.junit.Ignore;
+import java.util.HashMap;
+
+import org.junit.Before;
 import org.junit.runner.RunWith;
 
 /**
- * @author Jeyvison Nascimento
+ * @author Gabriel Albuquerque
  */
-@Ignore
 @RunWith(Arquillian.class)
 public class DataRecordCollectionResourceTest
 	extends BaseDataRecordCollectionResourceTestCase {
+
+	@Before
+	public void setUp() throws Exception {
+		super.setUp();
+
+		_ddmStructure = DataDefinitionTestUtil.addDDMStructure(testGroup);
+		_irrelevantDDMStructure = DataDefinitionTestUtil.addDDMStructure(
+			irrelevantGroup);
+	}
+
+	@Override
+	protected String[] getAdditionalAssertFieldNames() {
+		return new String[] {"dataDefinitionId", "name"};
+	}
+
+	@Override
+	protected DataRecordCollection randomDataRecordCollection() {
+		return new DataRecordCollection() {
+			{
+				dataDefinitionId = _ddmStructure.getStructureId();
+				dataRecordCollectionKey = RandomTestUtil.randomString();
+				name = new HashMap<String, Object>() {
+					{
+						put("en_US", RandomTestUtil.randomString());
+					}
+				};
+				siteId = testGroup.getGroupId();
+			}
+		};
+	}
+
+	@Override
+	protected DataRecordCollection randomIrrelevantDataRecordCollection()
+		throws Exception {
+
+		DataRecordCollection randomIrrelevantDataRecordCollection =
+			super.randomIrrelevantDataRecordCollection();
+
+		randomIrrelevantDataRecordCollection.setDataDefinitionId(
+			_irrelevantDDMStructure.getStructureId());
+
+		return randomIrrelevantDataRecordCollection;
+	}
+
+	@Override
+	protected DataRecordCollection
+			testDeleteDataRecordCollection_addDataRecordCollection()
+		throws Exception {
+
+		return dataRecordCollectionResource.
+			postDataDefinitionDataRecordCollection(
+				_ddmStructure.getStructureId(), randomDataRecordCollection());
+	}
+
+	@Override
+	protected Long
+			testGetDataDefinitionDataRecordCollectionsPage_getDataDefinitionId()
+		throws Exception {
+
+		return _ddmStructure.getStructureId();
+	}
+
+	@Override
+	protected DataRecordCollection
+			testGetDataRecordCollection_addDataRecordCollection()
+		throws Exception {
+
+		return dataRecordCollectionResource.
+			postDataDefinitionDataRecordCollection(
+				_ddmStructure.getStructureId(), randomDataRecordCollection());
+	}
+
+	@Override
+	protected DataRecordCollection
+			testGetSiteDataRecordCollection_addDataRecordCollection()
+		throws Exception {
+
+		return dataRecordCollectionResource.
+			postDataDefinitionDataRecordCollection(
+				_ddmStructure.getStructureId(), randomDataRecordCollection());
+	}
+
+	@Override
+	protected DataRecordCollection
+			testGetSiteDataRecordCollectionsPage_addDataRecordCollection(
+				Long siteId, DataRecordCollection dataRecordCollection)
+		throws Exception {
+
+		return dataRecordCollectionResource.
+			postDataDefinitionDataRecordCollection(
+				dataRecordCollection.getDataDefinitionId(),
+				dataRecordCollection);
+	}
+
+	@Override
+	protected DataRecordCollection
+			testPostDataDefinitionDataRecordCollection_addDataRecordCollection(
+				DataRecordCollection dataRecordCollection)
+		throws Exception {
+
+		return dataRecordCollectionResource.
+			postDataDefinitionDataRecordCollection(
+				dataRecordCollection.getDataDefinitionId(),
+				dataRecordCollection);
+	}
+
+	@Override
+	protected DataRecordCollection
+			testPutDataRecordCollection_addDataRecordCollection()
+		throws Exception {
+
+		return dataRecordCollectionResource.
+			postDataDefinitionDataRecordCollection(
+				_ddmStructure.getStructureId(), randomDataRecordCollection());
+	}
+
+	private DDMStructure _ddmStructure;
+	private DDMStructure _irrelevantDDMStructure;
+
 }

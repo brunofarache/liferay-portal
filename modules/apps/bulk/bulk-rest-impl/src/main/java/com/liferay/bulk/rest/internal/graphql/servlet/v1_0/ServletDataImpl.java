@@ -17,7 +17,7 @@ package com.liferay.bulk.rest.internal.graphql.servlet.v1_0;
 import com.liferay.bulk.rest.internal.graphql.mutation.v1_0.Mutation;
 import com.liferay.bulk.rest.internal.graphql.query.v1_0.Query;
 import com.liferay.bulk.rest.resource.v1_0.KeywordResource;
-import com.liferay.bulk.rest.resource.v1_0.MessageSelectionResource;
+import com.liferay.bulk.rest.resource.v1_0.SelectionResource;
 import com.liferay.bulk.rest.resource.v1_0.StatusResource;
 import com.liferay.bulk.rest.resource.v1_0.TaxonomyCategoryResource;
 import com.liferay.bulk.rest.resource.v1_0.TaxonomyVocabularyResource;
@@ -44,8 +44,8 @@ public class ServletDataImpl implements ServletData {
 	public void activate(BundleContext bundleContext) {
 		Mutation.setKeywordResourceComponentServiceObjects(
 			_keywordResourceComponentServiceObjects);
-		Mutation.setMessageSelectionResourceComponentServiceObjects(
-			_messageSelectionResourceComponentServiceObjects);
+		Mutation.setSelectionResourceComponentServiceObjects(
+			_selectionResourceComponentServiceObjects);
 		Mutation.setTaxonomyCategoryResourceComponentServiceObjects(
 			_taxonomyCategoryResourceComponentServiceObjects);
 		Mutation.setTaxonomyVocabularyResourceComponentServiceObjects(
@@ -60,9 +60,13 @@ public class ServletDataImpl implements ServletData {
 		return new Mutation();
 	}
 
+	/**
+	 * @deprecated
+	 */
 	@Override
+	@Deprecated
 	public String getPath() {
-		return "/bulk-rest-graphql/v1_0";
+		return "/bulk-graphql/v1_0";
 	}
 
 	@Override
@@ -75,8 +79,8 @@ public class ServletDataImpl implements ServletData {
 		_keywordResourceComponentServiceObjects;
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
-	private ComponentServiceObjects<MessageSelectionResource>
-		_messageSelectionResourceComponentServiceObjects;
+	private ComponentServiceObjects<SelectionResource>
+		_selectionResourceComponentServiceObjects;
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private ComponentServiceObjects<TaxonomyCategoryResource>

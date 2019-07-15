@@ -14,9 +14,9 @@
 
 package com.liferay.change.tracking.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.service.ServiceWrapper;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link CTProcessLocalService}.
@@ -50,12 +50,12 @@ public class CTProcessLocalServiceWrapper
 
 	@Override
 	public com.liferay.change.tracking.model.CTProcess addCTProcess(
-			long userId, long ctCollectionId,
+			long userId, long ctCollectionId, boolean ignoreCollision,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ctProcessLocalService.addCTProcess(
-			userId, ctCollectionId, serviceContext);
+			userId, ctCollectionId, ignoreCollision, serviceContext);
 	}
 
 	/**
@@ -266,23 +266,12 @@ public class CTProcessLocalServiceWrapper
 	@Override
 	public java.util.List<com.liferay.change.tracking.model.CTProcess>
 		getCTProcesses(
-			long companyId, int status,
+			long companyId, long userId, String keywords,
 			com.liferay.portal.kernel.dao.orm.QueryDefinition<?>
 				queryDefinition) {
 
 		return _ctProcessLocalService.getCTProcesses(
-			companyId, status, queryDefinition);
-	}
-
-	@Override
-	public java.util.List<com.liferay.change.tracking.model.CTProcess>
-		getCTProcesses(
-			long companyId,
-			com.liferay.portal.kernel.dao.orm.QueryDefinition<?>
-				queryDefinition) {
-
-		return _ctProcessLocalService.getCTProcesses(
-			companyId, queryDefinition);
+			companyId, userId, keywords, queryDefinition);
 	}
 
 	/**

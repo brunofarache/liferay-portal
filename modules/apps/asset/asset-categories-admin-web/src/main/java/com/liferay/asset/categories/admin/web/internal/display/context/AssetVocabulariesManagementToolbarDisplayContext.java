@@ -45,12 +45,12 @@ public class AssetVocabulariesManagementToolbarDisplayContext
 	public AssetVocabulariesManagementToolbarDisplayContext(
 			LiferayPortletRequest liferayPortletRequest,
 			LiferayPortletResponse liferayPortletResponse,
-			HttpServletRequest request,
+			HttpServletRequest httpServletRequest,
 			AssetCategoriesDisplayContext assetCategoriesDisplayContext)
 		throws PortalException {
 
 		super(
-			liferayPortletRequest, liferayPortletResponse, request,
+			liferayPortletRequest, liferayPortletResponse, httpServletRequest,
 			assetCategoriesDisplayContext.getVocabulariesSearchContainer());
 
 		_assetCategoriesDisplayContext = assetCategoriesDisplayContext;
@@ -75,7 +75,7 @@ public class AssetVocabulariesManagementToolbarDisplayContext
 
 	public String getAvailableActions(AssetVocabulary vocabulary) {
 		if (_assetCategoriesDisplayContext.hasPermission(
-				vocabulary, ActionKeys.UPDATE)) {
+				vocabulary, ActionKeys.DELETE)) {
 
 			return "deleteSelectedVocabularies";
 		}

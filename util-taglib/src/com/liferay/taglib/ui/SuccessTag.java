@@ -76,6 +76,30 @@ public class SuccessTag extends IncludeTag implements BodyTag {
 		return SKIP_BODY;
 	}
 
+	public String getKey() {
+		return _key;
+	}
+
+	public String getMessage() {
+		return _message;
+	}
+
+	public String getTargetNode() {
+		return _targetNode;
+	}
+
+	public int getTimeout() {
+		return _timeout;
+	}
+
+	public boolean isEmbed() {
+		return _embed;
+	}
+
+	public boolean isTranslateMessage() {
+		return _translateMessage;
+	}
+
 	@Override
 	public int processEndTag() throws Exception {
 		String message = _message;
@@ -178,7 +202,7 @@ public class SuccessTag extends IncludeTag implements BodyTag {
 
 	@Override
 	protected boolean isCleanUpSetAttributes() {
-		return _CLEAN_UP_SET_ATTRIBUTES;
+		return super.isCleanUpSetAttributes();
 	}
 
 	@Override
@@ -187,12 +211,10 @@ public class SuccessTag extends IncludeTag implements BodyTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
 	}
 
 	private static final String _ATTRIBUTE_NAMESPACE = "liferay-ui:success:";
-
-	private static final boolean _CLEAN_UP_SET_ATTRIBUTES = true;
 
 	private static final String _CONTENT_EMBED_TMPL = StringUtil.read(
 		SuccessTag.class, "success/embed.tmpl");

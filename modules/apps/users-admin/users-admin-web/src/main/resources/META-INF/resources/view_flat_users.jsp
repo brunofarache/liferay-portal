@@ -17,7 +17,6 @@
 <%@ include file="/init.jsp" %>
 
 <%
-String backURL = GetterUtil.getString(request.getAttribute("view.jsp-backURL"));
 int status = GetterUtil.getInteger(request.getAttribute("view.jsp-status"));
 String usersListView = GetterUtil.getString(request.getAttribute("view.jsp-usersListView"));
 String viewUsersRedirect = GetterUtil.getString(request.getAttribute("view.jsp-viewUsersRedirect"));
@@ -98,7 +97,6 @@ boolean showRestoreButton = viewUsersManagementToolbarDisplayContext.isShowResto
 		searchContainer="<%= searchContainer %>"
 		var="userSearchContainer"
 	>
-		<aui:input disabled="<%= true %>" name="usersRedirect" type="hidden" value="<%= currentURLObj.toString() %>" />
 		<aui:input name="deleteUserIds" type="hidden" />
 		<aui:input name="status" type="hidden" value="<%= status %>" />
 

@@ -14,10 +14,9 @@
 
 package com.liferay.document.library.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service utility for DLAppHelper. This utility wraps
@@ -298,6 +297,14 @@ public class DLAppHelperLocalServiceUtil {
 		getService().restoreFileEntryFromTrash(userId, fileEntry);
 	}
 
+	public static void restoreFileEntryFromTrash(
+			long userId, long newFolderId,
+			com.liferay.portal.kernel.repository.model.FileEntry fileEntry)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		getService().restoreFileEntryFromTrash(userId, newFolderId, fileEntry);
+	}
+
 	public static void restoreFileShortcutFromTrash(
 			long userId,
 			com.liferay.portal.kernel.repository.model.FileShortcut
@@ -408,9 +415,6 @@ public class DLAppHelperLocalServiceUtil {
 		if (_service == null) {
 			_service = (DLAppHelperLocalService)PortalBeanLocatorUtil.locate(
 				DLAppHelperLocalService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				DLAppHelperLocalServiceUtil.class, "_service");
 		}
 
 		return _service;

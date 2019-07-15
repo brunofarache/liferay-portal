@@ -14,10 +14,9 @@
 
 package com.liferay.portal.kernel.service.persistence;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Brian Wing Shun Chan
@@ -64,9 +63,6 @@ public class ResourcePermissionFinderUtil {
 		if (_finder == null) {
 			_finder = (ResourcePermissionFinder)PortalBeanLocatorUtil.locate(
 				ResourcePermissionFinder.class.getName());
-
-			ReferenceRegistry.registerReference(
-				ResourcePermissionFinderUtil.class, "_finder");
 		}
 
 		return _finder;
@@ -74,9 +70,6 @@ public class ResourcePermissionFinderUtil {
 
 	public void setFinder(ResourcePermissionFinder finder) {
 		_finder = finder;
-
-		ReferenceRegistry.registerReference(
-			ResourcePermissionFinderUtil.class, "_finder");
 	}
 
 	private static ResourcePermissionFinder _finder;

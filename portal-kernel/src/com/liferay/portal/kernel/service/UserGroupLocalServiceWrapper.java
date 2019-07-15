@@ -14,7 +14,7 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link UserGroupLocalService}.
@@ -81,34 +81,6 @@ public class UserGroupLocalServiceWrapper
 	@Override
 	public void addTeamUserGroups(long teamId, long[] userGroupIds) {
 		_userGroupLocalService.addTeamUserGroups(teamId, userGroupIds);
-	}
-
-	/**
-	 * Adds a user group.
-	 *
-	 * <p>
-	 * This method handles the creation and bookkeeping of the user group,
-	 * including its resources, metadata, and internal data structures. It is
-	 * not necessary to make subsequent calls to setup default groups and
-	 * resources for the user group.
-	 * </p>
-	 *
-	 * @param userId the primary key of the user
-	 * @param companyId the primary key of the user group's company
-	 * @param name the user group's name
-	 * @param description the user group's description
-	 * @return the user group
-	 * @deprecated As of Newton (6.2.x), replaced by {@link #addUserGroup(long,
-	 long, String, String, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public com.liferay.portal.kernel.model.UserGroup addUserGroup(
-			long userId, long companyId, String name, String description)
-		throws com.liferay.portal.kernel.exception.PortalException {
-
-		return _userGroupLocalService.addUserGroup(
-			userId, companyId, name, description);
 	}
 
 	/**
@@ -1095,27 +1067,6 @@ public class UserGroupLocalServiceWrapper
 	@Override
 	public void unsetTeamUserGroups(long teamId, long[] userGroupIds) {
 		_userGroupLocalService.unsetTeamUserGroups(teamId, userGroupIds);
-	}
-
-	/**
-	 * Updates the user group.
-	 *
-	 * @param companyId the primary key of the user group's company
-	 * @param userGroupId the primary key of the user group
-	 * @param name the user group's name
-	 * @param description the user group's description
-	 * @return the user group
-	 * @deprecated As of Newton (6.2.x), replaced by {@link
-	 #updateUserGroup(long, long, String, String, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public com.liferay.portal.kernel.model.UserGroup updateUserGroup(
-			long companyId, long userGroupId, String name, String description)
-		throws com.liferay.portal.kernel.exception.PortalException {
-
-		return _userGroupLocalService.updateUserGroup(
-			companyId, userGroupId, name, description);
 	}
 
 	/**

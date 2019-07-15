@@ -14,30 +14,17 @@
 
 package com.liferay.portal.search.query.function.score;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Michael C. Han
+ * @author Wade Cao
+ * @author André de Oliveira
  */
 @ProviderType
-public class ExponentialDecayScoreFunction extends DecayScoreFunction {
-
-	public ExponentialDecayScoreFunction(
-		String field, Object origin, Object scale, Object offset) {
-
-		super(field, origin, scale, offset);
-	}
-
-	public ExponentialDecayScoreFunction(
-		String field, Object origin, Object scale, Object offset,
-		Double decay) {
-
-		super(field, origin, scale, offset, decay);
-	}
+public interface ExponentialDecayScoreFunction extends DecayScoreFunction {
 
 	@Override
-	public <T> T accept(ScoreFunctionTranslator<T> scoreFunctionTranslator) {
-		return scoreFunctionTranslator.translate(this);
-	}
+	public <T> T accept(ScoreFunctionTranslator<T> scoreFunctionTranslator);
 
 }

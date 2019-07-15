@@ -14,7 +14,10 @@
 
 package com.liferay.journal.util;
 
-import aQute.bnd.annotation.ProviderType;
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletURL;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides Change Tracking related information about Journal entities.
@@ -24,10 +27,27 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface JournalChangeTrackingHelper {
 
+	/**
+	 * @deprecated As of Mueller (7.2.x)
+	 */
+	@Deprecated
 	public String getJournalArticleCTCollectionName(long userId, long classPK);
+
+	public String getJournalArticleCTCollectionName(
+		long companyId, long userId, long classPK);
+
+	public PortletURL getJournalArticleCTCollectionURL(
+		PortletRequest portletRequest, long companyId, long userId, long id);
 
 	public boolean hasActiveCTCollection(long companyId, long userId);
 
+	/**
+	 * @deprecated As of Mueller (7.2.x)
+	 */
+	@Deprecated
 	public boolean isJournalArticleInChangeList(long userId, long classPK);
+
+	public boolean isJournalArticleInChangeList(
+		long companyId, long userId, long classPK);
 
 }

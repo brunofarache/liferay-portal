@@ -14,10 +14,9 @@
 
 package com.liferay.exportimport.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the remote service utility for Staging. This utility wraps
@@ -127,9 +126,6 @@ public class StagingServiceUtil {
 		if (_service == null) {
 			_service = (StagingService)PortalBeanLocatorUtil.locate(
 				StagingService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				StagingServiceUtil.class, "_service");
 		}
 
 		return _service;

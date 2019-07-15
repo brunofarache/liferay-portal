@@ -14,18 +14,17 @@
 
 package com.liferay.segments.criteria.contributor;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.segments.criteria.Criteria;
 
 import java.util.List;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides methods for retrieving segment criteria contributors defined by
  * {@link SegmentsCriteriaContributor} implementations.
  *
  * @author Eduardo García
- * @review
  */
 @ProviderType
 public interface SegmentsCriteriaContributorRegistry {

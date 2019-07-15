@@ -14,8 +14,6 @@
 
 package com.liferay.staging.taglib.servlet.taglib;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.model.StagedModel;
 import com.liferay.staging.taglib.internal.servlet.ServletContextUtil;
 import com.liferay.taglib.util.IncludeTag;
@@ -23,11 +21,21 @@ import com.liferay.taglib.util.IncludeTag;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * @author Levente Hudák
  */
 @ProviderType
 public class StatusTag extends IncludeTag {
+
+	public String getCssClass() {
+		return _cssClass;
+	}
+
+	public StagedModel getStagedModel() {
+		return _stagedModel;
+	}
 
 	public void setCssClass(String cssClass) {
 		_cssClass = cssClass;
@@ -58,9 +66,10 @@ public class StatusTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute("liferay-staging:status:cssClass", _cssClass);
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
+			"liferay-staging:status:cssClass", _cssClass);
+		httpServletRequest.setAttribute(
 			"liferay-staging:status:stagedModel", _stagedModel);
 	}
 

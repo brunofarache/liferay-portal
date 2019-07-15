@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collector;
 
 /**
  * @author Brian Wing Shun Chan
@@ -65,6 +66,33 @@ public class JSONUtil {
 				collection.add((String)value);
 			}
 		}
+	}
+
+	public static JSONArray concat(JSONArray... jsonArrays) {
+		JSONArray newJSONArray = _createJSONArray();
+
+		for (JSONArray jsonArray : jsonArrays) {
+			for (int i = 0; i < jsonArray.length(); i++) {
+				newJSONArray.put(jsonArray.get(i));
+			}
+		}
+
+		return newJSONArray;
+	}
+
+	public static Collector<Object, JSONArray, JSONArray> createCollector() {
+		return Collector.of(
+			JSONUtil::_createJSONArray, JSONArray::put, JSONUtil::concat);
+	}
+
+	public static boolean equals(JSONArray jsonArray1, JSONArray jsonArray2) {
+		return Objects.equals(jsonArray1.toString(), jsonArray2.toString());
+	}
+
+	public static boolean equals(
+		JSONObject jsonObject1, JSONObject jsonObject2) {
+
+		return Objects.equals(jsonObject1.toString(), jsonObject2.toString());
 	}
 
 	public static Object getValue(Object object, String... paths) {
@@ -148,7 +176,21 @@ public class JSONUtil {
 		return jsonArray;
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link #putAll(Object...)}
+	 */
+	@Deprecated
 	public static JSONArray put(Object... values) {
+		return putAll(values);
+	}
+
+	public static JSONObject put(String key, Object value) {
+		JSONObject jsonObject = _createJSONObject();
+
+		return jsonObject.put(key, value);
+	}
+
+	public static JSONArray putAll(Object... values) {
 		JSONArray jsonArray = _createJSONArray();
 
 		for (Object value : values) {
@@ -156,12 +198,6 @@ public class JSONUtil {
 		}
 
 		return jsonArray;
-	}
-
-	public static JSONObject put(String key, Object value) {
-		JSONObject jsonObject = _createJSONObject();
-
-		return jsonObject.put(key, value);
 	}
 
 	public static JSONArray replace(
@@ -198,7 +234,7 @@ public class JSONUtil {
 
 		List<T> list = toList(jsonArray, unsafeFunction);
 
-		return list.toArray((T[])Array.newInstance(clazz, list.size()));
+		return list.toArray((T[])Array.newInstance(clazz, 0));
 	}
 
 	public static <T> JSONArray toJSONArray(
@@ -278,7 +314,7 @@ public class JSONUtil {
 
 		List<Long> values = toLongList(jsonArray, jsonObjectKey);
 
-		return ArrayUtil.toArray(values.toArray(new Long[values.size()]));
+		return ArrayUtil.toArray(values.toArray(new Long[0]));
 	}
 
 	public static List<Long> toLongList(JSONArray jsonArray) {
@@ -376,7 +412,7 @@ public class JSONUtil {
 
 		List<Object> values = toObjectList(jsonArray, jsonObjectKey);
 
-		return values.toArray(new Object[values.size()]);
+		return values.toArray(new Object[0]);
 	}
 
 	public static List<Object> toObjectList(JSONArray jsonArray) {
@@ -474,7 +510,7 @@ public class JSONUtil {
 
 		List<String> values = toStringList(jsonArray, jsonObjectKey);
 
-		return values.toArray(new String[values.size()]);
+		return values.toArray(new String[0]);
 	}
 
 	public static List<String> toStringList(JSONArray jsonArray) {

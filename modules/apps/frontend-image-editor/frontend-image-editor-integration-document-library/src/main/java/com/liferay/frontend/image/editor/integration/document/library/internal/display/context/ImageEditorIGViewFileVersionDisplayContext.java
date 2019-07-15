@@ -40,14 +40,16 @@ public class ImageEditorIGViewFileVersionDisplayContext
 
 	public ImageEditorIGViewFileVersionDisplayContext(
 		IGViewFileVersionDisplayContext parentIGDisplayContext,
-		HttpServletRequest request, HttpServletResponse response,
-		FileVersion fileVersion, ResourceBundle resourceBundle,
-		DLURLHelper dlurlHelper) {
+		HttpServletRequest httpServletRequest,
+		HttpServletResponse httpServletResponse, FileVersion fileVersion,
+		ResourceBundle resourceBundle, DLURLHelper dlURLHelper) {
 
-		super(_UUID, parentIGDisplayContext, request, response, fileVersion);
+		super(
+			_UUID, parentIGDisplayContext, httpServletRequest,
+			httpServletResponse, fileVersion);
 
 		_resourceBundle = resourceBundle;
-		_dlurlHelper = dlurlHelper;
+		_dlURLHelper = dlURLHelper;
 
 		try {
 			FileEntry fileEntry = null;
@@ -60,7 +62,7 @@ public class ImageEditorIGViewFileVersionDisplayContext
 
 			_imageEditorDLDisplayContextHelper =
 				new ImageEditorDLDisplayContextHelper(
-					fileVersion, request, dlurlHelper);
+					fileVersion, httpServletRequest, dlURLHelper);
 		}
 		catch (PortalException pe) {
 			throw new SystemException(
@@ -82,7 +84,7 @@ public class ImageEditorIGViewFileVersionDisplayContext
 
 		ImageEditorDLDisplayContextHelper imageEditorDLDisplayContextHelper =
 			new ImageEditorDLDisplayContextHelper(
-				fileVersion, request, _dlurlHelper);
+				fileVersion, request, _dlURLHelper);
 
 		menuItems.add(
 			imageEditorDLDisplayContextHelper.
@@ -94,7 +96,7 @@ public class ImageEditorIGViewFileVersionDisplayContext
 	private static final UUID _UUID = UUID.fromString(
 		"1cc61284-8baf-4904-8a65-b7b3845e64d7");
 
-	private final DLURLHelper _dlurlHelper;
+	private final DLURLHelper _dlURLHelper;
 	private final FileEntry _fileEntry;
 	private final ImageEditorDLDisplayContextHelper
 		_imageEditorDLDisplayContextHelper;

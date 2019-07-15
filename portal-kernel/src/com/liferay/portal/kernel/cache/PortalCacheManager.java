@@ -14,8 +14,6 @@
 
 package com.liferay.portal.kernel.cache;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.nio.intraband.proxy.annotation.Proxy;
 
 import java.io.Serializable;
@@ -23,6 +21,8 @@ import java.io.Serializable;
 import java.net.URL;
 
 import java.util.Set;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Joseph Shum
@@ -40,6 +40,8 @@ public interface PortalCacheManager<K extends Serializable, V> {
 	public void clearAll() throws PortalCacheException;
 
 	public void destroy();
+
+	public PortalCache<K, V> fetchPortalCache(String portalCacheName);
 
 	public PortalCache<K, V> getPortalCache(String portalCacheName)
 		throws PortalCacheException;

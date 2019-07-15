@@ -14,13 +14,13 @@
 
 package com.liferay.dynamic.data.mapping.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * This class is used by SOAP remote services, specifically {@link com.liferay.dynamic.data.mapping.service.http.DDMStructureLayoutServiceSoap}.
@@ -42,6 +42,8 @@ public class DDMStructureLayoutSoap implements Serializable {
 		soapModel.setUserName(model.getUserName());
 		soapModel.setCreateDate(model.getCreateDate());
 		soapModel.setModifiedDate(model.getModifiedDate());
+		soapModel.setClassNameId(model.getClassNameId());
+		soapModel.setStructureLayoutKey(model.getStructureLayoutKey());
 		soapModel.setStructureVersionId(model.getStructureVersionId());
 		soapModel.setName(model.getName());
 		soapModel.setDescription(model.getDescription());
@@ -172,6 +174,22 @@ public class DDMStructureLayoutSoap implements Serializable {
 		_modifiedDate = modifiedDate;
 	}
 
+	public long getClassNameId() {
+		return _classNameId;
+	}
+
+	public void setClassNameId(long classNameId) {
+		_classNameId = classNameId;
+	}
+
+	public String getStructureLayoutKey() {
+		return _structureLayoutKey;
+	}
+
+	public void setStructureLayoutKey(String structureLayoutKey) {
+		_structureLayoutKey = structureLayoutKey;
+	}
+
 	public long getStructureVersionId() {
 		return _structureVersionId;
 	}
@@ -212,6 +230,8 @@ public class DDMStructureLayoutSoap implements Serializable {
 	private String _userName;
 	private Date _createDate;
 	private Date _modifiedDate;
+	private long _classNameId;
+	private String _structureLayoutKey;
 	private long _structureVersionId;
 	private String _name;
 	private String _description;

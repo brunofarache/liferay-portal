@@ -15,7 +15,7 @@
 package com.liferay.fragment.web.internal.display.context;
 
 import com.liferay.fragment.constants.FragmentActionKeys;
-import com.liferay.fragment.constants.FragmentEntryTypeConstants;
+import com.liferay.fragment.constants.FragmentConstants;
 import com.liferay.fragment.web.internal.security.permission.resource.FragmentPermission;
 import com.liferay.frontend.taglib.clay.servlet.taglib.display.context.SearchContainerManagementToolbarDisplayContext;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
@@ -52,11 +52,11 @@ public class FragmentManagementToolbarDisplayContext
 	public FragmentManagementToolbarDisplayContext(
 		LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse,
-		HttpServletRequest request,
+		HttpServletRequest httpServletRequest,
 		FragmentDisplayContext fragmentDisplayContext) {
 
 		super(
-			liferayPortletRequest, liferayPortletResponse, request,
+			liferayPortletRequest, liferayPortletResponse, httpServletRequest,
 			fragmentDisplayContext.getFragmentEntriesSearchContainer());
 
 		_fragmentDisplayContext = fragmentDisplayContext;
@@ -88,7 +88,7 @@ public class FragmentManagementToolbarDisplayContext
 						dropdownItem -> {
 							dropdownItem.putData(
 								"action", "moveSelectedFragmentEntries");
-							dropdownItem.setIcon("change");
+							dropdownItem.setIcon("move-folder");
 							dropdownItem.setLabel(
 								LanguageUtil.get(request, "move"));
 							dropdownItem.setQuickAction(true);
@@ -205,13 +205,13 @@ public class FragmentManagementToolbarDisplayContext
 			{
 				addPrimaryDropdownItem(
 					_getAddFragmentEntryDropdownItem(
-						FragmentEntryTypeConstants.TYPE_SECTION,
-						FragmentEntryTypeConstants.TYPE_SECTION_LABEL));
+						FragmentConstants.TYPE_SECTION,
+						FragmentConstants.TYPE_SECTION_LABEL));
 
 				addPrimaryDropdownItem(
 					_getAddFragmentEntryDropdownItem(
-						FragmentEntryTypeConstants.TYPE_COMPONENT,
-						FragmentEntryTypeConstants.TYPE_COMPONENT_LABEL));
+						FragmentConstants.TYPE_COMPONENT,
+						FragmentConstants.TYPE_COMPONENT_LABEL));
 			}
 		};
 	}
@@ -227,18 +227,14 @@ public class FragmentManagementToolbarDisplayContext
 			{
 				if (_fragmentDisplayContext.isNavigationSections()) {
 					add(
-						labelItem -> {
-							labelItem.setLabel(
-								LanguageUtil.get(request, "sections"));
-						});
+						labelItem -> labelItem.setLabel(
+							LanguageUtil.get(request, "sections")));
 				}
 
 				if (_fragmentDisplayContext.isNavigationComponents()) {
 					add(
-						labelItem -> {
-							labelItem.setLabel(
-								LanguageUtil.get(request, "components"));
-						});
+						labelItem -> labelItem.setLabel(
+							LanguageUtil.get(request, "components")));
 				}
 			}
 		};

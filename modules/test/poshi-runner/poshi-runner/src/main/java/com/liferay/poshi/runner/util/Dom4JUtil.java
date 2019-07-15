@@ -185,10 +185,8 @@ public class Dom4JUtil {
 				continue;
 			}
 
-			if (node instanceof Element && cascade) {
+			if ((node instanceof Element) && cascade) {
 				replace((Element)node, cascade, replacementText, targetText);
-
-				continue;
 			}
 		}
 	}

@@ -27,6 +27,14 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class UserGroupSearchContainerResultsTag<R> extends IncludeTag {
 
+	public DisplayTerms getSearchTerms() {
+		return _searchTerms;
+	}
+
+	public LinkedHashMap<String, Object> getUserGroupParams() {
+		return _userGroupParams;
+	}
+
 	public void setSearchTerms(DisplayTerms searchTerms) {
 		_searchTerms = searchTerms;
 	}
@@ -58,7 +66,7 @@ public class UserGroupSearchContainerResultsTag<R> extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
 		SearchContainerTag<R> searchContainerTag =
 			(SearchContainerTag<R>)findAncestorWithClass(
 				this, SearchContainerTag.class);
@@ -66,14 +74,14 @@ public class UserGroupSearchContainerResultsTag<R> extends IncludeTag {
 		SearchContainer<R> searchContainer =
 			searchContainerTag.getSearchContainer();
 
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-ui:user-group-search-container-results:searchContainer",
 			searchContainer);
 
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-ui:user-group-search-container-results:searchTerms",
 			_searchTerms);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-ui:user-group-search-container-results:userGroupParams",
 			_userGroupParams);
 	}

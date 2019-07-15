@@ -14,11 +14,11 @@
 
 package com.liferay.portal.search.engine.adapter.document;
 
-import aQute.bnd.annotation.ProviderType;
-
-import com.liferay.portal.kernel.search.Document;
+import com.liferay.portal.search.document.Document;
 
 import java.util.function.Consumer;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Michael C. Han
@@ -28,8 +28,35 @@ public class IndexDocumentRequest
 	implements BulkableDocumentRequest<IndexDocumentRequest>,
 			   DocumentRequest<IndexDocumentResponse> {
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by
+	 *             IndexDocumentRequest.IndexDocumentRequest(String, Document)
+	 */
+	@Deprecated
+	public IndexDocumentRequest(
+		String indexName, com.liferay.portal.kernel.search.Document document) {
+
+		this(indexName, null, document);
+	}
+
 	public IndexDocumentRequest(String indexName, Document document) {
 		this(indexName, null, document);
+	}
+
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by
+	 *             IndexDocumentRequest.IndexDocumentRequest(String, String,
+	 *             Document)
+	 */
+	@Deprecated
+	public IndexDocumentRequest(
+		String indexName, String uid,
+		com.liferay.portal.kernel.search.Document document) {
+
+		_indexName = indexName;
+		_uid = uid;
+		_document = null;
+		_legacyDocument = document;
 	}
 
 	public IndexDocumentRequest(
@@ -38,6 +65,7 @@ public class IndexDocumentRequest
 		_indexName = indexName;
 		_uid = uid;
 		_document = document;
+		_legacyDocument = null;
 	}
 
 	@Override
@@ -54,6 +82,14 @@ public class IndexDocumentRequest
 
 	public Document getDocument() {
 		return _document;
+	}
+
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by getDocument
+	 */
+	@Deprecated
+	public com.liferay.portal.kernel.search.Document getDocument71() {
+		return _legacyDocument;
 	}
 
 	public String getIndexName() {
@@ -82,6 +118,7 @@ public class IndexDocumentRequest
 
 	private final Document _document;
 	private final String _indexName;
+	private final com.liferay.portal.kernel.search.Document _legacyDocument;
 	private boolean _refresh;
 	private String _type;
 	private final String _uid;

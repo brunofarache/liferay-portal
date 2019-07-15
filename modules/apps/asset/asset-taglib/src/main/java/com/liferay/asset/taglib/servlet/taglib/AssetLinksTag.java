@@ -81,6 +81,10 @@ public class AssetLinksTag extends IncludeTag {
 		return _viewInContext;
 	}
 
+	public boolean isViewInContext() {
+		return _viewInContext;
+	}
+
 	public void setAssetEntryId(long assetEntryId) {
 		_assetEntryId = assetEntryId;
 	}
@@ -126,7 +130,7 @@ public class AssetLinksTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
 		if (_page == null) {
 			return;
 		}
@@ -170,7 +174,7 @@ public class AssetLinksTag extends IncludeTag {
 			return;
 		}
 
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-asset:asset-links:assetLinkEntries", assetLinkEntries);
 	}
 
@@ -218,10 +222,12 @@ public class AssetLinksTag extends IncludeTag {
 
 			if (assetRendererFactory == null) {
 				if (_log.isWarnEnabled()) {
+					String className = PortalUtil.getClassName(
+						assetLinkEntry.getClassNameId());
+
 					_log.warn(
 						"No asset renderer factory found for class " +
-							PortalUtil.getClassName(
-								assetLinkEntry.getClassNameId()));
+							className);
 				}
 
 				continue;

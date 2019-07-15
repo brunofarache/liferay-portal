@@ -4,37 +4,32 @@
  * This renders the Change lists indicator element.
  */
 {template .render}
+	{@param activeChangeListId: ?}
 	{@param activeChangeListName: ?}
 	{@param urlChangeListsOverview: string}
+	{@param productionCollectionId: ?}
 	{@param spritemap: string}
 
-	{let $productionCollectionName: 'productionCTCollectionName' /}
-
-	{let $tooltipElementClass: 'change-lists-control-menu-state-tooltip ' /}
-
-	{let $tooltipElementClassBackground: $activeChangeListName != $productionCollectionName ? 'tooltip-background-blue' : 'tooltip-background-green' /}
-
 	{let $tooltipContentText kind="text"}
-		{if $activeChangeListName != $productionCollectionName}
+		{if $activeChangeListId != $productionCollectionId}
 			{msg desc=""}active-change-list{/msg}:{sp}{$activeChangeListName}
 		{else}
 			{msg desc=""}production{/msg}
 		{/if}
 	{/let}
 
-	<li class="control-menu-nav-item">
-		<a href="{$urlChangeListsOverview}" data-title="{$tooltipContentText}" class="control-menu-icon">
-			<span class="icon-monospaced" id="">
-				{call ClayIcon.render}
-					{param spritemap: $spritemap /}
-					{param symbol: 'restore' /}
-				{/call}
-			</span>
-		</a>
-
-		{call ClayTooltip.render}
-			{param elementClasses:  $tooltipElementClass + $tooltipElementClassBackground /}
-		{/call}
-	</li>
-
+	<div class="change-lists-indicator">
+		<ul class="control-menu-nav">
+			<li class="control-menu-nav-item">
+				<a class="control-menu-icon lfr-portal-tooltip" data-title="{$tooltipContentText}" href="{$urlChangeListsOverview}" data-change-lists-indicator>
+					<span class="icon-monospaced" id="">
+						{call ClayIcon.render}
+							{param spritemap: $spritemap /}
+							{param symbol: 'change-list' /}
+						{/call}
+					</span>
+				</a>
+			</li>
+		</ul>
+	</div>
 {/template}

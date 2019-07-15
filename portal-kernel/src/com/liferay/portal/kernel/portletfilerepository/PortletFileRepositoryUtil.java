@@ -14,8 +14,6 @@
 
 package com.liferay.portal.kernel.portletfilerepository;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.repository.model.FileEntry;
@@ -26,11 +24,14 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.ServiceProxyFactory;
 
 import java.io.File;
 import java.io.InputStream;
 
 import java.util.List;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Eudaldo Alonso
@@ -108,15 +109,6 @@ public class PortletFileRepositoryUtil {
 
 		return getPortletFileRepository().addPortletRepository(
 			groupId, portletId, serviceContext);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #deletePortletFolder}
-	 */
-	@Deprecated
-	public static void deleteFolder(long folderId) throws PortalException {
-		getPortletFileRepository().deleteFolder(folderId);
 	}
 
 	public static void deletePortletFileEntries(long groupId, long folderId)
@@ -370,12 +362,19 @@ public class PortletFileRepositoryUtil {
 			repositoryId, searchContext);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public void setPortletFileRepository(
 		PortletFileRepository portletFileRepository) {
 
 		_portletFileRepository = portletFileRepository;
 	}
 
-	private static PortletFileRepository _portletFileRepository;
+	private static volatile PortletFileRepository _portletFileRepository =
+		ServiceProxyFactory.newServiceTrackedInstance(
+			PortletFileRepository.class, PortletFileRepositoryUtil.class,
+			"_portletFileRepository", false);
 
 }

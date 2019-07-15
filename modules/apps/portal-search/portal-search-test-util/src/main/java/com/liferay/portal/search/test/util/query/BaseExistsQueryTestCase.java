@@ -69,20 +69,20 @@ public abstract class BaseExistsQueryTestCase extends BaseIndexingTestCase {
 
 				Assert.assertEquals("Total hits", 1, searchHits.getTotalHits());
 
-				List<SearchHit> searchHitList = searchHits.getSearchHits();
+				List<SearchHit> searchHitsList = searchHits.getSearchHits();
 
-				Assert.assertEquals("Retrieved hits", 1, searchHitList.size());
+				Assert.assertEquals("Retrieved hits", 1, searchHitsList.size());
 
-				SearchHit searchHit = searchHitList.get(0);
+				SearchHit searchHit = searchHitsList.get(0);
 
 				Document document = searchHit.getDocument();
 
 				Assert.assertEquals(
-					"Priority value", 1.0,
-					(Double)document.getFieldValue(Field.PRIORITY), 0);
+					"Priority value", 1.0, document.getDouble(Field.PRIORITY),
+					0);
 
 				Assert.assertEquals(
-					"SomeUser1", document.getFieldValue(Field.USER_NAME));
+					"SomeUser1", document.getString(Field.USER_NAME));
 			});
 	}
 

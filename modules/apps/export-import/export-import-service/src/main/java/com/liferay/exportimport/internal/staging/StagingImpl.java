@@ -14,8 +14,7 @@
 
 package com.liferay.exportimport.internal.staging;
 
-import aQute.bnd.annotation.ProviderType;
-
+import com.liferay.change.tracking.engine.CTEngineManager;
 import com.liferay.changeset.model.ChangesetCollection;
 import com.liferay.changeset.model.ChangesetEntry;
 import com.liferay.changeset.service.ChangesetCollectionLocalService;
@@ -79,6 +78,7 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.lock.DuplicateLockException;
 import com.liferay.portal.kernel.lock.Lock;
@@ -87,6 +87,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.model.BaseModel;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutBranch;
@@ -112,6 +113,7 @@ import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
+import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutBranchLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
@@ -184,6 +186,7 @@ import javax.portlet.PortletRequest;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.osgi.annotation.versioning.ProviderType;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -594,9 +597,10 @@ public class StagingImpl implements Staging {
 
 	@Override
 	public void deleteRecentLayoutRevisionId(
-		HttpServletRequest request, long layoutSetBranchId, long plid) {
+		HttpServletRequest httpServletRequest, long layoutSetBranchId,
+		long plid) {
 
-		long userId = _portal.getUserId(request);
+		long userId = _portal.getUserId(httpServletRequest);
 
 		deleteRecentLayoutRevisionId(userId, layoutSetBranchId, plid);
 	}
@@ -733,9 +737,6 @@ public class StagingImpl implements Staging {
 		Locale locale, Exception e,
 		ExportImportConfiguration exportImportConfiguration) {
 
-		JSONObject exceptionMessagesJSONObject =
-			JSONFactoryUtil.createJSONObject();
-
 		String errorMessage = StringPool.BLANK;
 		JSONArray errorMessagesJSONArray = null;
 		int errorType = 0;
@@ -825,7 +826,7 @@ public class StagingImpl implements Staging {
 						new String[] {
 							MapUtil.toString(eicve.getDlReferenceParameters()),
 							eicve.getStagedModelClassName(),
-							String.valueOf(eicve.getStagedModelClassPK())
+							String.valueOf(eicve.getStagedModelPrimaryKeyObj())
 						});
 				}
 				else {
@@ -850,7 +851,7 @@ public class StagingImpl implements Staging {
 						new String[] {
 							eicve.getLayoutURL(), eicve.getGroupFriendlyURL(),
 							eicve.getStagedModelClassName(),
-							String.valueOf(eicve.getStagedModelClassPK())
+							String.valueOf(eicve.getStagedModelPrimaryKeyObj())
 						});
 				}
 				else {
@@ -877,7 +878,7 @@ public class StagingImpl implements Staging {
 							MapUtil.toString(
 								eicve.getLayoutReferenceParameters()),
 							eicve.getStagedModelClassName(),
-							String.valueOf(eicve.getStagedModelClassPK())
+							String.valueOf(eicve.getStagedModelPrimaryKeyObj())
 						});
 				}
 				else {
@@ -901,7 +902,7 @@ public class StagingImpl implements Staging {
 						new String[] {
 							eicve.getLayoutURL(),
 							eicve.getStagedModelClassName(),
-							String.valueOf(eicve.getStagedModelClassPK())
+							String.valueOf(eicve.getStagedModelPrimaryKeyObj())
 						});
 				}
 				else {
@@ -921,7 +922,7 @@ public class StagingImpl implements Staging {
 						new String[] {
 							eicve.getClassName(),
 							eicve.getStagedModelClassName(),
-							String.valueOf(eicve.getStagedModelClassPK())
+							String.valueOf(eicve.getStagedModelPrimaryKeyObj())
 						});
 				}
 				else {
@@ -962,9 +963,9 @@ public class StagingImpl implements Staging {
 
 			errorType = ServletResponseConstants.SC_FILE_CUSTOM_EXCEPTION;
 		}
-		else if (e instanceof ExportImportIOException ||
-				 (cause instanceof SystemException &&
-				  cause.getCause() instanceof ExportImportIOException)) {
+		else if ((e instanceof ExportImportIOException) ||
+				 ((cause instanceof SystemException) &&
+				  (cause.getCause() instanceof ExportImportIOException))) {
 
 			ExportImportIOException eiioe = null;
 
@@ -1237,8 +1238,8 @@ public class StagingImpl implements Staging {
 
 			errorType = ServletResponseConstants.SC_FILE_CUSTOM_EXCEPTION;
 		}
-		else if (e instanceof LayoutImportException ||
-				 cause instanceof LayoutImportException) {
+		else if ((e instanceof LayoutImportException) ||
+				 (cause instanceof LayoutImportException)) {
 
 			LayoutImportException lie = null;
 
@@ -1307,13 +1308,11 @@ public class StagingImpl implements Staging {
 				lpe.getMissingLayoutPrototypes();
 
 			for (Tuple missingLayoutPrototype : missingLayoutPrototypes) {
-				JSONObject errorMessageJSONObject =
-					JSONFactoryUtil.createJSONObject();
-
 				String layoutPrototypeUuid =
 					(String)missingLayoutPrototype.getObject(1);
 
-				errorMessageJSONObject.put("info", layoutPrototypeUuid);
+				JSONObject errorMessageJSONObject = JSONUtil.put(
+					"info", layoutPrototypeUuid);
 
 				String layoutPrototypeName =
 					(String)missingLayoutPrototype.getObject(2);
@@ -1684,7 +1683,8 @@ public class StagingImpl implements Staging {
 			errorType = ServletResponseConstants.SC_FILE_CUSTOM_EXCEPTION;
 		}
 
-		exceptionMessagesJSONObject.put("message", errorMessage);
+		JSONObject exceptionMessagesJSONObject = JSONUtil.put(
+			"message", errorMessage);
 
 		if ((errorMessagesJSONArray != null) &&
 			(errorMessagesJSONArray.length() > 0)) {
@@ -1814,10 +1814,11 @@ public class StagingImpl implements Staging {
 
 	@Override
 	public long getRecentLayoutRevisionId(
-			HttpServletRequest request, long layoutSetBranchId, long plid)
+			HttpServletRequest httpServletRequest, long layoutSetBranchId,
+			long plid)
 		throws PortalException {
 
-		long userId = _portal.getUserId(request);
+		long userId = _portal.getUserId(httpServletRequest);
 
 		return getRecentLayoutRevisionId(userId, layoutSetBranchId, plid);
 	}
@@ -1833,11 +1834,11 @@ public class StagingImpl implements Staging {
 
 	@Override
 	public long getRecentLayoutSetBranchId(
-		HttpServletRequest request, long layoutSetId) {
+		HttpServletRequest httpServletRequest, long layoutSetId) {
 
 		RecentLayoutSetBranch recentLayoutSetBranch =
 			_recentLayoutSetBranchLocalService.fetchRecentLayoutSetBranch(
-				_portal.getUserId(request), layoutSetId);
+				_portal.getUserId(httpServletRequest), layoutSetId);
 
 		if (recentLayoutSetBranch != null) {
 			return recentLayoutSetBranch.getLayoutSetBranchId();
@@ -2043,10 +2044,12 @@ public class StagingImpl implements Staging {
 						false));
 			}
 
-			errorMessageJSONObject.put("size", referrers.size());
 			errorMessageJSONObject.put(
+				"size", referrers.size()
+			).put(
 				"type",
-				ResourceActionsUtil.getModelResource(locale, entry.getKey()));
+				ResourceActionsUtil.getModelResource(locale, entry.getKey())
+			);
 
 			warningMessagesJSONArray.put(errorMessageJSONObject);
 		}
@@ -2109,8 +2112,33 @@ public class StagingImpl implements Staging {
 		return false;
 	}
 
+	public boolean isChangeTrackingEnabled(long companyId) {
+		return _ctEngineManager.isChangeTrackingEnabled(companyId);
+	}
+
 	@Override
 	public boolean isGroupAccessible(Group group, Group fromGroup) {
+		if (fromGroup == null) {
+			long companyId = group.getCompanyId();
+
+			try {
+				Company company = _companyLocalService.getCompany(companyId);
+
+				Group companyGroup = company.getGroup();
+
+				if (group.equals(companyGroup)) {
+					return true;
+				}
+			}
+			catch (PortalException pe) {
+				if (_log.isWarnEnabled()) {
+					_log.warn("Company group does not exist", pe);
+				}
+			}
+
+			return false;
+		}
+
 		if (group.equals(fromGroup)) {
 			return true;
 		}
@@ -2991,6 +3019,15 @@ public class StagingImpl implements Staging {
 					settingsMap, "privateLayout");
 				layoutIds = GetterUtil.getLongValues(
 					settingsMap.get("layoutIds"));
+
+				Map<String, String[]> portletRequestParameterMap =
+					portletRequest.getParameterMap();
+
+				if (portletRequestParameterMap.containsKey("timeZoneId")) {
+					parameterMap.put(
+						"timeZoneId",
+						portletRequestParameterMap.get("timeZoneId"));
+				}
 			}
 		}
 
@@ -3125,12 +3162,12 @@ public class StagingImpl implements Staging {
 
 	@Override
 	public void setRecentLayoutBranchId(
-			HttpServletRequest request, long layoutSetBranchId, long plid,
-			long layoutBranchId)
+			HttpServletRequest httpServletRequest, long layoutSetBranchId,
+			long plid, long layoutBranchId)
 		throws PortalException {
 
 		setRecentLayoutBranchId(
-			_portal.getUserId(request), layoutSetBranchId, plid,
+			_portal.getUserId(httpServletRequest), layoutSetBranchId, plid,
 			layoutBranchId);
 	}
 
@@ -3145,12 +3182,12 @@ public class StagingImpl implements Staging {
 
 	@Override
 	public void setRecentLayoutRevisionId(
-			HttpServletRequest request, long layoutSetBranchId, long plid,
-			long layoutRevisionId)
+			HttpServletRequest httpServletRequest, long layoutSetBranchId,
+			long plid, long layoutRevisionId)
 		throws PortalException {
 
 		setRecentLayoutRevisionId(
-			_portal.getUserId(request), layoutSetBranchId, plid,
+			_portal.getUserId(httpServletRequest), layoutSetBranchId, plid,
 			layoutRevisionId);
 	}
 
@@ -3165,12 +3202,13 @@ public class StagingImpl implements Staging {
 
 	@Override
 	public void setRecentLayoutSetBranchId(
-			HttpServletRequest request, long layoutSetId,
+			HttpServletRequest httpServletRequest, long layoutSetId,
 			long layoutSetBranchId)
 		throws PortalException {
 
 		setRecentLayoutSetBranchId(
-			_portal.getUserId(request), layoutSetId, layoutSetBranchId);
+			_portal.getUserId(httpServletRequest), layoutSetId,
+			layoutSetBranchId);
 	}
 
 	@Override
@@ -3925,19 +3963,6 @@ public class StagingImpl implements Staging {
 		return false;
 	}
 
-	/**
-	 * @deprecated As of Judson (7.1.x), with no direct replacement
-	 */
-	@Deprecated
-	protected long publishLayouts(
-			PortletRequest portletRequest, long sourceGroupId,
-			long targetGroupId, Map<String, String[]> parameterMap,
-			boolean schedule)
-		throws PortalException {
-
-		return 0;
-	}
-
 	protected long publishPortlet(
 			long userId, long scopeGroupId, long plid, String portletId,
 			Map<String, String[]> parameterMap, boolean copyFromLive)
@@ -4026,79 +4051,6 @@ public class StagingImpl implements Staging {
 			sourceLayout.getPlid(), targetLayoutPlid, portletId, parameterMap);
 	}
 
-	/**
-	 * @deprecated As of Judson (7.1.x), with no direct replacement
-	 */
-	@Deprecated
-	protected long publishToRemote(
-			PortletRequest portletRequest, boolean schedule)
-		throws PortalException {
-
-		return 0;
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setExportImportConfigurationLocalService(
-		ExportImportConfigurationLocalService
-			exportImportConfigurationLocalService) {
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setGroupLocalService(GroupLocalService groupLocalService) {
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setLayoutBranchLocalService(
-		LayoutBranchLocalService layoutBranchLocalService) {
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setLayoutLocalService(
-		LayoutLocalService layoutLocalService) {
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setLayoutRevisionLocalService(
-		LayoutRevisionLocalService layoutRevisionLocalService) {
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setLayoutService(LayoutService layoutService) {
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setLayoutSetBranchLocalService(
-		LayoutSetBranchLocalService layoutSetBranchLocalService) {
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setLockManager(LockManager lockManager) {
-	}
-
 	protected void setRecentLayoutBranchId(
 			long userId, long layoutSetBranchId, long plid, long layoutBranchId)
 		throws PortalException {
@@ -4134,14 +4086,6 @@ public class StagingImpl implements Staging {
 		}
 
 		ProxiedLayoutsThreadLocal.clearProxiedLayouts();
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setRecentLayoutBranchLocalService(
-		RecentLayoutBranchLocalService recentLayoutBranchLocalService) {
 	}
 
 	protected void setRecentLayoutRevisionId(
@@ -4203,14 +4147,6 @@ public class StagingImpl implements Staging {
 			userId, layoutSetBranchId, plid, layoutBranchId);
 	}
 
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setRecentLayoutRevisionLocalService(
-		RecentLayoutRevisionLocalService recentLayoutRevisionLocalService) {
-	}
-
 	protected void setRecentLayoutSetBranchId(
 			long userId, long layoutSetId, long layoutSetBranchId)
 		throws PortalException {
@@ -4249,37 +4185,6 @@ public class StagingImpl implements Staging {
 		ProxiedLayoutsThreadLocal.clearProxiedLayouts();
 	}
 
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setRecentLayoutSetBranchLocalService(
-		RecentLayoutSetBranchLocalService recentLayoutSetBranchLocalService) {
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setStagingLocalService(
-		StagingLocalService stagingLocalService) {
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setUserLocalService(UserLocalService userLocalService) {
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected void setWorkflowInstanceLinkLocalService(
-		WorkflowInstanceLinkLocalService workflowInstanceLinkLocalService) {
-	}
-
 	private void _setGroupTypeSetting(long groupId, String key, String value) {
 		Group group = _groupLocalService.fetchGroup(groupId);
 
@@ -4316,6 +4221,12 @@ public class StagingImpl implements Staging {
 
 	@Reference
 	private ClassNameLocalService _classNameLocalService;
+
+	@Reference
+	private CompanyLocalService _companyLocalService;
+
+	@Reference
+	private CTEngineManager _ctEngineManager;
 
 	@Reference
 	private DLValidator _dlValidator;

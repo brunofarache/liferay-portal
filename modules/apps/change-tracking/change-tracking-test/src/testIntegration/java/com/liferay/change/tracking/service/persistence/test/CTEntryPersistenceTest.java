@@ -133,6 +133,8 @@ public class CTEntryPersistenceTest {
 
 		newCTEntry.setModifiedDate(RandomTestUtil.nextDate());
 
+		newCTEntry.setOriginalCTCollectionId(RandomTestUtil.nextLong());
+
 		newCTEntry.setModelClassNameId(RandomTestUtil.nextLong());
 
 		newCTEntry.setModelClassPK(RandomTestUtil.nextLong());
@@ -140,6 +142,8 @@ public class CTEntryPersistenceTest {
 		newCTEntry.setModelResourcePrimKey(RandomTestUtil.nextLong());
 
 		newCTEntry.setChangeType(RandomTestUtil.nextInt());
+
+		newCTEntry.setCollision(RandomTestUtil.randomBoolean());
 
 		newCTEntry.setStatus(RandomTestUtil.nextInt());
 
@@ -163,6 +167,9 @@ public class CTEntryPersistenceTest {
 			Time.getShortTimestamp(existingCTEntry.getModifiedDate()),
 			Time.getShortTimestamp(newCTEntry.getModifiedDate()));
 		Assert.assertEquals(
+			existingCTEntry.getOriginalCTCollectionId(),
+			newCTEntry.getOriginalCTCollectionId());
+		Assert.assertEquals(
 			existingCTEntry.getModelClassNameId(),
 			newCTEntry.getModelClassNameId());
 		Assert.assertEquals(
@@ -172,6 +179,8 @@ public class CTEntryPersistenceTest {
 			newCTEntry.getModelResourcePrimKey());
 		Assert.assertEquals(
 			existingCTEntry.getChangeType(), newCTEntry.getChangeType());
+		Assert.assertEquals(
+			existingCTEntry.isCollision(), newCTEntry.isCollision());
 		Assert.assertEquals(
 			existingCTEntry.getStatus(), newCTEntry.getStatus());
 	}
@@ -184,11 +193,11 @@ public class CTEntryPersistenceTest {
 	}
 
 	@Test
-	public void testCountByC_C() throws Exception {
-		_persistence.countByC_C(
+	public void testCountByMCNI_MCPK() throws Exception {
+		_persistence.countByMCNI_MCPK(
 			RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
 
-		_persistence.countByC_C(0L, 0L);
+		_persistence.countByMCNI_MCPK(0L, 0L);
 	}
 
 	@Test
@@ -218,8 +227,9 @@ public class CTEntryPersistenceTest {
 		return OrderByComparatorFactoryUtil.create(
 			"CTEntry", "ctEntryId", true, "companyId", true, "userId", true,
 			"userName", true, "createDate", true, "modifiedDate", true,
-			"modelClassNameId", true, "modelClassPK", true,
-			"modelResourcePrimKey", true, "changeType", true, "status", true);
+			"originalCTCollectionId", true, "modelClassNameId", true,
+			"modelClassPK", true, "modelResourcePrimKey", true, "changeType",
+			true, "collision", true, "status", true);
 	}
 
 	@Test
@@ -460,6 +470,8 @@ public class CTEntryPersistenceTest {
 
 		ctEntry.setModifiedDate(RandomTestUtil.nextDate());
 
+		ctEntry.setOriginalCTCollectionId(RandomTestUtil.nextLong());
+
 		ctEntry.setModelClassNameId(RandomTestUtil.nextLong());
 
 		ctEntry.setModelClassPK(RandomTestUtil.nextLong());
@@ -467,6 +479,8 @@ public class CTEntryPersistenceTest {
 		ctEntry.setModelResourcePrimKey(RandomTestUtil.nextLong());
 
 		ctEntry.setChangeType(RandomTestUtil.nextInt());
+
+		ctEntry.setCollision(RandomTestUtil.randomBoolean());
 
 		ctEntry.setStatus(RandomTestUtil.nextInt());
 

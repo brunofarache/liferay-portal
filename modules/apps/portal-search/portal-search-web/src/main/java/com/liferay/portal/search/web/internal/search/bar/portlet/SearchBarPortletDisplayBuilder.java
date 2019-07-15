@@ -29,6 +29,8 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.web.internal.display.context.SearchScope;
 import com.liferay.portal.search.web.internal.display.context.SearchScopePreference;
 
+import java.util.Optional;
+
 /**
  * @author André de Oliveira
  */
@@ -65,6 +67,8 @@ public class SearchBarPortletDisplayBuilder {
 				true);
 		}
 
+		searchBarPortletDisplayContext.setPaginationStartParameterName(
+			getPaginationStartParameterName());
 		searchBarPortletDisplayContext.setScopeParameterName(
 			_scopeParameterName);
 		searchBarPortletDisplayContext.setScopeParameterValue(
@@ -80,47 +84,95 @@ public class SearchBarPortletDisplayBuilder {
 
 			if (destinationURL == null) {
 				searchBarPortletDisplayContext.setDestinationUnreachable(true);
+				searchBarPortletDisplayContext.setRenderNothing(true);
 			}
 			else {
 				searchBarPortletDisplayContext.setSearchURL(destinationURL);
 			}
 		}
 
+		if (_invisible) {
+			searchBarPortletDisplayContext.setRenderNothing(true);
+		}
+
 		return searchBarPortletDisplayContext;
 	}
 
-	public void setDestination(String destination) {
+	public SearchBarPortletDisplayBuilder setDestination(String destination) {
 		_destination = destination;
+
+		return this;
 	}
 
-	public void setEmptySearchEnabled(boolean emptySearchEnabled) {
+	public SearchBarPortletDisplayBuilder setEmptySearchEnabled(
+		boolean emptySearchEnabled) {
+
 		_emptySearchEnabled = emptySearchEnabled;
+
+		return this;
 	}
 
-	public void setKeywords(String keywords) {
-		_keywords = keywords;
+	public SearchBarPortletDisplayBuilder setInvisible(boolean invisible) {
+		_invisible = invisible;
+
+		return this;
 	}
 
-	public void setKeywordsParameterName(String keywordsParameterName) {
+	public SearchBarPortletDisplayBuilder setKeywords(
+		Optional<String> keywordsOptional) {
+
+		keywordsOptional.ifPresent(keywords -> _keywords = keywords);
+
+		return this;
+	}
+
+	public SearchBarPortletDisplayBuilder setKeywordsParameterName(
+		String keywordsParameterName) {
+
 		_keywordsParameterName = keywordsParameterName;
+
+		return this;
 	}
 
-	public void setScopeParameterName(String scopeParameterName) {
+	public SearchBarPortletDisplayBuilder setPaginationStartParameterName(
+		String paginationStartParameterName) {
+
+		_paginationStartParameterName = paginationStartParameterName;
+
+		return this;
+	}
+
+	public SearchBarPortletDisplayBuilder setScopeParameterName(
+		String scopeParameterName) {
+
 		_scopeParameterName = scopeParameterName;
+
+		return this;
 	}
 
-	public void setScopeParameterValue(String scopeParameterValue) {
-		_scopeParameterValue = scopeParameterValue;
+	public SearchBarPortletDisplayBuilder setScopeParameterValue(
+		Optional<String> scopeParameterValueOptional) {
+
+		scopeParameterValueOptional.ifPresent(
+			scopeParameterValue -> _scopeParameterValue = scopeParameterValue);
+
+		return this;
 	}
 
-	public void setSearchScopePreference(
+	public SearchBarPortletDisplayBuilder setSearchScopePreference(
 		SearchScopePreference searchScopePreference) {
 
 		_searchScopePreference = searchScopePreference;
+
+		return this;
 	}
 
-	public void setThemeDisplay(ThemeDisplay themeDisplay) {
+	public SearchBarPortletDisplayBuilder setThemeDisplay(
+		ThemeDisplay themeDisplay) {
+
 		_themeDisplay = themeDisplay;
+
+		return this;
 	}
 
 	protected static String slashify(String s) {
@@ -178,6 +230,14 @@ public class SearchBarPortletDisplayBuilder {
 
 			return null;
 		}
+	}
+
+	protected String getPaginationStartParameterName() {
+		if (_paginationStartParameterName != null) {
+			return _paginationStartParameterName;
+		}
+
+		return StringPool.BLANK;
 	}
 
 	protected String getScopeParameterValue() {
@@ -238,9 +298,11 @@ public class SearchBarPortletDisplayBuilder {
 	private String _destination;
 	private boolean _emptySearchEnabled;
 	private final Http _http;
+	private boolean _invisible;
 	private String _keywords;
 	private String _keywordsParameterName;
 	private final LayoutLocalService _layoutLocalService;
+	private String _paginationStartParameterName;
 	private final Portal _portal;
 	private String _scopeParameterName;
 	private String _scopeParameterValue;

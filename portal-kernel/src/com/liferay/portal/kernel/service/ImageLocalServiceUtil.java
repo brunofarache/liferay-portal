@@ -14,10 +14,9 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service utility for Image. This utility wraps
@@ -344,9 +343,6 @@ public class ImageLocalServiceUtil {
 		if (_service == null) {
 			_service = (ImageLocalService)PortalBeanLocatorUtil.locate(
 				ImageLocalService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				ImageLocalServiceUtil.class, "_service");
 		}
 
 		return _service;

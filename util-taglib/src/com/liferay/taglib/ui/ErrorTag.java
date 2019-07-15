@@ -73,6 +73,34 @@ public class ErrorTag extends IncludeTag implements BodyTag {
 		return super.doStartTag();
 	}
 
+	public String getFocusField() {
+		return _focusField;
+	}
+
+	public String getKey() {
+		return _key;
+	}
+
+	public String getMessage() {
+		return _message;
+	}
+
+	public String getRowBreak() {
+		return _rowBreak;
+	}
+
+	public String getTargetNode() {
+		return _targetNode;
+	}
+
+	public boolean isEmbed() {
+		return _embed;
+	}
+
+	public boolean isTranslateMessage() {
+		return _translateMessage;
+	}
+
 	public void setEmbed(boolean embed) {
 		_embed = embed;
 	}
@@ -148,37 +176,43 @@ public class ErrorTag extends IncludeTag implements BodyTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		PortletRequest portletRequest = (PortletRequest)request.getAttribute(
-			JavaConstants.JAVAX_PORTLET_REQUEST);
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		PortletRequest portletRequest =
+			(PortletRequest)httpServletRequest.getAttribute(
+				JavaConstants.JAVAX_PORTLET_REQUEST);
 
-		request.setAttribute("liferay-ui:error:alertIcon", _getAlertIcon());
-		request.setAttribute(
+		httpServletRequest.setAttribute(
+			"liferay-ui:error:alertIcon", _getAlertIcon());
+		httpServletRequest.setAttribute(
 			"liferay-ui:error:alertMessage", _getAlertMessage());
-		request.setAttribute("liferay-ui:error:alertStyle", _getAlertStyle());
-		request.setAttribute("liferay-ui:error:alertTitle", _getAlertTitle());
-		request.setAttribute("liferay-ui:error:embed", String.valueOf(_embed));
-		request.setAttribute("liferay-ui:error:rowBreak", _rowBreak);
+		httpServletRequest.setAttribute(
+			"liferay-ui:error:alertStyle", _getAlertStyle());
+		httpServletRequest.setAttribute(
+			"liferay-ui:error:alertTitle", _getAlertTitle());
+		httpServletRequest.setAttribute(
+			"liferay-ui:error:embed", String.valueOf(_embed));
+		httpServletRequest.setAttribute("liferay-ui:error:rowBreak", _rowBreak);
 
 		if (SessionErrors.contains(portletRequest, _key)) {
-			String errorMarkerKey = (String)request.getAttribute(
+			String errorMarkerKey = (String)httpServletRequest.getAttribute(
 				"liferay-ui:error-marker:key");
-			String errorMarkerValue = (String)request.getAttribute(
+			String errorMarkerValue = (String)httpServletRequest.getAttribute(
 				"liferay-ui:error-marker:value");
 
 			if (Validator.isNotNull(errorMarkerKey) &&
 				Validator.isNotNull(errorMarkerValue)) {
 
-				request.setAttribute(errorMarkerKey, errorMarkerValue);
+				httpServletRequest.setAttribute(
+					errorMarkerKey, errorMarkerValue);
 
 				Object exception = getException(portletRequest);
 
 				if (exception instanceof Exception) {
-					request.setAttribute(
+					httpServletRequest.setAttribute(
 						"liferay-ui:error:exception", exception);
 				}
 
-				request.setAttribute(
+				httpServletRequest.setAttribute(
 					"liferay-ui:error:focusField", _focusField);
 			}
 		}

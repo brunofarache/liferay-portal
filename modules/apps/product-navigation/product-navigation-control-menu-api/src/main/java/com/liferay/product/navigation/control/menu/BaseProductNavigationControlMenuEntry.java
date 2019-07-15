@@ -17,6 +17,9 @@ package com.liferay.product.navigation.control.menu;
 import com.liferay.petra.lang.HashUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.util.PropsKeys;
+import com.liferay.portal.kernel.util.PropsUtil;
 
 import java.io.IOException;
 
@@ -56,17 +59,17 @@ public abstract class BaseProductNavigationControlMenuEntry
 	}
 
 	@Override
-	public Map<String, Object> getData(HttpServletRequest request) {
+	public Map<String, Object> getData(HttpServletRequest httpServletRequest) {
 		return Collections.emptyMap();
 	}
 
 	@Override
-	public String getIcon(HttpServletRequest request) {
+	public String getIcon(HttpServletRequest httpServletRequest) {
 		return StringPool.BLANK;
 	}
 
 	@Override
-	public String getIconCssClass(HttpServletRequest request) {
+	public String getIconCssClass(HttpServletRequest httpServletRequest) {
 		return StringPool.BLANK;
 	}
 
@@ -78,12 +81,12 @@ public abstract class BaseProductNavigationControlMenuEntry
 	}
 
 	@Override
-	public String getLinkCssClass(HttpServletRequest request) {
+	public String getLinkCssClass(HttpServletRequest httpServletRequest) {
 		return StringPool.BLANK;
 	}
 
 	@Override
-	public String getMarkupView(HttpServletRequest request) {
+	public String getMarkupView(HttpServletRequest httpServletRequest) {
 		return "lexicon";
 	}
 
@@ -94,7 +97,8 @@ public abstract class BaseProductNavigationControlMenuEntry
 
 	@Override
 	public boolean includeBody(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException {
 
 		return false;
@@ -102,19 +106,39 @@ public abstract class BaseProductNavigationControlMenuEntry
 
 	@Override
 	public boolean includeIcon(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException {
 
 		return false;
 	}
 
 	@Override
-	public boolean isShow(HttpServletRequest request) throws PortalException {
+	public boolean isShow(HttpServletRequest httpServletRequest)
+		throws PortalException {
+
 		return true;
 	}
 
 	@Override
 	public boolean isUseDialog() {
+		return false;
+	}
+
+	protected boolean isEmbeddedPersonalApplicationLayout(Layout layout) {
+		if (layout.isTypeControlPanel()) {
+			return false;
+		}
+
+		String layoutFriendlyURL = layout.getFriendlyURL();
+
+		if (layout.isSystem() &&
+			layoutFriendlyURL.equals(
+				PropsUtil.get(PropsKeys.CONTROL_PANEL_LAYOUT_FRIENDLY_URL))) {
+
+			return true;
+		}
+
 		return false;
 	}
 

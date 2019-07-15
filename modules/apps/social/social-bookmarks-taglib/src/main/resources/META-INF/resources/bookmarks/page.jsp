@@ -29,12 +29,12 @@ String dropdownMenuComponentId = randomNamespace + "socialBookmarksDropdownMenu"
 
 <div class="taglib-social-bookmarks" id="<%= randomNamespace %>socialBookmarks">
 	<c:choose>
-		<c:when test='<%= displayStyle.equals("menu") %>'>
+		<c:when test='<%= displayStyle.equals("menu") || BrowserSnifferUtil.isMobile(request) %>'>
 			<clay:dropdown-menu
 				componentId="<%= dropdownMenuComponentId %>"
 				dropdownItems="<%= SocialBookmarksTagUtil.getDropdownItems(request.getLocale(), types, className, classPK, title, url) %>"
 				icon="share"
-				label='<%= LanguageUtil.get(request, "share") %>'
+				label='<%= BrowserSnifferUtil.isMobile(request) ? null : LanguageUtil.get(request, "share") %>'
 				style="secondary"
 				triggerCssClasses="btn-outline-borderless btn-outline-secondary btn-sm"
 			/>
@@ -78,6 +78,7 @@ String dropdownMenuComponentId = randomNamespace + "socialBookmarksDropdownMenu"
 					icon="share"
 					style="secondary"
 					triggerCssClasses="btn-monospaced btn-outline-borderless btn-outline-secondary btn-sm"
+					triggerTitle='<%= LanguageUtil.get(request, "share") %>'
 				/>
 
 			<%
@@ -91,7 +92,7 @@ String dropdownMenuComponentId = randomNamespace + "socialBookmarksDropdownMenu"
 		outputKey="social_bookmarks"
 	>
 		<aui:script>
-			function socialBookmarks_handleItemClick(className, classPK, type, postURL, url) {
+			function socialBookmarks_handleItemClick(event, className, classPK, type, postURL, url) {
 				var SHARE_WINDOW_HEIGHT = 436;
 				var SHARE_WINDOW_WIDTH = 626;
 
@@ -103,6 +104,9 @@ String dropdownMenuComponentId = randomNamespace + "socialBookmarksDropdownMenu"
 					'status=0',
 					'width=' + SHARE_WINDOW_WIDTH
 				];
+
+				event.preventDefault();
+				event.stopPropagation();
 
 				window.open(postURL, null, shareWindowFeatures.join()).focus();
 
@@ -132,6 +136,7 @@ String dropdownMenuComponentId = randomNamespace + "socialBookmarksDropdownMenu"
 						var data = event.data.item.data;
 
 						socialBookmarks_handleItemClick(
+							event,
 							data.className,
 							parseInt(data.classPK),
 							data.type,

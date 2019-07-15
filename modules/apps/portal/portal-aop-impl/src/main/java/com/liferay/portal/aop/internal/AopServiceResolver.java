@@ -14,27 +14,19 @@
 
 package com.liferay.portal.aop.internal;
 
-import com.liferay.portal.kernel.monitoring.ServiceMonitoringControl;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author Preston Crary
  */
 public class AopServiceResolver {
 
-	public AopServiceResolver(
-		ServiceMonitoringControl serviceMonitoringControl) {
-
-		_serviceMonitoringControl = serviceMonitoringControl;
-	}
-
-	public void addAopServiceRegistrar(
+	public synchronized void addAopServiceRegistrar(
 		AopServiceRegistrar aopServiceRegistrar) {
 
 		_aopServiceRegistrars.add(aopServiceRegistrar);
@@ -44,12 +36,11 @@ public class AopServiceResolver {
 				_transactionExecutorHolders.get(0);
 
 			aopServiceRegistrar.register(
-				topRankingTransactionExecutorHolder.getTransactionExecutor(),
-				_serviceMonitoringControl);
+				topRankingTransactionExecutorHolder.getTransactionExecutor());
 		}
 	}
 
-	public void addTransactionExecutorHolder(
+	public synchronized void addTransactionExecutorHolder(
 		TransactionExecutorHolder transactionExecutorHolder) {
 
 		int index = Collections.binarySearch(
@@ -70,32 +61,21 @@ public class AopServiceResolver {
 
 		for (AopServiceRegistrar aopServiceRegistrar : _aopServiceRegistrars) {
 			aopServiceRegistrar.unregister();
+		}
 
+		for (AopServiceRegistrar aopServiceRegistrar : _aopServiceRegistrars) {
 			aopServiceRegistrar.register(
-				transactionExecutorHolder.getTransactionExecutor(),
-				_serviceMonitoringControl);
+				transactionExecutorHolder.getTransactionExecutor());
 		}
 	}
 
-	public boolean isEmpty() {
-		if (_aopServiceRegistrars.isEmpty() &&
-			_transactionExecutorHolders.isEmpty()) {
-
-			return true;
-		}
-
-		return false;
-	}
-
-	public void removeAopServiceRegistrar(
+	public synchronized void removeAopServiceRegistrar(
 		AopServiceRegistrar aopServiceRegistrar) {
 
 		_aopServiceRegistrars.remove(aopServiceRegistrar);
-
-		aopServiceRegistrar.unregister();
 	}
 
-	public void removeTransactionExecutorHolder(
+	public synchronized void removeTransactionExecutorHolder(
 		TransactionExecutorHolder transactionExecutorHolder) {
 
 		int index = _transactionExecutorHolders.indexOf(
@@ -124,15 +104,13 @@ public class AopServiceResolver {
 
 		for (AopServiceRegistrar aopServiceRegistrar : _aopServiceRegistrars) {
 			aopServiceRegistrar.register(
-				topRankingTransactionExecutorHolder.getTransactionExecutor(),
-				_serviceMonitoringControl);
+				topRankingTransactionExecutorHolder.getTransactionExecutor());
 		}
 	}
 
 	private final Set<AopServiceRegistrar> _aopServiceRegistrars =
-		new HashSet<>();
-	private final ServiceMonitoringControl _serviceMonitoringControl;
+		Collections.newSetFromMap(new ConcurrentHashMap<>());
 	private final List<TransactionExecutorHolder> _transactionExecutorHolders =
-		new ArrayList<>(1);
+		new CopyOnWriteArrayList<>();
 
 }

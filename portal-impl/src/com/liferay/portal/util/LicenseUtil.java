@@ -14,14 +14,8 @@
 
 package com.liferay.portal.util;
 
-import com.liferay.petra.process.CollectorOutputProcessor;
-import com.liferay.petra.process.ProcessCallable;
-import com.liferay.petra.process.ProcessChannel;
-import com.liferay.petra.process.ProcessException;
-import com.liferay.petra.process.ProcessExecutor;
-import com.liferay.petra.process.ProcessUtil;
-import com.liferay.petra.process.local.LocalProcessExecutor;
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.json.JSONObjectImpl;
 import com.liferay.portal.kernel.cluster.ClusterExecutorUtil;
@@ -40,19 +34,14 @@ import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Http;
-import com.liferay.portal.kernel.util.JavaDetector;
 import com.liferay.portal.kernel.util.MethodHandler;
 import com.liferay.portal.kernel.util.MethodKey;
-import com.liferay.portal.kernel.util.OSDetector;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.ReleaseInfo;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.license.sigar.SigarNativeLoader;
-import com.liferay.portal.log.Log4jLogFactoryImpl;
 
 import java.io.File;
 
@@ -72,7 +61,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
@@ -94,9 +82,6 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
-
-import org.hyperic.sigar.CpuInfo;
-import org.hyperic.sigar.Sigar;
 
 /**
  * @author Amos Fong
@@ -171,7 +156,9 @@ public class LicenseUtil {
 	}
 
 	public static int getProcessorCores() {
-		return _PROCESSOR_CORES;
+		Runtime runtime = Runtime.getRuntime();
+
+		return runtime.availableProcessors();
 	}
 
 	public static byte[] getServerIdBytes() throws Exception {
@@ -209,11 +196,11 @@ public class LicenseUtil {
 	public static void init() {
 	}
 
-	public static void registerOrder(HttpServletRequest request) {
-		String orderUuid = ParamUtil.getString(request, "orderUuid");
+	public static void registerOrder(HttpServletRequest httpServletRequest) {
+		String orderUuid = ParamUtil.getString(httpServletRequest, "orderUuid");
 		String productEntryName = ParamUtil.getString(
-			request, "productEntryName");
-		int maxServers = ParamUtil.getInteger(request, "maxServers");
+			httpServletRequest, "productEntryName");
+		int maxServers = ParamUtil.getInteger(httpServletRequest, "maxServers");
 
 		List<ClusterNode> clusterNodes = ClusterExecutorUtil.getClusterNodes();
 
@@ -224,13 +211,15 @@ public class LicenseUtil {
 				orderUuid, productEntryName, maxServers);
 
 			for (Map.Entry<String, Object> entry : attributes.entrySet()) {
-				request.setAttribute(entry.getKey(), entry.getValue());
+				httpServletRequest.setAttribute(
+					entry.getKey(), entry.getValue());
 			}
 		}
 		else {
 			for (ClusterNode clusterNode : clusterNodes) {
 				boolean register = ParamUtil.getBoolean(
-					request, clusterNode.getClusterNodeId() + "_register");
+					httpServletRequest,
+					clusterNode.getClusterNodeId() + "_register");
 
 				if (!register) {
 					continue;
@@ -238,8 +227,8 @@ public class LicenseUtil {
 
 				try {
 					_registerClusterOrder(
-						request, clusterNode, orderUuid, productEntryName,
-						maxServers);
+						httpServletRequest, clusterNode, orderUuid,
+						productEntryName, maxServers);
 				}
 				catch (Exception e) {
 					_log.error(e, e);
@@ -254,7 +243,7 @@ public class LicenseUtil {
 							StringPool.COLON + clusterNode.getPortalPort();
 					}
 
-					request.setAttribute(
+					httpServletRequest.setAttribute(
 						clusterNode.getClusterNodeId() + "_ERROR_MESSAGE",
 						message);
 				}
@@ -354,7 +343,7 @@ public class LicenseUtil {
 					_log.info(
 						StringBundler.concat(
 							"Using proxy ", _PROXY_URL, StringPool.COLON,
-							String.valueOf(_PROXY_PORT)));
+							_PROXY_PORT));
 				}
 
 				proxyHttpHost = new HttpHost(_PROXY_URL, _PROXY_PORT);
@@ -418,9 +407,13 @@ public class LicenseUtil {
 
 		JSONObject jsonObject = new JSONObjectImpl();
 
-		jsonObject.put("liferayVersion", ReleaseInfo.getBuildNumber());
-		jsonObject.put("orderUuid", orderUuid);
-		jsonObject.put("version", 2);
+		jsonObject.put(
+			"liferayVersion", ReleaseInfo.getBuildNumber()
+		).put(
+			"orderUuid", orderUuid
+		).put(
+			"version", 2
+		);
 
 		if (Validator.isNull(productEntryName)) {
 			jsonObject.put(Constants.CMD, "QUERY");
@@ -432,16 +425,22 @@ public class LicenseUtil {
 				jsonObject.put("productEntryName", "basic");
 
 				if (productEntryName.equals("basic-cluster")) {
-					jsonObject.put("cluster", true);
-					jsonObject.put("maxServers", maxServers);
+					jsonObject.put(
+						"cluster", true
+					).put(
+						"maxServers", maxServers
+					);
 				}
 				else if (productEntryName.startsWith("basic-")) {
 					String[] productNameArray = StringUtil.split(
 						productEntryName, StringPool.DASH);
 
 					if (productNameArray.length >= 3) {
-						jsonObject.put("clusterId", productNameArray[2]);
-						jsonObject.put("offeringEntryId", productNameArray[1]);
+						jsonObject.put(
+							"clusterId", productNameArray[2]
+						).put(
+							"offeringEntryId", productNameArray[1]
+						);
 					}
 				}
 			}
@@ -449,11 +448,17 @@ public class LicenseUtil {
 				jsonObject.put("productEntryName", productEntryName);
 			}
 
-			jsonObject.put("hostName", PortalUtil.getComputerName());
-			jsonObject.put("ipAddresses", StringUtil.merge(getIpAddresses()));
-			jsonObject.put("macAddresses", StringUtil.merge(getMacAddresses()));
-			jsonObject.put("processorCores", getProcessorCores());
-			jsonObject.put("serverId", Arrays.toString(getServerIdBytes()));
+			jsonObject.put(
+				"hostName", PortalUtil.getComputerName()
+			).put(
+				"ipAddresses", StringUtil.merge(getIpAddresses())
+			).put(
+				"macAddresses", StringUtil.merge(getMacAddresses())
+			).put(
+				"processorCores", getProcessorCores()
+			).put(
+				"serverId", Arrays.toString(getServerIdBytes())
+			);
 		}
 
 		return jsonObject;
@@ -483,51 +488,8 @@ public class LicenseUtil {
 		return sortedMap;
 	}
 
-	private static int _getProcessorCores() {
-		if (OSDetector.isLinux()) {
-			try {
-				Future<Map.Entry<byte[], byte[]>> future = ProcessUtil.execute(
-					CollectorOutputProcessor.INSTANCE, "nproc");
-
-				Map.Entry<byte[], byte[]> entry = future.get();
-
-				return GetterUtil.getInteger(
-					new String(entry.getKey(), StringPool.UTF8));
-			}
-			catch (Exception e) {
-				_log.error(e, e);
-			}
-		}
-
-		if (OSDetector.isAIX() || JavaDetector.isIBM() ||
-			(JavaDetector.isJDK11() && OSDetector.isWindows())) {
-
-			Runtime runtime = Runtime.getRuntime();
-
-			return runtime.availableProcessors();
-		}
-
-		ProcessExecutor processExecutor = new LocalProcessExecutor();
-
-		try {
-			ProcessChannel<Integer> processChannel = processExecutor.execute(
-				PortalClassPathUtil.getPortalProcessConfig(),
-				new SigarGetCPUCoresProcessCallable());
-
-			Future<Integer> future =
-				processChannel.getProcessNoticeableFuture();
-
-			return future.get();
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-		}
-
-		return 0;
-	}
-
 	private static void _registerClusterOrder(
-			HttpServletRequest request, ClusterNode clusterNode,
+			HttpServletRequest httpServletRequest, ClusterNode clusterNode,
 			String orderUuid, String productEntryName, int maxServers)
 		throws Exception {
 
@@ -551,14 +513,12 @@ public class LicenseUtil {
 			(Map<String, Object>)clusterNodeResponse.getResult();
 
 		for (Map.Entry<String, Object> entry : attributes.entrySet()) {
-			request.setAttribute(
+			httpServletRequest.setAttribute(
 				clusterNode.getClusterNodeId() + StringPool.UNDERLINE +
 					entry.getKey(),
 				entry.getValue());
 		}
 	}
-
-	private static final int _PROCESSOR_CORES;
 
 	private static final String _PROXY_PASSWORD = GetterUtil.getString(
 		PropsUtil.get("license.proxy.password"));
@@ -642,48 +602,6 @@ public class LicenseUtil {
 		_ipAddresses = Collections.unmodifiableSet(ipAddresses);
 
 		_macAddresses = Collections.unmodifiableSet(macAddresses);
-
-		_PROCESSOR_CORES = _getProcessorCores();
-	}
-
-	private static class SigarGetCPUCoresProcessCallable
-		implements ProcessCallable<Integer> {
-
-		@Override
-		public Integer call() throws ProcessException {
-			LogFactoryUtil.setLogFactory(new Log4jLogFactoryImpl());
-
-			PropsUtil.setProps(new PropsImpl());
-
-			FileUtil fileUtil = new FileUtil();
-
-			fileUtil.setFile(new FileImpl());
-
-			Sigar sigar = null;
-
-			try {
-				SigarNativeLoader.load();
-
-				sigar = new Sigar();
-
-				CpuInfo[] cpuInfos = sigar.getCpuInfoList();
-
-				CpuInfo cpuInfo = cpuInfos[0];
-
-				return cpuInfo.getTotalCores();
-			}
-			catch (Exception e) {
-				throw new ProcessException(e);
-			}
-			finally {
-				if (sigar != null) {
-					sigar.close();
-				}
-			}
-		}
-
-		private static final long serialVersionUID = 1L;
-
 	}
 
 }

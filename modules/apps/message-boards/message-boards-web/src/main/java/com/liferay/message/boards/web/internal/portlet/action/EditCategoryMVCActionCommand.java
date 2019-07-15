@@ -28,7 +28,7 @@ import com.liferay.message.boards.exception.NoSuchCategoryException;
 import com.liferay.message.boards.model.MBCategory;
 import com.liferay.message.boards.service.MBCategoryService;
 import com.liferay.portal.kernel.captcha.CaptchaConfigurationException;
-import com.liferay.portal.kernel.captcha.CaptchaTextException;
+import com.liferay.portal.kernel.captcha.CaptchaException;
 import com.liferay.portal.kernel.model.TrashedModel;
 import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
@@ -145,8 +145,8 @@ public class EditCategoryMVCActionCommand extends BaseMVCActionCommand {
 			actionResponse.setRenderParameter(
 				"mvcPath", "/message_boards/error.jsp");
 		}
-		catch (CaptchaConfigurationException | CaptchaTextException |
-			   CategoryNameException | MailingListEmailAddressException |
+		catch (CaptchaException | CategoryNameException |
+			   MailingListEmailAddressException |
 			   MailingListInServerNameException |
 			   MailingListInUserNameException |
 			   MailingListOutEmailAddressException |
@@ -178,16 +178,6 @@ public class EditCategoryMVCActionCommand extends BaseMVCActionCommand {
 		for (long restoreTrashEntryId : restoreTrashEntryIds) {
 			_trashEntryService.restoreEntry(restoreTrashEntryId);
 		}
-	}
-
-	@Reference(unbind = "-")
-	protected void setMBCategoryService(MBCategoryService mbCategoryService) {
-		_mbCategoryService = mbCategoryService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setTrashEntryService(TrashEntryService trashEntryService) {
-		_trashEntryService = trashEntryService;
 	}
 
 	protected void subscribeCategory(ActionRequest actionRequest)
@@ -292,7 +282,10 @@ public class EditCategoryMVCActionCommand extends BaseMVCActionCommand {
 	@Reference
 	private ConfigurationProvider _configurationProvider;
 
+	@Reference
 	private MBCategoryService _mbCategoryService;
+
+	@Reference
 	private TrashEntryService _trashEntryService;
 
 }

@@ -14,9 +14,9 @@
 
 package com.liferay.dynamic.data.lists.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.service.ServiceWrapper;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link DDLRecordSetLocalService}.
@@ -183,6 +183,13 @@ public class DDLRecordSetLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ddlRecordSetLocalService.deleteDDLRecordSet(recordSetId);
+	}
+
+	@Override
+	public void deleteDDMStructureRecordSets(long ddmStructureId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		_ddlRecordSetLocalService.deleteDDMStructureRecordSets(ddmStructureId);
 	}
 
 	/**
@@ -501,6 +508,14 @@ public class DDLRecordSetLocalServiceWrapper
 	}
 
 	@Override
+	public java.util.List<com.liferay.dynamic.data.lists.model.DDLRecordSet>
+		getDDMStructureRecordSets(long ddmStructureId) {
+
+		return _ddlRecordSetLocalService.getDDMStructureRecordSets(
+			ddmStructureId);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery
 		getExportActionableDynamicQuery(
 			com.liferay.exportimport.kernel.lar.PortletDataContext
@@ -605,7 +620,8 @@ public class DDLRecordSetLocalServiceWrapper
 	}
 
 	/**
-	 * Returns the number of all the record sets belonging the group and associated with the DDMStructure.
+	 * Returns the number of all the record sets belonging the group and
+	 * associated with the DDMStructure.
 	 *
 	 * @param groupId the primary key of the record set's group
 	 * @return the number of record sets belonging to the group

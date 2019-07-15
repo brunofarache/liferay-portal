@@ -17,7 +17,6 @@ package com.liferay.portal.kernel.util;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.search.highlight.HighlightUtil;
 import com.liferay.portal.kernel.security.RandomUtil;
 
 import java.io.IOException;
@@ -802,26 +801,6 @@ public class StringUtil {
 		}
 
 		return sb.toString();
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), moved to {@link
-	 *             HighlightUtil#highlight(String, String[])}}
-	 */
-	@Deprecated
-	public static String highlight(String s, String[] queryTerms) {
-		return HighlightUtil.highlight(s, queryTerms);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), moved to {@link
-	 *             HighlightUtil#highlight(String, String[], String, String)}}
-	 */
-	@Deprecated
-	public static String highlight(
-		String s, String[] queryTerms, String highlight1, String highlight2) {
-
-		return HighlightUtil.highlight(s, queryTerms, highlight1, highlight2);
 	}
 
 	/**
@@ -1794,7 +1773,9 @@ public class StringUtil {
 			sb.append(delimiter);
 		}
 
-		sb.setIndex(sb.index() - 1);
+		if (!delimiter.isEmpty()) {
+			sb.setIndex(sb.index() - 1);
+		}
 
 		return sb.toString();
 	}
@@ -2292,9 +2273,7 @@ public class StringUtil {
 						String.valueOf(classLoader)));
 			}
 
-			String s = read(is);
-
-			return s;
+			return read(is);
 		}
 	}
 
@@ -2312,24 +2291,6 @@ public class StringUtil {
 		throws IOException {
 
 		_splitLines(_read(is), lines);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #removeFromList(String, String)}
-	 */
-	@Deprecated
-	public static String remove(String s, String element) {
-		return removeFromList(s, element, StringPool.COMMA);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #removeFromList(String, String, String)}
-	 */
-	@Deprecated
-	public static String remove(String s, String element, String delimiter) {
-		return removeFromList(s, element, delimiter);
 	}
 
 	public static String removeChar(String s, char oldSub) {
@@ -3592,7 +3553,7 @@ public class StringUtil {
 
 		_split(nodeValues, s, 0, delimiter);
 
-		return nodeValues.toArray(new String[nodeValues.size()]);
+		return nodeValues.toArray(new String[0]);
 	}
 
 	/**
@@ -3727,7 +3688,7 @@ public class StringUtil {
 			nodeValues.add(s.substring(offset));
 		}
 
-		return nodeValues.toArray(new String[nodeValues.size()]);
+		return nodeValues.toArray(new String[0]);
 	}
 
 	/**
@@ -3955,7 +3916,7 @@ public class StringUtil {
 
 		_splitLines(s, lines);
 
-		return lines.toArray(new String[lines.size()]);
+		return lines.toArray(new String[0]);
 	}
 
 	/**
@@ -4341,10 +4302,14 @@ public class StringUtil {
 	 */
 	public static String toHexString(Object obj) {
 		if (obj instanceof Integer) {
-			return toHexString(((Integer)obj).intValue());
+			Integer integerObj = (Integer)obj;
+
+			return toHexString(integerObj.intValue());
 		}
 		else if (obj instanceof Long) {
-			return toHexString(((Long)obj).longValue());
+			Long longObj = (Long)obj;
+
+			return toHexString(longObj.longValue());
 		}
 
 		return String.valueOf(obj);

@@ -14,14 +14,14 @@
 
 package com.liferay.change.tracking.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.kernel.model.AuditedModel;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.ShardedModel;
 
 import java.util.Date;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The base model interface for the CTEntry service. Represents a row in the &quot;CTEntry&quot; database table, with each column mapped to a property of this class.
@@ -170,6 +170,20 @@ public interface CTEntryModel
 	public void setModifiedDate(Date modifiedDate);
 
 	/**
+	 * Returns the original ct collection ID of this ct entry.
+	 *
+	 * @return the original ct collection ID of this ct entry
+	 */
+	public long getOriginalCTCollectionId();
+
+	/**
+	 * Sets the original ct collection ID of this ct entry.
+	 *
+	 * @param originalCTCollectionId the original ct collection ID of this ct entry
+	 */
+	public void setOriginalCTCollectionId(long originalCTCollectionId);
+
+	/**
 	 * Returns the model class name ID of this ct entry.
 	 *
 	 * @return the model class name ID of this ct entry
@@ -224,6 +238,27 @@ public interface CTEntryModel
 	 * @param changeType the change type of this ct entry
 	 */
 	public void setChangeType(int changeType);
+
+	/**
+	 * Returns the collision of this ct entry.
+	 *
+	 * @return the collision of this ct entry
+	 */
+	public boolean getCollision();
+
+	/**
+	 * Returns <code>true</code> if this ct entry is collision.
+	 *
+	 * @return <code>true</code> if this ct entry is collision; <code>false</code> otherwise
+	 */
+	public boolean isCollision();
+
+	/**
+	 * Sets whether this ct entry is collision.
+	 *
+	 * @param collision the collision of this ct entry
+	 */
+	public void setCollision(boolean collision);
 
 	/**
 	 * Returns the status of this ct entry.

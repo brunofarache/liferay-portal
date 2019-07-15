@@ -14,13 +14,13 @@
 
 package com.liferay.layout.page.template.service.http;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryServiceUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 
 import java.rmi.RemoteException;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the SOAP utility for the
@@ -1136,29 +1136,6 @@ public class LayoutPageTemplateEntryServiceSoap {
 	public static
 		com.liferay.layout.page.template.model.LayoutPageTemplateEntrySoap
 				updateLayoutPageTemplateEntry(
-					long layoutPageTemplateEntryId, int status)
-			throws RemoteException {
-
-		try {
-			com.liferay.layout.page.template.model.LayoutPageTemplateEntry
-				returnValue =
-					LayoutPageTemplateEntryServiceUtil.
-						updateLayoutPageTemplateEntry(
-							layoutPageTemplateEntryId, status);
-
-			return com.liferay.layout.page.template.model.
-				LayoutPageTemplateEntrySoap.toSoapModel(returnValue);
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
-
-	public static
-		com.liferay.layout.page.template.model.LayoutPageTemplateEntrySoap
-				updateLayoutPageTemplateEntry(
 					long layoutPageTemplateEntryId, long previewFileEntryId)
 			throws RemoteException {
 
@@ -1270,6 +1247,26 @@ public class LayoutPageTemplateEntryServiceSoap {
 						updateLayoutPageTemplateEntry(
 							layoutPageTemplateEntryId, name, fragmentEntryIds,
 							serviceContext);
+
+			return com.liferay.layout.page.template.model.
+				LayoutPageTemplateEntrySoap.toSoapModel(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static
+		com.liferay.layout.page.template.model.LayoutPageTemplateEntrySoap
+				updateStatus(long layoutPageTemplateEntryId, int status)
+			throws RemoteException {
+
+		try {
+			com.liferay.layout.page.template.model.LayoutPageTemplateEntry
+				returnValue = LayoutPageTemplateEntryServiceUtil.updateStatus(
+					layoutPageTemplateEntryId, status);
 
 			return com.liferay.layout.page.template.model.
 				LayoutPageTemplateEntrySoap.toSoapModel(returnValue);

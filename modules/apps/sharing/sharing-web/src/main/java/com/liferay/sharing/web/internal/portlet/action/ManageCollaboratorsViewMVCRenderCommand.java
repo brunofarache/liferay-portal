@@ -14,19 +14,21 @@
 
 package com.liferay.sharing.web.internal.portlet.action;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
-import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.sharing.model.SharingEntry;
 import com.liferay.sharing.service.SharingEntryLocalService;
@@ -70,7 +72,7 @@ public class ManageCollaboratorsViewMVCRenderCommand
 			RenderRequest renderRequest, RenderResponse renderResponse)
 		throws PortletException {
 
-		Template template = getTemplate(renderRequest);
+		Template template = _getTemplate(renderRequest);
 
 		template.put(
 			"actionUrl", _getManageCollaboratorsActionURL(renderResponse));
@@ -84,10 +86,6 @@ public class ManageCollaboratorsViewMVCRenderCommand
 		template.put("spritemap", _getSpritemap(renderRequest));
 
 		return "ManageCollaborators";
-	}
-
-	protected Template getTemplate(RenderRequest renderRequest) {
-		return (Template)renderRequest.getAttribute(WebKeys.TEMPLATE);
 	}
 
 	private JSONArray _getCollaboratorsJSONArray(RenderRequest renderRequest)
@@ -119,18 +117,20 @@ public class ManageCollaboratorsViewMVCRenderCommand
 				User sharingEntryToUser = _userLocalService.fetchUser(
 					sharingEntry.getToUserId());
 
-				JSONObject collaboratorJSONObject =
-					JSONFactoryUtil.createJSONObject();
+				String portraitURL = StringPool.BLANK;
 
-				collaboratorJSONObject.put(
-					"id", sharingEntryToUser.getUserId());
-				collaboratorJSONObject.put(
-					"imageSrc",
-					sharingEntryToUser.getPortraitURL(themeDisplay));
-				collaboratorJSONObject.put(
-					"name", sharingEntryToUser.getFullName());
-				collaboratorJSONObject.put(
-					"sharingEntryId", sharingEntry.getSharingEntryId());
+				if (sharingEntryToUser.getPortraitId() > 0) {
+					portraitURL = sharingEntryToUser.getPortraitURL(
+						themeDisplay);
+				}
+
+				JSONObject collaboratorJSONObject = JSONUtil.put(
+					"portraitURL", portraitURL
+				).put(
+					"fullName", sharingEntryToUser.getFullName()
+				).put(
+					"sharingEntryId", sharingEntry.getSharingEntryId()
+				);
 
 				String expirationDateAsText = null;
 				String expirationDateTooltip = null;
@@ -148,19 +148,26 @@ public class ManageCollaboratorsViewMVCRenderCommand
 					Format expirationDateTooltipDateFormat =
 						DateFormatFactoryUtil.getDate(themeDisplay.getLocale());
 
-					expirationDateTooltip =
-						expirationDateTooltipDateFormat.format(expirationDate);
+					expirationDateTooltip = LanguageUtil.format(
+						ResourceBundleUtil.getBundle(
+							themeDisplay.getLocale(), getClass()),
+						"until-x",
+						expirationDateTooltipDateFormat.format(expirationDate));
 				}
 
 				collaboratorJSONObject.put(
-					"sharingEntryExpirationDate", expirationDateAsText);
-				collaboratorJSONObject.put(
-					"sharingEntryExpirationDateTooltip", expirationDateTooltip);
-
-				collaboratorJSONObject.put(
+					"sharingEntryExpirationDate", expirationDateAsText
+				).put(
+					"sharingEntryExpirationDateTooltip", expirationDateTooltip
+				).put(
 					"sharingEntryPermissionDisplaySelectOptions",
 					_getSharingEntryPermissionDisplaySelectOptions(
-						sharingEntry, renderRequest));
+						sharingEntry, renderRequest)
+				).put(
+					"sharingEntryShareable", sharingEntry.isShareable()
+				).put(
+					"userId", Long.valueOf(sharingEntryToUser.getUserId())
+				);
 
 				collaboratorsJSONArray.put(collaboratorJSONObject);
 			}
@@ -204,10 +211,8 @@ public class ManageCollaboratorsViewMVCRenderCommand
 				sharingEntryPermissionDisplays) {
 
 			JSONObject sharingEntryPermissionDisplaySelectOptionJSONObject =
-				JSONFactoryUtil.createJSONObject();
-
-			sharingEntryPermissionDisplaySelectOptionJSONObject.put(
-				"label", sharingEntryPermissionDisplay.getPhrase());
+				JSONUtil.put(
+					"label", sharingEntryPermissionDisplay.getPhrase());
 
 			String currentSharingEntryPermissionDisplayActionKeyActionId =
 				sharingEntryPermissionDisplay.
@@ -221,12 +226,12 @@ public class ManageCollaboratorsViewMVCRenderCommand
 			sharingEntryPermissionDisplaySelectOptionJSONObject.put(
 				"selected",
 				currentSharingEntryPermissionDisplayActionKeyActionId.equals(
-					userSharingEntryPermissionDisplayActionKey.getActionId()));
-
-			sharingEntryPermissionDisplaySelectOptionJSONObject.put(
+					userSharingEntryPermissionDisplayActionKey.getActionId())
+			).put(
 				"value",
 				sharingEntryPermissionDisplay.
-					getSharingEntryPermissionDisplayActionId());
+					getSharingEntryPermissionDisplayActionId()
+			);
 
 			sharingEntryPermissionDisplaySelectOptionsJSONArray.put(
 				sharingEntryPermissionDisplaySelectOptionJSONObject);
@@ -242,11 +247,9 @@ public class ManageCollaboratorsViewMVCRenderCommand
 		return themeDisplay.getPathThemeImages() + "/lexicon/icons.svg";
 	}
 
-	@Reference
-	private ClassNameLocalService _classNameLocalService;
-
-	@Reference
-	private Portal _portal;
+	private Template _getTemplate(RenderRequest renderRequest) {
+		return (Template)renderRequest.getAttribute(WebKeys.TEMPLATE);
+	}
 
 	@Reference
 	private SharingEntryLocalService _sharingEntryLocalService;

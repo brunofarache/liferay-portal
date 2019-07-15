@@ -191,63 +191,14 @@ public class AssetCategoryPortletDataHandler extends BasePortletDataHandler {
 		vocabularyActionableDynamicQuery.performCount();
 	}
 
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected ActionableDynamicQuery getCategoryActionableDynamicQuery(
-		final PortletDataContext portletDataContext) {
-
-		ActionableDynamicQuery actionableDynamicQuery =
-			_assetCategoryLocalService.getExportActionableDynamicQuery(
-				portletDataContext);
-
-		// Override date range criteria
-
-		actionableDynamicQuery.setAddCriteriaMethod(null);
-
-		return actionableDynamicQuery;
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected ActionableDynamicQuery getVocabularyActionableDynamicQuery(
-		final PortletDataContext portletDataContext) {
-
-		ActionableDynamicQuery actionableDynamicQuery =
-			_assetVocabularyLocalService.getExportActionableDynamicQuery(
-				portletDataContext);
-
-		// Override date range criteria
-
-		actionableDynamicQuery.setAddCriteriaMethod(null);
-
-		return actionableDynamicQuery;
-	}
-
-	@Reference(unbind = "-")
-	protected void setAssetCategoryLocalService(
-		AssetCategoryLocalService assetCategoryLocalService) {
-
-		_assetCategoryLocalService = assetCategoryLocalService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setAssetVocabularyLocalService(
-		AssetVocabularyLocalService assetVocabularyLocalService) {
-
-		_assetVocabularyLocalService = assetVocabularyLocalService;
-	}
-
-	@Reference(target = ModuleServiceLifecycle.PORTAL_INITIALIZED, unbind = "-")
-	protected void setModuleServiceLifecycle(
-		ModuleServiceLifecycle moduleServiceLifecycle) {
-	}
-
+	@Reference
 	private AssetCategoryLocalService _assetCategoryLocalService;
+
+	@Reference
 	private AssetVocabularyLocalService _assetVocabularyLocalService;
+
+	@Reference(target = ModuleServiceLifecycle.PORTAL_INITIALIZED)
+	private ModuleServiceLifecycle _moduleServiceLifecycle;
 
 	@Reference
 	private Staging _staging;

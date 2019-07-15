@@ -14,8 +14,6 @@
 
 package com.liferay.portal.service.http;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.service.LayoutServiceUtil;
@@ -25,6 +23,8 @@ import java.rmi.RemoteException;
 
 import java.util.Locale;
 import java.util.Map;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the SOAP utility for the
@@ -368,57 +368,6 @@ public class LayoutServiceSoap {
 	}
 
 	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 com.liferay.exportimport.kernel.service.ExportImportService#exportLayoutsAsFileInBackground(
-	 ExportImportConfiguration)}
-	 */
-	@Deprecated
-	public static long exportLayoutsAsFileInBackground(
-			com.liferay.exportimport.kernel.model.ExportImportConfigurationSoap
-				exportImportConfiguration)
-		throws RemoteException {
-
-		try {
-			long returnValue =
-				LayoutServiceUtil.exportLayoutsAsFileInBackground(
-					com.liferay.portlet.exportimport.model.impl.
-						ExportImportConfigurationModelImpl.toModel(
-							exportImportConfiguration));
-
-			return returnValue;
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 com.liferay.exportimport.kernel.service.ExportImportService#exportLayoutsAsFileInBackground(
-	 long)}
-	 */
-	@Deprecated
-	public static long exportLayoutsAsFileInBackground(
-			long exportImportConfigurationId)
-		throws RemoteException {
-
-		try {
-			long returnValue =
-				LayoutServiceUtil.exportLayoutsAsFileInBackground(
-					exportImportConfigurationId);
-
-			return returnValue;
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
-
-	/**
 	 * Returns all the ancestor layouts of the layout.
 	 *
 	 * @param plid the primary key of the layout
@@ -694,6 +643,24 @@ public class LayoutServiceSoap {
 				LayoutServiceUtil.getLayouts(
 					groupId, privateLayout, parentLayoutId, incomplete, start,
 					end);
+
+			return com.liferay.portal.kernel.model.LayoutSoap.toSoapModels(
+				returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static com.liferay.portal.kernel.model.LayoutSoap[] getLayouts(
+			long groupId, boolean privateLayout, String type)
+		throws RemoteException {
+
+		try {
+			java.util.List<com.liferay.portal.kernel.model.Layout> returnValue =
+				LayoutServiceUtil.getLayouts(groupId, privateLayout, type);
 
 			return com.liferay.portal.kernel.model.LayoutSoap.toSoapModels(
 				returnValue);
@@ -986,7 +953,7 @@ public class LayoutServiceSoap {
 	 To see how the URL is normalized when accessed see {@link
 	 com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil#normalize(
 	 String)}.
-	 * @param iconImage whether the icon image will be updated
+	 * @param hasIconImage if the layout has a custom icon image
 	 * @param iconBytes the byte array of the layout's new icon image
 	 * @param serviceContext the service context to be applied. Can set the
 	 modification date and expando bridge attributes for the layout.
@@ -1002,7 +969,7 @@ public class LayoutServiceSoap {
 			String[] keywordsMapValues, String[] robotsMapLanguageIds,
 			String[] robotsMapValues, String type, boolean hidden,
 			String[] friendlyURLMapLanguageIds, String[] friendlyURLMapValues,
-			boolean iconImage, byte[] iconBytes,
+			boolean hasIconImage, byte[] iconBytes,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws RemoteException {
 
@@ -1030,7 +997,7 @@ public class LayoutServiceSoap {
 					groupId, privateLayout, layoutId, parentLayoutId,
 					localeNamesMap, localeTitlesMap, descriptionMap,
 					keywordsMap, robotsMap, type, hidden, friendlyURLMap,
-					iconImage, iconBytes, serviceContext);
+					hasIconImage, iconBytes, serviceContext);
 
 			return com.liferay.portal.kernel.model.LayoutSoap.toSoapModel(
 				returnValue);
@@ -1175,8 +1142,7 @@ public class LayoutServiceSoap {
 	 * @param groupId the primary key of the group
 	 * @param privateLayout whether the layout is private to the group
 	 * @param layoutId the layout ID of the layout
-	 * @param parentLayoutId the layout ID to be assigned to the parent
-	 layout
+	 * @param parentLayoutId the layout ID to be assigned to the parent layout
 	 * @return the matching layout
 	 * @throws PortalException if a portal exception occurred
 	 */

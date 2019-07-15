@@ -38,6 +38,7 @@ import com.liferay.dynamic.data.mapping.service.DDMDataProviderInstanceLinkLocal
 import com.liferay.dynamic.data.mapping.service.DDMDataProviderInstanceLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
+import com.liferay.dynamic.data.mapping.service.DDMStructureVersionLocalService;
 import com.liferay.exportimport.data.handler.base.BaseStagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
@@ -155,13 +156,9 @@ public class DDMStructureStagedModelDataHandler
 			return referenceAttributes;
 		}
 
-		boolean preloaded = false;
-
-		if (defaultUserId == structure.getUserId()) {
-			preloaded = true;
-		}
-
-		referenceAttributes.put("preloaded", String.valueOf(preloaded));
+		referenceAttributes.put(
+			"preloaded",
+			String.valueOf(isPreloadedStructure(defaultUserId, structure)));
 
 		return referenceAttributes;
 	}
@@ -227,7 +224,7 @@ public class DDMStructureStagedModelDataHandler
 		long defaultUserId = _userLocalService.getDefaultUserId(
 			structure.getCompanyId());
 
-		if (defaultUserId == structure.getUserId()) {
+		if (isPreloadedStructure(defaultUserId, structure)) {
 			structureElement.addAttribute("preloaded", "true");
 		}
 
@@ -278,6 +275,10 @@ public class DDMStructureStagedModelDataHandler
 		else {
 			existingStructure = fetchExistingStructureWithParentGroups(
 				uuid, groupId, classNameId, structureKey, preloaded);
+		}
+
+		if (existingStructure == null) {
+			return;
 		}
 
 		Map<Long, Long> structureIds =
@@ -347,8 +348,12 @@ public class DDMStructureStagedModelDataHandler
 				(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
 					Group.class);
 
-			groupId = GetterUtil.getLong(
-				groupIds.get(portletDataContext.getCompanyGroupId()), groupId);
+			Long companyGroupId = groupIds.get(
+				portletDataContext.getCompanyGroupId());
+
+			if ((companyGroupId == null) || (groupId != companyGroupId)) {
+				groupId = portletDataContext.getCompanyGroupId();
+			}
 		}
 
 		if (portletDataContext.isDataStrategyMirror()) {
@@ -448,8 +453,7 @@ public class DDMStructureStagedModelDataHandler
 		}
 
 		String ddmDataProviderInstanceIds = ArrayUtil.toString(
-			ddmDataProviderInstanceIdsSet.toArray(
-				new Long[ddmDataProviderInstanceIdsSet.size()]),
+			ddmDataProviderInstanceIdsSet.toArray(new Long[0]),
 			StringPool.BLANK);
 
 		structureElement.addAttribute(
@@ -638,7 +642,9 @@ public class DDMStructureStagedModelDataHandler
 		for (DDMFormField ddmFormField : ddmFormFields) {
 			String ddmFormFieldType = ddmFormField.getType();
 
-			if (!ddmFormFieldType.equals(DDMFormFieldType.SELECT)) {
+			if (!ddmFormFieldType.equals(DDMFormFieldType.SELECT) &&
+				!ddmFormFieldType.equals(DDMFormFieldType.TEXT)) {
+
 				continue;
 			}
 
@@ -701,6 +707,34 @@ public class DDMStructureStagedModelDataHandler
 		return false;
 	}
 
+	protected boolean isPreloadedStructure(
+		long defaultUserId, DDMStructure structure) {
+
+		if (defaultUserId == structure.getUserId()) {
+			return true;
+		}
+
+		DDMStructureVersion ddmStructureVersion = null;
+
+		try {
+			ddmStructureVersion =
+				_ddmStructureVersionLocalService.getStructureVersion(
+					structure.getStructureId(),
+					DDMStructureConstants.VERSION_DEFAULT);
+		}
+		catch (PortalException pe) {
+			_log.error(pe, pe);
+		}
+
+		if ((ddmStructureVersion != null) &&
+			(defaultUserId == ddmStructureVersion.getUserId())) {
+
+			return true;
+		}
+
+		return false;
+	}
+
 	@Reference(unbind = "-")
 	protected void setDDMFormDeserializerTracker(
 		DDMFormDeserializerTracker ddmFormDeserializerTracker) {
@@ -727,6 +761,13 @@ public class DDMStructureStagedModelDataHandler
 		DDMStructureLocalService ddmStructureLocalService) {
 
 		_ddmStructureLocalService = ddmStructureLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setDDMStructureVersionLocalService(
+		DDMStructureVersionLocalService ddmStructureVersionLocalService) {
+
+		_ddmStructureVersionLocalService = ddmStructureVersionLocalService;
 	}
 
 	@Reference(unbind = "-")
@@ -758,6 +799,7 @@ public class DDMStructureStagedModelDataHandler
 	private DDMFormLayoutDeserializerTracker _ddmFormLayoutDeserializerTracker;
 	private DDMStructureLayoutLocalService _ddmStructureLayoutLocalService;
 	private DDMStructureLocalService _ddmStructureLocalService;
+	private DDMStructureVersionLocalService _ddmStructureVersionLocalService;
 
 	@Reference
 	private GroupLocalService _groupLocalService;

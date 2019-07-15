@@ -36,7 +36,6 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 import org.junit.runners.model.MultipleFailureException;
 import org.junit.runners.model.Statement;
 
@@ -53,7 +52,7 @@ import org.openqa.selenium.remote.UnreachableBrowserException;
 @RunWith(Parameterized.class)
 public class PoshiRunner {
 
-	@Parameters(name = "{0}")
+	@Parameterized.Parameters(name = "{0}")
 	public static List<String> getList() throws Exception {
 		List<String> namespacedClassCommandNames = new ArrayList<>();
 
@@ -210,8 +209,7 @@ public class PoshiRunner {
 			testClassFileGlobsSet.add("**/" + testClassName + ".testcase");
 		}
 
-		return testClassFileGlobsSet.toArray(
-			new String[testClassFileGlobsSet.size()]);
+		return testClassFileGlobsSet.toArray(new String[0]);
 	}
 
 	private void _runCommand() throws Exception {

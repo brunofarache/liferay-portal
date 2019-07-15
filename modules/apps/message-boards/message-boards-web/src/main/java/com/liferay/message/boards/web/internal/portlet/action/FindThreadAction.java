@@ -56,11 +56,11 @@ public class FindThreadAction extends FindStrutsAction {
 
 	@Override
 	public PortletURL processPortletURL(
-			HttpServletRequest request, PortletURL portletURL)
+			HttpServletRequest httpServletRequest, PortletURL portletURL)
 		throws Exception {
 
 		long threadId = ParamUtil.getLong(
-			request, getPrimaryKeyParameterName());
+			httpServletRequest, getPrimaryKeyParameterName());
 
 		MBThread thread = _mbThreadLocalService.getThread(threadId);
 
@@ -71,13 +71,13 @@ public class FindThreadAction extends FindStrutsAction {
 	}
 
 	@Override
-	public void setPrimaryKeyParameter(PortletURL portletURL, long primaryKey)
-		throws Exception {
+	public void setPrimaryKeyParameter(PortletURL portletURL, long primaryKey) {
 	}
 
 	@Override
 	protected void addRequiredParameters(
-		HttpServletRequest request, String portletId, PortletURL portletURL) {
+		HttpServletRequest httpServletRequest, String portletId,
+		PortletURL portletURL) {
 
 		portletURL.setParameter(
 			"mvcRenderCommandName", "/message_boards/view_message");
@@ -88,24 +88,12 @@ public class FindThreadAction extends FindStrutsAction {
 		return _portletPageFinder;
 	}
 
-	@Reference(unbind = "-")
-	protected void setMBThreadLocalService(
-		MBThreadLocalService mbThreadLocalService) {
-
-		_mbThreadLocalService = mbThreadLocalService;
-	}
+	@Reference
+	private MBThreadLocalService _mbThreadLocalService;
 
 	@Reference(
-		target = "(model.class.name=com.liferay.message.boards.model.MBThread)",
-		unbind = "-"
+		target = "(model.class.name=com.liferay.message.boards.model.MBThread)"
 	)
-	protected void setPortletLayoutFinder(
-		PortletLayoutFinder portletPageFinder) {
-
-		_portletPageFinder = portletPageFinder;
-	}
-
-	private MBThreadLocalService _mbThreadLocalService;
 	private PortletLayoutFinder _portletPageFinder;
 
 }

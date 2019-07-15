@@ -71,9 +71,109 @@ public class EditorTag extends BaseValidatorTagSupport {
 		return super.doStartTag();
 	}
 
+	public String getConfigKey() {
+		return _configKey;
+	}
+
+	public Map<String, String> getConfigParams() {
+		return _configParams;
+	}
+
+	public String getContents() {
+		return _contents;
+	}
+
+	public String getContentsLanguageId() {
+		return _contentsLanguageId;
+	}
+
+	public String getCssClass() {
+		return _cssClass;
+	}
+
+	public Map<String, Object> getData() {
+		return _data;
+	}
+
+	public String getEditorName() {
+		return _editorName;
+	}
+
+	public Map<String, String> getFileBrowserParams() {
+		return _fileBrowserParams;
+	}
+
+	public String getHeight() {
+		return _height;
+	}
+
+	public String getInlineEditSaveURL() {
+		return _inlineEditSaveURL;
+	}
+
 	@Override
 	public String getInputName() {
 		return _getConfigKey();
+	}
+
+	public String getName() {
+		return _name;
+	}
+
+	public String getOnBlurMethod() {
+		return _onBlurMethod;
+	}
+
+	public String getOnChangeMethod() {
+		return _onChangeMethod;
+	}
+
+	public String getOnFocusMethod() {
+		return _onFocusMethod;
+	}
+
+	public String getOnInitMethod() {
+		return _onInitMethod;
+	}
+
+	public String getPlaceholder() {
+		return _placeholder;
+	}
+
+	public String getToolbarSet() {
+		return _toolbarSet;
+	}
+
+	public String getWidth() {
+		return _width;
+	}
+
+	public boolean isAllowBrowseDocuments() {
+		return _allowBrowseDocuments;
+	}
+
+	public boolean isAutoCreate() {
+		return _autoCreate;
+	}
+
+	public boolean isInlineEdit() {
+		return _inlineEdit;
+	}
+
+	public boolean isRequired() {
+		return _required;
+	}
+
+	public boolean isResizable() {
+		return _resizable;
+	}
+
+	public boolean isShowSource() {
+		return _showSource;
+	}
+
+	public boolean isSkipEditorLoading() {
+		return _skipEditorLoading;
 	}
 
 	public void setAllowBrowseDocuments(boolean allowBrowseDocuments) {
@@ -215,42 +315,50 @@ public class EditorTag extends BaseValidatorTagSupport {
 	}
 
 	@Override
-	protected void includePage(String page, HttpServletResponse response)
+	protected void includePage(
+			String page, HttpServletResponse httpServletResponse)
 		throws IOException, ServletException {
 
 		servletContext = PortalWebResourcesUtil.getServletContext(
 			_getEditorResourceType());
 
-		super.includePage(page, response);
+		super.includePage(page, httpServletResponse);
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
 		setNamespacedAttribute(
-			request, "allowBrowseDocuments",
+			httpServletRequest, "allowBrowseDocuments",
 			String.valueOf(_allowBrowseDocuments));
 		setNamespacedAttribute(
-			request, "autoCreate", String.valueOf(_autoCreate));
-		setNamespacedAttribute(request, "configParams", _configParams);
-		setNamespacedAttribute(request, "contents", _contents);
+			httpServletRequest, "autoCreate", String.valueOf(_autoCreate));
 		setNamespacedAttribute(
-			request, "contentsLanguageId", _getContentsLanguageId());
-		setNamespacedAttribute(request, "cssClass", _cssClass);
-		setNamespacedAttribute(request, "cssClasses", _getCssClasses());
-		setNamespacedAttribute(request, "editorName", _getResolvedEditorName());
+			httpServletRequest, "configParams", _configParams);
+		setNamespacedAttribute(httpServletRequest, "contents", _contents);
 		setNamespacedAttribute(
-			request, "fileBrowserParams", _fileBrowserParams);
-		setNamespacedAttribute(request, "height", _height);
-		setNamespacedAttribute(request, "initMethod", "initEditor");
+			httpServletRequest, "contentsLanguageId", _getContentsLanguageId());
+		setNamespacedAttribute(httpServletRequest, "cssClass", _cssClass);
 		setNamespacedAttribute(
-			request, "inlineEdit", String.valueOf(_inlineEdit));
+			httpServletRequest, "cssClasses", _getCssClasses());
 		setNamespacedAttribute(
-			request, "inlineEditSaveURL", _inlineEditSaveURL);
-		setNamespacedAttribute(request, "name", _name);
-		setNamespacedAttribute(request, "onBlurMethod", _onBlurMethod);
-		setNamespacedAttribute(request, "onChangeMethod", _onChangeMethod);
-		setNamespacedAttribute(request, "onFocusMethod", _onFocusMethod);
-		setNamespacedAttribute(request, "onInitMethod", _onInitMethod);
+			httpServletRequest, "editorName", _getResolvedEditorName());
+		setNamespacedAttribute(
+			httpServletRequest, "fileBrowserParams", _fileBrowserParams);
+		setNamespacedAttribute(httpServletRequest, "height", _height);
+		setNamespacedAttribute(httpServletRequest, "initMethod", "initEditor");
+		setNamespacedAttribute(
+			httpServletRequest, "inlineEdit", String.valueOf(_inlineEdit));
+		setNamespacedAttribute(
+			httpServletRequest, "inlineEditSaveURL", _inlineEditSaveURL);
+		setNamespacedAttribute(httpServletRequest, "name", _name);
+		setNamespacedAttribute(
+			httpServletRequest, "onBlurMethod", _onBlurMethod);
+		setNamespacedAttribute(
+			httpServletRequest, "onChangeMethod", _onChangeMethod);
+		setNamespacedAttribute(
+			httpServletRequest, "onFocusMethod", _onFocusMethod);
+		setNamespacedAttribute(
+			httpServletRequest, "onInitMethod", _onInitMethod);
 
 		if (Validator.isNull(_placeholder)) {
 			ResourceBundle resourceBundle =
@@ -260,20 +368,23 @@ public class EditorTag extends BaseValidatorTagSupport {
 				resourceBundle, "write-your-content-here");
 		}
 
-		setNamespacedAttribute(request, "placeholder", _placeholder);
-
-		setNamespacedAttribute(request, "required", String.valueOf(_required));
-		setNamespacedAttribute(
-			request, "resizable", String.valueOf(_resizable));
-		setNamespacedAttribute(
-			request, "showSource", String.valueOf(_showSource));
-		setNamespacedAttribute(
-			request, "skipEditorLoading", String.valueOf(_skipEditorLoading));
-		setNamespacedAttribute(request, "toolbarSet", _getToolbarSet());
-		setNamespacedAttribute(request, "width", _width);
+		setNamespacedAttribute(httpServletRequest, "placeholder", _placeholder);
 
 		setNamespacedAttribute(
-			request, "data",
+			httpServletRequest, "required", String.valueOf(_required));
+		setNamespacedAttribute(
+			httpServletRequest, "resizable", String.valueOf(_resizable));
+		setNamespacedAttribute(
+			httpServletRequest, "showSource", String.valueOf(_showSource));
+		setNamespacedAttribute(
+			httpServletRequest, "skipEditorLoading",
+			String.valueOf(_skipEditorLoading));
+		setNamespacedAttribute(
+			httpServletRequest, "toolbarSet", _getToolbarSet());
+		setNamespacedAttribute(httpServletRequest, "width", _width);
+
+		setNamespacedAttribute(
+			httpServletRequest, "data",
 			ProxyUtil.newProxyInstance(
 				ClassLoader.getSystemClassLoader(), new Class<?>[] {Map.class},
 				new LazyDataInvocationHandler()));

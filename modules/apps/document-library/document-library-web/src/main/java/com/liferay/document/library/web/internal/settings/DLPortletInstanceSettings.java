@@ -138,10 +138,6 @@ public class DLPortletInstanceSettings {
 		return _typedSettings.getBooleanValue("showSubfolders");
 	}
 
-	public boolean isShowTabs() {
-		return _typedSettings.getBooleanValue("showTabs");
-	}
-
 	private static FallbackKeys _getFallbackKeys() {
 		FallbackKeys fallbackKeys = new FallbackKeys();
 
@@ -167,7 +163,6 @@ public class DLPortletInstanceSettings {
 		fallbackKeys.add(
 			"showFoldersSearch", PropsKeys.DL_FOLDERS_SEARCH_VISIBLE);
 		fallbackKeys.add("showSubfolders", PropsKeys.DL_SUBFOLDERS_VISIBLE);
-		fallbackKeys.add("showTabs", PropsKeys.DL_TABS_VISIBLE);
 
 		return fallbackKeys;
 	}

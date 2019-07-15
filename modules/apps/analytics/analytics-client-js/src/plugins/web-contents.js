@@ -1,3 +1,17 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 import {onReady} from '../utils/events.js';
 import {getClosestAssetElement, getNumberOfWords} from '../utils/assets';
 
@@ -12,11 +26,14 @@ function getWebContentPayload(webContent) {
 	const {dataset} = webContent;
 
 	let payload = {
-		articleId: dataset.analyticsAssetId,
+		articleId: dataset.analyticsAssetId
 	};
 
 	if (dataset.analyticsAssetTitle) {
-		payload = {...payload, title: dataset.analyticsAssetTitle};
+		payload = {
+			...payload,
+			title: dataset.analyticsAssetTitle
+		};
 	}
 
 	return payload;
@@ -47,7 +64,7 @@ function trackWebContentClicked(analytics) {
 
 		const payload = {
 			...getWebContentPayload(webContentElement),
-			tagName,
+			tagName
 		};
 
 		if (tagName === 'a') {
@@ -79,10 +96,14 @@ function trackWebContentViewed(analytics) {
 			)
 			.filter(element => isTrackableWebContent(element))
 			.forEach(element => {
-				let payload = getWebContentPayload(element);
 				const numberOfWords = getNumberOfWords(element);
 
-				payload = {numberOfWords, ...payload};
+				let payload = getWebContentPayload(element);
+
+				payload = {
+					...payload,
+					numberOfWords
+				};
 
 				analytics.send('webContentViewed', applicationId, payload);
 			});

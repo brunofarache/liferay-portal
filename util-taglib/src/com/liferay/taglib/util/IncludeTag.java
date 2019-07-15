@@ -14,6 +14,7 @@
 
 package com.liferay.taglib.util;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -33,8 +34,6 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
-import com.liferay.portal.kernel.util.ServerDetector;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -154,7 +153,7 @@ public class IncludeTag extends AttributesTagSupport {
 	}
 
 	protected void callSetAttributes() {
-		HttpServletRequest request = getOriginalServletRequest();
+		HttpServletRequest httpServletRequest = getOriginalServletRequest();
 
 		if (isCleanUpSetAttributes()) {
 			if (_setAttributeNames == null) {
@@ -165,27 +164,28 @@ public class IncludeTag extends AttributesTagSupport {
 			}
 
 			_trackedRequest = new TrackedServletRequest(
-				request, _setAttributeNames);
+				httpServletRequest, _setAttributeNames);
 
-			request = _trackedRequest;
+			httpServletRequest = _trackedRequest;
 		}
 
 		Class<? extends IncludeTag> clazz = getClass();
 
-		request.setAttribute(clazz.getName(), this);
+		httpServletRequest.setAttribute(clazz.getName(), this);
 
-		setNamespacedAttribute(request, "bodyContent", getBodyContentWrapper());
 		setNamespacedAttribute(
-			request, "dynamicAttributes", getDynamicAttributes());
+			httpServletRequest, "bodyContent", getBodyContentWrapper());
+		setNamespacedAttribute(
+			httpServletRequest, "dynamicAttributes", getDynamicAttributes());
 
-		setAttributes(request);
+		setAttributes(httpServletRequest);
 	}
 
 	protected void cleanUp() {
 	}
 
 	protected void cleanUpSetAttributes() {
-		if (isCleanUpSetAttributes() && (_trackedRequest != null)) {
+		if (isCleanUpSetAttributes()) {
 			for (String name : _setAttributeNames) {
 				_trackedRequest.removeAttribute(name);
 			}
@@ -203,12 +203,10 @@ public class IncludeTag extends AttributesTagSupport {
 
 		cleanUpSetAttributes();
 
-		if (!ServerDetector.isResin()) {
-			setPage(null);
-			setUseCustomPage(true);
+		setPage(null);
+		setUseCustomPage(true);
 
-			cleanUp();
-		}
+		cleanUp();
 	}
 
 	protected void doInclude(
@@ -235,12 +233,13 @@ public class IncludeTag extends AttributesTagSupport {
 	}
 
 	protected void doIncludeTheme(String page) throws Exception {
-		HttpServletResponse response =
+		HttpServletResponse httpServletResponse =
 			(HttpServletResponse)pageContext.getResponse();
 
 		Theme theme = (Theme)request.getAttribute(WebKeys.THEME);
 
-		ThemeUtil.include(servletContext, request, response, page, theme);
+		ThemeUtil.include(
+			servletContext, request, httpServletResponse, page, theme);
 	}
 
 	protected Object getBodyContentWrapper() {
@@ -261,15 +260,16 @@ public class IncludeTag extends AttributesTagSupport {
 	}
 
 	protected String getCustomPage(
-		ServletContext servletContext, HttpServletRequest request,
+		ServletContext servletContext, HttpServletRequest httpServletRequest,
 		String page) {
 
 		if (Validator.isNull(page)) {
 			return null;
 		}
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		if (themeDisplay == null) {
 			return null;
@@ -387,14 +387,15 @@ public class IncludeTag extends AttributesTagSupport {
 		}
 	}
 
-	protected void includePage(String page, HttpServletResponse response)
+	protected void includePage(
+			String page, HttpServletResponse httpServletResponse)
 		throws IOException, ServletException {
 
 		RequestDispatcher requestDispatcher =
 			DirectRequestDispatcherFactoryUtil.getRequestDispatcher(
 				servletContext, page);
 
-		requestDispatcher.include(request, response);
+		requestDispatcher.include(request, httpServletResponse);
 	}
 
 	protected boolean isCleanUpSetAttributes() {
@@ -485,7 +486,7 @@ public class IncludeTag extends AttributesTagSupport {
 		return EVAL_BODY_INCLUDE;
 	}
 
-	protected void setAttributes(HttpServletRequest request) {
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
 	}
 
 	protected boolean themeResourceExists(String page) throws Exception {
@@ -547,9 +548,10 @@ public class IncludeTag extends AttributesTagSupport {
 		}
 
 		private TrackedServletRequest(
-			HttpServletRequest request, Set<String> setAttributeNames) {
+			HttpServletRequest httpServletRequest,
+			Set<String> setAttributeNames) {
 
-			super(request);
+			super(httpServletRequest);
 
 			_setAttributeNames = setAttributeNames;
 		}

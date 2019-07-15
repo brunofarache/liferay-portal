@@ -1,3 +1,17 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 AUI.add(
 	'liferay-search-sort-util',
 	function(A) {
@@ -11,84 +25,35 @@ AUI.add(
 				return parameterArray;
 			},
 
-			changeSelection: function(event) {
-				var form = event.currentTarget.form;
-
-				if (!form) {
-					return;
-				}
-
-				var selections = [];
-
-				var formSortSelect = $('#' + form.id + ' select.sort-term');
-
-				selections.push(formSortSelect.value);
-
-				SortUtil.selectTerms(form, selections);
-			},
-
-			clearSelections: function(event) {
-				var form = $(event.currentTarget).closest('form')[0];
-
-				if (!form) {
-					return;
-				}
-
-				var selections = [];
-
-				SortUtil.selectTerms(form, selections);
-			},
-
 			removeURLParameters: function(key, parameterArray) {
 				key = encodeURIComponent(key);
 
-				var newParameters = parameterArray.filter(
-					function(item) {
-						var itemSplit = item.split('=');
+				var newParameters = parameterArray.filter(function(item) {
+					var itemSplit = item.split('=');
 
-						if (itemSplit && (itemSplit[0] === key)) {
-							return false;
-						}
-
-						return true;
+					if (itemSplit && itemSplit[0] === key) {
+						return false;
 					}
-				);
+
+					return true;
+				});
 
 				return newParameters;
 			},
 
-			selectTerms: function(form, selections) {
-				var formParameterName = $('#' + form.id + ' input.sort-parameter-name');
-
-				var key = formParameterName[0].value;
-
-				document.location.search = SortUtil.updateQueryString(key, selections, document.location.search);
-			},
-
-			setURLParameter: function(url, name, value) {
-				var parts = url.split('?');
-
-				var address = parts[0];
-
-				var queryString = parts[1];
-
-				if (!queryString) {
-					queryString = '';
-				}
-
-				queryString = Liferay.Search.SortUtil.updateQueryString(name, [value], queryString);
-
-				return address + '?' + queryString;
-			},
-
 			setURLParameters: function(key, values, parameterArray) {
-				var newParameters = SortUtil.removeURLParameters(key, parameterArray);
-
-				values.forEach(
-					function(item) {
-						newParameters = SortUtil.addURLParameter(key, item, newParameters);
-					}
+				var newParameters = SortUtil.removeURLParameters(
+					key,
+					parameterArray
 				);
+
+				values.forEach(function(item) {
+					newParameters = SortUtil.addURLParameter(
+						key,
+						item,
+						newParameters
+					);
+				});
 
 				return newParameters;
 			},
@@ -106,13 +71,15 @@ AUI.add(
 					search = search.substr(1);
 				}
 
-				var parameterArray = search.split('&').filter(
-					function(item) {
-						return item.trim() !== '';
-					}
-				);
+				var parameterArray = search.split('&').filter(function(item) {
+					return item.trim() !== '';
+				});
 
-				var newParameters = SortUtil.setURLParameters(key, selections, parameterArray);
+				var newParameters = SortUtil.setURLParameters(
+					key,
+					selections,
+					parameterArray
+				);
 
 				search = newParameters.join('&');
 

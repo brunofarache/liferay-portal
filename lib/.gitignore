@@ -3,9 +3,7 @@
 /development/annotations.jar
 /development/ant-apache-bsf.jar
 /development/appium.jar
-/development/biz.aQute.bnd.jar
 /development/catalina.jar
-/development/com.liferay.ant.bnd.jar
 /development/com.liferay.jenkins.results.parser.jar
 /development/db2jcc.jar
 /development/db2jcc_license_cu.jar
@@ -51,6 +49,7 @@
 /development/ojdbc14.jar
 /development/ojdbc5.jar
 /development/ojdbc6.jar
+/development/osgi-annotation-versioning.jar
 /development/p6spy.jar
 /development/persistence.jar
 /development/postgresql.jar
@@ -61,7 +60,6 @@
 /development/powermock-module-junit4-common.jar
 /development/powermock-reflect.jar
 /development/qdox.jar
-/development/resin.jar
 /development/saxpath.jar
 /development/sdk-addon-api-0.2.jar
 /development/servlet-api.jar
@@ -105,11 +103,6 @@
 /portal/ccpp-ri.jar
 /portal/cglib-nodep.jar
 /portal/chardet.jar
-/portal/chemistry-opencmis-client-api.jar
-/portal/chemistry-opencmis-client-bindings.jar
-/portal/chemistry-opencmis-client-impl.jar
-/portal/chemistry-opencmis-commons-api.jar
-/portal/chemistry-opencmis-commons-impl.jar
 /portal/closure-compiler.jar
 /portal/commons-beanutils.jar
 /portal/commons-chain.jar
@@ -136,7 +129,6 @@
 /portal/daisydiff.jar
 /portal/displaytag.jar
 /portal/dom4j.jar
-/portal/easyconf.jar
 /portal/eclipse-core-runtime.jar
 /portal/ecs.jar
 /portal/fontbox.jar
@@ -154,6 +146,8 @@
 /portal/im4java.jar
 /portal/isoparser.jar
 /portal/jabsorb.jar
+/portal/jai-imageio-core.jar
+/portal/jai-imageio-jpeg2000.jar
 /portal/jackson-annotations.jar
 /portal/jackson-core.jar
 /portal/jackson-databind.jar
@@ -172,6 +166,7 @@
 /portal/jaxws-api.jar
 /portal/jaxws-rt.jar
 /portal/jazzy.jar
+/portal/jbig2-imageio.jar
 /portal/jcifs.jar
 /portal/jcl-over-slf4j.jar
 /portal/jcommon.jar
@@ -232,7 +227,6 @@
 /portal/saaj-impl.jar
 /portal/scribe.jar
 /portal/serializer.jar
-/portal/sigar.jar
 /portal/simplecaptcha.jar
 /portal/slf4j-api.jar
 /portal/soap.jar
@@ -256,7 +250,6 @@
 /portal/stax.jar
 /portal/streambuffer.jar
 /portal/stringtemplate.jar
-/portal/struts-core.jar
 /portal/tagsoup.jar
 /portal/tika-core.jar
 /portal/tika-parsers.jar

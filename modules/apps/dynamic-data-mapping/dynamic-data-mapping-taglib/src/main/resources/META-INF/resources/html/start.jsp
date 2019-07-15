@@ -21,15 +21,7 @@
 		<div class="input-group-item input-group-item-shrink input-localized-content <%= hideClass %>" role="menu" style="justify-content: flex-end;">
 
 			<%
-			List<String> languageIds = new ArrayList<String>();
-
-			Locale defaultLocale = defaultEditLocale;
-
-			String defaultLanguageId = LocaleUtil.toLanguageId(defaultLocale);
-
-			languageIds.add(defaultLanguageId);
-
-			Set<Locale> availableLocales = LanguageUtil.getAvailableLocales(themeDisplay.getSiteGroupId());
+			String defaultLanguageId = LocaleUtil.toLanguageId(defaultEditLocale);
 
 			String normalizedDefaultLanguageId = StringUtil.replace(defaultLanguageId, '_', '-');
 			%>
@@ -52,6 +44,8 @@
 						LinkedHashSet<String> uniqueLanguageIds = new LinkedHashSet<String>();
 
 						uniqueLanguageIds.add(defaultLanguageId);
+
+						Set<Locale> availableLocales = LanguageUtil.getAvailableLocales(groupId);
 
 						for (Locale availableLocale : availableLocales) {
 							String curLanguageId = LocaleUtil.toLanguageId(availableLocale);
@@ -123,6 +117,10 @@
 		<aui:script use="aui-base,liferay-ddm-form">
 			var Lang = A.Lang;
 
+			var ddmFormDefinition = <%= DDMUtil.getDDMFormJSONString(ddmForm) %>;
+
+			ddmFormDefinition.defaultLanguageId = '<%= LocaleUtil.toLanguageId(defaultLocale) %>';
+
 			var liferayDDMForm = Liferay.component(
 				'<portlet:namespace /><%= HtmlUtil.escapeJS(fieldsNamespace) %>ddmForm',
 				new Liferay.DDM.Form(
@@ -131,7 +129,7 @@
 						ddmFormValuesInput: '#<portlet:namespace /><%= HtmlUtil.getAUICompatibleId(ddmFormValuesInputName) %>',
 						defaultEditLocale: '<%= (defaultEditLocale == null) ? StringPool.BLANK : HtmlUtil.escapeJS(defaultEditLocale.toString()) %>',
 						documentLibrarySelectorURL: '<%= documentLibrarySelectorURL %>',
-						definition: <%= DDMUtil.getDDMFormJSONString(ddmForm) %>,
+						definition: ddmFormDefinition,
 						doAsGroupId: <%= scopeGroupId %>,
 						fieldsNamespace: '<%= HtmlUtil.escapeJS(fieldsNamespace) %>',
 						imageSelectorURL: '<%= imageSelectorURL %>',

@@ -32,6 +32,38 @@ import javax.servlet.jsp.PageContext;
  */
 public class SiteBrowserTag extends IncludeTag {
 
+	public String getDisplayStyle() {
+		return _displayStyle;
+	}
+
+	public String getEmptyResultsMessage() {
+		return _emptyResultsMessage;
+	}
+
+	public String getEventName() {
+		return _eventName;
+	}
+
+	public List<Group> getGroups() {
+		return _groups;
+	}
+
+	public int getGroupsCount() {
+		return _groupsCount;
+	}
+
+	public PortletURL getPortletURL() {
+		return _portletURL;
+	}
+
+	public long[] getSelectedGroupIds() {
+		return _selectedGroupIds;
+	}
+
+	public boolean isShowSearch() {
+		return _showSearch;
+	}
+
 	public void setDisplayStyle(String displayStyle) {
 		_displayStyle = displayStyle;
 	}
@@ -91,30 +123,34 @@ public class SiteBrowserTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-site:site-browser:displayStyle", _displayStyle);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-site:site-browser:emptyResultsMessage",
-			_getEmptyResultsMessage(request));
-		request.setAttribute("liferay-site:site-browser:eventName", _eventName);
-		request.setAttribute("liferay-site:site-browser:groups", _groups);
-		request.setAttribute(
+			_getEmptyResultsMessage(httpServletRequest));
+		httpServletRequest.setAttribute(
+			"liferay-site:site-browser:eventName", _eventName);
+		httpServletRequest.setAttribute(
+			"liferay-site:site-browser:groups", _groups);
+		httpServletRequest.setAttribute(
 			"liferay-site:site-browser:groupsCount", _groupsCount);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-site:site-browser:portletURL", _portletURL);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-site:site-browser:selectedGroupIds", _selectedGroupIds);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-site:site-browser:showSearch", _showSearch);
 	}
 
-	private String _getEmptyResultsMessage(HttpServletRequest request) {
+	private String _getEmptyResultsMessage(
+		HttpServletRequest httpServletRequest) {
+
 		if (Validator.isNotNull(_emptyResultsMessage)) {
 			return _emptyResultsMessage;
 		}
 
-		return LanguageUtil.get(request, "no-results-were-found");
+		return LanguageUtil.get(httpServletRequest, "no-results-were-found");
 	}
 
 	private static final String _PAGE = "/site_browser/page.jsp";

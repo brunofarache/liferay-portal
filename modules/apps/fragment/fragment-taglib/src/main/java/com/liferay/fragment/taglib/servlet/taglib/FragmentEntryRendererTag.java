@@ -48,6 +48,10 @@ public class FragmentEntryRendererTag extends IncludeTag {
 		return super.doStartTag();
 	}
 
+	public long getFragmentEntryId() {
+		return _fragmentEntryId;
+	}
+
 	public void setFragmentEntryId(long fragmentEntryId) {
 		_fragmentEntryId = fragmentEntryId;
 	}
@@ -73,8 +77,8 @@ public class FragmentEntryRendererTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-fragment:fragment-entry-renderer:fragmentEntry",
 			_fragmentEntry);
 	}

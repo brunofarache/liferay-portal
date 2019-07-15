@@ -14,6 +14,7 @@
 
 package com.liferay.portal.upgrade.v7_0_0;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -23,7 +24,6 @@ import com.liferay.portal.kernel.dao.orm.WildcardMode;
 import com.liferay.portal.kernel.upgrade.UpgradeException;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.LoggingTimer;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import java.sql.PreparedStatement;
@@ -113,7 +113,8 @@ public class UpgradeKernelPackage extends UpgradeProcess {
 
 	/**
 	 * @deprecated As of Judson (7.1.x), replaced by {@link
-	 * #upgradeLongTextTable(String, String, String, String, String[])}
+	 *             #upgradeLongTextTable(String, String, String, String,
+	 *             String[])}
 	 */
 	@Deprecated
 	protected void upgradeLongTextTable(
@@ -187,7 +188,8 @@ public class UpgradeKernelPackage extends UpgradeProcess {
 
 	/**
 	 * @deprecated As of Judson (7.1.x), replaced by {@link
-	 * #upgradeLongTextTable(String, String, String, String[][], WildcardMode)}
+	 *             #upgradeLongTextTable(String, String, String, String[][],
+	 *             WildcardMode)}
 	 */
 	@Deprecated
 	protected void upgradeLongTextTable(

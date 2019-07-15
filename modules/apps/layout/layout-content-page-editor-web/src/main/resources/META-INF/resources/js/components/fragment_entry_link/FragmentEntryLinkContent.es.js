@@ -1,38 +1,41 @@
-import {contains} from 'metal-dom';
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
+import {closest, globalEval} from 'metal-dom';
 import Component from 'metal-component';
 import {Config} from 'metal-state';
 import {isFunction, isObject} from 'metal';
 import Soy from 'metal-soy';
 
+import {
+	BACKGROUND_IMAGE_FRAGMENT_ENTRY_PROCESSOR,
+	EDITABLE_FRAGMENT_ENTRY_PROCESSOR
+} from '../../utils/constants';
 import FragmentEditableField from './FragmentEditableField.es';
-import FragmentStyleEditor from './FragmentStyleEditor.es';
-import MetalStore from '../../store/store.es';
 import {setIn} from '../../utils/FragmentsEditorUpdateUtils.es';
 import {shouldUpdateOnChangeProperties} from '../../utils/FragmentsEditorComponentUtils.es';
-import {prefixSegmentsExperienceId} from '../../utils/prefixSegmentsExperienceId.es';
 import templates from './FragmentEntryLinkContent.soy';
-import {UPDATE_EDITABLE_VALUE} from '../../actions/actions.es';
-
-const EDITABLE_FRAGMENT_ENTRY_PROCESSOR = 'com.liferay.fragment.entry.processor.editable.EditableFragmentEntryProcessor';
+import {getConnectedComponent} from '../../store/ConnectedComponent.es';
+import FragmentEditableBackgroundImage from './FragmentEditableBackgroundImage.es';
 
 /**
- * FragmentEntryLinkContent
+ * Creates a Fragment Entry Link Content component.
  * @review
  */
 class FragmentEntryLinkContent extends Component {
-
 	/**
 	 * @inheritDoc
-	 * @review
-	 */
-	created() {
-		this._handleOpenStyleTooltip = this._handleOpenStyleTooltip.bind(this);
-		this._handleStyleChanged = this._handleStyleChanged.bind(this);
-	}
-
-	/**
-	 * @inheritDoc
-	 * @review
 	 */
 	disposed() {
 		this._destroyEditables();
@@ -40,23 +43,33 @@ class FragmentEntryLinkContent extends Component {
 
 	/**
 	 * @inheritDoc
-	 * @review
 	 */
 	prepareStateForRender(state) {
-		return setIn(
-			state,
+		let nextState = state;
+
+		if (state.languageId && Liferay.Language.direction) {
+			nextState = setIn(
+				nextState,
+				['_languageDirection'],
+				Liferay.Language.direction[state.languageId] || 'ltr'
+			);
+		}
+
+		nextState = setIn(
+			nextState,
 			['content'],
 			this.content ? Soy.toIncDom(this.content) : null
 		);
+
+		return nextState;
 	}
 
 	/**
 	 * @inheritDoc
-	 * @review
 	 */
-	rendered() {
+	rendered(firstRender) {
 		if (this.content) {
-			this._renderContent(this.content);
+			this._renderContent(this.content, {evaluateJs: firstRender});
 		}
 	}
 
@@ -66,506 +79,323 @@ class FragmentEntryLinkContent extends Component {
 	 * @review
 	 */
 	shouldUpdate(changes) {
-		return shouldUpdateOnChangeProperties(
-			changes,
-			[
-				'content',
-				'languageId',
-				'segmentsExperienceId',
-				'selectedMappingTypes',
-				'showMapping'
-			]
-		);
+		return shouldUpdateOnChangeProperties(changes, [
+			'content',
+			'languageId',
+			'segmentsExperienceId',
+			'selectedMappingTypes',
+			'showMapping'
+		]);
 	}
 
 	/**
-	 * Handle content changed
+	 * Renders the content if it is changed.
 	 * @inheritDoc
-	 * @param {string} newContent
-	 * @review
+	 * @param {string} newContent The new content to render.
 	 */
 	syncContent(newContent) {
-		if (newContent && (newContent !== this.content)) {
+		if (newContent && newContent !== this.content) {
 			this._renderContent(newContent);
 		}
 	}
 
 	/**
-	 * Handle editableValues changed
+	 * Handles changes to editable values.
 	 * @inheritDoc
-	 * @param {object} newEditableValues
-	 * @param {object} oldEditableValues
-	 * @review
+	 * @param {object} newEditableValues The updated values.
+	 * @param {object} oldEditableValues The original values.
 	 */
 	syncEditableValues(newEditableValues, oldEditableValues) {
 		if (newEditableValues !== oldEditableValues) {
 			if (this._editables) {
-				this._editables.forEach(
-					editable => {
-						const editableValues = (
-							newEditableValues[EDITABLE_FRAGMENT_ENTRY_PROCESSOR] &&
-							newEditableValues[EDITABLE_FRAGMENT_ENTRY_PROCESSOR][editable.editableId]
-						) ?
-							newEditableValues[EDITABLE_FRAGMENT_ENTRY_PROCESSOR][editable.editableId] :
-							{
-								defaultValue: editable.content
-							};
+				this._editables.forEach(editable => {
+					const editableValues =
+						newEditableValues[editable.processor] &&
+						newEditableValues[editable.processor][
+							editable.editableId
+						]
+							? newEditableValues[editable.processor][
+									editable.editableId
+							  ]
+							: {
+									defaultValue: editable.content
+							  };
 
-						editable.editableValues = editableValues;
-					}
-				);
+					editable.editableValues = editableValues;
+				});
 			}
 
-			this._update(
-				{
-					defaultLanguageId: this.defaultLanguageId,
-					defaultSegmentsExperienceId: this.defaultSegmentsExperienceId,
-					languageId: this.languageId,
-					segmentsExperienceId: this.segmentsExperienceId,
-					updateFunctions: []
-				}
-			);
+			this._update({
+				defaultLanguageId: this.defaultLanguageId,
+				defaultSegmentsExperienceId: this.defaultSegmentsExperienceId,
+				languageId: this.languageId,
+				segmentsExperienceId: this.segmentsExperienceId,
+				updateFunctions: []
+			});
 		}
 	}
 
 	/**
-	 * Propagate store to editables when it's loaded
-	 * @review
+	 * Propagates the store to editable fields when it's loaded.
 	 */
 	syncStore() {
 		if (this._editables) {
-			this._editables.forEach(
-				editable => {
-					editable.store = this.store;
-				}
-			);
+			this._editables.forEach(editable => {
+				editable.store = this.store;
+			});
 		}
 	}
 
 	/**
-	 * Create instantes of FragmentStyleEditor for each element styled with
-	 * background image.
-	 */
-	_createBackgroundImageStyleEditors() {
-		if (this._backgroundImageStyleEditors) {
-			this._backgroundImageStyleEditors.forEach(
-				styleEditor => styleEditor.dispose()
-			);
-		}
-
-		this._backgroundImageStyleEditors = this._styles
-			.filter(
-				style => style.css && style.css.backgroundImage
-			)
-			.map(
-				style => style.nodes.map(
-					node => new FragmentStyleEditor(
-						{
-							cssText: style.cssText,
-							editorsOptions: {
-								imageSelectorURL: this.imageSelectorURL
-							},
-							fragmentEntryLinkId: this.fragmentEntryLinkId,
-							node,
-							portletNamespace: this.portletNamespace,
-							selectorText: style.selectorText,
-							showMapping: this.showMapping,
-							store: this.store,
-							type: 'backgroundImage'
-						}
-					)
-				)
-			)
-			.reduce(
-				(styleEditorsA, styleEditorsB) => [
-					...styleEditorsA,
-					...styleEditorsB
-				],
-				[]
-			);
-
-		this._backgroundImageStyleEditors.forEach(
-			styleEditor => {
-				styleEditor.on('openTooltip', this._handleOpenStyleTooltip);
-				styleEditor.on('styleChanged', this._handleStyleChanged);
-			}
-		);
-	}
-
-	/**
-	 * Create instances of FragmentEditableField for each editable.
+	 * Creates instances of a fragment editable field for each editable.
 	 */
 	_createEditables() {
 		this._destroyEditables();
 
-		this._editables = [...this.refs.content.querySelectorAll('lfr-editable')].map(
-			editable => {
-				const editableValues = (
-					this.editableValues[EDITABLE_FRAGMENT_ENTRY_PROCESSOR] &&
-					this.editableValues[EDITABLE_FRAGMENT_ENTRY_PROCESSOR][editable.id]
-				) ? this.editableValues[EDITABLE_FRAGMENT_ENTRY_PROCESSOR][editable.id] :
-					{
-						defaultValue: editable.innerHTML
-					};
+		const backgroundImageEditables = Array.from(
+			this.refs.content.querySelectorAll('[data-lfr-background-image-id]')
+		).map(element => {
+			const editableId = element.dataset.lfrBackgroundImageId;
+			const editableValues =
+				this.editableValues[
+					BACKGROUND_IMAGE_FRAGMENT_ENTRY_PROCESSOR
+				] &&
+				this.editableValues[BACKGROUND_IMAGE_FRAGMENT_ENTRY_PROCESSOR][
+					editableId
+				]
+					? this.editableValues[
+							BACKGROUND_IMAGE_FRAGMENT_ENTRY_PROCESSOR
+					  ][editableId]
+					: {
+							defaultValue: ''
+					  };
 
-				const defaultEditorConfiguration = this
-					.defaultEditorConfigurations[editable.getAttribute('type')] ||
-					this.defaultEditorConfigurations.text;
+			return new FragmentEditableBackgroundImage({
+				editableId,
+				editableValues,
+				element,
+				fragmentEntryLinkId: this.fragmentEntryLinkId,
+				processor: BACKGROUND_IMAGE_FRAGMENT_ENTRY_PROCESSOR,
+				showMapping: this.showMapping,
+				store: this.store
+			});
+		});
 
-				return new FragmentEditableField(
-					{
-						content: editable.innerHTML,
-						editableId: editable.id,
-						editableValues,
-						element: editable,
-						fragmentEntryLinkId: this.fragmentEntryLinkId,
+		const editableFields = Array.from(
+			this.refs.content.querySelectorAll('lfr-editable')
+		).map(editable => {
+			const editableValues =
+				this.editableValues[EDITABLE_FRAGMENT_ENTRY_PROCESSOR] &&
+				this.editableValues[EDITABLE_FRAGMENT_ENTRY_PROCESSOR][
+					editable.id
+				]
+					? this.editableValues[EDITABLE_FRAGMENT_ENTRY_PROCESSOR][
+							editable.id
+					  ]
+					: {
+							defaultValue: editable.innerHTML
+					  };
 
-						processorsOptions: {
-							defaultEditorConfiguration,
-							imageSelectorURL: this.imageSelectorURL
-						},
+			const defaultEditorConfiguration =
+				this.defaultEditorConfigurations[
+					editable.getAttribute('type')
+				] || this.defaultEditorConfigurations.text;
 
-						segmentsExperienceId: this.segmentsExperienceId,
-						showMapping: this.showMapping,
-						store: this.store,
-						type: editable.getAttribute('type')
-					}
-				);
-			}
-		);
+			return new FragmentEditableField({
+				content: editable.innerHTML,
+				editableId: editable.id,
+				editableValues,
+				element: editable,
+				fragmentEntryLinkId: this.fragmentEntryLinkId,
+				processor: EDITABLE_FRAGMENT_ENTRY_PROCESSOR,
+
+				processorsOptions: {
+					defaultEditorConfiguration,
+					imageSelectorURL: this.imageSelectorURL
+				},
+
+				segmentsExperienceId: this.segmentsExperienceId,
+				showMapping: this.showMapping,
+				store: this.store,
+				type: editable.getAttribute('type')
+			});
+		});
+
+		this._editables = [...backgroundImageEditables, ...editableFields];
 	}
 
 	/**
-	 */
-	_createStyles() {
-		const elements = [];
-
-		for (let styleIndex = 0; styleIndex < document.styleSheets.length; styleIndex += 1) {
-			const cssStyle = document.styleSheets[styleIndex];
-
-			if (contains(this.refs.content, cssStyle.ownerNode) && cssStyle.rules) {
-				for (let ruleIndex = 0; ruleIndex < cssStyle.rules.length; ruleIndex += 1) {
-					const cssRule = cssStyle.rules[ruleIndex];
-
-					elements.push(
-						{
-							css: cssRule.style,
-							cssText: cssRule.cssText,
-							nodes: [
-								...this.refs.content.querySelectorAll(
-									cssRule.selectorText
-								)
-							],
-							selectorText: cssRule.selectorText
-						}
-					);
-				}
-			}
-		}
-
-		this._styles = elements;
-	}
-
-	/**
-	 * Destroy existing FragmentEditableField instances.
+	 * Destroys existing fragment editable field instances.
 	 */
 	_destroyEditables() {
 		if (this._editables) {
-			this._editables.forEach(
-				editable => editable.dispose()
-			);
+			this._editables.forEach(editable => editable.dispose());
 
 			this._editables = [];
 		}
 	}
 
 	/**
-	 * Callback executed when a tooltip is opened.
+	 * @param {MouseEvent} event
+	 * @private
+	 * @review
 	 */
-	_handleOpenStyleTooltip() {
-		if (!this._backgroundImageStyleEditors) {
-			return;
+	_handleFragmentEntryLinkContentClick(event) {
+		const element = event.srcElement;
+
+		if (
+			closest(element, '[href]') &&
+			!('lfrPageEditorHrefEnabled' in element.dataset)
+		) {
+			event.preventDefault();
 		}
-
-		this._backgroundImageStyleEditors.forEach(
-			styleEditor => styleEditor.disposeStyleTooltip()
-		);
 	}
 
 	/**
-	 * @param {Object} event
-	 */
-	_handleStyleChanged(event) {
-		const editableValueSegmentsExperienceId = prefixSegmentsExperienceId(this.segmentsExperienceId) || prefixSegmentsExperienceId(this.defaultSegmentsExperienceId);
-
-		this.store.dispatchAction(
-			UPDATE_EDITABLE_VALUE,
-			{
-				editableId: event.name,
-				editableValue: event.value,
-				editableValueId: this.languageId,
-				editableValueSegmentsExperienceId,
-				fragmentEntryLinkId: this.fragmentEntryLinkId
-			}
-		);
-	}
-
-	/**
-	 * Renders the FragmentEntryLink content parsing with AUI
+	 * Parses and renders the fragment entry link content with AUI.
 	 * @param {string} content
+	 * @param {object} [options={}]
+	 * @param {boolean} [options.evaluateJs]
 	 * @private
 	 * @review
 	 */
-	_renderContent(content) {
+	_renderContent(content, options = {}) {
 		if (content && this.refs.content) {
-			AUI().use(
-				'aui-parse-content',
-				A => {
-					const contentNode = A.one(this.refs.content);
-					contentNode.plug(A.Plugin.ParseContent);
-					contentNode.setContent(content);
+			this.refs.content.innerHTML = content;
 
-					this._createStyles();
+			if (options.evaluateJs) {
+				globalEval.runScriptsInElement(this.refs.content);
+			}
 
-					this._createEditables();
+			if (this.editableValues) {
+				this._createEditables();
 
-					this._createBackgroundImageStyleEditors();
-
-					this._update(
-						{
-							defaultLanguageId: this.defaultLanguageId,
-							defaultSegmentsExperienceId: this.defaultSegmentsExperienceId,
-							languageId: this.languageId,
-							segmentsExperienceId: this.segmentsExperienceId,
-							updateFunctions: []
-						}
-					);
-				}
-			);
+				this._update({
+					defaultLanguageId: this.defaultLanguageId,
+					defaultSegmentsExperienceId: this
+						.defaultSegmentsExperienceId,
+					languageId: this.languageId,
+					segmentsExperienceId: this.segmentsExperienceId,
+					updateFunctions: []
+				});
+			}
 		}
 	}
 
 	/**
-	 * Runs a set of update functions through the collection of editable values
-	 * inside this fragment entry link.
-	 * @param {string} languageId The current language id
-	 * @param {string} defaultLanguageId The default language id
-	 * @param {Array<Function>} updateFunctions The set of update functions to execute for each
-	 * 	editable value
+	 * Runs a set of update functions through the editable values inside this
+	 * fragment entry link.
+	 * @param {string} languageId The current language ID.
+	 * @param {string} defaultLanguageId The default language ID.
+	 * @param {Array<Function>} updateFunctions The set of update functions to
+	 * execute for each editable value.
 	 * @private
-	 * @review
 	 */
-	_update(
-		{
-			defaultLanguageId,
-			defaultSegmentsExperienceId,
-			languageId,
-			segmentsExperienceId,
-			updateFunctions
-		}
-	) {
-		const editableValues = this.editableValues[EDITABLE_FRAGMENT_ENTRY_PROCESSOR];
+	_update({
+		defaultLanguageId,
+		defaultSegmentsExperienceId,
+		languageId,
+		segmentsExperienceId,
+		updateFunctions
+	}) {
+		const editableValues = this.editableValues[
+			EDITABLE_FRAGMENT_ENTRY_PROCESSOR
+		];
 
-		Object.keys(editableValues).forEach(
-			editableId => {
-				const editableValue = editableValues[editableId];
-				const segmentedEditableValue = segmentsExperienceId && editableValue[segmentsExperienceId] || editableValue[defaultSegmentsExperienceId];
+		Object.keys(editableValues).forEach(editableId => {
+			const editableValue = editableValues[editableId];
+			const segmentedEditableValue =
+				(segmentsExperienceId && editableValue[segmentsExperienceId]) ||
+				editableValue[defaultSegmentsExperienceId];
 
-				const defaultSegmentedEditableValue = editableValue[defaultSegmentsExperienceId];
+			const defaultSegmentedEditableValue =
+				editableValue[defaultSegmentsExperienceId];
 
-				const defaultValue = (segmentedEditableValue && segmentedEditableValue[defaultLanguageId]) ||
-					defaultSegmentedEditableValue && defaultSegmentedEditableValue[defaultLanguageId] ||
-					editableValue.defaultValue;
-				const mappedField = editableValue.mappedField || '';
-				const value = segmentedEditableValue && segmentedEditableValue[languageId];
+			const defaultValue =
+				(segmentedEditableValue &&
+					segmentedEditableValue[defaultLanguageId]) ||
+				(segmentedEditableValue &&
+					segmentedEditableValue.defaultValue) ||
+				(defaultSegmentedEditableValue &&
+					defaultSegmentedEditableValue[defaultLanguageId]) ||
+				editableValue.defaultValue;
+			const mappedField = editableValue.mappedField || '';
+			const value =
+				segmentedEditableValue && segmentedEditableValue[languageId];
 
-				updateFunctions.forEach(
-					updateFunction => updateFunction(
-						editableId,
-						value,
-						defaultValue,
-						mappedField
-					)
-				);
-			}
-		);
+			updateFunctions.forEach(updateFunction =>
+				updateFunction(editableId, value, defaultValue, mappedField)
+			);
+		});
 	}
-
 }
 
 /**
  * State definition.
- * @review
  * @static
  * @type {!Object}
  */
 FragmentEntryLinkContent.STATE = {
-
 	/**
-	 * Fragment content to be rendered
+	 * Fragment content to be rendered.
 	 * @default ''
 	 * @instance
 	 * @memberOf FragmentEntryLink
-	 * @review
 	 * @type {string}
 	 */
 	content: Config.any()
-		.setter(
-			content => {
-				return !isFunction(content) && isObject(content) ? content.value.content : content;
-			}
-		)
+		.setter(content => {
+			return !isFunction(content) && isObject(content)
+				? content.value.content
+				: content;
+		})
 		.value(''),
 
 	/**
-	 * Default configurations for AlloyEditor instances.
-	 * @default {}
-	 * @instance
-	 * @memberOf FragmentEntryLink
-	 * @review
-	 * @type {object}
-	 */
-	defaultEditorConfigurations: Config.object().value({}),
-
-	/**
-	 * Default language id.
-	 * @default undefined
-	 * @instance
-	 * @memberOf FragmentsEditor
-	 * @review
-	 * @type {!string}
-	 */
-	defaultLanguageId: Config.string().required(),
-
-	/**
-	 * Default segment id.
-	 * @default undefined
-	 * @instance
-	 * @memberOf FragmentsEditor
-	 * @review
-	 * @type {!string}
-	 */
-	defaultSegmentsExperienceId: Config.string(),
-
-	/**
-	 * Editable values that should be used instead of the default ones
-	 * inside editable fields.
+	 * Editable values that should be used instead of the default ones inside
+	 * editable fields.
 	 * @default undefined
 	 * @instance
 	 * @memberOf FragmentEntryLink
-	 * @review
 	 * @type {!Object}
 	 */
 	editableValues: Config.object().required(),
 
 	/**
-	 * FragmentEntryLink id
+	 * Fragment entry link ID.
 	 * @default undefined
 	 * @instance
 	 * @memberOf FragmentEntryLinkContent
-	 * @review
 	 * @type {!string}
 	 */
 	fragmentEntryLinkId: Config.string().required(),
 
 	/**
-	 * Image selector url
-	 * @default undefined
-	 * @instance
-	 * @memberOf FragmentEntryLink
-	 * @review
-	 * @type {!string}
-	 */
-	imageSelectorURL: Config.string().required(),
-
-	/**
-	 * Currently selected language id.
-	 * @default undefined
-	 * @instance
-	 * @memberOf FragmentsEditor
-	 * @review
-	 * @type {!string}
-	 */
-	languageId: Config.string().required(),
-
-	/**
-	 * Currently selected segment id.
-	 * @default undefined
-	 * @instance
-	 * @memberOf FragmentsEditor
-	 * @review
-	 * @type {!string}
-	 */
-	segmentsExperienceId: Config.string(),
-
-	/**
-	 * Selected mapping type label
-	 * @default {}
-	 * @instance
-	 * @memberOf FragmentEntryLink
-	 * @review
-	 * @type {{
-	 *   subtype: {
-	 *   	id: !string,
-	 *   	label: !string
-	 *   },
-	 *   type: {
-	 *   	id: !string,
-	 *   	label: !string
-	 *   }
-	 * }}
-	 */
-	selectedMappingTypes: Config
-		.shapeOf(
-			{
-				subtype: Config.shapeOf(
-					{
-						id: Config.string().required(),
-						label: Config.string().required()
-					}
-				),
-				type: Config.shapeOf(
-					{
-						id: Config.string().required(),
-						label: Config.string().required()
-					}
-				)
-			}
-		)
-		.value({}),
-
-	/**
-	 * If true, asset mapping is enabled
+	 * If <code>true</code>, the asset mapping is enabled.
 	 * @default false
 	 * @instance
 	 * @memberOf FragmentEntryLink
-	 * @review
-	 * @type {bool}
+	 * @type {boolean}
 	 */
-	showMapping: Config.bool().value(false),
-
-	/**
-	 * Store instance
-	 * @default undefined
-	 * @instance
-	 * @memberOf FragmentEntryLink
-	 * @review
-	 * @type {MetalStore}
-	 */
-	store: Config.instanceOf(MetalStore),
-
-	/**
-	 * Portlet namespace needed for prefixing Alloy Editor instances
-	 * @default undefined
-	 * @instance
-	 * @memberOf FragmentEntryLink
-	 * @review
-	 * @type {!string}
-	 */
-	portletNamespace: Config.string().required()
+	showMapping: Config.bool().value(false)
 };
 
-Soy.register(FragmentEntryLinkContent, templates);
+const ConnectedFragmentEntryLinkContent = getConnectedComponent(
+	FragmentEntryLinkContent,
+	[
+		'defaultEditorConfigurations',
+		'defaultLanguageId',
+		'defaultSegmentsExperienceId',
+		'imageSelectorURL',
+		'languageId',
+		'portletNamespace',
+		'selectedMappingTypes',
+		'segmentsExperienceId',
+		'spritemap'
+	]
+);
 
-export {EDITABLE_FRAGMENT_ENTRY_PROCESSOR};
-export default FragmentEntryLinkContent;
+Soy.register(ConnectedFragmentEntryLinkContent, templates);
+
+export {ConnectedFragmentEntryLinkContent, FragmentEntryLinkContent};
+export default ConnectedFragmentEntryLinkContent;

@@ -1,3 +1,17 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 import core from 'metal';
 import Component from 'metal-component';
 import Soy from 'metal-soy';
@@ -5,10 +19,10 @@ import templates from './ProgressBar.soy';
 
 /**
  * UI Component that renders a progress bar.
+ * @deprecated since 7.2
  */
 
 class ProgressBar extends Component {
-
 	/**
 	 * Setter function for the `value` state key. Makes sure the value
 	 * is between the current `min` and `max` state keys.
@@ -57,7 +71,6 @@ class ProgressBar extends Component {
  */
 
 ProgressBar.STATE = {
-
 	/**
 	 * Optional CSS classes to be added to the inner progress bar element,
 	 * like 'progress-bar-danger'.
@@ -71,14 +84,16 @@ ProgressBar.STATE = {
 	/**
 	 * An optional label to be rendered inside the progress bar. Can be either
 	 * a string (with raw text or html) or an incremental dom function.
-	 * @type {function()|string?}
+	 * @type {(function|string)}
 	 */
 
 	label: {
 		validator: label => {
-			return !core.isDefAndNotNull(label) ||
+			return (
+				!core.isDefAndNotNull(label) ||
 				core.isString(label) ||
-				core.isFunction(label);
+				core.isFunction(label)
+			);
 		}
 	},
 

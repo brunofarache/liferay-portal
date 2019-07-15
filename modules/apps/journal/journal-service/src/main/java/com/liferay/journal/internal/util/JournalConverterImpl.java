@@ -43,7 +43,6 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
-import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.util.AggregateResourceBundle;
@@ -453,20 +452,11 @@ public class JournalConverterImpl implements JournalConverter {
 				}
 			}
 
-			return fieldsDisplayValues.toArray(
-				new String[fieldsDisplayValues.size()]);
+			return fieldsDisplayValues.toArray(new String[0]);
 		}
 		catch (Exception e) {
 			throw new PortalException(e);
 		}
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected Serializable getDocumentLibraryValue(String url) {
-		return null;
 	}
 
 	protected Field getField(
@@ -570,7 +560,7 @@ public class JournalConverterImpl implements JournalConverter {
 						uuid, groupId);
 				}
 
-				serializable = jsonObject.toString();
+				serializable = dynamicContentElement.getText();
 			}
 			catch (Exception e) {
 				return StringPool.BLANK;
@@ -601,8 +591,11 @@ public class JournalConverterImpl implements JournalConverter {
 										"the-recycle-bin"));
 						}
 
-						jsonObject.put("title", title);
-						jsonObject.put("uuid", article.getUuid());
+						jsonObject.put(
+							"title", title
+						).put(
+							"uuid", article.getUuid()
+						);
 					}
 					else {
 						jsonObject.put(
@@ -616,8 +609,7 @@ public class JournalConverterImpl implements JournalConverter {
 				serializable = jsonObject.toString();
 			}
 			catch (JSONException jsone) {
-				serializable = FieldConstants.getSerializable(
-					dataType, dynamicContentElement.getText());
+				serializable = StringPool.BLANK;
 			}
 		}
 		else if (Objects.equals(DDMFormFieldType.LINK_TO_PAGE, type)) {
@@ -646,8 +638,11 @@ public class JournalConverterImpl implements JournalConverter {
 				}
 			}
 
-			jsonObject.put("layoutId", layoutId);
-			jsonObject.put("privateLayout", privateLayout);
+			jsonObject.put(
+				"layoutId", layoutId
+			).put(
+				"privateLayout", privateLayout
+			);
 
 			serializable = jsonObject.toString();
 		}
@@ -674,24 +669,6 @@ public class JournalConverterImpl implements JournalConverter {
 		}
 
 		return serializable;
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected FileEntry getFileEntryByDocumentLibraryURL(String url) {
-		return null;
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	protected FileEntry getFileEntryByOldDocumentLibraryURL(String url)
-		throws PortalException {
-
-		return null;
 	}
 
 	protected void getJournalMetadataElement(Element metadataElement) {

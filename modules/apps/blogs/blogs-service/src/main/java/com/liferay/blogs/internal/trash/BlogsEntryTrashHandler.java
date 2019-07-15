@@ -22,12 +22,14 @@ import com.liferay.portal.kernel.portlet.PortletProvider;
 import com.liferay.portal.kernel.portlet.PortletProviderUtil;
 import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.trash.BaseTrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.trash.constants.TrashActionKeys;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
@@ -99,6 +101,20 @@ public class BlogsEntryTrashHandler extends BaseTrashHandler {
 	}
 
 	@Override
+	public boolean isRestorable(long classPK) throws PortalException {
+		BlogsEntry entry = _blogsEntryLocalService.getEntry(classPK);
+
+		if (!hasTrashPermission(
+				PermissionThreadLocal.getPermissionChecker(),
+				entry.getGroupId(), classPK, TrashActionKeys.RESTORE)) {
+
+			return false;
+		}
+
+		return !entry.isInTrashContainer();
+	}
+
+	@Override
 	public void restoreTrashEntry(long userId, long classPK)
 		throws PortalException {
 
@@ -146,13 +162,7 @@ public class BlogsEntryTrashHandler extends BaseTrashHandler {
 			permissionChecker, classPK, actionId);
 	}
 
-	@Reference(unbind = "-")
-	protected void setBlogsEntryLocalService(
-		BlogsEntryLocalService blogsEntryLocalService) {
-
-		_blogsEntryLocalService = blogsEntryLocalService;
-	}
-
+	@Reference
 	private BlogsEntryLocalService _blogsEntryLocalService;
 
 	@Reference(target = "(model.class.name=com.liferay.blogs.model.BlogsEntry)")

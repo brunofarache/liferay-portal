@@ -14,11 +14,12 @@
 
 package com.liferay.portal.security.sso.opensso.configuration;
 
-import aQute.bnd.annotation.ProviderType;
 import aQute.bnd.annotation.metatype.Meta;
 
 import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
 import com.liferay.portal.security.sso.opensso.constants.OpenSSOConfigurationKeys;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Defines the configuration property keys and sensible default values.
@@ -31,9 +32,7 @@ import com.liferay.portal.security.sso.opensso.constants.OpenSSOConfigurationKey
  *
  * @author Michael C. Han
  */
-@ExtendedObjectClassDefinition(
-	category = "sso", scope = ExtendedObjectClassDefinition.Scope.COMPANY
-)
+@ExtendedObjectClassDefinition(category = "sso")
 @Meta.OCD(
 	id = "com.liferay.portal.security.sso.opensso.configuration.OpenSSOConfiguration",
 	localization = "content/Language", name = "opensso-configuration-name"

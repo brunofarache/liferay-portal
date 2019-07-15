@@ -27,7 +27,6 @@ Export-Package:\
 	!com.liferay.portal.freemarker,\
 	!com.liferay.portal.increment,\
 	!com.liferay.portal.javadoc,\
-	!com.liferay.portal.jcr.jackrabbit,\
 	!com.liferay.portal.jericho,\
 	!com.liferay.portal.license.*,\
 	!com.liferay.portal.messaging,\
@@ -42,7 +41,6 @@ Export-Package:\
 	!com.liferay.portal.scripting.python,\
 	!com.liferay.portal.scripting.ruby,\
 	!com.liferay.portal.search,\
-	!com.liferay.portal.security.access.control,\
 	!com.liferay.portal.security.jaas.ext.*,\
 	!com.liferay.portal.service,\
 	!com.liferay.portal.sharepoint.*,\
@@ -52,7 +50,6 @@ Export-Package:\
 	!com.liferay.portal.tools.comparator,\
 	!com.liferay.portal.tools.javadocformatter,\
 	!com.liferay.portal.tools.jspc.common,\
-	!com.liferay.portal.tools.jspc.resin,\
 	!com.liferay.portal.tools.propertiesdoc,\
 	!com.liferay.portal.tools.sass,\
 	!com.liferay.portal.tools.seleniumbuilder,\
@@ -273,7 +270,7 @@ Export-Package:\
 	\
 	org.jdom.*;version='1.0',\
 	\
-	org.json.*;version='2012.6.16.c7d2d9161321e9',\
+	org.json.*;version='20180813',\
 	\
 	org.objectweb.asm;version='7.0',\
 	org.objectweb.asm.commons;version='7.0',\
@@ -341,10 +338,6 @@ Provide-Capability:\
 	@../../../lib/portal/asm-util.jar,\
 	@../../../lib/portal/asm.jar,\
 	@../../../lib/portal/aspectj-rt.jar,\
-	@../../../lib/portal/bnd.jar!/aQute/bnd/annotation/metatype/*,\
-	@../../../lib/portal/bnd.jar!/aQute/bnd/header/*,\
-	@../../../lib/portal/bnd.jar!/aQute/bnd/osgi/*,\
-	@../../../lib/portal/bnd.jar!/aQute/bnd/version/*,\
 	@../../../lib/portal/ccpp.jar,\
 	@../../../lib/portal/commons-beanutils.jar,\
 	@../../../lib/portal/commons-chain.jar,\
@@ -397,7 +390,7 @@ Provide-Capability:\
 	@../../../lib/portal/xstream.jar,\
 	@../../../portal-impl/portal-impl.jar,\
 	@../../../portal-kernel/portal-kernel.jar,\
-	@lib/com.liferay.osgi.felix.util.jar,\
+	@lib/biz.aQute.bnd.annotation.jar!/aQute/bnd/annotation/metatype/*,\
 	@lib/com.liferay.osgi.service.tracker.collections.jar,\
 	@lib/com.liferay.petra.concurrent.jar,\
 	@lib/com.liferay.petra.content.jar,\

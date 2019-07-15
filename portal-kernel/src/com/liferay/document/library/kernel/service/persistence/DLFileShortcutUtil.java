@@ -14,20 +14,19 @@
 
 package com.liferay.document.library.kernel.service.persistence;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.document.library.kernel.model.DLFileShortcut;
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.OrderByComparator;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 import java.io.Serializable;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The persistence utility for the document library file shortcut service. This utility wraps <code>com.liferay.portlet.documentlibrary.service.persistence.impl.DLFileShortcutPersistenceImpl</code> and provides direct access to the database for CRUD operations. This utility should only be used by the service layer, as it must operate within a transaction. Never access this utility in a JSP, controller, model, or other front-end class.
@@ -2133,9 +2132,6 @@ public class DLFileShortcutUtil {
 			_persistence =
 				(DLFileShortcutPersistence)PortalBeanLocatorUtil.locate(
 					DLFileShortcutPersistence.class.getName());
-
-			ReferenceRegistry.registerReference(
-				DLFileShortcutUtil.class, "_persistence");
 		}
 
 		return _persistence;

@@ -43,11 +43,11 @@ public class OrganizationsManagementToolbarDisplayContext
 	public OrganizationsManagementToolbarDisplayContext(
 		LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse,
-		HttpServletRequest request,
+		HttpServletRequest httpServletRequest,
 		OrganizationsDisplayContext organizationsDisplayContext) {
 
 		super(
-			liferayPortletRequest, liferayPortletResponse, request,
+			liferayPortletRequest, liferayPortletResponse, httpServletRequest,
 			organizationsDisplayContext.getOrganizationSearchContainer());
 
 		_organizationsDisplayContext = organizationsDisplayContext;
@@ -61,7 +61,8 @@ public class OrganizationsManagementToolbarDisplayContext
 		try {
 			if (!GroupPermissionUtil.contains(
 					themeDisplay.getPermissionChecker(),
-					themeDisplay.getScopeGroup(), ActionKeys.ASSIGN_MEMBERS)) {
+					themeDisplay.getSiteGroupIdOrLiveGroupId(),
+					ActionKeys.ASSIGN_MEMBERS)) {
 
 				return null;
 			}

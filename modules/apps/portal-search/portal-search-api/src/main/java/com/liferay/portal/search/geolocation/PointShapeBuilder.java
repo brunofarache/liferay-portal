@@ -14,21 +14,22 @@
 
 package com.liferay.portal.search.geolocation;
 
-import aQute.bnd.annotation.ProviderType;
+import java.util.List;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
- * @author Michael C. Han
+ * @author André de Oliveira
  */
 @ProviderType
-public class PointShapeBuilder extends ShapeBuilder {
+public interface PointShapeBuilder {
 
-	public PointShapeBuilder(Coordinate coordinate) {
-		addCoordinates(coordinate);
-	}
+	public PointShapeBuilder addCoordinate(Coordinate coordinate);
 
-	@Override
-	public <T> T accept(ShapeBuilderTranslator<T> shapeBuilderTranslator) {
-		return shapeBuilderTranslator.translate(this);
-	}
+	public PointShape build();
+
+	public PointShapeBuilder coordinates(Coordinate... coordinates);
+
+	public PointShapeBuilder coordinates(List<Coordinate> coordinates);
 
 }

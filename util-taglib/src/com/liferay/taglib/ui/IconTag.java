@@ -14,6 +14,7 @@
 
 package com.liferay.taglib.ui;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Portlet;
@@ -29,7 +30,6 @@ import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -57,12 +57,64 @@ public class IconTag extends IncludeTag {
 		return EVAL_BODY_INCLUDE;
 	}
 
+	public String getAlt() {
+		return _alt;
+	}
+
+	public String getAriaRole() {
+		return _ariaRole;
+	}
+
 	public String getCssClass() {
 		return _cssClass;
 	}
 
 	public String getIcon() {
 		return _icon;
+	}
+
+	public String getIconCssClass() {
+		return _iconCssClass;
+	}
+
+	public String getImageHover() {
+		return _imageHover;
+	}
+
+	public String getLang() {
+		return _lang;
+	}
+
+	public String getLinkCssClass() {
+		return _linkCssClass;
+	}
+
+	/**
+	 * @deprecated As of Judson (7.1.x), with no direct replacement
+	 */
+	@Deprecated
+	public String getLinkTitle() {
+		return _linkTitle;
+	}
+
+	public String getMarkupView() {
+		return _markupView;
+	}
+
+	public String getTarget() {
+		return _target;
+	}
+
+	public boolean isLocalizeMessage() {
+		return _localizeMessage;
+	}
+
+	public boolean isToolTip() {
+		return _toolTip;
+	}
+
+	public boolean isUseDialog() {
+		return _useDialog;
 	}
 
 	public void setAlt(String alt) {
@@ -111,6 +163,14 @@ public class IconTag extends IncludeTag {
 
 	public void setLinkCssClass(String linkCssClass) {
 		_linkCssClass = linkCssClass;
+	}
+
+	/**
+	 * @deprecated As of Judson (7.1.x), with no direct replacement
+	 */
+	@Deprecated
+	public void setLinkTitle(String linkTitle) {
+		_linkTitle = linkTitle;
 	}
 
 	public void setLocalizeMessage(boolean localizeMessage) {
@@ -173,6 +233,7 @@ public class IconTag extends IncludeTag {
 		_label = null;
 		_lang = null;
 		_linkCssClass = null;
+		_linkTitle = null;
 		_localizeMessage = true;
 		_markupView = null;
 		_message = null;
@@ -428,40 +489,50 @@ public class IconTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
-		request.setAttribute("liferay-ui:icon:alt", _alt);
-		request.setAttribute("liferay-ui:icon:ariaRole", _ariaRole);
-		request.setAttribute(
+		httpServletRequest.setAttribute("liferay-ui:icon:alt", _alt);
+		httpServletRequest.setAttribute("liferay-ui:icon:ariaRole", _ariaRole);
+		httpServletRequest.setAttribute(
 			"liferay-ui:icon:auiImage", String.valueOf(isAUIImage()));
-		request.setAttribute("liferay-ui:icon:cssClass", _cssClass);
-		request.setAttribute("liferay-ui:icon:data", _getData());
-		request.setAttribute(
+		httpServletRequest.setAttribute("liferay-ui:icon:cssClass", _cssClass);
+		httpServletRequest.setAttribute("liferay-ui:icon:data", _getData());
+		httpServletRequest.setAttribute(
 			"liferay-ui:icon:details", _getDetails(themeDisplay));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-ui:icon:forcePost", String.valueOf(isForcePost()));
-		request.setAttribute("liferay-ui:icon:icon", _icon);
-		request.setAttribute("liferay-ui:icon:iconCssClass", _iconCssClass);
-		request.setAttribute("liferay-ui:icon:id", getId());
-		request.setAttribute("liferay-ui:icon:image", _image);
-		request.setAttribute("liferay-ui:icon:imageHover", _imageHover);
-		request.setAttribute(
+		httpServletRequest.setAttribute("liferay-ui:icon:icon", _icon);
+		httpServletRequest.setAttribute(
+			"liferay-ui:icon:iconCssClass", _iconCssClass);
+		httpServletRequest.setAttribute("liferay-ui:icon:id", getId());
+		httpServletRequest.setAttribute("liferay-ui:icon:image", _image);
+		httpServletRequest.setAttribute(
+			"liferay-ui:icon:imageHover", _imageHover);
+		httpServletRequest.setAttribute(
 			"liferay-ui:icon:label", String.valueOf(isLabel()));
-		request.setAttribute("liferay-ui:icon:lang", _lang);
-		request.setAttribute("liferay-ui:icon:linkCssClass", _linkCssClass);
-		request.setAttribute(
+		httpServletRequest.setAttribute("liferay-ui:icon:lang", _lang);
+		httpServletRequest.setAttribute(
+			"liferay-ui:icon:linkCssClass", _linkCssClass);
+		httpServletRequest.setAttribute(
+			"liferay-ui:icon:linkTitle", _linkTitle);
+		httpServletRequest.setAttribute(
 			"liferay-ui:icon:localizeMessage",
 			String.valueOf(_localizeMessage));
-		request.setAttribute("liferay-ui:icon:markupView", _markupView);
-		request.setAttribute("liferay-ui:icon:message", getProcessedMessage());
-		request.setAttribute("liferay-ui:icon:method", getMethod());
-		request.setAttribute("liferay-ui:icon:onClick", getOnClick());
-		request.setAttribute("liferay-ui:icon:src", _getSrc(themeDisplay));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
+			"liferay-ui:icon:markupView", _markupView);
+		httpServletRequest.setAttribute(
+			"liferay-ui:icon:message", getProcessedMessage());
+		httpServletRequest.setAttribute("liferay-ui:icon:method", getMethod());
+		httpServletRequest.setAttribute(
+			"liferay-ui:icon:onClick", getOnClick());
+		httpServletRequest.setAttribute(
+			"liferay-ui:icon:src", _getSrc(themeDisplay));
+		httpServletRequest.setAttribute(
 			"liferay-ui:icon:srcHover", _getSrcHover(themeDisplay));
-		request.setAttribute("liferay-ui:icon:target", _target);
+		httpServletRequest.setAttribute("liferay-ui:icon:target", _target);
 
 		boolean toolTip = false;
 
@@ -472,11 +543,12 @@ public class IconTag extends IncludeTag {
 			toolTip = true;
 		}
 
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-ui:icon:toolTip", String.valueOf(toolTip));
 
-		request.setAttribute("liferay-ui:icon:url", getProcessedUrl());
-		request.setAttribute(
+		httpServletRequest.setAttribute(
+			"liferay-ui:icon:url", getProcessedUrl());
+		httpServletRequest.setAttribute(
 			"liferay-ui:icon:useDialog", String.valueOf(_useDialog));
 	}
 
@@ -711,6 +783,7 @@ public class IconTag extends IncludeTag {
 	private Boolean _label;
 	private String _lang;
 	private String _linkCssClass;
+	private String _linkTitle;
 	private boolean _localizeMessage = true;
 	private String _markupView;
 	private String _message;

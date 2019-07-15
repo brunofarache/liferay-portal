@@ -21,7 +21,7 @@ SharedAssetsViewDisplayContext sharedAssetsViewDisplayContext = (SharedAssetsVie
 %>
 
 <clay:navigation-bar
-	inverted="<%= true %>"
+	inverted="<%= layout.isTypeControlPanel() %>"
 	navigationItems="<%= sharedAssetsViewDisplayContext.getNavigationItems() %>"
 />
 
@@ -63,7 +63,7 @@ sharedAssetsViewDisplayContext.populateResults(sharingEntriesSearchContainer);
 
 			<liferay-ui:search-container-column-text
 				cssClass="table-cell-content"
-				href="<%= rowURL %>"
+				href="<%= sharedAssetsViewDisplayContext.isVisible(sharingEntry) ? rowURL : null %>"
 				name="title"
 				orderable="<%= false %>"
 				value="<%= sharedAssetsViewDisplayContext.getTitle(sharingEntry) %>"
@@ -74,6 +74,20 @@ sharedAssetsViewDisplayContext.populateResults(sharingEntriesSearchContainer);
 				orderable="<%= false %>"
 				value="<%= sharedAssetsViewDisplayContext.getAssetTypeTitle(sharingEntry) %>"
 			/>
+
+			<liferay-ui:search-container-column-text
+				cssClass="table-cell-expand-smallest"
+				name="status"
+				orderable="<%= false %>"
+			>
+				<c:if test="<%= !sharedAssetsViewDisplayContext.isVisible(sharingEntry) %>">
+					<span class="label label-info">
+						<span class="label-item label-item-expand">
+							<liferay-ui:message key="not-visible" />
+						</span>
+					</span>
+				</c:if>
+			</liferay-ui:search-container-column-text>
 
 			<liferay-ui:search-container-column-date
 				name="shared-date"

@@ -1,15 +1,14 @@
 package ${packagePath}.model.impl;
 
+import ${serviceBuilder.getCompatJavaClassName("HashUtil")};
+import ${serviceBuilder.getCompatJavaClassName("ProviderType")};
+import ${serviceBuilder.getCompatJavaClassName("StringBundler")};
+
 import ${apiPackagePath}.model.${entity.name};
 
 <#if entity.hasCompoundPK()>
 	import ${apiPackagePath}.service.persistence.${entity.name}PK;
 </#if>
-
-import ${serviceBuilder.getCompatJavaClassName("HashUtil")};
-import ${serviceBuilder.getCompatJavaClassName("StringBundler")};
-
-import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.model.CacheModel;
 import com.liferay.portal.kernel.model.MVCCModel;

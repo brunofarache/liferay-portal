@@ -22,8 +22,6 @@ long kbFolderClassNameId = PortalUtil.getClassNameId(KBFolderConstants.getClassN
 long parentResourceClassNameId = ParamUtil.getLong(request, "parentResourceClassNameId", kbFolderClassNameId);
 long parentResourcePrimKey = ParamUtil.getLong(request, "parentResourcePrimKey", KBFolderConstants.DEFAULT_PARENT_FOLDER_ID);
 
-String keywords = ParamUtil.getString(request, "keywords");
-
 boolean kbFolderView = (parentResourceClassNameId == kbFolderClassNameId);
 
 KBAdminManagementToolbarDisplayContext kbAdminManagementToolbarDisplayContext = new KBAdminManagementToolbarDisplayContext(liferayPortletRequest, liferayPortletResponse, request, renderRequest, renderResponse, portletConfig);
@@ -148,7 +146,7 @@ if (parentResourcePrimKey != KBFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 
 							KBFolder kbFolder = (KBFolder)kbObject;
 
-							rowData.put("actions", String.join(StringPool.COMMA, kbAdminManagementToolbarDisplayContext.getAvailableActionDropdownItems(kbFolder)));
+							rowData.put("actions", StringUtil.merge(kbAdminManagementToolbarDisplayContext.getAvailableActions(kbFolder)));
 
 							row.setData(rowData);
 
@@ -232,7 +230,7 @@ if (parentResourcePrimKey != KBFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 
 							KBArticle kbArticle = (KBArticle)kbObject;
 
-							rowData.put("actions", String.join(StringPool.COMMA, kbAdminManagementToolbarDisplayContext.getAvailableActionDropdownItems(kbArticle)));
+							rowData.put("actions", StringUtil.merge(kbAdminManagementToolbarDisplayContext.getAvailableActions(kbArticle)));
 
 							row.setData(rowData);
 
@@ -319,10 +317,10 @@ if (parentResourcePrimKey != KBFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 	</div>
 </div>
 
-<aui:script sandbox="<%= true %>">
+<aui:script>
 	var deleteEntries = function() {
 		if (confirm('<liferay-ui:message key="are-you-sure-you-want-to-delete-the-selected-entries" />')) {
-			var form = document.querySelector('#<portlet:namespace />fm');
+			var form = document.getElementById('<portlet:namespace />fm');
 
 			if (form) {
 				submitForm(form);

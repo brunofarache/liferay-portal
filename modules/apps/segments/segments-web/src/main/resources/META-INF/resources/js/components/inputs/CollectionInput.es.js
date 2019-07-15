@@ -1,3 +1,17 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 import propTypes from 'prop-types';
 import React from 'react';
 
@@ -10,6 +24,7 @@ import React from 'react';
  */
 class CollectionInput extends React.Component {
 	static propTypes = {
+		disabled: propTypes.bool,
 		onChange: propTypes.func.isRequired,
 		value: propTypes.string
 	};
@@ -22,7 +37,7 @@ class CollectionInput extends React.Component {
 		const {value} = this._stringToKeyValueObject(this.props.value);
 
 		this.props.onChange({value: `${event.target.value}=${value}`});
-	}
+	};
 
 	/**
 	 * Updates the right-side of the '=' character in the value.
@@ -32,7 +47,7 @@ class CollectionInput extends React.Component {
 		const {key} = this._stringToKeyValueObject(this.props.value);
 
 		this.props.onChange({value: `${key}=${event.target.value}`});
-	}
+	};
 
 	/**
 	 * Prevents an '=' character from being entered into the input.
@@ -42,7 +57,7 @@ class CollectionInput extends React.Component {
 		if (event.key === '=') {
 			event.preventDefault();
 		}
-	}
+	};
 
 	/**
 	 * Takes a string value in the format 'key=value' and returns an object
@@ -50,35 +65,41 @@ class CollectionInput extends React.Component {
 	 * @param {string} value A string with an '=' character.
 	 * @returns {Object} Object with key and value properties.
 	 */
-	_stringToKeyValueObject = value => {
-		const valueArray = value.split('=');
+	_stringToKeyValueObject = stringValue => {
+		const [key = '', value = ''] =
+			typeof stringValue == 'string' ? stringValue.split('=') : [];
 
 		return {
-			key: valueArray[0] || '',
-			value: valueArray[1] || ''
+			key,
+			value
 		};
-	}
+	};
 
 	render() {
+		const {disabled} = this.props;
 		const {key, value} = this._stringToKeyValueObject(this.props.value);
 
 		return (
 			<React.Fragment>
 				<input
-					className="criterion-input form-control"
-					data-testid="collection-key-input"
+					className='criterion-input form-control'
+					data-testid='collection-key-input'
+					disabled={disabled}
 					onChange={this._handleKeyChange}
 					onKeyDown={this._handleKeyDown}
-					type="text"
+					placeholder={Liferay.Language.get('key')}
+					type='text'
 					value={key}
 				/>
 
 				<input
-					className="criterion-input form-control"
-					data-testid="collection-value-input"
+					className='criterion-input form-control'
+					data-testid='collection-value-input'
+					disabled={disabled}
 					onChange={this._handleValueChange}
 					onKeyDown={this._handleKeyDown}
-					type="text"
+					placeholder={Liferay.Language.get('value')}
+					type='text'
 					value={value}
 				/>
 			</React.Fragment>

@@ -1,16 +1,37 @@
-import {HIDE_MAPPING_DIALOG, HIDE_MAPPING_TYPE_DIALOG, OPEN_ASSET_TYPE_DIALOG, OPEN_MAPPING_FIELDS_DIALOG, SELECT_MAPPEABLE_TYPE} from '../actions/actions.es';
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
+import {
+	HIDE_MAPPING_DIALOG,
+	HIDE_MAPPING_TYPE_DIALOG,
+	OPEN_ASSET_TYPE_DIALOG,
+	OPEN_MAPPING_FIELDS_DIALOG,
+	SELECT_MAPPEABLE_TYPE
+} from '../actions/actions.es';
 import {setIn} from '../utils/FragmentsEditorUpdateUtils.es';
 
 /**
- * @param {!object} state
- * @param {!string} actionType
+ * @param {object} state
+ * @param {object} action
+ * @param {string} action.type
  * @return {object}
  * @review
  */
-function openAssetTypeDialogReducer(state, actionType) {
+function openAssetTypeDialogReducer(state, action) {
 	let nextState = state;
 
-	if (actionType === OPEN_ASSET_TYPE_DIALOG) {
+	if (action.type === OPEN_ASSET_TYPE_DIALOG) {
 		nextState = setIn(nextState, ['selectMappingTypeDialogVisible'], true);
 	}
 
@@ -18,34 +39,55 @@ function openAssetTypeDialogReducer(state, actionType) {
 }
 
 /**
- * @param {!object} state
- * @param {!string} actionType
- * @param {!object} payload
- * @param {!string} payload.editableId
- * @param {!string} payload.editableType
- * @param {!string} payload.mappedFieldId
+ * @param {object} state
+ * @param {object} action
+ * @param {string} action.editableId
+ * @param {string} action.editableType
+ * @param {string} action.fragmentEntryLinkId
+ * @param {string} action.mappedFieldId
+ * @param {string} action.type
  * @return {object}
  * @review
  */
-function openMappingFieldsDialogReducer(state, actionType, payload) {
+function openMappingFieldsDialogReducer(state, action) {
 	let nextState = state;
 
-	if (actionType === OPEN_MAPPING_FIELDS_DIALOG) {
-		nextState = setIn(nextState, ['selectMappingDialogEditableId'], payload.editableId);
-		nextState = setIn(nextState, ['selectMappingDialogEditableType'], payload.editableType);
-		nextState = setIn(nextState, ['selectMappingDialogMappedFieldId'], payload.mappedFieldId);
+	if (action.type === OPEN_MAPPING_FIELDS_DIALOG) {
+		nextState = setIn(
+			nextState,
+			['selectMappingDialogEditableId'],
+			action.editableId
+		);
+
+		nextState = setIn(
+			nextState,
+			['selectMappingDialogEditableType'],
+			action.editableType
+		);
+
+		nextState = setIn(
+			nextState,
+			['selectMappingDialogMappedFieldId'],
+			action.mappedFieldId
+		);
 
 		nextState = setIn(
 			nextState,
 			['selectMappingDialogFragmentEntryLinkId'],
-			payload.fragmentEntryLinkId
+			action.fragmentEntryLinkId
 		);
 
-		if (nextState.selectedMappingTypes && nextState.selectedMappingTypes.type) {
+		if (
+			nextState.selectedMappingTypes &&
+			nextState.selectedMappingTypes.type
+		) {
 			nextState = setIn(nextState, ['selectMappingDialogVisible'], true);
-		}
-		else {
-			nextState = setIn(nextState, ['selectMappingTypeDialogVisible'], true);
+		} else {
+			nextState = setIn(
+				nextState,
+				['selectMappingTypeDialogVisible'],
+				true
+			);
 		}
 	}
 
@@ -53,68 +95,67 @@ function openMappingFieldsDialogReducer(state, actionType, payload) {
 }
 
 /**
- * @param {!object} state
- * @param {!string} actionType
- * @param {!object} payload
- * @param {!string} payload.selectedMappingSubtypeId
- * @param {!string} payload.selectedMappingTypeId
+ * @param {object} state
+ * @param {object} action
+ * @param {{}} action.mappingTypes
+ * @param {string} action.selectedMappingSubtypeId
+ * @param {string} action.selectedMappingTypeId
+ * @param {string} action.type
  * @return {object}
  * @review
  */
-function selectMappeableTypeReducer(state, actionType, payload) {
-	return new Promise(
-		resolve => {
-			let nextState = state;
+function selectMappeableTypeReducer(state, action) {
+	return new Promise(resolve => {
+		let nextState = state;
 
-			if (actionType === SELECT_MAPPEABLE_TYPE) {
-				_selectMappingType(
-					nextState.classPK,
-					nextState.portletNamespace,
-					payload.selectedMappingSubtypeId,
-					payload.selectedMappingTypeId,
-					nextState.updateLayoutPageTemplateEntryAssetTypeURL
-				)
-					.then(
-						() => {
-							nextState = setIn(
-								nextState,
-								['selectedMappingTypes'],
-								payload.mappingTypes
-							);
-
-							if (
-								nextState.selectMappingDialogFragmentEntryLinkId &&
-								nextState.selectMappingDialogEditableId
-							) {
-								nextState = setIn(nextState, ['selectMappingDialogVisible'], true);
-							}
-
-							resolve(nextState);
-						}
-					)
-					.catch(
-						() => {
-							resolve(nextState);
-						}
+		if (action.type === SELECT_MAPPEABLE_TYPE) {
+			_selectMappingType(
+				nextState.classPK,
+				nextState.portletNamespace,
+				action.selectedMappingSubtypeId,
+				action.selectedMappingTypeId,
+				nextState.updateLayoutPageTemplateEntryAssetTypeURL
+			)
+				.then(() => {
+					nextState = setIn(
+						nextState,
+						['selectedMappingTypes'],
+						action.mappingTypes
 					);
-			}
-			else {
-				resolve(nextState);
-			}
+
+					if (
+						nextState.selectMappingDialogFragmentEntryLinkId &&
+						nextState.selectMappingDialogEditableId
+					) {
+						nextState = setIn(
+							nextState,
+							['selectMappingDialogVisible'],
+							true
+						);
+					}
+
+					resolve(nextState);
+				})
+				.catch(() => {
+					resolve(nextState);
+				});
+		} else {
+			resolve(nextState);
 		}
-	);
+	});
 }
 
 /**
- * @param {!object} state
- * @param {!string} actionType
+ * @param {object} state
+ * @param {object} action
+ * @param {string} action.type
  * @return {object}
  * @review
  */
-function hideMappingDialogReducer(state, actionType) {
+function hideMappingDialogReducer(state, action) {
 	let nextState = state;
 
-	if (actionType === HIDE_MAPPING_DIALOG) {
+	if (action.type === HIDE_MAPPING_DIALOG) {
 		nextState = setIn(nextState, ['selectMappingDialogVisible'], false);
 	}
 
@@ -122,15 +163,16 @@ function hideMappingDialogReducer(state, actionType) {
 }
 
 /**
- * @param {!object} state
- * @param {!string} actionType
+ * @param {object} state
+ * @param {object} action
+ * @param {string} action.type
  * @return {object}
  * @review
  */
-function hideMappingTypeDialogReducer(state, actionType) {
+function hideMappingTypeDialogReducer(state, action) {
 	let nextState = state;
 
-	if (actionType === HIDE_MAPPING_TYPE_DIALOG) {
+	if (action.type === HIDE_MAPPING_TYPE_DIALOG) {
 		nextState = setIn(nextState, ['selectMappingTypeDialogVisible'], false);
 	}
 
@@ -159,16 +201,11 @@ function _selectMappingType(
 	formData.append(`${portletNamespace}classNameId`, selectedMappingTypeId);
 	formData.append(`${portletNamespace}classPK`, classPK);
 
-	return fetch(
-		updateLayoutPageTemplateEntryAssetTypeURL,
-		{
-			body: formData,
-			credentials: 'include',
-			method: 'POST'
-		}
-	).then(
-		response => response.json()
-	);
+	return fetch(updateLayoutPageTemplateEntryAssetTypeURL, {
+		body: formData,
+		credentials: 'include',
+		method: 'POST'
+	}).then(response => response.json());
 }
 
 export {

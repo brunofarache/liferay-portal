@@ -14,8 +14,8 @@
 
 package com.liferay.frontend.js.spa.web.internal.servlet.taglib.util;
 
-import com.liferay.frontend.js.spa.web.configuration.SPAConfiguration;
-import com.liferay.frontend.js.spa.web.configuration.SPAConfigurationUtil;
+import com.liferay.frontend.js.spa.web.internal.configuration.SPAConfiguration;
+import com.liferay.frontend.js.spa.web.internal.configuration.SPAConfigurationUtil;
 import com.liferay.osgi.util.StringPlus;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -35,7 +35,6 @@ import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.ResourceBundleLoaderUtil;
-import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
@@ -71,7 +70,7 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * @author Bruno Basto
  */
 @Component(
-	configurationPid = "com.liferay.frontend.js.spa.web.configuration.SPAConfiguration",
+	configurationPid = "com.liferay.frontend.js.spa.web.internal.configuration.SPAConfiguration",
 	service = SPAUtil.class
 )
 public class SPAUtil {
@@ -84,15 +83,6 @@ public class SPAUtil {
 		return _SPA_EXCLUDED_PATHS;
 	}
 
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	public ResourceBundle getLanguageResourceBundle(Locale locale) {
-		return ResourceBundleUtil.getBundle(
-			"content.Language", locale, getClass());
-	}
-
 	public ResourceBundle getLanguageResourceBundle(
 		String servletContextName, Locale locale) {
 
@@ -100,14 +90,11 @@ public class SPAUtil {
 			ResourceBundleLoaderUtil.
 				getResourceBundleLoaderByServletContextName(servletContextName);
 
-		ResourceBundle resourceBundle = resourceBundleLoader.loadResourceBundle(
-			locale);
-
-		return resourceBundle;
+		return resourceBundleLoader.loadResourceBundle(locale);
 	}
 
-	public String getLoginRedirect(HttpServletRequest request) {
-		return ParamUtil.getString(request, _REDIRECT_PARAM_NAME);
+	public String getLoginRedirect(HttpServletRequest httpServletRequest) {
+		return ParamUtil.getString(httpServletRequest, _REDIRECT_PARAM_NAME);
 	}
 
 	public String getNavigationExceptionSelectors() {
@@ -157,16 +144,17 @@ public class SPAUtil {
 	}
 
 	public boolean isClearScreensCache(
-		HttpServletRequest request, HttpSession session) {
+		HttpServletRequest httpServletRequest, HttpSession session) {
 
 		boolean singlePageApplicationClearCache = GetterUtil.getBoolean(
-			request.getAttribute(WebKeys.SINGLE_PAGE_APPLICATION_CLEAR_CACHE));
+			httpServletRequest.getAttribute(
+				WebKeys.SINGLE_PAGE_APPLICATION_CLEAR_CACHE));
 
 		if (singlePageApplicationClearCache) {
 			return true;
 		}
 
-		String portletId = request.getParameter("p_p_id");
+		String portletId = httpServletRequest.getParameter("p_p_id");
 
 		if (Validator.isNull(portletId)) {
 			return false;

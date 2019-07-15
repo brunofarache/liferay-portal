@@ -19,6 +19,7 @@ import com.liferay.expando.kernel.model.CustomAttributesDisplay;
 import com.liferay.exportimport.kernel.lar.PortletDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.application.type.ApplicationType;
 import com.liferay.portal.kernel.atom.AtomCollectionAdapter;
@@ -66,7 +67,6 @@ import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ServiceProxyFactory;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.webdav.WebDAVStorage;
@@ -700,6 +700,10 @@ public class PortletImpl extends PortletBaseImpl {
 	@Override
 	public ConfigurationAction getConfigurationActionInstance() {
 		PortletBag portletBag = PortletBagPool.get(getRootPortletId());
+
+		if (portletBag == null) {
+			return null;
+		}
 
 		List<ConfigurationAction> configurationActionInstances =
 			portletBag.getConfigurationActionInstances();
@@ -2233,6 +2237,10 @@ public class PortletImpl extends PortletBaseImpl {
 	public WebDAVStorage getWebDAVStorageInstance() {
 		PortletBag portletBag = PortletBagPool.get(getRootPortletId());
 
+		if (portletBag == null) {
+			return null;
+		}
+
 		List<WebDAVStorage> webDAVStorageInstances =
 			portletBag.getWebDAVStorageInstances();
 
@@ -2759,7 +2767,7 @@ public class PortletImpl extends PortletBaseImpl {
 		Readiness readiness = _readinessMap.get(getRootPortletId());
 
 		if (readiness == null) {
-			return true;
+			return false;
 		}
 
 		return readiness._ready;
@@ -2932,7 +2940,7 @@ public class PortletImpl extends PortletBaseImpl {
 			}
 		}
 
-		String[] array = linkedRoles.toArray(new String[linkedRoles.size()]);
+		String[] array = linkedRoles.toArray(new String[0]);
 
 		Arrays.sort(array);
 

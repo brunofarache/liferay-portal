@@ -14,8 +14,10 @@
 
 package com.liferay.layout.content.page.editor.web.internal.portlet.action;
 
+import com.liferay.asset.service.AssetEntryUsageLocalService;
 import com.liferay.fragment.model.FragmentEntryLink;
-import com.liferay.fragment.service.FragmentEntryLinkLocalService;
+import com.liferay.fragment.processor.PortletRegistry;
+import com.liferay.fragment.service.FragmentEntryLinkService;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalService;
 import com.liferay.petra.string.StringPool;
@@ -25,19 +27,22 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
+import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
-import com.liferay.portal.kernel.service.PortletPreferencesLocalService;
+import com.liferay.portal.kernel.service.PortletLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.TransactionConfig;
 import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.PortletKeys;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import javax.portlet.ActionRequest;
@@ -71,16 +76,8 @@ public class DeleteFragmentEntryLinkMVCActionCommand
 			actionRequest, "fragmentEntryLinkId");
 
 		FragmentEntryLink fragmentEntryLink =
-			_fragmentEntryLinkLocalService.deleteFragmentEntryLink(
+			_fragmentEntryLinkService.deleteFragmentEntryLink(
 				fragmentEntryLinkId);
-
-		long classNameId = ParamUtil.getLong(actionRequest, "classNameId");
-		long classPK = ParamUtil.getLong(actionRequest, "classPK");
-		String data = ParamUtil.getString(actionRequest, "data");
-
-		_layoutPageTemplateStructureLocalService.
-			updateLayoutPageTemplateStructure(
-				themeDisplay.getScopeGroupId(), classNameId, classPK, data);
 
 		if (fragmentEntryLink.getFragmentEntryId() == 0) {
 			JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
@@ -90,12 +87,36 @@ public class DeleteFragmentEntryLinkMVCActionCommand
 				"portletId", StringPool.BLANK);
 
 			if (Validator.isNotNull(portletId)) {
-				_portletPreferencesLocalService.deletePortletPreferences(
-					PortletKeys.PREFS_OWNER_ID_DEFAULT,
-					PortletKeys.PREFS_OWNER_TYPE_LAYOUT, themeDisplay.getPlid(),
-					portletId);
+				String instanceId = jsonObject.getString(
+					"instanceId", StringPool.BLANK);
+
+				_portletLocalService.deletePortlet(
+					themeDisplay.getCompanyId(),
+					PortletIdCodec.encode(portletId, instanceId),
+					themeDisplay.getPlid());
+
+				_assetEntryUsageLocalService.deleteAssetEntryUsages(
+					_portal.getClassNameId(Portlet.class),
+					PortletIdCodec.encode(portletId, instanceId),
+					themeDisplay.getPlid());
 			}
 		}
+
+		List<String> portletIds =
+			_portletRegistry.getFragmentEntryLinkPortletIds(fragmentEntryLink);
+
+		for (String portletId : portletIds) {
+			_portletLocalService.deletePortlet(
+				themeDisplay.getCompanyId(), portletId, themeDisplay.getPlid());
+
+			_assetEntryUsageLocalService.deleteAssetEntryUsages(
+				_portal.getClassNameId(Portlet.class), portletId,
+				themeDisplay.getPlid());
+		}
+
+		_assetEntryUsageLocalService.deleteAssetEntryUsages(
+			_portal.getClassNameId(FragmentEntryLink.class),
+			String.valueOf(fragmentEntryLinkId), themeDisplay.getPlid());
 
 		return fragmentEntryLink;
 	}
@@ -139,14 +160,23 @@ public class DeleteFragmentEntryLinkMVCActionCommand
 			Propagation.REQUIRED, new Class<?>[] {Exception.class});
 
 	@Reference
-	private FragmentEntryLinkLocalService _fragmentEntryLinkLocalService;
+	private AssetEntryUsageLocalService _assetEntryUsageLocalService;
+
+	@Reference
+	private FragmentEntryLinkService _fragmentEntryLinkService;
 
 	@Reference
 	private LayoutPageTemplateStructureLocalService
 		_layoutPageTemplateStructureLocalService;
 
 	@Reference
-	private PortletPreferencesLocalService _portletPreferencesLocalService;
+	private Portal _portal;
+
+	@Reference
+	private PortletLocalService _portletLocalService;
+
+	@Reference
+	private PortletRegistry _portletRegistry;
 
 	private class DeleteFragmentEntryLinkCallable
 		implements Callable<FragmentEntryLink> {

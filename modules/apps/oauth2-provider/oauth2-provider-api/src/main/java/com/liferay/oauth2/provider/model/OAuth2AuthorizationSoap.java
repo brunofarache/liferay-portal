@@ -14,13 +14,13 @@
 
 package com.liferay.oauth2.provider.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * This class is used by SOAP remote services, specifically {@link com.liferay.oauth2.provider.service.http.OAuth2AuthorizationServiceSoap}.
@@ -49,6 +49,7 @@ public class OAuth2AuthorizationSoap implements Serializable {
 		soapModel.setAccessTokenCreateDate(model.getAccessTokenCreateDate());
 		soapModel.setAccessTokenExpirationDate(
 			model.getAccessTokenExpirationDate());
+		soapModel.setRemoteHostInfo(model.getRemoteHostInfo());
 		soapModel.setRemoteIPInfo(model.getRemoteIPInfo());
 		soapModel.setRefreshTokenContent(model.getRefreshTokenContent());
 		soapModel.setRefreshTokenContentHash(
@@ -208,6 +209,14 @@ public class OAuth2AuthorizationSoap implements Serializable {
 		_accessTokenExpirationDate = accessTokenExpirationDate;
 	}
 
+	public String getRemoteHostInfo() {
+		return _remoteHostInfo;
+	}
+
+	public void setRemoteHostInfo(String remoteHostInfo) {
+		_remoteHostInfo = remoteHostInfo;
+	}
+
 	public String getRemoteIPInfo() {
 		return _remoteIPInfo;
 	}
@@ -259,6 +268,7 @@ public class OAuth2AuthorizationSoap implements Serializable {
 	private long _accessTokenContentHash;
 	private Date _accessTokenCreateDate;
 	private Date _accessTokenExpirationDate;
+	private String _remoteHostInfo;
 	private String _remoteIPInfo;
 	private String _refreshTokenContent;
 	private long _refreshTokenContentHash;

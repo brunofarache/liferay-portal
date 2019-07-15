@@ -91,6 +91,10 @@ public class CreationMenu extends HashMap {
 		put("helpText", helpText);
 	}
 
+	public void setItemsIconAlignment(String itemsIconAlignment) {
+		put("itemsIconAlignment", itemsIconAlignment);
+	}
+
 	public void setViewMoreURL(String viewMoreURL) {
 		put("viewMoreURL", viewMoreURL);
 	}
@@ -112,9 +116,8 @@ public class CreationMenu extends HashMap {
 
 		if (!_restDropdownItems.isEmpty()) {
 			secondaryDropdownItemList.addGroup(
-				dropdownGroupItem -> {
-					dropdownGroupItem.setDropdownItems(_restDropdownItems);
-				});
+				dropdownGroupItem -> dropdownGroupItem.setDropdownItems(
+					_restDropdownItems));
 		}
 
 		return secondaryDropdownItemList;

@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -74,10 +75,11 @@ public class SortPortletPreferencesImpl implements SortPortletPreferences {
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
 
 		for (Preset preset : _presets) {
-			JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
-
-			jsonObject.put("field", preset._field);
-			jsonObject.put("label", preset._label);
+			JSONObject jsonObject = JSONUtil.put(
+				"field", preset._field
+			).put(
+				"label", preset._label
+			);
 
 			jsonArray.put(jsonObject);
 		}
@@ -89,12 +91,12 @@ public class SortPortletPreferencesImpl implements SortPortletPreferences {
 		SortPortletPreferencesImpl.class);
 
 	private static final Preset[] _presets = {
-		new Preset("", "Relevance"), new Preset("title", "Title"),
-		new Preset("modified-", "Modified"),
-		new Preset("modified+", "Modified (oldest first)"),
-		new Preset("createDate-", "Created"),
-		new Preset("createDate+", "Created (oldest first)"),
-		new Preset("userName", "User")
+		new Preset("", "relevance"), new Preset("title", "title"),
+		new Preset("modified-", "modified"),
+		new Preset("modified+", "modified-oldest-first"),
+		new Preset("createDate-", "created"),
+		new Preset("createDate+", "created-oldest-first"),
+		new Preset("userName", "user")
 	};
 
 	private final PortletPreferencesHelper _portletPreferencesHelper;

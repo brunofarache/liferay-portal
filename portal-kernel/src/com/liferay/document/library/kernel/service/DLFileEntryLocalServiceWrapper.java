@@ -14,9 +14,9 @@
 
 package com.liferay.document.library.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.service.ServiceWrapper;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link DLFileEntryLocalService}.
@@ -76,7 +76,9 @@ public class DLFileEntryLocalServiceWrapper
 	}
 
 	/**
-	 * @deprecated As of Judson (7.1.x), replaced by {@link #checkInFileEntry(long, long, DLVersionNumberIncrease, String, ServiceContext)}
+	 * @deprecated As of Judson (7.1.x), replaced by {@link
+	 #checkInFileEntry(long, long, DLVersionNumberIncrease,
+	 String, ServiceContext)}
 	 */
 	@Deprecated
 	@Override
@@ -1055,6 +1057,14 @@ public class DLFileEntryLocalServiceWrapper
 	}
 
 	@Override
+	public boolean hasFileEntryLock(
+		long userId, long fileEntryId, long folderId) {
+
+		return _dlFileEntryLocalService.hasFileEntryLock(
+			userId, fileEntryId, folderId);
+	}
+
+	@Override
 	public void incrementViewCounter(
 		com.liferay.document.library.kernel.model.DLFileEntry dlFileEntry,
 		int increment) {
@@ -1179,7 +1189,10 @@ public class DLFileEntryLocalServiceWrapper
 	}
 
 	/**
-	 * @deprecated As of Judson (7.1.x), replaced by {@link #updateFileEntry(long, long, String, String, String, String, String, DLVersionNumberIncrease, long, Map, File, InputStream, long, ServiceContext)}
+	 * @deprecated As of Judson (7.1.x), replaced by {@link
+	 #updateFileEntry(long, long, String, String, String, String,
+	 String, DLVersionNumberIncrease, long, Map, File,
+	 InputStream, long, ServiceContext)}
 	 */
 	@Deprecated
 	@Override

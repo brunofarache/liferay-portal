@@ -14,6 +14,7 @@
 
 package com.liferay.portal.service.persistence.impl;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBType;
@@ -36,7 +37,6 @@ import com.liferay.portal.kernel.service.persistence.UserUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TableNameOrderByComparator;
 import com.liferay.portal.kernel.util.Validator;
@@ -1197,8 +1197,7 @@ public class UserFinderImpl extends UserFinderBaseImpl implements UserFinder {
 			}
 
 			if (!siteGroupIds.isEmpty()) {
-				Long[] siteGroupIdsArray = siteGroupIds.toArray(
-					new Long[siteGroupIds.size()]);
+				Long[] siteGroupIdsArray = siteGroupIds.toArray(new Long[0]);
 
 				params3 = new LinkedHashMap<>(params1);
 
@@ -1219,8 +1218,7 @@ public class UserFinderImpl extends UserFinderBaseImpl implements UserFinder {
 				params5.remove("usersGroups");
 
 				params5.put(
-					"usersUserGroups",
-					userGroupIds.toArray(new Long[userGroupIds.size()]));
+					"usersUserGroups", userGroupIds.toArray(new Long[0]));
 			}
 		}
 
@@ -1254,9 +1252,7 @@ public class UserFinderImpl extends UserFinderBaseImpl implements UserFinder {
 
 				if (PropsValues.ORGANIZATIONS_MEMBERSHIP_STRICT) {
 					params2.put(
-						"usersOrgs",
-						organizationIds.toArray(
-							new Long[organizationIds.size()]));
+						"usersOrgs", organizationIds.toArray(new Long[0]));
 				}
 				else {
 					Map<Serializable, Organization> organizations =
@@ -1270,8 +1266,7 @@ public class UserFinderImpl extends UserFinderBaseImpl implements UserFinder {
 			}
 
 			if (!siteGroupIds.isEmpty()) {
-				Long[] siteGroupIdsArray = siteGroupIds.toArray(
-					new Long[siteGroupIds.size()]);
+				Long[] siteGroupIdsArray = siteGroupIds.toArray(new Long[0]);
 
 				params3 = new LinkedHashMap<>(params1);
 
@@ -1298,8 +1293,7 @@ public class UserFinderImpl extends UserFinderBaseImpl implements UserFinder {
 				params6.remove("usersRoles");
 
 				params6.put(
-					"usersUserGroups",
-					userGroupIds.toArray(new Long[userGroupIds.size()]));
+					"usersUserGroups", userGroupIds.toArray(new Long[0]));
 			}
 		}
 

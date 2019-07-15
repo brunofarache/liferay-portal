@@ -66,6 +66,14 @@ public class PublishChangesetTag extends IncludeTag {
 		return EVAL_BODY_INCLUDE;
 	}
 
+	public Changeset getChangeset() {
+		return _changeset;
+	}
+
+	public long getGroupId() {
+		return _groupId;
+	}
+
 	public void setChangeset(Changeset changeset) {
 		_changeset = changeset;
 	}
@@ -96,11 +104,11 @@ public class PublishChangesetTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-export-import-changeset:publish-changeset:changesetUuid",
 			_changesetUuid);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-export-import-changeset:publish-changeset:groupId",
 			_groupId);
 	}

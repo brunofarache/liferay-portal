@@ -6419,6 +6419,71 @@ to version 2.3.304.
 - [LPS-84119]: Update the [Liferay Source Formatter] dependency to version
 1.0.775.
 
+## 3.13.64 - 2019-01-22
+
+### Added
+- [LPS-89415]: Set the [Liferay Gradle Plugins REST Builder] dependency to
+version 1.0.0.
+- [LPS-89415]: Set the [Liferay Portal Tools REST Builder] dependency to version
+1.0.0.
+
+## 3.13.65 - 2019-01-22
+
+### Changed
+- [LPS-89388]: Update the [Liferay Gradle Plugins Lang Builder] dependency to
+version 3.0.6.
+- [LPS-89388]: Update the [Liferay Lang Builder] dependency to version 1.0.29.
+
+## 3.13.66 - 2019-01-22
+
+### Changed
+- [LPS-86806]: Update the [Liferay Gradle Plugins Source Formatter] dependency
+to version 2.3.305.
+- [LPS-86806]: Update the [Liferay Source Formatter] dependency to version
+1.0.776.
+
+## 3.13.67 - 2019-01-22
+
+### Changed
+- [LPS-89415]: Set the [Liferay Gradle Plugins REST Builder] dependency to
+version 1.0.1.
+- [LPS-89415]: Set the [Liferay Portal Tools REST Builder] dependency to version
+1.0.1.
+
+## 3.13.68 - 2019-01-23
+
+### Changed
+- [LPS-89457]: Update the [Liferay Gradle Plugins Service Builder] dependency to
+version 2.2.9.
+- [LPS-89457]: Update the [Liferay Portal Tools Service Builder] dependency to
+version 1.0.258.
+
+## 3.13.69 - 2019-01-23
+
+### Changed
+- [LPS-74544]: Update the [Liferay Gradle Plugins Source Formatter] dependency
+to version 2.3.306.
+- [LPS-74544]: Update the [Liferay Source Formatter] dependency to version
+1.0.777.
+
+## 3.13.70 - 2019-01-24
+
+### Changed
+- [LPS-89369]: Update the [Liferay Gradle Plugins Gulp] dependency to version
+2.0.43.
+- [LPS-89369]: Update the [Liferay Gradle Plugins JS Module Config Generator]
+dependency to version 2.1.43.
+- [LPS-89369]: Update the [Liferay Gradle Plugins JS Transpiler] dependency to
+version 2.4.22.
+
+## 3.13.71 - 2019-01-24
+
+### Changed
+- [LPS-89415]: Set the [Liferay Gradle Plugins REST Builder] dependency to
+version 1.0.2.
+- [LPS-89415]: Set the [Liferay Portal Tools REST Builder] dependency to version
+1.0.2.
+
 [Gradle Bundle Plugin]: https://github.com/TomDmitriev/gradle-bundle-plugin
 [Liferay Alloy Taglib]: https://github.com/liferay/alloy-taglibs
 [Liferay Ant BND]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/ant-bnd
@@ -6433,6 +6498,7 @@ to version 2.3.304.
 [Liferay Gradle Plugins Jasper JSPC]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins-jasper-jspc
 [Liferay Gradle Plugins Javadoc Formatter]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins-javadoc-formatter
 [Liferay Gradle Plugins Lang Builder]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins-lang-builder
+[Liferay Gradle Plugins REST Builder]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins-rest-builder
 [Liferay Gradle Plugins Service Builder]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins-service-builder
 [Liferay Gradle Plugins Source Formatter]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins-source-formatter
 [Liferay Gradle Plugins Soy]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins-soy
@@ -6450,6 +6516,7 @@ to version 2.3.304.
 [Liferay Javadoc Formatter]: https://github.com/liferay/liferay-portal/tree/master/modules/util/javadoc-formatter
 [Liferay Lang Builder]: https://github.com/liferay/liferay-portal/tree/master/modules/util/lang-builder
 [Liferay Portal Tools DB Support]: https://github.com/liferay/liferay-portal/tree/master/modules/util/portal-tools-db-support
+[Liferay Portal Tools REST Builder]: https://github.com/liferay/liferay-portal/tree/master/modules/util/portal-tools-rest-builder
 [Liferay Portal Tools Service Builder]: https://github.com/liferay/liferay-portal/tree/master/modules/util/portal-tools-service-builder
 [Liferay Portal Tools Upgrade Table Builder]: https://github.com/liferay/liferay-portal/tree/master/modules/util/portal-tools-upgrade-table-builder
 [Liferay Portal Tools WSDD Builder]: https://github.com/liferay/liferay-portal/tree/master/modules/util/portal-tools-wsdd-builder
@@ -6915,4 +6982,8 @@ to version 2.3.304.
 [LPS-88909]: https://issues.liferay.com/browse/LPS-88909
 [LPS-89126]: https://issues.liferay.com/browse/LPS-89126
 [LPS-89228]: https://issues.liferay.com/browse/LPS-89228
+[LPS-89369]: https://issues.liferay.com/browse/LPS-89369
+[LPS-89388]: https://issues.liferay.com/browse/LPS-89388
+[LPS-89415]: https://issues.liferay.com/browse/LPS-89415
+[LPS-89457]: https://issues.liferay.com/browse/LPS-89457
 [LRDOCS-3023]: https://issues.liferay.com/browse/LRDOCS-3023

@@ -17,8 +17,11 @@ package com.liferay.headless.form.client.serdes.v1_0;
 import com.liferay.headless.form.client.dto.v1_0.Creator;
 import com.liferay.headless.form.client.json.BaseJSONParser;
 
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.annotation.Generated;
 
@@ -43,96 +46,228 @@ public class CreatorSerDes {
 
 	public static String toJSON(Creator creator) {
 		if (creator == null) {
-			return "{}";
+			return "null";
 		}
 
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("{");
 
-		sb.append("\"additionalName\": ");
+		if (creator.getAdditionalName() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
 
-		sb.append("\"");
-		sb.append(creator.getAdditionalName());
-		sb.append("\"");
-		sb.append(", ");
+			sb.append("\"additionalName\": ");
 
-		sb.append("\"familyName\": ");
+			sb.append("\"");
 
-		sb.append("\"");
-		sb.append(creator.getFamilyName());
-		sb.append("\"");
-		sb.append(", ");
+			sb.append(_escape(creator.getAdditionalName()));
 
-		sb.append("\"givenName\": ");
+			sb.append("\"");
+		}
 
-		sb.append("\"");
-		sb.append(creator.getGivenName());
-		sb.append("\"");
-		sb.append(", ");
+		if (creator.getFamilyName() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
 
-		sb.append("\"id\": ");
+			sb.append("\"familyName\": ");
 
-		sb.append(creator.getId());
-		sb.append(", ");
+			sb.append("\"");
 
-		sb.append("\"image\": ");
+			sb.append(_escape(creator.getFamilyName()));
 
-		sb.append("\"");
-		sb.append(creator.getImage());
-		sb.append("\"");
-		sb.append(", ");
+			sb.append("\"");
+		}
 
-		sb.append("\"name\": ");
+		if (creator.getGivenName() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
 
-		sb.append("\"");
-		sb.append(creator.getName());
-		sb.append("\"");
-		sb.append(", ");
+			sb.append("\"givenName\": ");
 
-		sb.append("\"profileURL\": ");
+			sb.append("\"");
 
-		sb.append("\"");
-		sb.append(creator.getProfileURL());
-		sb.append("\"");
+			sb.append(_escape(creator.getGivenName()));
+
+			sb.append("\"");
+		}
+
+		if (creator.getId() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"id\": ");
+
+			sb.append(creator.getId());
+		}
+
+		if (creator.getImage() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"image\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(creator.getImage()));
+
+			sb.append("\"");
+		}
+
+		if (creator.getName() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"name\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(creator.getName()));
+
+			sb.append("\"");
+		}
+
+		if (creator.getProfileURL() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"profileURL\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(creator.getProfileURL()));
+
+			sb.append("\"");
+		}
 
 		sb.append("}");
 
 		return sb.toString();
 	}
 
-	public static String toJSON(Collection<Creator> creators) {
-		if (creators == null) {
-			return "[]";
+	public static Map<String, Object> toMap(String json) {
+		CreatorJSONParser creatorJSONParser = new CreatorJSONParser();
+
+		return creatorJSONParser.parseToMap(json);
+	}
+
+	public static Map<String, String> toMap(Creator creator) {
+		if (creator == null) {
+			return null;
 		}
 
-		StringBuilder sb = new StringBuilder();
+		Map<String, String> map = new HashMap<>();
 
-		sb.append("[");
+		if (creator.getAdditionalName() == null) {
+			map.put("additionalName", null);
+		}
+		else {
+			map.put(
+				"additionalName", String.valueOf(creator.getAdditionalName()));
+		}
 
-		for (Creator creator : creators) {
-			if (sb.length() > 1) {
-				sb.append(", ");
+		if (creator.getFamilyName() == null) {
+			map.put("familyName", null);
+		}
+		else {
+			map.put("familyName", String.valueOf(creator.getFamilyName()));
+		}
+
+		if (creator.getGivenName() == null) {
+			map.put("givenName", null);
+		}
+		else {
+			map.put("givenName", String.valueOf(creator.getGivenName()));
+		}
+
+		if (creator.getId() == null) {
+			map.put("id", null);
+		}
+		else {
+			map.put("id", String.valueOf(creator.getId()));
+		}
+
+		if (creator.getImage() == null) {
+			map.put("image", null);
+		}
+		else {
+			map.put("image", String.valueOf(creator.getImage()));
+		}
+
+		if (creator.getName() == null) {
+			map.put("name", null);
+		}
+		else {
+			map.put("name", String.valueOf(creator.getName()));
+		}
+
+		if (creator.getProfileURL() == null) {
+			map.put("profileURL", null);
+		}
+		else {
+			map.put("profileURL", String.valueOf(creator.getProfileURL()));
+		}
+
+		return map;
+	}
+
+	private static String _escape(Object object) {
+		String string = String.valueOf(object);
+
+		string = string.replace("\\", "\\\\");
+
+		return string.replace("\"", "\\\"");
+	}
+
+	private static String _toJSON(Map<String, ?> map) {
+		StringBuilder sb = new StringBuilder("{");
+
+		@SuppressWarnings("unchecked")
+		Set set = map.entrySet();
+
+		@SuppressWarnings("unchecked")
+		Iterator<Map.Entry<String, ?>> iterator = set.iterator();
+
+		while (iterator.hasNext()) {
+			Map.Entry<String, ?> entry = iterator.next();
+
+			sb.append("\"");
+			sb.append(entry.getKey());
+			sb.append("\":");
+			sb.append("\"");
+			sb.append(entry.getValue());
+			sb.append("\"");
+
+			if (iterator.hasNext()) {
+				sb.append(",");
 			}
-
-			sb.append(toJSON(creator));
 		}
 
-		sb.append("]");
+		sb.append("}");
 
 		return sb.toString();
 	}
 
 	private static class CreatorJSONParser extends BaseJSONParser<Creator> {
 
+		@Override
 		protected Creator createDTO() {
 			return new Creator();
 		}
 
+		@Override
 		protected Creator[] createDTOArray(int size) {
 			return new Creator[size];
 		}
 
+		@Override
 		protected void setField(
 			Creator creator, String jsonParserFieldName,
 			Object jsonParserFieldValue) {
@@ -154,7 +289,7 @@ public class CreatorSerDes {
 			}
 			else if (Objects.equals(jsonParserFieldName, "id")) {
 				if (jsonParserFieldValue != null) {
-					creator.setId((Long)jsonParserFieldValue);
+					creator.setId(Long.valueOf((String)jsonParserFieldValue));
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "image")) {

@@ -14,19 +14,19 @@
 
 package com.liferay.headless.form.internal.graphql.mutation.v1_0;
 
-import com.liferay.headless.form.dto.v1_0.Form;
+import com.liferay.headless.form.dto.v1_0.FormContext;
+import com.liferay.headless.form.dto.v1_0.FormDocument;
 import com.liferay.headless.form.dto.v1_0.FormRecord;
 import com.liferay.headless.form.resource.v1_0.FormDocumentResource;
 import com.liferay.headless.form.resource.v1_0.FormRecordResource;
 import com.liferay.headless.form.resource.v1_0.FormResource;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.function.UnsafeFunction;
-import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
-import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
-
-import graphql.annotations.annotationTypes.GraphQLField;
-import graphql.annotations.annotationTypes.GraphQLInvokeDetached;
-import graphql.annotations.annotationTypes.GraphQLName;
+import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
+import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
+import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
+import com.liferay.portal.vulcan.multipart.MultipartBody;
 
 import javax.annotation.Generated;
 
@@ -64,32 +64,35 @@ public class Mutation {
 	}
 
 	@GraphQLField
-	@GraphQLInvokeDetached
-	public Form postFormEvaluateContext(
-			@GraphQLName("form-id") Long formId, @GraphQLName("Form") Form form)
+	public FormContext postFormEvaluateContext(
+			@GraphQLName("formId") Long formId,
+			@GraphQLName("formContext") FormContext formContext)
 		throws Exception {
 
 		return _applyComponentServiceObjects(
 			_formResourceComponentServiceObjects,
 			this::_populateResourceContext,
-			formResource -> formResource.postFormEvaluateContext(formId, form));
+			formResource -> formResource.postFormEvaluateContext(
+				formId, formContext));
 	}
 
 	@GraphQLField
-	@GraphQLInvokeDetached
-	public Form postFormUploadFile(
-			@GraphQLName("form-id") Long formId, @GraphQLName("Form") Form form)
+	@GraphQLName("postFormFormDocumentFormIdMultipartBody")
+	public FormDocument postFormFormDocument(
+			@GraphQLName("formId") Long formId,
+			@GraphQLName("multipartBody") MultipartBody multipartBody)
 		throws Exception {
 
 		return _applyComponentServiceObjects(
 			_formResourceComponentServiceObjects,
 			this::_populateResourceContext,
-			formResource -> formResource.postFormUploadFile(formId, form));
+			formResource -> formResource.postFormFormDocument(
+				formId, multipartBody));
 	}
 
-	@GraphQLInvokeDetached
-	public void deleteFormDocument(
-			@GraphQLName("form-document-id") Long formDocumentId)
+	@GraphQLField
+	public boolean deleteFormDocument(
+			@GraphQLName("formDocumentId") Long formDocumentId)
 		throws Exception {
 
 		_applyVoidComponentServiceObjects(
@@ -97,12 +100,14 @@ public class Mutation {
 			this::_populateResourceContext,
 			formDocumentResource -> formDocumentResource.deleteFormDocument(
 				formDocumentId));
+
+		return true;
 	}
 
-	@GraphQLInvokeDetached
+	@GraphQLField
 	public FormRecord putFormRecord(
-			@GraphQLName("form-record-id") Long formRecordId,
-			@GraphQLName("FormRecord") FormRecord formRecord)
+			@GraphQLName("formRecordId") Long formRecordId,
+			@GraphQLName("formRecord") FormRecord formRecord)
 		throws Exception {
 
 		return _applyComponentServiceObjects(
@@ -113,10 +118,9 @@ public class Mutation {
 	}
 
 	@GraphQLField
-	@GraphQLInvokeDetached
 	public FormRecord postFormFormRecord(
-			@GraphQLName("form-id") Long formId,
-			@GraphQLName("FormRecord") FormRecord formRecord)
+			@GraphQLName("formId") Long formId,
+			@GraphQLName("formRecord") FormRecord formRecord)
 		throws Exception {
 
 		return _applyComponentServiceObjects(
@@ -167,26 +171,23 @@ public class Mutation {
 	private void _populateResourceContext(FormResource formResource)
 		throws Exception {
 
-		formResource.setContextCompany(
-			CompanyLocalServiceUtil.getCompany(
-				CompanyThreadLocal.getCompanyId()));
+		formResource.setContextAcceptLanguage(_acceptLanguage);
+		formResource.setContextCompany(_company);
 	}
 
 	private void _populateResourceContext(
 			FormDocumentResource formDocumentResource)
 		throws Exception {
 
-		formDocumentResource.setContextCompany(
-			CompanyLocalServiceUtil.getCompany(
-				CompanyThreadLocal.getCompanyId()));
+		formDocumentResource.setContextAcceptLanguage(_acceptLanguage);
+		formDocumentResource.setContextCompany(_company);
 	}
 
 	private void _populateResourceContext(FormRecordResource formRecordResource)
 		throws Exception {
 
-		formRecordResource.setContextCompany(
-			CompanyLocalServiceUtil.getCompany(
-				CompanyThreadLocal.getCompanyId()));
+		formRecordResource.setContextAcceptLanguage(_acceptLanguage);
+		formRecordResource.setContextCompany(_company);
 	}
 
 	private static ComponentServiceObjects<FormResource>
@@ -195,5 +196,8 @@ public class Mutation {
 		_formDocumentResourceComponentServiceObjects;
 	private static ComponentServiceObjects<FormRecordResource>
 		_formRecordResourceComponentServiceObjects;
+
+	private AcceptLanguage _acceptLanguage;
+	private Company _company;
 
 }

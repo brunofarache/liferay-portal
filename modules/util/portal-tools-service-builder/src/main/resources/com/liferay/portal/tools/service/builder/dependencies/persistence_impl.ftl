@@ -24,6 +24,9 @@
 
 package ${packagePath}.service.persistence.impl;
 
+import ${serviceBuilder.getCompatJavaClassName("ProviderType")};
+import ${serviceBuilder.getCompatJavaClassName("StringBundler")};
+
 <#assign noSuchEntity = serviceBuilder.getNoSuchEntityException(entity) />
 
 import ${apiPackagePath}.exception.${noSuchEntity}Exception;
@@ -39,10 +42,6 @@ import ${apiPackagePath}.service.persistence.${entity.name}Persistence;
 <#if dependencyInjectorDS>
 	import ${packagePath}.service.persistence.impl.constants.${portletShortName}PersistenceConstants;
 </#if>
-
-import ${serviceBuilder.getCompatJavaClassName("StringBundler")};
-
-import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.configuration.Configuration;
@@ -66,13 +65,12 @@ import com.liferay.portal.kernel.model.MVCCModel;
 import com.liferay.portal.kernel.sanitizer.Sanitizer;
 import com.liferay.portal.kernel.sanitizer.SanitizerException;
 import com.liferay.portal.kernel.sanitizer.SanitizerUtil;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.security.permission.InlineSQLHelperUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;
-import com.liferay.portal.kernel.service.persistence.CompanyProvider;
-import com.liferay.portal.kernel.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.service.persistence.impl.NestedSetsTreeManager;
 import com.liferay.portal.kernel.service.persistence.impl.PersistenceNestedSetsTreeManager;
@@ -442,7 +440,7 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 		</#if>
 
 		<#if entity.isShardedModel()>
-			${entity.varName}.setCompanyId(companyProvider.getCompanyId());
+			${entity.varName}.setCompanyId(CompanyThreadLocal.getCompanyId());
 		</#if>
 
 		return ${entity.varName};
@@ -1386,7 +1384,7 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 					${entity.name} ${entity.varName} = fetchByPrimaryKey(pk);
 
 					if (${entity.varName} == null) {
-						${entity.varName}To${referenceEntity.name}TableMapper.addTableMapping(companyProvider.getCompanyId(), pk, ${referenceEntity.varName}PK);
+						${entity.varName}To${referenceEntity.name}TableMapper.addTableMapping(CompanyThreadLocal.getCompanyId(), pk, ${referenceEntity.varName}PK);
 					}
 					else {
 						${entity.varName}To${referenceEntity.name}TableMapper.addTableMapping(${entity.varName}.getCompanyId(), pk, ${referenceEntity.varName}PK);
@@ -1404,7 +1402,7 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 					${entity.name} ${entity.varName} = fetchByPrimaryKey(pk);
 
 					if (${entity.varName} == null) {
-						${entity.varName}To${referenceEntity.name}TableMapper.addTableMapping(companyProvider.getCompanyId(), pk, ${referenceEntity.varName}.getPrimaryKey());
+						${entity.varName}To${referenceEntity.name}TableMapper.addTableMapping(CompanyThreadLocal.getCompanyId(), pk, ${referenceEntity.varName}.getPrimaryKey());
 					}
 					else {
 						${entity.varName}To${referenceEntity.name}TableMapper.addTableMapping(${entity.varName}.getCompanyId(), pk, ${referenceEntity.varName}.getPrimaryKey());
@@ -1424,7 +1422,7 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 					${entity.name} ${entity.varName} = fetchByPrimaryKey(pk);
 
 					if (${entity.varName} == null) {
-						companyId = companyProvider.getCompanyId();
+						companyId = CompanyThreadLocal.getCompanyId();
 					}
 					else {
 						companyId = ${entity.varName}.getCompanyId();
@@ -1522,7 +1520,7 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 					${entity.name} ${entity.varName} = fetchByPrimaryKey(pk);
 
 					if (${entity.varName} == null) {
-						companyId = companyProvider.getCompanyId();
+						companyId = CompanyThreadLocal.getCompanyId();
 					}
 					else {
 						companyId = ${entity.varName}.getCompanyId();
@@ -2055,32 +2053,6 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 		<#include "persistence_references.ftl">
 
 		private boolean _columnBitmaskEnabled;
-	</#if>
-
-	<#if entity.isShardedModel()>
-		<#if dependencyInjectorDS>
-			@Reference(service = CompanyProviderWrapper.class)
-		<#elseif osgiModule>
-			@ServiceReference(type = CompanyProviderWrapper.class)
-		<#else>
-			@BeanReference(type = CompanyProviderWrapper.class)
-		</#if>
-		protected CompanyProvider companyProvider;
-	<#else>
-		<#list entity.entityColumns as entityColumn>
-			<#if entityColumn.isCollection() && entityColumn.isMappingManyToMany()>
-				<#if dependencyInjectorDS>
-					@Reference(service = CompanyProviderWrapper.class)
-				<#elseif osgiModule>
-					@ServiceReference(type = CompanyProvider.class)
-				<#else>
-					@BeanReference(type = CompanyProvider.class)
-				</#if>
-				protected CompanyProvider companyProvider;
-
-				<#break>
-			</#if>
-		</#list>
 	</#if>
 
 	<#if osgiModule>

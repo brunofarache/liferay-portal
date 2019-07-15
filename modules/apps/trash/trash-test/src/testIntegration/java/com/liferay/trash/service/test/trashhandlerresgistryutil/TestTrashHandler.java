@@ -17,7 +17,6 @@ package com.liferay.trash.service.test.trashhandlerresgistryutil;
 import com.liferay.portal.kernel.model.ContainerModel;
 import com.liferay.portal.kernel.model.SystemEvent;
 import com.liferay.portal.kernel.model.TrashedModel;
-import com.liferay.portal.kernel.search.Query;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -50,24 +49,6 @@ public class TestTrashHandler implements TrashHandler {
 		return null;
 	}
 
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	@Override
-	public void checkDuplicateEntry(
-		long classPK, long containerModelId, String newName) {
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	@Override
-	public void checkDuplicateTrashEntry(
-		TrashEntry trashEntry, long containerModelId, String newName) {
-	}
-
 	@Override
 	public void checkRestorableEntry(
 		long classPK, long containerModelId, String newName) {
@@ -89,15 +70,6 @@ public class TestTrashHandler implements TrashHandler {
 
 	@Override
 	public ContainerModel getContainerModel(long containerModelId) {
-		return null;
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	@Override
-	public String getContainerModelClassName() {
 		return null;
 	}
 
@@ -137,15 +109,6 @@ public class TestTrashHandler implements TrashHandler {
 
 	@Override
 	public Filter getExcludeFilter(SearchContext searchContext) {
-		return null;
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x)
-	 */
-	@Deprecated
-	@Override
-	public Query getExcludeQuery(SearchContext searchContext) {
 		return null;
 	}
 
@@ -286,8 +249,18 @@ public class TestTrashHandler implements TrashHandler {
 		return false;
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #isDeletable(long)}
+	 */
+	@Deprecated
 	@Override
 	public boolean isDeletable() {
+		return false;
+	}
+
+	@Override
+	public boolean isDeletable(long classPK) {
 		return false;
 	}
 
@@ -301,8 +274,18 @@ public class TestTrashHandler implements TrashHandler {
 		return false;
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #isMovable(long)}
+	 */
+	@Deprecated
 	@Override
 	public boolean isMovable() {
+		return false;
+	}
+
+	@Override
+	public boolean isMovable(long classPK) {
 		return false;
 	}
 

@@ -16,6 +16,9 @@ package com.liferay.jenkins.results.parser;
 
 import java.lang.reflect.Proxy;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * @author Michael Hashimoto
  */
@@ -36,6 +39,20 @@ public class BuildRunnerFactory {
 				(PortalBatchBuildData)buildData);
 		}
 
+		if (jobName.startsWith("test-portal-testsuite-upstream-controller(")) {
+			Matcher matcher = _jobNamePattern.matcher(jobName);
+
+			if (matcher.find() && (matcher.group("testSuiteName") != null)) {
+				buildRunner =
+					new PortalTestSuiteUpstreamControllerSingleSuiteBuildRunner(
+						(PortalTestSuiteUpstreamControllerBuildData)buildData);
+			}
+			else {
+				buildRunner = new PortalTestSuiteUpstreamControllerBuildRunner(
+					(PortalTestSuiteUpstreamControllerBuildData)buildData);
+			}
+		}
+
 		if (buildRunner == null) {
 			throw new RuntimeException("Invalid build data " + buildData);
 		}
@@ -44,5 +61,9 @@ public class BuildRunnerFactory {
 			BuildRunner.class.getClassLoader(),
 			new Class<?>[] {BuildRunner.class}, new MethodLogger(buildRunner));
 	}
+
+	private static final Pattern _jobNamePattern = Pattern.compile(
+		"[^\\(]+\\((?<upstreamBranchName>[^_]+)" +
+			"(_(?<testSuiteName>[^\\)]+))?\\)");
 
 }

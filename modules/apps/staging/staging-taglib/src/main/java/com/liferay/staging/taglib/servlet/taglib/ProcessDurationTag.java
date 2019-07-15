@@ -14,8 +14,6 @@
 
 package com.liferay.staging.taglib.servlet.taglib;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.backgroundtask.BackgroundTask;
 import com.liferay.staging.taglib.internal.servlet.ServletContextUtil;
 import com.liferay.taglib.util.IncludeTag;
@@ -23,11 +21,21 @@ import com.liferay.taglib.util.IncludeTag;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * @author Péter Borkuti
  */
 @ProviderType
 public class ProcessDurationTag extends IncludeTag {
+
+	public BackgroundTask getBackgroundTask() {
+		return _backgroundTask;
+	}
+
+	public boolean isListView() {
+		return _listView;
+	}
 
 	public void setBackgroundTask(BackgroundTask backgroundTask) {
 		_backgroundTask = backgroundTask;
@@ -58,10 +66,10 @@ public class ProcessDurationTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-staging:process-duration:backgroundTask", _backgroundTask);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:process-duration:listView", _listView);
 	}
 

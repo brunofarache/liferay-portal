@@ -14,10 +14,9 @@
 
 package com.liferay.counter.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service utility for Counter. This utility wraps
@@ -80,9 +79,6 @@ public class CounterLocalServiceUtil {
 		if (_service == null) {
 			_service = (CounterLocalService)PortalBeanLocatorUtil.locate(
 				CounterLocalService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				CounterLocalServiceUtil.class, "_service");
 		}
 
 		return _service;

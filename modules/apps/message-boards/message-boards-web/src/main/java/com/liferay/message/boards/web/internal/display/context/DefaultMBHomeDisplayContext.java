@@ -14,7 +14,6 @@
 
 package com.liferay.message.boards.web.internal.display.context;
 
-import com.liferay.message.boards.constants.MBCategoryConstants;
 import com.liferay.message.boards.display.context.MBHomeDisplayContext;
 import com.liferay.message.boards.model.MBCategory;
 import com.liferay.message.boards.web.internal.display.context.util.MBRequestHelper;
@@ -31,31 +30,22 @@ import javax.servlet.http.HttpServletResponse;
 public class DefaultMBHomeDisplayContext implements MBHomeDisplayContext {
 
 	public DefaultMBHomeDisplayContext(
-		HttpServletRequest request, HttpServletResponse response) {
+		HttpServletRequest httpServletRequest,
+		HttpServletResponse httpServletResponse) {
 
-		_mbRequestHelper = new MBRequestHelper(request);
+		_mbRequestHelper = new MBRequestHelper(httpServletRequest);
 	}
 
 	@Override
 	public String getTitle() {
-		String title = "add-category[message-board]";
-
 		MBCategory category = _mbRequestHelper.getCategory();
 
-		long parentCategoryId = _mbRequestHelper.getParentCategoryId();
-
-		if (category != null) {
-			title = LanguageUtil.format(
-				_mbRequestHelper.getRequest(), "edit-x", category.getName(),
-				false);
-		}
-		else if (parentCategoryId !=
-					MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID) {
-
-			title = "add-subcategory[message-board]";
+		if (category == null) {
+			return "add-category";
 		}
 
-		return title;
+		return LanguageUtil.format(
+			_mbRequestHelper.getRequest(), "edit-x", category.getName(), false);
 	}
 
 	@Override

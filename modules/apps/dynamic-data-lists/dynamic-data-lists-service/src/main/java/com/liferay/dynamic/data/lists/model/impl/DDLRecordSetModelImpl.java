@@ -14,8 +14,6 @@
 
 package com.liferay.dynamic.data.lists.model.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.dynamic.data.lists.model.DDLRecordSet;
 import com.liferay.dynamic.data.lists.model.DDLRecordSetModel;
 import com.liferay.dynamic.data.lists.model.DDLRecordSetSoap;
@@ -42,6 +40,9 @@ import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
+
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -56,6 +57,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The base model implementation for the DDLRecordSet service. Represents a row in the &quot;DDLRecordSet&quot; database table, with each column mapped to a property of this class.
@@ -136,30 +139,25 @@ public class DDLRecordSetModelImpl
 
 	public static final String TX_MANAGER = "liferayTransactionManager";
 
-	public static final boolean ENTITY_CACHE_ENABLED = GetterUtil.getBoolean(
-		com.liferay.dynamic.data.lists.service.util.ServiceProps.get(
-			"value.object.entity.cache.enabled.com.liferay.dynamic.data.lists.model.DDLRecordSet"),
-		true);
+	public static final long DDMSTRUCTUREID_COLUMN_BITMASK = 1L;
 
-	public static final boolean FINDER_CACHE_ENABLED = GetterUtil.getBoolean(
-		com.liferay.dynamic.data.lists.service.util.ServiceProps.get(
-			"value.object.finder.cache.enabled.com.liferay.dynamic.data.lists.model.DDLRecordSet"),
-		true);
+	public static final long COMPANYID_COLUMN_BITMASK = 2L;
 
-	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(
-		com.liferay.dynamic.data.lists.service.util.ServiceProps.get(
-			"value.object.column.bitmask.enabled.com.liferay.dynamic.data.lists.model.DDLRecordSet"),
-		true);
+	public static final long GROUPID_COLUMN_BITMASK = 4L;
 
-	public static final long COMPANYID_COLUMN_BITMASK = 1L;
+	public static final long RECORDSETKEY_COLUMN_BITMASK = 8L;
 
-	public static final long GROUPID_COLUMN_BITMASK = 2L;
+	public static final long UUID_COLUMN_BITMASK = 16L;
 
-	public static final long RECORDSETKEY_COLUMN_BITMASK = 4L;
+	public static final long RECORDSETID_COLUMN_BITMASK = 32L;
 
-	public static final long UUID_COLUMN_BITMASK = 8L;
+	public static void setEntityCacheEnabled(boolean entityCacheEnabled) {
+		_entityCacheEnabled = entityCacheEnabled;
+	}
 
-	public static final long RECORDSETID_COLUMN_BITMASK = 16L;
+	public static void setFinderCacheEnabled(boolean finderCacheEnabled) {
+		_finderCacheEnabled = finderCacheEnabled;
+	}
 
 	/**
 	 * Converts the soap model instance into a normal model instance.
@@ -218,10 +216,6 @@ public class DDLRecordSetModelImpl
 
 		return models;
 	}
-
-	public static final long LOCK_EXPIRATION_TIME = GetterUtil.getLong(
-		com.liferay.dynamic.data.lists.service.util.ServiceProps.get(
-			"lock.expiration.time.com.liferay.dynamic.data.lists.model.DDLRecordSet"));
 
 	public DDLRecordSetModelImpl() {
 	}
@@ -309,6 +303,32 @@ public class DDLRecordSetModelImpl
 		getAttributeSetterBiConsumers() {
 
 		return _attributeSetterBiConsumers;
+	}
+
+	private static Function<InvocationHandler, DDLRecordSet>
+		_getProxyProviderFunction() {
+
+		Class<?> proxyClass = ProxyUtil.getProxyClass(
+			DDLRecordSet.class.getClassLoader(), DDLRecordSet.class,
+			ModelWrapper.class);
+
+		try {
+			Constructor<DDLRecordSet> constructor =
+				(Constructor<DDLRecordSet>)proxyClass.getConstructor(
+					InvocationHandler.class);
+
+			return invocationHandler -> {
+				try {
+					return constructor.newInstance(invocationHandler);
+				}
+				catch (ReflectiveOperationException roe) {
+					throw new InternalError(roe);
+				}
+			};
+		}
+		catch (NoSuchMethodException nsme) {
+			throw new InternalError(nsme);
+		}
 	}
 
 	private static final Map<String, Function<DDLRecordSet, Object>>
@@ -631,7 +651,19 @@ public class DDLRecordSetModelImpl
 
 	@Override
 	public void setDDMStructureId(long DDMStructureId) {
+		_columnBitmask |= DDMSTRUCTUREID_COLUMN_BITMASK;
+
+		if (!_setOriginalDDMStructureId) {
+			_setOriginalDDMStructureId = true;
+
+			_originalDDMStructureId = _DDMStructureId;
+		}
+
 		_DDMStructureId = DDMStructureId;
+	}
+
+	public long getOriginalDDMStructureId() {
+		return _originalDDMStructureId;
 	}
 
 	@JSON
@@ -1060,8 +1092,12 @@ public class DDLRecordSetModelImpl
 	@Override
 	public DDLRecordSet toEscapedModel() {
 		if (_escapedModel == null) {
-			_escapedModel = (DDLRecordSet)ProxyUtil.newProxyInstance(
-				_classLoader, _escapedModelInterfaces,
+			Function<InvocationHandler, DDLRecordSet>
+				escapedModelProxyProviderFunction =
+					EscapedModelProxyProviderFunctionHolder.
+						_escapedModelProxyProviderFunction;
+
+			_escapedModel = escapedModelProxyProviderFunction.apply(
 				new AutoEscapeBeanHandler(this));
 		}
 
@@ -1142,12 +1178,12 @@ public class DDLRecordSetModelImpl
 
 	@Override
 	public boolean isEntityCacheEnabled() {
-		return ENTITY_CACHE_ENABLED;
+		return _entityCacheEnabled;
 	}
 
 	@Override
 	public boolean isFinderCacheEnabled() {
-		return FINDER_CACHE_ENABLED;
+		return _finderCacheEnabled;
 	}
 
 	@Override
@@ -1166,6 +1202,11 @@ public class DDLRecordSetModelImpl
 		ddlRecordSetModelImpl._setOriginalCompanyId = false;
 
 		ddlRecordSetModelImpl._setModifiedDate = false;
+
+		ddlRecordSetModelImpl._originalDDMStructureId =
+			ddlRecordSetModelImpl._DDMStructureId;
+
+		ddlRecordSetModelImpl._setOriginalDDMStructureId = false;
 
 		ddlRecordSetModelImpl._originalRecordSetKey =
 			ddlRecordSetModelImpl._recordSetKey;
@@ -1357,11 +1398,15 @@ public class DDLRecordSetModelImpl
 		return sb.toString();
 	}
 
-	private static final ClassLoader _classLoader =
-		DDLRecordSet.class.getClassLoader();
-	private static final Class<?>[] _escapedModelInterfaces = new Class[] {
-		DDLRecordSet.class, ModelWrapper.class
-	};
+	private static class EscapedModelProxyProviderFunctionHolder {
+
+		private static final Function<InvocationHandler, DDLRecordSet>
+			_escapedModelProxyProviderFunction = _getProxyProviderFunction();
+
+	}
+
+	private static boolean _entityCacheEnabled;
+	private static boolean _finderCacheEnabled;
 
 	private long _mvccVersion;
 	private String _uuid;
@@ -1381,6 +1426,8 @@ public class DDLRecordSetModelImpl
 	private Date _modifiedDate;
 	private boolean _setModifiedDate;
 	private long _DDMStructureId;
+	private long _originalDDMStructureId;
+	private boolean _setOriginalDDMStructureId;
 	private String _recordSetKey;
 	private String _originalRecordSetKey;
 	private String _version;

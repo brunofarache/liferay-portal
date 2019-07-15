@@ -39,7 +39,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	configurationPid = "com.liferay.analytics.client.osgi.internal.configuration.IdentifyClientConfiguration",
-	immediate = true, service = IdentityClient.class
+	service = IdentityClient.class
 )
 public class IdentityClientImpl implements IdentityClient {
 
@@ -97,29 +97,19 @@ public class IdentityClientImpl implements IdentityClient {
 			(JSONWebServiceClient)componentInstance.getInstance();
 	}
 
-	@Reference(
-		target = "(component.factory=JSONWebServiceClient)", unbind = "-"
-	)
-	protected void setComponentFactory(ComponentFactory componentFactory) {
-		_componentFactory = componentFactory;
-	}
-
-	@Reference(
-		target = "(model=com.liferay.analytics.model.IdentityContextMessage)",
-		unbind = "-"
-	)
-	protected void setJSONObjectMapper(
-		JSONObjectMapper<IdentityContextMessage> jsonObjectMapper) {
-
-		_jsonObjectMapper = jsonObjectMapper;
-	}
-
 	private static final Log _log = LogFactoryUtil.getLog(
 		IdentityClientImpl.class);
 
+	@Reference(target = "(component.factory=JSONWebServiceClient)")
 	private ComponentFactory _componentFactory;
+
 	private volatile IdentifyClientConfiguration _identifyClientConfiguration;
+
+	@Reference(
+		target = "(model=com.liferay.analytics.model.IdentityContextMessage)"
+	)
 	private JSONObjectMapper<IdentityContextMessage> _jsonObjectMapper;
+
 	private JSONWebServiceClient _jsonWebServiceClient;
 
 }

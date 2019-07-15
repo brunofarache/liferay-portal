@@ -35,6 +35,7 @@ import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.lock.DuplicateLockException;
 import com.liferay.portal.kernel.model.TrashedModel;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
@@ -50,6 +51,7 @@ import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.upload.UploadRequestSizeException;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ContentTypes;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -66,9 +68,7 @@ import com.liferay.wiki.service.WikiPageService;
 import com.liferay.wiki.web.internal.WikiAttachmentsHelper;
 import com.liferay.wiki.web.internal.upload.TempAttachmentWikiUploadFileEntryHandler;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.portlet.ActionRequest;
@@ -135,12 +135,7 @@ public class EditPageAttachmentsMVCActionCommand extends BaseMVCActionCommand {
 			Map<String, Object> data = new HashMap<>();
 
 			data.put(Constants.CMD, Constants.REMOVE);
-
-			List<TrashedModel> trashedModels = new ArrayList<>();
-
-			trashedModels.add(trashedModel);
-
-			data.put("trashedModels", trashedModels);
+			data.put("trashedModels", ListUtil.toList(trashedModel));
 
 			addDeleteSuccessData(actionRequest, data);
 		}
@@ -313,11 +308,11 @@ public class EditPageAttachmentsMVCActionCommand extends BaseMVCActionCommand {
 				e instanceof FileSizeException ||
 				e instanceof UploadRequestSizeException) {
 
-				HttpServletResponse response = _portal.getHttpServletResponse(
-					actionResponse);
+				HttpServletResponse httpServletResponse =
+					_portal.getHttpServletResponse(actionResponse);
 
-				response.setContentType(ContentTypes.TEXT_HTML);
-				response.setStatus(HttpServletResponse.SC_OK);
+				httpServletResponse.setContentType(ContentTypes.TEXT_HTML);
+				httpServletResponse.setStatus(HttpServletResponse.SC_OK);
 
 				String errorMessage = StringPool.BLANK;
 				int errorType = 0;
@@ -366,10 +361,11 @@ public class EditPageAttachmentsMVCActionCommand extends BaseMVCActionCommand {
 					errorType = ServletResponseConstants.SC_FILE_SIZE_EXCEPTION;
 				}
 
-				JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
-
-				jsonObject.put("message", errorMessage);
-				jsonObject.put("status", errorType);
+				JSONObject jsonObject = JSONUtil.put(
+					"message", errorMessage
+				).put(
+					"status", errorType
+				);
 
 				JSONPortletResponseUtil.writeJSON(
 					actionRequest, actionResponse, jsonObject);

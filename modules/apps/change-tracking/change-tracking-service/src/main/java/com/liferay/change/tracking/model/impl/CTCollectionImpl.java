@@ -14,9 +14,9 @@
 
 package com.liferay.change.tracking.model.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.change.tracking.constants.CTConstants;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Brian Wing Shun Chan
@@ -29,7 +29,7 @@ public class CTCollectionImpl extends CTCollectionBaseImpl {
 	}
 
 	public boolean isProduction() {
-		if (CTConstants.CT_COLLECTION_NAME_PRODUCTION.equals(getName())) {
+		if (CTConstants.CT_COLLECTION_ID_PRODUCTION == getCtCollectionId()) {
 			return true;
 		}
 

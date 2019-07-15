@@ -1,11 +1,14 @@
 definition {
+
 	@summary = "Helper function to add fields '${templateFieldNames}' to the template"
 	macro _addFields {
 		if (isSet(templateFieldNames)) {
 			for (var fieldName : list "${templateFieldNames}") {
 				var key_fieldName = "${fieldName}";
 
-				AssertClick(locator1 = "DDMEditTemplate#SCRIPT_FIELD", value1 = "${fieldName}");
+				AssertClick(
+					locator1 = "DDMEditTemplate#SCRIPT_FIELD",
+					value1 = "${fieldName}");
 			}
 		}
 	}
@@ -13,31 +16,16 @@ definition {
 	@summary = "Helper function to add description '${description}' to the template"
 	macro _inputDescription {
 		if (isSet(templateDescription)) {
-			Panel.expandPanel(panel = "Details");
-
 			PortletEntry.inputDescription(description = "${templateDescription}");
-		}
-	}
-
-	@summary = "Helper function to add a script to the template"
-	macro _inputScript {
-		if (isSet(templateScript)) {
-			Type.typeAceEditor(
-				locator1 = "DDMEditTemplate#SCRIPT_CONTENT_FIELD_TEXT_AREA",
-				value1 = "${templateScript}"
-			);
 		}
 	}
 
 	@summary = "Helper function to link structure '${structureName}' to the template"
 	macro _inputStructure {
 		if (isSet(structureName)) {
-			Panel.expandPanel(panel = "Details");
-
 			AssertClick(
 				locator1 = "DDMEditTemplate#DETAILS_SELECT_STRUCTURE",
-				value1 = "Select"
-			);
+				value1 = "Select");
 
 			SelectFrameTop();
 
@@ -49,8 +37,7 @@ definition {
 
 			AssertClickNoError(
 				locator1 = "DDMSelectStructure#DDM_STRUCTURE_TABLE_NAME_LINK",
-				value1 = "${structureName}"
-			);
+				value1 = "${structureName}");
 
 			SelectFrameTop();
 		}
@@ -61,51 +48,7 @@ definition {
 		if (isSet(templateFile)) {
 			UploadCommonFile(
 				locator1 = "DDMEditTemplate#SCRIPT_FILE_FIELD",
-				value1 = "${templateFile}"
-			);
-		}
-	}
-
-	@summary = "Helper function to select template language 'templateLanguage' to read the template in"
-	macro _inputTemplateLanguage {
-		Panel.expandPanel(panel = "Details");
-
-		if ("${templateLanguage}" == "vm") {
-			Select(
-				locator1 = "DDMEditTemplate#DETAILS_LANGUAGE_SELECT",
-				value1 = "Velocity (.vm)"
-			);
-		}
-		else if ("${templateLanguage}" == "xsl") {
-			Select(
-				locator1 = "DDMEditTemplate#DETAILS_LANGUAGE_SELECT",
-				value1 = "Extensible Stylesheet Language (.xsl)"
-			);
-		}
-		else {
-			Select(
-				locator1 = "DDMEditTemplate#DETAILS_LANGUAGE_SELECT",
-				value1 = "FreeMarker (.ftl)"
-			);
-		}
-
-		if ("${templateLanguage}" == "vm") {
-			AssertSelectedLabel(
-				locator1 = "DDMEditTemplate#DETAILS_LANGUAGE_SELECT",
-				value1 = "Velocity (.vm)"
-			);
-		}
-		else if ("${templateLanguage}" == "xsl") {
-			AssertSelectedLabel(
-				locator1 = "DDMEditTemplate#DETAILS_LANGUAGE_SELECT",
-				value1 = "Extensible Stylesheet Language (.xsl)"
-			);
-		}
-		else {
-			AssertSelectedLabel(
-				locator1 = "DDMEditTemplate#DETAILS_LANGUAGE_SELECT",
-				value1 = "FreeMarker (.ftl)"
-			);
+				value1 = "${templateFile}");
 		}
 	}
 
@@ -114,17 +57,16 @@ definition {
 		LexiconEntry.gotoAdd();
 
 		WebContentTemplates.inputTemplateAddScreenFields(
+			imageSourceURL = "${imageSourceURL}",
 			structureName = "${structureName}",
 			templateDescription = "${templateDescription}",
 			templateFieldNames = "${templateFieldNames}",
 			templateFile = "${templateFile}",
 			templateLanguage = "${templateLanguage}",
 			templateName = "${templateName}",
-			templateScript = "${templateScript}",
-			templateSmallImageURL = "${templateSmallImageURL}"
-		);
+			templateScript = "${templateScript}");
 
-		DDLDataDefinition.save();
+		DDLDataDefinition.save(changeListEnabled = "${changeListEnabled}");
 	}
 
 	@summary = "Attempt to add a blank template"
@@ -135,24 +77,22 @@ definition {
 
 		Button.clickSave();
 
-		Alert.viewRequiredField();
+		AssertElementPresent(locator1 = "TextInput#REQUIRED_ALERT");
 
 		SelectFrame(value1 = "relative=top");
 	}
 
 	@summary = "Give the roles '${roles}' permissions to view the template '${templateName}'"
 	macro addRoleViewPermissions {
-		LexiconEntry.gotoEntryMenuItem(
-			menuItem = "Permissions",
-			rowEntry = "${templateName}"
-		);
+		WebContentTemplates.gotoTemplateEllipsisItem(
+			item = "Permissions",
+			templateName = "${templateName}");
 
 		SelectFrame(locator1 = "IFrame#DIALOG");
 
 		PermissionsInline.addOrRemoveViewPermissionFromAllRoles(
 			addOrRemoveViewPermission = "Add",
-			roleList = "${roles}"
-		);
+			roleList = "${roles}");
 
 		SelectFrameTop();
 	}
@@ -161,48 +101,38 @@ definition {
 	macro deleteCP {
 		var key_ddlTemplateName = "${templateName}";
 
-		Click(locator1 = "DDMSelectTemplate#TEMPLATE_TABLE_ELLIPSIS");
+		Click(locator1 = "Icon#VERTICAL_ELLIPSIS_BUTTON");
 
 		MenuItem.clickNoError(menuItem = "Delete");
 
-		AssertConfirm(
-			value1 = "Are you sure you want to delete this? It will be deleted immediately."
-		);
+		AssertConfirm(value1 = "Are you sure you want to delete this? It will be deleted immediately.");
 
 		if ("${webContentHasReference}" == "true") {
 			Alert.viewRequestFailedToComplete();
 
 			AssertTextEquals.assertPartialText(
 				locator1 = "Message#ERROR_1",
-				value1 = "The template cannot be deleted because it is required by one or more template links."
-			);
+				value1 = "The template cannot be deleted because it is required by one or more template links.");
 		}
 		else {
 			Alert.viewSuccessMessage();
 		}
 	}
 
-	@summary = "Input a small image with the url '${templateSmallImageURL}'"
-	macro inputSmallImage {
-		Panel.expandPanel(panel = "Details");
+	@summary = "Click on '${templateName}' ellipsis > '${item}'"
+	macro gotoTemplateEllipsisItem {
+		LexiconCard.clickEllipsisItem(
+			card = "${templateName}",
+			item = "${item}");
+	}
 
-		if (isSet(templateSmallImageURL)) {
-			if (IsElementNotPresent(locator1 = "DDMEditTemplate#DETAILS_SMALL_IMAGE_URL")) {
-				Check(locator1 = "DDMEditTemplate#DETAILS_SMALL_IMAGE");
-			}
-			else {
-				Click(locator1 = "DDMEditTemplate#DETAILS_SMALL_IMAGE");
-
-				Check(locator1 = "DDMEditTemplate#DETAILS_SMALL_IMAGE");
-			}
+	@summary = "Type '${templateScript}' into the template ACE editor field"
+	macro inputScript {
+		if (isSet(templateScript)) {
+			Type.typeAceEditor(
+				locator1 = "DDMEditTemplate#SCRIPT_CONTENT_FIELD",
+				value1 = "${templateScript}");
 		}
-
-		Check(locator1 = "DDMEditTemplate#DETAILS_SMALL_IMAGE_URL");
-
-		Type(
-			locator1 = "DDMEditTemplate#DETAILS_SMALL_IMAGE_URL_INPUT",
-			value1 = "${templateSmallImageURL}"
-		);
 	}
 
 	@summary = "Input most basic fields inside a template"
@@ -215,61 +145,72 @@ definition {
 			WebContentTemplates._inputStructure(structureName = "${structureName}");
 		}
 
-		WebContentTemplates._inputDescription(
-			templateDescription = "${templateDescription}"
-		);
+		WebContentTemplates._inputDescription(templateDescription = "${templateDescription}");
 
-		WebContentTemplates._inputTemplateLanguage(
-			templateLanguage = "${templateLanguage}"
-		);
-
-		if (isSet(templateSmallImageURL)) {
-			WebContentTemplates.inputSmallImage(
-				templateSmallImageURL = "${templateSmallImageURL}"
-			);
+		if (isSet(imageSourceURL)) {
+			WebContent.addFeaturedImageFromURL(imageSourceURL = "${imageSourceURL}");
 		}
 
-		WebContentTemplates._inputScript(templateScript = "${templateScript}");
+		WebContentTemplates.inputScript(templateScript = "${templateScript}");
 
-		WebContentTemplates._addFields(templateFieldNames = "${templateFieldNames}");
+		if ("${templateLanguage}" == "xsl") {
+			WebContentTemplates._inputTemplateFile(templateFile = "${templateFile}");
+		}
+		else {
+			WebContentTemplates._addFields(templateFieldNames = "${templateFieldNames}");
 
-		WebContentTemplates._inputTemplateFile(templateFile = "${templateFile}");
+			WebContentTemplates._inputTemplateFile(templateFile = "${templateFile}");
+		}
 	}
 
 	@summary = "Add localization for the template name"
 	macro localizeTemplateName {
+		LexiconEntry.changeDisplayStyle(displayStyle = "table");
+
 		var key_ddlTemplateName = "${templateName}";
 
 		WebContentNavigator.gotoViewTemplate(templateName = "${templateName}");
 
-		AssertTextEquals(locator1 = "TextInput#NAME", value1 = "${templateName}");
+		AssertTextEquals(
+			locator1 = "TextInput#NAME",
+			value1 = "${templateName}");
 
-		PortletEntry.changeLocale(fieldName = "Name", locale = "${locale}");
+		PortletEntry.changeLocale(locale = "${locale}");
 
-		Type.clickAtType(locator1 = "TextInput#NAME", value1 = "${localization1Name}");
+		Type.clickAtType(
+			locator1 = "TextInput#NAME",
+			value1 = "${localization1Name}");
 
 		if (isSet(locale2)) {
-			PortletEntry.changeLocale(fieldName = "Name", locale = "${locale2}");
+			PortletEntry.changeLocale(locale = "${locale2}");
 
-			Type.clickAtType(locator1 = "TextInput#NAME", value1 = "${localization2Name}");
+			Type.clickAtType(
+				locator1 = "TextInput#NAME",
+				value1 = "${localization2Name}");
 		}
 	}
 
 	@summary = "Modify template"
 	macro modifyTemplate {
-		LexiconEntry.gotoEllipsisMenuItem(menuItem = "Edit");
+		WebContentTemplates.gotoTemplateEllipsisItem(
+			item = "Edit",
+			templateName = "${templatePreviousName}");
 
 		WebContentTemplates.inputTemplateAddScreenFields(
+			imageSourceURL = "${imageSourceURL}",
 			templateDescription = "${templateDescription}",
 			templateFieldNames = "${templateFieldNames}",
 			templateFile = "${templateFile}",
 			templateLanguage = "${templateLanguage}",
 			templateName = "${templateName}",
-			templateScript = "${templateScript}",
-			templateSmallImageURL = "${templateSmallImageURL}"
-		);
+			templateScript = "${templateScript}");
 
-		DDLDataDefinition.save();
+		DDLDataDefinition.save(changeListEnabled = "${changeListEnabled}");
+	}
+
+	@summary = "Open Web Content Templates admin page for the site '${siteURLKey}'"
+	macro openWebContentTemplatesAdmin {
+		Navigator.openWithAppendToBaseURL(urlAppend = "group/${siteURLKey}/~/control_panel/manage?p_p_id=com_liferay_journal_web_portlet_JournalPortlet&_com_liferay_journal_web_portlet_JournalPortlet_mvcPath=%2Fview_ddm_templates.jsp");
 	}
 
 	@summary = "Teardown templates in the guest site"
@@ -279,8 +220,7 @@ definition {
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
 			panel = "Site Administration",
-			portlet = "Web Content"
-		);
+			portlet = "Web Content");
 
 		Navigator.gotoNavItem(navItem = "Templates");
 
@@ -291,9 +231,7 @@ definition {
 
 			ClickNoError(locator1 = "Icon#DELETE");
 
-			AssertConfirm(
-				value1 = "Are you sure you want to delete this? It will be deleted immediately."
-			);
+			AssertConfirm(value1 = "Are you sure you want to delete this? It will be deleted immediately.");
 
 			Alert.viewSuccessMessage();
 		}
@@ -305,9 +243,7 @@ definition {
 
 			ClickNoError(locator1 = "Icon#DELETE");
 
-			AssertConfirm(
-				value1 = "Are you sure you want to delete this? It will be deleted immediately."
-			);
+			AssertConfirm(value1 = "Are you sure you want to delete this? It will be deleted immediately.");
 
 			Alert.viewSuccessMessage();
 		}
@@ -317,87 +253,79 @@ definition {
 
 	@summary = "Assert that certain template attributes are present for the template '${templateName}'"
 	macro viewCP {
+		var key_ddlStructureName = "${structureName}";
+		var key_ddlTemplateDescription = "${templateDescription}";
 		var key_ddlTemplateName = "${templateName}";
+
+		LexiconEntry.changeDisplayStyle(displayStyle = "table");
 
 		AssertTextEquals(
 			locator1 = "DDMSelectTemplate#TEMPLATE_TABLE_NAME",
-			value1 = "${templateName}"
-		);
+			value1 = "${templateName}");
 
 		AssertTextEquals(
 			locator1 = "DDMSelectTemplate#TEMPLATE_TABLE_DESCRIPTION",
-			value1 = "${templateDescription}"
-		);
+			value1 = "${templateDescription}");
 
 		if (isSet(structureName)) {
 			AssertTextEquals(
 				locator1 = "DDMSelectTemplate#TEMPLATE_TABLE_MODE",
-				value1 = "${structureName}"
-			);
+				value1 = "${structureName}");
 		}
 
 		if ("${templateLanguage}" == "vm") {
 			AssertTextEquals(
 				locator1 = "DDMSelectTemplate#TEMPLATE_TABLE_LANGUAGE",
-				value1 = "Velocity"
-			);
+				value1 = "Velocity");
 		}
 		else if ("${templateLanguage}" == "xsl") {
 			AssertTextEquals(
 				locator1 = "DDMSelectTemplate#TEMPLATE_TABLE_LANGUAGE",
-				value1 = "Extensible Stylesheet Language"
-			);
+				value1 = "Extensible Stylesheet Language");
 		}
 		else {
 			AssertTextEquals(
 				locator1 = "DDMSelectTemplate#TEMPLATE_TABLE_LANGUAGE",
-				value1 = "FreeMarker"
-			);
+				value1 = "FreeMarker");
 		}
 
 		if (!("${userEditPermission}" == "noEditPermission")) {
 			WebContentNavigator.gotoViewTemplate(templateName = "${templateName}");
 
-			AssertTextEquals(locator1 = "TextInput#NAME", value1 = "${templateName}");
-
-			Panel.expandPanel(panel = "Details");
+			AssertTextEquals(
+				locator1 = "TextInput#NAME",
+				value1 = "${templateName}");
 
 			AssertTextEquals(
 				locator1 = "TextArea#DESCRIPTION",
-				value1 = "${templateDescription}"
-			);
+				value1 = "${templateDescription}");
 
 			if (isSet(structureName)) {
 				AssertTextEquals.assertValue(
 					locator1 = "DDMEditTemplate#DETAILS_STRUCTURE",
-					value1 = "${structureName}"
-				);
+					value1 = "${structureName}");
 			}
 
 			if ("${templateLanguage}" == "vm") {
-				AssertSelectedLabel(
-					locator1 = "DDMEditTemplate#DETAILS_LANGUAGE_SELECT",
-					value1 = "Velocity (.vm)"
-				);
+				AssertTextEquals.assertPartialText(
+					locator1 = "DDMEditTemplate#DETAILS_LANGUAGE",
+					value1 = "Velocity (.vm)");
 			}
 			else if ("${templateLanguage}" == "xsl") {
-				AssertSelectedLabel(
-					locator1 = "DDMEditTemplate#DETAILS_LANGUAGE_SELECT",
-					value1 = "Extensible Stylesheet Language (.xsl)"
-				);
+				AssertTextEquals.assertPartialText(
+					locator1 = "DDMEditTemplate#DETAILS_LANGUAGE",
+					value1 = "Extensible Stylesheet Language (.xsl)");
 			}
 			else {
-				AssertSelectedLabel(
-					locator1 = "DDMEditTemplate#DETAILS_LANGUAGE_SELECT",
-					value1 = "FreeMarker (.ftl)"
-				);
+				AssertTextEquals.assertPartialText(
+					locator1 = "DDMEditTemplate#DETAILS_LANGUAGE",
+					value1 = "FreeMarker (.ftl)");
 			}
 
 			if (isSet(templateScript)) {
 				AssertTextEquals.assertPartialTextAceEditor(
 					locator1 = "DDMEditTemplate#SCRIPT_CONTENT_FIELD",
-					value1 = "${templateScript}"
-				);
+					value1 = "${templateScript}");
 			}
 		}
 	}
@@ -408,20 +336,20 @@ definition {
 
 		AssertTextEquals(
 			locator1 = "DDMSelectTemplate#TEMPLATE_TABLE_NAME",
-			value1 = "${templateName}"
-		);
+			value1 = "${templateName}");
 
 		if (isSet(templateSmallImage)) {
 			AssertVisible(
 				locator1 = "DDMSelectTemplate#TEMPLATE_TABLE_DESCRIPTION_SMALL_IMAGE",
-				value1 = "${templateSmallImage}"
-			);
+				value1 = "${templateSmallImage}");
 		}
 		else {
+			var key_ddlTemplateDescription = "${templateDescription}";
+
 			AssertTextEquals(
 				locator1 = "DDMSelectTemplate#TEMPLATE_TABLE_DESCRIPTION",
-				value1 = "${templateDescription}"
-			);
+				value1 = "${templateDescription}");
 		}
 	}
+
 }

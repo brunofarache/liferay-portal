@@ -23,11 +23,13 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.util.Constants;
+import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.segments.constants.SegmentsConstants;
 import com.liferay.segments.constants.SegmentsPortletKeys;
 import com.liferay.segments.criteria.Criteria;
@@ -37,6 +39,7 @@ import com.liferay.segments.criteria.contributor.SegmentsCriteriaContributorRegi
 import com.liferay.segments.exception.NoSuchEntryException;
 import com.liferay.segments.exception.SegmentsEntryCriteriaException;
 import com.liferay.segments.exception.SegmentsEntryKeyException;
+import com.liferay.segments.exception.SegmentsEntryNameException;
 import com.liferay.segments.model.SegmentsEntry;
 import com.liferay.segments.service.SegmentsEntryService;
 
@@ -76,12 +79,12 @@ public class UpdateSegmentsEntryMVCActionCommand extends BaseMVCActionCommand {
 		Map<Locale, String> nameMap = LocalizationUtil.getLocalizationMap(
 			actionRequest, "name");
 
-		String name = nameMap.get(_portal.getLocale(actionRequest));
+		String segmentsEntryKey = ParamUtil.getString(
+			actionRequest, "segmentsEntryKey");
 
 		Map<Locale, String> descriptionMap =
 			LocalizationUtil.getLocalizationMap(actionRequest, "description");
 		boolean active = ParamUtil.getBoolean(actionRequest, "active", true);
-		String key = ParamUtil.getString(actionRequest, "key", name);
 		String type = ParamUtil.getString(actionRequest, "type");
 
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
@@ -104,18 +107,24 @@ public class UpdateSegmentsEntryMVCActionCommand extends BaseMVCActionCommand {
 
 			if (segmentsEntryId <= 0) {
 				segmentsEntry = _segmentsEntryService.addSegmentsEntry(
-					nameMap, descriptionMap, active,
-					CriteriaSerializer.serialize(criteria), key,
+					segmentsEntryKey, nameMap, descriptionMap, active,
+					CriteriaSerializer.serialize(criteria),
 					SegmentsConstants.SOURCE_DEFAULT, type, serviceContext);
 			}
 			else {
 				segmentsEntry = _segmentsEntryService.updateSegmentsEntry(
-					segmentsEntryId, nameMap, descriptionMap, active,
-					CriteriaSerializer.serialize(criteria), key,
+					segmentsEntryId, segmentsEntryKey, nameMap, descriptionMap,
+					active, CriteriaSerializer.serialize(criteria),
 					serviceContext);
 			}
 
 			String redirect = ParamUtil.getString(actionRequest, "redirect");
+
+			if (Validator.isNotNull(redirect)) {
+				redirect = _http.setParameter(
+					redirect, "segmentsEntryId",
+					segmentsEntry.getSegmentsEntryId());
+			}
 
 			boolean saveAndContinue = ParamUtil.get(
 				actionRequest, "saveAndContinue", false);
@@ -136,7 +145,8 @@ public class UpdateSegmentsEntryMVCActionCommand extends BaseMVCActionCommand {
 				actionResponse.setRenderParameter("mvcPath", "/error.jsp");
 			}
 			else if (e instanceof SegmentsEntryCriteriaException ||
-					 e instanceof SegmentsEntryKeyException) {
+					 e instanceof SegmentsEntryKeyException ||
+					 e instanceof SegmentsEntryNameException) {
 
 				SessionErrors.add(actionRequest, e.getClass(), e);
 
@@ -181,6 +191,9 @@ public class UpdateSegmentsEntryMVCActionCommand extends BaseMVCActionCommand {
 			throw new SegmentsEntryCriteriaException();
 		}
 	}
+
+	@Reference
+	private Http _http;
 
 	@Reference
 	private Portal _portal;

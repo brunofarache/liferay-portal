@@ -30,6 +30,14 @@ import javax.servlet.jsp.PageContext;
  */
 public class SocialBookmarksSettingsTag extends IncludeTag {
 
+	public String getDisplayStyle() {
+		return _displayStyle;
+	}
+
+	public String getTypes() {
+		return StringUtil.merge(_types);
+	}
+
 	public void setDisplayStyle(String displayStyle) {
 		_displayStyle = displayStyle;
 	}
@@ -67,11 +75,11 @@ public class SocialBookmarksSettingsTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-social-bookmarks:bookmarks-settings:displayStyle",
 			_displayStyle);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-social-bookmarks:bookmarks-settings:types", _types);
 	}
 

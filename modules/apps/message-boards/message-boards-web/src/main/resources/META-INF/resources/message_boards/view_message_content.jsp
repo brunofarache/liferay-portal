@@ -19,6 +19,10 @@
 <%
 MBMessageDisplay messageDisplay = (MBMessageDisplay)request.getAttribute(WebKeys.MESSAGE_BOARDS_MESSAGE_DISPLAY);
 
+MBTreeWalker mbTreeWalker = messageDisplay.getTreeWalker();
+
+MBMessage rootMessage = mbTreeWalker.getRoot();
+
 MBMessage message = messageDisplay.getMessage();
 
 MBCategory category = messageDisplay.getCategory();
@@ -65,22 +69,10 @@ if (portletTitleBasedNavigation) {
 					direction="left-side"
 					icon="<%= StringPool.BLANK %>"
 					markupView="lexicon"
-					message="<%= StringPool.BLANK %>"
+					message="actions"
 					showWhenSingleIcon="<%= true %>"
 				>
 					<c:if test="<%= !thread.isLocked() && !thread.isInTrash() && MBMessagePermission.contains(permissionChecker, message, ActionKeys.PERMISSIONS) %>">
-
-						<%
-						MBMessage rootMessage = null;
-
-						if (message.isRoot()) {
-							rootMessage = message;
-						}
-						else {
-							rootMessage = MBMessageLocalServiceUtil.getMessage(message.getRootMessageId());
-						}
-						%>
-
 						<liferay-security:permissionsURL
 							modelResource="<%= MBMessage.class.getName() %>"
 							modelResourceDescription="<%= rootMessage.getSubject() %>"
@@ -211,8 +203,6 @@ if (portletTitleBasedNavigation) {
 <div class="thread-container">
 
 	<%
-	MBTreeWalker treeWalker = messageDisplay.getTreeWalker();
-
 	assetHelper.addLayoutTags(request, AssetTagLocalServiceUtil.getTags(MBMessage.class.getName(), thread.getRootMessageId()));
 	%>
 
@@ -221,9 +211,9 @@ if (portletTitleBasedNavigation) {
 	<div class="card-tab-group message-container" id="<portlet:namespace />messageContainer">
 
 		<%
-		request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER, treeWalker);
+		request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER, mbTreeWalker);
 		request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_CATEGORY, category);
-		request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_CUR_MESSAGE, treeWalker.getRoot());
+		request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_CUR_MESSAGE, rootMessage);
 		request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_DEPTH, Integer.valueOf(0));
 		request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_LAST_NODE, Boolean.valueOf(false));
 		request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_SEL_MESSAGE, message);
@@ -238,9 +228,9 @@ if (portletTitleBasedNavigation) {
 		int rootIndexPage = 0;
 		boolean moreMessagesPagination = false;
 
-		List<MBMessage> messages = treeWalker.getMessages();
+		List<MBMessage> messages = mbTreeWalker.getMessages();
 
-		int[] range = treeWalker.getChildrenRange(treeWalker.getRoot());
+		int[] range = mbTreeWalker.getChildrenRange(rootMessage);
 
 		MBMessageIterator mbMessageIterator = new MBMessageIterator(messages, range[0], range[1]);
 
@@ -257,7 +247,7 @@ if (portletTitleBasedNavigation) {
 				break;
 			}
 
-			request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER, treeWalker);
+			request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER, mbTreeWalker);
 			request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_CATEGORY, category);
 			request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_CUR_MESSAGE, mbMessageIterator.next());
 			request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_DEPTH, Integer.valueOf(0));
@@ -284,11 +274,7 @@ if (portletTitleBasedNavigation) {
 		</c:if>
 	</div>
 
-	<%
-	MBMessage rootMessage = treeWalker.getRoot();
-	%>
-
-	<c:if test="<%= !thread.isLocked() && !thread.isDraft() && MBCategoryPermission.contains(permissionChecker, scopeGroupId, rootMessage.getCategoryId(), ActionKeys.REPLY_TO_MESSAGE) %>">
+	<c:if test="<%= thread.isApproved() && !thread.isLocked() && !thread.isDraft() && MBCategoryPermission.contains(permissionChecker, scopeGroupId, rootMessage.getCategoryId(), ActionKeys.REPLY_TO_MESSAGE) %>">
 
 		<%
 		String taglibReplyToMessageURL = "javascript:" + liferayPortletResponse.getNamespace() + "addReplyToMessage('" + rootMessage.getMessageId() + "', '');";

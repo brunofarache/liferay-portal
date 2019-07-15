@@ -42,6 +42,7 @@ import com.liferay.dynamic.data.mapping.service.DDMStructureLocalServiceUtil;
 import com.liferay.dynamic.data.mapping.test.util.DDMFormTestUtil;
 import com.liferay.dynamic.data.mapping.util.DDMBeanTranslatorUtil;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.repository.model.FileEntry;
@@ -50,6 +51,7 @@ import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.util.CompanyTestUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
@@ -60,9 +62,9 @@ import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.PermissionCheckerTestRule;
+import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 import com.liferay.portal.verify.VerifyProcess;
-import com.liferay.portal.verify.test.BaseVerifyProcessTestCase;
+import com.liferay.portal.verify.test.util.BaseVerifyProcessTestCase;
 import com.liferay.portlet.documentlibrary.util.test.DLTestUtil;
 
 import java.io.ByteArrayInputStream;
@@ -93,12 +95,14 @@ public class DLServiceVerifyProcessTest extends BaseVerifyProcessTestCase {
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
-			PermissionCheckerTestRule.INSTANCE);
+			PermissionCheckerMethodTestRule.INSTANCE);
 
 	@Before
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
+
+		_company = CompanyTestUtil.addCompany();
 
 		_group = GroupTestUtil.addGroup();
 	}
@@ -121,7 +125,7 @@ public class DLServiceVerifyProcessTest extends BaseVerifyProcessTestCase {
 			DDMStructureLocalServiceUtil.getDDMStructure(
 				ddmStructure.getStructureId());
 
-		modelDDMStructure.setCompanyId(12345);
+		modelDDMStructure.setCompanyId(_company.getCompanyId());
 
 		try {
 			DDMStructureLocalServiceUtil.updateDDMStructure(modelDDMStructure);
@@ -510,6 +514,9 @@ public class DLServiceVerifyProcessTest extends BaseVerifyProcessTestCase {
 		type = VerifyProcess.class
 	)
 	private static VerifyProcess _verifyProcess;
+
+	@DeleteAfterTestRun
+	private Company _company;
 
 	@Inject(filter = "ddm.form.deserializer.type=xsd")
 	private DDMFormDeserializer _ddmFormDeserializer;

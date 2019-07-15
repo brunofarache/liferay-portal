@@ -1,5 +1,6 @@
 @component-name = "portal-wcm"
 definition {
+
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Fragments";
@@ -18,8 +19,7 @@ definition {
 		task ("Add a fragment collection via JSON") {
 			JSONFragment.addFragmentCollection(
 				groupName = "Test Site Name",
-				name = "Collection Name"
-			);
+				name = "Collection Name");
 		}
 
 		task ("Navigate to fragments admin") {
@@ -54,8 +54,7 @@ definition {
 
 			FragmentsAdmin.autocompleteFragmentHTML(
 				autocompleteField = "lfr-editable:image",
-				fragmentHTML = "${fragmentHTML}"
-			);
+				fragmentHTML = "${fragmentHTML}");
 		}
 
 		task ("Assert the fragment editor has autocomplete for lfr-widget tags") {
@@ -63,8 +62,8 @@ definition {
 
 			FragmentsAdmin.autocompleteFragmentHTML(
 				autocompleteField = "lfr-widget-asset-list",
-				fragmentHTML = "${fragmentHTML}"
-			);
+				fragmentHTML = "${fragmentHTML}");
 		}
 	}
+
 }

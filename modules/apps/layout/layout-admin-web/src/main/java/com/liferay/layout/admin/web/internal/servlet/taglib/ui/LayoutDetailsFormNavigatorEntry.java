@@ -14,12 +14,14 @@
 
 package com.liferay.layout.admin.web.internal.servlet.taglib.ui;
 
+import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.servlet.taglib.ui.FormNavigatorConstants;
 import com.liferay.portal.kernel.servlet.taglib.ui.FormNavigatorEntry;
-import com.liferay.portal.kernel.util.StringUtil;
+
+import java.util.Objects;
 
 import javax.servlet.ServletContext;
 
@@ -48,13 +50,18 @@ public class LayoutDetailsFormNavigatorEntry
 
 	@Override
 	public boolean isVisible(User user, Layout layout) {
-		if (StringUtil.equals(
-				layout.getType(), LayoutConstants.TYPE_ASSET_DISPLAY)) {
+		Layout draftLayout = layoutLocalService.fetchLayout(
+			portal.getClassNameId(Layout.class), layout.getPlid());
+
+		if (Objects.equals(
+				layout.getType(), LayoutConstants.TYPE_ASSET_DISPLAY) ||
+			(Objects.equals(layout.getType(), LayoutConstants.TYPE_CONTENT) &&
+			 (draftLayout == null))) {
 
 			return false;
 		}
 
-		return super.isVisible(user, layout);
+		return true;
 	}
 
 	@Override
@@ -70,5 +77,9 @@ public class LayoutDetailsFormNavigatorEntry
 	protected String getJspPath() {
 		return "/layout/details.jsp";
 	}
+
+	@Reference
+	private LayoutPageTemplateEntryLocalService
+		_layoutPageTemplateEntryLocalService;
 
 }

@@ -15,14 +15,14 @@
 package com.liferay.fragment.model.impl;
 
 import com.liferay.document.library.kernel.util.DLUtil;
-import com.liferay.fragment.constants.FragmentEntryTypeConstants;
+import com.liferay.fragment.constants.FragmentConstants;
 import com.liferay.fragment.constants.FragmentExportImportConstants;
 import com.liferay.fragment.service.FragmentEntryLinkLocalServiceUtil;
 import com.liferay.fragment.util.FragmentEntryRenderUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
@@ -65,7 +65,7 @@ public class FragmentEntryImpl extends FragmentEntryBaseImpl {
 
 	@Override
 	public String getTypeLabel() {
-		return FragmentEntryTypeConstants.getTypeLabel(getType());
+		return FragmentConstants.getTypeLabel(getType());
 	}
 
 	@Override
@@ -80,12 +80,17 @@ public class FragmentEntryImpl extends FragmentEntryBaseImpl {
 
 		path = path + StringPool.SLASH + getFragmentEntryKey();
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
-
-		jsonObject.put("cssPath", "index.css");
-		jsonObject.put("htmlPath", "index.html");
-		jsonObject.put("jsPath", "index.js");
-		jsonObject.put("name", getName());
+		JSONObject jsonObject = JSONUtil.put(
+			"configurationPath", "index.json"
+		).put(
+			"cssPath", "index.css"
+		).put(
+			"htmlPath", "index.html"
+		).put(
+			"jsPath", "index.js"
+		).put(
+			"name", getName()
+		);
 
 		FileEntry previewFileEntry = _getPreviewFileEntry();
 
@@ -108,6 +113,7 @@ public class FragmentEntryImpl extends FragmentEntryBaseImpl {
 
 		zipWriter.addEntry(path + "/index.css", getCss());
 		zipWriter.addEntry(path + "/index.js", getJs());
+		zipWriter.addEntry(path + "/index.json", getConfiguration());
 		zipWriter.addEntry(path + "/index.html", getHtml());
 
 		if (previewFileEntry != null) {

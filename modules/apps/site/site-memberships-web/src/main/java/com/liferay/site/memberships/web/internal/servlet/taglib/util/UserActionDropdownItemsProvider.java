@@ -47,9 +47,9 @@ public class UserActionDropdownItemsProvider {
 		_user = user;
 		_renderResponse = renderResponse;
 
-		_request = PortalUtil.getHttpServletRequest(renderRequest);
+		_httpServletRequest = PortalUtil.getHttpServletRequest(renderRequest);
 
-		_themeDisplay = (ThemeDisplay)_request.getAttribute(
+		_themeDisplay = (ThemeDisplay)_httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
 
@@ -58,7 +58,7 @@ public class UserActionDropdownItemsProvider {
 			{
 				if (GroupPermissionUtil.contains(
 						_themeDisplay.getPermissionChecker(),
-						_themeDisplay.getScopeGroupId(),
+						_themeDisplay.getSiteGroupIdOrLiveGroupId(),
 						ActionKeys.ASSIGN_USER_ROLES)) {
 
 					add(_getAssignSiteRolesActionUnsafeConsumer());
@@ -66,13 +66,14 @@ public class UserActionDropdownItemsProvider {
 
 				if (GroupPermissionUtil.contains(
 						_themeDisplay.getPermissionChecker(),
-						_themeDisplay.getScopeGroupId(),
+						_themeDisplay.getSiteGroupIdOrLiveGroupId(),
 						ActionKeys.ASSIGN_MEMBERS) &&
 					!SiteMembershipPolicyUtil.isMembershipProtected(
 						_themeDisplay.getPermissionChecker(), _user.getUserId(),
-						_themeDisplay.getScopeGroupId()) &&
+						_themeDisplay.getSiteGroupIdOrLiveGroupId()) &&
 					!SiteMembershipPolicyUtil.isMembershipRequired(
-						_user.getUserId(), _themeDisplay.getScopeGroupId())) {
+						_user.getUserId(),
+						_themeDisplay.getSiteGroupIdOrLiveGroupId())) {
 
 					add(_getDeleteGroupUsersActionUnsafeConsumer());
 				}
@@ -90,7 +91,8 @@ public class UserActionDropdownItemsProvider {
 		assignSiteRolesURL.setParameter(
 			"p_u_i_d", String.valueOf(_user.getUserId()));
 		assignSiteRolesURL.setParameter(
-			"groupId", String.valueOf(_themeDisplay.getScopeGroupId()));
+			"groupId",
+			String.valueOf(_themeDisplay.getSiteGroupIdOrLiveGroupId()));
 		assignSiteRolesURL.setWindowState(LiferayWindowState.POP_UP);
 
 		PortletURL editUserGroupRoleURL = _renderResponse.createActionURL();
@@ -107,7 +109,7 @@ public class UserActionDropdownItemsProvider {
 			dropdownItem.putData(
 				"editUserGroupRoleURL", editUserGroupRoleURL.toString());
 			dropdownItem.setLabel(
-				LanguageUtil.get(_request, "assign-site-roles"));
+				LanguageUtil.get(_httpServletRequest, "assign-site-roles"));
 		};
 	}
 
@@ -121,7 +123,8 @@ public class UserActionDropdownItemsProvider {
 		deleteGroupUsersURL.setParameter(
 			"redirect", _themeDisplay.getURLCurrent());
 		deleteGroupUsersURL.setParameter(
-			"groupId", String.valueOf(_themeDisplay.getScopeGroupId()));
+			"groupId",
+			String.valueOf(_themeDisplay.getSiteGroupIdOrLiveGroupId()));
 		deleteGroupUsersURL.setParameter(
 			"removeUserId", String.valueOf(_user.getUserId()));
 
@@ -130,12 +133,12 @@ public class UserActionDropdownItemsProvider {
 			dropdownItem.putData(
 				"deleteGroupUsersURL", deleteGroupUsersURL.toString());
 			dropdownItem.setLabel(
-				LanguageUtil.get(_request, "remove-membership"));
+				LanguageUtil.get(_httpServletRequest, "remove-membership"));
 		};
 	}
 
+	private final HttpServletRequest _httpServletRequest;
 	private final RenderResponse _renderResponse;
-	private final HttpServletRequest _request;
 	private final ThemeDisplay _themeDisplay;
 	private final User _user;
 

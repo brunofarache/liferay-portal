@@ -14,7 +14,7 @@
 
 package com.liferay.exportimport.kernel.lar;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Raymond Augé
@@ -39,6 +39,8 @@ public class PortletDataHandlerKeys {
 
 	public static final String DATA_STRATEGY_MIRROR_OVERWRITE =
 		"DATA_STRATEGY_MIRROR_OVERWRITE";
+
+	public static final String DELETE_LAYOUTS = "DELETE_LAYOUTS";
 
 	public static final String DELETE_MISSING_LAYOUTS =
 		"DELETE_MISSING_LAYOUTS";

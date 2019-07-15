@@ -14,8 +14,6 @@
 
 package com.liferay.staging.security.internal.permission;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.document.library.kernel.model.DLFolder;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.exportimport.kernel.staging.StagingUtil;
@@ -30,6 +28,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Tomas Polesovsky
@@ -128,10 +128,8 @@ public class StagingPermissionChecker implements PermissionChecker {
 
 		Group liveGroup = StagingUtil.getLiveGroup(group);
 
-		if (liveGroup != group) {
-			if (primKey == group.getGroupId()) {
-				primKey = liveGroup.getGroupId();
-			}
+		if ((liveGroup != group) && (primKey == group.getGroupId())) {
+			primKey = liveGroup.getGroupId();
 		}
 
 		if (_isStagingFolder(name, actionId)) {
@@ -148,10 +146,10 @@ public class StagingPermissionChecker implements PermissionChecker {
 
 		Group liveGroup = StagingUtil.getLiveGroup(group);
 
-		if (liveGroup != group) {
-			if (primKey.equals(String.valueOf(group.getGroupId()))) {
-				primKey = String.valueOf(liveGroup.getGroupId());
-			}
+		if ((liveGroup != group) &&
+			primKey.equals(String.valueOf(group.getGroupId()))) {
+
+			primKey = String.valueOf(liveGroup.getGroupId());
 		}
 
 		if (_isStagingFolder(name, actionId)) {

@@ -14,15 +14,15 @@
 
 package com.liferay.portal.search.query;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.search.geolocation.GeoDistance;
 import com.liferay.portal.search.geolocation.GeoLocationPoint;
-import com.liferay.portal.search.geolocation.ShapeBuilder;
+import com.liferay.portal.search.geolocation.Shape;
 import com.liferay.portal.search.script.Script;
 
 import java.util.List;
 import java.util.Set;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Wade Cao
@@ -65,7 +65,7 @@ public interface Queries {
 
 	public GeoPolygonQuery geoPolygon(String field);
 
-	public GeoShapeQuery geoShape(String field, ShapeBuilder shapeBuilder);
+	public GeoShapeQuery geoShape(String field, Shape shape);
 
 	public GeoShapeQuery geoShape(
 		String field, String indexedShapeId, String indexedShapeType);

@@ -14,10 +14,9 @@
 
 package com.liferay.social.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service utility for SocialActivityInterpreter. This utility wraps
@@ -136,9 +135,6 @@ public class SocialActivityInterpreterLocalServiceUtil {
 				(SocialActivityInterpreterLocalService)
 					PortalBeanLocatorUtil.locate(
 						SocialActivityInterpreterLocalService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				SocialActivityInterpreterLocalServiceUtil.class, "_service");
 		}
 
 		return _service;

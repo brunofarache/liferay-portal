@@ -14,10 +14,9 @@
 
 package com.liferay.social.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the remote service utility for SocialActivity. This utility wraps
@@ -637,9 +636,6 @@ public class SocialActivityServiceUtil {
 		if (_service == null) {
 			_service = (SocialActivityService)PortalBeanLocatorUtil.locate(
 				SocialActivityService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				SocialActivityServiceUtil.class, "_service");
 		}
 
 		return _service;

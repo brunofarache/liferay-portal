@@ -14,8 +14,6 @@
 
 package com.liferay.oauth2.provider.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.oauth2.provider.exception.DuplicateOAuth2ScopeGrantException;
 import com.liferay.oauth2.provider.model.OAuth2ScopeGrant;
 import com.liferay.oauth2.provider.scope.liferay.LiferayOAuth2Scope;
@@ -39,6 +37,8 @@ import java.io.Serializable;
 
 import java.util.Collection;
 import java.util.List;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service interface for OAuth2ScopeGrant. Methods of this
@@ -100,6 +100,12 @@ public interface OAuth2ScopeGrantLocalService
 	public OAuth2ScopeGrant createOAuth2ScopeGrant(
 			long companyId, long oAuth2ApplicationScopeAliasesId,
 			String applicationName, String bundleSymbolicName, String scope)
+		throws DuplicateOAuth2ScopeGrantException;
+
+	public OAuth2ScopeGrant createOAuth2ScopeGrant(
+			long companyId, long oAuth2ApplicationScopeAliasesId,
+			String applicationName, String bundleSymbolicName, String scope,
+			List<String> scopeAliases)
 		throws DuplicateOAuth2ScopeGrantException;
 
 	public void deleteOAuth2AuthorizationOAuth2ScopeGrant(

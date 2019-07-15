@@ -21,7 +21,6 @@ import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetRenderer;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
-import com.liferay.asset.model.AssetEntryUsage;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerRegistryUtil;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
@@ -29,12 +28,12 @@ import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
 import com.liferay.journal.constants.JournalPortletKeys;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.service.JournalArticleLocalServiceUtil;
-import com.liferay.journal.web.asset.JournalArticleAssetRenderer;
-import com.liferay.journal.web.configuration.JournalWebConfiguration;
+import com.liferay.journal.web.internal.asset.model.JournalArticleAssetRenderer;
+import com.liferay.journal.web.internal.configuration.JournalWebConfiguration;
 import com.liferay.journal.web.internal.portlet.JournalPortlet;
 import com.liferay.journal.web.internal.security.permission.resource.JournalArticlePermission;
 import com.liferay.journal.web.internal.security.permission.resource.JournalFolderPermission;
-import com.liferay.journal.web.util.JournalUtil;
+import com.liferay.journal.web.internal.util.JournalUtil;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -46,13 +45,12 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
-import com.liferay.portal.kernel.portlet.PortletProvider;
-import com.liferay.portal.kernel.portlet.PortletProviderUtil;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.permission.GroupPermissionUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -96,7 +94,8 @@ public class JournalArticleActionDropdownItemsProvider {
 		_journalWebConfiguration =
 			(JournalWebConfiguration)_liferayPortletRequest.getAttribute(
 				JournalWebConfiguration.class.getName());
-		_request = PortalUtil.getHttpServletRequest(liferayPortletRequest);
+		_httpServletRequest = PortalUtil.getHttpServletRequest(
+			liferayPortletRequest);
 		_themeDisplay = (ThemeDisplay)liferayPortletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
@@ -223,6 +222,10 @@ public class JournalArticleActionDropdownItemsProvider {
 					add(_getAutoCopyArticleActionUnsafeConsumer());
 				}
 
+				String articleId =
+					_article.getArticleId() + JournalPortlet.VERSION_SEPARATOR +
+						_article.getVersion();
+
 				if (JournalArticlePermission.contains(
 						_themeDisplay.getPermissionChecker(), _article,
 						ActionKeys.EXPIRE) &&
@@ -231,9 +234,7 @@ public class JournalArticleActionDropdownItemsProvider {
 
 					add(
 						_getExpireArticleActionConsumer(
-							_article.getArticleId() +
-								JournalPortlet.VERSION_SEPARATOR +
-									_article.getVersion()));
+							articleId, _themeDisplay.getURLCurrent()));
 				}
 
 				add(_getCompareArticleVersionsActionUnsafeConsumer());
@@ -244,9 +245,7 @@ public class JournalArticleActionDropdownItemsProvider {
 
 					add(
 						_getDeleteArticleAction(
-							_article.getArticleId() +
-								JournalPortlet.VERSION_SEPARATOR +
-									_article.getVersion()));
+							articleId, _themeDisplay.getURLCurrent()));
 				}
 			}
 		};
@@ -255,7 +254,7 @@ public class JournalArticleActionDropdownItemsProvider {
 	public List<DropdownItem> getArticleVersionActionDropdownItems()
 		throws Exception {
 
-		return new DropdownItemList() {
+		DropdownItemList dropdownItems = new DropdownItemList() {
 			{
 				if (JournalArticlePermission.contains(
 						_themeDisplay.getPermissionChecker(), _article,
@@ -263,49 +262,12 @@ public class JournalArticleActionDropdownItemsProvider {
 
 					add(_getEditArticleActionUnsafeConsumer());
 				}
-
-				if (JournalArticlePermission.contains(
-						_themeDisplay.getPermissionChecker(), _article,
-						ActionKeys.VIEW)) {
-
-					add(_getPreviewArticleActionUnsafeConsumer());
-				}
-
-				if (JournalFolderPermission.contains(
-						_themeDisplay.getPermissionChecker(),
-						_themeDisplay.getScopeGroupId(), _article.getFolderId(),
-						ActionKeys.ADD_ARTICLE)) {
-
-					add(_getAutoCopyArticleActionUnsafeConsumer());
-				}
-
-				if (JournalArticlePermission.contains(
-						_themeDisplay.getPermissionChecker(), _article,
-						ActionKeys.EXPIRE) &&
-					(_article.getStatus() ==
-						WorkflowConstants.STATUS_APPROVED)) {
-
-					add(
-						_getExpireArticleActionConsumer(
-							_article.getArticleId() +
-								JournalPortlet.VERSION_SEPARATOR +
-									_article.getVersion()));
-				}
-
-				add(_getCompareArticleVersionsActionUnsafeConsumer());
-
-				if (JournalArticlePermission.contains(
-						_themeDisplay.getPermissionChecker(), _article,
-						ActionKeys.DELETE)) {
-
-					add(
-						_getDeleteArticleAction(
-							_article.getArticleId() +
-								JournalPortlet.VERSION_SEPARATOR +
-									_article.getVersion()));
-				}
 			}
 		};
+
+		dropdownItems.addAll(getArticleHistoryActionDropdownItems());
+
+		return dropdownItems;
 	}
 
 	private UnsafeConsumer<DropdownItem, Exception>
@@ -317,7 +279,8 @@ public class JournalArticleActionDropdownItemsProvider {
 				"/copy_article.jsp", "redirect", _getRedirect(), "groupId",
 				_article.getGroupId(), "oldArticleId", _article.getArticleId(),
 				"version", _article.getVersion());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "copy"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "copy"));
 		};
 	}
 
@@ -338,7 +301,8 @@ public class JournalArticleActionDropdownItemsProvider {
 
 		PortletURL redirectURL = _liferayPortletResponse.createRenderURL();
 
-		redirectURL.setParameter("mvcPath", "/compare_versions.jsp");
+		redirectURL.setParameter(
+			"mvcRenderCommandName", "/journal/compare_versions");
 		redirectURL.setParameter("redirect", _getRedirect());
 		redirectURL.setParameter(
 			"groupId", String.valueOf(_article.getGroupId()));
@@ -349,7 +313,8 @@ public class JournalArticleActionDropdownItemsProvider {
 			dropdownItem.putData(
 				"compareVersionsURL", compareVersionsURL.toString());
 			dropdownItem.putData("redirectURL", redirectURL.toString());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "compare-to"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "compare-to"));
 		};
 	}
 
@@ -377,7 +342,8 @@ public class JournalArticleActionDropdownItemsProvider {
 				dropdownItem.putData("action", "copyArticle");
 				dropdownItem.putData(
 					"copyArticleURL", copyArticleURL.toString());
-				dropdownItem.setLabel(LanguageUtil.get(_request, "copy"));
+				dropdownItem.setLabel(
+					LanguageUtil.get(_httpServletRequest, "copy"));
 			};
 		}
 
@@ -387,11 +353,18 @@ public class JournalArticleActionDropdownItemsProvider {
 	private UnsafeConsumer<DropdownItem, Exception> _getDeleteArticleAction(
 		String articleId) {
 
+		return _getDeleteArticleAction(articleId, _getRedirect());
+	}
+
+	private UnsafeConsumer<DropdownItem, Exception> _getDeleteArticleAction(
+		String articleId, String redirect) {
+
 		PortletURL deleteURL = _liferayPortletResponse.createActionURL();
 
-		deleteURL.setParameter(ActionRequest.ACTION_NAME, "deleteArticle");
+		deleteURL.setParameter(
+			ActionRequest.ACTION_NAME, "/journal/delete_article");
 
-		deleteURL.setParameter("redirect", _getRedirect());
+		deleteURL.setParameter("redirect", redirect);
 		deleteURL.setParameter(
 			"groupId", String.valueOf(_article.getGroupId()));
 		deleteURL.setParameter("articleId", articleId);
@@ -399,7 +372,8 @@ public class JournalArticleActionDropdownItemsProvider {
 		return dropdownItem -> {
 			dropdownItem.putData("action", "delete");
 			dropdownItem.putData("deleteURL", deleteURL.toString());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "delete"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "delete"));
 		};
 	}
 
@@ -415,17 +389,25 @@ public class JournalArticleActionDropdownItemsProvider {
 				_article.getFolderId(), "articleId", _article.getArticleId(),
 				"version", _article.getVersion());
 			dropdownItem.setIcon("edit");
-			dropdownItem.setLabel(LanguageUtil.get(_request, "edit"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "edit"));
 		};
 	}
 
 	private UnsafeConsumer<DropdownItem, Exception>
 		_getExpireArticleActionConsumer(String articleId) {
 
+		return _getExpireArticleActionConsumer(articleId, _getRedirect());
+	}
+
+	private UnsafeConsumer<DropdownItem, Exception>
+		_getExpireArticleActionConsumer(String articleId, String redirect) {
+
 		PortletURL expireURL = _liferayPortletResponse.createActionURL();
 
-		expireURL.setParameter(ActionRequest.ACTION_NAME, "expireArticles");
-		expireURL.setParameter("redirect", _getRedirect());
+		expireURL.setParameter(
+			ActionRequest.ACTION_NAME, "/journal/expire_articles");
+		expireURL.setParameter("redirect", redirect);
 		expireURL.setParameter(
 			"groupId", String.valueOf(_article.getGroupId()));
 		expireURL.setParameter("articleId", articleId);
@@ -433,7 +415,8 @@ public class JournalArticleActionDropdownItemsProvider {
 		return dropdownItem -> {
 			dropdownItem.putData("action", "expireArticles");
 			dropdownItem.putData("expireURL", expireURL.toString());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "expire"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "expire"));
 		};
 	}
 
@@ -447,7 +430,8 @@ public class JournalArticleActionDropdownItemsProvider {
 				"referringPortletResource", _getReferringPortletResource(),
 				"rowIdsJournalArticle", _article.getArticleId());
 			dropdownItem.setIcon("move");
-			dropdownItem.setLabel(LanguageUtil.get(_request, "move"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "move"));
 		};
 	}
 
@@ -456,7 +440,8 @@ public class JournalArticleActionDropdownItemsProvider {
 
 		PortletURL deleteURL = _liferayPortletResponse.createActionURL();
 
-		deleteURL.setParameter(ActionRequest.ACTION_NAME, "moveToTrash");
+		deleteURL.setParameter(
+			ActionRequest.ACTION_NAME, "/journal/move_to_trash");
 
 		deleteURL.setParameter("redirect", _getRedirect());
 		deleteURL.setParameter(
@@ -467,7 +452,7 @@ public class JournalArticleActionDropdownItemsProvider {
 			dropdownItem.putData("action", "delete");
 			dropdownItem.putData("deleteURL", deleteURL.toString());
 			dropdownItem.setLabel(
-				LanguageUtil.get(_request, "move-to-recycle-bin"));
+				LanguageUtil.get(_httpServletRequest, "move-to-recycle-bin"));
 		};
 	}
 
@@ -479,12 +464,13 @@ public class JournalArticleActionDropdownItemsProvider {
 			StringPool.BLANK, JournalArticle.class.getName(),
 			HtmlUtil.escape(_article.getTitle(_themeDisplay.getLocale())), null,
 			String.valueOf(_article.getResourcePrimKey()),
-			LiferayWindowState.POP_UP.toString(), null, _request);
+			LiferayWindowState.POP_UP.toString(), null, _httpServletRequest);
 
 		return dropdownItem -> {
 			dropdownItem.putData("action", "permissions");
 			dropdownItem.putData("permissionsURL", permissionsURL);
-			dropdownItem.setLabel(LanguageUtil.get(_request, "permissions"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "permissions"));
 		};
 	}
 
@@ -511,7 +497,8 @@ public class JournalArticleActionDropdownItemsProvider {
 				status = "preview-draft";
 			}
 
-			dropdownItem.setLabel(LanguageUtil.get(_request, status));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, status));
 		};
 	}
 
@@ -530,13 +517,13 @@ public class JournalArticleActionDropdownItemsProvider {
 
 			sb.append(
 				_assetDisplayPageFriendlyURLProvider.getFriendlyURL(
-					assetEntry, _themeDisplay));
+					assetEntry.getClassName(), assetEntry.getClassPK(),
+					_themeDisplay));
 			sb.append(StringPool.SLASH);
 			sb.append(_article.getId());
 
 			return HttpUtil.addParameter(
-				sb.toString(), "p_p_state",
-				LiferayWindowState.POP_UP.toString());
+				sb.toString(), "p_l_mode", Constants.PREVIEW);
 		}
 
 		if (Validator.isNull(_article.getDDMTemplateKey())) {
@@ -583,7 +570,7 @@ public class JournalArticleActionDropdownItemsProvider {
 			dropdownItem.putData(
 				"publishArticleURL", publishArticleURL.toString());
 			dropdownItem.setLabel(
-				LanguageUtil.get(_request, "publish-to-live"));
+				LanguageUtil.get(_httpServletRequest, "publish-to-live"));
 		};
 	}
 
@@ -620,7 +607,7 @@ public class JournalArticleActionDropdownItemsProvider {
 				_liferayPortletResponse.createActionURL();
 
 			unsubscribeArticleURL.setParameter(
-				ActionRequest.ACTION_NAME, "unsubscribeArticle");
+				ActionRequest.ACTION_NAME, "/journal/unsubscribe_article");
 
 			unsubscribeArticleURL.setParameter("redirect", _getRedirect());
 			unsubscribeArticleURL.setParameter(
@@ -631,7 +618,7 @@ public class JournalArticleActionDropdownItemsProvider {
 				dropdownItem.putData(
 					"unsubscribeArticleURL", unsubscribeArticleURL.toString());
 				dropdownItem.setLabel(
-					LanguageUtil.get(_request, "unsubscribe"));
+					LanguageUtil.get(_httpServletRequest, "unsubscribe"));
 			};
 		}
 
@@ -639,7 +626,7 @@ public class JournalArticleActionDropdownItemsProvider {
 			_liferayPortletResponse.createActionURL();
 
 		subscribeArticleURL.setParameter(
-			ActionRequest.ACTION_NAME, "subscribeArticle");
+			ActionRequest.ACTION_NAME, "/journal/subscribe_article");
 
 		subscribeArticleURL.setParameter("redirect", _getRedirect());
 		subscribeArticleURL.setParameter(
@@ -649,7 +636,8 @@ public class JournalArticleActionDropdownItemsProvider {
 			dropdownItem.putData("action", "subscribeArticle");
 			dropdownItem.putData(
 				"subscribeArticleURL", subscribeArticleURL.toString());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "subscribe"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "subscribe"));
 		};
 	}
 
@@ -665,7 +653,8 @@ public class JournalArticleActionDropdownItemsProvider {
 
 		return dropdownItem -> {
 			dropdownItem.setHref(viewContentURL);
-			dropdownItem.setLabel(LanguageUtil.get(_request, "view-content"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "view-content"));
 		};
 	}
 
@@ -708,25 +697,22 @@ public class JournalArticleActionDropdownItemsProvider {
 				"backURL", _getRedirect(), "referringPortletResource",
 				_getReferringPortletResource(), "articleId",
 				_article.getArticleId());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "view-history"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "view-history"));
 		};
 	}
 
 	private UnsafeConsumer<DropdownItem, Exception>
-			_getViewUsagesArticleActionUnsafeConsumer()
-		throws Exception {
-
-		PortletURL viewUsagesURL = PortletProviderUtil.getPortletURL(
-			_request, AssetEntryUsage.class.getName(),
-			PortletProvider.Action.VIEW);
-
-		AssetEntry assetEntry = AssetEntryLocalServiceUtil.fetchEntry(
-			JournalArticle.class.getName(), _article.getResourcePrimKey());
+		_getViewUsagesArticleActionUnsafeConsumer() {
 
 		return dropdownItem -> {
 			dropdownItem.setHref(
-				viewUsagesURL, "assetEntryId", assetEntry.getEntryId());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "view-usages"));
+				_liferayPortletResponse.createRenderURL(), "mvcPath",
+				"/view_asset_entry_usages.jsp", "redirect", _getRedirect(),
+				"groupId", _article.getGroupId(), "articleId",
+				_article.getArticleId());
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "view-usages"));
 		};
 	}
 
@@ -821,12 +807,12 @@ public class JournalArticleActionDropdownItemsProvider {
 	private final JournalArticle _article;
 	private final AssetDisplayPageFriendlyURLProvider
 		_assetDisplayPageFriendlyURLProvider;
+	private final HttpServletRequest _httpServletRequest;
 	private final JournalWebConfiguration _journalWebConfiguration;
 	private final LiferayPortletRequest _liferayPortletRequest;
 	private final LiferayPortletResponse _liferayPortletResponse;
 	private String _redirect;
 	private String _referringPortletResource;
-	private final HttpServletRequest _request;
 	private final ThemeDisplay _themeDisplay;
 	private final TrashHelper _trashHelper;
 

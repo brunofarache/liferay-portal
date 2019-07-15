@@ -30,6 +30,14 @@ import javax.servlet.jsp.PageContext;
  */
 public class SharingButtonTag extends IncludeTag {
 
+	public String getClassName() {
+		return _className;
+	}
+
+	public long getClassPK() {
+		return _classPK;
+	}
+
 	public void setClassName(String className) {
 		_className = className;
 	}
@@ -59,18 +67,15 @@ public class SharingButtonTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
 		SharingJavaScriptFactory sharingJavaScriptFactory =
 			SharingJavaScriptFactoryUtil.getSharingJavaScriptFactory();
 
 		try {
-			request.setAttribute(
-				"liferay-sharing:button:javaScript",
-				sharingJavaScriptFactory.createSharingJavaScript(request));
-			request.setAttribute(
+			httpServletRequest.setAttribute(
 				"liferay-sharing:button:onClick",
 				sharingJavaScriptFactory.createSharingOnClickMethod(
-					_className, _classPK, request));
+					_className, _classPK, httpServletRequest));
 		}
 		catch (PortalException pe) {
 			_log.error("Unable to set onclick method", pe);

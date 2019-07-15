@@ -14,11 +14,11 @@
 
 package com.liferay.portal.verify;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portlet.documentlibrary.store.StoreFactory;
@@ -544,6 +544,16 @@ public class VerifyProperties extends VerifyProcess {
 		},
 
 		{
+			"blogs.image.max.size", "blogs.image.max.size",
+			"com.liferay.blogs.api"
+		},
+
+		{
+			"blogs.image.extensions", "blogs.image.extensions",
+			"com.liferay.blogs.api"
+		},
+
+		{
 			"blogs.linkback.job.interval", "linkback.job.interval",
 			"com.liferay.blogs.web"
 		},
@@ -669,6 +679,23 @@ public class VerifyProperties extends VerifyProcess {
 			"com.liferay.currency.converter.web"
 		},
 
+		// Discussion
+
+		{
+			"discussion.email.body", "discussion.email.body",
+			"com.liferay.comment.api"
+		},
+
+		{
+			"discussion.email.comments.added.enabled",
+			"discussion.email.comments.added.enabled", "com.liferay.comment.api"
+		},
+
+		{
+			"discussion.email.subject", "discussion.email.subject",
+			"com.liferay.comment.api"
+		},
+
 		// Document Library
 
 		{
@@ -692,36 +719,8 @@ public class VerifyProperties extends VerifyProcess {
 			"com.liferay.portal.store.filesystem"
 		},
 		{
-			"dl.store.cmis.credentials.username", "credentials.username",
-			"com.liferay.portal.store.cmis"
-		},
-		{
-			"dl.store.cmis.credentials.password", "credentials.password",
-			"com.liferay.portal.store.cmis"
-		},
-		{
-			"dl.store.cmis.repository.url", "repository.url",
-			"com.liferay.portal.store.cmis"
-		},
-		{
-			"dl.store.cmis.system.root.dir", "system.root.dir",
-			"com.liferay.portal.store.cmis"
-		},
-		{
 			"dl.store.file.system.root.dir", "root.dir",
 			"com.liferay.portal.store.filesystem"
-		},
-		{
-			"dl.store.jcr.fetch.delay", "fetch.delay",
-			"com.liferay.portal.store.jcr"
-		},
-		{
-			"dl.store.jcr.fetch.max.failures", "fetch.max.failures",
-			"com.liferay.portal.store.jcr"
-		},
-		{
-			"dl.store.jcr.move.version.labels", "move.version.labels",
-			"com.liferay.portal.store.jcr"
 		},
 		{
 			"dl.store.s3.access.key", "access.key",
@@ -908,42 +907,6 @@ public class VerifyProperties extends VerifyProcess {
 			"iframe.hidden-variables", "hidden.variables",
 			"com.liferay.iframe.web"
 		},
-
-		// JCR
-
-		{
-			"jcr.initialize.on.startup", "initialize.on.startup",
-			"com.liferay.portal.store.jcr"
-		},
-		{
-			"jcr.jackrabbit.config.file.path", "jackrabbit.config.file.path",
-			"com.liferay.portal.store.jcr"
-		},
-		{
-			"jcr.jackrabbit.credentials.password",
-			"jackrabbit.credentials.password", "com.liferay.portal.store.jcr"
-		},
-		{
-			"jcr.jackrabbit.credentials.username",
-			"jackrabbit.credentials.username", "com.liferay.portal.store.jcr"
-		},
-		{
-			"jcr.jackrabbit.repository.home", "repository.home",
-			"com.liferay.portal.store.jcr"
-		},
-		{
-			"jcr.jackrabbit.repository.root", "repository.root",
-			"com.liferay.portal.store.jcr"
-		},
-		{
-			"jcr.node.documentlibrary", "node.documentlibrary",
-			"com.liferay.portal.store.jcr"
-		},
-		{
-			"jcr.workspace.name", "workspace.name",
-			"com.liferay.portal.store.jcr"
-		},
-		{"jcr.wrap.session", "wrap.session", "com.liferay.portal.store.jcr"},
 
 		// Journal
 
@@ -1640,7 +1603,8 @@ public class VerifyProperties extends VerifyProcess {
 		"auth.max.failures.limit", "auto.deploy.blacklist.threshold",
 		"blogs.image.small.max.size", "breadcrumb.display.style.options",
 		"buffered.increment.parallel.queue.size",
-		"buffered.increment.serial.queue.size", "captcha.max.challenges",
+		"buffered.increment.serial.queue.size",
+		"cache.clear.on.context.initialization", "captcha.max.challenges",
 		"captcha.check.portal.create_account",
 		"captcha.check.portal.send_password",
 		"captcha.check.portlet.message_boards.edit_category",
@@ -1685,8 +1649,16 @@ public class VerifyProperties extends VerifyProcess {
 		"dl.file.entry.read.count.enabled",
 		"dl.file.entry.type.ig.image.auto.create.on.upgrade",
 		"dl.file.extensions", "dl.file.max.size", "dl.file.rank.enabled",
-		"dl.folder.menu.visible", "dockbar.add.portlets",
-		"dockbar.administrative.links.show.in.pop.up",
+		"dl.folder.menu.visible", "dl.hook.cmis.credentials.password",
+		"dl.hook.cmis.credentials.username", "dl.hook.cmis.repository.url",
+		"dl.hook.cmis.system.root.dir", "dl.hook.file.system.root.dir",
+		"dl.hook.jcr.fetch.delay", "dl.hook.jcr.fetch.max.failures",
+		"dl.hook.jcr.move.version.labels", "dl.store.cmis.credentials.username",
+		"dl.store.cmis.credentials.password", "dl.store.cmis.repository.url",
+		"dl.store.cmis.system.root.dir", "dl.store.file.system.root.dir",
+		"dl.store.jcr.fetch.delay", "dl.store.jcr.fetch.max.failures",
+		"dl.store.jcr.move.version.labels", "dl.tabs.visible",
+		"dockbar.add.portlets", "dockbar.administrative.links.show.in.pop.up",
 		"dynamic.data.lists.record.set.force.autogenerate.key",
 		"dynamic.data.lists.template.language.parser[ftl]",
 		"dynamic.data.lists.template.language.parser[vm]",
@@ -1736,10 +1708,16 @@ public class VerifyProperties extends VerifyProcess {
 		"index.read.only", "invitation.email.max.recipients",
 		"invitation.email.message.body", "invitation.email.message.subject",
 		"invoker.filter.chain.cache.size", "javax.persistence.validation.mode",
-		"jbi.workflow.url", "json.deserializer.strict.mode",
-		"journal.article.form.add", "journal.article.form.default.values",
-		"journal.article.form.update", "journal.article.form.translate",
-		"journal.article.types", "journal.articles.page.delta.values",
+		"jbi.workflow.url", "jcr.initialize.on.startup",
+		"jcr.jackrabbit.config.file.path",
+		"jcr.jackrabbit.credentials.password",
+		"jcr.jackrabbit.credentials.username", "jcr.jackrabbit.repository.home",
+		"jcr.jackrabbit.repository.root", "jcr.node.documentlibrary",
+		"jcr.workspace.name", "jcr.wrap.session",
+		"json.deserializer.strict.mode", "journal.article.form.add",
+		"journal.article.form.default.values", "journal.article.form.update",
+		"journal.article.form.translate", "journal.article.types",
+		"journal.articles.page.delta.values",
 		"journal.browse.by.structures.sorted.by.name",
 		"journal.image.extensions", "journal.image.small.max.size",
 		"journal.template.language.parser[css]",
@@ -1888,21 +1866,7 @@ public class VerifyProperties extends VerifyProcess {
 		},
 		{"default.user.private.layout.lar", "default.user.private.layouts.lar"},
 		{"default.user.public.layout.lar", "default.user.public.layouts.lar"},
-		{
-			"dl.hook.cmis.credentials.password",
-			"dl.store.cmis.credentials.password"
-		},
-		{
-			"dl.hook.cmis.credentials.username",
-			"dl.store.cmis.credentials.username"
-		},
-		{"dl.hook.cmis.repository.url", "dl.store.cmis.repository.url"},
-		{"dl.hook.cmis.system.root.dir", "dl.store.cmis.system.root.dir"},
-		{"dl.hook.file.system.root.dir", "dl.store.file.system.root.dir"},
 		{"dl.hook.impl", "dl.store.impl"},
-		{"dl.hook.jcr.fetch.delay", "dl.store.jcr.fetch.delay"},
-		{"dl.hook.jcr.fetch.max.failures", "dl.store.jcr.fetch.max.failures"},
-		{"dl.hook.jcr.move.version.labels", "dl.store.jcr.move.version.labels"},
 		{"dl.hook.s3.access.key", "dl.store.s3.access.key"},
 		{"dl.hook.s3.bucket.name", "dl.store.s3.bucket.name"},
 		{"dl.hook.s3.secret.key", "dl.store.s3.secret.key"},

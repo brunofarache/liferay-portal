@@ -1,40 +1,44 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`EmptyDropZone should render 1`] = `
+exports[`EmptyDropZone renders 1`] = `
 <DocumentFragment>
   <div
-    class="empty-drop-zone-root"
+    class="empty-drop-zone-root empty-drop-zone-dashed border-primary rounded"
   >
     <div
-      class="empty-drop-zone-target"
+      class="drop-zone-target p-5"
     >
       <div
         class="empty-drop-zone-indicator"
       />
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`EmptyDropZone renders illustration when empty contributors 1`] = `
+<DocumentFragment>
+  <div
+    class="empty-drop-zone-root"
+  >
+    <div>
       <div
-        class="empty-drop-zone-help-message"
+        class="taglib-empty-result-message mb-0 p-5 rounded empty-contributors"
       >
         <div
-          class="message-item"
-        >
-          <img
-            class="message-icon"
-            src="/drag-and-drop.svg"
-          />
-          <span>
-            drag-and-drop-criterion-from-the-right-to-add-rules
-          </span>
-        </div>
+          class="taglib-empty-result-message-header"
+        />
         <div
-          class="message-item"
+          class="sheet-text text-center"
         >
-          <img
-            class="message-icon"
-            src="/drag-over.svg"
-          />
-          <span>
-            drag-and-drop-over-an-existing-criteria-to-form-groups
-          </span>
+          <h1
+            class="mb-3 mt-4"
+          >
+            no-x-yet
+          </h1>
+          <p>
+            empty-conditions-message
+          </p>
         </div>
       </div>
     </div>

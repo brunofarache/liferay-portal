@@ -14,12 +14,14 @@
 
 package com.liferay.portal.spring.aop;
 
+import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.aop.AopMethodInvocation;
+import com.liferay.portal.kernel.aop.ChainableMethodAdvice;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.service.RetryAcceptor;
 import com.liferay.portal.kernel.spring.aop.Property;
 import com.liferay.portal.kernel.spring.aop.Retry;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.util.PropsValues;
 
 import java.lang.annotation.Annotation;
@@ -109,9 +111,8 @@ public class RetryAdvice extends ChainableMethodAdvice {
 
 					_log.warn(
 						StringBundler.concat(
-							"Retry on ", String.valueOf(aopMethodInvocation),
-							" for ", number, " more times due to result ",
-							String.valueOf(returnValue)));
+							"Retry on ", aopMethodInvocation, " for ", number,
+							" more times due to result ", returnValue));
 				}
 			}
 			catch (Throwable t) {
@@ -130,9 +131,8 @@ public class RetryAdvice extends ChainableMethodAdvice {
 
 					_log.warn(
 						StringBundler.concat(
-							"Retry on ", String.valueOf(aopMethodInvocation),
-							" for ", number, " more times due to exception ",
-							String.valueOf(throwable)),
+							"Retry on ", aopMethodInvocation, " for ", number,
+							" more times due to exception ", throwable),
 						throwable);
 				}
 			}
@@ -142,11 +142,10 @@ public class RetryAdvice extends ChainableMethodAdvice {
 			if (_log.isWarnEnabled()) {
 				_log.warn(
 					StringBundler.concat(
-						"Give up retrying on ",
-						String.valueOf(aopMethodInvocation), " after ",
-						String.valueOf(totalRetries),
+						"Give up retrying on ", aopMethodInvocation, " after ",
+						totalRetries,
 						" retries and rethrow last retry's exception ",
-						String.valueOf(throwable)),
+						throwable),
 					throwable);
 			}
 
@@ -156,10 +155,10 @@ public class RetryAdvice extends ChainableMethodAdvice {
 		if (_log.isWarnEnabled()) {
 			_log.warn(
 				StringBundler.concat(
-					"Give up retrying on ", String.valueOf(aopMethodInvocation),
-					" after ", String.valueOf(totalRetries),
+					"Give up retrying on ", aopMethodInvocation, " after ",
+					totalRetries,
 					" retries and returning the last retry's result ",
-					String.valueOf(returnValue)));
+					returnValue));
 		}
 
 		return returnValue;

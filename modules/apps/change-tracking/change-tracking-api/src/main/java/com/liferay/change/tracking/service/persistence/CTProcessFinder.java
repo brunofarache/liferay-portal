@@ -14,7 +14,7 @@
 
 package com.liferay.change.tracking.service.persistence;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Brian Wing Shun Chan
@@ -24,14 +24,9 @@ import aQute.bnd.annotation.ProviderType;
 public interface CTProcessFinder {
 
 	public java.util.List<com.liferay.change.tracking.model.CTProcess>
-		findByCompanyId(
-			long companyId, int start, int end,
-			com.liferay.portal.kernel.util.OrderByComparator<?>
-				orderByComparator);
-
-	public java.util.List<com.liferay.change.tracking.model.CTProcess>
-		findByC_S(
-			long companyId, int status, int start, int end,
+		findByC_U_N_D_S(
+			long companyId, long userId, String keywords, int status, int start,
+			int end,
 			com.liferay.portal.kernel.util.OrderByComparator<?>
 				orderByComparator);
 

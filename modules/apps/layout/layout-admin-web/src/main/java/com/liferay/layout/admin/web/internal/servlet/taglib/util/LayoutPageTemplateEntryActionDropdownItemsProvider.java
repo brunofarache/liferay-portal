@@ -18,7 +18,6 @@ import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.item.selector.ItemSelectorCriterion;
-import com.liferay.item.selector.ItemSelectorReturnType;
 import com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType;
 import com.liferay.item.selector.criteria.upload.criterion.UploadItemSelectorCriterion;
 import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
@@ -42,7 +41,6 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.taglib.security.PermissionsURLTag;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -65,14 +63,14 @@ public class LayoutPageTemplateEntryActionDropdownItemsProvider {
 		_layoutPageTemplateEntry = layoutPageTemplateEntry;
 		_renderResponse = renderResponse;
 
-		_request = PortalUtil.getHttpServletRequest(renderRequest);
+		_httpServletRequest = PortalUtil.getHttpServletRequest(renderRequest);
 
-		_itemSelector = (ItemSelector)_request.getAttribute(
+		_itemSelector = (ItemSelector)_httpServletRequest.getAttribute(
 			LayoutAdminWebKeys.ITEM_SELECTOR);
 		_layoutAdminWebConfiguration =
-			(LayoutAdminWebConfiguration)_request.getAttribute(
+			(LayoutAdminWebConfiguration)_httpServletRequest.getAttribute(
 				LayoutAdminWebConfiguration.class.getName());
-		_themeDisplay = (ThemeDisplay)_request.getAttribute(
+		_themeDisplay = (ThemeDisplay)_httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
 
@@ -85,8 +83,17 @@ public class LayoutPageTemplateEntryActionDropdownItemsProvider {
 
 					add(
 						_getUpdateLayoutPageTemplateEntryPreviewActionUnsafeConsumer());
+
+					if (_layoutPageTemplateEntry.getPreviewFileEntryId() > 0) {
+						add(
+							_getDeleteLayoutPageTemplateEntryPreviewActionUnsafeConsumer());
+					}
+
 					add(
 						_getRenameLayoutPageTemplateEntryActionUnsafeConsumer());
+
+					add(
+						_getConfigureLayoutPageTemplateEntryActionUnsafeConsumer());
 				}
 
 				if (LayoutPageTemplateEntryPermission.contains(
@@ -109,6 +116,22 @@ public class LayoutPageTemplateEntryActionDropdownItemsProvider {
 	}
 
 	private UnsafeConsumer<DropdownItem, Exception>
+		_getConfigureLayoutPageTemplateEntryActionUnsafeConsumer() {
+
+		return dropdownItem -> {
+			dropdownItem.setHref(
+				_renderResponse.createRenderURL(), "mvcRenderCommandName",
+				"/layout/edit_layout", "redirect",
+				_themeDisplay.getURLCurrent(), "backURL",
+				_themeDisplay.getURLCurrent(), "selPlid",
+				_layoutPageTemplateEntry.getPlid());
+
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "configure"));
+		};
+	}
+
+	private UnsafeConsumer<DropdownItem, Exception>
 		_getDeleteLayoutPageTemplateEntryActionUnsafeConsumer() {
 
 		PortletURL deleteLayoutPageTemplateEntryURL =
@@ -117,7 +140,6 @@ public class LayoutPageTemplateEntryActionDropdownItemsProvider {
 		deleteLayoutPageTemplateEntryURL.setParameter(
 			ActionRequest.ACTION_NAME,
 			"/layout/delete_layout_page_template_entry");
-
 		deleteLayoutPageTemplateEntryURL.setParameter(
 			"redirect", _themeDisplay.getURLCurrent());
 		deleteLayoutPageTemplateEntryURL.setParameter(
@@ -130,7 +152,40 @@ public class LayoutPageTemplateEntryActionDropdownItemsProvider {
 			dropdownItem.putData(
 				"deleteLayoutPageTemplateEntryURL",
 				deleteLayoutPageTemplateEntryURL.toString());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "delete"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "delete"));
+		};
+	}
+
+	private UnsafeConsumer<DropdownItem, Exception>
+		_getDeleteLayoutPageTemplateEntryPreviewActionUnsafeConsumer() {
+
+		PortletURL deleteLayoutPageTemplateEntryPreviewURL =
+			_renderResponse.createActionURL();
+
+		deleteLayoutPageTemplateEntryPreviewURL.setParameter(
+			ActionRequest.ACTION_NAME,
+			"/layout/delete_layout_page_template_entry_preview");
+
+		deleteLayoutPageTemplateEntryPreviewURL.setParameter(
+			"redirect", _themeDisplay.getURLCurrent());
+		deleteLayoutPageTemplateEntryPreviewURL.setParameter(
+			"layoutPageTemplateEntryId",
+			String.valueOf(
+				_layoutPageTemplateEntry.getLayoutPageTemplateEntryId()));
+
+		return dropdownItem -> {
+			dropdownItem.putData(
+				"action", "deleteLayoutPageTemplateEntryPreview");
+			dropdownItem.putData(
+				"deleteLayoutPageTemplateEntryPreviewURL",
+				deleteLayoutPageTemplateEntryPreviewURL.toString());
+			dropdownItem.putData(
+				"layoutPageTemplateEntryId",
+				String.valueOf(
+					_layoutPageTemplateEntry.getLayoutPageTemplateEntryId()));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "remove-thumbnail"));
 		};
 	}
 
@@ -145,26 +200,20 @@ public class LayoutPageTemplateEntryActionDropdownItemsProvider {
 			String.valueOf(
 				_layoutPageTemplateEntry.getLayoutPageTemplateEntryId()));
 
-		ItemSelectorCriterion uploadItemSelectorCriterion =
+		ItemSelectorCriterion itemSelectorCriterion =
 			new UploadItemSelectorCriterion(
 				LayoutAdminPortletKeys.GROUP_PAGES, uploadURL.toString(),
 				LanguageUtil.get(_themeDisplay.getLocale(), "page-template"),
 				UploadServletRequestConfigurationHelperUtil.getMaxSize(),
 				_layoutAdminWebConfiguration.thumbnailExtensions());
 
-		List<ItemSelectorReturnType> uploadDesiredItemSelectorReturnTypes =
-			new ArrayList<>();
-
-		uploadDesiredItemSelectorReturnTypes.add(
+		itemSelectorCriterion.setDesiredItemSelectorReturnTypes(
 			new FileEntryItemSelectorReturnType());
 
-		uploadItemSelectorCriterion.setDesiredItemSelectorReturnTypes(
-			uploadDesiredItemSelectorReturnTypes);
-
 		PortletURL itemSelectorURL = _itemSelector.getItemSelectorURL(
-			RequestBackedPortletURLFactoryUtil.create(_request),
+			RequestBackedPortletURLFactoryUtil.create(_httpServletRequest),
 			_renderResponse.getNamespace() + "changePreview",
-			uploadItemSelectorCriterion);
+			itemSelectorCriterion);
 
 		return itemSelectorURL.toString();
 	}
@@ -178,7 +227,7 @@ public class LayoutPageTemplateEntryActionDropdownItemsProvider {
 			_layoutPageTemplateEntry.getName(), null,
 			String.valueOf(
 				_layoutPageTemplateEntry.getLayoutPageTemplateEntryId()),
-			LiferayWindowState.POP_UP.toString(), null, _request);
+			LiferayWindowState.POP_UP.toString(), null, _httpServletRequest);
 
 		return dropdownItem -> {
 			dropdownItem.putData(
@@ -186,7 +235,8 @@ public class LayoutPageTemplateEntryActionDropdownItemsProvider {
 			dropdownItem.putData(
 				"permissionsLayoutPageTemplateEntryURL",
 				permissionsLayoutPageTemplateEntryURL);
-			dropdownItem.setLabel(LanguageUtil.get(_request, "permissions"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "permissions"));
 		};
 	}
 
@@ -214,7 +264,8 @@ public class LayoutPageTemplateEntryActionDropdownItemsProvider {
 				dropdownItem.putData(
 					"updateLayoutPageTemplateEntryURL",
 					_getUpdateLayoutPrototypeURL(layoutPrototype));
-				dropdownItem.setLabel(LanguageUtil.get(_request, "rename"));
+				dropdownItem.setLabel(
+					LanguageUtil.get(_httpServletRequest, "rename"));
 			};
 		}
 
@@ -231,7 +282,8 @@ public class LayoutPageTemplateEntryActionDropdownItemsProvider {
 			dropdownItem.putData(
 				"updateLayoutPageTemplateEntryURL",
 				_getUpdateLayoutPageTemplateEntryURL());
-			dropdownItem.setLabel(LanguageUtil.get(_request, "rename"));
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "rename"));
 		};
 	}
 
@@ -247,7 +299,7 @@ public class LayoutPageTemplateEntryActionDropdownItemsProvider {
 				String.valueOf(
 					_layoutPageTemplateEntry.getLayoutPageTemplateEntryId()));
 			dropdownItem.setLabel(
-				LanguageUtil.get(_request, "change-thumbnail"));
+				LanguageUtil.get(_httpServletRequest, "change-thumbnail"));
 		};
 	}
 
@@ -289,11 +341,11 @@ public class LayoutPageTemplateEntryActionDropdownItemsProvider {
 		return updateLayoutPrototypeURL.toString();
 	}
 
+	private final HttpServletRequest _httpServletRequest;
 	private final ItemSelector _itemSelector;
 	private final LayoutAdminWebConfiguration _layoutAdminWebConfiguration;
 	private final LayoutPageTemplateEntry _layoutPageTemplateEntry;
 	private final RenderResponse _renderResponse;
-	private final HttpServletRequest _request;
 	private final ThemeDisplay _themeDisplay;
 
 }

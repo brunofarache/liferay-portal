@@ -1,5 +1,6 @@
 @default = "selectFrame"
 definition {
+
 	function selectFrame {
 		if (contains("${locator1}", "/iframe")) {
 			selenium.waitForVisible();
@@ -53,4 +54,30 @@ definition {
 
 		WaitForSPARefresh();
 	}
+
+	function selectSecondFrame {
+		if (contains("${locator1}", "/iframe")) {
+			selenium.waitForVisible();
+
+			selenium.mouseOver();
+
+			selenium.waitForElementPresent(
+				"xpath=(//div[contains(@class,'overlaymask-hidden')])[2]"
+			);
+
+			selenium.selectFrame();
+
+			selenium.waitForElementPresent("//body");
+
+			selenium.assertJavaScriptErrors();
+
+			selenium.assertLiferayErrors();
+		}
+		else {
+			SelectFrame.selectFrameTop();
+		}
+
+		WaitForSPARefresh();
+	}
+
 }

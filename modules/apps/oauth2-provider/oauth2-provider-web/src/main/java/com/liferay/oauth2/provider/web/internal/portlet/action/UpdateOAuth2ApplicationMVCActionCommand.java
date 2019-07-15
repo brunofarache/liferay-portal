@@ -20,6 +20,7 @@ import com.liferay.oauth2.provider.configuration.OAuth2ProviderConfiguration;
 import com.liferay.oauth2.provider.constants.ClientProfile;
 import com.liferay.oauth2.provider.constants.GrantType;
 import com.liferay.oauth2.provider.model.OAuth2Application;
+import com.liferay.oauth2.provider.service.OAuth2ApplicationScopeAliasesLocalService;
 import com.liferay.oauth2.provider.service.OAuth2ApplicationService;
 import com.liferay.oauth2.provider.util.OAuth2SecureRandomGenerator;
 import com.liferay.oauth2.provider.web.internal.constants.OAuth2ProviderPortletKeys;
@@ -34,9 +35,11 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.servlet.SessionErrors;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 
 import java.io.InputStream;
 
@@ -73,6 +76,9 @@ public class UpdateOAuth2ApplicationMVCActionCommand
 	public boolean processAction(
 		ActionRequest request, ActionResponse response) {
 
+		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
 		long oAuth2ApplicationId = ParamUtil.getLong(
 			request, "oAuth2ApplicationId");
 
@@ -84,8 +90,9 @@ public class UpdateOAuth2ApplicationMVCActionCommand
 
 		OAuth2AdminPortletDisplayContext oAuth2AdminPortletDisplayContext =
 			new OAuth2AdminPortletDisplayContext(
-				_oAuth2ApplicationService, _oAuth2ProviderConfiguration,
-				request, null, _dlurlHelper);
+				_oAuth2ApplicationService,
+				_oAuth2ApplicationScopeAliasesLocalService,
+				_oAuth2ProviderConfiguration, request, null, _dlurlHelper);
 
 		String[] oAuth2Features =
 			oAuth2AdminPortletDisplayContext.getOAuth2Features(
@@ -127,6 +134,8 @@ public class UpdateOAuth2ApplicationMVCActionCommand
 			StringUtil.splitLines(
 				ParamUtil.get(request, "redirectURIs", StringPool.BLANK)));
 		List<String> scopeAliasesList = Collections.emptyList();
+		long clientCredentialUserId = ParamUtil.get(
+			request, "clientCredentialUserId", themeDisplay.getUserId());
 
 		try {
 			ServiceContext serviceContext = ServiceContextFactory.getInstance(
@@ -146,10 +155,10 @@ public class UpdateOAuth2ApplicationMVCActionCommand
 
 				OAuth2Application oAuth2Application =
 					_oAuth2ApplicationService.addOAuth2Application(
-						allowedGrantTypesList, clientId, clientProfile.id(),
-						clientSecret, description, featuresList, homePageURL, 0,
-						name, privacyPolicyURL, redirectURIsList,
-						scopeAliasesList, serviceContext);
+						allowedGrantTypesList, clientCredentialUserId, clientId,
+						clientProfile.id(), clientSecret, description,
+						featuresList, homePageURL, 0, name, privacyPolicyURL,
+						redirectURIsList, scopeAliasesList, serviceContext);
 
 				response.setRenderParameter(
 					"oAuth2ApplicationId",
@@ -165,11 +174,11 @@ public class UpdateOAuth2ApplicationMVCActionCommand
 					oAuth2Application.getOAuth2ApplicationScopeAliasesId();
 
 				_oAuth2ApplicationService.updateOAuth2Application(
-					oAuth2ApplicationId, allowedGrantTypesList, clientId,
-					clientProfile.id(), clientSecret, description, featuresList,
-					homePageURL, iconFileEntryId, name, privacyPolicyURL,
-					redirectURIsList, oAuth2ApplicationScopeAliasesId,
-					serviceContext);
+					oAuth2ApplicationId, allowedGrantTypesList,
+					clientCredentialUserId, clientId, clientProfile.id(),
+					clientSecret, description, featuresList, homePageURL,
+					iconFileEntryId, name, privacyPolicyURL, redirectURIsList,
+					oAuth2ApplicationScopeAliasesId, serviceContext);
 
 				long fileEntryId = ParamUtil.getLong(request, "fileEntryId");
 
@@ -232,6 +241,10 @@ public class UpdateOAuth2ApplicationMVCActionCommand
 
 	@Reference
 	private DLURLHelper _dlurlHelper;
+
+	@Reference
+	private OAuth2ApplicationScopeAliasesLocalService
+		_oAuth2ApplicationScopeAliasesLocalService;
 
 	@Reference
 	private OAuth2ApplicationService _oAuth2ApplicationService;

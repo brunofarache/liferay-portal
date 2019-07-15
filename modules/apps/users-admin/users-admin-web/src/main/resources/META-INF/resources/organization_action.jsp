@@ -68,23 +68,6 @@ long organizationGroupId = organization.getGroupId();
 		/>
 	</c:if>
 
-	<%--<c:if test="<%= OrganizationPermissionUtil.contains(permissionChecker, organization, ActionKeys.PERMISSIONS) %>">
-		<liferay-security:permissionsURL
-			modelResource="<%= Organization.class.getName() %>"
-			modelResourceDescription="<%= HtmlUtil.escape(organization.getName()) %>"
-			resourcePrimKey="<%= String.valueOf(organization.getOrganizationId()) %>"
-			var="editOrganizationPermissionsURL"
-			windowState="<%= LiferayWindowState.POP_UP.toString() %>"
-		/>
-
-		<liferay-ui:icon
-			message="permissions"
-			method="get"
-			url="<%= editOrganizationPermissionsURL %>"
-			useDialog="<%= true %>"
-		/>
-	</c:if>--%>
-
 	<c:if test="<%= organizationGroup.isSite() && (GroupPermissionUtil.contains(permissionChecker, organizationGroup, ActionKeys.MANAGE_STAGING) || hasUpdatePermission) %>">
 
 		<%
@@ -180,6 +163,22 @@ long organizationGroupId = organization.getGroupId();
 			cssClass="item-remove"
 			message="delete"
 			url="<%= taglibDeleteURL %>"
+		/>
+	</c:if>
+
+	<%
+	long parentOrganizationId = GetterUtil.getLong(request.getAttribute("view.jsp-organizationId"));
+	%>
+
+	<c:if test="<%= (parentOrganizationId > 0) && hasUpdatePermission %>">
+		<portlet:actionURL name="/users_admin/edit_organization_assignments" var="removeOrganizationURL">
+			<portlet:param name="assignmentsRedirect" value="<%= redirect %>" />
+			<portlet:param name="removeOrganizationIds" value="<%= String.valueOf(organizationId) %>" />
+		</portlet:actionURL>
+
+		<liferay-ui:icon
+			message="remove"
+			url="<%= removeOrganizationURL %>"
 		/>
 	</c:if>
 </liferay-ui:icon-menu>

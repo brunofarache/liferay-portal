@@ -58,6 +58,10 @@ public class PanelContentTag extends BasePanelTag {
 		return EVAL_BODY_INCLUDE;
 	}
 
+	public PanelCategory getPanelCategory() {
+		return _panelCategory;
+	}
+
 	public void setPanelCategory(PanelCategory panelCategory) {
 		_panelCategory = panelCategory;
 	}
@@ -75,8 +79,8 @@ public class PanelContentTag extends BasePanelTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-application-list:panel-content:panelCategory",
 			_panelCategory);
 	}

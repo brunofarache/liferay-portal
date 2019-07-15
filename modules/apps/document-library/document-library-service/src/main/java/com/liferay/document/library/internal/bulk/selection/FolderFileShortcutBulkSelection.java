@@ -18,17 +18,15 @@ import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.bulk.selection.BulkSelection;
 import com.liferay.bulk.selection.BulkSelectionFactory;
 import com.liferay.document.library.kernel.service.DLAppService;
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.repository.RepositoryProvider;
 import com.liferay.portal.kernel.repository.model.BaseRepositoryModelOperation;
 import com.liferay.portal.kernel.repository.model.FileShortcut;
 import com.liferay.portal.kernel.repository.model.RepositoryModelOperation;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.util.Map;
-import java.util.function.Consumer;
 
 /**
  * @author Adolfo Pérez
@@ -38,12 +36,9 @@ public class FolderFileShortcutBulkSelection
 
 	public FolderFileShortcutBulkSelection(
 		long repositoryId, long folderId, Map<String, String[]> parameterMap,
-		ResourceBundleLoader resourceBundleLoader, Language language,
 		RepositoryProvider repositoryProvider, DLAppService dlAppService) {
 
-		super(
-			repositoryId, folderId, parameterMap, resourceBundleLoader,
-			language, repositoryProvider);
+		super(repositoryId, folderId, parameterMap, repositoryProvider);
 
 		_repositoryId = repositoryId;
 		_folderId = folderId;
@@ -58,13 +53,7 @@ public class FolderFileShortcutBulkSelection
 	}
 
 	@Override
-	public BulkSelection<AssetEntry> toAssetEntryBulkSelection() {
-		throw new UnsupportedOperationException(
-			"File shortcut is not an asset");
-	}
-
-	@Override
-	protected int getEntriesCount() throws PortalException {
+	public long getSize() throws PortalException {
 		int fileEntriesAndFileShortcutsCount =
 			_dlAppService.getFileEntriesAndFileShortcutsCount(
 				_repositoryId, _folderId, WorkflowConstants.STATUS_APPROVED);
@@ -75,13 +64,20 @@ public class FolderFileShortcutBulkSelection
 	}
 
 	@Override
-	protected RepositoryModelOperation getRepositoryModelOperation(
-		Consumer<? super FileShortcut> action) {
+	public BulkSelection<AssetEntry> toAssetEntryBulkSelection() {
+		throw new UnsupportedOperationException(
+			"File shortcut is not an asset");
+	}
+
+	@Override
+	protected <E extends PortalException> RepositoryModelOperation
+		getRepositoryModelOperation(
+			UnsafeConsumer<? super FileShortcut, E> action) {
 
 		return new BaseRepositoryModelOperation() {
 
 			@Override
-			public void execute(FileShortcut fileShortcut) {
+			public void execute(FileShortcut fileShortcut) throws E {
 				action.accept(fileShortcut);
 			}
 

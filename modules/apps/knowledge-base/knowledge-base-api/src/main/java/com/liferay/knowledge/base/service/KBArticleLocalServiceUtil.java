@@ -14,8 +14,7 @@
 
 package com.liferay.knowledge.base.service;
 
-import aQute.bnd.annotation.ProviderType;
-
+import org.osgi.annotation.versioning.ProviderType;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.util.tracker.ServiceTracker;
@@ -343,9 +342,8 @@ public class KBArticleLocalServiceUtil {
 	}
 
 	public static com.liferay.knowledge.base.model.KBArticle
-			fetchKBArticleByUrlTitle(
-				long groupId, String kbFolderUrlTitle, String urlTitle)
-		throws com.liferay.portal.kernel.exception.PortalException {
+		fetchKBArticleByUrlTitle(
+			long groupId, String kbFolderUrlTitle, String urlTitle) {
 
 		return getService().fetchKBArticleByUrlTitle(
 			groupId, kbFolderUrlTitle, urlTitle);

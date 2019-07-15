@@ -59,6 +59,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -162,7 +163,7 @@ public class DLReferencesExportImportContentProcessor
 				return map;
 			}
 
-			if ("portlet_file_entry".equals(pathArray[2])) {
+			if (Objects.equals(pathArray[2], "portlet_file_entry")) {
 				map.put("groupId", new String[] {pathArray[3]});
 				map.put("title", new String[] {_http.decodeURL(pathArray[4])});
 			}
@@ -530,7 +531,7 @@ public class DLReferencesExportImportContentProcessor
 					continue;
 				}
 
-				String url = _dlurlHelper.getPreviewURL(
+				String url = _dlURLHelper.getPreviewURL(
 					importedFileEntry, importedFileEntry.getFileVersion(), null,
 					StringPool.BLANK, false, false);
 
@@ -639,18 +640,15 @@ public class DLReferencesExportImportContentProcessor
 						String substring = content.substring(
 							curBeginPos, endPos);
 
-						if (substring.startsWith(hostName)) {
-							if (content.regionMatches(
-									true, curBeginPos - _OFFSET_HREF_ATTRIBUTE,
-									"href=", 0, 5) ||
-								content.regionMatches(
-									true, curBeginPos - _OFFSET_SRC_ATTRIBUTE,
-									"src=", 0, 4)) {
+						if (substring.startsWith(hostName) &&
+							(content.regionMatches(
+								true, curBeginPos - _OFFSET_HREF_ATTRIBUTE,
+								"href=", 0, 5) ||
+							 content.regionMatches(
+								 true, curBeginPos - _OFFSET_SRC_ATTRIBUTE,
+								 "src=", 0, 4))) {
 
-								absolutePortalURL = true;
-
-								continue;
-							}
+							absolutePortalURL = true;
 						}
 					}
 				}
@@ -724,7 +722,7 @@ public class DLReferencesExportImportContentProcessor
 	private DLFileEntryLocalService _dlFileEntryLocalService;
 
 	@Reference
-	private DLURLHelper _dlurlHelper;
+	private DLURLHelper _dlURLHelper;
 
 	@Reference
 	private GroupLocalService _groupLocalService;

@@ -214,8 +214,9 @@ public class DDMTemplateLocalServiceImpl
 		}
 
 		validate(
-			groupId, classNameId, templateKey, nameMap, script, smallImage,
-			smallImageURL, smallImageFile, smallImageBytes);
+			groupId, classNameId, templateKey, LocaleUtil.getSiteDefault(),
+			nameMap, script, smallImage, smallImageURL, smallImageFile,
+			smallImageBytes);
 
 		long templateId = counterLocalService.increment();
 
@@ -416,13 +417,15 @@ public class DDMTemplateLocalServiceImpl
 
 		// Template
 
-		if (!CompanyThreadLocal.isDeleteInProcess() &&
-			(ddmTemplateLinkPersistence.countByTemplateId(
-				template.getTemplateId()) > 0)) {
+		if (!CompanyThreadLocal.isDeleteInProcess()) {
+			int count = ddmTemplateLinkPersistence.countByTemplateId(
+				template.getTemplateId());
 
-			throw new RequiredTemplateException.
-				MustNotDeleteTemplateReferencedByTemplateLinks(
-					template.getTemplateId());
+			if (count > 0) {
+				throw new RequiredTemplateException.
+					MustNotDeleteTemplateReferencedByTemplateLinks(
+						template.getTemplateId());
+			}
 		}
 
 		ddmTemplatePersistence.remove(template);
@@ -826,8 +829,7 @@ public class DDMTemplateLocalServiceImpl
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -972,8 +974,7 @@ public class DDMTemplateLocalServiceImpl
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -1030,8 +1031,7 @@ public class DDMTemplateLocalServiceImpl
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -1094,8 +1094,7 @@ public class DDMTemplateLocalServiceImpl
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -1152,8 +1151,7 @@ public class DDMTemplateLocalServiceImpl
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -1439,8 +1437,9 @@ public class DDMTemplateLocalServiceImpl
 			templateId);
 
 		validate(
-			template.getGroupId(), nameMap, script, smallImage, smallImageURL,
-			smallImageFile, smallImageBytes);
+			template.getGroupId(),
+			LocaleUtil.fromLanguageId(template.getDefaultLanguageId()), nameMap,
+			script, smallImage, smallImageURL, smallImageFile, smallImageBytes);
 
 		if ((template.getClassPK() == 0) && (classPK > 0)) {
 
@@ -1465,7 +1464,9 @@ public class DDMTemplateLocalServiceImpl
 
 		template.setVersionUserId(user.getUserId());
 		template.setVersionUserName(user.getFullName());
-		template.setNameMap(nameMap);
+		template.setNameMap(
+			nameMap,
+			LocaleUtil.fromLanguageId(template.getDefaultLanguageId()));
 		template.setDescriptionMap(descriptionMap);
 		template.setType(type);
 		template.setMode(mode);
@@ -1676,31 +1677,11 @@ public class DDMTemplateLocalServiceImpl
 	}
 
 	protected void validate(
-			long groupId, long classNameId, String templateKey,
-			Map<Locale, String> nameMap, String script, boolean smallImage,
-			String smallImageURL, File smallImageFile, byte[] smallImageBytes)
+			long groupId, Locale locale, Map<Locale, String> nameMap,
+			String script)
 		throws PortalException {
 
-		templateKey = StringUtil.toUpperCase(StringUtil.trim(templateKey));
-
-		DDMTemplate template = ddmTemplatePersistence.fetchByG_C_T(
-			groupId, classNameId, templateKey);
-
-		if (template != null) {
-			throw new TemplateDuplicateTemplateKeyException(
-				"Template already exists with template key " + templateKey);
-		}
-
-		validate(
-			groupId, nameMap, script, smallImage, smallImageURL, smallImageFile,
-			smallImageBytes);
-	}
-
-	protected void validate(
-			long groupId, Map<Locale, String> nameMap, String script)
-		throws PortalException {
-
-		validateName(groupId, nameMap);
+		validateName(groupId, locale, nameMap);
 
 		if (Validator.isNull(script)) {
 			throw new TemplateScriptException("Script is null");
@@ -1708,12 +1689,12 @@ public class DDMTemplateLocalServiceImpl
 	}
 
 	protected void validate(
-			long groupId, Map<Locale, String> nameMap, String script,
-			boolean smallImage, String smallImageURL, File smallImageFile,
-			byte[] smallImageBytes)
+			long groupId, Locale locale, Map<Locale, String> nameMap,
+			String script, boolean smallImage, String smallImageURL,
+			File smallImageFile, byte[] smallImageBytes)
 		throws PortalException {
 
-		validate(groupId, nameMap, script);
+		validate(groupId, locale, nameMap, script);
 
 		if (!smallImage || Validator.isNotNull(smallImageURL) ||
 			(smallImageFile == null) || (smallImageBytes == null)) {
@@ -1758,10 +1739,32 @@ public class DDMTemplateLocalServiceImpl
 		}
 	}
 
-	protected void validateName(long groupId, Map<Locale, String> nameMap)
+	protected void validate(
+			long groupId, long classNameId, String templateKey, Locale locale,
+			Map<Locale, String> nameMap, String script, boolean smallImage,
+			String smallImageURL, File smallImageFile, byte[] smallImageBytes)
 		throws PortalException {
 
-		String name = nameMap.get(PortalUtil.getSiteDefaultLocale(groupId));
+		templateKey = StringUtil.toUpperCase(StringUtil.trim(templateKey));
+
+		DDMTemplate template = ddmTemplatePersistence.fetchByG_C_T(
+			groupId, classNameId, templateKey);
+
+		if (template != null) {
+			throw new TemplateDuplicateTemplateKeyException(
+				"Template already exists with template key " + templateKey);
+		}
+
+		validate(
+			groupId, locale, nameMap, script, smallImage, smallImageURL,
+			smallImageFile, smallImageBytes);
+	}
+
+	protected void validateName(
+			long groupId, Locale locale, Map<Locale, String> nameMap)
+		throws PortalException {
+
+		String name = nameMap.get(locale);
 
 		if (Validator.isNull(name)) {
 			name = nameMap.get(LocaleUtil.getSiteDefault());

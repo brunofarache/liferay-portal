@@ -14,8 +14,6 @@
 
 package com.liferay.staging.taglib.servlet.taglib;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.petra.string.StringPool;
 import com.liferay.staging.taglib.internal.servlet.ServletContextUtil;
 import com.liferay.staging.taglib.servlet.taglib.base.BaseCssTag;
@@ -23,15 +21,29 @@ import com.liferay.staging.taglib.servlet.taglib.base.BaseCssTag;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * @author Péter Borkuti
  */
 @ProviderType
 public class PopoverTag extends BaseCssTag {
 
+	public String getId() {
+		return _id;
+	}
+
 	@Override
 	public String getTagNameForCssPath() {
 		return "popover";
+	}
+
+	public String getText() {
+		return _text;
+	}
+
+	public String getTitle() {
+		return _title;
 	}
 
 	public void setId(String id) {
@@ -68,10 +80,11 @@ public class PopoverTag extends BaseCssTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute("liferay-staging:popover:id", _id);
-		request.setAttribute("liferay-staging:popover:text", _text);
-		request.setAttribute("liferay-staging:popover:title", _title);
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute("liferay-staging:popover:id", _id);
+		httpServletRequest.setAttribute("liferay-staging:popover:text", _text);
+		httpServletRequest.setAttribute(
+			"liferay-staging:popover:title", _title);
 	}
 
 	private static final String _PAGE = "/popover/page.jsp";

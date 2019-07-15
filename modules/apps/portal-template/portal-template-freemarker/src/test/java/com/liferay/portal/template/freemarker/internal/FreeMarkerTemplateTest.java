@@ -14,20 +14,14 @@
 
 package com.liferay.portal.template.freemarker.internal;
 
-import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
-import com.liferay.portal.kernel.cache.MultiVMPool;
-import com.liferay.portal.kernel.cache.SingleVMPool;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.template.StringTemplateResource;
 import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.template.TemplateException;
 import com.liferay.portal.kernel.template.TemplateResource;
+import com.liferay.portal.kernel.template.TemplateResourceCache;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.template.TemplateContextHelper;
-import com.liferay.portal.template.freemarker.configuration.FreeMarkerEngineConfiguration;
-import com.liferay.portal.tools.ToolDependencies;
-import com.liferay.registry.Registry;
-import com.liferay.registry.RegistryUtil;
 
 import freemarker.cache.TemplateCache;
 
@@ -60,30 +54,31 @@ public class FreeMarkerTemplateTest {
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
-		ToolDependencies.wireCaches();
+		_templateResourceCache = new FreeMarkerTemplateResourceCache() {
+
+			@Override
+			public boolean isEnabled() {
+				return false;
+			}
+
+		};
+
+		_freeMarkerTemplateResourceLoader =
+			new FreeMarkerTemplateResourceLoader();
+
+		ReflectionTestUtil.setFieldValue(
+			_freeMarkerTemplateResourceLoader,
+			"_freeMarkerTemplateResourceCache", _templateResourceCache);
+
+		_freeMarkerTemplateResourceLoader.activate(Collections.emptyMap());
 	}
 
 	@Before
 	public void setUp() throws Exception {
 		_configuration = new Configuration();
 
-		FreeMarkerTemplateResourceLoader freeMarkerTemplateResourceLoader =
-			new FreeMarkerTemplateResourceLoader();
-
-		Registry registry = RegistryUtil.getRegistry();
-
-		freeMarkerTemplateResourceLoader.setMultiVMPool(
-			registry.getService(MultiVMPool.class));
-		freeMarkerTemplateResourceLoader.setSingleVMPool(
-			registry.getService(SingleVMPool.class));
-
-		freeMarkerTemplateResourceLoader.activate(
-			Collections.<String, Object>emptyMap());
-
 		TemplateCache templateCache = new LiferayTemplateCache(
-			_configuration, _freeMarkerEngineConfiguration,
-			freeMarkerTemplateResourceLoader,
-			registry.getService(SingleVMPool.class));
+			_configuration, _freeMarkerTemplateResourceLoader, null);
 
 		ReflectionTestUtil.setFieldValue(
 			_configuration, "cache", templateCache);
@@ -96,9 +91,9 @@ public class FreeMarkerTemplateTest {
 	@Test
 	public void testGet() throws Exception {
 		Template template = new FreeMarkerTemplate(
-			new MockTemplateResource(_TEMPLATE_FILE_NAME), null, null,
-			_configuration, _templateContextHelper,
-			_freeMarkerEngineConfiguration.resourceModificationCheck());
+			new MockTemplateResource(_TEMPLATE_FILE_NAME), null, _configuration,
+			_templateContextHelper, _templateResourceCache, false,
+			_configuration.getObjectWrapper());
 
 		template.put(_TEST_KEY, _TEST_VALUE);
 
@@ -116,9 +111,9 @@ public class FreeMarkerTemplateTest {
 	@Test
 	public void testPrepare() throws Exception {
 		Template template = new FreeMarkerTemplate(
-			new MockTemplateResource(_TEMPLATE_FILE_NAME), null, null,
-			_configuration, _templateContextHelper,
-			_freeMarkerEngineConfiguration.resourceModificationCheck());
+			new MockTemplateResource(_TEMPLATE_FILE_NAME), null, _configuration,
+			_templateContextHelper, _templateResourceCache, false,
+			_configuration.getObjectWrapper());
 
 		template.put(_TEST_KEY, _TEST_VALUE);
 
@@ -138,9 +133,9 @@ public class FreeMarkerTemplateTest {
 	@Test
 	public void testProcessTemplate1() throws Exception {
 		Template template = new FreeMarkerTemplate(
-			new MockTemplateResource(_TEMPLATE_FILE_NAME), null, null,
-			_configuration, _templateContextHelper,
-			_freeMarkerEngineConfiguration.resourceModificationCheck());
+			new MockTemplateResource(_TEMPLATE_FILE_NAME), null, _configuration,
+			_templateContextHelper, _templateResourceCache, false,
+			_configuration.getObjectWrapper());
 
 		template.put(_TEST_KEY, _TEST_VALUE);
 
@@ -156,9 +151,9 @@ public class FreeMarkerTemplateTest {
 	@Test
 	public void testProcessTemplate2() throws Exception {
 		Template template = new FreeMarkerTemplate(
-			new MockTemplateResource(_WRONG_TEMPLATE_ID), null, null,
-			_configuration, _templateContextHelper,
-			_freeMarkerEngineConfiguration.resourceModificationCheck());
+			new MockTemplateResource(_WRONG_TEMPLATE_ID), null, _configuration,
+			_templateContextHelper, _templateResourceCache, false,
+			_configuration.getObjectWrapper());
 
 		template.put(_TEST_KEY, _TEST_VALUE);
 
@@ -181,8 +176,8 @@ public class FreeMarkerTemplateTest {
 		Template template = new FreeMarkerTemplate(
 			new StringTemplateResource(
 				_WRONG_TEMPLATE_ID, _TEST_TEMPLATE_CONTENT),
-			null, null, _configuration, _templateContextHelper,
-			_freeMarkerEngineConfiguration.resourceModificationCheck());
+			null, _configuration, _templateContextHelper,
+			_templateResourceCache, false, _configuration.getObjectWrapper());
 
 		template.put(_TEST_KEY, _TEST_VALUE);
 
@@ -198,16 +193,17 @@ public class FreeMarkerTemplateTest {
 	@Test
 	public void testProcessTemplate4() throws Exception {
 		Template template = new FreeMarkerTemplate(
-			new MockTemplateResource(_TEMPLATE_FILE_NAME),
-			new MockTemplateResource(_WRONG_ERROR_TEMPLATE_ID), null,
-			_configuration, _templateContextHelper,
-			_freeMarkerEngineConfiguration.resourceModificationCheck());
+			new MockTemplateResource(_TEMPLATE_FILE_NAME), null, _configuration,
+			_templateContextHelper, _templateResourceCache, false,
+			_configuration.getObjectWrapper());
 
 		template.put(_TEST_KEY, _TEST_VALUE);
 
 		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
 
-		template.processTemplate(unsyncStringWriter);
+		template.processTemplate(
+			unsyncStringWriter,
+			() -> new MockTemplateResource(_WRONG_ERROR_TEMPLATE_ID));
 
 		String result = unsyncStringWriter.toString();
 
@@ -217,16 +213,17 @@ public class FreeMarkerTemplateTest {
 	@Test
 	public void testProcessTemplate5() throws Exception {
 		Template template = new FreeMarkerTemplate(
-			new MockTemplateResource(_WRONG_TEMPLATE_ID),
-			new MockTemplateResource(_TEMPLATE_FILE_NAME), null, _configuration,
-			_templateContextHelper,
-			_freeMarkerEngineConfiguration.resourceModificationCheck());
+			new MockTemplateResource(_WRONG_TEMPLATE_ID), null, _configuration,
+			_templateContextHelper, _templateResourceCache, false,
+			_configuration.getObjectWrapper());
 
 		template.put(_TEST_KEY, _TEST_VALUE);
 
 		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
 
-		template.processTemplate(unsyncStringWriter);
+		template.processTemplate(
+			unsyncStringWriter,
+			() -> new MockTemplateResource(_TEMPLATE_FILE_NAME));
 
 		String result = unsyncStringWriter.toString();
 
@@ -236,17 +233,18 @@ public class FreeMarkerTemplateTest {
 	@Test
 	public void testProcessTemplate6() throws Exception {
 		Template template = new FreeMarkerTemplate(
-			new MockTemplateResource(_WRONG_TEMPLATE_ID),
-			new MockTemplateResource(_WRONG_ERROR_TEMPLATE_ID), null,
-			_configuration, _templateContextHelper,
-			_freeMarkerEngineConfiguration.resourceModificationCheck());
+			new MockTemplateResource(_WRONG_TEMPLATE_ID), null, _configuration,
+			_templateContextHelper, _templateResourceCache, false,
+			_configuration.getObjectWrapper());
 
 		template.put(_TEST_KEY, _TEST_VALUE);
 
 		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
 
 		try {
-			template.processTemplate(unsyncStringWriter);
+			template.processTemplate(
+				unsyncStringWriter,
+				() -> new MockTemplateResource(_WRONG_ERROR_TEMPLATE_ID));
 
 			Assert.fail();
 		}
@@ -261,17 +259,18 @@ public class FreeMarkerTemplateTest {
 	@Test
 	public void testProcessTemplate7() throws Exception {
 		Template template = new FreeMarkerTemplate(
-			new MockTemplateResource(_WRONG_TEMPLATE_ID),
-			new StringTemplateResource(
-				_WRONG_ERROR_TEMPLATE_ID, _TEST_TEMPLATE_CONTENT),
-			null, _configuration, _templateContextHelper,
-			_freeMarkerEngineConfiguration.resourceModificationCheck());
+			new MockTemplateResource(_WRONG_TEMPLATE_ID), null, _configuration,
+			_templateContextHelper, _templateResourceCache, false,
+			_configuration.getObjectWrapper());
 
 		template.put(_TEST_KEY, _TEST_VALUE);
 
 		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
 
-		template.processTemplate(unsyncStringWriter);
+		template.processTemplate(
+			unsyncStringWriter,
+			() -> new StringTemplateResource(
+				_WRONG_ERROR_TEMPLATE_ID, _TEST_TEMPLATE_CONTENT));
 
 		String result = unsyncStringWriter.toString();
 
@@ -285,9 +284,9 @@ public class FreeMarkerTemplateTest {
 		context.put(_TEST_KEY, _TEST_VALUE);
 
 		Template template = new FreeMarkerTemplate(
-			new MockTemplateResource(_TEMPLATE_FILE_NAME), null, context,
-			_configuration, _templateContextHelper,
-			_freeMarkerEngineConfiguration.resourceModificationCheck());
+			new MockTemplateResource(_TEMPLATE_FILE_NAME), context,
+			_configuration, _templateContextHelper, _templateResourceCache,
+			false, _configuration.getObjectWrapper());
 
 		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
 
@@ -311,10 +310,11 @@ public class FreeMarkerTemplateTest {
 
 	private static final String _WRONG_TEMPLATE_ID = "WRONG_TEMPLATE_ID";
 
+	private static FreeMarkerTemplateResourceLoader
+		_freeMarkerTemplateResourceLoader;
+	private static TemplateResourceCache _templateResourceCache;
+
 	private Configuration _configuration;
-	private final FreeMarkerEngineConfiguration _freeMarkerEngineConfiguration =
-		ConfigurableUtil.createConfigurable(
-			FreeMarkerEngineConfiguration.class, Collections.emptyMap());
 	private TemplateContextHelper _templateContextHelper;
 
 	private static class MockTemplateContextHelper
@@ -334,7 +334,8 @@ public class FreeMarkerTemplateTest {
 
 		@Override
 		public void prepare(
-			Map<String, Object> contextObjects, HttpServletRequest request) {
+			Map<String, Object> contextObjects,
+			HttpServletRequest httpServletRequest) {
 
 			String testValue = (String)contextObjects.get(_TEST_KEY);
 

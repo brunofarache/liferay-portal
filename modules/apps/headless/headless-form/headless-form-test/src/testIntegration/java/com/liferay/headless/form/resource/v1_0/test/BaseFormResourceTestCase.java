@@ -14,45 +14,42 @@
 
 package com.liferay.headless.form.resource.v1_0.test;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
-import com.liferay.headless.form.dto.v1_0.Form;
-import com.liferay.headless.form.resource.v1_0.FormResource;
+import com.liferay.headless.form.client.dto.v1_0.Form;
+import com.liferay.headless.form.client.http.HttpInvoker;
+import com.liferay.headless.form.client.pagination.Page;
+import com.liferay.headless.form.client.pagination.Pagination;
+import com.liferay.headless.form.client.resource.v1_0.FormResource;
+import com.liferay.headless.form.client.serdes.v1_0.FormSerDes;
 import com.liferay.petra.string.StringBundler;
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.Base64;
-import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
-import com.liferay.portal.kernel.util.Http;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.odata.entity.EntityField;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.vulcan.pagination.Page;
-import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.resource.EntityModelResource;
 
 import java.lang.reflect.InvocationTargetException;
 
-import java.net.URL;
-
 import java.text.DateFormat;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -62,9 +59,9 @@ import java.util.stream.Stream;
 import javax.annotation.Generated;
 
 import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.Response;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.lang.time.DateUtils;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -97,7 +94,16 @@ public abstract class BaseFormResourceTestCase {
 		irrelevantGroup = GroupTestUtil.addGroup();
 		testGroup = GroupTestUtil.addGroup();
 
-		_resourceURL = new URL("http://localhost:8080/o/headless-form/v1.0");
+		testCompany = CompanyLocalServiceUtil.getCompany(
+			testGroup.getCompanyId());
+
+		_formResource.setContextCompany(testCompany);
+
+		FormResource.Builder builder = FormResource.builder();
+
+		formResource = builder.locale(
+			LocaleUtil.getDefault()
+		).build();
 	}
 
 	@After
@@ -107,158 +113,84 @@ public abstract class BaseFormResourceTestCase {
 	}
 
 	@Test
-	public void testGetContentSpaceFormsPage() throws Exception {
-		Long contentSpaceId = testGetContentSpaceFormsPage_getContentSpaceId();
-		Long irrelevantContentSpaceId =
-			testGetContentSpaceFormsPage_getIrrelevantContentSpaceId();
+	public void testClientSerDesToDTO() throws Exception {
+		ObjectMapper objectMapper = new ObjectMapper() {
+			{
+				configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
+				configure(
+					SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
+				enable(SerializationFeature.INDENT_OUTPUT);
+				setDateFormat(new ISO8601DateFormat());
+				setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+				setSerializationInclusion(JsonInclude.Include.NON_NULL);
+				setVisibility(
+					PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+				setVisibility(
+					PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
+			}
+		};
 
-		if ((irrelevantContentSpaceId != null)) {
-			Form irrelevantForm = testGetContentSpaceFormsPage_addForm(
-				irrelevantContentSpaceId, randomIrrelevantForm());
+		Form form1 = randomForm();
 
-			Page<Form> page = invokeGetContentSpaceFormsPage(
-				irrelevantContentSpaceId, Pagination.of(1, 2));
+		String json = objectMapper.writeValueAsString(form1);
 
-			Assert.assertEquals(1, page.getTotalCount());
+		Form form2 = FormSerDes.toDTO(json);
 
-			assertEquals(
-				Arrays.asList(irrelevantForm), (List<Form>)page.getItems());
-			assertValid(page);
-		}
-
-		Form form1 = testGetContentSpaceFormsPage_addForm(
-			contentSpaceId, randomForm());
-
-		Form form2 = testGetContentSpaceFormsPage_addForm(
-			contentSpaceId, randomForm());
-
-		Page<Form> page = invokeGetContentSpaceFormsPage(
-			contentSpaceId, Pagination.of(1, 2));
-
-		Assert.assertEquals(2, page.getTotalCount());
-
-		assertEqualsIgnoringOrder(
-			Arrays.asList(form1, form2), (List<Form>)page.getItems());
-		assertValid(page);
+		Assert.assertTrue(equals(form1, form2));
 	}
 
 	@Test
-	public void testGetContentSpaceFormsPageWithPagination() throws Exception {
-		Long contentSpaceId = testGetContentSpaceFormsPage_getContentSpaceId();
+	public void testClientSerDesToJSON() throws Exception {
+		ObjectMapper objectMapper = new ObjectMapper() {
+			{
+				configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
+				configure(
+					SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
+				setDateFormat(new ISO8601DateFormat());
+				setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+				setSerializationInclusion(JsonInclude.Include.NON_NULL);
+				setVisibility(
+					PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+				setVisibility(
+					PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
+			}
+		};
 
-		Form form1 = testGetContentSpaceFormsPage_addForm(
-			contentSpaceId, randomForm());
+		Form form = randomForm();
 
-		Form form2 = testGetContentSpaceFormsPage_addForm(
-			contentSpaceId, randomForm());
+		String json1 = objectMapper.writeValueAsString(form);
+		String json2 = FormSerDes.toJSON(form);
 
-		Form form3 = testGetContentSpaceFormsPage_addForm(
-			contentSpaceId, randomForm());
-
-		Page<Form> page1 = invokeGetContentSpaceFormsPage(
-			contentSpaceId, Pagination.of(1, 2));
-
-		List<Form> forms1 = (List<Form>)page1.getItems();
-
-		Assert.assertEquals(forms1.toString(), 2, forms1.size());
-
-		Page<Form> page2 = invokeGetContentSpaceFormsPage(
-			contentSpaceId, Pagination.of(2, 2));
-
-		Assert.assertEquals(3, page2.getTotalCount());
-
-		List<Form> forms2 = (List<Form>)page2.getItems();
-
-		Assert.assertEquals(forms2.toString(), 1, forms2.size());
-
-		assertEqualsIgnoringOrder(
-			Arrays.asList(form1, form2, form3),
-			new ArrayList<Form>() {
-				{
-					addAll(forms1);
-					addAll(forms2);
-				}
-			});
+		Assert.assertEquals(
+			objectMapper.readTree(json1), objectMapper.readTree(json2));
 	}
 
-	protected Form testGetContentSpaceFormsPage_addForm(
-			Long contentSpaceId, Form form)
-		throws Exception {
+	@Test
+	public void testEscapeRegexInStringFields() throws Exception {
+		String regex = "^[0-9]+(\\.[0-9]{1,2})\"?";
 
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
-	}
+		Form form = randomForm();
 
-	protected Long testGetContentSpaceFormsPage_getContentSpaceId()
-		throws Exception {
+		form.setDefaultLanguage(regex);
+		form.setDescription(regex);
+		form.setName(regex);
 
-		return testGroup.getGroupId();
-	}
+		String json = FormSerDes.toJSON(form);
 
-	protected Long testGetContentSpaceFormsPage_getIrrelevantContentSpaceId()
-		throws Exception {
+		Assert.assertFalse(json.contains(regex));
 
-		return irrelevantGroup.getGroupId();
-	}
+		form = FormSerDes.toDTO(json);
 
-	protected Page<Form> invokeGetContentSpaceFormsPage(
-			Long contentSpaceId, Pagination pagination)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		String location =
-			_resourceURL +
-				_toPath(
-					"/content-spaces/{content-space-id}/forms", contentSpaceId);
-
-		location = HttpUtil.addParameter(
-			location, "page", pagination.getPage());
-		location = HttpUtil.addParameter(
-			location, "pageSize", pagination.getPageSize());
-
-		options.setLocation(location);
-
-		String string = HttpUtil.URLtoString(options);
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("HTTP response: " + string);
-		}
-
-		return _outputObjectMapper.readValue(
-			string,
-			new TypeReference<Page<Form>>() {
-			});
-	}
-
-	protected Http.Response invokeGetContentSpaceFormsPageResponse(
-			Long contentSpaceId, Pagination pagination)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		String location =
-			_resourceURL +
-				_toPath(
-					"/content-spaces/{content-space-id}/forms", contentSpaceId);
-
-		location = HttpUtil.addParameter(
-			location, "page", pagination.getPage());
-		location = HttpUtil.addParameter(
-			location, "pageSize", pagination.getPageSize());
-
-		options.setLocation(location);
-
-		HttpUtil.URLtoString(options);
-
-		return options.getResponse();
+		Assert.assertEquals(regex, form.getDefaultLanguage());
+		Assert.assertEquals(regex, form.getDescription());
+		Assert.assertEquals(regex, form.getName());
 	}
 
 	@Test
 	public void testGetForm() throws Exception {
 		Form postForm = testGetForm_addForm();
 
-		Form getForm = invokeGetForm(postForm.getId());
+		Form getForm = formResource.getForm(postForm.getId());
 
 		assertEquals(postForm, getForm);
 		assertValid(getForm);
@@ -269,244 +201,107 @@ public abstract class BaseFormResourceTestCase {
 			"This method needs to be implemented");
 	}
 
-	protected Form invokeGetForm(Long formId) throws Exception {
-		Http.Options options = _createHttpOptions();
-
-		String location = _resourceURL + _toPath("/forms/{form-id}", formId);
-
-		options.setLocation(location);
-
-		String string = HttpUtil.URLtoString(options);
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("HTTP response: " + string);
-		}
-
-		try {
-			return _outputObjectMapper.readValue(string, Form.class);
-		}
-		catch (Exception e) {
-			_log.error("Unable to process HTTP response: " + string, e);
-
-			throw e;
-		}
-	}
-
-	protected Http.Response invokeGetFormResponse(Long formId)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		String location = _resourceURL + _toPath("/forms/{form-id}", formId);
-
-		options.setLocation(location);
-
-		HttpUtil.URLtoString(options);
-
-		return options.getResponse();
-	}
-
 	@Test
 	public void testPostFormEvaluateContext() throws Exception {
-		Form randomForm = randomForm();
-
-		Form postForm = testPostFormEvaluateContext_addForm(randomForm);
-
-		assertEquals(randomForm, postForm);
-		assertValid(postForm);
-	}
-
-	protected Form testPostFormEvaluateContext_addForm(Form form)
-		throws Exception {
-
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
-	}
-
-	protected Form invokePostFormEvaluateContext(Long formId, Form form)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		options.setBody(
-			_inputObjectMapper.writeValueAsString(form),
-			ContentTypes.APPLICATION_JSON, StringPool.UTF8);
-
-		String location =
-			_resourceURL + _toPath("/forms/{form-id}/evaluate-context", formId);
-
-		options.setLocation(location);
-
-		options.setPost(true);
-
-		String string = HttpUtil.URLtoString(options);
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("HTTP response: " + string);
-		}
-
-		try {
-			return _outputObjectMapper.readValue(string, Form.class);
-		}
-		catch (Exception e) {
-			_log.error("Unable to process HTTP response: " + string, e);
-
-			throw e;
-		}
-	}
-
-	protected Http.Response invokePostFormEvaluateContextResponse(
-			Long formId, Form form)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		options.setBody(
-			_inputObjectMapper.writeValueAsString(form),
-			ContentTypes.APPLICATION_JSON, StringPool.UTF8);
-
-		String location =
-			_resourceURL + _toPath("/forms/{form-id}/evaluate-context", formId);
-
-		options.setLocation(location);
-
-		options.setPost(true);
-
-		HttpUtil.URLtoString(options);
-
-		return options.getResponse();
+		Assert.assertTrue(true);
 	}
 
 	@Test
-	public void testGetFormFetchLatestDraft() throws Exception {
-		Form postForm = testGetFormFetchLatestDraft_addForm();
-
-		Form getForm = invokeGetFormFetchLatestDraft(postForm.getId());
-
-		assertEquals(postForm, getForm);
-		assertValid(getForm);
-	}
-
-	protected Form testGetFormFetchLatestDraft_addForm() throws Exception {
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
-	}
-
-	protected Form invokeGetFormFetchLatestDraft(Long formId) throws Exception {
-		Http.Options options = _createHttpOptions();
-
-		String location =
-			_resourceURL +
-				_toPath("/forms/{form-id}/fetch-latest-draft", formId);
-
-		options.setLocation(location);
-
-		String string = HttpUtil.URLtoString(options);
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("HTTP response: " + string);
-		}
-
-		try {
-			return _outputObjectMapper.readValue(string, Form.class);
-		}
-		catch (Exception e) {
-			_log.error("Unable to process HTTP response: " + string, e);
-
-			throw e;
-		}
-	}
-
-	protected Http.Response invokeGetFormFetchLatestDraftResponse(Long formId)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		String location =
-			_resourceURL +
-				_toPath("/forms/{form-id}/fetch-latest-draft", formId);
-
-		options.setLocation(location);
-
-		HttpUtil.URLtoString(options);
-
-		return options.getResponse();
+	public void testPostFormFormDocument() throws Exception {
+		Assert.assertTrue(true);
 	}
 
 	@Test
-	public void testPostFormUploadFile() throws Exception {
-		Form randomForm = randomForm();
+	public void testGetSiteFormsPage() throws Exception {
+		Page<Form> page = formResource.getSiteFormsPage(
+			testGetSiteFormsPage_getSiteId(), Pagination.of(1, 2));
 
-		Form postForm = testPostFormUploadFile_addForm(randomForm);
+		Assert.assertEquals(0, page.getTotalCount());
 
-		assertEquals(randomForm, postForm);
-		assertValid(postForm);
+		Long siteId = testGetSiteFormsPage_getSiteId();
+		Long irrelevantSiteId = testGetSiteFormsPage_getIrrelevantSiteId();
+
+		if ((irrelevantSiteId != null)) {
+			Form irrelevantForm = testGetSiteFormsPage_addForm(
+				irrelevantSiteId, randomIrrelevantForm());
+
+			page = formResource.getSiteFormsPage(
+				irrelevantSiteId, Pagination.of(1, 2));
+
+			Assert.assertEquals(1, page.getTotalCount());
+
+			assertEquals(
+				Arrays.asList(irrelevantForm), (List<Form>)page.getItems());
+			assertValid(page);
+		}
+
+		Form form1 = testGetSiteFormsPage_addForm(siteId, randomForm());
+
+		Form form2 = testGetSiteFormsPage_addForm(siteId, randomForm());
+
+		page = formResource.getSiteFormsPage(siteId, Pagination.of(1, 2));
+
+		Assert.assertEquals(2, page.getTotalCount());
+
+		assertEqualsIgnoringOrder(
+			Arrays.asList(form1, form2), (List<Form>)page.getItems());
+		assertValid(page);
 	}
 
-	protected Form testPostFormUploadFile_addForm(Form form) throws Exception {
+	@Test
+	public void testGetSiteFormsPageWithPagination() throws Exception {
+		Long siteId = testGetSiteFormsPage_getSiteId();
+
+		Form form1 = testGetSiteFormsPage_addForm(siteId, randomForm());
+
+		Form form2 = testGetSiteFormsPage_addForm(siteId, randomForm());
+
+		Form form3 = testGetSiteFormsPage_addForm(siteId, randomForm());
+
+		Page<Form> page1 = formResource.getSiteFormsPage(
+			siteId, Pagination.of(1, 2));
+
+		List<Form> forms1 = (List<Form>)page1.getItems();
+
+		Assert.assertEquals(forms1.toString(), 2, forms1.size());
+
+		Page<Form> page2 = formResource.getSiteFormsPage(
+			siteId, Pagination.of(2, 2));
+
+		Assert.assertEquals(3, page2.getTotalCount());
+
+		List<Form> forms2 = (List<Form>)page2.getItems();
+
+		Assert.assertEquals(forms2.toString(), 1, forms2.size());
+
+		Page<Form> page3 = formResource.getSiteFormsPage(
+			siteId, Pagination.of(1, 3));
+
+		assertEqualsIgnoringOrder(
+			Arrays.asList(form1, form2, form3), (List<Form>)page3.getItems());
+	}
+
+	protected Form testGetSiteFormsPage_addForm(Long siteId, Form form)
+		throws Exception {
+
 		throw new UnsupportedOperationException(
 			"This method needs to be implemented");
 	}
 
-	protected Form invokePostFormUploadFile(Long formId, Form form)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		options.setBody(
-			_inputObjectMapper.writeValueAsString(form),
-			ContentTypes.APPLICATION_JSON, StringPool.UTF8);
-
-		String location =
-			_resourceURL + _toPath("/forms/{form-id}/upload-file", formId);
-
-		options.setLocation(location);
-
-		options.setPost(true);
-
-		String string = HttpUtil.URLtoString(options);
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("HTTP response: " + string);
-		}
-
-		try {
-			return _outputObjectMapper.readValue(string, Form.class);
-		}
-		catch (Exception e) {
-			_log.error("Unable to process HTTP response: " + string, e);
-
-			throw e;
-		}
+	protected Long testGetSiteFormsPage_getSiteId() throws Exception {
+		return testGroup.getGroupId();
 	}
 
-	protected Http.Response invokePostFormUploadFileResponse(
-			Long formId, Form form)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		options.setBody(
-			_inputObjectMapper.writeValueAsString(form),
-			ContentTypes.APPLICATION_JSON, StringPool.UTF8);
-
-		String location =
-			_resourceURL + _toPath("/forms/{form-id}/upload-file", formId);
-
-		options.setLocation(location);
-
-		options.setPost(true);
-
-		HttpUtil.URLtoString(options);
-
-		return options.getResponse();
+	protected Long testGetSiteFormsPage_getIrrelevantSiteId() throws Exception {
+		return irrelevantGroup.getGroupId();
 	}
 
-	protected void assertResponseCode(
-		int expectedResponseCode, Http.Response actualResponse) {
+	protected void assertHttpResponseStatusCode(
+		int expectedHttpResponseStatusCode,
+		HttpInvoker.HttpResponse actualHttpResponse) {
 
 		Assert.assertEquals(
-			expectedResponseCode, actualResponse.getResponseCode());
+			expectedHttpResponseStatusCode, actualHttpResponse.getStatusCode());
 	}
 
 	protected void assertEquals(Form form1, Form form2) {
@@ -546,14 +341,121 @@ public abstract class BaseFormResourceTestCase {
 	}
 
 	protected void assertValid(Form form) {
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
+		boolean valid = true;
+
+		if (form.getDateCreated() == null) {
+			valid = false;
+		}
+
+		if (form.getDateModified() == null) {
+			valid = false;
+		}
+
+		if (form.getId() == null) {
+			valid = false;
+		}
+
+		if (!Objects.equals(form.getSiteId(), testGroup.getGroupId())) {
+			valid = false;
+		}
+
+		for (String additionalAssertFieldName :
+				getAdditionalAssertFieldNames()) {
+
+			if (Objects.equals(
+					"availableLanguages", additionalAssertFieldName)) {
+
+				if (form.getAvailableLanguages() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("creator", additionalAssertFieldName)) {
+				if (form.getCreator() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("datePublished", additionalAssertFieldName)) {
+				if (form.getDatePublished() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("defaultLanguage", additionalAssertFieldName)) {
+				if (form.getDefaultLanguage() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("description", additionalAssertFieldName)) {
+				if (form.getDescription() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("formRecords", additionalAssertFieldName)) {
+				if (form.getFormRecords() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("formRecordsIds", additionalAssertFieldName)) {
+				if (form.getFormRecordsIds() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("name", additionalAssertFieldName)) {
+				if (form.getName() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("structure", additionalAssertFieldName)) {
+				if (form.getStructure() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("structureId", additionalAssertFieldName)) {
+				if (form.getStructureId() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			throw new IllegalArgumentException(
+				"Invalid additional assert field name " +
+					additionalAssertFieldName);
+		}
+
+		Assert.assertTrue(valid);
 	}
 
 	protected void assertValid(Page<Form> page) {
 		boolean valid = false;
 
-		Collection<Form> forms = page.getItems();
+		java.util.Collection<Form> forms = page.getItems();
 
 		int size = forms.size();
 
@@ -567,15 +469,167 @@ public abstract class BaseFormResourceTestCase {
 		Assert.assertTrue(valid);
 	}
 
+	protected String[] getAdditionalAssertFieldNames() {
+		return new String[0];
+	}
+
+	protected String[] getIgnoredEntityFieldNames() {
+		return new String[0];
+	}
+
 	protected boolean equals(Form form1, Form form2) {
 		if (form1 == form2) {
 			return true;
 		}
 
-		return false;
+		if (!Objects.equals(form1.getSiteId(), form2.getSiteId())) {
+			return false;
+		}
+
+		for (String additionalAssertFieldName :
+				getAdditionalAssertFieldNames()) {
+
+			if (Objects.equals(
+					"availableLanguages", additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						form1.getAvailableLanguages(),
+						form2.getAvailableLanguages())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("creator", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						form1.getCreator(), form2.getCreator())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("dateCreated", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						form1.getDateCreated(), form2.getDateCreated())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("dateModified", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						form1.getDateModified(), form2.getDateModified())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("datePublished", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						form1.getDatePublished(), form2.getDatePublished())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("defaultLanguage", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						form1.getDefaultLanguage(),
+						form2.getDefaultLanguage())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("description", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						form1.getDescription(), form2.getDescription())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("formRecords", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						form1.getFormRecords(), form2.getFormRecords())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("formRecordsIds", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						form1.getFormRecordsIds(), form2.getFormRecordsIds())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("id", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(form1.getId(), form2.getId())) {
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("name", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(form1.getName(), form2.getName())) {
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("structure", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						form1.getStructure(), form2.getStructure())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("structureId", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						form1.getStructureId(), form2.getStructureId())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			throw new IllegalArgumentException(
+				"Invalid additional assert field name " +
+					additionalAssertFieldName);
+		}
+
+		return true;
 	}
 
-	protected Collection<EntityField> getEntityFields() throws Exception {
+	protected java.util.Collection<EntityField> getEntityFields()
+		throws Exception {
+
 		if (!(_formResource instanceof EntityModelResource)) {
 			throw new UnsupportedOperationException(
 				"Resource is not an instance of EntityModelResource");
@@ -596,12 +650,15 @@ public abstract class BaseFormResourceTestCase {
 	protected List<EntityField> getEntityFields(EntityField.Type type)
 		throws Exception {
 
-		Collection<EntityField> entityFields = getEntityFields();
+		java.util.Collection<EntityField> entityFields = getEntityFields();
 
 		Stream<EntityField> stream = entityFields.stream();
 
 		return stream.filter(
-			entityField -> Objects.equals(entityField.getType(), type)
+			entityField ->
+				Objects.equals(entityField.getType(), type) &&
+				!ArrayUtil.contains(
+					getIgnoredEntityFieldNames(), entityField.getName())
 		).collect(
 			Collectors.toList()
 		);
@@ -625,30 +682,100 @@ public abstract class BaseFormResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
-		if (entityFieldName.equals("contentSpaceId")) {
-			throw new IllegalArgumentException(
-				"Invalid entity field " + entityFieldName);
-		}
-
 		if (entityFieldName.equals("creator")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
 		}
 
 		if (entityFieldName.equals("dateCreated")) {
-			sb.append(_dateFormat.format(form.getDateCreated()));
+			if (operator.equals("between")) {
+				sb = new StringBundler();
+
+				sb.append("(");
+				sb.append(entityFieldName);
+				sb.append(" gt ");
+				sb.append(
+					_dateFormat.format(
+						DateUtils.addSeconds(form.getDateCreated(), -2)));
+				sb.append(" and ");
+				sb.append(entityFieldName);
+				sb.append(" lt ");
+				sb.append(
+					_dateFormat.format(
+						DateUtils.addSeconds(form.getDateCreated(), 2)));
+				sb.append(")");
+			}
+			else {
+				sb.append(entityFieldName);
+
+				sb.append(" ");
+				sb.append(operator);
+				sb.append(" ");
+
+				sb.append(_dateFormat.format(form.getDateCreated()));
+			}
 
 			return sb.toString();
 		}
 
 		if (entityFieldName.equals("dateModified")) {
-			sb.append(_dateFormat.format(form.getDateModified()));
+			if (operator.equals("between")) {
+				sb = new StringBundler();
+
+				sb.append("(");
+				sb.append(entityFieldName);
+				sb.append(" gt ");
+				sb.append(
+					_dateFormat.format(
+						DateUtils.addSeconds(form.getDateModified(), -2)));
+				sb.append(" and ");
+				sb.append(entityFieldName);
+				sb.append(" lt ");
+				sb.append(
+					_dateFormat.format(
+						DateUtils.addSeconds(form.getDateModified(), 2)));
+				sb.append(")");
+			}
+			else {
+				sb.append(entityFieldName);
+
+				sb.append(" ");
+				sb.append(operator);
+				sb.append(" ");
+
+				sb.append(_dateFormat.format(form.getDateModified()));
+			}
 
 			return sb.toString();
 		}
 
 		if (entityFieldName.equals("datePublished")) {
-			sb.append(_dateFormat.format(form.getDatePublished()));
+			if (operator.equals("between")) {
+				sb = new StringBundler();
+
+				sb.append("(");
+				sb.append(entityFieldName);
+				sb.append(" gt ");
+				sb.append(
+					_dateFormat.format(
+						DateUtils.addSeconds(form.getDatePublished(), -2)));
+				sb.append(" and ");
+				sb.append(entityFieldName);
+				sb.append(" lt ");
+				sb.append(
+					_dateFormat.format(
+						DateUtils.addSeconds(form.getDatePublished(), 2)));
+				sb.append(")");
+			}
+			else {
+				sb.append(entityFieldName);
+
+				sb.append(" ");
+				sb.append(operator);
+				sb.append(" ");
+
+				sb.append(_dateFormat.format(form.getDatePublished()));
+			}
 
 			return sb.toString();
 		}
@@ -692,6 +819,11 @@ public abstract class BaseFormResourceTestCase {
 			return sb.toString();
 		}
 
+		if (entityFieldName.equals("siteId")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
 		if (entityFieldName.equals("structure")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
@@ -706,10 +838,9 @@ public abstract class BaseFormResourceTestCase {
 			"Invalid entity field " + entityFieldName);
 	}
 
-	protected Form randomForm() {
+	protected Form randomForm() throws Exception {
 		return new Form() {
 			{
-				contentSpaceId = RandomTestUtil.randomLong();
 				dateCreated = RandomTestUtil.nextDate();
 				dateModified = RandomTestUtil.nextDate();
 				datePublished = RandomTestUtil.nextDate();
@@ -717,91 +848,28 @@ public abstract class BaseFormResourceTestCase {
 				description = RandomTestUtil.randomString();
 				id = RandomTestUtil.randomLong();
 				name = RandomTestUtil.randomString();
+				siteId = testGroup.getGroupId();
 				structureId = RandomTestUtil.randomLong();
 			}
 		};
 	}
 
-	protected Form randomIrrelevantForm() {
+	protected Form randomIrrelevantForm() throws Exception {
+		Form randomIrrelevantForm = randomForm();
+
+		randomIrrelevantForm.setSiteId(irrelevantGroup.getGroupId());
+
+		return randomIrrelevantForm;
+	}
+
+	protected Form randomPatchForm() throws Exception {
 		return randomForm();
 	}
 
-	protected Form randomPatchForm() {
-		return randomForm();
-	}
-
+	protected FormResource formResource;
 	protected Group irrelevantGroup;
+	protected Company testCompany;
 	protected Group testGroup;
-
-	protected static class Page<T> {
-
-		public Collection<T> getItems() {
-			return new ArrayList<>(items);
-		}
-
-		public long getLastPage() {
-			return lastPage;
-		}
-
-		public long getPage() {
-			return page;
-		}
-
-		public long getPageSize() {
-			return pageSize;
-		}
-
-		public long getTotalCount() {
-			return totalCount;
-		}
-
-		@JsonProperty
-		protected Collection<T> items;
-
-		@JsonProperty
-		protected long lastPage;
-
-		@JsonProperty
-		protected long page;
-
-		@JsonProperty
-		protected long pageSize;
-
-		@JsonProperty
-		protected long totalCount;
-
-	}
-
-	private Http.Options _createHttpOptions() {
-		Http.Options options = new Http.Options();
-
-		options.addHeader("Accept", "application/json");
-
-		String userNameAndPassword = "test@liferay.com:test";
-
-		String encodedUserNameAndPassword = Base64.encode(
-			userNameAndPassword.getBytes());
-
-		options.addHeader(
-			"Authorization", "Basic " + encodedUserNameAndPassword);
-
-		options.addHeader("Content-Type", "application/json");
-
-		return options;
-	}
-
-	private String _toPath(String template, Object... values) {
-		if (ArrayUtil.isEmpty(values)) {
-			return template;
-		}
-
-		for (int i = 0; i < values.length; i++) {
-			template = template.replaceFirst(
-				"\\{.*\\}", String.valueOf(values[i]));
-		}
-
-		return template;
-	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		BaseFormResourceTestCase.class);
@@ -819,35 +887,8 @@ public abstract class BaseFormResourceTestCase {
 
 	};
 	private static DateFormat _dateFormat;
-	private final static ObjectMapper _inputObjectMapper = new ObjectMapper() {
-		{
-			setFilterProvider(
-				new SimpleFilterProvider() {
-					{
-						addFilter(
-							"Liferay.Vulcan",
-							SimpleBeanPropertyFilter.serializeAll());
-					}
-				});
-			setSerializationInclusion(JsonInclude.Include.NON_NULL);
-		}
-	};
-	private final static ObjectMapper _outputObjectMapper = new ObjectMapper() {
-		{
-			setFilterProvider(
-				new SimpleFilterProvider() {
-					{
-						addFilter(
-							"Liferay.Vulcan",
-							SimpleBeanPropertyFilter.serializeAll());
-					}
-				});
-		}
-	};
 
 	@Inject
-	private FormResource _formResource;
-
-	private URL _resourceURL;
+	private com.liferay.headless.form.resource.v1_0.FormResource _formResource;
 
 }

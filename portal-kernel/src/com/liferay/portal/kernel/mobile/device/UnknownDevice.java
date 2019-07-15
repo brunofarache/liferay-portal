@@ -14,10 +14,10 @@
 
 package com.liferay.portal.kernel.mobile.device;
 
-import aQute.bnd.annotation.ProviderType;
-
 import java.util.Collections;
 import java.util.Map;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Class represents unknown device
@@ -25,7 +25,7 @@ import java.util.Map;
  * @author Milen Dyankov
  */
 @ProviderType
-public class UnknownDevice extends AbstractDevice {
+public class UnknownDevice extends BaseDevice {
 
 	public static UnknownDevice getInstance() {
 		return _instance;

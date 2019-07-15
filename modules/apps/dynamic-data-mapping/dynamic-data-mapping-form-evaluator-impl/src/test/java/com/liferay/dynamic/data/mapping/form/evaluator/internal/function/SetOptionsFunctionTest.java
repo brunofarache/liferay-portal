@@ -50,9 +50,7 @@ public class SetOptionsFunctionTest extends PowerMockito {
 
 	@Before
 	public void setUp() throws Exception {
-		_setOptionsFunction = new SetOptionsFunction();
-
-		_setOptionsFunction.jsonFactory = _jsonFactory;
+		_setOptionsFunction = new SetOptionsFunction(_jsonFactory);
 
 		_setUpLanguageUtil();
 	}
@@ -69,9 +67,13 @@ public class SetOptionsFunctionTest extends PowerMockito {
 
 		JSONArray jsonArray = _jsonFactory.createJSONArray();
 
-		jsonArray.put(_createJSONObject("label1", "value1"));
-		jsonArray.put(_createJSONObject("label2", "value2"));
-		jsonArray.put(_createJSONObject("label3", "value3"));
+		jsonArray.put(
+			_createJSONObject("label1", "value1")
+		).put(
+			_createJSONObject("label2", "value2")
+		).put(
+			_createJSONObject("label3", "value3")
+		);
 
 		jsonObject.put("pt_BR", jsonArray);
 
@@ -177,8 +179,11 @@ public class SetOptionsFunctionTest extends PowerMockito {
 	private JSONObject _createJSONObject(String label, String value) {
 		JSONObject jsonObject = _jsonFactory.createJSONObject();
 
-		jsonObject.put("label", label);
-		jsonObject.put("value", value);
+		jsonObject.put(
+			"label", label
+		).put(
+			"value", value
+		);
 
 		return jsonObject;
 	}

@@ -1,5 +1,5 @@
-@import "bourbon";
-@import "mixins";
+@import 'bourbon';
+@import 'mixins';
 
 .product-menu {
 	.sidebar-header {
@@ -46,24 +46,12 @@
 		}
 	}
 
-	.user-icon {
-		font-size: 14px;
-		height: 32px;
-		line-height: 32px;
-		width: 32px;
-	}
-
 	.lfr-product-menu-sidebar .panel-group {
 		overflow: hidden;
 	}
 
 	small {
 		display: block;
-	}
-
-	.collapse-icon:before {
-		right: 5px;
-		top: auto;
 	}
 
 	.list-group {
@@ -77,7 +65,12 @@
 	}
 
 	.list-group-heading {
-		h1, h2, h3, h4, h5, h6 {
+		h1,
+		h2,
+		h3,
+		h4,
+		h5,
+		h6 {
 			margin-bottom: 0;
 			margin-top: 0;
 		}
@@ -88,49 +81,6 @@
 		padding: 10px 20px;
 	}
 
-	.lfr-icon-menu {
-		.btn-default {
-			border-width: 0;
-			height: 32px;
-			line-height: 32px;
-			padding: 0;
-			width: 32px;
-		}
-	}
-
-	.collapse-icon {
-		.panel-notifications-count {
-			display: none;
-		}
-
-		&.collapsed .panel-notifications-count {
-			display: inline-block;
-			right: 51px;
-		}
-	}
-
-	.nav-equal-height-heading {
-		.collapse-icon {
-			&:after,
-			&.collapsed:after {
-				content: '';
-				display: block;
-				height: 12px;
-				left: -6px;
-				position: absolute;
-				right: auto;
-				top: 14px;
-				width: 9px;
-			}
-
-			&:before {
-				left: -8px;
-				right: auto;
-				z-index: 1;
-			}
-		}
-	}
-
 	.nav-nested-margins > li .nav > li {
 		.nav > li {
 			margin-bottom: 1px;
@@ -138,7 +88,7 @@
 	}
 
 	&.popover {
-		background-color: #FFF;
+		background-color: #fff;
 	}
 
 	.impersonation-message {
@@ -157,7 +107,8 @@
 			height: auto;
 		}
 
-		.list-group-item-content, .list-group-item-field {
+		.list-group-item-content,
+		.list-group-item-field {
 			vertical-align: middle;
 		}
 
@@ -178,103 +129,19 @@
 		font-size: 12px;
 		margin: 10px 22px 4px 16px;
 	}
-
-	/* ---------- Layouts tree ---------- */
-
-	li.tree-node .tree-node-content.lfr-root-node {
-		display: none;
-	}
-
-	.layout-tree-options {
-		position: absolute;
-		right: 0;
-		top: 4px;
-	}
-
-	.tree-node-content {
-		.layout-tree-options {
-			opacity: 0;
-
-			&:focus {
-				opacity: 1;
-			}
-
-			&[data-deleteable="false"][data-parentable="false"][data-updateable="false"] {
-				display: none;
-			}
-		}
-
-		&.tree-node-selected, &:active, &.active, &:hover {
-			.tree-label {
-				> .layout-tree-options {
-					opacity: 1;
-				}
-			}
-		}
-
-		.layout-tree:focus ~ .layout-tree-options, .layout-tree-options:hover {
-			opacity: 1;
-		}
-
-		.layout-tree-add[data-parentable="false"], .layout-tree-delete[data-deleteable="false"], .layout-tree-edit[data-updateable="false"] {
-			display: none;
-		}
-	}
-
-	.layout-set-tabs {
-		display: table;
-		font-size: 1em;
-		padding: 0 0 2em 0;
-		width: 100%;
-
-		.layout-set-tab {
-			.layout-set-link {
-				&:hover {
-					text-decoration: none;
-				}
-
-				@include ellipsis(87px);
-
-				padding-top: 8px;
-			}
-
-			display: table-cell;
-			margin-right: 10px;
-			padding-bottom: 4px;
-			position: relative;
-		}
-
-		.layout-set-tab:not(.selected-layout-set) {
-			&:first-child {
-				padding-left: 0;
-			}
-
-			margin-right: 0;
-			padding-left: 10px;
-			width: 97px;
-		}
-
-		.selected-layout-set {
-			border-bottom: 1px solid;
-
-			.layout-set-link {
-				max-width: 108px;
-			}
-		}
-	}
 }
 
 /* ---------- Icon animation ---------- */
 
 .toast-animation {
 	display: inline-block;
-	height: 20px;
-	margin: 10px 4px 0 4px;
+	height: 18px;
+	margin: 8px 6px 0;
 	position: relative;
 	width: 20px;
 
 	.pm {
-		border-left: 1px solid #FFF;
+		border-left: 1px solid #fff;
 		border-radius: 1px;
 		height: 16px;
 		left: 0;
@@ -286,7 +153,7 @@
 	}
 
 	.cn {
-		border: 1px solid #FFF;
+		border: 1px solid #fff;
 		border-radius: 1px;
 		content: '';
 		height: 18px;

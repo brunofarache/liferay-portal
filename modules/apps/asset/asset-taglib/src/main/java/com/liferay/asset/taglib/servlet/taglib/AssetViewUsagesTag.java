@@ -25,6 +25,14 @@ import javax.servlet.jsp.PageContext;
  */
 public class AssetViewUsagesTag<R> extends IncludeTag {
 
+	public String getClassName() {
+		return _className;
+	}
+
+	public long getClassPK() {
+		return _classPK;
+	}
+
 	public void setClassName(String className) {
 		_className = className;
 	}
@@ -54,10 +62,10 @@ public class AssetViewUsagesTag<R> extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-asset:asset-view-usages:className", _className);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-asset:asset-view-usages:classPK",
 			String.valueOf(_classPK));
 	}

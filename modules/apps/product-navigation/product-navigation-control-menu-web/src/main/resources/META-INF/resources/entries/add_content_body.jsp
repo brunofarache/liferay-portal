@@ -27,6 +27,8 @@
 	<div class="closed hidden-print lfr-add-panel lfr-admin-panel sidenav-fixed sidenav-menu-slider sidenav-right" id="<%= portletNamespace %>addPanelId">
 		<div class="product-menu sidebar sidebar-inverse sidenav-menu">
 			<div class="sidebar-header">
+				<h1 class="sr-only"><liferay-ui:message key="widget-selection-panel" /></h1>
+
 				<span><liferay-ui:message key="add" /></span>
 
 				<a aria-label="<%= LanguageUtil.get(request, "close") %>" class="sidenav-close" href="javascript:;">
@@ -39,18 +41,14 @@
 	</div>
 
 	<aui:script use="liferay-store,io-request,parse-content">
-		var addToggle = $('#<%= portletNamespace %>addToggleId');
+		var addToggle = document.getElementById('<%= portletNamespace %>addToggleId');
 
-		addToggle.sideNavigation();
+		Liferay.SideNavigation.initialize(addToggle);
 
 		Liferay.once(
 			'screenLoad',
 			function() {
-				var sideNavigation = addToggle.data('lexicon.sidenav');
-
-				if (sideNavigation) {
-					sideNavigation.destroy();
-				}
+				Liferay.SideNavigation.destroy(addToggle);
 			}
 		);
 	</aui:script>

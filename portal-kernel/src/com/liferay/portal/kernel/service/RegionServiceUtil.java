@@ -14,10 +14,9 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the remote service utility for Region. This utility wraps
@@ -109,9 +108,6 @@ public class RegionServiceUtil {
 		if (_service == null) {
 			_service = (RegionService)PortalBeanLocatorUtil.locate(
 				RegionService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				RegionServiceUtil.class, "_service");
 		}
 
 		return _service;

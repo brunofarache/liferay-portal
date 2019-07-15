@@ -14,10 +14,9 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the remote service utility for Organization. This utility wraps
@@ -380,7 +379,7 @@ public class OrganizationServiceUtil {
 	 * @param countryId the primary key of the organization's country
 	 * @param statusId the organization's workflow status
 	 * @param comments the comments about the organization
-	 * @param logo whether to update the ogranization's logo
+	 * @param hasLogo if the organization has a custom logo
 	 * @param logoBytes the new logo image data
 	 * @param site whether the organization is to be associated with a main
 	 site
@@ -399,7 +398,8 @@ public class OrganizationServiceUtil {
 			updateOrganization(
 				long organizationId, long parentOrganizationId, String name,
 				String type, long regionId, long countryId, long statusId,
-				String comments, boolean logo, byte[] logoBytes, boolean site,
+				String comments, boolean hasLogo, byte[] logoBytes,
+				boolean site,
 				java.util.List<com.liferay.portal.kernel.model.Address>
 					addresses,
 				java.util.List<com.liferay.portal.kernel.model.EmailAddress>
@@ -414,61 +414,8 @@ public class OrganizationServiceUtil {
 
 		return getService().updateOrganization(
 			organizationId, parentOrganizationId, name, type, regionId,
-			countryId, statusId, comments, logo, logoBytes, site, addresses,
+			countryId, statusId, comments, hasLogo, logoBytes, site, addresses,
 			emailAddresses, orgLabors, phones, websites, serviceContext);
-	}
-
-	/**
-	 * Updates the organization with additional parameters.
-	 *
-	 * @param organizationId the primary key of the organization
-	 * @param parentOrganizationId the primary key of the organization's
-	 parent organization
-	 * @param name the organization's name
-	 * @param type the organization's type
-	 * @param regionId the primary key of the organization's region
-	 * @param countryId the primary key of the organization's country
-	 * @param statusId the organization's workflow status
-	 * @param comments the comments about the organization
-	 * @param site whether the organization is to be associated with a main
-	 site
-	 * @param addresses the organization's addresses
-	 * @param emailAddresses the organization's email addresses
-	 * @param orgLabors the organization's hours of operation
-	 * @param phones the organization's phone numbers
-	 * @param websites the organization's websites
-	 * @param serviceContext the service context to be applied (optionally
-	 <code>null</code>). Can set asset category IDs and asset tag
-	 names for the organization, and merge expando bridge
-	 attributes for the organization.
-	 * @return the organization
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 #updateOrganization(long, long, String, String, long, long,
-	 long, String, boolean, byte[], boolean, List, List, List,
-	 List, List, ServiceContext)}
-	 */
-	@Deprecated
-	public static com.liferay.portal.kernel.model.Organization
-			updateOrganization(
-				long organizationId, long parentOrganizationId, String name,
-				String type, long regionId, long countryId, long statusId,
-				String comments, boolean site,
-				java.util.List<com.liferay.portal.kernel.model.Address>
-					addresses,
-				java.util.List<com.liferay.portal.kernel.model.EmailAddress>
-					emailAddresses,
-				java.util.List<com.liferay.portal.kernel.model.OrgLabor>
-					orgLabors,
-				java.util.List<com.liferay.portal.kernel.model.Phone> phones,
-				java.util.List<com.liferay.portal.kernel.model.Website>
-					websites,
-				ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException {
-
-		return getService().updateOrganization(
-			organizationId, parentOrganizationId, name, type, regionId,
-			countryId, statusId, comments, site, addresses, emailAddresses,
-			orgLabors, phones, websites, serviceContext);
 	}
 
 	/**
@@ -507,9 +454,6 @@ public class OrganizationServiceUtil {
 		if (_service == null) {
 			_service = (OrganizationService)PortalBeanLocatorUtil.locate(
 				OrganizationService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				OrganizationServiceUtil.class, "_service");
 		}
 
 		return _service;

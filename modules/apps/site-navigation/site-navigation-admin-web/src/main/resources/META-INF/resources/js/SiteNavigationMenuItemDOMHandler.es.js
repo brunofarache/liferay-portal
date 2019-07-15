@@ -1,3 +1,17 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 import {
 	addClasses,
 	closest,
@@ -21,35 +35,34 @@ const MENU_ITEM_DRAG_ICON_CLASSNAME = `${MENU_ITEM_CLASSNAME}__drag-icon`;
 const MENU_ITEM_SELECTED_CLASSNAME = `${MENU_ITEM_CLASSNAME}--selected`;
 
 /**
- * Returns an array with the menuItem children of the given menuItem.
- * @param {HTMLElement} menuItem
+ * Returns the menu item element's children.
+ *
+ * @param {HTMLElement} menuItem The menu item to return children for.
  * @return {Array<HTMLElement>}
- * @review
  */
-
 const getChildren = function(menuItem) {
-	return Array.prototype
-		.slice.call(menuItem.children)
+	return Array.prototype.slice
+		.call(menuItem.children)
 		.filter(child => hasClass(child, MENU_ITEM_CLASSNAME));
 };
 
 /**
- * Returns a menuItem element, parent of a given menuItemContent.
- * @param {HTMLElement} menuItemContent
+ * Returns the parent menu item element of the menu item content.
+ *
+ * @param {HTMLElement} menuItemContent The menu item content to return the
+ * parent menu item for.
  * @return {HTMLElement|null}
- * @review
  */
-
 const getFromContentElement = function(menuItemContent) {
 	return closest(menuItemContent, `.${MENU_ITEM_CLASSNAME}`);
 };
 
 /**
- * Returns a menuItem element with the given ID
- * @param {number|string} menuItemId
+ * Returns the menu item element with the given ID.
+ *
+ * @param {number|string} menuItemId The menu item's ID.
  * @return {HTMLElement|null}
  */
-
 const getFromId = function(menuItemId) {
 	return document.querySelector(
 		`.${MENU_ITEM_CLASSNAME}[data-site-navigation-menu-item-id="${menuItemId}"]`
@@ -57,120 +70,111 @@ const getFromId = function(menuItemId) {
 };
 
 /**
- * Gets the ID of a given menuItem element.
- * @param {HTMLElement} menuItem
+ * Returns the given menu item element's ID.
+ *
+ * @param {HTMLElement} menuItem The menu item
  * @return {number}
  */
-
 const getId = function(menuItem) {
 	return parseInt(menuItem.dataset.siteNavigationMenuItemId, 10) || 0;
 };
 
 /**
- * Returns the next menuItem sibling of a given menuItem element.
- * @param {HTMLElement} menuItem
+ * Returns the next menu item sibling of the given menu item element.
+ *
+ * @param {HTMLElement} menuItem The menu item.
  * @return {HTMLElement|null}
  */
-
 const getNextSibling = function(menuItem) {
 	next(menuItem, `.${MENU_ITEM_CLASSNAME}`);
 };
 
 /**
- * Returns a menuItem element, parent of a given menuItem.
- * @param {HTMLElement} menuItem
+ * Returns the menu item element's parent.
+ *
+ * @param {HTMLElement} menuItem The menu item.
  * @return {HTMLElement|null}
- * @review
  */
-
 const getParent = function(menuItem) {
 	return menuItem.parentElement;
 };
 
 /**
- * For a given menuItem element, returns it's sibblings
- * @param {HTMLElement} menuItem
+ * Returns the menu item element's siblings.
+ *
+ * @param {HTMLElement} menuItem The menu item.
  * @return {Array<HTMLElement>}
- * @review
  */
-
 const getSiblings = function(menuItem) {
 	const parentElement = menuItem.parentElement;
 	let siblings = [];
 
 	if (parentElement) {
-		siblings = getChildren(
-			parentElement
-		);
+		siblings = getChildren(parentElement);
 	}
 
 	return siblings;
 };
 
 /**
- * Returns true if the given menuItem is child of the given parentMenuItem
- * @param {HTMLElement} menuItem
- * @param {HTMLElement} parentMenuItem
- * @return {boolean}
+ * Returns <code>true</code> if the menu item is a child of the parent menu
+ * item.
+ *
+ * @param {HTMLElement} menuItem The menu item to check.
+ * @param {HTMLElement} parentMenuItem The parent menu item.
+ * @return {boolean} Whether the menu item is a child of the parent menu item.
  */
-
 const isChildOf = function(menuItem, parentMenuItem) {
 	return contains(parentMenuItem, menuItem);
 };
 
 /**
- * Returns true if the given htmlElement is a menuItem, false otherwise.
- * @param {HTMLElement} htmlElement
- * @return {boolean}
+ * Returns <code>true</code> if the given HTML element is a menu item.
+ * @param {HTMLElement} htmlElement The HTML element to check.
+ * @return {boolean} Whether the HTML element is a menu item.
  */
-
 const isMenuItem = function(htmlElement) {
 	return hasClass(htmlElement, MENU_ITEM_CLASSNAME);
 };
 
 /**
- * Returns true if the given menuItem element is selected, false otherwise
- * @param {HTMLElement} menuItem
- * @return {boolean}
+ * Returns <code>true</code> if the given menu item element is selected.
+ *
+ * @param {HTMLElement} menuItem The menu item to check.
+ * @return {boolean} Whether the menu item is selected.
  */
-
 const isSelected = function(menuItem) {
 	return hasClass(menuItem, MENU_ITEM_SELECTED_CLASSNAME);
 };
 
 /**
- * Mutates the given menuItem element by changing it's status
- * to dragging/not dragging.
- * @param {HTMLElement} menuItem
+ * Mutates the given menu item element by changing it's status to
+ * dragging or not dragging.
+ * @param {HTMLElement} menuItem The menu item.
  */
-
 const setDragging = function(menuItem, dragging = false) {
 	if (dragging) {
 		addClasses(menuItem, MENU_ITEM_DRAGGING_CLASSNAME);
-	}
-	else {
+	} else {
 		removeClasses(menuItem, MENU_ITEM_DRAGGING_CLASSNAME);
 	}
 };
 
 /**
- * Mutates the given menuItem by changing it's status
- * to selected. Only a single menuItem can be
- * selected, so any other selected menuItem will be unselected.
+ * Mutates the given menu item by changing it's status to selected. Only a
+ * single menu item can be selected, so any other selected menu item will be
+ * unselected.
  *
- * @param {!HTMLElement} menuItem
+ * @param {!HTMLElement} menuItem The menu item.
  */
-
 const setSelected = function(menuItem) {
 	unselectAll();
 	addClasses(menuItem, MENU_ITEM_SELECTED_CLASSNAME);
 };
 
 /**
- * Mutates all selected menuItems and set their
- * status to unselected.
+ * Mutates all selected menu items and sets their status to unselected.
  */
-
 const unselectAll = function() {
 	const selectedMenuItem = toElement(`.${MENU_ITEM_SELECTED_CLASSNAME}`);
 

@@ -14,8 +14,8 @@
 
 package com.liferay.portal.deploy.hot;
 
-import aQute.bnd.annotation.ProviderType;
-
+import com.liferay.petra.io.StreamUtil;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.deploy.hot.BaseHotDeployListener;
 import com.liferay.portal.kernel.deploy.hot.HotDeployEvent;
@@ -24,11 +24,8 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.servlet.WebDirDetector;
 import com.liferay.portal.kernel.util.FileUtil;
-import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ServerDetector;
-import com.liferay.portal.kernel.util.StreamUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.tools.WebXMLBuilder;
 import com.liferay.portal.util.ExtRegistry;
@@ -48,6 +45,8 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Brian Wing Shun Chan
@@ -115,8 +114,8 @@ public class ExtHotDeployListener extends BaseHotDeployListener {
 			_log.debug("Invoking deploy for " + servletContextName);
 		}
 
-		String xml = HttpUtil.URLtoString(
-			servletContext.getResource(
+		String xml = StreamUtil.toString(
+			servletContext.getResourceAsStream(
 				"/WEB-INF/ext-" + servletContextName + ".xml"));
 
 		if (xml == null) {
@@ -191,8 +190,8 @@ public class ExtHotDeployListener extends BaseHotDeployListener {
 			_log.debug("Invoking undeploy for " + servletContextName);
 		}
 
-		String xml = HttpUtil.URLtoString(
-			servletContext.getResource(
+		String xml = StreamUtil.toString(
+			servletContext.getResourceAsStream(
 				"/WEB-INF/ext-" + servletContextName + ".xml"));
 
 		if (xml == null) {

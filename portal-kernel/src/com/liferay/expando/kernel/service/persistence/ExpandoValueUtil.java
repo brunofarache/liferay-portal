@@ -14,20 +14,19 @@
 
 package com.liferay.expando.kernel.service.persistence;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.expando.kernel.model.ExpandoValue;
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.OrderByComparator;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 import java.io.Serializable;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The persistence utility for the expando value service. This utility wraps <code>com.liferay.portlet.expando.service.persistence.impl.ExpandoValuePersistenceImpl</code> and provides direct access to the database for CRUD operations. This utility should only be used by the service layer, as it must operate within a transaction. Never access this utility in a JSP, controller, model, or other front-end class.
@@ -1849,9 +1848,6 @@ public class ExpandoValueUtil {
 			_persistence =
 				(ExpandoValuePersistence)PortalBeanLocatorUtil.locate(
 					ExpandoValuePersistence.class.getName());
-
-			ReferenceRegistry.registerReference(
-				ExpandoValueUtil.class, "_persistence");
 		}
 
 		return _persistence;

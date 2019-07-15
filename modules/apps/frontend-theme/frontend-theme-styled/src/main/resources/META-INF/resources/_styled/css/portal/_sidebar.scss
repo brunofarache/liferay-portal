@@ -2,20 +2,21 @@
 	font-size: 0.875rem;
 
 	.sheet-subtitle {
-		 margin-bottom: 1rem;
+		font-size: 0.75rem;
+		margin-bottom: 1rem;
 	}
 
 	.form-group {
-		 margin-bottom: 1rem;
+		margin-bottom: 1rem;
 	}
 
 	.form-control {
-		border-radius: .1875rem;
-		font-size: .875rem;
+		border-radius: 0.1875rem;
+		font-size: 0.875rem;
 		height: 2rem;
 		line-height: 1.5;
 		min-height: auto;
-		padding: .25rem .75rem;
+		padding: 0.25rem 0.75rem;
 
 		&.form-control-tag-group {
 			height: auto;
@@ -33,29 +34,38 @@
 				padding-top: 0;
 			}
 		}
+
+		&[type='file'] {
+			padding: 0;
+		}
 	}
 
 	select.form-control:not([size]) {
 		height: 2rem;
 	}
 
-	.article-content-description .input-localized.input-localized-editor .form-control {
+	.article-content-description
+		.input-localized.input-localized-editor
+		.input-group-item
+		.wrapper
+		.form-control {
 		min-height: auto;
-		padding: .25rem .75rem;
+		padding: 0.285rem 0.75rem;
 	}
 
 	.btn {
-		border-radius: .1875rem;
-		font-size: .875rem;
+		border-radius: 0.1875rem;
+		font-size: 0.875rem;
 		line-height: 1.15;
-		padding: .4375rem .75rem;
+		padding: 0.4375rem 0.75rem;
 
 		&.close {
-			padding: .4375rem;
+			padding: 0.4375rem;
 		}
 	}
 
-	.btn-monospaced, .btn-monospaced.btn-sm {
+	.btn-monospaced,
+	.btn-monospaced.btn-sm {
 		height: 2rem;
 		padding: 0.1875rem 0;
 		width: 2rem;

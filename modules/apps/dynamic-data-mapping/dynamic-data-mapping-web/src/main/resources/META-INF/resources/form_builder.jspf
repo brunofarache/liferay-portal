@@ -33,7 +33,7 @@ if (Validator.isNotNull(script)) {
 
 		Set<Locale> ddmFormAvailableLocales = ddmForm.getAvailableLocales();
 
-		availableLocales = ddmFormAvailableLocales.toArray(new Locale[ddmFormAvailableLocales.size()]);
+		availableLocales = ddmFormAvailableLocales.toArray(new Locale[0]);
 	}
 	catch (Exception e) {
 	}
@@ -47,7 +47,6 @@ if (Validator.isNotNull(script)) {
 <liferay-ui:tabs
 	names='<%= LanguageUtil.get(request, "view[action]") + "," + LanguageUtil.get(request, "source") %>'
 	refresh="<%= false %>"
-	type="tabs nav-tabs-default"
 >
 	<liferay-ui:section>
 		<div id="<portlet:namespace />formBuilderTab">

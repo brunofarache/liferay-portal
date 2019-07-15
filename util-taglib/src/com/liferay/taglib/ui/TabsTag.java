@@ -17,7 +17,6 @@ package com.liferay.taglib.ui;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.ServerDetector;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.taglib.util.IncludeTag;
@@ -63,36 +62,34 @@ public class TabsTag extends IncludeTag {
 			throw new JspException(e);
 		}
 		finally {
-			if (!ServerDetector.isResin()) {
-				_backLabel = null;
-				_backURL = null;
-				_cssClass = StringPool.BLANK;
-				_endPage = null;
-				_formName = StringPool.BLANK;
-				_names = null;
-				_namesJS = null;
-				_namesPos = 0;
-				_onClick = null;
-				_param = "tabs1";
-				_portletURL = null;
-				_refresh = true;
-				_startPage = null;
-				_tabsValues = null;
-				_type = null;
-				_url = null;
-				_url0 = null;
-				_url1 = null;
-				_url2 = null;
-				_url3 = null;
-				_url4 = null;
-				_url5 = null;
-				_url6 = null;
-				_url7 = null;
-				_url8 = null;
-				_url9 = null;
-				_urls = null;
-				_value = null;
-			}
+			_backLabel = null;
+			_backURL = null;
+			_cssClass = StringPool.BLANK;
+			_endPage = null;
+			_formName = StringPool.BLANK;
+			_names = null;
+			_namesJS = null;
+			_namesPos = 0;
+			_onClick = null;
+			_param = "tabs1";
+			_portletURL = null;
+			_refresh = true;
+			_startPage = null;
+			_tabsValues = null;
+			_type = null;
+			_url = null;
+			_url0 = null;
+			_url1 = null;
+			_url2 = null;
+			_url3 = null;
+			_url4 = null;
+			_url5 = null;
+			_url6 = null;
+			_url7 = null;
+			_url8 = null;
+			_url9 = null;
+			_urls = null;
+			_value = null;
 		}
 	}
 
@@ -176,11 +173,8 @@ public class TabsTag extends IncludeTag {
 
 			request.setAttribute("liferay-ui:tabs:urls", _urls);
 
-			if (_value == null) {
-				if (_tabsValues.length > 0) {
-					_value = ParamUtil.getString(
-						request, _param, _tabsValues[0]);
-				}
+			if ((_value == null) && (_tabsValues.length > 0)) {
+				_value = ParamUtil.getString(request, _param, _tabsValues[0]);
 			}
 
 			if (Validator.isNull(_value)) {
@@ -216,12 +210,36 @@ public class TabsTag extends IncludeTag {
 		}
 	}
 
+	public String getBackLabel() {
+		return _backLabel;
+	}
+
+	public String getBackURL() {
+		return _backURL;
+	}
+
+	public String getCssClass() {
+		return _cssClass;
+	}
+
+	public String getFormName() {
+		return _formName;
+	}
+
+	public String getNames() {
+		return StringUtil.merge(_names);
+	}
+
 	public String getOnClick() {
 		return _onClick;
 	}
 
 	public String getParam() {
 		return _param;
+	}
+
+	public PortletURL getPortletURL() {
+		return _portletURL;
 	}
 
 	public String getSectionName() {
@@ -240,6 +258,26 @@ public class TabsTag extends IncludeTag {
 		}
 
 		return false;
+	}
+
+	public String getTabsValues() {
+		return StringUtil.merge(_tabsValues);
+	}
+
+	public String getType() {
+		return _type;
+	}
+
+	public String getUrl() {
+		return _url;
+	}
+
+	public String[] getUrls() {
+		return _urls;
+	}
+
+	public String getValue() {
+		return _value;
 	}
 
 	public void incrementSection() {

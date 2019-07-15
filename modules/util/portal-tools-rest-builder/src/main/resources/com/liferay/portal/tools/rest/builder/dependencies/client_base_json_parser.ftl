@@ -6,7 +6,9 @@ import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.stream.Stream;
 
@@ -110,23 +112,78 @@ public abstract class BaseJSONParser<T> {
 		);
 	}
 
+	public Map<String, Object> parseToMap(String json) {
+		if (json == null) {
+			throw new IllegalArgumentException("JSON is null");
+		}
+
+		_init(json);
+
+		_assertStartsWithAndEndsWith("{", "}");
+
+		Map<String, Object> map = new HashMap<>();
+
+		_setCaptureStart();
+
+		_readNextChar();
+
+		_readWhileLastCharIsWhiteSpace();
+
+		_readNextChar();
+
+		if (_isLastChar('}')) {
+			return map;
+		}
+
+		do {
+			_readWhileLastCharIsWhiteSpace();
+
+			String key = _readValueAsString();
+
+			_readWhileLastCharIsWhiteSpace();
+
+			if (!_ifLastCharMatchesThenRead(':')) {
+				throw new IllegalArgumentException("Expected ':'");
+			}
+
+			_readWhileLastCharIsWhiteSpace();
+
+			map.put(key, _readValue());
+
+			_readWhileLastCharIsWhiteSpace();
+		}
+		while (_ifLastCharMatchesThenRead(','));
+
+		_readWhileLastCharIsWhiteSpace();
+
+		if (!_ifLastCharMatchesThenRead('}')) {
+			throw new IllegalArgumentException("Expected either ',' or '}', but found '" + _lastChar + "'");
+		}
+
+		return map;
+	}
+
 	protected abstract T createDTO();
 
 	protected abstract T[] createDTOArray(int size);
 
 	protected abstract void setField(T dto, String jsonParserFieldName, Object jsonParserFieldValue);
 
+	protected Date toDate(String string) {
+		try {
+			return _dateFormat.parse(string);
+		}
+		catch (ParseException pe) {
+			throw new IllegalArgumentException("Unable to parse date from " + string, pe);
+		}
+	}
+
 	protected Date[] toDates(Object[] objects) {
 		return Stream.of(
 			objects
 		).map(
 			object -> {
-				try {
-					return _dateFormat.parse((String)object);
-				}
-				catch (ParseException pe) {
-					throw new IllegalArgumentException("Unable to parse date from " + object, pe);
-				}
+				return toDate((String)object);
 			}
 		).toArray(
 			size -> new Date[size]
@@ -138,12 +195,7 @@ public abstract class BaseJSONParser<T> {
 			objects
 		).map(
 			object -> {
-				try {
-					return Integer.parseInt(object.toString());
-				}
-				catch (NumberFormatException nfe) {
-					throw new RuntimeException(nfe);
-				}
+				return Integer.valueOf(object.toString());
 			}
 		).toArray(
 			size -> new Integer[size]
@@ -155,16 +207,15 @@ public abstract class BaseJSONParser<T> {
 			objects
 		).map(
 			object -> {
-				try {
-					return Long.parseLong(object.toString());
-				}
-				catch (NumberFormatException nfe) {
-					throw new RuntimeException(nfe);
-				}
+				return Long.valueOf(object.toString());
 			}
 		).toArray(
 			size -> new Long[size]
 		);
+	}
+
+	protected String toString(Date date) {
+		return _dateFormat.format(date);
 	}
 
 	protected String[] toStrings(Object[] objects) {
@@ -186,16 +237,20 @@ public abstract class BaseJSONParser<T> {
 
 	private void _assertStartsWithAndEndsWith(String prefix, String sufix) {
 		if (!_json.startsWith(prefix)) {
-			throw new IllegalArgumentException(String.format("Expected starts with '%s', but found '%s'", prefix, _json.charAt(0)));
+			throw new IllegalArgumentException(String.format("Expected starts with '%s', but found '%s' in '%s'", prefix, _json.charAt(0), _json));
 		}
 
 		if (!_json.endsWith(sufix)) {
-			throw new IllegalArgumentException(String.format("Expected ends with '%s', but found '%s'", sufix, _json.charAt(_json.length() - 1)));
+			throw new IllegalArgumentException(String.format("Expected ends with '%s', but found '%s' in '%s'", sufix, _json.charAt(_json.length() - 1), _json));
 		}
 	}
 
-	private String _getCapturedSubstring() {
+	private String _getCapturedJSONSubstring() {
 		return _json.substring(_captureStartStack.pop(), _index - 1);
+	}
+
+	private String _getCapturedSubstring() {
+		return _unescape(_getCapturedJSONSubstring());
 	}
 
 	private boolean _ifLastCharMatchesThenRead(char ch) {
@@ -234,6 +289,14 @@ public abstract class BaseJSONParser<T> {
 
 	private boolean _isLastChar(char c) {
 		if (_lastChar == c) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean _isLastCharDecimalSeparator() {
+		if (_lastChar == '.') {
 			return true;
 		}
 
@@ -375,7 +438,7 @@ public abstract class BaseJSONParser<T> {
 
 		_setCaptureStart();
 
-		while (_lastChar != '"') {
+		while ((_lastChar != '"') || (_json.charAt(_index - 2) == '\\')) {
 			_readNextChar();
 		}
 
@@ -391,12 +454,18 @@ public abstract class BaseJSONParser<T> {
 
 		_readNextChar();
 
+		if (_isLastChar('}')) {
+			_readNextChar();
+
+			return _getCapturedJSONSubstring();
+		}
+
 		_readWhileLastCharIsWhiteSpace();
 
 		if (_isLastChar('}')) {
 			_readNextChar();
 
-			return "{}";
+			return _getCapturedJSONSubstring();
 		}
 
 		do {
@@ -424,7 +493,7 @@ public abstract class BaseJSONParser<T> {
 			throw new IllegalArgumentException("Expected either ',' or '}', but found '" + _lastChar + "'");
 		}
 
-		return _getCapturedSubstring();
+		return _getCapturedJSONSubstring();
 	}
 
 	private String _readValueAsStringNumber() {
@@ -433,7 +502,7 @@ public abstract class BaseJSONParser<T> {
 		do {
 			_readNextChar();
 		}
-		while (_isLastCharDigit());
+		while (_isLastCharDigit() || _isLastCharDecimalSeparator());
 
 		return _getCapturedSubstring();
 	}
@@ -446,6 +515,12 @@ public abstract class BaseJSONParser<T> {
 
 	private void _setCaptureStart() {
 		_captureStartStack.push(_index - 1);
+	}
+
+	private String _unescape(String string) {
+		string = string.replace("\\\\", "\\");
+
+		return string.replace("\\\"", "\"");
 	}
 
 	private Stack<Integer> _captureStartStack;

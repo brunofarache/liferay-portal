@@ -14,13 +14,13 @@
 
 package com.liferay.site.navigation.service.http;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.site.navigation.service.SiteNavigationMenuServiceUtil;
 
 import java.rmi.RemoteException;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the SOAP utility for the
@@ -63,6 +63,27 @@ import java.rmi.RemoteException;
  */
 @ProviderType
 public class SiteNavigationMenuServiceSoap {
+
+	public static com.liferay.site.navigation.model.SiteNavigationMenuSoap
+			addSiteNavigationMenu(
+				long groupId, String name, int type, boolean auto,
+				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws RemoteException {
+
+		try {
+			com.liferay.site.navigation.model.SiteNavigationMenu returnValue =
+				SiteNavigationMenuServiceUtil.addSiteNavigationMenu(
+					groupId, name, type, auto, serviceContext);
+
+			return com.liferay.site.navigation.model.SiteNavigationMenuSoap.
+				toSoapModel(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
 
 	public static com.liferay.site.navigation.model.SiteNavigationMenuSoap
 			addSiteNavigationMenu(

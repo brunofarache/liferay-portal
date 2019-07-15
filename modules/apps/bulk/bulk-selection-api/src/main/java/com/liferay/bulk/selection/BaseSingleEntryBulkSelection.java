@@ -14,18 +14,14 @@
 
 package com.liferay.bulk.selection;
 
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.util.ResourceBundleLoader;
 
 import java.io.Serializable;
 
-import java.util.Collections;
-import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * @author Adolfo Pérez
@@ -34,23 +30,30 @@ public abstract class BaseSingleEntryBulkSelection<T>
 	implements BulkSelection<T> {
 
 	public BaseSingleEntryBulkSelection(
-		long entryId, Map<String, String[]> parameterMap,
-		ResourceBundleLoader resourceBundleLoader, Language language) {
+		long entryId, Map<String, String[]> parameterMap) {
 
 		_entryId = entryId;
 		_parameterMap = parameterMap;
-		_resourceBundleLoader = resourceBundleLoader;
-		_language = language;
+	}
+
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #BaseSingleEntryBulkSelection(long, Map)}
+	 */
+	@Deprecated
+	public BaseSingleEntryBulkSelection(
+		long entryId, Map<String, String[]> parameterMap,
+		ResourceBundleLoader resourceBundleLoader, Language language) {
+
+		this(entryId, parameterMap);
 	}
 
 	@Override
-	public String describe(Locale locale) throws PortalException {
-		ResourceBundle resourceBundle =
-			_resourceBundleLoader.loadResourceBundle(locale);
+	public <E extends PortalException> void forEach(
+			UnsafeConsumer<T, E> unsafeConsumer)
+		throws PortalException {
 
-		return _language.format(
-			resourceBundle, "these-changes-will-be-applied-to-x",
-			getEntryName());
+		unsafeConsumer.accept(getEntry());
 	}
 
 	@Override
@@ -59,8 +62,8 @@ public abstract class BaseSingleEntryBulkSelection<T>
 	}
 
 	@Override
-	public boolean isMultiple() {
-		return false;
+	public long getSize() {
+		return 1;
 	}
 
 	@Override
@@ -68,20 +71,11 @@ public abstract class BaseSingleEntryBulkSelection<T>
 		return String.valueOf(_entryId);
 	}
 
-	@Override
-	public Stream<T> stream() throws PortalException {
-		Set<T> set = Collections.singleton(getEntry());
-
-		return set.stream();
-	}
-
 	protected abstract T getEntry() throws PortalException;
 
 	protected abstract String getEntryName() throws PortalException;
 
 	private final long _entryId;
-	private final Language _language;
 	private final Map<String, String[]> _parameterMap;
-	private final ResourceBundleLoader _resourceBundleLoader;
 
 }

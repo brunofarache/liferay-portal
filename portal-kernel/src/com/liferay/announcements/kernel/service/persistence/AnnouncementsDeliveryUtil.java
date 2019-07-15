@@ -14,20 +14,19 @@
 
 package com.liferay.announcements.kernel.service.persistence;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.announcements.kernel.model.AnnouncementsDelivery;
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.OrderByComparator;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 import java.io.Serializable;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The persistence utility for the announcements delivery service. This utility wraps <code>com.liferay.portlet.announcements.service.persistence.impl.AnnouncementsDeliveryPersistenceImpl</code> and provides direct access to the database for CRUD operations. This utility should only be used by the service layer, as it must operate within a transaction. Never access this utility in a JSP, controller, model, or other front-end class.
@@ -526,9 +525,6 @@ public class AnnouncementsDeliveryUtil {
 			_persistence =
 				(AnnouncementsDeliveryPersistence)PortalBeanLocatorUtil.locate(
 					AnnouncementsDeliveryPersistence.class.getName());
-
-			ReferenceRegistry.registerReference(
-				AnnouncementsDeliveryUtil.class, "_persistence");
 		}
 
 		return _persistence;

@@ -14,8 +14,6 @@
 
 package com.liferay.knowledge.base.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.knowledge.base.model.KBArticle;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
@@ -47,6 +45,8 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service interface for KBArticle. Methods of this
@@ -275,8 +275,7 @@ public interface KBArticleLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public KBArticle fetchKBArticleByUrlTitle(
-			long groupId, String kbFolderUrlTitle, String urlTitle)
-		throws PortalException;
+		long groupId, String kbFolderUrlTitle, String urlTitle);
 
 	/**
 	 * Returns the kb article matching the UUID and group.

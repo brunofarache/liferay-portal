@@ -15,19 +15,11 @@
 package com.liferay.journal.web.internal.servlet.taglib.ui;
 
 import com.liferay.journal.model.JournalArticle;
-import com.liferay.journal.model.JournalArticleConstants;
-import com.liferay.portal.kernel.bean.BeanParamUtil;
 import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.servlet.taglib.ui.FormNavigatorEntry;
-import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.util.PropsValues;
 
-import javax.portlet.PortletRequest;
-
 import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -36,7 +28,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Eudaldo Alonso
  */
 @Component(
-	property = "form.navigator.entry.order:Integer=30",
+	property = "form.navigator.entry.order:Integer=40",
 	service = FormNavigatorEntry.class
 )
 public class JournalScheduleFormNavigatorEntry
@@ -53,18 +45,7 @@ public class JournalScheduleFormNavigatorEntry
 			return false;
 		}
 
-		ServiceContext serviceContext =
-			ServiceContextThreadLocal.getServiceContext();
-
-		HttpServletRequest request = serviceContext.getRequest();
-
-		PortletRequest portletRequest = (PortletRequest)request.getAttribute(
-			JavaConstants.JAVAX_PORTLET_REQUEST);
-
-		long classNameId = BeanParamUtil.getLong(
-			article, portletRequest, "classNameId");
-
-		if (classNameId > JournalArticleConstants.CLASSNAME_ID_DEFAULT) {
+		if (isEditDefaultValues(article)) {
 			return false;
 		}
 

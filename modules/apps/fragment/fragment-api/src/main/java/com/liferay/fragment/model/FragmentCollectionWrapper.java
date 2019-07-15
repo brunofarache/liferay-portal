@@ -14,8 +14,6 @@
 
 package com.liferay.fragment.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.model.ModelWrapper;
 import com.liferay.portal.kernel.model.wrapper.BaseModelWrapper;
@@ -23,6 +21,8 @@ import com.liferay.portal.kernel.model.wrapper.BaseModelWrapper;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * <p>
@@ -252,6 +252,13 @@ public class FragmentCollectionWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return model.getResourcesFolderId();
+	}
+
+	@Override
+	public long getResourcesFolderId(boolean createIfAbsent)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return model.getResourcesFolderId(createIfAbsent);
 	}
 
 	/**

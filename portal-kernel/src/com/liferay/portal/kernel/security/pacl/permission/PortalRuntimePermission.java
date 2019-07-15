@@ -14,16 +14,16 @@
 
 package com.liferay.portal.kernel.security.pacl.permission;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.security.BasicPermission;
 
 /**
- * @author Brian Wing Shun Chan
- * @author Raymond Augé
+ * @author     Brian Wing Shun Chan
+ * @author     Raymond Augé
  * @deprecated As of Judson (7.1.x), with no direct replacement
  */
 @Deprecated

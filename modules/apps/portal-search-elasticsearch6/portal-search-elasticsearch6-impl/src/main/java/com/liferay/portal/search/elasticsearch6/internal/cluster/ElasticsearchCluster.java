@@ -23,7 +23,7 @@ import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.search.elasticsearch6.internal.connection.ElasticsearchConnection;
 import com.liferay.portal.search.elasticsearch6.internal.connection.ElasticsearchConnectionManager;
 import com.liferay.portal.search.elasticsearch6.internal.connection.OperationMode;
-import com.liferay.portal.search.elasticsearch6.internal.index.IndexNameBuilder;
+import com.liferay.portal.search.index.IndexNameBuilder;
 
 import java.util.List;
 
@@ -96,7 +96,7 @@ public class ElasticsearchCluster {
 
 			String[] targetIndexNames = new String[companies.size() + 1];
 
-			for (int i = 0; i < targetIndexNames.length - 1; i++) {
+			for (int i = 0; i < (targetIndexNames.length - 1); i++) {
 				Company company = companies.get(i);
 
 				targetIndexNames[i] = indexNameBuilder.getIndexName(

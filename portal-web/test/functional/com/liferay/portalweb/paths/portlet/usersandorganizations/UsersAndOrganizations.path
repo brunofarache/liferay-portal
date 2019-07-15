@@ -20,11 +20,6 @@
 </tr>
 <!--EDIT_TABS-->
 <tr>
-	<td>MISCELLANEOUS</td>
-	<td>//li[contains(@class,'tab')]/a[contains(.,'Miscellaneous')]</td>
-	<td></td>
-</tr>
-<tr>
 	<td>ORGANIZATION_INFORMATION</td>
 	<td>//li[contains(@class,'tab')]/a[contains(.,'Organization Information')]</td>
 	<td></td>
@@ -34,7 +29,12 @@
 	<td>//select[contains(@id,'countryId') and contains(.,'${key_countryName}')]</td>
 	<td></td>
 </tr>
-
+<!--MY_ORGANIZATION-->
+<tr>
+	<td>MY_ORGANIZATION_PORTLET</td>
+	<td>//div[contains(@class,'MyOrganizationsPortlet')]//div[@class='portlet-body']</td>
+	<td></td>
+</tr>
 <!--ORGANIZATION_TABLE-->
 <tr>
 	<td>ORGANIZATION_TABLE_NAME</td>
@@ -95,11 +95,26 @@
 	<td></td>
 </tr>
 <tr>
+	<td>USER_ADDRESS_TABLE_ADDRESS_TYPE</td>
+	<td>//tr[contains(.,'${key_primaryValue}')]/td[2]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>USER_ADDRESS_PRIMARY_TABLE</td>
 	<td>//tr[contains(.,'${key_primaryValue}')]//span/span[contains(.,'PRIMARY')]</td>
 	<td></td>
 </tr>
 <!--USER_CONTACT_INFORMATION_TABLE-->
+<tr>
+	<td>USER_CONTACT_INFORMATION_CONTAINER_TABLE</td>
+	<td>//table[contains(@data-searchcontainerid,'${key_searchContainerType}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>USER_CONTACT_INFORMATION_TYPE_TABLE</td>
+	<td>//table[contains(@data-searchcontainerid,'${key_searchContainerType}')]//tr[1]/td[2]</td>
+	<td></td>
+</tr>
 <tr>
 	<td>USER_CONTACT_INFORMATION_PHONE_NUMBER_TABLE</td>
 	<td>//table[contains(@data-searchcontainerid,'${key_searchContainerType}')]//tr[1]/td[1]</td>

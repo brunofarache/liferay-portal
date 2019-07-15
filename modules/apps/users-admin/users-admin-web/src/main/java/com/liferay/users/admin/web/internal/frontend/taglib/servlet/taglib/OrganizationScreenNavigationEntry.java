@@ -27,7 +27,7 @@ import com.liferay.portal.kernel.service.OrganizationService;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
-import com.liferay.users.admin.constants.UserFormConstants;
+import com.liferay.users.admin.constants.UserScreenNavigationEntryConstants;
 import com.liferay.users.admin.web.internal.constants.UsersAdminWebKeys;
 import com.liferay.users.admin.web.internal.display.context.OrganizationScreenNavigationDisplayContext;
 
@@ -89,7 +89,8 @@ public class OrganizationScreenNavigationEntry
 
 	@Override
 	public String getScreenNavigationKey() {
-		return UserFormConstants.SCREEN_NAVIGATION_KEY_ORGANIZATIONS;
+		return UserScreenNavigationEntryConstants.
+			SCREEN_NAVIGATION_KEY_ORGANIZATIONS;
 	}
 
 	@Override
@@ -98,24 +99,28 @@ public class OrganizationScreenNavigationEntry
 	}
 
 	@Override
-	public void render(HttpServletRequest request, HttpServletResponse response)
+	public void render(
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException {
 
 		OrganizationScreenNavigationDisplayContext
 			organizationScreenNavigationDisplayContext =
 				new OrganizationScreenNavigationDisplayContext();
 
-		String redirect = ParamUtil.getString(request, "redirect");
+		String redirect = ParamUtil.getString(httpServletRequest, "redirect");
 
-		String backURL = ParamUtil.getString(request, "backURL", redirect);
+		String backURL = ParamUtil.getString(
+			httpServletRequest, "backURL", redirect);
 
 		organizationScreenNavigationDisplayContext.setBackURL(backURL);
 
 		organizationScreenNavigationDisplayContext.setFormLabel(
-			getLabel(request.getLocale()));
+			getLabel(httpServletRequest.getLocale()));
 		organizationScreenNavigationDisplayContext.setJspPath(_jspPath);
 
-		long organizationId = ParamUtil.getLong(request, "organizationId");
+		long organizationId = ParamUtil.getLong(
+			httpServletRequest, "organizationId");
 
 		Organization organization = null;
 
@@ -137,16 +142,16 @@ public class OrganizationScreenNavigationEntry
 			_showControls);
 		organizationScreenNavigationDisplayContext.setShowTitle(_showTitle);
 
-		String portletId = _portal.getPortletId(request);
+		String portletId = _portal.getPortletId(httpServletRequest);
 
 		PortletURL editOrganizationActionURL = _portletURLFactory.create(
-			request, portletId, PortletRequest.ACTION_PHASE);
+			httpServletRequest, portletId, PortletRequest.ACTION_PHASE);
 
 		editOrganizationActionURL.setParameter(
 			ActionRequest.ACTION_NAME, _mvcActionCommandName);
 
 		PortletURL editOrganizationRenderURL = _portletURLFactory.create(
-			request, portletId, PortletRequest.RENDER_PHASE);
+			httpServletRequest, portletId, PortletRequest.RENDER_PHASE);
 
 		editOrganizationRenderURL.setParameter(
 			"mvcRenderCommandName", "/users_admin/edit_organization");
@@ -172,12 +177,13 @@ public class OrganizationScreenNavigationEntry
 		organizationScreenNavigationDisplayContext.setEditOrganizationActionURL(
 			editOrganizationActionURL.toString());
 
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			UsersAdminWebKeys.ORGANIZATION_SCREEN_NAVIGATION_DISPLAY_CONTEXT,
 			organizationScreenNavigationDisplayContext);
 
 		_jspRenderer.renderJSP(
-			request, response, "/edit_organization_navigation.jsp");
+			httpServletRequest, httpServletResponse,
+			"/edit_organization_navigation.jsp");
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

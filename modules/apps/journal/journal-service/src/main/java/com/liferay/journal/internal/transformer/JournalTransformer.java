@@ -48,6 +48,7 @@ import com.liferay.portal.kernel.templateparser.TransformerListener;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
@@ -71,6 +72,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import javax.portlet.PortletRequest;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -233,7 +236,22 @@ public class JournalTransformer {
 				templateId, tokens, languageId, document, script, langType);
 
 			if ((themeDisplay != null) && (themeDisplay.getRequest() != null)) {
-				template.prepare(themeDisplay.getRequest());
+				HttpServletRequest httpServletRequest =
+					themeDisplay.getRequest();
+
+				if (portletRequestModel != null) {
+					httpServletRequest.setAttribute(
+						JavaConstants.JAVAX_PORTLET_REQUEST,
+						portletRequestModel.getPortletRequest());
+					httpServletRequest.setAttribute(
+						JavaConstants.JAVAX_PORTLET_RESPONSE,
+						portletRequestModel.getPortletResponse());
+					httpServletRequest.setAttribute(
+						PortletRequest.LIFECYCLE_PHASE,
+						portletRequestModel.getLifecycle());
+				}
+
+				template.prepare(httpServletRequest);
 			}
 
 			if (contextObjects != null) {
@@ -309,12 +327,14 @@ public class JournalTransformer {
 					TemplateManager templateManager =
 						TemplateManagerUtil.getTemplateManager(langType);
 
-					HttpServletRequest request = themeDisplay.getRequest();
+					HttpServletRequest httpServletRequest =
+						themeDisplay.getRequest();
 
 					templateManager.addTaglibSupport(
-						template, request, themeDisplay.getResponse());
+						template, httpServletRequest,
+						themeDisplay.getResponse());
 					templateManager.addTaglibTheme(
-						template, "taglibLiferay", request,
+						template, "taglibLiferay", httpServletRequest,
 						new PipingServletResponse(
 							themeDisplay.getResponse(), unsyncStringWriter));
 				}
@@ -324,7 +344,14 @@ public class JournalTransformer {
 				template.put("groupId", articleGroupId);
 				template.put("journalTemplatesPath", templatesPath);
 
-				mergeTemplate(template, unsyncStringWriter, propagateException);
+				if (propagateException) {
+					template.processTemplate(unsyncStringWriter);
+				}
+				else {
+					template.processTemplate(
+						unsyncStringWriter,
+						() -> getErrorTemplateResource(langType));
+				}
 			}
 			catch (Exception e) {
 				if (e instanceof DocumentException) {
@@ -442,11 +469,8 @@ public class JournalTransformer {
 			templateResource = new StringTemplateResource(templateId, script);
 		}
 
-		TemplateResource errorTemplateResource = getErrorTemplateResource(
-			langType);
-
 		return TemplateManagerUtil.getTemplate(
-			langType, templateResource, errorTemplateResource, _restricted);
+			langType, templateResource, _restricted);
 	}
 
 	protected String getTemplateId(
@@ -673,19 +697,6 @@ public class JournalTransformer {
 		}
 
 		return map;
-	}
-
-	protected void mergeTemplate(
-			Template template, UnsyncStringWriter unsyncStringWriter,
-			boolean propagateException)
-		throws Exception {
-
-		if (propagateException) {
-			template.doProcessTemplate(unsyncStringWriter);
-		}
-		else {
-			template.processTemplate(unsyncStringWriter);
-		}
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

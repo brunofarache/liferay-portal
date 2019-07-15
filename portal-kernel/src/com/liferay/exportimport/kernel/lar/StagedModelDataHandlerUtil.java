@@ -14,8 +14,6 @@
 
 package com.liferay.exportimport.kernel.lar;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
@@ -47,6 +45,8 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Brian Wing Shun Chan
@@ -556,31 +556,29 @@ public class StagedModelDataHandlerUtil {
 			while (iterator.hasNext()) {
 				String entry = iterator.next();
 
-				if (entry.endsWith(".xml")) {
-					if (_containsStagedModel(
-							portletDataContext, entry, stagedModel)) {
+				if (entry.endsWith(".xml") &&
+					_containsStagedModel(
+						portletDataContext, entry, stagedModel)) {
 
-						try {
-							Document document = SAXReaderUtil.read(
-								portletDataContext.getZipEntryAsString(entry));
+					try {
+						Document document = SAXReaderUtil.read(
+							portletDataContext.getZipEntryAsString(entry));
 
-							portletDataContext.setImportDataRootElement(
-								document.getRootElement());
+						portletDataContext.setImportDataRootElement(
+							document.getRootElement());
 
-							String path = ExportImportPathUtil.getModelPath(
-								stagedModel);
+						String path = ExportImportPathUtil.getModelPath(
+							stagedModel);
 
-							portletDataContext.removePrimaryKey(path);
+						portletDataContext.removePrimaryKey(path);
 
-							importStagedModel(
-								portletDataContext, referenceElement);
+						importStagedModel(portletDataContext, referenceElement);
 
-							return;
-						}
-						catch (Exception e) {
-							if (_log.isDebugEnabled()) {
-								_log.debug(e, e);
-							}
+						return;
+					}
+					catch (Exception e) {
+						if (_log.isDebugEnabled()) {
+							_log.debug(e, e);
 						}
 					}
 				}
@@ -691,12 +689,9 @@ public class StagedModelDataHandlerUtil {
 			return null;
 		}
 
-		StagedModelDataHandler<T> stagedModelDataHandler =
-			(StagedModelDataHandler<T>)
-				StagedModelDataHandlerRegistryUtil.getStagedModelDataHandler(
-					ExportImportClassedModelUtil.getClassName(stagedModel));
-
-		return stagedModelDataHandler;
+		return (StagedModelDataHandler<T>)
+			StagedModelDataHandlerRegistryUtil.getStagedModelDataHandler(
+				ExportImportClassedModelUtil.getClassName(stagedModel));
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

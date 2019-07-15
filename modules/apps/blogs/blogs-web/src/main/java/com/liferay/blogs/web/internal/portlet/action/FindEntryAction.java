@@ -67,7 +67,8 @@ public class FindEntryAction extends FindStrutsAction {
 
 	@Override
 	protected void addRequiredParameters(
-		HttpServletRequest request, String portletId, PortletURL portletURL) {
+		HttpServletRequest httpServletRequest, String portletId,
+		PortletURL portletURL) {
 
 		String mvcRenderCommandName = null;
 
@@ -89,24 +90,10 @@ public class FindEntryAction extends FindStrutsAction {
 		return _portletLayoutFinder;
 	}
 
-	@Reference(unbind = "-")
-	protected void setBlogsEntryLocalService(
-		BlogsEntryLocalService blogsEntryLocalService) {
-
-		_blogsEntryLocalService = blogsEntryLocalService;
-	}
-
-	@Reference(
-		target = "(model.class.name=com.liferay.blogs.model.BlogsEntry)",
-		unbind = "-"
-	)
-	protected void setPortletLayoutFinder(
-		PortletLayoutFinder portletPageFinder) {
-
-		_portletLayoutFinder = portletPageFinder;
-	}
-
+	@Reference
 	private BlogsEntryLocalService _blogsEntryLocalService;
+
+	@Reference(target = "(model.class.name=com.liferay.blogs.model.BlogsEntry)")
 	private PortletLayoutFinder _portletLayoutFinder;
 
 }

@@ -1,3 +1,17 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 AUI.add(
 	'liferay-item-selector-dialog',
 	function(A) {
@@ -11,139 +25,146 @@ AUI.add(
 
 		var STR_VISIBLE = 'visible';
 
-		var LiferayItemSelectorDialog = A.Component.create(
-			{
-				ATTRS: {
-					dialogClasses: {
-						validator: Lang.isString,
-					},
+		var LiferayItemSelectorDialog = A.Component.create({
+			ATTRS: {
+				dialogClasses: {
+					validator: Lang.isString
+				},
 
-					eventName: {
-						validator: Lang.isString
-					},
+				eventName: {
+					validator: Lang.isString
+				},
 
-					selectedItem: {
-					},
+				selectedItem: {},
 
-					strings: {
-						value: {
-							add: Liferay.Language.get('add'),
-							cancel: Liferay.Language.get('cancel')
-						}
-					},
-
-					title: {
-						validator: Lang.isString,
-						value: Liferay.Language.get('select-file')
-					},
-
-					url: {
-						validator: Lang.isString
-					},
-
-					zIndex: {
-						validator: Lang.isNumber
-					},
-
-					visible: {
-						validator: Lang.isBoolean,
-						value: false
+				strings: {
+					value: {
+						add: Liferay.Language.get('add'),
+						cancel: Liferay.Language.get('cancel')
 					}
 				},
 
-				NAME: 'item-selector-dialog',
+				title: {
+					validator: Lang.isString,
+					value: Liferay.Language.get('select-file')
+				},
 
-				NS: 'item-selector-dialog',
+				url: {
+					validator: Lang.isString
+				},
 
-				prototype: {
-					close: function() {
-						var instance = this;
+				zIndex: {
+					validator: Lang.isNumber
+				},
 
-						Util.getWindow(instance.get(STR_EVENT_NAME)).hide();
-					},
+				visible: {
+					validator: Lang.isBoolean,
+					value: false
+				}
+			},
 
-					open: function() {
-						var instance = this;
+			NAME: 'item-selector-dialog',
 
-						var strings = instance.get('strings');
+			NS: 'item-selector-dialog',
 
-						var eventName = instance.get(STR_EVENT_NAME);
+			prototype: {
+				/*
+				 * @deprecated since 7.2, unused
+				 */
+				close: function() {
+					var instance = this;
 
-						var zIndex = instance.get('zIndex');
+					Util.getWindow(instance.get(STR_EVENT_NAME)).hide();
+				},
 
-						instance._currentItem = null;
-						instance._selectedItem = null;
+				open: function() {
+					var instance = this;
 
-						instance.set(STR_VISIBLE, true);
+					var strings = instance.get('strings');
 
-						Util.selectEntity(
-							{
-								dialog: {
-									cssClass: instance.get('dialogClasses'),
-									constrain: true,
-									destroyOnHide: true,
-									modal: true,
-									on: {
-										'visibleChange': function(event) {
-											if (!event.newVal) {
-												instance.set(STR_SELECTED_ITEM, instance._selectedItem);
+					var eventName = instance.get(STR_EVENT_NAME);
+
+					var zIndex = instance.get('zIndex');
+
+					instance._currentItem = null;
+					instance._selectedItem = null;
+
+					instance.set(STR_VISIBLE, true);
+
+					Util.selectEntity(
+						{
+							dialog: {
+								cssClass: instance.get('dialogClasses'),
+								constrain: true,
+								destroyOnHide: true,
+								modal: true,
+								on: {
+									visibleChange: function(event) {
+										if (!event.newVal) {
+											instance.set(
+												STR_SELECTED_ITEM,
+												instance._selectedItem
+											);
+										}
+
+										instance.set(STR_VISIBLE, event.newVal);
+									}
+								},
+								'toolbars.footer': [
+									{
+										cssClass: 'btn-link close-modal',
+										id: 'cancelButton',
+										label: strings.cancel,
+										on: {
+											click: function() {
+												instance.close();
 											}
-
-											instance.set(STR_VISIBLE, event.newVal);
 										}
 									},
-									'toolbars.footer': [
-										{
-											cssClass: 'btn-link close-modal',
-											id: 'cancelButton',
-											label: strings.cancel,
-											on: {
-												click: function() {
-													instance.close();
-												}
-											}
-										},
-										{
-											cssClass: 'btn-primary',
-											disabled: true,
-											id: 'addButton',
-											label: strings.add,
-											on: {
-												click: function() {
-													instance._selectedItem = instance._currentItem;
-													instance.close();
-												}
+									{
+										cssClass: 'btn-primary',
+										disabled: true,
+										id: 'addButton',
+										label: strings.add,
+										on: {
+											click: function() {
+												instance._selectedItem =
+													instance._currentItem;
+												instance.close();
 											}
 										}
-									],
-									zIndex: zIndex
-								},
-								eventName: eventName,
-								id: eventName,
-								stack: !zIndex,
-								title: instance.get('title'),
-								uri: instance.get('url')
+									}
+								],
+								zIndex: zIndex
 							},
-							A.bind(instance._onItemSelected, instance)
-						);
-					},
+							eventName: eventName,
+							id: eventName,
+							stack: !zIndex,
+							title: instance.get('title'),
+							uri: instance.get('url')
+						},
+						A.bind(instance._onItemSelected, instance)
+					);
+				},
 
-					_onItemSelected: function(event) {
-						var instance = this;
+				_onItemSelected: function(event) {
+					var instance = this;
 
-						var currentItem = event.data;
+					var currentItem = event.data;
 
-						var dialog = Util.getWindow(instance.get(STR_EVENT_NAME));
+					var dialog = Util.getWindow(instance.get(STR_EVENT_NAME));
 
-						var addButton = dialog.getToolbar('footer').get('boundingBox').one('#addButton');
+					var addButton = dialog
+						.getToolbar('footer')
+						.get('boundingBox')
+						.one('#addButton');
 
-						Util.toggleDisabled(addButton, !currentItem);
+					Util.toggleDisabled(addButton, !currentItem);
 
-						instance._currentItem = currentItem;
-					}
+					instance._currentItem = currentItem;
 				}
 			}
-		);
+		});
 
 		A.LiferayItemSelectorDialog = LiferayItemSelectorDialog;
 	},

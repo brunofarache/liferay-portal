@@ -52,7 +52,12 @@ public class HtmlUtil {
 	 * @return the escaped hexadecimal value of the input text, based on the
 	 *         mode, or <code>null</code> if the text is <code>null</code>
 	 * @see    com.liferay.portal.util.HtmlImpl#escape(String, int)
+	 * @deprecated As of Mueller (7.2.x), replaced by
+	 *			   {@link #escapeAttribute(String)}, {@link #escapeCSS(String)},
+	 *			   {@link #escapeJS(String)}, {@link #escape(String)},
+	 *			   {@link #escapeURL(String)}
 	 */
+	@Deprecated
 	public static String escape(String text, int mode) {
 		return getHtml().escape(text, mode);
 	}
@@ -174,20 +179,6 @@ public class HtmlUtil {
 	 */
 	public static String render(String html) {
 		return getHtml().render(html);
-	}
-
-	/**
-	 * Replaces all Microsoft&reg; Word Unicode characters with plain HTML
-	 * entities or characters.
-	 *
-	 * @param      text the text
-	 * @return     the converted text, or <code>null</code> if the text is
-	 *             <code>null</code>
-	 * @deprecated As of Wilberforce (7.0.x), with no direct replacement
-	 */
-	@Deprecated
-	public static String replaceMsWordCharacters(String text) {
-		return getHtml().replaceMsWordCharacters(text);
 	}
 
 	/**

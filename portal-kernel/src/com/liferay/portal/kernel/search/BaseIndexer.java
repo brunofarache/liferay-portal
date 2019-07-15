@@ -21,6 +21,7 @@ import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
 import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.petra.lang.HashUtil;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.NoSuchCountryException;
 import com.liferay.portal.kernel.exception.NoSuchModelException;
@@ -61,7 +62,6 @@ import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.ServiceProxyFactory;
 import com.liferay.portal.kernel.util.SetUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -137,16 +137,6 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 		Indexer<?> indexer = (Indexer<?>)object;
 
 		return Objects.equals(getClassName(), indexer.getClassName());
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #getSearchClassNames}
-	 */
-	@Deprecated
-	@Override
-	public String[] getClassNames() {
-		return getSearchClassNames();
 	}
 
 	@Override
@@ -250,15 +240,6 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 		return _indexerPostProcessors;
 	}
 
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link #getClassName}
-	 */
-	@Deprecated
-	@Override
-	public String getPortletId() {
-		return StringPool.BLANK;
-	}
-
 	@Override
 	public String[] getSearchClassNames() {
 		return new String[] {getClassName()};
@@ -333,19 +314,6 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 		}
 
 		return getSortField(orderByCol);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #getSummary(Document, String, PortletRequest,
-	 *             PortletResponse)}
-	 */
-	@Deprecated
-	@Override
-	public Summary getSummary(Document document, Locale locale, String snippet)
-		throws SearchException {
-
-		return getSummary(document, snippet, null, null);
 	}
 
 	@Override
@@ -508,7 +476,7 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 		indexerPostProcessorsList.add(indexerPostProcessor);
 
 		_indexerPostProcessors = indexerPostProcessorsList.toArray(
-			new IndexerPostProcessor[indexerPostProcessorsList.size()]);
+			new IndexerPostProcessor[0]);
 	}
 
 	@Override
@@ -546,8 +514,7 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 			if (_log.isWarnEnabled()) {
 				_log.warn(
 					StringBundler.concat(
-						"Unable to index ", className, " ",
-						String.valueOf(classPK)),
+						"Unable to index ", className, " ", classPK),
 					nsme);
 			}
 		}
@@ -728,7 +695,7 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 		indexerPostProcessorsList.remove(indexerPostProcessor);
 
 		_indexerPostProcessors = indexerPostProcessorsList.toArray(
-			new IndexerPostProcessor[indexerPostProcessorsList.size()]);
+			new IndexerPostProcessor[0]);
 	}
 
 	/**
@@ -838,8 +805,7 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 
 		if ((selectedFieldNames != null) && !selectedFieldNames.isEmpty()) {
 			queryConfig.setSelectedFieldNames(
-				selectedFieldNames.toArray(
-					new String[selectedFieldNames.size()]));
+				selectedFieldNames.toArray(new String[0]));
 		}
 	}
 
@@ -892,8 +858,7 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 
 		selectedFieldNameSet.addAll(facets.keySet());
 
-		selectedFieldNames = selectedFieldNameSet.toArray(
-			new String[selectedFieldNameSet.size()]);
+		selectedFieldNames = selectedFieldNameSet.toArray(new String[0]);
 
 		queryConfig.setSelectedFieldNames(selectedFieldNames);
 	}
@@ -978,7 +943,7 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 
 			List<String> titles = entry.getValue();
 
-			String[] titlesArray = titles.toArray(new String[titles.size()]);
+			String[] titlesArray = titles.toArray(new String[0]);
 
 			if (locale.equals(defaultLocale)) {
 				document.addText(field, titlesArray);
@@ -1387,13 +1352,6 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 		throws Exception {
 
 		indexer.postProcessSearchQuery(searchQuery, searchContext);
-
-		for (IndexerPostProcessor indexerPostProcessor :
-				indexer.getIndexerPostProcessors()) {
-
-			indexerPostProcessor.postProcessSearchQuery(
-				searchQuery, searchContext);
-		}
 	}
 
 	protected abstract void doReindex(String className, long classPK)
@@ -1534,14 +1492,6 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 		return countryNames;
 	}
 
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link #getClassName}
-	 */
-	@Deprecated
-	protected String getPortletId(SearchContext searchContext) {
-		return StringPool.BLANK;
-	}
-
 	protected Group getSiteGroup(long groupId) {
 		Group group = null;
 
@@ -1680,31 +1630,18 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 			zips.add(StringUtil.toLowerCase(address.getZip()));
 		}
 
-		document.addText("city", cities.toArray(new String[cities.size()]));
-		document.addText(
-			"country", countries.toArray(new String[countries.size()]));
-		document.addText("region", regions.toArray(new String[regions.size()]));
-		document.addText("street", streets.toArray(new String[streets.size()]));
-		document.addText("zip", zips.toArray(new String[zips.size()]));
+		document.addText("city", cities.toArray(new String[0]));
+		document.addText("country", countries.toArray(new String[0]));
+		document.addText("region", regions.toArray(new String[0]));
+		document.addText("street", streets.toArray(new String[0]));
+		document.addText("zip", zips.toArray(new String[0]));
 	}
 
 	protected Map<Locale, String> populateMap(
 		AssetEntry assetEntry, Map<Locale, String> map) {
 
-		String defaultValue = map.get(
-			LocaleUtil.fromLanguageId(assetEntry.getDefaultLanguageId()));
-
-		for (Locale availableLocale :
-				LanguageUtil.getAvailableLocales(assetEntry.getGroupId())) {
-
-			if (!map.containsKey(availableLocale) ||
-				Validator.isNull(map.get(availableLocale))) {
-
-				map.put(availableLocale, defaultValue);
-			}
-		}
-
-		return map;
+		return LocalizationUtil.populateLocalizationMap(
+			map, assetEntry.getDefaultLanguageId(), assetEntry.getGroupId());
 	}
 
 	protected void postProcessFullQuery(

@@ -1,3 +1,17 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 import GeoJSONBase from 'map-common/js/GeoJSONBase.es';
 
 /**
@@ -28,11 +42,9 @@ class GoogleMapsGeoJSON extends GeoJSONBase {
 	 * @review
 	 */
 	destructor() {
-		this._eventHandlers.forEach(
-			item => {
-				google.maps.event.removeListener(item);
-			}
-		);
+		this._eventHandlers.forEach(item => {
+			google.maps.event.removeListener(item);
+		});
 	}
 
 	/**
@@ -48,7 +60,7 @@ class GoogleMapsGeoJSON extends GeoJSONBase {
 				this.map.data,
 				'click',
 				this._handleFeatureClicked
-			),
+			)
 		];
 	}
 
@@ -62,7 +74,7 @@ class GoogleMapsGeoJSON extends GeoJSONBase {
 	 */
 	_getFeatureStyle(feature) {
 		return {
-			icon: feature.getProperty('icon'),
+			icon: feature.getProperty('icon')
 		};
 	}
 
@@ -85,15 +97,13 @@ class GoogleMapsGeoJSON extends GeoJSONBase {
 
 		feature.getMarker = () => {
 			if (!feature._marker) {
-				const marker = new google.maps.Marker(
-					{
-						icon: feature.getProperty('icon'),
-						map: this.map,
-						opacity: 0,
-						position: feature.getGeometry().get('location'),
-						zIndex: -1,
-					}
-				);
+				const marker = new google.maps.Marker({
+					icon: feature.getProperty('icon'),
+					map: this.map,
+					opacity: 0,
+					position: feature.getGeometry().get('location'),
+					zIndex: -1
+				});
 
 				feature._marker = marker;
 			}

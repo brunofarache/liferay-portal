@@ -51,6 +51,7 @@ import com.liferay.portal.kernel.util.UnsyncPrintWriterPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.portlet.bridge.soy.SoyPortletRegister;
+import com.liferay.portal.portlet.bridge.soy.internal.util.SoyTemplateResourceFactoryUtil;
 import com.liferay.portal.portlet.bridge.soy.internal.util.SoyTemplateResourcesProviderUtil;
 import com.liferay.portal.template.soy.constants.SoyTemplateConstants;
 import com.liferay.portal.template.soy.util.SoyContext;
@@ -97,16 +98,6 @@ public class SoyPortlet extends MVCPortlet {
 
 	public SoyPortlet(SoyPortletRegister soyPortletRegister) {
 		_soyPortletRegister = soyPortletRegister;
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x), use {@link
-	 *             SoyPortlet#init(PortletConfig)}} instead
-	 */
-	@Deprecated
-	@Override
-	public void init() throws PortletException {
-		super.init();
 	}
 
 	@Override
@@ -289,10 +280,10 @@ public class SoyPortlet extends MVCPortlet {
 			throw new PortletException(e);
 		}
 
-		if (clearRequestParameters) {
-			if (lifecycle.equals(PortletRequest.RENDER_PHASE)) {
-				portletResponse.setProperty("clear-request-parameters", "true");
-			}
+		if (clearRequestParameters &&
+			lifecycle.equals(PortletRequest.RENDER_PHASE)) {
+
+			portletResponse.setProperty("clear-request-parameters", "true");
 		}
 	}
 
@@ -342,16 +333,9 @@ public class SoyPortlet extends MVCPortlet {
 
 	protected boolean propagateRequestParameters;
 
-	/**
-	 * @deprecated As of Judson (7.1.x), use {@link
-	 *             SoyPortlet#getTemplate(PortletRequest)}} instead
-	 */
-	@Deprecated
-	protected Template template;
-
 	private void _callProcessAction(
 			ResourceRequest resourceRequest, ResourceResponse resourceResponse,
-			HttpServletResponse response, Portlet portlet)
+			HttpServletResponse httpServletResponse, Portlet portlet)
 		throws Exception {
 
 		SoyPortletRequestFactory soyPortletRequestFactory =
@@ -376,7 +360,7 @@ public class SoyPortlet extends MVCPortlet {
 
 		redirect = HttpUtil.setParameter(redirect, "p_p_lifecycle", "2");
 
-		response.sendRedirect(redirect);
+		httpServletResponse.sendRedirect(redirect);
 	}
 
 	private void _callRender(
@@ -444,7 +428,10 @@ public class SoyPortlet extends MVCPortlet {
 		List<TemplateResource> templateResources = _getTemplateResources();
 
 		Template template = TemplateManagerUtil.getTemplate(
-			TemplateConstants.LANG_TYPE_SOY, templateResources, false);
+			TemplateConstants.LANG_TYPE_SOY,
+			SoyTemplateResourceFactoryUtil.createSoyTemplateResource(
+				templateResources),
+			false);
 
 		portletRequest.setAttribute(WebKeys.TEMPLATE, template);
 

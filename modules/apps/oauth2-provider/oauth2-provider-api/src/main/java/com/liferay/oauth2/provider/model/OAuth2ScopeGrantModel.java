@@ -14,11 +14,11 @@
 
 package com.liferay.oauth2.provider.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.ShardedModel;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The base model interface for the OAuth2ScopeGrant service. Represents a row in the &quot;OAuth2ScopeGrant&quot; database table, with each column mapped to a property of this class.
@@ -144,5 +144,20 @@ public interface OAuth2ScopeGrantModel
 	 * @param scope the scope of this o auth2 scope grant
 	 */
 	public void setScope(String scope);
+
+	/**
+	 * Returns the scope aliases of this o auth2 scope grant.
+	 *
+	 * @return the scope aliases of this o auth2 scope grant
+	 */
+	@AutoEscape
+	public String getScopeAliases();
+
+	/**
+	 * Sets the scope aliases of this o auth2 scope grant.
+	 *
+	 * @param scopeAliases the scope aliases of this o auth2 scope grant
+	 */
+	public void setScopeAliases(String scopeAliases);
 
 }

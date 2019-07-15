@@ -23,6 +23,34 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class VerticalCardTag extends CardTag {
 
+	public String getFooter() {
+		return _footer;
+	}
+
+	public String getHeader() {
+		return _header;
+	}
+
+	public String getOnClick() {
+		return _onClick;
+	}
+
+	public String getStickerBottom() {
+		return _stickerBottom;
+	}
+
+	public String getSubtitle() {
+		return _subtitle;
+	}
+
+	public String getTitle() {
+		return _title;
+	}
+
+	public boolean isBackgroundImage() {
+		return _backgroundImage;
+	}
+
 	public void setBackgroundImage(boolean backgroundImage) {
 		_backgroundImage = backgroundImage;
 	}
@@ -70,18 +98,22 @@ public class VerticalCardTag extends CardTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		super.setAttributes(request);
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		super.setAttributes(httpServletRequest);
 
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-frontend:card:backgroundImage", _backgroundImage);
-		request.setAttribute("liferay-frontend:card:footer", _footer);
-		request.setAttribute("liferay-frontend:card:header", _header);
-		request.setAttribute("liferay-frontend:card:onClick", _onClick);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
+			"liferay-frontend:card:footer", _footer);
+		httpServletRequest.setAttribute(
+			"liferay-frontend:card:header", _header);
+		httpServletRequest.setAttribute(
+			"liferay-frontend:card:onClick", _onClick);
+		httpServletRequest.setAttribute(
 			"liferay-frontend:card:stickerBottom", _stickerBottom);
-		request.setAttribute("liferay-frontend:card:subtitle", _subtitle);
-		request.setAttribute("liferay-frontend:card:title", _title);
+		httpServletRequest.setAttribute(
+			"liferay-frontend:card:subtitle", _subtitle);
+		httpServletRequest.setAttribute("liferay-frontend:card:title", _title);
 	}
 
 	private boolean _backgroundImage = true;

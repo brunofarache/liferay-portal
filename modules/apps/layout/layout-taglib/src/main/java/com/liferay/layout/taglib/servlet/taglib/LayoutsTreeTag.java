@@ -18,6 +18,7 @@ import com.liferay.layout.taglib.internal.servlet.ServletContextUtil;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.LayoutSetBranch;
@@ -48,6 +49,82 @@ public class LayoutsTreeTag extends IncludeTag {
 	@Override
 	public int doStartTag() {
 		return EVAL_BODY_INCLUDE;
+	}
+
+	public long getGroupId() {
+		return _groupId;
+	}
+
+	public LayoutSetBranch getLayoutSetBranch() {
+		return _layoutSetBranch;
+	}
+
+	public String getLinkTemplate() {
+		return _linkTemplate;
+	}
+
+	public PortletURL getPortletURL() {
+		return _portletURL;
+	}
+
+	public Map<String, PortletURL> getPortletURLs() {
+		return _portletURLs;
+	}
+
+	public String getRootLinkTemplate() {
+		return _rootLinkTemplate;
+	}
+
+	public String getRootNodeName() {
+		return _rootNodeName;
+	}
+
+	public String getScriptPosition() {
+		return _scriptPosition;
+	}
+
+	public String getSelectedLayoutIds() {
+		return _selectedLayoutIds;
+	}
+
+	public Long getSelPlid() {
+		return _selPlid;
+	}
+
+	public String getTreeId() {
+		return _treeId;
+	}
+
+	public boolean isCheckContentDisplayPage() {
+		return _checkContentDisplayPage;
+	}
+
+	public boolean isDefaultStateChecked() {
+		return _defaultStateChecked;
+	}
+
+	public boolean isDraggableTree() {
+		return _draggableTree;
+	}
+
+	public boolean isExpandFirstNode() {
+		return _expandFirstNode;
+	}
+
+	public boolean isIncomplete() {
+		return _incomplete;
+	}
+
+	public boolean isPrivateLayout() {
+		return _privateLayout;
+	}
+
+	public boolean isSaveState() {
+		return _saveState;
+	}
+
+	public boolean isSelectableTree() {
+		return _selectableTree;
 	}
 
 	public void setCheckContentDisplayPage(boolean checkContentDisplayPage) {
@@ -222,9 +299,7 @@ public class LayoutsTreeTag extends IncludeTag {
 		}
 
 		for (Map.Entry<String, PortletURL> entry : portletURLs.entrySet()) {
-			JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
-
-			jsonObject.put("name", entry.getKey());
+			JSONObject jsonObject = JSONUtil.put("name", entry.getKey());
 
 			PortletURL portletURL = entry.getValue();
 
@@ -248,32 +323,32 @@ public class LayoutsTreeTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-layout:layouts-tree:checkContentDisplayPage",
 			String.valueOf(_checkContentDisplayPage));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-layout:layouts-tree:checkedNodes", getCheckedNodes());
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-layout:layouts-tree:defaultStateChecked",
 			String.valueOf(_defaultStateChecked));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-layout:layouts-tree:draggableTree",
 			String.valueOf(_draggableTree));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-layout:layouts-tree:expandFirstNode",
 			String.valueOf(_expandFirstNode));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-layout:layouts-tree:groupId", String.valueOf(_groupId));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-layout:layouts-tree:incomplete",
 			String.valueOf(_incomplete));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-layout:layouts-tree:layoutSetBranch", _layoutSetBranch);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-layout:layouts-tree:linkTemplate",
 			String.valueOf(_linkTemplate));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-layout:layouts-tree:modules", getModules());
 
 		Map<String, PortletURL> portletURLs = _portletURLs;
@@ -286,32 +361,34 @@ public class LayoutsTreeTag extends IncludeTag {
 			portletURLs.put("layoutURL", _portletURL);
 		}
 
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-layout:layouts-tree:portletURLs", portletURLs);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-layout:layouts-tree:portletURLsJSONArray",
 			getPortletURLsJSONArray(portletURLs));
 
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-layout:layouts-tree:privateLayout",
 			String.valueOf(_privateLayout));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-layout:layouts-tree:rootLinkTemplate", _rootLinkTemplate);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-layout:layouts-tree:rootNodeName", _rootNodeName);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-layout:layouts-tree:saveState",
 			String.valueOf(_saveState));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-layout:layouts-tree:scriptPosition", _scriptPosition);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-layout:layouts-tree:selectableTree",
 			String.valueOf(_selectableTree));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-layout:layouts-tree:selectedLayoutIds",
 			_selectedLayoutIds);
-		request.setAttribute("liferay-layout:layouts-tree:selPlid", _selPlid);
-		request.setAttribute("liferay-layout:layouts-tree:treeId", _treeId);
+		httpServletRequest.setAttribute(
+			"liferay-layout:layouts-tree:selPlid", _selPlid);
+		httpServletRequest.setAttribute(
+			"liferay-layout:layouts-tree:treeId", _treeId);
 	}
 
 	private static final boolean _CLEAN_UP_SET_ATTRIBUTES = true;

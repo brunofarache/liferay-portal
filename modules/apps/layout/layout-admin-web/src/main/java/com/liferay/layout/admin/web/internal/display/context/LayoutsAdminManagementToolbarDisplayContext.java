@@ -48,12 +48,12 @@ public class LayoutsAdminManagementToolbarDisplayContext
 	public LayoutsAdminManagementToolbarDisplayContext(
 			LiferayPortletRequest liferayPortletRequest,
 			LiferayPortletResponse liferayPortletResponse,
-			HttpServletRequest request,
+			HttpServletRequest httpServletRequest,
 			LayoutsAdminDisplayContext layoutsAdminDisplayContext)
 		throws PortalException {
 
 		super(
-			liferayPortletRequest, liferayPortletResponse, request,
+			liferayPortletRequest, liferayPortletResponse, httpServletRequest,
 			layoutsAdminDisplayContext.getLayoutsSearchContainer());
 
 		_layoutsAdminDisplayContext = layoutsAdminDisplayContext;
@@ -159,7 +159,11 @@ public class LayoutsAdminManagementToolbarDisplayContext
 			return null;
 		}
 
-		return super.getSortingOrder();
+		if (_layoutsAdminDisplayContext.isSearch()) {
+			return super.getSortingOrder();
+		}
+
+		return null;
 	}
 
 	@Override
@@ -199,14 +203,14 @@ public class LayoutsAdminManagementToolbarDisplayContext
 	@Override
 	protected String[] getOrderByKeys() {
 		if (_layoutsAdminDisplayContext.isFirstColumn()) {
-			return super.getOrderByKeys();
+			return null;
 		}
 
 		if (_layoutsAdminDisplayContext.isSearch()) {
 			return new String[] {"create-date"};
 		}
 
-		return super.getOrderByKeys();
+		return null;
 	}
 
 	private String _getLabel(boolean privateLayout) {

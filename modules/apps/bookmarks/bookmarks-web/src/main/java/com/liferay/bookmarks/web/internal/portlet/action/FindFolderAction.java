@@ -39,7 +39,8 @@ public class FindFolderAction extends FindStrutsAction {
 
 	@Override
 	protected void addRequiredParameters(
-		HttpServletRequest request, String portletId, PortletURL portletURL) {
+		HttpServletRequest httpServletRequest, String portletId,
+		PortletURL portletURL) {
 
 		portletURL.setParameter("struts_action", "/bookmarks/view_folder");
 	}
@@ -69,13 +70,7 @@ public class FindFolderAction extends FindStrutsAction {
 		return "folderId";
 	}
 
-	@Reference(unbind = "-")
-	protected void setBookmarksFolderLocalService(
-		BookmarksFolderLocalService bookmarksFolderLocalService) {
-
-		_bookmarksFolderLocalService = bookmarksFolderLocalService;
-	}
-
+	@Reference
 	private BookmarksFolderLocalService _bookmarksFolderLocalService;
 
 }

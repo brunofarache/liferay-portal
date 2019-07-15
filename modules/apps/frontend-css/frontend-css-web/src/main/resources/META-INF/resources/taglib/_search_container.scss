@@ -6,10 +6,17 @@
 	}
 }
 
-.user-info {
-	overflow: hidden;
+.lfr-search-container-wrapper .dropdown-action .dropdown-toggle {
+	color: #6b6c7e;
 
-	&.row, .row {
+	&:hover {
+		color: #272833;
+	}
+}
+
+.user-info {
+	&.row,
+	.row {
 		margin-left: 0;
 	}
 

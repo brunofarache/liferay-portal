@@ -14,8 +14,6 @@
 
 package com.liferay.staging.taglib.servlet.taglib;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.staging.taglib.internal.servlet.ServletContextUtil;
 import com.liferay.taglib.util.IncludeTag;
 
@@ -23,6 +21,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyTag;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Péter Alius
@@ -35,6 +35,18 @@ public class AlertTag extends IncludeTag implements BodyTag {
 		setAttributeNamespace(_ATTRIBUTE_NAMESPACE);
 
 		return super.doStartTag();
+	}
+
+	public AlertType getType() {
+		return _type;
+	}
+
+	public boolean isDismissible() {
+		return _dismissible;
+	}
+
+	public boolean isFluid() {
+		return _fluid;
 	}
 
 	public void setDismissible(boolean dismissible) {
@@ -53,7 +65,7 @@ public class AlertTag extends IncludeTag implements BodyTag {
 	}
 
 	public void setType(AlertType type) {
-		_type = type.getAlertCode();
+		_type = type;
 	}
 
 	@Override
@@ -62,7 +74,7 @@ public class AlertTag extends IncludeTag implements BodyTag {
 
 		_dismissible = false;
 		_fluid = false;
-		_type = AlertType.INFO.getAlertCode();
+		_type = AlertType.INFO;
 	}
 
 	@Override
@@ -76,12 +88,13 @@ public class AlertTag extends IncludeTag implements BodyTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-staging:alert:dismissible", String.valueOf(_dismissible));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:alert:fluid", String.valueOf(_fluid));
-		request.setAttribute("liferay-staging:alert:type", _type);
+		httpServletRequest.setAttribute(
+			"liferay-staging:alert:type", _type.getAlertCode());
 	}
 
 	private static final String _ATTRIBUTE_NAMESPACE = "liferay-staging:alert:";
@@ -90,6 +103,6 @@ public class AlertTag extends IncludeTag implements BodyTag {
 
 	private boolean _dismissible;
 	private boolean _fluid;
-	private String _type = AlertType.INFO.getAlertCode();
+	private AlertType _type = AlertType.INFO;
 
 }

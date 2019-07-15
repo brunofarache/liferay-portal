@@ -86,7 +86,7 @@ public class WebDAVOSXTest extends BaseWebDAVTestCase {
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
-			WebDAVEnvironmentConfigTestRule.INSTANCE);
+			WebDAVEnvironmentConfigClassTestRule.INSTANCE);
 
 	@Before
 	public void setUp() throws Exception {
@@ -574,11 +574,11 @@ public class WebDAVOSXTest extends BaseWebDAVTestCase {
 
 		Set<Locale> availableLocales = new LinkedHashSet<>();
 
-		availableLocales.add(Locale.US);
+		availableLocales.add(LocaleUtil.US);
 
 		ddmForm.setAvailableLocales(availableLocales);
 
-		ddmForm.setDefaultLocale(Locale.US);
+		ddmForm.setDefaultLocale(LocaleUtil.US);
 
 		return ddmForm;
 	}

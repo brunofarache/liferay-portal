@@ -15,7 +15,6 @@
 package com.liferay.product.navigation.user.internal.application.list;
 
 import com.liferay.application.list.BaseJSPPanelCategory;
-import com.liferay.application.list.PanelCategory;
 import com.liferay.application.list.constants.ApplicationListWebKeys;
 import com.liferay.application.list.constants.PanelCategoryKeys;
 
@@ -27,20 +26,12 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 /**
- * @author Adolfo Pérez
+ * @author     Adolfo Pérez
+ * @see        com.liferay.product.navigation.personal.menu.PersonalMenuEntry
+ * @deprecated As of Mueller (7.2.x), with no direct replacement
  */
-@Component(
-	immediate = true,
-	property = {
-		"panel.category.key=" + PanelCategoryKeys.ROOT,
-		"panel.category.order:Integer=200"
-	},
-	service = PanelCategory.class
-)
+@Deprecated
 public class UserPanelCategory extends BaseJSPPanelCategory {
 
 	@Override
@@ -65,29 +56,29 @@ public class UserPanelCategory extends BaseJSPPanelCategory {
 
 	@Override
 	public boolean include(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException {
 
-		request.setAttribute(ApplicationListWebKeys.PANEL_CATEGORY, this);
+		httpServletRequest.setAttribute(
+			ApplicationListWebKeys.PANEL_CATEGORY, this);
 
-		return super.include(request, response);
+		return super.include(httpServletRequest, httpServletResponse);
 	}
 
 	@Override
 	public boolean includeHeader(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException {
 
-		request.setAttribute(ApplicationListWebKeys.PANEL_CATEGORY, this);
+		httpServletRequest.setAttribute(
+			ApplicationListWebKeys.PANEL_CATEGORY, this);
 
-		return super.includeHeader(request, response);
+		return super.includeHeader(httpServletRequest, httpServletResponse);
 	}
 
 	@Override
-	@Reference(
-		target = "(osgi.web.symbolicname=com.liferay.product.navigation.user)",
-		unbind = "-"
-	)
 	public void setServletContext(ServletContext servletContext) {
 		super.setServletContext(servletContext);
 	}

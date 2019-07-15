@@ -34,6 +34,7 @@ import java.io.InputStream;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -52,18 +53,27 @@ public class MBFixture {
 		_user = user;
 	}
 
-	public MBMessage createMBMessage(long userId, long categoryId)
-		throws Exception, PortalException {
+	public MBCategory createMBCategory() throws Exception {
+		MBCategory mbCategory = MBCategoryLocalServiceUtil.addCategory(
+			getUserId(), 0, RandomTestUtil.randomString(),
+			RandomTestUtil.randomString(), getServiceContext());
+
+		_mbCategories.add(mbCategory);
+
+		return mbCategory;
+	}
+
+	public MBMessage createMBMessage(long userId, long categoryId, String title)
+		throws Exception {
 
 		List<ObjectValuePair<String, InputStream>> inputStreamOVPs =
 			Collections.emptyList();
 
 		MBMessage mbMessage = MBMessageLocalServiceUtil.addMessage(
 			userId, RandomTestUtil.randomString(), _group.getGroupId(),
-			categoryId, 0, MBMessageConstants.DEFAULT_PARENT_MESSAGE_ID,
-			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
-			MBMessageConstants.DEFAULT_FORMAT, inputStreamOVPs, false, 0.0,
-			false, getServiceContext());
+			categoryId, 0, MBMessageConstants.DEFAULT_PARENT_MESSAGE_ID, title,
+			RandomTestUtil.randomString(), MBMessageConstants.DEFAULT_FORMAT,
+			inputStreamOVPs, false, 0.0, false, getServiceContext());
 
 		_mbMessages.add(mbMessage);
 
@@ -75,14 +85,10 @@ public class MBFixture {
 	public MBMessage createMBMessageWithCategory(String title, long userId)
 		throws Exception {
 
-		MBCategory mbCategory = MBCategoryLocalServiceUtil.addCategory(
-			getUserId(), 0, RandomTestUtil.randomString(),
-			RandomTestUtil.randomString(), getServiceContext());
-
-		_mbCategories.add(mbCategory);
+		MBCategory mbCategory = createMBCategory();
 
 		MBMessage mbMessage = createMBMessage(
-			userId, mbCategory.getCategoryId());
+			userId, mbCategory.getCategoryId(), title);
 
 		_mbMessages.add(mbMessage);
 
@@ -104,8 +110,16 @@ public class MBFixture {
 	}
 
 	public ServiceContext getServiceContext() throws Exception {
-		return ServiceContextTestUtil.getServiceContext(
-			_group.getGroupId(), getUserId());
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				_group.getGroupId(), getUserId());
+
+		Date now = new Date();
+
+		serviceContext.setCreateDate(now);
+		serviceContext.setModifiedDate(now);
+
+		return serviceContext;
 	}
 
 	public void updateDisplaySettings(Locale locale) throws Exception {

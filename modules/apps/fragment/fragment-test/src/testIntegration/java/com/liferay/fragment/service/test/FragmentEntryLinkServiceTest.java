@@ -18,14 +18,24 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.fragment.model.FragmentCollection;
 import com.liferay.fragment.model.FragmentEntry;
 import com.liferay.fragment.model.FragmentEntryLink;
-import com.liferay.fragment.service.FragmentCollectionLocalServiceUtil;
-import com.liferay.fragment.service.FragmentEntryLinkLocalServiceUtil;
-import com.liferay.fragment.service.FragmentEntryLocalServiceUtil;
+import com.liferay.fragment.service.FragmentEntryLinkService;
+import com.liferay.fragment.service.persistence.FragmentEntryLinkPersistence;
+import com.liferay.fragment.service.persistence.impl.constants.FragmentPersistenceConstants;
+import com.liferay.fragment.util.FragmentEntryTestUtil;
+import com.liferay.fragment.util.FragmentTestUtil;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.dao.orm.QueryUtil;
-import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.RoleConstants;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
@@ -33,10 +43,16 @@ import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.test.util.UserTestUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.service.test.ServiceTestUtil;
+import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.PermissionCheckerTestRule;
+import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
+import com.liferay.portal.test.rule.PersistenceTestRule;
+import com.liferay.portal.test.rule.TransactionalTestRule;
+import com.liferay.portal.util.test.LayoutTestUtil;
 
 import java.util.List;
 
@@ -58,225 +74,264 @@ public class FragmentEntryLinkServiceTest {
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
-			PermissionCheckerTestRule.INSTANCE);
+			PermissionCheckerMethodTestRule.INSTANCE,
+			PersistenceTestRule.INSTANCE,
+			new TransactionalTestRule(
+				Propagation.REQUIRED,
+				FragmentPersistenceConstants.BUNDLE_SYMBOLIC_NAME));
 
 	@Before
 	public void setUp() throws Exception {
 		_group = GroupTestUtil.addGroup();
+
+		_groupUser = UserTestUtil.addGroupUser(
+			_group, RoleConstants.POWER_USER);
+
+		_fragmentCollection = FragmentTestUtil.addFragmentCollection(
+			_group.getGroupId());
+
+		_fragmentEntry = FragmentEntryTestUtil.addFragmentEntry(
+			_fragmentCollection.getFragmentCollectionId());
+
+		_layout = LayoutTestUtil.addLayout(_group);
 	}
 
 	@Test
-	public void testAddFragmentEntryLink() throws PortalException {
+	public void testAddFragmentEntryLink() throws Exception {
+		String css = "div {\\ncolor: red;\\n}";
+		String html = "<div>test</div>";
+		String js = "alert(\"test\");";
+		String configuration = "{fieldSets:[]}";
+
+		_addSiteMemberUpdatePermission();
+
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
-				_group.getGroupId(), TestPropsValues.getUserId());
+				_group, _groupUser.getUserId());
 
-		FragmentCollection fragmentCollection =
-			FragmentCollectionLocalServiceUtil.addFragmentCollection(
-				TestPropsValues.getUserId(), _group.getGroupId(),
-				"Fragment Collection", StringPool.BLANK, serviceContext);
-
-		FragmentEntry fragmentEntry =
-			FragmentEntryLocalServiceUtil.addFragmentEntry(
-				TestPropsValues.getUserId(), _group.getGroupId(),
-				fragmentCollection.getFragmentCollectionId(), "Fragment Name",
-				StringPool.BLANK, "<div>test</div>", StringPool.BLANK,
-				WorkflowConstants.STATUS_APPROVED, serviceContext);
-
-		long classNameId = PortalUtil.getClassNameId(Layout.class);
-
-		long classPK = RandomTestUtil.randomLong();
+		ServiceTestUtil.setUser(_groupUser);
 
 		FragmentEntryLink fragmentEntryLink =
-			FragmentEntryLinkLocalServiceUtil.addFragmentEntryLink(
-				TestPropsValues.getUserId(), _group.getGroupId(),
-				fragmentEntry.getFragmentEntryId(), classNameId, classPK,
-				fragmentEntry.getCss(), fragmentEntry.getHtml(),
-				fragmentEntry.getJs(), StringPool.BLANK, 0, serviceContext);
+			_fragmentEntryLinkService.addFragmentEntryLink(
+				_group.getGroupId(), 0, _fragmentEntry.getFragmentEntryId(),
+				PortalUtil.getClassNameId(Layout.class), _layout.getPlid(), css,
+				html, js, configuration, StringPool.BLANK, StringPool.BLANK, 0,
+				null, serviceContext);
 
-		Assert.assertNotNull(
-			FragmentEntryLinkLocalServiceUtil.fetchFragmentEntryLink(
-				fragmentEntryLink.getFragmentEntryLinkId()));
+		FragmentEntryLink persistedFragmentEntryLink =
+			_fragmentEntryLinkPersistence.findByPrimaryKey(
+				fragmentEntryLink.getFragmentEntryLinkId());
 
-		Assert.assertEquals(classNameId, fragmentEntryLink.getClassNameId());
-
-		Assert.assertEquals(classPK, fragmentEntryLink.getClassPK());
-
-		Assert.assertEquals(fragmentEntry.getCss(), fragmentEntryLink.getCss());
-
-		Assert.assertEquals(fragmentEntry.getJs(), fragmentEntryLink.getJs());
-
+		Assert.assertEquals(fragmentEntryLink, persistedFragmentEntryLink);
+		Assert.assertEquals(css, persistedFragmentEntryLink.getCss());
+		Assert.assertEquals(html, persistedFragmentEntryLink.getHtml());
+		Assert.assertEquals(js, persistedFragmentEntryLink.getJs());
 		Assert.assertEquals(
-			fragmentEntry.getHtml(), fragmentEntryLink.getHtml());
+			configuration, persistedFragmentEntryLink.getConfiguration());
+	}
+
+	@Test(expected = PrincipalException.MustHavePermission.class)
+	public void testAddFragmentEntryLinkWithoutPermissions() throws Exception {
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				_group, _groupUser.getUserId());
+
+		ServiceTestUtil.setUser(_groupUser);
+
+		_fragmentEntryLinkService.addFragmentEntryLink(
+			_group.getGroupId(), 0, _fragmentEntry.getFragmentEntryId(),
+			PortalUtil.getClassNameId(Layout.class),
+			RandomTestUtil.randomLong(), _fragmentEntry.getCss(),
+			_fragmentEntry.getHtml(), _fragmentEntry.getJs(),
+			_fragmentEntry.getConfiguration(), StringPool.BLANK,
+			StringPool.BLANK, 0, null, serviceContext);
 	}
 
 	@Test
-	public void testAddMultipleFragmentEntryLinks() throws PortalException {
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(
-				_group.getGroupId(), TestPropsValues.getUserId());
-
-		long classPK = RandomTestUtil.randomLong();
-
-		FragmentCollection fragmentCollection =
-			FragmentCollectionLocalServiceUtil.addFragmentCollection(
-				TestPropsValues.getUserId(), _group.getGroupId(),
-				"Fragment Collection", StringPool.BLANK, serviceContext);
-
-		FragmentEntry fragmentEntry =
-			FragmentEntryLocalServiceUtil.addFragmentEntry(
-				TestPropsValues.getUserId(), _group.getGroupId(),
-				fragmentCollection.getFragmentCollectionId(), "Fragment Name",
-				StringPool.BLANK, "<div>test</div>", StringPool.BLANK,
-				WorkflowConstants.STATUS_APPROVED, serviceContext);
-
-		List<FragmentEntryLink> originalFragmentEntryLinks =
-			FragmentEntryLinkLocalServiceUtil.getFragmentEntryLinks(
-				QueryUtil.ALL_POS, QueryUtil.ALL_POS);
-
-		FragmentEntryLinkLocalServiceUtil.addFragmentEntryLink(
-			TestPropsValues.getUserId(), _group.getGroupId(),
-			fragmentEntry.getFragmentEntryId(),
-			PortalUtil.getClassNameId(Layout.class), classPK,
-			fragmentEntry.getCss(), fragmentEntry.getHtml(),
-			fragmentEntry.getJs(), StringPool.BLANK, 0, serviceContext);
-
-		FragmentEntryLinkLocalServiceUtil.addFragmentEntryLink(
-			TestPropsValues.getUserId(), _group.getGroupId(),
-			fragmentEntry.getFragmentEntryId(),
-			PortalUtil.getClassNameId(Layout.class), classPK,
-			fragmentEntry.getCss(), fragmentEntry.getHtml(),
-			fragmentEntry.getJs(), StringPool.BLANK, 1, serviceContext);
-
-		List<FragmentEntryLink> actualFragmentEntryLinks =
-			FragmentEntryLinkLocalServiceUtil.getFragmentEntryLinks(
-				QueryUtil.ALL_POS, QueryUtil.ALL_POS);
-
-		Assert.assertEquals(
-			actualFragmentEntryLinks.toString(),
-			originalFragmentEntryLinks.size() + 2,
-			actualFragmentEntryLinks.size());
-	}
-
-	@Test
-	public void testDeleteFragmentEntryLink() throws PortalException {
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(
-				_group.getGroupId(), TestPropsValues.getUserId());
-
-		long classPK = RandomTestUtil.randomLong();
-
-		FragmentCollection fragmentCollection =
-			FragmentCollectionLocalServiceUtil.addFragmentCollection(
-				TestPropsValues.getUserId(), _group.getGroupId(),
-				"Fragment Collection", StringPool.BLANK, serviceContext);
-
-		FragmentEntry fragmentEntry =
-			FragmentEntryLocalServiceUtil.addFragmentEntry(
-				TestPropsValues.getUserId(), _group.getGroupId(),
-				fragmentCollection.getFragmentCollectionId(), "Fragment Name",
-				StringPool.BLANK, "<div>test</div>", StringPool.BLANK,
-				WorkflowConstants.STATUS_APPROVED, serviceContext);
-
+	public void testDeleteFragmentEntryLink() throws Exception {
 		FragmentEntryLink fragmentEntryLink =
-			FragmentEntryLinkLocalServiceUtil.addFragmentEntryLink(
-				TestPropsValues.getUserId(), _group.getGroupId(),
-				fragmentEntry.getFragmentEntryId(),
-				PortalUtil.getClassNameId(Layout.class), classPK,
-				fragmentEntry.getCss(), fragmentEntry.getHtml(),
-				fragmentEntry.getJs(), StringPool.BLANK, 0, serviceContext);
+			FragmentTestUtil.addFragmentEntryLink(
+				_fragmentEntry, PortalUtil.getClassNameId(Layout.class),
+				_layout.getPlid());
 
-		FragmentEntryLinkLocalServiceUtil.deleteFragmentEntryLink(
+		_addSiteMemberUpdatePermission();
+
+		ServiceTestUtil.setUser(_groupUser);
+
+		_fragmentEntryLinkService.deleteFragmentEntryLink(
 			fragmentEntryLink.getFragmentEntryLinkId());
 
 		Assert.assertNull(
-			FragmentEntryLinkLocalServiceUtil.fetchFragmentEntryLink(
+			_fragmentEntryLinkPersistence.fetchByPrimaryKey(
 				fragmentEntryLink.getFragmentEntryLinkId()));
 	}
 
+	@Test(expected = PrincipalException.MustHavePermission.class)
+	public void testDeleteFragmentEntryLinkWithoutPermissions()
+		throws Exception {
+
+		FragmentEntryLink fragmentEntryLink =
+			FragmentTestUtil.addFragmentEntryLink(
+				_fragmentEntry, PortalUtil.getClassNameId(Layout.class),
+				RandomTestUtil.randomLong());
+
+		ServiceTestUtil.setUser(_groupUser);
+
+		_fragmentEntryLinkService.deleteFragmentEntryLink(
+			fragmentEntryLink.getFragmentEntryLinkId());
+	}
+
 	@Test
-	public void testDeleteFragmentEntryLinks() throws PortalException {
+	public void testUpdateFragmentEntryLink() throws Exception {
+		String editableValues = _createEditableValues();
+
+		FragmentEntryLink fragmentEntryLink =
+			FragmentTestUtil.addFragmentEntryLink(
+				_fragmentEntry, PortalUtil.getClassNameId(Layout.class),
+				_layout.getPlid());
+
+		_addSiteMemberUpdatePermission();
+
+		ServiceTestUtil.setUser(_groupUser);
+
+		_fragmentEntryLinkService.updateFragmentEntryLink(
+			fragmentEntryLink.getFragmentEntryLinkId(), editableValues);
+
+		FragmentEntryLink persistedFragmentEntryLink =
+			_fragmentEntryLinkPersistence.findByPrimaryKey(
+				fragmentEntryLink.getFragmentEntryLinkId());
+
+		Assert.assertEquals(fragmentEntryLink, persistedFragmentEntryLink);
+		Assert.assertEquals(
+			editableValues, persistedFragmentEntryLink.getEditableValues());
+	}
+
+	@Test
+	public void testUpdateFragmentEntryLinks() throws Exception {
+		String editableValues = _createEditableValues();
+
+		FragmentEntry fragmentEntry = FragmentEntryTestUtil.addFragmentEntry(
+			_fragmentCollection.getFragmentCollectionId());
+
+		long[] fragmentEntryIds = {
+			_fragmentEntry.getFragmentEntryId(),
+			fragmentEntry.getFragmentEntryId()
+		};
+
+		FragmentTestUtil.addFragmentEntryLink(
+			fragmentEntry, PortalUtil.getClassNameId(Layout.class),
+			_layout.getPlid());
+
+		_addSiteMemberUpdatePermission();
+
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
-				_group.getGroupId(), TestPropsValues.getUserId());
+				_group, _groupUser.getUserId());
+
+		ServiceTestUtil.setUser(_groupUser);
+
+		List<FragmentEntryLink> originalFragmentEntryLinks =
+			_fragmentEntryLinkPersistence.findByG_C_C(
+				_group.getGroupId(), PortalUtil.getClassNameId(Layout.class),
+				_layout.getPlid());
+
+		_fragmentEntryLinkService.updateFragmentEntryLinks(
+			_group.getGroupId(), PortalUtil.getClassNameId(Layout.class),
+			_layout.getPlid(), fragmentEntryIds, editableValues,
+			serviceContext);
+
+		List<FragmentEntryLink> actualFragmentEntryLinks =
+			_fragmentEntryLinkPersistence.findByG_C_C(
+				_group.getGroupId(), PortalUtil.getClassNameId(Layout.class),
+				_layout.getPlid());
+
+		Assert.assertEquals(
+			actualFragmentEntryLinks.toString(),
+			originalFragmentEntryLinks.size() + 1,
+			actualFragmentEntryLinks.size());
+	}
+
+	@Test(expected = PrincipalException.MustHavePermission.class)
+	public void testUpdateFragmentEntryLinksWithoutPermissions()
+		throws Exception {
+
+		FragmentEntry fragmentEntry = FragmentEntryTestUtil.addFragmentEntry(
+			_fragmentCollection.getFragmentCollectionId());
 
 		long classPK = RandomTestUtil.randomLong();
 
-		FragmentCollection fragmentCollection =
-			FragmentCollectionLocalServiceUtil.addFragmentCollection(
-				TestPropsValues.getUserId(), _group.getGroupId(),
-				"Fragment Collection", StringPool.BLANK, serviceContext);
+		FragmentTestUtil.addFragmentEntryLink(
+			fragmentEntry, PortalUtil.getClassNameId(Layout.class), classPK);
 
-		FragmentEntry fragmentEntry =
-			FragmentEntryLocalServiceUtil.addFragmentEntry(
-				TestPropsValues.getUserId(), _group.getGroupId(),
-				fragmentCollection.getFragmentCollectionId(), "Fragment Name",
-				StringPool.BLANK, "<div>test</div>", StringPool.BLANK,
-				WorkflowConstants.STATUS_APPROVED, serviceContext);
+		long[] fragmentEntryIds = {
+			_fragmentEntry.getFragmentEntryId(),
+			fragmentEntry.getFragmentEntryId()
+		};
 
-		FragmentEntryLink fragmentEntryLink1 =
-			FragmentEntryLinkLocalServiceUtil.addFragmentEntryLink(
-				TestPropsValues.getUserId(), _group.getGroupId(),
-				fragmentEntry.getFragmentEntryId(),
-				PortalUtil.getClassNameId(Layout.class), classPK,
-				fragmentEntry.getCss(), fragmentEntry.getHtml(),
-				fragmentEntry.getJs(), StringPool.BLANK, 0, serviceContext);
-
-		FragmentEntryLink fragmentEntryLink2 =
-			FragmentEntryLinkLocalServiceUtil.addFragmentEntryLink(
-				TestPropsValues.getUserId(), _group.getGroupId(),
-				fragmentEntry.getFragmentEntryId(),
-				PortalUtil.getClassNameId(Layout.class), classPK,
-				fragmentEntry.getCss(), fragmentEntry.getHtml(),
-				fragmentEntry.getJs(), StringPool.BLANK, 0, serviceContext);
-
-		FragmentEntryLinkLocalServiceUtil.deleteFragmentEntryLinks(
-			_group.getGroupId());
-
-		Assert.assertNull(
-			FragmentEntryLinkLocalServiceUtil.fetchFragmentEntryLink(
-				fragmentEntryLink1.getFragmentEntryLinkId()));
-
-		Assert.assertNull(
-			FragmentEntryLinkLocalServiceUtil.fetchFragmentEntryLink(
-				fragmentEntryLink2.getFragmentEntryLinkId()));
-	}
-
-	@Test
-	public void testUpdateFragmentEntryLinkPosition() throws PortalException {
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
-				_group.getGroupId(), TestPropsValues.getUserId());
+				_group, _groupUser.getUserId());
 
-		FragmentCollection fragmentCollection =
-			FragmentCollectionLocalServiceUtil.addFragmentCollection(
-				TestPropsValues.getUserId(), _group.getGroupId(),
-				"Fragment Collection", StringPool.BLANK, serviceContext);
+		ServiceTestUtil.setUser(_groupUser);
 
-		FragmentEntry fragmentEntry =
-			FragmentEntryLocalServiceUtil.addFragmentEntry(
-				TestPropsValues.getUserId(), _group.getGroupId(),
-				fragmentCollection.getFragmentCollectionId(), "Fragment Name",
-				StringPool.BLANK, "<div>test</div>", StringPool.BLANK,
-				WorkflowConstants.STATUS_APPROVED, serviceContext);
+		_fragmentEntryLinkService.updateFragmentEntryLinks(
+			_group.getGroupId(), PortalUtil.getClassNameId(Layout.class),
+			classPK, fragmentEntryIds, RandomTestUtil.randomString(),
+			serviceContext);
+	}
+
+	@Test(expected = PrincipalException.MustHavePermission.class)
+	public void testUpdateFragmentEntryLinkWithoutPermissions()
+		throws Exception {
 
 		FragmentEntryLink fragmentEntryLink =
-			FragmentEntryLinkLocalServiceUtil.addFragmentEntryLink(
-				TestPropsValues.getUserId(), _group.getGroupId(),
-				fragmentEntry.getFragmentEntryId(),
-				PortalUtil.getClassNameId(Layout.class),
-				RandomTestUtil.randomLong(), fragmentEntry.getCss(),
-				fragmentEntry.getHtml(), fragmentEntry.getJs(),
-				StringPool.BLANK, 0, serviceContext);
+			FragmentTestUtil.addFragmentEntryLink(
+				_fragmentEntry, PortalUtil.getClassNameId(Layout.class),
+				RandomTestUtil.randomLong());
 
-		fragmentEntryLink =
-			FragmentEntryLinkLocalServiceUtil.updateFragmentEntryLink(
-				fragmentEntryLink.getFragmentEntryLinkId(), 1);
+		ServiceTestUtil.setUser(_groupUser);
 
-		Assert.assertEquals(1, fragmentEntryLink.getPosition());
+		_fragmentEntryLinkService.updateFragmentEntryLink(
+			fragmentEntryLink.getFragmentEntryLinkId(),
+			RandomTestUtil.randomString());
 	}
+
+	private void _addSiteMemberUpdatePermission() throws Exception {
+		Role siteMemberRole = _roleLocalService.getRole(
+			TestPropsValues.getCompanyId(), RoleConstants.SITE_MEMBER);
+
+		ResourcePermissionLocalServiceUtil.addResourcePermission(
+			TestPropsValues.getCompanyId(),
+			"com.liferay.portal.kernel.model.Layout",
+			ResourceConstants.SCOPE_GROUP, String.valueOf(_group.getGroupId()),
+			siteMemberRole.getRoleId(), ActionKeys.UPDATE);
+	}
+
+	private String _createEditableValues() {
+		JSONObject jsonObject = JSONUtil.put(
+			RandomTestUtil.randomString(), RandomTestUtil.randomString());
+
+		return jsonObject.toString();
+	}
+
+	private FragmentCollection _fragmentCollection;
+	private FragmentEntry _fragmentEntry;
+
+	@Inject
+	private FragmentEntryLinkPersistence _fragmentEntryLinkPersistence;
+
+	@Inject
+	private FragmentEntryLinkService _fragmentEntryLinkService;
 
 	@DeleteAfterTestRun
 	private Group _group;
+
+	@DeleteAfterTestRun
+	private User _groupUser;
+
+	private Layout _layout;
+
+	@Inject
+	private RoleLocalService _roleLocalService;
 
 }

@@ -14,10 +14,9 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the remote service utility for Theme. This utility wraps
@@ -63,9 +62,6 @@ public class ThemeServiceUtil {
 		if (_service == null) {
 			_service = (ThemeService)PortalBeanLocatorUtil.locate(
 				ThemeService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				ThemeServiceUtil.class, "_service");
 		}
 
 		return _service;

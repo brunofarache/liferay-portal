@@ -14,16 +14,16 @@
 
 package com.liferay.fragment.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
- * This class is used by SOAP remote services.
+ * This class is used by SOAP remote services, specifically {@link com.liferay.fragment.service.http.FragmentEntryLinkServiceSoap}.
  *
  * @author Brian Wing Shun Chan
  * @generated
@@ -50,10 +50,12 @@ public class FragmentEntryLinkSoap implements Serializable {
 		soapModel.setCss(model.getCss());
 		soapModel.setHtml(model.getHtml());
 		soapModel.setJs(model.getJs());
+		soapModel.setConfiguration(model.getConfiguration());
 		soapModel.setEditableValues(model.getEditableValues());
-		soapModel.setPosition(model.getPosition());
-		soapModel.setLastPropagationDate(model.getLastPropagationDate());
 		soapModel.setNamespace(model.getNamespace());
+		soapModel.setPosition(model.getPosition());
+		soapModel.setRendererKey(model.getRendererKey());
+		soapModel.setLastPropagationDate(model.getLastPropagationDate());
 		soapModel.setLastPublishDate(model.getLastPublishDate());
 
 		return soapModel;
@@ -238,12 +240,28 @@ public class FragmentEntryLinkSoap implements Serializable {
 		_js = js;
 	}
 
+	public String getConfiguration() {
+		return _configuration;
+	}
+
+	public void setConfiguration(String configuration) {
+		_configuration = configuration;
+	}
+
 	public String getEditableValues() {
 		return _editableValues;
 	}
 
 	public void setEditableValues(String editableValues) {
 		_editableValues = editableValues;
+	}
+
+	public String getNamespace() {
+		return _namespace;
+	}
+
+	public void setNamespace(String namespace) {
+		_namespace = namespace;
 	}
 
 	public int getPosition() {
@@ -254,20 +272,20 @@ public class FragmentEntryLinkSoap implements Serializable {
 		_position = position;
 	}
 
+	public String getRendererKey() {
+		return _rendererKey;
+	}
+
+	public void setRendererKey(String rendererKey) {
+		_rendererKey = rendererKey;
+	}
+
 	public Date getLastPropagationDate() {
 		return _lastPropagationDate;
 	}
 
 	public void setLastPropagationDate(Date lastPropagationDate) {
 		_lastPropagationDate = lastPropagationDate;
-	}
-
-	public String getNamespace() {
-		return _namespace;
-	}
-
-	public void setNamespace(String namespace) {
-		_namespace = namespace;
 	}
 
 	public Date getLastPublishDate() {
@@ -293,10 +311,12 @@ public class FragmentEntryLinkSoap implements Serializable {
 	private String _css;
 	private String _html;
 	private String _js;
+	private String _configuration;
 	private String _editableValues;
-	private int _position;
-	private Date _lastPropagationDate;
 	private String _namespace;
+	private int _position;
+	private String _rendererKey;
+	private Date _lastPropagationDate;
 	private Date _lastPublishDate;
 
 }

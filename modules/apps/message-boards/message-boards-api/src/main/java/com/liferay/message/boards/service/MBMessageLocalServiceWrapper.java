@@ -14,9 +14,9 @@
 
 package com.liferay.message.boards.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.service.ServiceWrapper;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link MBMessageLocalService}.
@@ -657,6 +657,14 @@ public class MBMessageLocalServiceWrapper
 		return _mbMessageLocalService.getIndexableActionableDynamicQuery();
 	}
 
+	@Override
+	public com.liferay.message.boards.model.MBMessage getLastThreadMessage(
+			long threadId, int status)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _mbMessageLocalService.getLastThreadMessage(threadId, status);
+	}
+
 	/**
 	 * Returns the message-boards message with the primary key.
 	 *
@@ -864,8 +872,8 @@ public class MBMessageLocalServiceWrapper
 	}
 
 	/**
-	 * @deprecated As of Judson (7.1.x), replaced by {@link #getRootDiscussionMessages(
-	 String, long, int)}
+	 * @deprecated As of Judson (7.1.x), replaced by {@link
+	 #getRootDiscussionMessages(String, long, int)}
 	 */
 	@Deprecated
 	@Override
@@ -878,8 +886,8 @@ public class MBMessageLocalServiceWrapper
 	}
 
 	/**
-	 * @deprecated As of Judson (7.1.x), replaced by {@link #getRootDiscussionMessages(
-	 String, long, int, int, int)}
+	 * @deprecated As of Judson (7.1.x), replaced by {@link
+	 #getRootDiscussionMessages(String, long, int, int, int)}
 	 */
 	@Deprecated
 	@Override

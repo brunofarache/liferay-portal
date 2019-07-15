@@ -17,13 +17,7 @@
 <%@ include file="/init.jsp" %>
 
 <%
-String redirect = ParamUtil.getString(request, "redirect");
-
-if (Validator.isNull(redirect)) {
-	PortletURL portletURL = renderResponse.createRenderURL();
-
-	redirect = portletURL.toString();
-}
+String redirect = PortalUtil.getLayoutFullURL(layout, themeDisplay);
 %>
 
 <div class="container-fluid-1280">
@@ -61,7 +55,11 @@ if (Validator.isNull(redirect)) {
 
 						<%
 						for (AssetPublisherAddItemHolder assetPublisherAddItemHolder : assetPublisherAddItemHolders) {
+							Map<String, Object> data = new HashMap<String, Object>();
+
 							String message = assetPublisherAddItemHolder.getModelResource();
+
+							data.put("title", LanguageUtil.format((HttpServletRequest)pageContext.getRequest(), "new-x", HtmlUtil.escape(message), false));
 
 							long curGroupId = groupId;
 
@@ -71,10 +69,11 @@ if (Validator.isNull(redirect)) {
 								curGroupId = group.getLiveGroupId();
 							}
 
-							Map<String, Object> data = new HashMap<String, Object>();
+							PortletURL portletURL = assetPublisherAddItemHolder.getPortletURL();
 
-							data.put("title", LanguageUtil.format((HttpServletRequest)pageContext.getRequest(), "new-x", HtmlUtil.escape(message), false));
-							data.put("url", assetHelper.getAddURLPopUp(curGroupId, plid, assetPublisherAddItemHolder.getPortletURL(), false, null));
+							portletURL.setParameter("redirect", redirect);
+
+							data.put("url", assetHelper.getAddURLPopUp(curGroupId, plid, portletURL, false, null));
 						%>
 
 							<aui:option data="<%= data %>" label="<%= HtmlUtil.escape(message) %>" />
@@ -106,19 +105,14 @@ if (Validator.isNull(redirect)) {
 
 <aui:script>
 	function <portlet:namespace />addAssetEntry() {
-		var A = AUI();
+		const visibleItem = document.querySelector('.asset-entry-type:not(.hide)');
 
-		var visibleItem = A.one('.asset-entry-type:not(.hide)');
+		const assetEntryTypeSelector = visibleItem.querySelector('.asset-entry-type-select');
 
-		var assetEntryTypeSelector = visibleItem.one('.asset-entry-type-select');
+		const selectedOption = assetEntryTypeSelector.options[
+			assetEntryTypeSelector.selectedIndex
+		];
 
-		var index = assetEntryTypeSelector.get('selectedIndex');
-
-		var selectedOption = assetEntryTypeSelector.get('options').item(index);
-
-		var title = selectedOption.attr('data-title');
-		var url = selectedOption.attr('data-url');
-
-		Liferay.Util.navigate(url);
+		Liferay.Util.navigate(selectedOption.dataset.url);
 	}
 </aui:script>

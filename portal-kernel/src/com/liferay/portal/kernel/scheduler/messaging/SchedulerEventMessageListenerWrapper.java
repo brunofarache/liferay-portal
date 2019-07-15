@@ -14,6 +14,7 @@
 
 package com.liferay.portal.kernel.scheduler.messaging;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.DestinationNames;
@@ -32,7 +33,6 @@ import com.liferay.portal.kernel.scheduler.TriggerState;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -100,22 +100,6 @@ public class SchedulerEventMessageListenerWrapper
 		finally {
 			_lock.unlock();
 		}
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x)
-	 */
-	@Deprecated
-	public void setGroupName(String groupName) {
-		_groupName = groupName;
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x)
-	 */
-	@Deprecated
-	public void setJobName(String jobName) {
-		_jobName = jobName;
 	}
 
 	public void setMessageListener(MessageListener messageListener) {
@@ -204,20 +188,6 @@ public class SchedulerEventMessageListenerWrapper
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		SchedulerEventMessageListenerWrapper.class);
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x)
-	 */
-	@Deprecated
-	@SuppressWarnings("unused")
-	private String _groupName;
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x)
-	 */
-	@Deprecated
-	@SuppressWarnings("unused")
-	private String _jobName;
 
 	private final Lock _lock = new ReentrantLock();
 	private MessageListener _messageListener;

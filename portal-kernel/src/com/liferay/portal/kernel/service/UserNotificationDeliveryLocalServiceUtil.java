@@ -14,10 +14,9 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service utility for UserNotificationDelivery. This utility wraps
@@ -343,9 +342,6 @@ public class UserNotificationDeliveryLocalServiceUtil {
 				(UserNotificationDeliveryLocalService)
 					PortalBeanLocatorUtil.locate(
 						UserNotificationDeliveryLocalService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				UserNotificationDeliveryLocalServiceUtil.class, "_service");
 		}
 
 		return _service;

@@ -14,8 +14,6 @@
 
 package com.liferay.layout.page.template.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.ShardedModel;
@@ -24,6 +22,8 @@ import com.liferay.portal.kernel.model.TypedModel;
 import com.liferay.portal.kernel.model.WorkflowedModel;
 
 import java.util.Date;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The base model interface for the LayoutPageTemplateEntry service. Represents a row in the &quot;LayoutPageTemplateEntry&quot; database table, with each column mapped to a property of this class.
@@ -339,6 +339,20 @@ public interface LayoutPageTemplateEntryModel
 	public void setLayoutPrototypeId(long layoutPrototypeId);
 
 	/**
+	 * Returns the plid of this layout page template entry.
+	 *
+	 * @return the plid of this layout page template entry
+	 */
+	public long getPlid();
+
+	/**
+	 * Sets the plid of this layout page template entry.
+	 *
+	 * @param plid the plid of this layout page template entry
+	 */
+	public void setPlid(long plid);
+
+	/**
 	 * Returns the last publish date of this layout page template entry.
 	 *
 	 * @return the last publish date of this layout page template entry
@@ -353,20 +367,6 @@ public interface LayoutPageTemplateEntryModel
 	 */
 	@Override
 	public void setLastPublishDate(Date lastPublishDate);
-
-	/**
-	 * Returns the plid of this layout page template entry.
-	 *
-	 * @return the plid of this layout page template entry
-	 */
-	public long getPlid();
-
-	/**
-	 * Sets the plid of this layout page template entry.
-	 *
-	 * @param plid the plid of this layout page template entry
-	 */
-	public void setPlid(long plid);
 
 	/**
 	 * Returns the status of this layout page template entry.

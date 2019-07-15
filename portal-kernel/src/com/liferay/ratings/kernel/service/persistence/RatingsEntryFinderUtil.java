@@ -14,10 +14,9 @@
 
 package com.liferay.ratings.kernel.service.persistence;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Brian Wing Shun Chan
@@ -47,9 +46,6 @@ public class RatingsEntryFinderUtil {
 		if (_finder == null) {
 			_finder = (RatingsEntryFinder)PortalBeanLocatorUtil.locate(
 				RatingsEntryFinder.class.getName());
-
-			ReferenceRegistry.registerReference(
-				RatingsEntryFinderUtil.class, "_finder");
 		}
 
 		return _finder;
@@ -57,9 +53,6 @@ public class RatingsEntryFinderUtil {
 
 	public void setFinder(RatingsEntryFinder finder) {
 		_finder = finder;
-
-		ReferenceRegistry.registerReference(
-			RatingsEntryFinderUtil.class, "_finder");
 	}
 
 	private static RatingsEntryFinder _finder;

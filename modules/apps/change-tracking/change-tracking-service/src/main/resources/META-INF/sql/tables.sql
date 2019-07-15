@@ -6,7 +6,7 @@ create table CTCollection (
 	createDate DATE null,
 	modifiedDate DATE null,
 	name VARCHAR(75) null,
-	description VARCHAR(75) null,
+	description VARCHAR(200) null,
 	status INTEGER,
 	statusByUserId LONG,
 	statusByUserName VARCHAR(75) null,
@@ -34,10 +34,12 @@ create table CTEntry (
 	userName VARCHAR(75) null,
 	createDate DATE null,
 	modifiedDate DATE null,
+	originalCTCollectionId LONG,
 	modelClassNameId LONG,
 	modelClassPK LONG,
 	modelResourcePrimKey LONG,
 	changeType INTEGER,
+	collision BOOLEAN,
 	status INTEGER
 );
 

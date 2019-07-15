@@ -1,12 +1,17 @@
-$grayLineColor: #E7E7ED;
-$grayTextColor: #6B6C7E;
+$grayLineColor: #e7e7ed;
+$grayTextColor: #6b6c7e;
 
-.assign-scopes-modal {
-	max-width: 100%;
+$removedItemHighlightColor: #ffeef0;
+$addedItemHighlightColor: #e6ffed;
 
-	.inline {
-		display: inline-block;
-	}
+.modal-full-screen {
+	max-height: 80vh !important;
+	max-width: 80vw !important;
+	width: 800px;
+}
+
+.assign-scopes-modal .inline {
+	display: inline-block;
 }
 
 .edit-client-credentials-modal {
@@ -17,6 +22,30 @@ $grayTextColor: #6B6C7E;
 	.padlock {
 		flex: 1;
 	}
+}
+
+.removed-scope {
+	background-color: $removedItemHighlightColor;
+}
+
+.removed-scope.panel .list-group-item {
+	background-color: $removedItemHighlightColor;
+}
+
+.added-scope {
+	background-color: $addedItemHighlightColor;
+}
+
+.badge.removed-scope-alias {
+	background-color: #ffeef0 !important;
+	border-color: #ff0000 !important;
+	border-width: 1px !important;
+}
+
+.badge.added-scope-alias {
+	background-color: #e6ffed !important;
+	border-color: #00ff00 !important;
+	border-width: 1px !important;
 }
 
 .portlet-oauth2-provider-admin {
@@ -46,7 +75,7 @@ $grayTextColor: #6B6C7E;
 			margin-top: 1.6rem;
 		}
 		.input-text-wrapper {
-			margin-right: 4rem;
+			margin-right: 5rem;
 		}
 	}
 
@@ -61,7 +90,8 @@ $grayTextColor: #6B6C7E;
 			padding: 1.25rem;
 		}
 
-		.app-icon, .user-icon {
+		.app-icon,
+		.user-icon {
 			display: inline-block;
 			height: 80px;
 			margin-bottom: 1.25rem;
@@ -117,7 +147,9 @@ $grayTextColor: #6B6C7E;
 			}
 		}
 
-		.application-information, .last-access, .authorization {
+		.application-information,
+		.last-access,
+		.authorization {
 			span {
 				color: $grayTextColor;
 			}
@@ -142,7 +174,8 @@ $grayTextColor: #6B6C7E;
 			padding: 1.25rem;
 		}
 
-		.activity, .permissions {
+		.activity,
+		.permissions {
 			border-bottom: 1px solid $grayLineColor;
 			margin-bottom: 1rem;
 			margin-top: 2rem;
@@ -154,8 +187,8 @@ $grayTextColor: #6B6C7E;
 		}
 
 		.remove-access {
-			border-color: #DA1414;
-			color: #DA1414;
+			border-color: #da1414;
+			color: #da1414;
 		}
 	}
 }

@@ -1,6 +1,6 @@
-@import "bourbon";
-@import "mixins";
-@import "variables";
+@import 'bourbon';
+@import 'mixins';
+@import 'variables';
 
 body {
 	&.open #wrapper {
@@ -9,13 +9,15 @@ body {
 		}
 	}
 
-	&.open .control-menu, &.open .affix {
+	&.open .control-menu,
+	&.open .affix {
 		@include sm() {
 			left: $product-menu-width;
 		}
 	}
 
-	&.open, &.sidenav-transition {
+	&.open,
+	&.sidenav-transition {
 		@include sm() {
 			overflow-x: hidden;
 		}
@@ -60,43 +62,26 @@ body {
 
 .product-menu {
 	.form-control {
-		background-color: #1B2228;
+		background-color: #1b2228;
 		border-radius: 0;
 		border-width: 0;
 		box-shadow: none;
-		color: #869CAD;
+		color: #869cad;
 		height: 40px;
 		padding: 8px 12px;
 
 		@include placeholder {
-			color: #869CAD;
+			color: #869cad;
 		}
 
 		&:focus {
-			color: #FFF;
+			background-color: #1b2228;
+			box-shadow: $product-menu-focus-box-shadow;
+			color: #fff;
 
 			@include placeholder {
-				color: #FFF;
+				color: #fff;
 			}
-		}
-	}
-}
-
-.product-menu {
-	.collapse-icon {
-		&:before {
-			right: 25px;
-		}
-	}
-}
-
-.product-menu {
-	.lfr-icon-menu .btn-default {
-		background-color: transparent;
-
-		&:active {
-			box-shadow: none;
-			color: $product-menu-nav-link-color;
 		}
 	}
 }
@@ -104,9 +89,27 @@ body {
 .product-menu {
 	a {
 		color: $product-menu-nav-link-color;
+		outline: 0;
+		position: relative;
 
 		&:hover {
 			color: $product-menu-nav-link-color;
+		}
+
+		&:focus:before {
+			box-shadow: $product-menu-focus-box-shadow;
+		}
+
+		&:before {
+			border-radius: 4px;
+			bottom: -2px;
+			content: '';
+			display: block;
+			left: -2px;
+			position: absolute;
+			right: -2px;
+			top: -2px;
+			transition: box-shadow 0.15s ease-in-out;
 		}
 	}
 
@@ -115,61 +118,26 @@ body {
 	}
 
 	.nav-equal-height {
-		.nav > .active, > .active {
+		.nav > .active,
+		> .active {
 			border-left: 4px solid $product-menu-nav-link-active-color;
 			font-weight: 700;
 			margin-left: -24px;
 			padding-left: 20px;
 		}
 
-		> .active > a, .nav > .active > a {
-			&, &:focus, &:hover {
+		> .active > a,
+		.nav > .active > a {
+			&,
+			&:focus,
+			&:hover {
 				color: $product-menu-nav-link-active-color;
 			}
 		}
 
-		> .active, .nav > .active {
+		> .active,
+		.nav > .active {
 			border-left-color: $product-menu-nav-link-active-color;
-		}
-	}
-
-	.nav-equal-height-heading {
-		&:focus, &:hover {
-			background-color: transparent;
-		}
-
-		.collapse-icon {
-			&:after, &.collapsed:after {
-				background-color: $product-menu-collapse-icon-bg;
-				height: 12px;
-			}
-
-			&:before {
-				color: $product-menu-nav-link-color;
-				content: $product-menu-nav-equal-height-heading-open-collapse-icon;
-				font-size: 15px;
-				left: -8px;
-			}
-
-			&.collapsed:before {
-				content: $product-menu-nav-equal-height-heading-closed-collapse-icon;
-			}
-		}
-	}
-
-	.nav-nested-margins > li .nav > li {
-		border-left: 2px solid $product-menu-nav-link-color;
-
-		.nav > li {
-			border-left: 1px dotted $product-menu-nav-link-color;
-
-			&.active {
-				border-left: 1px solid $product-menu-nav-link-active-color;
-
-				> a {
-					color: $product-menu-nav-link-active-color;
-				}
-			}
 		}
 	}
 }
@@ -182,7 +150,8 @@ body {
 		a {
 			color: $product-menu-header-link-color;
 
-			&:focus, &:hover {
+			&:focus,
+			&:hover {
 				color: $product-menu-header-link-hover-color;
 			}
 		}
@@ -190,7 +159,10 @@ body {
 }
 
 .product-menu {
-	a.list-group-heading, button.list-group-heading, .list-group-heading[data-toggle="collapse"] {
+	a.list-group-heading,
+	button.list-group-heading,
+	.list-group-heading[data-toggle='collapse'] {
+		border-color: transparent;
 		color: $product-menu-list-group-heading-color;
 	}
 
@@ -201,10 +173,16 @@ body {
 
 	.list-group-heading.goto-link {
 		color: $product-menu-nav-link-color;
+		display: inline-flex;
 		font-size: 0.8rem;
+		max-width: 100%;
 
 		&:hover {
 			text-decoration: underline;
+		}
+
+		&:before {
+			right: 4px;
 		}
 	}
 
@@ -235,24 +213,36 @@ body {
 		@include word-wrap(normal);
 
 		&.active {
-			background-color: $product-menu-list-group-heading-active-bg;
+			&,
+			&:hover,
+			&:focus {
+				background-color: $product-menu-list-group-heading-active-bg;
+			}
 
 			+ div {
 				background-color: $product-menu-list-group-heading-active-bg;
 			}
 		}
 
-		&:after {
-			background-color: $product-menu-list-group-heading-border;
-			height: $product-menu-list-group-heading-border-width;
-		}
-
-		&:focus, &:hover {
+		&:focus,
+		&:hover {
 			background-color: $product-menu-list-group-heading-bg;
 		}
 
 		&.collapsed {
 			font-weight: 400;
+		}
+
+		&:before {
+			bottom: 4px;
+			left: 12px;
+			right: 8px;
+			top: 4px;
+		}
+
+		&:after {
+			background-color: $product-menu-list-group-heading-border;
+			height: $product-menu-list-group-heading-border-width;
 		}
 	}
 
@@ -267,20 +257,33 @@ body {
 		padding-left: 24px;
 	}
 
-	.list-group-item {
+	.list-group-item-field {
+		width: auto;
+	}
+
+	.list-group-item,
+	.list-group .list-group-item {
 		border-width: $product-menu-list-group-item-border-width;
+		color: $product-menu-nav-link-color;
 		padding: 8px 8px 8px 24px;
 	}
 
-	.collapse, .collapsing {
+	.collapse,
+	.collapsing {
 		> .list-group-item {
 			background-color: $product-menu-list-group-item-bg;
 		}
 	}
 
 	.nav > li > a {
-		&:focus, &:hover {
+		&:focus,
+		&:hover {
 			background-color: transparent;
+		}
+
+		&:before {
+			left: 0;
+			right: 0;
 		}
 	}
 }
@@ -313,17 +316,20 @@ body {
 		}
 
 		.panel-heading + .panel-collapse {
-			> .panel-body, > .list-group {
+			> .panel-body,
+			> .list-group {
 				border-top-width: 0;
 			}
 
-			&.in, &.collapsing {
+			&.in,
+			&.collapsing {
 				border-bottom: 2px solid $product-menu-panel-title-active-border;
 			}
 		}
 	}
 
-	.panel-header, .panel-heading {
+	.panel-header,
+	.panel-heading {
 		border-bottom-width: 1px;
 		font-size: inherit;
 		line-height: 1.5;
@@ -332,19 +338,36 @@ body {
 		.panel-title > .panel-toggler {
 			&:not(.collapsed) {
 				background-color: $product-menu-panel-title-active-bg;
-				border-left: $product-menu-panel-title-active-border-left-width $product-menu-panel-title-active-border-style $product-menu-panel-title-active-border;
+				border-left: $product-menu-panel-title-active-border-left-width
+					$product-menu-panel-title-active-border-style
+					$product-menu-panel-title-active-border;
 				font-weight: 700;
-				padding-left: 24px - $product-menu-panel-title-active-border-left-width;
+				padding-left: 24px -
+					$product-menu-panel-title-active-border-left-width;
 			}
 
-			.category-name, .user-name, .site-name {
+			&:hover {
+				text-decoration: none;
+			}
+
+			&:before {
+				bottom: 4px;
+				left: 8px;
+				right: 8px;
+				top: 4px;
+			}
+
+			.category-name,
+			.user-name,
+			.site-name {
 				color: $product-menu-panel-title-color;
 			}
 		}
 	}
 
 	.panel-header {
-		.collapse-icon-closed, .collapse-icon-open {
+		.collapse-icon-closed,
+		.collapse-icon-open {
 			font-size: inherit;
 			top: 50%;
 		}
@@ -354,10 +377,15 @@ body {
 			padding: 0;
 		}
 	}
+
+	.panel-header-link:focus {
+		box-shadow: none;
+	}
 }
 
 .product-menu {
-	.user-icon, .sticker {
+	.user-icon,
+	.sticker {
 		display: inline-block;
 		float: left;
 		margin-right: 16px;
@@ -382,7 +410,8 @@ body {
 
 .product-menu {
 	.staging-links {
-		a, .links-separator {
+		a,
+		.links-separator {
 			color: $product-menu-nav-link-color;
 		}
 

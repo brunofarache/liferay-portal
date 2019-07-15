@@ -18,20 +18,10 @@
 
 <%
 DLViewFileVersionDisplayContext dlViewFileVersionDisplayContext = (DLViewFileVersionDisplayContext)request.getAttribute("file_entry_upper_tbar.jsp-dlViewFileVersionDisplayContext");
+String documentTitle = GetterUtil.getString(request.getAttribute("file_entry_upper_tbar.jsp-documentTitle"));
 FileEntry fileEntry = (FileEntry)request.getAttribute("file_entry_upper_tbar.jsp-fileEntry");
 FileVersion fileVersion = (FileVersion)request.getAttribute("file_entry_upper_tbar.jsp-fileVersion");
-boolean versionSpecific = GetterUtil.getBoolean(request.getAttribute("file_entry_upper_tbar.jsp-versionSpecific"));
 %>
-
-<liferay-util:buffer
-	var="documentTitle"
->
-	<%= fileVersion.getTitle() %>
-
-	<c:if test="<%= versionSpecific %>">
-		(<liferay-ui:message key="version" /> <%= fileVersion.getVersion() %>)
-	</c:if>
-</liferay-util:buffer>
 
 <div class="upper-tbar-container-fixed">
 	<div class="tbar upper-tbar">
@@ -57,6 +47,8 @@ boolean versionSpecific = GetterUtil.getBoolean(request.getAttribute("file_entry
 						id='<%= liferayPortletResponse.getNamespace() + "OpenContextualSidebar" %>'
 						monospaced="true"
 						size="sm"
+						style="<%= false %>"
+						title='<%= LanguageUtil.get(resourceBundle, "info") %>'
 					/>
 				</li>
 
@@ -74,10 +66,10 @@ boolean versionSpecific = GetterUtil.getBoolean(request.getAttribute("file_entry
 						<clay:link
 							buttonStyle="primary"
 							elementClasses="btn-sm"
-							href="<%= DLURLHelperUtil.getDownloadURL(fileEntry, fileVersion, themeDisplay, StringPool.BLANK) %>"
+							href="<%= DLURLHelperUtil.getDownloadURL(fileEntry, fileVersion, themeDisplay, StringPool.BLANK, false, true) %>"
 							icon="download"
 							label='<%= LanguageUtil.get(resourceBundle, "download") %>'
-							title='<%= LanguageUtil.get(resourceBundle, "download") + " (" + TextFormatter.formatStorageSize(fileVersion.getSize(), locale) + ")" %>'
+							title='<%= LanguageUtil.format(resourceBundle, "file-size-x", TextFormatter.formatStorageSize(fileVersion.getSize(), locale), false) %>'
 						/>
 					</li>
 				</c:if>

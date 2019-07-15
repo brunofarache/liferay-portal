@@ -14,8 +14,7 @@
 
 package com.liferay.journal.service;
 
-import aQute.bnd.annotation.ProviderType;
-
+import org.osgi.annotation.versioning.ProviderType;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.util.tracker.ServiceTracker;
@@ -339,6 +338,23 @@ public class JournalArticleLocalServiceUtil {
 		return getService().addArticle(
 			userId, groupId, folderId, titleMap, descriptionMap, content,
 			ddmStructureKey, ddmTemplateKey, serviceContext);
+	}
+
+	public static com.liferay.journal.model.JournalArticle
+			addArticleDefaultValues(
+				long userId, long groupId, long classNameId, long classPK,
+				java.util.Map<java.util.Locale, String> titleMap,
+				java.util.Map<java.util.Locale, String> descriptionMap,
+				String content, String ddmStructureKey, String ddmTemplateKey,
+				String layoutUuid, boolean indexable, boolean smallImage,
+				String smallImageURL, java.io.File smallImageFile,
+				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().addArticleDefaultValues(
+			userId, groupId, classNameId, classPK, titleMap, descriptionMap,
+			content, ddmStructureKey, ddmTemplateKey, layoutUuid, indexable,
+			smallImage, smallImageURL, smallImageFile, serviceContext);
 	}
 
 	/**
@@ -926,6 +942,12 @@ public class JournalArticleLocalServiceUtil {
 		fetchArticleByUrlTitle(long groupId, String urlTitle) {
 
 		return getService().fetchArticleByUrlTitle(groupId, urlTitle);
+	}
+
+	public static com.liferay.journal.model.JournalArticle
+		fetchArticleByUrlTitle(long groupId, String urlTitle, double version) {
+
+		return getService().fetchArticleByUrlTitle(groupId, urlTitle, version);
 	}
 
 	public static com.liferay.journal.model.JournalArticle fetchDisplayArticle(
@@ -4228,6 +4250,23 @@ public class JournalArticleLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().updateArticle(id, urlTitle);
+	}
+
+	public static com.liferay.journal.model.JournalArticle
+			updateArticleDefaultValues(
+				long userId, long groupId, String articleId,
+				java.util.Map<java.util.Locale, String> titleMap,
+				java.util.Map<java.util.Locale, String> descriptionMap,
+				String content, String ddmStructureKey, String ddmTemplateKey,
+				String layoutUuid, boolean indexable, boolean smallImage,
+				String smallImageURL, java.io.File smallImageFile,
+				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().updateArticleDefaultValues(
+			userId, groupId, articleId, titleMap, descriptionMap, content,
+			ddmStructureKey, ddmTemplateKey, layoutUuid, indexable, smallImage,
+			smallImageURL, smallImageFile, serviceContext);
 	}
 
 	/**

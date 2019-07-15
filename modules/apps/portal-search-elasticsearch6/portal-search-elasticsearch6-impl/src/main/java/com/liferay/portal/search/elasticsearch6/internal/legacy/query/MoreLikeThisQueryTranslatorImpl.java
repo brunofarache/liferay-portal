@@ -16,8 +16,8 @@ package com.liferay.portal.search.elasticsearch6.internal.legacy.query;
 
 import com.liferay.portal.kernel.search.generic.MoreLikeThisQuery;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.search.elasticsearch6.internal.index.IndexNameBuilder;
 import com.liferay.portal.search.elasticsearch6.internal.util.DocumentTypes;
+import com.liferay.portal.search.index.IndexNameBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -71,9 +71,8 @@ public class MoreLikeThisQueryTranslatorImpl
 
 		MoreLikeThisQueryBuilder moreLikeThisQueryBuilder =
 			QueryBuilders.moreLikeThisQuery(
-				likeTexts.toArray(new String[likeTexts.size()]),
-				likeItems.toArray(
-					new MoreLikeThisQueryBuilder.Item[likeItems.size()]));
+				likeTexts.toArray(new String[0]),
+				likeItems.toArray(new MoreLikeThisQueryBuilder.Item[0]));
 
 		if (Validator.isNotNull(moreLikeThisQuery.getAnalyzer())) {
 			moreLikeThisQueryBuilder.analyzer(moreLikeThisQuery.getAnalyzer());
@@ -122,7 +121,7 @@ public class MoreLikeThisQueryTranslatorImpl
 
 		if (!stopWords.isEmpty()) {
 			moreLikeThisQueryBuilder.stopWords(
-				stopWords.toArray(new String[stopWords.size()]));
+				stopWords.toArray(new String[0]));
 		}
 
 		if (moreLikeThisQuery.getTermBoost() != null) {

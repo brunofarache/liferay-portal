@@ -14,8 +14,6 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebService;
@@ -26,6 +24,8 @@ import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
 
 import java.util.List;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the remote service interface for UserGroup. Methods of this
@@ -67,24 +67,6 @@ public interface UserGroupService extends BaseService {
 	 * @param userGroupIds the primary keys of the user groups
 	 */
 	public void addTeamUserGroups(long teamId, long[] userGroupIds)
-		throws PortalException;
-
-	/**
-	 * Adds a user group.
-	 *
-	 * <p>
-	 * This method handles the creation and bookkeeping of the user group,
-	 * including its resources, metadata, and internal data structures.
-	 * </p>
-	 *
-	 * @param name the user group's name
-	 * @param description the user group's description
-	 * @return the user group
-	 * @deprecated As of Newton (6.2.x), replaced by {@link
-	 #addUserGroup(String, String, ServiceContext)}
-	 */
-	@Deprecated
-	public UserGroup addUserGroup(String name, String description)
 		throws PortalException;
 
 	/**
@@ -187,21 +169,6 @@ public interface UserGroupService extends BaseService {
 	 * @param userGroupIds the primary keys of the user groups
 	 */
 	public void unsetTeamUserGroups(long teamId, long[] userGroupIds)
-		throws PortalException;
-
-	/**
-	 * Updates the user group.
-	 *
-	 * @param userGroupId the primary key of the user group
-	 * @param name the user group's name
-	 * @param description the the user group's description
-	 * @return the user group
-	 * @deprecated As of Newton (6.2.x), replaced by {@link
-	 #updateUserGroup(long, String, String, ServiceContext)}
-	 */
-	@Deprecated
-	public UserGroup updateUserGroup(
-			long userGroupId, String name, String description)
 		throws PortalException;
 
 	/**

@@ -14,8 +14,6 @@
 
 package com.liferay.staging.taglib.servlet.taglib;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.search.ResultRowSplitter;
 import com.liferay.staging.taglib.internal.servlet.ServletContextUtil;
@@ -24,11 +22,45 @@ import com.liferay.taglib.util.IncludeTag;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * @author Péter Borkuti
  */
 @ProviderType
 public class ProcessListTag extends IncludeTag {
+
+	public String getEmptyResultsMessage() {
+		return _emptyResultsMessage;
+	}
+
+	public String getLocalTaskExecutorClassName() {
+		return _localTaskExecutorClassName;
+	}
+
+	public String getMvcRenderCommandName() {
+		return _mvcRenderCommandName;
+	}
+
+	public String getRemoteTaskExecutorClassName() {
+		return _remoteTaskExecutorClassName;
+	}
+
+	public ResultRowSplitter getResultRowSplitter() {
+		return _resultRowSplitter;
+	}
+
+	public boolean isDeleteMenu() {
+		return _deleteMenu;
+	}
+
+	public boolean isRelaunchMenu() {
+		return _relaunchMenu;
+	}
+
+	public boolean isSummaryMenu() {
+		return _summaryMenu;
+	}
 
 	public void setDeleteMenu(boolean deleteMenu) {
 		_deleteMenu = deleteMenu;
@@ -93,27 +125,27 @@ public class ProcessListTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-staging:process-list:deleteMenu", _deleteMenu);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:process-list:emptyResultsMessage",
 			_emptyResultsMessage);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:process-list:localTaskExecutorClassName",
 			_localTaskExecutorClassName);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:process-list:mvcRenderCommandName",
 			_mvcRenderCommandName);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:process-list:relaunchMenu", _relaunchMenu);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:process-list:remoteTaskExecutorClassName",
 			_remoteTaskExecutorClassName);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:process-list:resultRowSplitter",
 			_resultRowSplitter);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:process-list:summaryMenu", _summaryMenu);
 	}
 

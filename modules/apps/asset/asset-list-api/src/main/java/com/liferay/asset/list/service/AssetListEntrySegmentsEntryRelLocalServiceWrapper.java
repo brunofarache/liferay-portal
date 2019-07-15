@@ -14,9 +14,9 @@
 
 package com.liferay.asset.list.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.service.ServiceWrapper;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link AssetListEntrySegmentsEntryRelLocalService}.
@@ -82,16 +82,6 @@ public class AssetListEntrySegmentsEntryRelLocalServiceWrapper
 		return _assetListEntrySegmentsEntryRelLocalService.
 			createAssetListEntrySegmentsEntryRel(
 				assetListEntrySegmentsEntryRelId);
-	}
-
-	@Override
-	public com.liferay.asset.list.model.AssetListEntrySegmentsEntryRel
-			deleteAssetListEntrySegmentsEntryRel(
-				com.liferay.asset.list.model.AssetListEntry assetListEntry)
-		throws com.liferay.portal.kernel.exception.PortalException {
-
-		return _assetListEntrySegmentsEntryRelLocalService.
-			deleteAssetListEntrySegmentsEntryRel(assetListEntry);
 	}
 
 	/**

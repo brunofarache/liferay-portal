@@ -14,8 +14,8 @@
 
 package com.liferay.info.internal.display.contributor;
 
-import com.liferay.info.display.contributor.InfoDisplayContributorField;
-import com.liferay.info.display.contributor.InfoDisplayContributorFieldTracker;
+import com.liferay.info.display.contributor.field.InfoDisplayContributorField;
+import com.liferay.info.display.contributor.field.InfoDisplayContributorFieldTracker;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.ArrayList;
@@ -47,6 +47,21 @@ public class InfoDisplayContributorFieldTrackerImpl
 		return _itemClassInfoDisplayContributorFields.get(className);
 	}
 
+	@Override
+	public List<InfoDisplayContributorField> getInfoDisplayContributorFields(
+		String... classNames) {
+
+		List<InfoDisplayContributorField> infoDisplayContributorFields =
+			new ArrayList<>();
+
+		for (String className : classNames) {
+			infoDisplayContributorFields.addAll(
+				_itemClassInfoDisplayContributorFields.get(className));
+		}
+
+		return infoDisplayContributorFields;
+	}
+
 	@Reference(
 		cardinality = ReferenceCardinality.MULTIPLE,
 		policy = ReferencePolicy.DYNAMIC
@@ -56,6 +71,10 @@ public class InfoDisplayContributorFieldTrackerImpl
 		Map<String, Object> properties) {
 
 		String className = (String)properties.get("model.class.name");
+
+		if (Validator.isNull(className)) {
+			return;
+		}
 
 		List<InfoDisplayContributorField> infoDisplayContributorFields =
 			_itemClassInfoDisplayContributorFields.computeIfAbsent(
@@ -69,6 +88,10 @@ public class InfoDisplayContributorFieldTrackerImpl
 		Map<String, Object> properties) {
 
 		String className = (String)properties.get("model.class.name");
+
+		if (Validator.isNull(className)) {
+			return;
+		}
 
 		List<InfoDisplayContributorField> infoDisplayContributorFields =
 			_itemClassInfoDisplayContributorFields.get(className);

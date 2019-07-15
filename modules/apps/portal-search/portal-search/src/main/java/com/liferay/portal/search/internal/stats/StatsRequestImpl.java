@@ -14,7 +14,7 @@
 
 package com.liferay.portal.search.internal.stats;
 
-import com.liferay.portal.kernel.util.StringBundler;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.search.stats.StatsRequest;
 
 import java.io.Serializable;
@@ -23,7 +23,7 @@ import java.io.Serializable;
  * @author Michael C. Han
  * @author André de Oliveira
  */
-public class StatsRequestImpl implements StatsRequest, Serializable {
+public class StatsRequestImpl implements Serializable, StatsRequest {
 
 	public StatsRequestImpl(
 		boolean cardinality, boolean count, String field, boolean max,

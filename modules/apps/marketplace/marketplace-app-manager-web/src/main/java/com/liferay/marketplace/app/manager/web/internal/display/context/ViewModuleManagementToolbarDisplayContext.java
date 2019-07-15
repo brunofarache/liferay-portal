@@ -49,9 +49,10 @@ public class ViewModuleManagementToolbarDisplayContext
 	public ViewModuleManagementToolbarDisplayContext(
 		LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse,
-		HttpServletRequest request) {
+		HttpServletRequest httpServletRequest) {
 
-		super(liferayPortletRequest, liferayPortletResponse, request);
+		super(
+			liferayPortletRequest, liferayPortletResponse, httpServletRequest);
 	}
 
 	public String getApp() {
@@ -71,7 +72,8 @@ public class ViewModuleManagementToolbarDisplayContext
 		}
 
 		if (appDisplay == null) {
-			appDisplay = AppDisplayFactoryUtil.getAppDisplay(allBundles, app);
+			appDisplay = AppDisplayFactoryUtil.getAppDisplay(
+				allBundles, app, request.getLocale());
 		}
 
 		return appDisplay;

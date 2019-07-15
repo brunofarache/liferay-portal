@@ -154,13 +154,17 @@ public class FragmentEntryLinkPersistenceTest {
 
 		newFragmentEntryLink.setJs(RandomTestUtil.randomString());
 
+		newFragmentEntryLink.setConfiguration(RandomTestUtil.randomString());
+
 		newFragmentEntryLink.setEditableValues(RandomTestUtil.randomString());
+
+		newFragmentEntryLink.setNamespace(RandomTestUtil.randomString());
 
 		newFragmentEntryLink.setPosition(RandomTestUtil.nextInt());
 
-		newFragmentEntryLink.setLastPropagationDate(RandomTestUtil.nextDate());
+		newFragmentEntryLink.setRendererKey(RandomTestUtil.randomString());
 
-		newFragmentEntryLink.setNamespace(RandomTestUtil.randomString());
+		newFragmentEntryLink.setLastPropagationDate(RandomTestUtil.nextDate());
 
 		newFragmentEntryLink.setLastPublishDate(RandomTestUtil.nextDate());
 
@@ -213,19 +217,25 @@ public class FragmentEntryLinkPersistenceTest {
 		Assert.assertEquals(
 			existingFragmentEntryLink.getJs(), newFragmentEntryLink.getJs());
 		Assert.assertEquals(
+			existingFragmentEntryLink.getConfiguration(),
+			newFragmentEntryLink.getConfiguration());
+		Assert.assertEquals(
 			existingFragmentEntryLink.getEditableValues(),
 			newFragmentEntryLink.getEditableValues());
 		Assert.assertEquals(
+			existingFragmentEntryLink.getNamespace(),
+			newFragmentEntryLink.getNamespace());
+		Assert.assertEquals(
 			existingFragmentEntryLink.getPosition(),
 			newFragmentEntryLink.getPosition());
+		Assert.assertEquals(
+			existingFragmentEntryLink.getRendererKey(),
+			newFragmentEntryLink.getRendererKey());
 		Assert.assertEquals(
 			Time.getShortTimestamp(
 				existingFragmentEntryLink.getLastPropagationDate()),
 			Time.getShortTimestamp(
 				newFragmentEntryLink.getLastPropagationDate()));
-		Assert.assertEquals(
-			existingFragmentEntryLink.getNamespace(),
-			newFragmentEntryLink.getNamespace());
 		Assert.assertEquals(
 			Time.getShortTimestamp(
 				existingFragmentEntryLink.getLastPublishDate()),
@@ -264,6 +274,15 @@ public class FragmentEntryLinkPersistenceTest {
 		_persistence.countByGroupId(RandomTestUtil.nextLong());
 
 		_persistence.countByGroupId(0L);
+	}
+
+	@Test
+	public void testCountByRendererKey() throws Exception {
+		_persistence.countByRendererKey("");
+
+		_persistence.countByRendererKey("null");
+
+		_persistence.countByRendererKey((String)null);
 	}
 
 	@Test
@@ -330,10 +349,9 @@ public class FragmentEntryLinkPersistenceTest {
 			"groupId", true, "companyId", true, "userId", true, "userName",
 			true, "createDate", true, "modifiedDate", true,
 			"originalFragmentEntryLinkId", true, "fragmentEntryId", true,
-			"classNameId", true, "classPK", true, "css", true, "html", true,
-			"js", true, "editableValues", true, "position", true,
-			"lastPropagationDate", true, "namespace", true, "lastPublishDate",
-			true);
+			"classNameId", true, "classPK", true, "namespace", true, "position",
+			true, "rendererKey", true, "lastPropagationDate", true,
+			"lastPublishDate", true);
 	}
 
 	@Test
@@ -612,13 +630,17 @@ public class FragmentEntryLinkPersistenceTest {
 
 		fragmentEntryLink.setJs(RandomTestUtil.randomString());
 
+		fragmentEntryLink.setConfiguration(RandomTestUtil.randomString());
+
 		fragmentEntryLink.setEditableValues(RandomTestUtil.randomString());
+
+		fragmentEntryLink.setNamespace(RandomTestUtil.randomString());
 
 		fragmentEntryLink.setPosition(RandomTestUtil.nextInt());
 
-		fragmentEntryLink.setLastPropagationDate(RandomTestUtil.nextDate());
+		fragmentEntryLink.setRendererKey(RandomTestUtil.randomString());
 
-		fragmentEntryLink.setNamespace(RandomTestUtil.randomString());
+		fragmentEntryLink.setLastPropagationDate(RandomTestUtil.nextDate());
 
 		fragmentEntryLink.setLastPublishDate(RandomTestUtil.nextDate());
 

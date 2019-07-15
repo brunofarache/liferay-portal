@@ -14,7 +14,7 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link ThemeLocalService}.
@@ -107,18 +107,6 @@ public class ThemeLocalServiceWrapper
 		long companyId) {
 
 		return _themeLocalService.getThemes(companyId);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link #getPageThemes}
-	 */
-	@Deprecated
-	@Override
-	public java.util.List<com.liferay.portal.kernel.model.Theme> getThemes(
-		long companyId, long groupId, long userId, boolean wapTheme) {
-
-		return _themeLocalService.getThemes(
-			companyId, groupId, userId, wapTheme);
 	}
 
 	@Override

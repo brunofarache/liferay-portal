@@ -14,11 +14,11 @@
 
 package com.liferay.portal.search.facet.custom;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.search.searcher.SearchRequestBuilder;
 
 import java.util.function.Consumer;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author André de Oliveira
@@ -36,6 +36,10 @@ public interface CustomFacetSearchContributor {
 		public CustomFacetBuilder aggregationName(String aggregationName);
 
 		public CustomFacetBuilder fieldToAggregate(String fieldToAggregate);
+
+		public CustomFacetBuilder frequencyThreshold(int frequencyThreshold);
+
+		public CustomFacetBuilder maxTerms(int maxTerms);
 
 		public CustomFacetBuilder selectedValues(String... selectedValues);
 

@@ -57,10 +57,9 @@ import javax.ws.rs.core.MultivaluedMap;
 public class SPICommentResource<T> {
 
 	public SPICommentResource(
-		String className, CommentManager commentManager, Company company,
+		CommentManager commentManager, Company company,
 		UnsafeFunction<Comment, T, Exception> transformUnsafeFunction) {
 
-		_className = className;
 		_commentManager = commentManager;
 		_company = company;
 		_transformUnsafeFunction = transformUnsafeFunction;
@@ -83,59 +82,58 @@ public class SPICommentResource<T> {
 	}
 
 	public Page<T> getCommentCommentsPage(
-			Long commentId, Filter filter, Pagination pagination, Sort[] sorts)
-		throws Exception {
-
-		return _getComments(commentId, filter, pagination, sorts);
-	}
-
-	public Page<T> getEntityCommentsPage(
-			long groupId, long classPK, Filter filter, Pagination pagination,
+			Long commentId, String search, Filter filter, Pagination pagination,
 			Sort[] sorts)
 		throws Exception {
 
+		return _getComments(commentId, search, filter, pagination, sorts);
+	}
+
+	public Page<T> getEntityCommentsPage(
+			long groupId, String className, long classPK, String search,
+			Filter filter, Pagination pagination, Sort[] sorts)
+		throws Exception {
+
 		Discussion discussion = _commentManager.getDiscussion(
-			_getUserId(), groupId, _className, classPK,
+			_getUserId(), groupId, className, classPK,
 			_createServiceContextFunction());
 
 		DiscussionComment rootDiscussionComment =
 			discussion.getRootDiscussionComment();
 
 		return _getComments(
-			rootDiscussionComment.getCommentId(), filter, pagination, sorts);
+			rootDiscussionComment.getCommentId(), search, filter, pagination,
+			sorts);
 	}
 
 	public EntityModel getEntityModel(MultivaluedMap multivaluedMap) {
 		return _entityModel;
 	}
 
-	public T postCommentComment(Long parentCommentId, String text)
+	public T postCommentComment(Comment parentComment, String text)
 		throws Exception {
-
-		Comment parentComment = _commentManager.fetchComment(parentCommentId);
-
-		if (parentComment == null) {
-			throw new NotFoundException();
-		}
 
 		return _postComment(
 			() -> _commentManager.addComment(
-				_getUserId(), _className, parentComment.getClassPK(),
-				StringPool.BLANK, parentCommentId, StringPool.BLANK,
+				_getUserId(), parentComment.getClassName(),
+				parentComment.getClassPK(), StringPool.BLANK,
+				parentComment.getCommentId(), StringPool.BLANK,
 				StringBundler.concat("<p>", text, "</p>"),
 				_createServiceContextFunction()),
-			parentComment.getGroupId(), parentComment.getClassPK());
+			parentComment.getGroupId(), parentComment.getClassName(),
+			parentComment.getClassPK());
 	}
 
-	public T postEntityComment(long groupId, long classPK, String text)
+	public T postEntityComment(
+			long groupId, String className, long classPK, String text)
 		throws Exception {
 
 		return _postComment(
 			() -> _commentManager.addComment(
-				_getUserId(), groupId, _className, classPK, StringPool.BLANK,
+				_getUserId(), groupId, className, classPK, StringPool.BLANK,
 				StringPool.BLANK, StringBundler.concat("<p>", text, "</p>"),
 				_createServiceContextFunction()),
-			groupId, classPK);
+			groupId, className, classPK);
 	}
 
 	public T putComment(Long commentId, String text) throws Exception {
@@ -168,8 +166,8 @@ public class SPICommentResource<T> {
 		DiscussionPermission discussionPermission = _getDiscussionPermission();
 
 		discussionPermission.checkViewPermission(
-			_company.getCompanyId(), comment.getGroupId(), _className,
-			comment.getClassPK());
+			_company.getCompanyId(), comment.getGroupId(),
+			comment.getClassName(), comment.getClassPK());
 	}
 
 	private Function<String, ServiceContext> _createServiceContextFunction() {
@@ -183,8 +181,8 @@ public class SPICommentResource<T> {
 	}
 
 	private Page<T> _getComments(
-			Long parentCommentId, Filter filter, Pagination pagination,
-			Sort[] sorts)
+			Long parentCommentId, String search, Filter filter,
+			Pagination pagination, Sort[] sorts)
 		throws Exception {
 
 		return SearchUtil.search(
@@ -197,7 +195,7 @@ public class SPICommentResource<T> {
 						"parentMessageId", String.valueOf(parentCommentId)),
 					BooleanClauseOccur.MUST);
 			},
-			filter, MBMessage.class, pagination,
+			filter, MBMessage.class, search, pagination,
 			queryConfig -> queryConfig.setSelectedFieldNames(
 				Field.ENTRY_CLASS_PK),
 			searchContext -> {
@@ -226,13 +224,13 @@ public class SPICommentResource<T> {
 
 	private T _postComment(
 			UnsafeSupplier<Long, ? extends Exception> addCommentUnsafeSupplier,
-			long groupId, long classPK)
+			long groupId, String className, long classPK)
 		throws Exception {
 
 		DiscussionPermission discussionPermission = _getDiscussionPermission();
 
 		discussionPermission.checkAddPermission(
-			_company.getCompanyId(), groupId, _className, classPK);
+			_company.getCompanyId(), groupId, className, classPK);
 
 		try {
 			long commentId = addCommentUnsafeSupplier.get();
@@ -255,7 +253,6 @@ public class SPICommentResource<T> {
 
 	private static final EntityModel _entityModel = new CommentEntityModel();
 
-	private final String _className;
 	private final CommentManager _commentManager;
 	private final Company _company;
 	private final UnsafeFunction<Comment, T, Exception>

@@ -14,10 +14,9 @@
 
 package com.liferay.portal.kernel.service.persistence;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Brian Wing Shun Chan
@@ -76,9 +75,6 @@ public class TeamFinderUtil {
 		if (_finder == null) {
 			_finder = (TeamFinder)PortalBeanLocatorUtil.locate(
 				TeamFinder.class.getName());
-
-			ReferenceRegistry.registerReference(
-				TeamFinderUtil.class, "_finder");
 		}
 
 		return _finder;
@@ -86,8 +82,6 @@ public class TeamFinderUtil {
 
 	public void setFinder(TeamFinder finder) {
 		_finder = finder;
-
-		ReferenceRegistry.registerReference(TeamFinderUtil.class, "_finder");
 	}
 
 	private static TeamFinder _finder;

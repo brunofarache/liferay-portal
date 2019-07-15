@@ -28,7 +28,6 @@ import com.liferay.portal.kernel.repository.capabilities.CapabilityProvider;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.repository.search.RepositorySearchQueryBuilderUtil;
-import com.liferay.portal.kernel.repository.util.RepositoryUserUtil;
 import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.SearchContext;
@@ -76,42 +75,6 @@ public abstract class BaseRepositoryImpl
 		}
 	}
 
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), see {@link #addFileEntry(long,
-	 *             long, String, String, String, String, String, File,
-	 *             ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public FileEntry addFileEntry(
-			long folderId, String sourceFileName, String mimeType, String title,
-			String description, String changeLog, File file,
-			ServiceContext serviceContext)
-		throws PortalException {
-
-		return addFileEntry(
-			RepositoryUserUtil.getUserId(), folderId, sourceFileName, mimeType,
-			title, description, changeLog, file, serviceContext);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), see {@link #addFileEntry(long,
-	 *             long, String, String, String, String, String, InputStream,
-	 *             long, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public FileEntry addFileEntry(
-			long folderId, String sourceFileName, String mimeType, String title,
-			String description, String changeLog, InputStream is, long size,
-			ServiceContext serviceContext)
-		throws PortalException {
-
-		return addFileEntry(
-			RepositoryUserUtil.getUserId(), sourceFileName, mimeType, title,
-			description, changeLog, is, size, serviceContext);
-	}
-
 	@Override
 	public abstract Folder addFolder(
 			long userId, long parentFolderId, String name, String description,
@@ -119,39 +82,9 @@ public abstract class BaseRepositoryImpl
 		throws PortalException;
 
 	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #addFolder(long, long, String, String, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public Folder addFolder(
-			long parentFolderId, String name, String description,
-			ServiceContext serviceContext)
-		throws PortalException {
-
-		return addFolder(
-			RepositoryUserUtil.getUserId(), name, description, serviceContext);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #checkInFileEntry(long, long, boolean, String,
-	 *             ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public void checkInFileEntry(
-			long fileEntryId, boolean major, String changeLog,
-			ServiceContext serviceContext)
-		throws PortalException {
-
-		checkInFileEntry(
-			RepositoryUserUtil.getUserId(), fileEntryId, major, changeLog,
-			serviceContext);
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x), replaced by {@link #checkInFileEntry(long, long, DLVersionNumberIncrease, String, ServiceContext)}
+	 * @deprecated As of Judson (7.1.x), replaced by {@link
+	 *             #checkInFileEntry(long, long, DLVersionNumberIncrease,
+	 *             String, ServiceContext)}
 	 */
 	@Deprecated
 	@Override
@@ -173,21 +106,6 @@ public abstract class BaseRepositoryImpl
 			ServiceContext serviceContext)
 		throws PortalException;
 
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #checkInFileEntry(long, long, String, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public void checkInFileEntry(
-			long fileEntryId, String lockUuid, ServiceContext serviceContext)
-		throws PortalException {
-
-		checkInFileEntry(
-			RepositoryUserUtil.getUserId(), fileEntryId, lockUuid,
-			serviceContext);
-	}
-
 	@Override
 	public abstract FileEntry checkOutFileEntry(
 			long fileEntryId, ServiceContext serviceContext)
@@ -198,22 +116,6 @@ public abstract class BaseRepositoryImpl
 			long fileEntryId, String owner, long expirationTime,
 			ServiceContext serviceContext)
 		throws PortalException;
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #copyFileEntry(long, long, long, long, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public FileEntry copyFileEntry(
-			long groupId, long fileEntryId, long destFolderId,
-			ServiceContext serviceContext)
-		throws PortalException {
-
-		return copyFileEntry(
-			RepositoryUserUtil.getUserId(), groupId, fileEntryId, destFolderId,
-			serviceContext);
-	}
 
 	@Override
 	public void deleteAll() {
@@ -364,25 +266,6 @@ public abstract class BaseRepositoryImpl
 		return _localRepository;
 	}
 
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #getRepositoryEntry(String)}
-	 */
-	@Deprecated
-	public Object[] getRepositoryEntryIds(String objectId)
-		throws PortalException {
-
-		RepositoryEntry repositoryEntry =
-			repositoryEntryLocalService.getRepositoryEntry(
-				PrincipalThreadLocal.getUserId(), getGroupId(),
-				getRepositoryId(), objectId);
-
-		return new Object[] {
-			repositoryEntry.getRepositoryEntryId(), repositoryEntry.getUuid(),
-			false
-		};
-	}
-
 	@Override
 	public List<FileEntry> getRepositoryFileEntries(
 			long userId, long rootFolderId, int start, int end,
@@ -426,15 +309,6 @@ public abstract class BaseRepositoryImpl
 	 */
 	@Deprecated
 	@Override
-	public String[] getSupportedConfigurations() {
-		return _SUPPORTED_CONFIGURATIONS;
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x)
-	 */
-	@Deprecated
-	@Override
 	public String[][] getSupportedParameters() {
 		return _SUPPORTED_PARAMETERS;
 	}
@@ -451,52 +325,6 @@ public abstract class BaseRepositoryImpl
 		Class<T> capabilityClass) {
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #moveFileEntry(long, long, long, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public FileEntry moveFileEntry(
-			long fileEntryId, long newFolderId, ServiceContext serviceContext)
-		throws PortalException {
-
-		return moveFileEntry(
-			RepositoryUserUtil.getUserId(), fileEntryId, newFolderId,
-			serviceContext);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #moveFolder(long, long, long, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public Folder moveFolder(
-			long folderId, long newParentFolderId,
-			ServiceContext serviceContext)
-		throws PortalException {
-
-		return moveFolder(
-			RepositoryUserUtil.getUserId(), folderId, newParentFolderId,
-			serviceContext);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #revertFileEntry(long, long, String, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public void revertFileEntry(
-			long fileEntryId, String version, ServiceContext serviceContext)
-		throws PortalException {
-
-		revertFileEntry(
-			RepositoryUserUtil.getUserId(), fileEntryId, version,
-			serviceContext);
 	}
 
 	@Override
@@ -581,7 +409,9 @@ public abstract class BaseRepositoryImpl
 	}
 
 	/**
-	 * @deprecated As of Judson (7.1.x), replaced by {@link #updateFileEntry(long, long, String, String, String, String, String, DLVersionNumberIncrease, File, ServiceContext)}
+	 * @deprecated As of Judson (7.1.x), replaced by {@link
+	 *             #updateFileEntry(long, long, String, String, String, String,
+	 *             String, DLVersionNumberIncrease, File, ServiceContext)}
 	 */
 	@Deprecated
 	@Override
@@ -598,7 +428,10 @@ public abstract class BaseRepositoryImpl
 	}
 
 	/**
-	 * @deprecated As of Judson (7.1.x), replaced by {@link #updateFileEntry(long, long, String, String, String, String, String, DLVersionNumberIncrease, InputStream, long, ServiceContext)}
+	 * @deprecated As of Judson (7.1.x), replaced by {@link
+	 *             #updateFileEntry(long, long, String, String, String, String,
+	 *             String, DLVersionNumberIncrease, InputStream, long,
+	 *             ServiceContext)}
 	 */
 	@Deprecated
 	@Override
@@ -641,45 +474,6 @@ public abstract class BaseRepositoryImpl
 			DLVersionNumberIncrease dlVersionNumberIncrease, InputStream is,
 			long size, ServiceContext serviceContext)
 		throws PortalException;
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #updateFileEntry(long, long, String, String, String, String,
-	 *             String, boolean, InputStream, long, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public FileEntry updateFileEntry(
-			long fileEntryId, String sourceFileName, String mimeType,
-			String title, String description, String changeLog,
-			boolean majorVersion, File file, ServiceContext serviceContext)
-		throws PortalException {
-
-		return updateFileEntry(
-			RepositoryUserUtil.getUserId(), fileEntryId, sourceFileName,
-			mimeType, title, description, changeLog, majorVersion, file,
-			serviceContext);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #updateFileEntry(long, long, String, String, String, String,
-	 *             String, boolean, File, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public FileEntry updateFileEntry(
-			long fileEntryId, String sourceFileName, String mimeType,
-			String title, String description, String changeLog,
-			boolean majorVersion, InputStream is, long size,
-			ServiceContext serviceContext)
-		throws PortalException {
-
-		return updateFileEntry(
-			RepositoryUserUtil.getUserId(), fileEntryId, sourceFileName,
-			mimeType, title, description, changeLog, majorVersion, is, size,
-			serviceContext);
-	}
 
 	@Override
 	public Folder updateFolder(
@@ -752,8 +546,6 @@ public abstract class BaseRepositoryImpl
 	protected DLFolderLocalService dlFolderLocalService;
 	protected RepositoryEntryLocalService repositoryEntryLocalService;
 	protected UserLocalService userLocalService;
-
-	private static final String[] _SUPPORTED_CONFIGURATIONS = {};
 
 	private static final String[][] _SUPPORTED_PARAMETERS = {};
 

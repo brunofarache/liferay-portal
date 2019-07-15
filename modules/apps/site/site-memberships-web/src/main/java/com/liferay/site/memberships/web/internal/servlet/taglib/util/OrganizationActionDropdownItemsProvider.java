@@ -46,9 +46,9 @@ public class OrganizationActionDropdownItemsProvider {
 		_organization = organization;
 		_renderResponse = renderResponse;
 
-		_request = PortalUtil.getHttpServletRequest(renderRequest);
+		_httpServletRequest = PortalUtil.getHttpServletRequest(renderRequest);
 
-		_themeDisplay = (ThemeDisplay)_request.getAttribute(
+		_themeDisplay = (ThemeDisplay)_httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
 
@@ -57,7 +57,7 @@ public class OrganizationActionDropdownItemsProvider {
 			{
 				if (GroupPermissionUtil.contains(
 						_themeDisplay.getPermissionChecker(),
-						_themeDisplay.getScopeGroupId(),
+						_themeDisplay.getSiteGroupIdOrLiveGroupId(),
 						ActionKeys.ASSIGN_MEMBERS)) {
 
 					add(_getDeleteGroupOrganizationsActionUnsafeConsumer());
@@ -77,7 +77,8 @@ public class OrganizationActionDropdownItemsProvider {
 		deleteGroupOrganizationsURL.setParameter(
 			"redirect", _themeDisplay.getURLCurrent());
 		deleteGroupOrganizationsURL.setParameter(
-			"groupId", String.valueOf(_themeDisplay.getScopeGroupId()));
+			"groupId",
+			String.valueOf(_themeDisplay.getSiteGroupIdOrLiveGroupId()));
 		deleteGroupOrganizationsURL.setParameter(
 			"removeOrganizationId",
 			String.valueOf(_organization.getOrganizationId()));
@@ -88,13 +89,13 @@ public class OrganizationActionDropdownItemsProvider {
 				"deleteGroupOrganizationsURL",
 				deleteGroupOrganizationsURL.toString());
 			dropdownItem.setLabel(
-				LanguageUtil.get(_request, "remove-membership"));
+				LanguageUtil.get(_httpServletRequest, "remove-membership"));
 		};
 	}
 
+	private final HttpServletRequest _httpServletRequest;
 	private final Organization _organization;
 	private final RenderResponse _renderResponse;
-	private final HttpServletRequest _request;
 	private final ThemeDisplay _themeDisplay;
 
 }

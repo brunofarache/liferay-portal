@@ -1,17 +1,35 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 import Component from 'metal-component';
+import debounce from 'metal-debounce';
 import Soy, {Config} from 'metal-soy';
 
 import './FloatingToolbarLinkPanelDelegateTemplate.soy';
-import {BUTTON_TYPES, TARGET_TYPES} from '../../../utils/constants';
+import {TARGET_TYPES} from '../../../utils/constants';
+import {
+	disableSavingChangesStatusAction,
+	enableSavingChangesStatusAction,
+	updateLastSaveDateAction
+} from '../../../actions/saveChanges.es';
 import templates from './FloatingToolbarLinkPanel.soy';
-import {UPDATE_CONFIG_ATTRIBUTES, UPDATE_LAST_SAVE_DATE, UPDATE_SAVING_CHANGES_STATUS} from '../../../actions/actions.es';
-import debounce from 'metal-debounce';
+import {UPDATE_CONFIG_ATTRIBUTES} from '../../../actions/actions.es';
 
 /**
  * FloatingToolbarLinkPanel
  */
 class FloatingToolbarLinkPanel extends Component {
-
 	/**
 	 * @inheritdoc
 	 * @review
@@ -36,7 +54,7 @@ class FloatingToolbarLinkPanel extends Component {
 			href: hrefElement.value
 		};
 
-		this._updateSectionConfig(config);
+		this._updateRowConfig(config);
 	}
 
 	/**
@@ -51,58 +69,22 @@ class FloatingToolbarLinkPanel extends Component {
 	}
 
 	/**
-	 * Updates section configuration
-	 * @param {object} config Section configuration
+	 * Updates row configuration
+	 * @param {object} config Row configuration
 	 * @private
 	 * @review
 	 */
-	_updateSectionConfig(config) {
+	_updateRowConfig(config) {
 		this.store
-			.dispatchAction(
-				UPDATE_SAVING_CHANGES_STATUS,
-				{
-					savingChanges: true
-				}
-			)
-			.dispatchAction(
-				UPDATE_CONFIG_ATTRIBUTES,
-				{
-					config,
-					editableId: this.itemId,
-					fragmentEntryLinkId: this.item.fragmentEntryLinkId
-				}
-			)
-			.dispatchAction(
-				UPDATE_LAST_SAVE_DATE,
-				{
-					lastSaveDate: new Date()
-				}
-			)
-			.dispatchAction(
-				UPDATE_SAVING_CHANGES_STATUS,
-				{
-					savingChanges: false
-				}
-			);
-	}
-
-	/**
-	 * Handle button type option change
-	 * @param {Event} event
-	 */
-	_handleButtonTypeOptionChange(event) {
-		const buttonElement = event.delegateTarget;
-		const buttonElementValue = buttonElement.options[buttonElement.selectedIndex].value;
-
-		let buttonType = this._buttonTypes.find(
-			type => type.buttonTypeId === buttonElementValue
-		);
-
-		const config = {
-			buttonType: buttonType.buttonTypeId
-		};
-
-		this._updateSectionConfig(config);
+			.dispatch(enableSavingChangesStatusAction())
+			.dispatch({
+				config,
+				editableId: this.item.editableId,
+				fragmentEntryLinkId: this.item.fragmentEntryLinkId,
+				type: UPDATE_CONFIG_ATTRIBUTES
+			})
+			.dispatch(updateLastSaveDateAction())
+			.dispatch(disableSavingChangesStatusAction());
 	}
 
 	/**
@@ -116,7 +98,7 @@ class FloatingToolbarLinkPanel extends Component {
 			target: targetElement.options[targetElement.selectedIndex].value
 		};
 
-		this._updateSectionConfig(config);
+		this._updateRowConfig(config);
 	}
 }
 
@@ -127,6 +109,16 @@ class FloatingToolbarLinkPanel extends Component {
  * @type {!Object}
  */
 FloatingToolbarLinkPanel.STATE = {
+	/**
+	 * @default TARGET_TYPES
+	 * @memberOf FloatingToolbarLinkPanel
+	 * @private
+	 * @review
+	 * @type {object[]}
+	 */
+	_targetTypes: Config.array()
+		.internal()
+		.value(TARGET_TYPES),
 
 	/**
 	 * @default undefined
@@ -134,19 +126,7 @@ FloatingToolbarLinkPanel.STATE = {
 	 * @review
 	 * @type {object}
 	 */
-	store: Config
-		.object()
-		.value(null),
-
-	/**
-	 * @default undefined
-	 * @memberof FloatingToolbarLinkPanel
-	 * @review
-	 * @type {object}
-	 */
-	item: Config
-		.object()
-		.value(null),
+	item: Config.object().value(null),
 
 	/**
 	 * @default undefined
@@ -154,33 +134,15 @@ FloatingToolbarLinkPanel.STATE = {
 	 * @review
 	 * @type {!string}
 	 */
-	itemId: Config
-		.string()
-		.required(),
+	itemId: Config.string().required(),
 
 	/**
-	 * @default CONTAINER_TYPES
-	 * @memberOf FloatingToolbarLinkPanel
-	 * @private
+	 * @default undefined
+	 * @memberof FloatingToolbarLinkPanel
 	 * @review
-	 * @type {object[]}
+	 * @type {object}
 	 */
-	_buttonTypes: Config
-		.array()
-		.internal()
-		.value(BUTTON_TYPES),
-
-	/**
-	 * @default CONTAINER_TYPES
-	 * @memberOf FloatingToolbarLinkPanel
-	 * @private
-	 * @review
-	 * @type {object[]}
-	 */
-	_targetTypes: Config
-		.array()
-		.internal()
-		.value(TARGET_TYPES)
+	store: Config.object().value(null)
 };
 
 Soy.register(FloatingToolbarLinkPanel, templates);

@@ -5,7 +5,38 @@ import java.util.regex.Matcher
 import org.gradle.util.GUtil
 
 buildscript {
-	apply from: file("../modules/build-buildscript.gradle"), to: buildscript
+	dependencies {
+		classpath group: "com.liferay", name: "com.liferay.gradle.plugins.defaults", version: "latest.release"
+		classpath group: "com.liferay", name: "com.liferay.gradle.plugins.maven.plugin.builder", version: "1.2.3"
+		classpath group: "de.undercouch", name: "gradle-download-task", version: "3.3.0"
+		classpath group: "gradle.plugin.org.ysb33r.gradle", name: "gradletest", version: "1.1"
+		classpath group: "xalan", name: "xalan", version: "2.7.2"
+	}
+
+	repositories {
+		if (!Boolean.getBoolean("maven.local.ignore")) {
+			mavenLocal()
+
+			File tmpMavenRepositoryDir = null
+
+			if (hasProperty("tmp.maven.repository.dir")) {
+				tmpMavenRepositoryDir = file(properties["tmp.maven.repository.dir"])
+			}
+			else {
+				tmpMavenRepositoryDir = file("../.m2-tmp")
+			}
+
+			if (tmpMavenRepositoryDir.exists()) {
+				maven {
+					url tmpMavenRepositoryDir
+				}
+			}
+		}
+
+		maven {
+			url System.properties["repository.url"] ?: "https://repository-cdn.liferay.com/nexus/content/groups/public"
+		}
+	}
 }
 
 apply plugin: "com.liferay.poshi.runner"
@@ -17,7 +48,6 @@ poshiRunner {
 	}
 
 	openCVVersion = "2.4.10-0.10"
-	version = "1.0.222"
 }
 
 task updateGradleCache
@@ -39,16 +69,16 @@ dependencies {
 				String portalVersion = matcher.group("portalVersion")
 
 				if (portalVersion.startsWith("6.1")) {
-					poshiRunnerResources group: "com.liferay.poshi.runner.resources", name: "portal-ee-6.1.x", version: "20190110114651-2943909"
+					poshiRunnerResources group: "com.liferay.poshi.runner.resources", name: "portal-ee-6.1.x", version: "20190325111923-20a286f"
 				}
 				else if (portalVersion.startsWith("6.2")) {
-					poshiRunnerResources group: "com.liferay.poshi.runner.resources", name: "portal-ee-6.2.x", version: "20190110114620-9ad869c"
+					poshiRunnerResources group: "com.liferay.poshi.runner.resources", name: "portal-ee-6.2.x", version: "20190325111857-3731418"
 				}
 				else if (portalVersion.startsWith("7.0")) {
-					poshiRunnerResources group: "com.liferay.poshi.runner.resources", name: "portal-7.0.x", version: "20190110-2008a39"
+					poshiRunnerResources group: "com.liferay.poshi.runner.resources", name: "portal-7.0.x", version: "20190325-004214c"
 				}
 				else if (portalVersion.startsWith("7.1")) {
-					poshiRunnerResources group: "com.liferay.poshi.runner.resources", name: "portal-7.1.x", version: "20190110-e3c1b50"
+					poshiRunnerResources group: "com.liferay.poshi.runner.resources", name: "portal-7.1.x", version: "20190325-f1ecc02"
 				}
 			}
 		}

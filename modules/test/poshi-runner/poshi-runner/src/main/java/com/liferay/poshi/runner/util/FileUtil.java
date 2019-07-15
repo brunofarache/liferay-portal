@@ -90,6 +90,27 @@ public class FileUtil {
 		return exists(file);
 	}
 
+	public static String fixFilePath(String filePath) {
+		if (OSDetector.isWindows()) {
+			return StringUtil.replace(filePath, "/", "\\");
+		}
+
+		return filePath;
+	}
+
+	public static String getCanonicalPath(String filePath) {
+		try {
+			File file = new File(filePath);
+
+			return file.getCanonicalPath();
+		}
+		catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+
+		return filePath;
+	}
+
 	public static String getFileName(String filePath) {
 		Path path = Paths.get(filePath);
 

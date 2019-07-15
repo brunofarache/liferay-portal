@@ -18,12 +18,11 @@
 		"util": "0.10.3",
 		"vm-browserify": "0.0.4"
 	},
-	"devDependencies": {
-		"liferay-npm-bundler": "^2.1.0"
-	},
 	"name": "frontend-js-node-shims",
 	"scripts": {
-		"build": "liferay-npm-bundler"
+		"build": "liferay-npm-scripts build",
+		"checkFormat": "liferay-npm-scripts check",
+		"format": "liferay-npm-scripts fix"
 	},
-	"version": "3.0.0"
+	"version": "4.0.0"
 }

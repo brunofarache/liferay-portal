@@ -14,6 +14,7 @@
 
 package com.liferay.portal.service.persistence.impl;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -31,7 +32,6 @@ import com.liferay.portal.kernel.service.ClassNameLocalServiceUtil;
 import com.liferay.portal.kernel.service.ResourceActionLocalServiceUtil;
 import com.liferay.portal.kernel.service.persistence.RoleFinder;
 import com.liferay.portal.kernel.util.OrderByComparator;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.impl.RoleImpl;
@@ -1141,7 +1141,7 @@ public class RoleFinderImpl extends RoleFinderBaseImpl implements RoleFinder {
 
 		sb.append(" AND (");
 
-		for (int i = 0; i < excludedNames.size() - 1; i++) {
+		for (int i = 0; i < (excludedNames.size() - 1); i++) {
 			sb.append("Role_.name != ? AND ");
 		}
 
@@ -1214,7 +1214,7 @@ public class RoleFinderImpl extends RoleFinderBaseImpl implements RoleFinder {
 
 		sb.append(" AND (");
 
-		for (int i = 0; i < size - 1; i++) {
+		for (int i = 0; i < (size - 1); i++) {
 			sb.append("Role_.type_ = ? OR ");
 		}
 

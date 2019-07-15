@@ -20,11 +20,12 @@ import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.template.TemplateConstants;
 import com.liferay.portal.kernel.template.TemplateManager;
 import com.liferay.portal.kernel.template.TemplateResource;
-import com.liferay.portal.template.BaseMultiTemplateManager;
-import com.liferay.portal.template.RestrictedTemplate;
+import com.liferay.portal.template.BaseTemplateManager;
 import com.liferay.portal.template.TemplateContextHelper;
+import com.liferay.portal.template.soy.SoyTemplateResource;
+import com.liferay.portal.template.soy.SoyTemplateResourceFactory;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +46,7 @@ import org.osgi.util.tracker.BundleTracker;
 	property = "language.type=" + TemplateConstants.LANG_TYPE_SOY,
 	service = {SoyManager.class, TemplateManager.class}
 )
-public class SoyManager extends BaseMultiTemplateManager {
+public class SoyManager extends BaseTemplateManager {
 
 	@Override
 	public void destroy() {
@@ -57,6 +58,10 @@ public class SoyManager extends BaseMultiTemplateManager {
 		templateContextHelper.removeHelperUtilities(classLoader);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public List<TemplateResource> getAllTemplateResources() {
 		return _soyCapabilityBundleTrackerCustomizer.getAllTemplateResources();
 	}
@@ -73,8 +78,8 @@ public class SoyManager extends BaseMultiTemplateManager {
 	@Reference(unbind = "-")
 	public void setSingleVMPool(SingleVMPool singleVMPool) {
 		_soyTofuCacheHandler = new SoyTofuCacheHandler(
-			(PortalCache<HashSet<TemplateResource>, SoyTofuCacheBag>)
-				singleVMPool.getPortalCache(SoyTemplate.class.getName()));
+			(PortalCache<String, SoyTofuCacheBag>)singleVMPool.getPortalCache(
+				SoyTemplate.class.getName()));
 	}
 
 	@Override
@@ -87,11 +92,12 @@ public class SoyManager extends BaseMultiTemplateManager {
 
 	@Activate
 	protected void activate(BundleContext bundleContext) {
-		int stateMask = Bundle.ACTIVE | Bundle.RESOLVED;
+		int stateMask = Bundle.ACTIVE | Bundle.RESOLVED | Bundle.STARTING;
 
 		_soyCapabilityBundleTrackerCustomizer =
 			new SoyCapabilityBundleTrackerCustomizer(
-				_soyTofuCacheHandler, _soyProviderCapabilityBundleRegister);
+				_soyTofuCacheHandler, _soyProviderCapabilityBundleRegister,
+				_soyTemplateResourceFactory);
 
 		_bundleTracker = new BundleTracker<>(
 			bundleContext, stateMask, _soyCapabilityBundleTrackerCustomizer);
@@ -106,21 +112,28 @@ public class SoyManager extends BaseMultiTemplateManager {
 
 	@Override
 	protected Template doGetTemplate(
-		List<TemplateResource> templateResources,
-		TemplateResource errorTemplateResource, boolean restricted,
+		TemplateResource templateResource, boolean restricted,
 		Map<String, Object> helperUtilities) {
 
-		Template template = new SoyTemplate(
-			templateResources, errorTemplateResource, helperUtilities,
-			(SoyTemplateContextHelper)templateContextHelper,
-			_soyTofuCacheHandler);
+		SoyTemplateResource soyTemplateResource = null;
 
-		if (restricted) {
-			template = new RestrictedTemplate(
-				template, templateContextHelper.getRestrictedVariables());
+		if (templateResource == null) {
+			soyTemplateResource =
+				_soyCapabilityBundleTrackerCustomizer.getSoyTemplateResource();
+		}
+		else if (templateResource instanceof SoyTemplateResource) {
+			soyTemplateResource = (SoyTemplateResource)templateResource;
+		}
+		else {
+			soyTemplateResource =
+				_soyTemplateResourceFactory.createSoyTemplateResource(
+					Collections.singletonList(templateResource));
 		}
 
-		return template;
+		return new SoyTemplate(
+			soyTemplateResource, helperUtilities,
+			(SoyTemplateContextHelper)templateContextHelper,
+			_soyTofuCacheHandler, _soyTemplateResourceFactory, restricted);
 	}
 
 	@Reference(unbind = "-")
@@ -142,6 +155,10 @@ public class SoyManager extends BaseMultiTemplateManager {
 		_soyCapabilityBundleTrackerCustomizer;
 	private SoyProviderCapabilityBundleRegister
 		_soyProviderCapabilityBundleRegister;
+
+	@Reference
+	private SoyTemplateResourceFactory _soyTemplateResourceFactory;
+
 	private SoyTofuCacheHandler _soyTofuCacheHandler;
 
 }

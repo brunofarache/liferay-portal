@@ -14,31 +14,43 @@
 
 package com.liferay.layout.content.page.editor.web.internal.portlet.action;
 
+import com.liferay.fragment.constants.FragmentEntryLinkConstants;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.processor.FragmentEntryProcessorRegistry;
+import com.liferay.fragment.renderer.DefaultFragmentRendererContext;
+import com.liferay.fragment.renderer.FragmentPortletRenderer;
+import com.liferay.fragment.renderer.FragmentRendererController;
 import com.liferay.fragment.service.FragmentEntryLinkLocalService;
-import com.liferay.fragment.util.FragmentEntryRenderUtil;
+import com.liferay.fragment.util.FragmentPortletSetupUtil;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.PortletIdException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
 import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.PortletLocalService;
+import com.liferay.portal.kernel.service.PortletPreferencesLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
+import com.liferay.portal.kernel.service.permission.PortletPermissionUtil;
+import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import javax.portlet.ActionRequest;
@@ -46,8 +58,7 @@ import javax.portlet.ActionResponse;
 import javax.portlet.PortletPreferences;
 
 import javax.servlet.http.HttpServletRequest;
-
-import org.jsoup.nodes.Element;
+import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -76,45 +87,93 @@ public class AddPortletMVCActionCommand extends BaseMVCActionCommand {
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
 		long classNameId = ParamUtil.getLong(actionRequest, "classNameId");
+
 		long classPK = ParamUtil.getLong(actionRequest, "classPK");
 
-		String portletId = ParamUtil.getString(actionRequest, "portletId");
+		Layout layout = _layoutLocalService.getLayout(classPK);
+
+		String portletId = PortletIdCodec.decodePortletName(
+			ParamUtil.getString(actionRequest, "portletId"));
+
+		PortletPermissionUtil.check(
+			themeDisplay.getPermissionChecker(), layout.getGroupId(), layout,
+			portletId, ActionKeys.ADD_TO_PAGE);
 
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
 			actionRequest);
 
 		try {
+			String instanceId = StringPool.BLANK;
+
+			Portlet portlet = _portletLocalService.getPortletById(portletId);
+
+			if (portlet.isInstanceable()) {
+				instanceId = PortletIdCodec.generateInstanceId();
+			}
+			else {
+				long count =
+					_portletPreferencesLocalService.getPortletPreferencesCount(
+						PortletKeys.PREFS_OWNER_TYPE_LAYOUT, layout.getPlid(),
+						portletId);
+
+				if (count > 0) {
+					throw new PortletIdException(
+						"Cannot add non-instanceable portlet more than once");
+				}
+			}
+
 			String html = _getPortletFragmentEntryLinkHTML(
-				serviceContext.getRequest(), portletId);
+				serviceContext.getRequest(),
+				_portal.getHttpServletResponse(actionResponse), portletId,
+				instanceId);
 
 			JSONObject editableValueJSONObject =
 				_fragmentEntryProcessorRegistry.
-					getDefaultEditableValuesJSONObject(html);
+					getDefaultEditableValuesJSONObject(html, StringPool.BLANK);
 
-			editableValueJSONObject.put("portletId", portletId);
+			editableValueJSONObject.put(
+				"instanceId", instanceId
+			).put(
+				"portletId", portletId
+			);
 
 			FragmentEntryLink fragmentEntryLink =
 				_fragmentEntryLinkLocalService.addFragmentEntryLink(
 					serviceContext.getUserId(),
-					serviceContext.getScopeGroupId(), 0, classNameId, classPK,
-					StringPool.BLANK, html, StringPool.BLANK,
-					editableValueJSONObject.toString(), 0, serviceContext);
+					serviceContext.getScopeGroupId(), 0, 0, classNameId,
+					classPK, StringPool.BLANK, html, StringPool.BLANK,
+					StringPool.BLANK, editableValueJSONObject.toString(),
+					StringPool.BLANK, 0, null, serviceContext);
+
+			DefaultFragmentRendererContext defaultFragmentRendererContext =
+				new DefaultFragmentRendererContext(fragmentEntryLink);
+
+			defaultFragmentRendererContext.setMode(
+				FragmentEntryLinkConstants.EDIT);
 
 			jsonObject.put(
 				"content",
-				FragmentEntryRenderUtil.renderFragmentEntryLink(
-					fragmentEntryLink,
+				_fragmentRendererController.render(
+					defaultFragmentRendererContext,
 					_portal.getHttpServletRequest(actionRequest),
-					_portal.getHttpServletResponse(actionResponse)));
-			jsonObject.put(
-				"editableValues", fragmentEntryLink.getEditableValues());
-			jsonObject.put(
-				"fragmentEntryLinkId",
-				fragmentEntryLink.getFragmentEntryLinkId());
+					_portal.getHttpServletResponse(actionResponse))
+			).put(
+				"editableValues", fragmentEntryLink.getEditableValues()
+			);
+
+			if (SessionErrors.contains(
+					actionRequest, "fragmentEntryInvalidContent")) {
+
+				jsonObject.put("error", true);
+			}
 
 			jsonObject.put(
+				"fragmentEntryLinkId",
+				fragmentEntryLink.getFragmentEntryLinkId()
+			).put(
 				"name",
-				_portal.getPortletTitle(portletId, themeDisplay.getLocale()));
+				_portal.getPortletTitle(portletId, themeDisplay.getLocale())
+			);
 
 			SessionMessages.add(actionRequest, "fragmentEntryLinkAdded");
 		}
@@ -135,31 +194,21 @@ public class AddPortletMVCActionCommand extends BaseMVCActionCommand {
 	}
 
 	private String _getPortletFragmentEntryLinkHTML(
-			HttpServletRequest request, String portletId)
-		throws PortalException {
-
-		Element runtimeTagElement = new Element(
-			"@liferay_portlet.runtime", true);
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse, String portletId,
+			String instanceId)
+		throws Exception {
 
 		PortletPreferences portletPreferences =
 			PortletPreferencesFactoryUtil.getPortletPreferences(
-				request, portletId);
+				httpServletRequest, portletId);
 
-		runtimeTagElement.attr(
-			"defaultPreferences",
+		FragmentPortletSetupUtil.setPortletBareboneCSSClassName(
+			portletPreferences);
+
+		return _fragmentPortletRenderer.renderPortlet(
+			httpServletRequest, httpServletResponse, portletId, instanceId,
 			PortletPreferencesFactoryUtil.toXML(portletPreferences));
-
-		Portlet portlet = _portletLocalService.getPortletById(portletId);
-
-		if (portlet.isInstanceable()) {
-			runtimeTagElement.attr(
-				"instanceId", PortletIdCodec.generateInstanceId());
-		}
-
-		runtimeTagElement.attr("persistSettings=false", true);
-		runtimeTagElement.attr("portletName", portletId);
-
-		return runtimeTagElement.toString();
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
@@ -172,9 +221,21 @@ public class AddPortletMVCActionCommand extends BaseMVCActionCommand {
 	private FragmentEntryProcessorRegistry _fragmentEntryProcessorRegistry;
 
 	@Reference
+	private FragmentPortletRenderer _fragmentPortletRenderer;
+
+	@Reference
+	private FragmentRendererController _fragmentRendererController;
+
+	@Reference
+	private LayoutLocalService _layoutLocalService;
+
+	@Reference
 	private Portal _portal;
 
 	@Reference
 	private PortletLocalService _portletLocalService;
+
+	@Reference
+	private PortletPreferencesLocalService _portletPreferencesLocalService;
 
 }

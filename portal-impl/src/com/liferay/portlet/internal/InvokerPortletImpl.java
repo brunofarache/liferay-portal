@@ -124,6 +124,11 @@ public class InvokerPortletImpl
 		if (ClassUtil.isSubclass(portletClass, PortletDeployer.JSF_STANDARD)) {
 			facesPortlet = true;
 		}
+		else if (portlet instanceof InvokerPortlet) {
+			InvokerPortlet invokerPortlet = (InvokerPortlet)portlet;
+
+			facesPortlet = invokerPortlet.isFacesPortlet();
+		}
 
 		boolean headerPortlet = PortletTypeUtil.isHeaderPortlet(portlet);
 
@@ -151,14 +156,9 @@ public class InvokerPortletImpl
 				currentThread.setContextClassLoader(_portletClassLoader);
 			}
 
-			Closeable closeable = (Closeable)_invokerFilterContainer;
-
-			closeable.close();
+			cleanUp();
 
 			_portlet.destroy();
-		}
-		catch (IOException ioe) {
-			_log.error(ioe, ioe);
 		}
 		finally {
 			if (_portletClassLoader != null) {
@@ -246,6 +246,11 @@ public class InvokerPortletImpl
 			}
 
 			_portlet.init(portletConfig);
+		}
+		catch (Throwable t) {
+			cleanUp();
+
+			throw t;
 		}
 		finally {
 			if (_portletClassLoader != null) {
@@ -407,11 +412,16 @@ public class InvokerPortletImpl
 			}
 		}
 
-		Map<String, String[]> properties =
-			((RenderResponseImpl)renderResponse).getProperties();
+		RenderResponseImpl renderResponseImpl =
+			(RenderResponseImpl)renderResponse;
+
+		Map<String, String[]> properties = renderResponseImpl.getProperties();
 
 		if (properties.containsKey("clear-request-parameters")) {
-			((RenderRequestImpl)renderRequest).clearRenderParameters();
+			RenderRequestImpl renderRequestImpl =
+				(RenderRequestImpl)renderRequest;
+
+			renderRequestImpl.clearRenderParameters();
 		}
 
 		if (_log.isDebugEnabled()) {
@@ -519,6 +529,17 @@ public class InvokerPortletImpl
 	public void setPortletFilters() {
 	}
 
+	protected void cleanUp() {
+		try {
+			Closeable closeable = (Closeable)_invokerFilterContainer;
+
+			closeable.close();
+		}
+		catch (IOException ioe) {
+			_log.error("Unable to close invoker filter container", ioe);
+		}
+	}
+
 	protected void invoke(
 			LiferayPortletRequest portletRequest,
 			LiferayPortletResponse portletResponse, String lifecycle,
@@ -543,13 +564,16 @@ public class InvokerPortletImpl
 			RequestDispatcher requestDispatcher =
 				servletContext.getRequestDispatcher(path);
 
-			HttpServletRequest request = portletRequest.getHttpServletRequest();
-			HttpServletResponse response =
+			HttpServletRequest httpServletRequest =
+				portletRequest.getHttpServletRequest();
+			HttpServletResponse httpServletResponse =
 				portletResponse.getHttpServletResponse();
 
-			request.setAttribute(JavaConstants.JAVAX_PORTLET_PORTLET, _portlet);
-			request.setAttribute(PortletRequest.LIFECYCLE_PHASE, lifecycle);
-			request.setAttribute(
+			httpServletRequest.setAttribute(
+				JavaConstants.JAVAX_PORTLET_PORTLET, _portlet);
+			httpServletRequest.setAttribute(
+				PortletRequest.LIFECYCLE_PHASE, lifecycle);
+			httpServletRequest.setAttribute(
 				PortletServlet.PORTLET_SERVLET_FILTER_CHAIN, filterChain);
 
 			try {
@@ -558,10 +582,12 @@ public class InvokerPortletImpl
 				// allow you to specify the content type or headers
 
 				if (lifecycle.equals(PortletRequest.RESOURCE_PHASE)) {
-					requestDispatcher.forward(request, response);
+					requestDispatcher.forward(
+						httpServletRequest, httpServletResponse);
 				}
 				else {
-					requestDispatcher.include(request, response);
+					requestDispatcher.include(
+						httpServletRequest, httpServletResponse);
 				}
 			}
 			catch (ServletException se) {
@@ -583,17 +609,13 @@ public class InvokerPortletImpl
 
 		Map<String, String[]> properties = portletResponse.getProperties();
 
-		if (MapUtil.isNotEmpty(properties)) {
-			if (_expCache != null) {
-				String[] expCache = properties.get(
-					RenderResponse.EXPIRATION_CACHE);
+		if (MapUtil.isNotEmpty(properties) && (_expCache != null)) {
+			String[] expCache = properties.get(RenderResponse.EXPIRATION_CACHE);
 
-				if ((expCache != null) && (expCache.length > 0) &&
-					(expCache[0] != null)) {
+			if ((expCache != null) && (expCache.length > 0) &&
+				(expCache[0] != null)) {
 
-					_expCache = Integer.valueOf(
-						GetterUtil.getInteger(expCache[0]));
-				}
+				_expCache = Integer.valueOf(GetterUtil.getInteger(expCache[0]));
 			}
 		}
 	}

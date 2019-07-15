@@ -14,10 +14,9 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service utility for Account. This utility wraps
@@ -284,9 +283,6 @@ public class AccountLocalServiceUtil {
 		if (_service == null) {
 			_service = (AccountLocalService)PortalBeanLocatorUtil.locate(
 				AccountLocalService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				AccountLocalServiceUtil.class, "_service");
 		}
 
 		return _service;

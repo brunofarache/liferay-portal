@@ -1,8 +1,5 @@
 {
 	"ignore": [
-		"**/document_library/js/*.js"
-	],
-	"presets": [
-		"env"
+		"**/document_library/js/legacy/*.js"
 	]
 }

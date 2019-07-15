@@ -36,6 +36,74 @@ public class CardTag extends IncludeTag {
 		return EVAL_BODY_INCLUDE;
 	}
 
+	public String getActionJsp() {
+		return _actionJsp;
+	}
+
+	public String getCardCssClass() {
+		return _cardCssClass;
+	}
+
+	public String getCheckboxCSSClass() {
+		return _checkboxCSSClass;
+	}
+
+	public Map<String, Object> getCheckboxData() {
+		return _checkboxData;
+	}
+
+	public String getCheckboxId() {
+		return _checkboxId;
+	}
+
+	public String getCheckboxName() {
+		return _checkboxName;
+	}
+
+	public String getCheckboxValue() {
+		return _checkboxValue;
+	}
+
+	public String getCssClass() {
+		return _cssClass;
+	}
+
+	public Map<String, Object> getData() {
+		return _data;
+	}
+
+	public String getImageCSSClass() {
+		return _imageCSSClass;
+	}
+
+	public String getImageUrl() {
+		return _imageUrl;
+	}
+
+	public ResultRow getResultRow() {
+		return _resultRow;
+	}
+
+	public RowChecker getRowChecker() {
+		return _rowChecker;
+	}
+
+	public String getUrl() {
+		return _url;
+	}
+
+	public boolean isCheckboxChecked() {
+		return _checkboxChecked;
+	}
+
+	public boolean isCheckboxDisabled() {
+		return _checkboxDisabled;
+	}
+
+	public boolean isShowCheckbox() {
+		return _showCheckbox;
+	}
+
 	public void setActionJsp(String actionJsp) {
 		_actionJsp = actionJsp;
 	}
@@ -44,6 +112,10 @@ public class CardTag extends IncludeTag {
 		ServletContext actionJspServletContext) {
 
 		_actionJspServletContext = actionJspServletContext;
+	}
+
+	public void setCardCssClass(String cardCssClass) {
+		_cardCssClass = cardCssClass;
 	}
 
 	public void setCheckboxChecked(boolean checkboxChecked) {
@@ -102,6 +174,10 @@ public class CardTag extends IncludeTag {
 	}
 
 	public void setRowChecker(RowChecker rowChecker) {
+		String cssClass = rowChecker.getCssClass();
+
+		rowChecker.setCssClass("custom-control-input " + cssClass);
+
 		_rowChecker = rowChecker;
 	}
 
@@ -119,6 +195,7 @@ public class CardTag extends IncludeTag {
 
 		_actionJsp = null;
 		_actionJspServletContext = null;
+		_cardCssClass = null;
 		_checkboxChecked = null;
 		_checkboxCSSClass = null;
 		_checkboxData = null;
@@ -145,48 +222,58 @@ public class CardTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute("liferay-frontend:card:actionJsp", _actionJsp);
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
+			"liferay-frontend:card:actionJsp", _actionJsp);
+		httpServletRequest.setAttribute(
 			"liferay-frontend:card:actionJspServletContext",
 			getActionJspServletContext());
-		request.setAttribute(
+		httpServletRequest.setAttribute(
+			"liferay-frontend:card:cardCssClass", _cardCssClass);
+		httpServletRequest.setAttribute(
 			"liferay-frontend:card:checkboxChecked",
 			String.valueOf(_checkboxChecked));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-frontend:card:checkboxCSSClass", _checkboxCSSClass);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-frontend:card:checkboxData", _checkboxData);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-frontend:card:checkboxDisabled",
 			String.valueOf(_checkboxDisabled));
-		request.setAttribute("liferay-frontend:card:checkboxId", _checkboxId);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
+			"liferay-frontend:card:checkboxId", _checkboxId);
+		httpServletRequest.setAttribute(
 			"liferay-frontend:card:checkboxName", _checkboxName);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-frontend:card:checkboxValue", _checkboxValue);
-		request.setAttribute("liferay-frontend:card:cssClass", _cssClass);
-		request.setAttribute("liferay-frontend:card:data", _data);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
+			"liferay-frontend:card:cssClass", _cssClass);
+		httpServletRequest.setAttribute("liferay-frontend:card:data", _data);
+		httpServletRequest.setAttribute(
 			"liferay-frontend:card:imageCSSClass", _imageCSSClass);
-		request.setAttribute("liferay-frontend:card:imageUrl", _imageUrl);
-		request.setAttribute("liferay-frontend:card:resultRow", _resultRow);
-		request.setAttribute("liferay-frontend:card:rowChecker", _rowChecker);
+		httpServletRequest.setAttribute(
+			"liferay-frontend:card:imageUrl", _imageUrl);
+		httpServletRequest.setAttribute(
+			"liferay-frontend:card:resultRow", _resultRow);
+		httpServletRequest.setAttribute(
+			"liferay-frontend:card:rowChecker", _rowChecker);
 
 		if (_rowChecker != null) {
 			_showCheckbox = true;
 		}
 
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-frontend:card:showCheckbox", _showCheckbox);
 
-		request.setAttribute("liferay-frontend:card:url", _url);
+		httpServletRequest.setAttribute("liferay-frontend:card:url", _url);
 
-		request.setAttribute(WebKeys.SEARCH_CONTAINER_RESULT_ROW, _resultRow);
+		httpServletRequest.setAttribute(
+			WebKeys.SEARCH_CONTAINER_RESULT_ROW, _resultRow);
 	}
 
 	private String _actionJsp;
 	private ServletContext _actionJspServletContext;
+	private String _cardCssClass;
 	private Boolean _checkboxChecked;
 	private String _checkboxCSSClass;
 	private Map<String, Object> _checkboxData;

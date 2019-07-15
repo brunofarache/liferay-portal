@@ -162,7 +162,7 @@ public class LoadBalancerUtil {
 				return "http://" + mostAvailableJenkinsMaster.getName();
 			}
 			catch (Exception e) {
-				if (retries < _MAX_RETRIES) {
+				if (retries < _RETRIES_SIZE_MAX) {
 					retries++;
 
 					continue;
@@ -172,10 +172,12 @@ public class LoadBalancerUtil {
 			}
 			finally {
 				if (verbose) {
+					String durationString =
+						JenkinsResultsParserUtil.toDurationString(
+							System.currentTimeMillis() - start);
+
 					System.out.println(
-						"Got most available master URL in " +
-							JenkinsResultsParserUtil.toDurationString(
-								System.currentTimeMillis() - start));
+						"Got most available master URL in " + durationString);
 				}
 			}
 		}
@@ -204,7 +206,7 @@ public class LoadBalancerUtil {
 		Properties properties = new Properties();
 
 		if (propertiesURL == null) {
-			properties = JenkinsResultsParserUtil.getBuildProperties();
+			properties = JenkinsResultsParserUtil.getBuildProperties(false);
 		}
 		else {
 			properties = new Properties();
@@ -330,7 +332,7 @@ public class LoadBalancerUtil {
 		}
 	}
 
-	private static final int _MAX_RETRIES = 3;
+	private static final int _RETRIES_SIZE_MAX = 3;
 
 	private static final Map<String, List<JenkinsMaster>> _jenkinsMasters =
 		new HashMap<>();

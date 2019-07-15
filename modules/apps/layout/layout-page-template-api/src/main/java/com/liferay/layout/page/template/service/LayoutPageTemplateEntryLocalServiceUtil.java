@@ -14,8 +14,7 @@
 
 package com.liferay.layout.page.template.service;
 
-import aQute.bnd.annotation.ProviderType;
-
+import org.osgi.annotation.versioning.ProviderType;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.util.tracker.ServiceTracker;
@@ -300,6 +299,14 @@ public class LayoutPageTemplateEntryLocalServiceUtil {
 		com.liferay.portal.kernel.dao.orm.Projection projection) {
 
 		return getService().dynamicQueryCount(dynamicQuery, projection);
+	}
+
+	public static com.liferay.layout.page.template.model.LayoutPageTemplateEntry
+		fetchDefaultLayoutPageTemplateEntry(
+			long groupId, long classNameId, long classTypeId) {
+
+		return getService().fetchDefaultLayoutPageTemplateEntry(
+			groupId, classNameId, classTypeId);
 	}
 
 	public static com.liferay.layout.page.template.model.LayoutPageTemplateEntry
@@ -605,15 +612,6 @@ public class LayoutPageTemplateEntryLocalServiceUtil {
 
 	public static com.liferay.layout.page.template.model.LayoutPageTemplateEntry
 			updateLayoutPageTemplateEntry(
-				long userId, long layoutPageTemplateEntryId, int status)
-		throws com.liferay.portal.kernel.exception.PortalException {
-
-		return getService().updateLayoutPageTemplateEntry(
-			userId, layoutPageTemplateEntryId, status);
-	}
-
-	public static com.liferay.layout.page.template.model.LayoutPageTemplateEntry
-			updateLayoutPageTemplateEntry(
 				long layoutPageTemplateEntryId, long classNameId,
 				long classTypeId)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -651,6 +649,15 @@ public class LayoutPageTemplateEntryLocalServiceUtil {
 		return getService().updateLayoutPageTemplateEntry(
 			layoutPageTemplateEntryId, name, fragmentEntryIds, editableValues,
 			serviceContext);
+	}
+
+	public static com.liferay.layout.page.template.model.LayoutPageTemplateEntry
+			updateStatus(
+				long userId, long layoutPageTemplateEntryId, int status)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().updateStatus(
+			userId, layoutPageTemplateEntryId, status);
 	}
 
 	public static LayoutPageTemplateEntryLocalService getService() {

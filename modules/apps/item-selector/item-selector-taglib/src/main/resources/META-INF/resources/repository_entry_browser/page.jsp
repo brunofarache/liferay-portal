@@ -20,7 +20,6 @@
 String randomNamespace = PortalUtil.generateRandomKey(request, "taglib_ui_repository_entry_browse_page") + StringPool.UNDERLINE;
 
 String displayStyle = GetterUtil.getString(request.getAttribute("liferay-item-selector:repository-entry-browser:displayStyle"));
-DLMimeTypeDisplayContext dlMimeTypeDisplayContext = (DLMimeTypeDisplayContext)request.getAttribute("liferay-item-selector:repository-entry-browser:dlMimeTypeDisplayContext");
 String emptyResultsMessage = GetterUtil.getString(request.getAttribute("liferay-item-selector:repository-entry-browser:emptyResultsMessage"));
 ItemSelectorReturnType existingFileEntryReturnType = (ItemSelectorReturnType)request.getAttribute("liferay-item-selector:repository-entry-browser:existingFileEntryReturnType");
 List<String> extensions = (List)request.getAttribute("liferay-item-selector:repository-entry-browser:extensions");
@@ -71,7 +70,7 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 	viewTypeItems="<%= itemSelectorRepositoryEntryManagementToolbarDisplayContext.getViewTypes() %>"
 />
 
-<div class="container-fluid container-fluid-max-xl lfr-item-viewer" id="<%= randomNamespace %>ItemSelectorContainer">
+<div class="container-fluid container-fluid-max-xl item-selector lfr-item-viewer" id="<%= randomNamespace %>ItemSelectorContainer">
 	<c:if test="<%= showSearchInfo %>">
 		<liferay-util:include page="/repository_entry_browser/search_info.jsp" servletContext="<%= application %>" />
 	</c:if>
@@ -98,9 +97,9 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 		<liferay-util:buffer
 			var="selectFileHTML"
 		>
-			<label class="btn btn-default" for="<%= randomNamespace %>InputFile"><liferay-ui:message key="select-file" /></label>
+			<input accept="<%= ListUtil.isEmpty(extensions) ? "*" : StringUtil.merge(extensions) %>" class="input-file" id="<%= randomNamespace %>InputFile" type="file" />
 
-			<input accept="<%= ListUtil.isEmpty(extensions) ? "*" : StringUtil.merge(extensions) %>" class="hide" id="<%= randomNamespace %>InputFile" type="file" />
+			<label class="btn btn-default" for="<%= randomNamespace %>InputFile"><liferay-ui:message key="select-file" /></label>
 		</liferay-util:buffer>
 
 		<div class="drop-enabled drop-zone no-border">
@@ -271,6 +270,7 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 										colspan="<%= 3 %>"
 									>
 										<liferay-frontend:horizontal-card
+											cardCssClass="card-interactive card-interactive-secondary"
 											resultRow="<%= row %>"
 											text="<%= folder.getName() %>"
 											url="<%= viewFolderURL.toString() %>"
@@ -309,43 +309,39 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 									data.put("title", title);
 									data.put("url", DLURLHelperUtil.getPreviewURL(fileEntry, latestFileVersion, themeDisplay, StringPool.BLANK));
 									data.put("value", ItemSelectorRepositoryEntryBrowserUtil.getValue(itemSelectorReturnTypeResolver, existingFileEntryReturnType, fileEntry, themeDisplay));
-
-									String stickerCssClass = "file-icon-color-0";
-
-									String fileExtensionSticker = StringUtil.shorten(StringUtil.upperCase(fileEntry.getExtension()), 3, StringPool.BLANK);
-
-									if (Validator.isNotNull(dlMimeTypeDisplayContext)) {
-										stickerCssClass = dlMimeTypeDisplayContext.getCssClassFileMimeType(fileEntry.getMimeType());
-									}
 								%>
 
 									<liferay-ui:search-container-column-text>
 										<c:choose>
 											<c:when test="<%= Validator.isNull(thumbnailSrc) %>">
 												<liferay-frontend:icon-vertical-card
-													cssClass="item-preview"
+													cardCssClass="card-interactive card-interactive-primary"
+													cssClass="file-card item-preview"
 													data="<%= data %>"
 													icon="documents-and-media"
 													title="<%= title %>"
 												>
 													<liferay-frontend:vertical-card-sticker-bottom>
-														<div class="sticker sticker-secondary sticker-bottom-left <%= stickerCssClass %>">
-															<%= fileExtensionSticker %>
-														</div>
+														<liferay-document-library:mime-type-sticker
+															cssClass="sticker-bottom-left sticker-secondary"
+															fileVersion="<%= latestFileVersion %>"
+														/>
 													</liferay-frontend:vertical-card-sticker-bottom>
 												</liferay-frontend:icon-vertical-card>
 											</c:when>
 											<c:otherwise>
 												<liferay-frontend:vertical-card
-													cssClass="item-preview"
+													cardCssClass="card-interactive card-interactive-primary"
+													cssClass="file-card item-preview"
 													data="<%= data %>"
 													imageUrl="<%= thumbnailSrc %>"
 													title="<%= title %>"
 												>
 													<liferay-frontend:vertical-card-sticker-bottom>
-														<div class="sticker sticker-bottom <%= stickerCssClass %>">
-															<%= fileExtensionSticker %>
-														</div>
+														<liferay-document-library:mime-type-sticker
+															cssClass="sticker-bottom sticker-secondary"
+															fileVersion="<%= latestFileVersion %>"
+														/>
 													</liferay-frontend:vertical-card-sticker-bottom>
 												</liferay-frontend:vertical-card>
 											</c:otherwise>
@@ -412,17 +408,12 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 												src="<%= DLURLHelperUtil.getThumbnailSrc(fileEntry, themeDisplay) %>"
 											/>
 										</c:when>
-										<c:when test="<%= (dlMimeTypeDisplayContext != null) && Validator.isNotNull(latestFileVersion.getExtension()) %>">
-											<liferay-ui:search-container-column-text>
-												<div class="sticker <%= dlMimeTypeDisplayContext.getCssClassFileMimeType(fileEntry.getMimeType()) %>">
-													<%= StringUtil.shorten(StringUtil.upperCase(latestFileVersion.getExtension()), 3, StringPool.BLANK) %>
-												</div>
-											</liferay-ui:search-container-column-text>
-										</c:when>
 										<c:otherwise>
-											<liferay-ui:search-container-column-icon
-												icon="documents-and-media"
-											/>
+											<liferay-ui:search-container-column-text>
+												<liferay-document-library:mime-type-sticker
+													fileVersion="<%= latestFileVersion %>"
+												/>
+											</liferay-ui:search-container-column-text>
 										</c:otherwise>
 									</c:choose>
 

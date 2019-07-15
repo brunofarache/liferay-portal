@@ -16,9 +16,13 @@ package com.liferay.fragment.entry.processor.portlet;
 
 import com.liferay.fragment.exception.FragmentEntryContentException;
 import com.liferay.fragment.model.FragmentEntryLink;
+import com.liferay.fragment.processor.DefaultFragmentEntryProcessorContext;
 import com.liferay.fragment.processor.FragmentEntryProcessor;
+import com.liferay.fragment.processor.FragmentEntryProcessorContext;
 import com.liferay.fragment.processor.PortletRegistry;
+import com.liferay.fragment.renderer.FragmentPortletRenderer;
 import com.liferay.fragment.service.FragmentEntryLinkLocalService;
+import com.liferay.fragment.util.FragmentPortletSetupUtil;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.petra.string.StringBundler;
@@ -27,6 +31,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
@@ -46,6 +51,7 @@ import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portlet.PortletPreferencesImpl;
 
 import java.util.List;
 import java.util.Locale;
@@ -72,12 +78,46 @@ import org.osgi.service.component.annotations.Reference;
 public class PortletFragmentEntryProcessor implements FragmentEntryProcessor {
 
 	@Override
+	public void deleteFragmentEntryLinkData(
+		FragmentEntryLink fragmentEntryLink) {
+
+		Document document = _getDocument(fragmentEntryLink.getHtml());
+
+		for (Element element : document.select("*")) {
+			String tagName = element.tagName();
+
+			if (!StringUtil.startsWith(tagName, "lfr-widget-")) {
+				continue;
+			}
+
+			String alias = StringUtil.replace(
+				tagName, "lfr-widget-", StringPool.BLANK);
+
+			String portletName = _portletRegistry.getPortletName(alias);
+
+			if (Validator.isNull(portletName)) {
+				continue;
+			}
+
+			try {
+				_portletPreferencesLocalService.deletePortletPreferences(
+					PortletKeys.PREFS_OWNER_ID_DEFAULT,
+					PortletKeys.PREFS_OWNER_TYPE_LAYOUT,
+					_getPlid(fragmentEntryLink),
+					_getPortletId(
+						portletName, fragmentEntryLink.getNamespace(),
+						element.attr("id")));
+			}
+			catch (Exception e) {
+			}
+		}
+	}
+
+	@Override
 	public JSONArray getAvailableTagsJSONArray() {
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
 
 		for (String alias : _portletRegistry.getPortletAliases()) {
-			JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
-
 			StringBundler sb = new StringBundler(5);
 
 			sb.append("<lfr-widget-");
@@ -86,9 +126,11 @@ public class PortletFragmentEntryProcessor implements FragmentEntryProcessor {
 			sb.append(alias);
 			sb.append(">");
 
-			jsonObject.put("content", sb.toString());
-
-			jsonObject.put("name", "lfr-widget-" + alias);
+			JSONObject jsonObject = JSONUtil.put(
+				"content", sb.toString()
+			).put(
+				"name", "lfr-widget-" + alias
+			);
 
 			jsonArray.put(jsonObject);
 		}
@@ -98,11 +140,19 @@ public class PortletFragmentEntryProcessor implements FragmentEntryProcessor {
 
 	@Override
 	public String processFragmentEntryLinkHTML(
-			FragmentEntryLink fragmentEntryLink, String html, String mode,
-			Locale locale, long[] segmentsExperienceIds)
+			FragmentEntryLink fragmentEntryLink, String html,
+			FragmentEntryProcessorContext fragmentEntryProcessorContext)
 		throws PortalException {
 
 		validateFragmentEntryHTML(html);
+
+		String widgetHTML = _renderWidgetHTML(
+			fragmentEntryLink.getEditableValues(),
+			fragmentEntryProcessorContext);
+
+		if (Validator.isNotNull(widgetHTML)) {
+			return widgetHTML;
+		}
 
 		Document document = _getDocument(html);
 
@@ -125,51 +175,39 @@ public class PortletFragmentEntryProcessor implements FragmentEntryProcessor {
 						"there-is-no-widget-available-for-alias-x", alias));
 			}
 
-			Element runtimeTagElement = new Element(
-				"@liferay_portlet.runtime", true);
-
 			FragmentEntryLink originalFragmentEntryLink =
 				_fragmentEntryLinkLocalService.fetchFragmentEntryLink(
 					fragmentEntryLink.getOriginalFragmentEntryLinkId());
 
-			String portletPreferences = StringPool.BLANK;
+			String id = element.attr("id");
 
-			String instanceId = _getInstanceId(
-				fragmentEntryLink.getNamespace(), element.attr("id"));
+			String defaultPreferences = StringPool.BLANK;
 
 			if (originalFragmentEntryLink != null) {
-				String originalInstanceId = _getInstanceId(
-					originalFragmentEntryLink.getNamespace(),
-					element.attr("id"));
-
-				String defaultPreferences = _getPreferences(
-					portletName, originalFragmentEntryLink, originalInstanceId,
+				defaultPreferences = _getPreferences(
+					portletName, originalFragmentEntryLink, id,
 					StringPool.BLANK);
-
-				portletPreferences = _getPreferences(
-					portletName, fragmentEntryLink, instanceId,
-					defaultPreferences);
 			}
 			else {
 				Portlet portlet = _portletLocalService.getPortletById(
 					portletName);
 
-				portletPreferences = _getPreferences(
-					portletName, fragmentEntryLink, instanceId,
-					portlet.getDefaultPreferences());
+				defaultPreferences = portlet.getDefaultPreferences();
 			}
 
-			runtimeTagElement.attr("defaultPreferences", portletPreferences);
-
-			runtimeTagElement.attr("instanceId", instanceId);
-			runtimeTagElement.attr("persistSettings=false", true);
-			runtimeTagElement.attr("portletName", portletName);
+			String portletHTML = _fragmentPortletRenderer.renderPortlet(
+				fragmentEntryProcessorContext.getHttpServletRequest(),
+				fragmentEntryProcessorContext.getHttpServletResponse(),
+				portletName,
+				_getInstanceId(fragmentEntryLink.getNamespace(), id),
+				_getPreferences(
+					portletName, fragmentEntryLink, id, defaultPreferences));
 
 			Element portletElement = new Element("div");
 
 			portletElement.attr("class", "portlet");
 
-			portletElement.appendChild(runtimeTagElement);
+			portletElement.html(portletHTML);
 
 			element.replaceWith(portletElement);
 		}
@@ -177,6 +215,27 @@ public class PortletFragmentEntryProcessor implements FragmentEntryProcessor {
 		Element bodyElement = document.body();
 
 		return bodyElement.html();
+	}
+
+	@Override
+	public String processFragmentEntryLinkHTML(
+			FragmentEntryLink fragmentEntryLink, String html, String mode,
+			Locale locale, long[] segmentsExperienceIds, long previewClassPK,
+			int previewType)
+		throws PortalException {
+
+		DefaultFragmentEntryProcessorContext
+			defaultFragmentEntryProcessorContext =
+				new DefaultFragmentEntryProcessorContext(
+					null, null, mode, locale);
+
+		defaultFragmentEntryProcessorContext.setPreviewClassPK(previewClassPK);
+		defaultFragmentEntryProcessorContext.setPreviewType(previewType);
+		defaultFragmentEntryProcessorContext.setSegmentsExperienceIds(
+			segmentsExperienceIds);
+
+		return processFragmentEntryLinkHTML(
+			fragmentEntryLink, html, defaultFragmentEntryProcessorContext);
 	}
 
 	@Override
@@ -262,9 +321,42 @@ public class PortletFragmentEntryProcessor implements FragmentEntryProcessor {
 		return namespace + id;
 	}
 
+	private long _getPlid(FragmentEntryLink fragmentEntryLink) {
+		if (fragmentEntryLink.getClassNameId() == _portal.getClassNameId(
+				Layout.class)) {
+
+			return fragmentEntryLink.getClassPK();
+		}
+
+		if (fragmentEntryLink.getClassNameId() == _portal.getClassNameId(
+				LayoutPageTemplateEntry.class)) {
+
+			LayoutPageTemplateEntry layoutPageTemplateEntry =
+				_layoutPageTemplateEntryLocalService.
+					fetchLayoutPageTemplateEntry(
+						fragmentEntryLink.getClassPK());
+
+			if (layoutPageTemplateEntry != null) {
+				return layoutPageTemplateEntry.getPlid();
+			}
+		}
+
+		return PortletKeys.PREFS_PLID_SHARED;
+	}
+
+	private String _getPortletId(
+		String portletName, String namespace, String id) {
+
+		String instanceId = _getInstanceId(namespace, id);
+
+		return PortletIdCodec.encode(
+			PortletIdCodec.decodePortletName(portletName),
+			PortletIdCodec.decodeUserId(portletName), instanceId);
+	}
+
 	private String _getPreferences(
-			String portletName, FragmentEntryLink fragmentEntryLink,
-			String instanceId, String defaultPreferences)
+			String portletName, FragmentEntryLink fragmentEntryLink, String id,
+			String defaultPreferences)
 		throws PortalException {
 
 		long groupId = fragmentEntryLink.getGroupId();
@@ -278,29 +370,11 @@ public class PortletFragmentEntryProcessor implements FragmentEntryProcessor {
 
 		Group group = _groupLocalService.getGroup(groupId);
 
-		long plid = PortletKeys.PREFS_PLID_SHARED;
-
-		if (fragmentEntryLink.getClassNameId() == _portal.getClassNameId(
-				Layout.class)) {
-
-			plid = fragmentEntryLink.getClassPK();
-		}
-		else if (fragmentEntryLink.getClassNameId() == _portal.getClassNameId(
-					LayoutPageTemplateEntry.class)) {
-
-			LayoutPageTemplateEntry layoutPageTemplateEntry =
-				_layoutPageTemplateEntryLocalService.getLayoutPageTemplateEntry(
-					fragmentEntryLink.getClassPK());
-
-			plid = layoutPageTemplateEntry.getPlid();
-		}
-
-		String portletId = PortletIdCodec.encode(
-			PortletIdCodec.decodePortletName(portletName),
-			PortletIdCodec.decodeUserId(portletName), instanceId);
-
 		PortletPreferences jxPortletPreferences =
 			PortletPreferencesFactoryUtil.fromDefaultXML(defaultPreferences);
+
+		String portletId = _getPortletId(
+			portletName, fragmentEntryLink.getNamespace(), id);
 
 		List<com.liferay.portal.kernel.model.PortletPreferences>
 			portletPreferencesList =
@@ -312,11 +386,19 @@ public class PortletFragmentEntryProcessor implements FragmentEntryProcessor {
 			jxPortletPreferences =
 				PortletPreferencesFactoryUtil.getLayoutPortletSetup(
 					group.getCompanyId(), PortletKeys.PREFS_OWNER_ID_DEFAULT,
-					PortletKeys.PREFS_OWNER_TYPE_LAYOUT, plid, portletId,
-					defaultPreferences);
+					PortletKeys.PREFS_OWNER_TYPE_LAYOUT,
+					_getPlid(fragmentEntryLink), portletId, defaultPreferences);
 
 			_updateLayoutPortletSetup(
 				portletPreferencesList, jxPortletPreferences);
+		}
+
+		try {
+			FragmentPortletSetupUtil.setPortletBareboneCSSClassName(
+				jxPortletPreferences);
+		}
+		catch (Exception e) {
+			throw new PortalException(e);
 		}
 
 		Document preferencesDocument = _getDocument(
@@ -327,6 +409,34 @@ public class PortletFragmentEntryProcessor implements FragmentEntryProcessor {
 		return preferencesBody.html();
 	}
 
+	private String _renderWidgetHTML(
+			String editableValues,
+			FragmentEntryProcessorContext fragmentEntryProcessorContext)
+		throws PortalException {
+
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+			editableValues);
+
+		String portletId = jsonObject.getString("portletId");
+
+		if (Validator.isNull(portletId)) {
+			return StringPool.BLANK;
+		}
+
+		String instanceId = jsonObject.getString("instanceId");
+
+		PortletPreferences portletPreferences =
+			PortletPreferencesFactoryUtil.getPortletPreferences(
+				fragmentEntryProcessorContext.getHttpServletRequest(),
+				portletId);
+
+		return _fragmentPortletRenderer.renderPortlet(
+			fragmentEntryProcessorContext.getHttpServletRequest(),
+			fragmentEntryProcessorContext.getHttpServletResponse(), portletId,
+			instanceId,
+			PortletPreferencesFactoryUtil.toXML(portletPreferences));
+	}
+
 	private void _updateLayoutPortletSetup(
 		List<com.liferay.portal.kernel.model.PortletPreferences>
 			portletPreferencesList,
@@ -335,10 +445,20 @@ public class PortletFragmentEntryProcessor implements FragmentEntryProcessor {
 		String portletPreferencesXml = PortletPreferencesFactoryUtil.toXML(
 			jxPortletPreferences);
 
+		long plid = 0L;
+
+		if (jxPortletPreferences instanceof PortletPreferencesImpl) {
+			PortletPreferencesImpl portletPreferences =
+				(PortletPreferencesImpl)jxPortletPreferences;
+
+			plid = portletPreferences.getPlid();
+		}
+
 		for (com.liferay.portal.kernel.model.PortletPreferences
 				portletPreferences : portletPreferencesList) {
 
-			if (Objects.equals(
+			if ((plid != portletPreferences.getPlid()) ||
+				Objects.equals(
 					portletPreferences.getPreferences(),
 					portletPreferencesXml)) {
 
@@ -354,6 +474,9 @@ public class PortletFragmentEntryProcessor implements FragmentEntryProcessor {
 
 	@Reference
 	private FragmentEntryLinkLocalService _fragmentEntryLinkLocalService;
+
+	@Reference
+	private FragmentPortletRenderer _fragmentPortletRenderer;
 
 	@Reference
 	private GroupLocalService _groupLocalService;

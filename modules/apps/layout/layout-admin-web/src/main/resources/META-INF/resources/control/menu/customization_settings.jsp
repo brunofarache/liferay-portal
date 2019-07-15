@@ -14,38 +14,7 @@
  */
 --%>
 
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-
-<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
-
-<%@ taglib uri="http://liferay.com/tld/aui" prefix="aui" %><%@
-taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
-taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %><%@
-taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
-
-<%@ page import="com.liferay.layout.admin.constants.LayoutAdminPortletKeys" %><%@
-page import="com.liferay.layout.admin.web.internal.product.navigation.control.menu.CustomizationSettingsProductNavigationControlMenuEntry" %><%@
-page import="com.liferay.petra.string.StringPool" %><%@
-page import="com.liferay.portal.kernel.language.LanguageUtil" %><%@
-page import="com.liferay.portal.kernel.language.UnicodeLanguageUtil" %><%@
-page import="com.liferay.portal.kernel.portlet.PortletURLFactoryUtil" %><%@
-page import="com.liferay.portal.kernel.util.GetterUtil" %><%@
-page import="com.liferay.portal.kernel.util.HtmlUtil" %><%@
-page import="com.liferay.portal.kernel.util.HttpUtil" %><%@
-page import="com.liferay.portal.kernel.util.PortalUtil" %>
-
-<%@ page import="java.util.HashMap" %><%@
-page import="java.util.Map" %>
-
-<%@ page import="javax.portlet.ActionRequest" %><%@
-page import="javax.portlet.PortletRequest" %><%@
-page import="javax.portlet.PortletURL" %>
-
-<liferay-frontend:defineObjects />
-
-<liferay-theme:defineObjects />
-
-<portlet:defineObjects />
+<%@ include file="/control/menu/init.jsp" %>
 
 <%
 String portletNamespace = PortalUtil.getPortletNamespace(LayoutAdminPortletKeys.GROUP_PAGES);
@@ -204,13 +173,29 @@ data.put("qa-id", "customizations");
 					</div>
 				</li>
 
-				<aui:script>
-					$('#<%= portletNamespace %>customizationButton, #<%= portletNamespace %>closeCustomizationOptions').on(
-						'click',
-						function(event) {
-							$('#<%= portletNamespace %>customizationBar .control-menu-level-2').toggleClass('open');
-						}
-					);
+				<aui:script require="metal-dom/src/dom as dom">
+					var closeCustomizationOptions = document.getElementById('<%= portletNamespace %>closeCustomizationOptions');
+					var controlMenu = document.querySelector('#<%= portletNamespace %>customizationBar .control-menu-level-2');
+
+					if (closeCustomizationOptions && controlMenu) {
+						closeCustomizationOptions.addEventListener(
+							'click',
+							function(event) {
+								dom.toggleClasses(controlMenu, 'open');
+							}
+						);
+					}
+
+					var customizationButton = document.getElementById('<%= portletNamespace %>customizationButton');
+
+					if (customizationButton && controlMenu) {
+						customizationButton.addEventListener(
+							'click',
+							function(event) {
+								dom.toggleClasses(controlMenu, 'open');
+							}
+						);
+					}
 				</aui:script>
 			</ul>
 		</div>

@@ -19,9 +19,7 @@ boolean changeableDefaultLanguage = journalEditDDMStructuresDisplayContext.chang
 
 String defaultLanguageId = LocaleUtil.toLanguageId(LocaleUtil.getSiteDefault());
 
-DDMForm ddmForm = journalEditDDMStructuresDisplayContext.getDDMForm();
-
-if (ddmForm != null) {
+if ((ddmForm != null) && (ddmForm.getDefaultLocale() != null)) {
 	String ddmFormDefaultLanguageId = LocaleUtil.toLanguageId(ddmForm.getDefaultLocale());
 
 	if (!Objects.equals(defaultLanguageId, ddmFormDefaultLanguageId)) {
@@ -37,7 +35,6 @@ if (ddmForm != null) {
 <liferay-ui:tabs
 	names='<%= LanguageUtil.get(request, "view[action]") + "," + LanguageUtil.get(request, "source") %>'
 	refresh="<%= false %>"
-	type="tabs nav-tabs-default"
 >
 	<liferay-ui:section>
 		<div id="<portlet:namespace />formBuilderTab">
@@ -110,7 +107,7 @@ if (ddmForm != null) {
 	var getContentValue = function() {
 		var content;
 
-		if (formEditor && !isViewTabActive()) {
+		if (formEditor && !checkViewTabActive()) {
 			content = formEditor.get(STR_VALUE);
 		}
 		else {
@@ -136,18 +133,18 @@ if (ddmForm != null) {
 		return formEditor;
 	};
 
-	var isViewTabActive = function() {
+	var checkViewTabActive = function() {
 		var formBuilderTab = A.one('#<portlet:namespace />formBuilderTab');
 
-		var isViewTabActive = false;
+		var viewTabActive = false;
 
 		if (formBuilderTab) {
 			var ancestor = formBuilderTab.ancestor();
 
-			isViewTabActive = !ancestor.hasClass('hide');
+			viewTabActive = !ancestor.hasClass('hide');
 		}
 
-		return isViewTabActive;
+		return viewTabActive;
 	};
 
 	var reloadFormBuilderData = function(content) {
@@ -179,7 +176,7 @@ if (ddmForm != null) {
 	};
 
 	var setEditorSize = function() {
-		if (!isViewTabActive()) {
+		if (!checkViewTabActive()) {
 			getFormEditor().set('width', A.one('#<portlet:namespace />formBuilderSourceWrapper').get('clientWidth'));
 		}
 	};
@@ -245,7 +242,7 @@ if (ddmForm != null) {
 	}
 
 	var afterShowTab = function(event) {
-		if (isViewTabActive()) {
+		if (checkViewTabActive()) {
 			switchToView();
 		}
 		else {

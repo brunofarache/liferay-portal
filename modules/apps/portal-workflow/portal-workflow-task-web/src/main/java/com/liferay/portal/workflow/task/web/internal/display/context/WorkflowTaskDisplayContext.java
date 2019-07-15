@@ -98,10 +98,11 @@ public class WorkflowTaskDisplayContext {
 		_liferayPortletRequest = liferayPortletRequest;
 		_liferayPortletResponse = liferayPortletResponse;
 
-		_request = PortalUtil.getHttpServletRequest(liferayPortletRequest);
+		_httpServletRequest = PortalUtil.getHttpServletRequest(
+			liferayPortletRequest);
 
 		_portalPreferences = PortletPreferencesFactoryUtil.getPortalPreferences(
-			_request);
+			_httpServletRequest);
 
 		ThemeDisplay themeDisplay =
 			(ThemeDisplay)_liferayPortletRequest.getAttribute(
@@ -110,7 +111,8 @@ public class WorkflowTaskDisplayContext {
 		_dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(
 			themeDisplay.getLocale(), themeDisplay.getTimeZone());
 
-		_workflowTaskRequestHelper = new WorkflowTaskRequestHelper(_request);
+		_workflowTaskRequestHelper = new WorkflowTaskRequestHelper(
+			_httpServletRequest);
 	}
 
 	public String getActorName(long actorId) {
@@ -172,13 +174,18 @@ public class WorkflowTaskDisplayContext {
 	public String getAssetTitle(WorkflowTask workflowTask)
 		throws PortalException {
 
-		long classPK = getWorkflowContextEntryClassPK(workflowTask);
-
 		WorkflowHandler<?> workflowHandler = getWorkflowHandler(workflowTask);
 
-		return HtmlUtil.escape(
-			workflowHandler.getTitle(
-				classPK, _workflowTaskRequestHelper.getLocale()));
+		long classPK = getWorkflowContextEntryClassPK(workflowTask);
+
+		String title = workflowHandler.getTitle(
+			classPK, getTaskContentLocale());
+
+		if (title != null) {
+			return HtmlUtil.escape(title);
+		}
+
+		return getAssetType(workflowTask);
 	}
 
 	public String getAssetType(WorkflowTask workflowTask)
@@ -186,7 +193,7 @@ public class WorkflowTaskDisplayContext {
 
 		WorkflowHandler<?> workflowHandler = getWorkflowHandler(workflowTask);
 
-		return workflowHandler.getType(_workflowTaskRequestHelper.getLocale());
+		return workflowHandler.getType(getTaskContentLocale());
 	}
 
 	public String getAssignedTheTaskMessageKey(WorkflowLog workflowLog)
@@ -317,14 +324,7 @@ public class WorkflowTaskDisplayContext {
 		String taskName = LanguageUtil.get(
 			_workflowTaskRequestHelper.getRequest(), workflowTask.getName());
 
-		WorkflowHandler<?> workflowHandler = getWorkflowHandler(workflowTask);
-
-		long classPK = getWorkflowContextEntryClassPK(workflowTask);
-
-		String title = workflowHandler.getTitle(
-			classPK, _workflowTaskRequestHelper.getLocale());
-
-		return taskName + ": " + title;
+		return taskName + ": " + getAssetTitle(workflowTask);
 	}
 
 	public Date getLastActivityDate(WorkflowTask workflowTask)
@@ -345,7 +345,7 @@ public class WorkflowTaskDisplayContext {
 		String className = _getWorkflowContextEntryClassName(workflowTask);
 
 		String modelResource = ResourceActionsUtil.getModelResource(
-			_workflowTaskRequestHelper.getLocale(), className);
+			getTaskContentLocale(), className);
 
 		return LanguageUtil.format(
 			_workflowTaskRequestHelper.getRequest(), "preview-of-x",
@@ -381,7 +381,7 @@ public class WorkflowTaskDisplayContext {
 		portletURL.setParameter("orderByCol", _getOrderByCol());
 
 		String orderByType = ParamUtil.getString(
-			_request, "orderByType", "asc");
+			_httpServletRequest, "orderByType", "asc");
 
 		portletURL.setParameter(
 			"orderByType", Objects.equals(orderByType, "asc") ? "desc" : "asc");
@@ -405,42 +405,21 @@ public class WorkflowTaskDisplayContext {
 	public String getTaglibEditURL(WorkflowTask workflowTask)
 		throws PortalException, PortletException {
 
-		StringBundler sb = new StringBundler(7);
-
-		sb.append("javascript:Liferay.Util.openWindow({id: '");
-		sb.append(_liferayPortletResponse.getNamespace());
-		sb.append("editAsset', title: '");
-
-		AssetRenderer<?> assetRenderer = getAssetRenderer(workflowTask);
-
-		String assetTitle = HtmlUtil.escape(
-			assetRenderer.getTitle(_workflowTaskRequestHelper.getLocale()));
-
-		sb.append(
-			LanguageUtil.format(
-				_workflowTaskRequestHelper.getRequest(), "edit-x", assetTitle));
-
-		sb.append("', uri:'");
-
 		PortletURL editPortletURL = _getEditPortletURL(workflowTask);
 
 		ThemeDisplay themeDisplay =
 			_workflowTaskRequestHelper.getThemeDisplay();
 
+		editPortletURL.setParameter("redirect", themeDisplay.getURLCurrent());
 		editPortletURL.setParameter(
 			"refererPlid", String.valueOf(themeDisplay.getPlid()));
 
 		editPortletURL.setParameter(
 			"workflowTaskId", String.valueOf(workflowTask.getWorkflowTaskId()));
-
 		editPortletURL.setPortletMode(PortletMode.VIEW);
-		editPortletURL.setWindowState(LiferayWindowState.POP_UP);
+		editPortletURL.setWindowState(LiferayWindowState.NORMAL);
 
-		sb.append(HtmlUtil.escapeJS(editPortletURL.toString()));
-
-		sb.append("'});");
-
-		return sb.toString();
+		return editPortletURL.toString();
 	}
 
 	public String getTaglibViewDiffsURL(WorkflowTask workflowTask)
@@ -485,24 +464,13 @@ public class WorkflowTaskDisplayContext {
 	}
 
 	public Locale getTaskContentLocale() {
-		String languageId = LanguageUtil.getLanguageId(_request);
+		String languageId = LanguageUtil.getLanguageId(_httpServletRequest);
 
 		if (Validator.isNotNull(languageId)) {
 			return LocaleUtil.fromLanguageId(languageId);
 		}
 
 		return _workflowTaskRequestHelper.getLocale();
-	}
-
-	public String getTaskContentTitle(WorkflowTask workflowTask)
-		throws PortalException {
-
-		WorkflowHandler<?> workflowHandler = getWorkflowHandler(workflowTask);
-
-		long classPK = getWorkflowContextEntryClassPK(workflowTask);
-
-		return HtmlUtil.escape(
-			workflowHandler.getTitle(classPK, getTaskContentLocale()));
 	}
 
 	public String getTaskInitiallyAssignedMessageArguments(
@@ -625,9 +593,7 @@ public class WorkflowTaskDisplayContext {
 	}
 
 	public Map<String, Object> getWorkflowTaskActionLinkData() {
-		Map<String, Object> data = new HashMap<>();
-
-		return data;
+		return new HashMap<>();
 	}
 
 	public String getWorkflowTaskAssigneeUserName(WorkflowTask workflowTask) {
@@ -788,8 +754,7 @@ public class WorkflowTaskDisplayContext {
 		for (WorkflowHandler<?> workflowHandler :
 				_getSearchableAssetsWorkflowHandlers()) {
 
-			String assetType = workflowHandler.getType(
-				_workflowTaskRequestHelper.getLocale());
+			String assetType = workflowHandler.getType(getTaskContentLocale());
 
 			if (StringUtil.equalsIgnoreCase(keywords, assetType)) {
 				return new String[] {workflowHandler.getClassName()};
@@ -873,7 +838,8 @@ public class WorkflowTaskDisplayContext {
 			return _navigation;
 		}
 
-		_navigation = ParamUtil.getString(_request, "navigation", "all");
+		_navigation = ParamUtil.getString(
+			_httpServletRequest, "navigation", "all");
 
 		return _navigation;
 	}
@@ -883,7 +849,7 @@ public class WorkflowTaskDisplayContext {
 			return _orderByCol;
 		}
 
-		_orderByCol = ParamUtil.getString(_request, "orderByCol");
+		_orderByCol = ParamUtil.getString(_httpServletRequest, "orderByCol");
 
 		if (Validator.isNull(_orderByCol)) {
 			_orderByCol = _portalPreferences.getValue(
@@ -891,7 +857,8 @@ public class WorkflowTaskDisplayContext {
 				"last-activity-date");
 		}
 		else {
-			boolean saveOrderBy = ParamUtil.getBoolean(_request, "saveOrderBy");
+			boolean saveOrderBy = ParamUtil.getBoolean(
+				_httpServletRequest, "saveOrderBy");
 
 			if (saveOrderBy) {
 				_portalPreferences.setValue(
@@ -928,7 +895,8 @@ public class WorkflowTaskDisplayContext {
 
 		portletURL.setParameter("tabs1", _getTabs1());
 
-		String navigation = ParamUtil.getString(_request, "navigation");
+		String navigation = ParamUtil.getString(
+			_httpServletRequest, "navigation");
 
 		if (Validator.isNotNull(navigation)) {
 			portletURL.setParameter("navigation", _getNavigation());
@@ -1128,12 +1096,12 @@ public class WorkflowTaskDisplayContext {
 
 	private final Format _dateFormatDateTime;
 	private String _displayStyle;
+	private final HttpServletRequest _httpServletRequest;
 	private final LiferayPortletRequest _liferayPortletRequest;
 	private final LiferayPortletResponse _liferayPortletResponse;
 	private String _navigation;
 	private String _orderByCol;
 	private final PortalPreferences _portalPreferences;
-	private final HttpServletRequest _request;
 	private final Map<Long, Role> _roles = new HashMap<>();
 	private final Map<Long, User> _users = new HashMap<>();
 	private final WorkflowTaskRequestHelper _workflowTaskRequestHelper;

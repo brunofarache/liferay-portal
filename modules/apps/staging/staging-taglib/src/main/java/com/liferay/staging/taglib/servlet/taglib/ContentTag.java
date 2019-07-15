@@ -14,19 +14,39 @@
 
 package com.liferay.staging.taglib.servlet.taglib;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.staging.taglib.internal.servlet.ServletContextUtil;
 import com.liferay.taglib.util.IncludeTag;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * @author Levente Hudák
  */
 @ProviderType
 public class ContentTag extends IncludeTag {
+
+	public String getCmd() {
+		return _cmd;
+	}
+
+	public long getExportImportConfigurationId() {
+		return _exportImportConfigurationId;
+	}
+
+	public String getType() {
+		return _type;
+	}
+
+	public boolean isDisableInputs() {
+		return _disableInputs;
+	}
+
+	public boolean isShowAllPortlets() {
+		return _showAllPortlets;
+	}
 
 	public void setCmd(String cmd) {
 		_cmd = cmd;
@@ -74,16 +94,16 @@ public class ContentTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute("liferay-staging:content:cmd", _cmd);
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute("liferay-staging:content:cmd", _cmd);
+		httpServletRequest.setAttribute(
 			"liferay-staging:content:disableInputs", _disableInputs);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:content:exportImportConfigurationId",
 			_exportImportConfigurationId);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:content:showAllPortlets", _showAllPortlets);
-		request.setAttribute("liferay-staging:content:type", _type);
+		httpServletRequest.setAttribute("liferay-staging:content:type", _type);
 	}
 
 	private static final String _PAGE = "/content/page.jsp";

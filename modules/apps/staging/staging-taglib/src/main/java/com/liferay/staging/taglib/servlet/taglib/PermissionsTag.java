@@ -14,8 +14,6 @@
 
 package com.liferay.staging.taglib.servlet.taglib;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.petra.string.StringPool;
 import com.liferay.staging.taglib.internal.servlet.ServletContextUtil;
 import com.liferay.taglib.util.IncludeTag;
@@ -23,11 +21,37 @@ import com.liferay.taglib.util.IncludeTag;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * @author Máté Thurzó
  */
 @ProviderType
 public class PermissionsTag extends IncludeTag {
+
+	public String getAction() {
+		return _action;
+	}
+
+	public String getDescriptionCSSClass() {
+		return _descriptionCSSClass;
+	}
+
+	public long getExportImportConfigurationId() {
+		return _exportImportConfigurationId;
+	}
+
+	public String getLabelCSSClass() {
+		return _labelCSSClass;
+	}
+
+	public boolean isDisableInputs() {
+		return _disableInputs;
+	}
+
+	public boolean isGlobal() {
+		return _global;
+	}
 
 	public void setAction(String action) {
 		if (action == null) {
@@ -95,18 +119,20 @@ public class PermissionsTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute("liferay-staging:deletions:global", _global);
-		request.setAttribute("liferay-staging:permissions:action", _action);
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
+			"liferay-staging:deletions:global", _global);
+		httpServletRequest.setAttribute(
+			"liferay-staging:permissions:action", _action);
+		httpServletRequest.setAttribute(
 			"liferay-staging:permissions:descriptionCSSClass",
 			_descriptionCSSClass);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:permissions:disableInputs", _disableInputs);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:permissions:exportImportConfigurationId",
 			_exportImportConfigurationId);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:permissions:labelCSSClass", _labelCSSClass);
 	}
 

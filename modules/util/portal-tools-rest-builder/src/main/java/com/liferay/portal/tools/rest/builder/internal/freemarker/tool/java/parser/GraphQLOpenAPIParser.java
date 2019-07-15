@@ -66,15 +66,18 @@ public class GraphQLOpenAPIParser {
 
 		Set<String> methodAnnotations = new TreeSet<>();
 
-		methodAnnotations.add("@GraphQLInvokeDetached");
-
 		String httpMethod = OpenAPIParserUtil.getHTTPMethod(
 			javaMethodSignature.getOperation());
 
-		if (Objects.equals(httpMethod, "get") ||
-			Objects.equals(httpMethod, "post")) {
-
+		if (httpMethod != null) {
 			methodAnnotations.add("@GraphQLField");
+		}
+
+		String methodAnnotation = _getMethodAnnotationGraphQLName(
+			javaMethodSignature);
+
+		if (methodAnnotation != null) {
+			methodAnnotations.add(methodAnnotation);
 		}
 
 		return StringUtil.merge(methodAnnotations, "\n");
@@ -187,6 +190,34 @@ public class GraphQLOpenAPIParser {
 		return javaMethodSignatures;
 	}
 
+	private static String _getMethodAnnotationGraphQLName(
+		JavaMethodSignature javaMethodSignature) {
+
+		Set<String> requestBodyMediaTypes =
+			javaMethodSignature.getRequestBodyMediaTypes();
+
+		if (requestBodyMediaTypes.isEmpty() ||
+			requestBodyMediaTypes.contains("application/json")) {
+
+			return null;
+		}
+
+		List<JavaMethodParameter> javaMethodParameters =
+			javaMethodSignature.getJavaMethodParameters();
+
+		StringBuilder sb = new StringBuilder();
+
+		sb.append(javaMethodSignature.getMethodName());
+
+		for (JavaMethodParameter javaMethodParameter : javaMethodParameters) {
+			String parameterName = javaMethodParameter.getParameterName();
+
+			sb.append(StringUtil.upperCaseFirstLetter(parameterName));
+		}
+
+		return "@GraphQLName(\"" + sb.toString() + "\")";
+	}
+
 	private static String _getParameterAnnotation(
 		JavaMethodParameter javaMethodParameter, Operation operation) {
 
@@ -216,19 +247,7 @@ public class GraphQLOpenAPIParser {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("@GraphQLName(\"");
-
-		String name = javaMethodParameter.getParameterType();
-
-		if (name.startsWith("[")) {
-			name = OpenAPIParserUtil.getElementClassName(name) + "[]";
-		}
-
-		if (name.lastIndexOf('.') != -1) {
-			name = name.substring(name.lastIndexOf(".") + 1);
-		}
-
-		sb.append(name);
-
+		sb.append(javaMethodParameter.getParameterName());
 		sb.append("\")");
 
 		return sb.toString();

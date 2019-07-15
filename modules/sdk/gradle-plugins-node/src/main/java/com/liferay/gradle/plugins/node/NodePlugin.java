@@ -16,6 +16,7 @@ package com.liferay.gradle.plugins.node;
 
 import com.liferay.gradle.plugins.node.internal.util.FileUtil;
 import com.liferay.gradle.plugins.node.internal.util.GradleUtil;
+import com.liferay.gradle.plugins.node.internal.util.NodePluginUtil;
 import com.liferay.gradle.plugins.node.internal.util.StringUtil;
 import com.liferay.gradle.plugins.node.tasks.DownloadNodeModuleTask;
 import com.liferay.gradle.plugins.node.tasks.DownloadNodeTask;
@@ -36,6 +37,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -58,7 +60,6 @@ import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.Delete;
 import org.gradle.api.tasks.SourceSet;
-import org.gradle.api.tasks.SourceSetOutput;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskOutputs;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
@@ -446,7 +447,8 @@ public class NodePlugin implements Plugin<Project> {
 				rootProject, taskName, nodeExtension);
 		}
 
-		downloadNodeTask.deleteAllActions();
+		downloadNodeTask.setActions(Collections.emptyList());
+
 		downloadNodeTask.dependsOn(rootDownloadNodeTask);
 	}
 
@@ -574,7 +576,9 @@ public class NodePlugin implements Plugin<Project> {
 	private void _configureTaskExecuteNpmArgs(
 		ExecuteNpmTask executeNpmTask, NodeExtension nodeExtension) {
 
-		executeNpmTask.args(nodeExtension.getNpmArgs());
+		if (!NodePluginUtil.isYarnScriptFile(executeNpmTask.getScriptFile())) {
+			executeNpmTask.args(nodeExtension.getNpmArgs());
+		}
 	}
 
 	private void _configureTaskNpmInstall(
@@ -598,11 +602,9 @@ public class NodePlugin implements Plugin<Project> {
 			SourceSet sourceSet = GradleUtil.getSourceSet(
 				npmRunTask.getProject(), SourceSet.MAIN_SOURCE_SET_NAME);
 
-			SourceSetOutput sourceSetOutput = sourceSet.getOutput();
+			File javaClassesDir = FileUtil.getJavaClassesDir(sourceSet);
 
-			File classesDir = sourceSetOutput.getClassesDir();
-
-			if (!classesDir.exists()) {
+			if (!javaClassesDir.exists()) {
 				TaskOutputs taskOutputs = npmRunTask.getOutputs();
 
 				taskOutputs.upToDateWhen(

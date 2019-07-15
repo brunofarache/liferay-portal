@@ -17,7 +17,6 @@ package com.liferay.taglib.aui;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
-import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
@@ -28,11 +27,10 @@ import com.liferay.taglib.aui.base.BaseIconTag;
 import com.liferay.taglib.servlet.PipingServletResponse;
 import com.liferay.taglib.ui.MessageTag;
 import com.liferay.taglib.util.InlineUtil;
-import com.liferay.taglib.util.TagResourceBundleUtil;
 
 import java.io.IOException;
 
-import java.util.ResourceBundle;
+import java.util.Objects;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -57,7 +55,8 @@ public class IconTag extends BaseIconTag {
 	@Deprecated
 	public static String doTag(
 			String cssClass, String image, String markupView,
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException, ServletException {
 
 		IconTag iconTag = new IconTag();
@@ -70,8 +69,9 @@ public class IconTag extends BaseIconTag {
 
 		try {
 			iconTag.doTag(
-				request,
-				new PipingServletResponse(response, unsyncStringWriter));
+				httpServletRequest,
+				new PipingServletResponse(
+					httpServletResponse, unsyncStringWriter));
 		}
 		catch (JspException je) {
 			throw new ServletException(je);
@@ -142,29 +142,34 @@ public class IconTag extends BaseIconTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
 		if (getSrc() == null) {
-			String src = (String)request.getAttribute("aui:icon:src:ext");
+			String src = (String)httpServletRequest.getAttribute(
+				"aui:icon:src:ext");
 
 			if (Validator.isNotNull(src)) {
 				setSrc(src);
 			}
 
-			request.removeAttribute("aui:icon:src:ext");
+			httpServletRequest.removeAttribute("aui:icon:src:ext");
 		}
 
-		super.setAttributes(request);
+		super.setAttributes(httpServletRequest);
 	}
 
 	private void _processIconContent(PageContext pageContext) {
 		JspWriter jspWriter = pageContext.getOut();
 
 		try {
-			if ("lexicon".equals(getMarkupView())) {
+			if (Objects.equals(getMarkupView(), "lexicon")) {
 				jspWriter.write("<svg class=\"lexicon-icon lexicon-icon-");
 				jspWriter.write(GetterUtil.getString(getImage()));
+				jspWriter.write("\" focusable=\"false\" role=\"presentation\"");
 				jspWriter.write(
-					"\" focusable=\"false\" role=\"presentation\" title=\"");
+					InlineUtil.buildDynamicAttributes(getDynamicAttributes()));
+				jspWriter.write("><use data-href=\"");
+
+				String src = getSrc();
 
 				HttpServletRequest httpServletRequest =
 					(HttpServletRequest)pageContext.getRequest();
@@ -172,32 +177,6 @@ public class IconTag extends BaseIconTag {
 				ThemeDisplay themeDisplay =
 					(ThemeDisplay)httpServletRequest.getAttribute(
 						WebKeys.THEME_DISPLAY);
-
-				String label = getLabel();
-				String title = GetterUtil.getString(getImage());
-
-				if (label != null) {
-					ResourceBundle resourceBundle =
-						TagResourceBundleUtil.getResourceBundle(
-							request, themeDisplay.getLocale());
-
-					title = HtmlUtil.escapeAttribute(
-						LanguageUtil.get(resourceBundle, label));
-
-					jspWriter.write(title);
-				}
-
-				if (title == null) {
-					title = "Icon";
-				}
-
-				jspWriter.write("\" ");
-				jspWriter.write(
-					InlineUtil.buildDynamicAttributes(getDynamicAttributes()));
-				jspWriter.write(StringPool.GREATER_THAN);
-				jspWriter.write("<use data-href=\"");
-
-				String src = getSrc();
 
 				if (src == null) {
 					src =

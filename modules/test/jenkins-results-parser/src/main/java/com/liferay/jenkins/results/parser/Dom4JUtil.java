@@ -122,9 +122,7 @@ public class Dom4JUtil {
 			return null;
 		}
 
-		Element anchorElement = null;
-
-		anchorElement = getNewElement("a", parentElement, items);
+		Element anchorElement = getNewElement("a", parentElement, items);
 
 		anchorElement.addAttribute("href", href);
 
@@ -224,7 +222,7 @@ public class Dom4JUtil {
 					textNode.setText(text);
 				}
 			}
-			else if (node instanceof Element && cascade) {
+			else if ((node instanceof Element) && cascade) {
 				replace((Element)node, cascade, replacementText, targetText);
 			}
 		}

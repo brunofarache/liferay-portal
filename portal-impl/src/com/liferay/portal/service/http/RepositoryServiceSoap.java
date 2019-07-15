@@ -14,13 +14,13 @@
 
 package com.liferay.portal.service.http;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.service.RepositoryServiceUtil;
 
 import java.rmi.RemoteException;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the SOAP utility for the
@@ -100,68 +100,6 @@ public class RepositoryServiceSoap {
 
 			return com.liferay.portal.kernel.model.RepositorySoap.toSoapModel(
 				returnValue);
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), with no direct replacement
-	 */
-	@Deprecated
-	public static String[] getSupportedConfigurations(long classNameId)
-		throws RemoteException {
-
-		try {
-			String[] returnValue =
-				RepositoryServiceUtil.getSupportedConfigurations(classNameId);
-
-			return returnValue;
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), with no direct replacement
-	 */
-	@Deprecated
-	public static String[] getSupportedParameters(
-			long classNameId, String configuration)
-		throws RemoteException {
-
-		try {
-			String[] returnValue = RepositoryServiceUtil.getSupportedParameters(
-				classNameId, configuration);
-
-			return returnValue;
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), with no direct replacement
-	 */
-	@Deprecated
-	public static String[] getSupportedParameters(
-			String className, String configuration)
-		throws RemoteException {
-
-		try {
-			String[] returnValue = RepositoryServiceUtil.getSupportedParameters(
-				className, configuration);
-
-			return returnValue;
 		}
 		catch (Exception e) {
 			_log.error(e, e);

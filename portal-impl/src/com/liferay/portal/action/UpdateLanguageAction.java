@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.model.Contact;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.portlet.FriendlyURLResolverRegistryUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -47,14 +48,16 @@ public class UpdateLanguageAction implements Action {
 
 	@Override
 	public ActionForward execute(
-			ActionMapping actionMapping, HttpServletRequest request,
-			HttpServletResponse response)
+			ActionMapping actionMapping, HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws Exception {
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
-		String languageId = ParamUtil.getString(request, "languageId");
+		String languageId = ParamUtil.getString(
+			httpServletRequest, "languageId");
 
 		Locale locale = LocaleUtil.fromLanguageId(languageId);
 
@@ -62,7 +65,7 @@ public class UpdateLanguageAction implements Action {
 				themeDisplay.getSiteGroupId(), locale)) {
 
 			boolean persistState = ParamUtil.getBoolean(
-				request, "persistState", true);
+				httpServletRequest, "persistState", true);
 
 			if (themeDisplay.isSignedIn() && persistState) {
 				User user = themeDisplay.getUser();
@@ -70,7 +73,7 @@ public class UpdateLanguageAction implements Action {
 				Contact contact = user.getContact();
 
 				AdminUtil.updateUser(
-					request, user.getUserId(), user.getScreenName(),
+					httpServletRequest, user.getUserId(), user.getScreenName(),
 					user.getEmailAddress(), user.getFacebookId(),
 					user.getOpenId(), languageId, user.getTimeZoneId(),
 					user.getGreeting(), user.getComments(), contact.getSmsSn(),
@@ -78,17 +81,18 @@ public class UpdateLanguageAction implements Action {
 					contact.getSkypeSn(), contact.getTwitterSn());
 			}
 
-			HttpSession session = request.getSession();
+			HttpSession session = httpServletRequest.getSession();
 
 			session.setAttribute(WebKeys.LOCALE, locale);
 
-			LanguageUtil.updateCookie(request, response, locale);
+			LanguageUtil.updateCookie(
+				httpServletRequest, httpServletResponse, locale);
 		}
 
 		// Send redirect
 
 		String redirect = PortalUtil.escapeRedirect(
-			ParamUtil.getString(request, "redirect"));
+			ParamUtil.getString(httpServletRequest, "redirect"));
 
 		String layoutURL = StringPool.BLANK;
 		String queryString = StringPool.BLANK;
@@ -109,7 +113,18 @@ public class UpdateLanguageAction implements Action {
 
 		Layout layout = themeDisplay.getLayout();
 
-		if (isGroupFriendlyURL(layout.getGroup(), layout, layoutURL, locale)) {
+		if (isFriendlyURLResolver(layoutURL)) {
+			redirect = layoutURL;
+
+			if (themeDisplay.isI18n()) {
+				String i18nPath = themeDisplay.getI18nPath();
+
+				redirect = redirect.substring(i18nPath.length());
+			}
+		}
+		else if (isGroupFriendlyURL(
+					layout.getGroup(), layout, layoutURL, locale)) {
+
 			if (PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 0) {
 				redirect = layoutURL;
 
@@ -144,9 +159,22 @@ public class UpdateLanguageAction implements Action {
 			redirect = redirect + queryString;
 		}
 
-		response.sendRedirect(redirect);
+		httpServletResponse.sendRedirect(redirect);
 
 		return null;
+	}
+
+	protected boolean isFriendlyURLResolver(String layoutURL) {
+		String[] urlSeparators =
+			FriendlyURLResolverRegistryUtil.getURLSeparators();
+
+		for (String urlSeparator : urlSeparators) {
+			if (layoutURL.contains(urlSeparator)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	protected boolean isGroupFriendlyURL(

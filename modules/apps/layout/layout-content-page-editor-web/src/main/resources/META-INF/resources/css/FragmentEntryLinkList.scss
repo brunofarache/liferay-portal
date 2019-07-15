@@ -1,36 +1,43 @@
-@import "./variables";
+@import './variables';
 
 .fragment-entry-link-list {
 	margin-right: $sidebarButtonsWidth;
 	margin-top: $managementBarHeight + $fragmentEntryLinkListPadding;
 	padding: 0 $fragmentEntryLinkListPadding;
-	transition: margin-right ease $productMenuTransitionDuration;
-	will-change: margin-right;
+	transition: margin ease $productMenuTransitionDuration;
+	will-change: margin;
 
 	@media (min-width: 768px) {
 		margin-top: $desktopManagementBarHeight + $fragmentEntryLinkListPadding;
 	}
 
-	&--padded, &--padded.no-fragments-message {
-		margin-right: $sidebarWidth;
+	&--padded,
+	&--padded.no-fragments-message {
+		margin-right: $sidebarButtonsWidth;
+
+		@media (min-width: 768px) {
+			margin-right: $sidebarWidth;
+		}
 	}
 
 	&__container {
-		box-shadow: inset 0 0 0 $topperBorderWidth $fragmentEntryLinkSectionBorderColor;
+		box-shadow: inset 0 0 0 $topperBorderWidth
+			$fragmentEntryLinkRowBorderColor;
 		position: relative;
 		transition: background-color ease 0.2s;
 		will-change: background-color;
 	}
 
-	&__container--empty &__row {
-		min-height: $sectionMinimumHeight;
+	&__container--empty &__col {
+		min-height: $rowMinimumHeight;
 	}
 
 	&__col {
 		position: relative;
 
 		&:before {
-			box-shadow: inset 0 0 0 $topperBorderWidth $fragmentEntryLinkColumnBorderColor;
+			box-shadow: inset 0 0 0 $topperBorderWidth
+				$fragmentEntryLinkColumnBorderColor;
 			content: '';
 			display: block;
 			height: 100%;
@@ -38,7 +45,10 @@
 			pointer-events: none;
 			position: absolute;
 			top: 0;
+			transition: box-shadow ease 0.3s;
 			width: calc(100% - #{$fragmentsEditorSpacing * 3});
+			will-change: box-shadow;
+			z-index: 1;
 		}
 
 		&-resizer {
@@ -51,6 +61,10 @@
 			transform: translate(-50%, -50%);
 			width: 16px;
 			z-index: 1;
+
+			html.rtl & {
+				transform: translate(50%, -50%);
+			}
 		}
 
 		&-resizer:not(:disabled):not(.disabled) {
@@ -58,16 +72,22 @@
 		}
 	}
 
+	&__container--resizing &__col:before {
+		box-shadow: inset 0 0 0 $topperBorderWidth $topperBorderColor;
+	}
+
 	&__row.no-gutters &__col:before {
 		left: 0;
 		width: 100%;
 	}
 
-	.no-fragments-message {
-		padding: 10vh 1em;
-	}
-}
+	&.no-fragments-message {
+		padding: 10vh 0;
+		transition: box-shadow ease 0.3s;
+		will-change: box-shadow;
 
-.no-fragments-message {
-	margin-bottom: 64px;
+		&.targetOver {
+			box-shadow: inset 0 0 0 $dropTargetWidth $dropTargetColor;
+		}
+	}
 }

@@ -17,12 +17,12 @@ package com.liferay.portal.metadata;
 import com.liferay.document.library.kernel.util.AudioProcessorUtil;
 import com.liferay.document.library.kernel.util.VideoProcessorUtil;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.util.FileUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xuggler.XugglerUtil;
@@ -79,9 +79,10 @@ public class XugglerRawMetadataProcessor extends BaseRawMetadataProcessor {
 		try {
 			Metadata metadata = new Metadata();
 
-			if (container.open(
-					file.getCanonicalPath(), IContainer.Type.READ, null) < 0) {
+			int result = container.open(
+				file.getCanonicalPath(), IContainer.Type.READ, null);
 
+			if (result < 0) {
 				throw new IllegalArgumentException("Could not open stream");
 			}
 

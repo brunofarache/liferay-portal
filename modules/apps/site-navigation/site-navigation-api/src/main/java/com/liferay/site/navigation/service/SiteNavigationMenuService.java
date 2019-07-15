@@ -14,8 +14,6 @@
 
 package com.liferay.site.navigation.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebService;
@@ -30,6 +28,8 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.site.navigation.model.SiteNavigationMenu;
 
 import java.util.List;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the remote service interface for SiteNavigationMenu. Methods of this
@@ -61,6 +61,11 @@ public interface SiteNavigationMenuService extends BaseService {
 	 *
 	 * Never modify or reference this interface directly. Always use {@link SiteNavigationMenuServiceUtil} to access the site navigation menu remote service. Add custom service methods to <code>com.liferay.site.navigation.service.impl.SiteNavigationMenuServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	public SiteNavigationMenu addSiteNavigationMenu(
+			long groupId, String name, int type, boolean auto,
+			ServiceContext serviceContext)
+		throws PortalException;
+
 	public SiteNavigationMenu addSiteNavigationMenu(
 			long groupId, String name, int type, ServiceContext serviceContext)
 		throws PortalException;

@@ -34,6 +34,54 @@ import javax.servlet.jsp.PageContext;
  */
 public class SocialActivitiesTag extends IncludeTag {
 
+	public List<SocialActivityDescriptor> getActivityDescriptors() {
+		return _activityDescriptors;
+	}
+
+	public String getClassName() {
+		return _className;
+	}
+
+	public long getClassPK() {
+		return _classPK;
+	}
+
+	public int getFeedDelta() {
+		return _feedDelta;
+	}
+
+	public String getFeedDisplayStyle() {
+		return _feedDisplayStyle;
+	}
+
+	public ResourceURL getFeedResourceURL() {
+		return _feedResourceURL;
+	}
+
+	public String getFeedTitle() {
+		return _feedTitle;
+	}
+
+	public String getFeedType() {
+		return _feedType;
+	}
+
+	public String getFeedURL() {
+		return _feedURL;
+	}
+
+	public String getFeedURLMessage() {
+		return _feedURLMessage;
+	}
+
+	public boolean isDisplayRSSFeed() {
+		return _displayRSSFeed;
+	}
+
+	public boolean isFeedEnabled() {
+		return _feedEnabled;
+	}
+
 	public void setActivities(List<SocialActivity> activities) {
 		List<SocialActivityDescriptor> activityDescriptors = new ArrayList<>(
 			activities.size());
@@ -131,39 +179,39 @@ public class SocialActivitiesTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-social-activities:social-activities:activityDescriptors",
 			_activityDescriptors);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-social-activities:social-activities:className",
 			_className);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-social-activities:social-activities:classPK",
 			String.valueOf(_classPK));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-social-activities:social-activities:displayRSSFeed",
 			String.valueOf(_displayRSSFeed));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-social-activities:social-activities:feedDelta",
 			String.valueOf(_feedDelta));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-social-activities:social-activities:feedDisplayStyle",
 			_feedDisplayStyle);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-social-activities:social-activities:feedEnabled",
 			String.valueOf(_feedEnabled));
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-social-activities:social-activities:feedResourceURL",
 			_feedResourceURL);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-social-activities:social-activities:feedTitle",
 			_feedTitle);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-social-activities:social-activities:feedType", _feedType);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-social-activities:social-activities:feedURL", _feedURL);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-social-activities:social-activities:feedURLMessage",
 			_feedURLMessage);
 	}

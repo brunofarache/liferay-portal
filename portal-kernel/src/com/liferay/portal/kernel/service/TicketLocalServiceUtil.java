@@ -14,10 +14,9 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service utility for Ticket. This utility wraps
@@ -329,9 +328,6 @@ public class TicketLocalServiceUtil {
 		if (_service == null) {
 			_service = (TicketLocalService)PortalBeanLocatorUtil.locate(
 				TicketLocalService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				TicketLocalServiceUtil.class, "_service");
 		}
 
 		return _service;

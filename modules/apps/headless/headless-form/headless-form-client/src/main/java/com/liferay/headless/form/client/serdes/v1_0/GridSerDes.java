@@ -14,13 +14,15 @@
 
 package com.liferay.headless.form.client.serdes.v1_0;
 
-import com.liferay.headless.form.client.dto.v1_0.Column;
+import com.liferay.headless.form.client.dto.v1_0.FormFieldOption;
 import com.liferay.headless.form.client.dto.v1_0.Grid;
-import com.liferay.headless.form.client.dto.v1_0.Row;
 import com.liferay.headless.form.client.json.BaseJSONParser;
 
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import javax.annotation.Generated;
@@ -46,23 +48,24 @@ public class GridSerDes {
 
 	public static String toJSON(Grid grid) {
 		if (grid == null) {
-			return "{}";
+			return "null";
 		}
 
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("{");
 
-		sb.append("\"columns\": ");
+		if (grid.getColumns() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
 
-		if (grid.getColumns() == null) {
-			sb.append("null");
-		}
-		else {
+			sb.append("\"columns\": ");
+
 			sb.append("[");
 
 			for (int i = 0; i < grid.getColumns().length; i++) {
-				sb.append(grid.getColumns()[i]);
+				sb.append(String.valueOf(grid.getColumns()[i]));
 
 				if ((i + 1) < grid.getColumns().length) {
 					sb.append(", ");
@@ -72,23 +75,27 @@ public class GridSerDes {
 			sb.append("]");
 		}
 
-		sb.append(", ");
+		if (grid.getId() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
 
-		sb.append("\"id\": ");
+			sb.append("\"id\": ");
 
-		sb.append(grid.getId());
-		sb.append(", ");
-
-		sb.append("\"rows\": ");
-
-		if (grid.getRows() == null) {
-			sb.append("null");
+			sb.append(grid.getId());
 		}
-		else {
+
+		if (grid.getRows() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"rows\": ");
+
 			sb.append("[");
 
 			for (int i = 0; i < grid.getRows().length; i++) {
-				sb.append(grid.getRows()[i]);
+				sb.append(String.valueOf(grid.getRows()[i]));
 
 				if ((i + 1) < grid.getRows().length) {
 					sb.append(", ");
@@ -103,38 +110,93 @@ public class GridSerDes {
 		return sb.toString();
 	}
 
-	public static String toJSON(Collection<Grid> grids) {
-		if (grids == null) {
-			return "[]";
+	public static Map<String, Object> toMap(String json) {
+		GridJSONParser gridJSONParser = new GridJSONParser();
+
+		return gridJSONParser.parseToMap(json);
+	}
+
+	public static Map<String, String> toMap(Grid grid) {
+		if (grid == null) {
+			return null;
 		}
 
-		StringBuilder sb = new StringBuilder();
+		Map<String, String> map = new HashMap<>();
 
-		sb.append("[");
+		if (grid.getColumns() == null) {
+			map.put("columns", null);
+		}
+		else {
+			map.put("columns", String.valueOf(grid.getColumns()));
+		}
 
-		for (Grid grid : grids) {
-			if (sb.length() > 1) {
-				sb.append(", ");
+		if (grid.getId() == null) {
+			map.put("id", null);
+		}
+		else {
+			map.put("id", String.valueOf(grid.getId()));
+		}
+
+		if (grid.getRows() == null) {
+			map.put("rows", null);
+		}
+		else {
+			map.put("rows", String.valueOf(grid.getRows()));
+		}
+
+		return map;
+	}
+
+	private static String _escape(Object object) {
+		String string = String.valueOf(object);
+
+		string = string.replace("\\", "\\\\");
+
+		return string.replace("\"", "\\\"");
+	}
+
+	private static String _toJSON(Map<String, ?> map) {
+		StringBuilder sb = new StringBuilder("{");
+
+		@SuppressWarnings("unchecked")
+		Set set = map.entrySet();
+
+		@SuppressWarnings("unchecked")
+		Iterator<Map.Entry<String, ?>> iterator = set.iterator();
+
+		while (iterator.hasNext()) {
+			Map.Entry<String, ?> entry = iterator.next();
+
+			sb.append("\"");
+			sb.append(entry.getKey());
+			sb.append("\":");
+			sb.append("\"");
+			sb.append(entry.getValue());
+			sb.append("\"");
+
+			if (iterator.hasNext()) {
+				sb.append(",");
 			}
-
-			sb.append(toJSON(grid));
 		}
 
-		sb.append("]");
+		sb.append("}");
 
 		return sb.toString();
 	}
 
 	private static class GridJSONParser extends BaseJSONParser<Grid> {
 
+		@Override
 		protected Grid createDTO() {
 			return new Grid();
 		}
 
+		@Override
 		protected Grid[] createDTOArray(int size) {
 			return new Grid[size];
 		}
 
+		@Override
 		protected void setField(
 			Grid grid, String jsonParserFieldName,
 			Object jsonParserFieldValue) {
@@ -145,15 +207,16 @@ public class GridSerDes {
 						Stream.of(
 							toStrings((Object[])jsonParserFieldValue)
 						).map(
-							object -> ColumnSerDes.toDTO((String)object)
+							object -> FormFieldOptionSerDes.toDTO(
+								(String)object)
 						).toArray(
-							size -> new Column[size]
+							size -> new FormFieldOption[size]
 						));
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "id")) {
 				if (jsonParserFieldValue != null) {
-					grid.setId((Long)jsonParserFieldValue);
+					grid.setId(Long.valueOf((String)jsonParserFieldValue));
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "rows")) {
@@ -162,9 +225,10 @@ public class GridSerDes {
 						Stream.of(
 							toStrings((Object[])jsonParserFieldValue)
 						).map(
-							object -> RowSerDes.toDTO((String)object)
+							object -> FormFieldOptionSerDes.toDTO(
+								(String)object)
 						).toArray(
-							size -> new Row[size]
+							size -> new FormFieldOption[size]
 						));
 				}
 			}

@@ -25,6 +25,22 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class UploadProgressTag extends IncludeTag {
 
+	public int getHeight() {
+		return _height;
+	}
+
+	public String getId() {
+		return _id;
+	}
+
+	public String getMessage() {
+		return _message;
+	}
+
+	public Integer getUpdatePeriod() {
+		return _updatePeriod;
+	}
+
 	public void setHeight(int height) {
 		_height = height;
 	}
@@ -64,11 +80,13 @@ public class UploadProgressTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute("liferay-ui:progress:height", _height);
-		request.setAttribute("liferay-ui:progress:id", _id);
-		request.setAttribute("liferay-ui:progress:message", _message);
-		request.setAttribute("liferay-ui:progress:updatePeriod", _updatePeriod);
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute("liferay-ui:progress:height", _height);
+		httpServletRequest.setAttribute("liferay-ui:progress:id", _id);
+		httpServletRequest.setAttribute(
+			"liferay-ui:progress:message", _message);
+		httpServletRequest.setAttribute(
+			"liferay-ui:progress:updatePeriod", _updatePeriod);
 	}
 
 	private static final String _PAGE = "/html/taglib/ui/progress/page.jsp";

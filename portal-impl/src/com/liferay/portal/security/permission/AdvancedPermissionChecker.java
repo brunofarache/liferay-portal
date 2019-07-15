@@ -15,6 +15,7 @@
 package com.liferay.portal.security.permission;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.NoSuchResourcePermissionException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
@@ -29,10 +30,10 @@ import com.liferay.portal.kernel.model.PortletConstants;
 import com.liferay.portal.kernel.model.Resource;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
-import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserGroupGroupRole;
 import com.liferay.portal.kernel.model.UserGroupRole;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
@@ -55,7 +56,6 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.SetUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.ArrayList;
@@ -302,9 +302,9 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 			if (_log.isDebugEnabled()) {
 				_log.debug(
 					StringBundler.concat(
-						"Checking permission for ", String.valueOf(groupId),
-						" ", name, " ", primKey, " ", actionId, " takes ",
-						String.valueOf(stopWatch.getTime()), " ms"));
+						"Checking permission for ", groupId, " ", name, " ",
+						primKey, " ", actionId, " takes ", stopWatch.getTime(),
+						" ms"));
 			}
 
 			PermissionCacheUtil.putPermission(
@@ -874,13 +874,12 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 			return true;
 		}
 
-		if (group.isSite()) {
-			if (UserGroupRoleLocalServiceUtil.hasUserGroupRole(
-					getUserId(), groupId, RoleConstants.SITE_CONTENT_REVIEWER,
-					true)) {
+		if (group.isSite() &&
+			UserGroupRoleLocalServiceUtil.hasUserGroupRole(
+				getUserId(), groupId, RoleConstants.SITE_CONTENT_REVIEWER,
+				true)) {
 
-				return true;
-			}
+			return true;
 		}
 
 		return false;
@@ -1096,13 +1095,12 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 	}
 
 	protected boolean isGroupOwnerImpl(Group group) throws PortalException {
-		if (group.isSite()) {
-			if (UserGroupRoleLocalServiceUtil.hasUserGroupRole(
-					getUserId(), group.getGroupId(), RoleConstants.SITE_OWNER,
-					true)) {
+		if (group.isSite() &&
+			UserGroupRoleLocalServiceUtil.hasUserGroupRole(
+				getUserId(), group.getGroupId(), RoleConstants.SITE_OWNER,
+				true)) {
 
-				return true;
-			}
+			return true;
 		}
 
 		if (group.isLayoutPrototype()) {
@@ -1352,10 +1350,9 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 
 		_log.debug(
 			StringBundler.concat(
-				"Checking user permission block ", String.valueOf(block),
-				" for ", String.valueOf(groupId), " ", name, " ", primKey, " ",
-				actionId, " takes ", String.valueOf(stopWatch.getTime()),
-				" ms"));
+				"Checking user permission block ", block, " for ", groupId, " ",
+				name, " ", primKey, " ", actionId, " takes ",
+				stopWatch.getTime(), " ms"));
 	}
 
 	/**
@@ -1490,10 +1487,10 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 			return true;
 		}
 
-		if (name.equals(Organization.class.getName())) {
-			if (isOrganizationAdminImpl(GetterUtil.getLong(primKey))) {
-				return true;
-			}
+		if (name.equals(Organization.class.getName()) &&
+			isOrganizationAdminImpl(GetterUtil.getLong(primKey))) {
+
+			return true;
 		}
 
 		if (isCompanyAdminImpl(companyId)) {

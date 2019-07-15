@@ -1,9 +1,23 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 import Component from 'metal-component';
 import {Config} from 'metal-state';
 import Soy from 'metal-soy';
 
 import {
-	ADD_SECTION,
+	ADD_ROW,
 	CLEAR_DROP_TARGET,
 	UPDATE_DROP_TARGET
 } from '../../../actions/actions.es';
@@ -16,7 +30,6 @@ import templates from './SidebarLayoutsPanel.soy';
  * SidebarLayoutsPanel
  */
 class SidebarLayoutsPanel extends Component {
-
 	/**
 	 * @inheritDoc
 	 */
@@ -36,24 +49,22 @@ class SidebarLayoutsPanel extends Component {
 	/**
 	 * Handles dragLayout event and dispatches action to update drag target
 	 * @param {object} eventData
-	 * @param {string} eventData.hoveredSectionBorder
-	 * @param {string} eventData.hoveredSectionId
+	 * @param {string} eventData.hoveredRowBorder
+	 * @param {string} eventData.hoveredRowId
 	 */
 	_handleDragLayout(eventData) {
-		const {hoveredSectionBorder, hoveredSectionId} = eventData;
+		const {hoveredRowBorder, hoveredRowId} = eventData;
 
-		this.store.dispatchAction(
-			UPDATE_DROP_TARGET,
-			{
-				dropTargetBorder: hoveredSectionBorder,
-				dropTargetItemId: hoveredSectionId,
-				dropTargetItemType: FRAGMENTS_EDITOR_ITEM_TYPES.section
-			}
-		);
+		this.store.dispatch({
+			dropTargetBorder: hoveredRowBorder,
+			dropTargetItemId: hoveredRowId,
+			dropTargetItemType: FRAGMENTS_EDITOR_ITEM_TYPES.row,
+			type: UPDATE_DROP_TARGET
+		});
 	}
 
 	/**
-	 * Handles dropLayout event and dispatches action to add a section
+	 * Handles dropLayout event and dispatches action to add a row
 	 * @param {!object} eventData
 	 * @param {!number} eventData.layoutIndex
 	 * @private
@@ -62,20 +73,18 @@ class SidebarLayoutsPanel extends Component {
 	_handleDropLayout(eventData) {
 		const layoutColumns = this._layouts[eventData.layoutIndex].columns;
 
-		this.store.dispatchAction(
-			ADD_SECTION,
-			{
-				layoutColumns
-			}
-		).dispatchAction(
-			CLEAR_DROP_TARGET
-		);
+		this.store
+			.dispatch({
+				layoutColumns,
+				type: ADD_ROW
+			})
+			.dispatch({
+				type: CLEAR_DROP_TARGET
+			});
 
-		requestAnimationFrame(
-			() => {
-				this._initializeSidebarLayoutsDragDrop();
-			}
-		);
+		requestAnimationFrame(() => {
+			this._initializeSidebarLayoutsDragDrop();
+		});
 	}
 
 	/**
@@ -85,9 +94,9 @@ class SidebarLayoutsPanel extends Component {
 	 * @review
 	 */
 	_handleLeaveLayoutTarget() {
-		this.store.dispatchAction(
-			CLEAR_DROP_TARGET
-		);
+		this.store.dispatch({
+			type: CLEAR_DROP_TARGET
+		});
 	}
 
 	/**
@@ -117,7 +126,6 @@ class SidebarLayoutsPanel extends Component {
 			this._handleLeaveLayoutTarget.bind(this)
 		);
 	}
-
 }
 
 /**
@@ -127,7 +135,6 @@ class SidebarLayoutsPanel extends Component {
  * @type {!Object}
  */
 SidebarLayoutsPanel.STATE = {
-
 	/**
 	 * Store instance
 	 * @default undefined
@@ -147,58 +154,29 @@ SidebarLayoutsPanel.STATE = {
 	 * @type {Array}
 	 */
 	_layouts: Config.arrayOf(
-		Config.shapeOf(
-			{
-				columns: Config.arrayOf(Config.string())
-			}
-		)
-	).value(
-		[
-			{
-				columns: ['12']
-			},
-			{
-				columns: [
-					'6',
-					'6'
-				]
-			},
-			{
-				columns: [
-					'8',
-					'4'
-				]
-			},
-			{
-				columns: [
-					'4',
-					'8'
-				]
-			},
-			{
-				columns: [
-					'4',
-					'4',
-					'4'
-				]
-			},
-			{
-				columns: [
-					'3',
-					'6',
-					'3'
-				]
-			},
-			{
-				columns: [
-					'3',
-					'3',
-					'3',
-					'3'
-				]
-			}
-		]
-	),
+		Config.shapeOf({
+			columns: Config.arrayOf(Config.string())
+		})
+	).value([
+		{
+			columns: ['12']
+		},
+		{
+			columns: ['6', '6']
+		},
+		{
+			columns: ['8', '4']
+		},
+		{
+			columns: ['4', '8']
+		},
+		{
+			columns: ['4', '4', '4']
+		},
+		{
+			columns: ['3', '3', '3', '3']
+		}
+	]),
 
 	/**
 	 * Internal SidebarLayoutsDragDrop instance

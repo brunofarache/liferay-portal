@@ -15,11 +15,11 @@
 package com.liferay.portlet.documentlibrary.store;
 
 import com.liferay.document.library.kernel.store.Store;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
@@ -146,7 +146,7 @@ public class StoreFactory {
 	public String[] getStoreTypes() {
 		Set<String> storeTypes = _storeServiceTrackerMap.keySet();
 
-		return storeTypes.toArray(new String[storeTypes.size()]);
+		return storeTypes.toArray(new String[0]);
 	}
 
 	public void setStore(String key) {

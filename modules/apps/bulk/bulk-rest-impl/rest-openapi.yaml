@@ -39,10 +39,11 @@ components:
                           items:
                               type: string
                           type: array
-        MessageSelection:
+        Selection:
             properties:
-                description:
-                    type: string
+                size:
+                    format: int64
+                    type: integer
         Status:
             properties:
                 actionInProgress:
@@ -75,6 +76,8 @@ components:
                     type: boolean
                 name:
                     type: string
+                required:
+                    type: boolean
                 taxonomyCategories:
                     items:
                         $ref: "#/components/schemas/TaxonomyCategory"
@@ -82,8 +85,6 @@ components:
                 taxonomyVocabularyId:
                     format: int64
                     type: integer
-                required:
-                    type: boolean
 info:
     description: ""
     title: ""
@@ -92,9 +93,13 @@ openapi: "3.0.1"
 paths:
     "/bulk-selection":
         post:
+            operationId: postBulkSelection
             requestBody:
                 content:
                     application/json:
+                        schema:
+                            $ref: "#/components/schemas/DocumentBulkSelection"
+                    application/xml:
                         schema:
                             $ref: "#/components/schemas/DocumentBulkSelection"
             responses:
@@ -102,38 +107,21 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: "#/components/schemas/MessageSelection"
-                    description: ""
-            tags: ["MessageSelection"]
-    "/content-spaces/{content-space-id}/taxonomy-vocabularies/common":
-        post:
-            parameters:
-                - in: path
-                  name: content-space-id
-                  required: true
-                  schema:
-                      format: int64
-                      type: integer
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: "#/components/schemas/DocumentBulkSelection"
-            responses:
-                200:
-                    content:
-                        application/json:
+                                $ref: "#/components/schemas/Selection"
+                        application/xml:
                             schema:
-                                items:
-                                    $ref: "#/components/schemas/TaxonomyVocabulary"
-                                type: array
+                                $ref: "#/components/schemas/Selection"
                     description: ""
-            tags: ["TaxonomyVocabulary"]
+            tags: ["Selection"]
     "/keywords/batch":
         patch:
+            operationId: patchKeywordBatch
             requestBody:
                 content:
                     application/json:
+                        schema:
+                            $ref: "#/components/schemas/KeywordBulkSelection"
+                    application/xml:
                         schema:
                             $ref: "#/components/schemas/KeywordBulkSelection"
             responses:
@@ -143,9 +131,13 @@ paths:
                     description: ""
             tags: ["Keyword"]
         put:
+            operationId: putKeywordBatch
             requestBody:
                 content:
                     application/json:
+                        schema:
+                            $ref: "#/components/schemas/KeywordBulkSelection"
+                    application/xml:
                         schema:
                             $ref: "#/components/schemas/KeywordBulkSelection"
             responses:
@@ -156,9 +148,13 @@ paths:
             tags: ["Keyword"]
     "/keywords/common":
         post:
+            operationId: postKeywordsCommonPage
             requestBody:
                 content:
                     application/json:
+                        schema:
+                            $ref: "#/components/schemas/DocumentBulkSelection"
+                    application/xml:
                         schema:
                             $ref: "#/components/schemas/DocumentBulkSelection"
             responses:
@@ -169,23 +165,69 @@ paths:
                                 items:
                                     $ref: "#/components/schemas/Keyword"
                                 type: array
+                        application/xml:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/Keyword"
+                                type: array
                     description: ""
             tags: ["Keyword"]
+    "/sites/{siteId}/taxonomy-vocabularies/common":
+        post:
+            operationId: postSiteTaxonomyVocabulariesCommonPage
+            parameters:
+                - in: path
+                  name: siteId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/DocumentBulkSelection"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/DocumentBulkSelection"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/TaxonomyVocabulary"
+                                type: array
+                        application/xml:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/TaxonomyVocabulary"
+                                type: array
+                    description: ""
+            tags: ["TaxonomyVocabulary"]
     "/status":
         get:
+            operationId: getStatus
             responses:
                 200:
                     content:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Status"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Status"
                     description: ""
             tags: ["Status"]
     "/taxonomy-categories/batch":
         patch:
+            operationId: patchTaxonomyCategoryBatch
             requestBody:
                 content:
                     application/json:
+                        schema:
+                            $ref: "#/components/schemas/TaxonomyCategoryBulkSelection"
+                    application/xml:
                         schema:
                             $ref: "#/components/schemas/TaxonomyCategoryBulkSelection"
             responses:
@@ -195,9 +237,13 @@ paths:
                     description: ""
             tags: ["TaxonomyCategory"]
         put:
+            operationId: putTaxonomyCategoryBatch
             requestBody:
                 content:
                     application/json:
+                        schema:
+                            $ref: "#/components/schemas/TaxonomyCategoryBulkSelection"
+                    application/xml:
                         schema:
                             $ref: "#/components/schemas/TaxonomyCategoryBulkSelection"
             responses:

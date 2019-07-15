@@ -56,6 +56,7 @@ String randomNamespace = ParamUtil.getString(request, "randomNamespace");
 		<aui:form action="<%= uploadImageURL %>" enctype="multipart/form-data" method="post" name="fm">
 			<aui:input name="cropRegion" type="hidden" />
 			<aui:input name="currentLogoURL" type="hidden" value="<%= currentImageURL %>" />
+			<aui:input name="preserveRatio" type="hidden" value="<%= String.valueOf(preserveRatio) %>" />
 			<aui:input name="previewURL" type="hidden" value="<%= previewURL %>" />
 			<aui:input name="randomNamespace" type="hidden" value="<%= randomNamespace %>" />
 			<aui:input name="tempImageFileName" type="hidden" value="<%= tempImageFileName %>" />
@@ -120,22 +121,24 @@ String randomNamespace = ParamUtil.getString(request, "randomNamespace");
 			</aui:button-row>
 		</aui:form>
 
-		<aui:script>
-			var uploadImageButton = document.querySelector('#<portlet:namespace />uploadImage');
+		<script>
+			(function() {
+				var uploadImageButton = document.getElementById('<portlet:namespace />uploadImage');
 
-			if (uploadImageButton) {
-				uploadImageButton.addEventListener(
-					'keydown',
-					function(event) {
-						event.preventDefault();
+				if (uploadImageButton) {
+					uploadImageButton.addEventListener(
+						'keydown',
+						function(event) {
+							event.preventDefault();
 
-						if (event.key == 'Enter' || event.key == ' ') {
-							uploadImageButton.click();
+							if (event.key == 'Enter' || event.key == ' ') {
+								uploadImageButton.click();
+							}
 						}
-					}
-				);
-			}
-		</aui:script>
+					);
+				}
+			})();
+		</script>
 
 		<aui:script use="liferay-logo-editor">
 			<portlet:actionURL name="/image_uploader/view" var="addTempImageURL">

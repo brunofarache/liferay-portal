@@ -1,55 +1,137 @@
-import PortletBase from 'frontend-js-web/liferay/PortletBase.es';
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
+/* eslint no-unused-vars: "warn" */
+
+import ClayNavigationBar from 'clay-navigation-bar';
+import {PortletBase, openToast} from 'frontend-js-web';
 import Soy from 'metal-soy';
 import {Config} from 'metal-state';
-import {openToast} from 'frontend-js-web/liferay/toast/commands/OpenToast.es';
 
 import templates from './ChangeListsConfiguration.soy';
 
 /**
- * Component for the Change Tracking Change Lists configuration screen
- * @review
+ * Provides the component for the Change Lists configuration screen.
  */
 class ChangeListsConfiguration extends PortletBase {
-
 	created() {
+		this._getDataRequest(this.urlChangeTrackingConfiguration, response => {
+			if (response) {
+				this.changeTrackingAllowed = response.changeTrackingAllowed;
+				this.changeTrackingEnabled = response.changeTrackingEnabled;
+				this.currentPage = 'Global Settings';
+				this.initialFetch = true;
+				this.tooltipBody = '';
+
+				if (this.changeTrackingEnabled) {
+					this.userSettingsEnabled = true;
+				}
+
+				response.supportedContentTypes.forEach(supportedContentType => {
+					if (this.tooltipBody.length > 0) {
+						this.tooltipBody = this.tooltipBody.concat(' ');
+					}
+					this.tooltipBody = this.tooltipBody.concat(
+						supportedContentType
+					);
+				});
+			}
+		});
 		this._getDataRequest(
-			this.urlChangeTrackingConfiguration,
+			this.urlChangeTrackingUserConfiguration,
 			response => {
 				if (response) {
-					this.changeTrackingEnabled = response.changeTrackingEnabled;
-					this.initialFetch = true;
-					this.tooltipBody = '';
-
-					response.supportedContentTypes.forEach(
-						(supportedContentType) => {
-							this.tooltipBody = this.tooltipBody.concat(supportedContentType);
-						}
-					);
+					this.checkoutCTCollectionConfirmationEnabled =
+						response.checkoutCTCollectionConfirmationEnabled;
 				}
 			}
 		);
 	}
 
 	/**
-	 * Handles the change of the toggle
+	 * Handles the toggle change.
+	 *
 	 * @param {!Event} event
 	 * @private
-	 * @review
 	 */
 	_handleCheck(event) {
 		this.changeTrackingEnabled = event.target.checked;
 	}
 
 	/**
-	 * Saves the configuration
+	 * Handles navigation click.
+	 *
 	 * @param {!Event} event
 	 * @private
-	 * @review
+	 */
+	_handleNavItemClicked(event) {
+		this.currentPage = event.data.item.label;
+
+		this.navigationItems = this.navigationItems.map(item => {
+			if (item.label === this.currentPage) {
+				return Object.assign({}, item, {
+					active: true
+				});
+			}
+
+			return Object.assign({}, item, {
+				active: false
+			});
+		});
+	}
+
+	_handleUserConfigCheck(event) {
+		this.checkoutCTCollectionConfirmationEnabled = event.target.checked;
+	}
+
+	_handleUserConfigSave(event) {
+		event.preventDefault();
+
+		const data = {
+			checkoutCTCollectionConfirmationEnabled: this
+				.checkoutCTCollectionConfirmationEnabled
+		};
+
+		this._putDataRequest(
+			this.urlChangeTrackingUserConfiguration,
+			data,
+			response => {
+				if (response) {
+					const message = Liferay.Language.get(
+						'the-configuration-has-been-saved'
+					);
+
+					openToast({
+						message,
+						title: Liferay.Language.get('success'),
+						type: 'success'
+					});
+				}
+			}
+		);
+	}
+
+	/**
+	 * Saves the configuration.
+	 *
+	 * @param {!Event} event
+	 * @private
 	 */
 	_handleSave(event) {
 		event.preventDefault();
 
-		let data = {
+		const data = {
 			changeTrackingEnabled: this.changeTrackingEnabled
 		};
 
@@ -57,27 +139,19 @@ class ChangeListsConfiguration extends PortletBase {
 			this.urlChangeTrackingConfiguration,
 			data,
 			response => {
-				const message = Liferay.Language.get('the-configuration-has-been-saved');
-
-				openToast(
-					{
-						message,
-						title: Liferay.Language.get('success'),
-						type: 'success'
-					}
-				);
+				Liferay.Util.navigate(this.urlConfiguration);
 			}
 		);
 	}
 
 	/**
-	 * Saves the configuration and redirects the user to the overview screen
+	 * Saves the configuration and redirects the user to the overview screen.
+	 *
 	 * @param {!Event} event
 	 * @private
-	 * @review
 	 */
 	_handleSaveAndGoToOverview(event) {
-		let data = {
+		const data = {
 			changeTrackingEnabled: this.changeTrackingEnabled
 		};
 
@@ -86,15 +160,15 @@ class ChangeListsConfiguration extends PortletBase {
 			data,
 			response => {
 				if (response) {
-					const message = Liferay.Language.get('the-configuration-has-been-saved');
-
-					openToast(
-						{
-							message,
-							title: Liferay.Language.get('success'),
-							type: 'success'
-						}
+					const message = Liferay.Language.get(
+						'the-configuration-has-been-saved'
 					);
+
+					openToast({
+						message,
+						title: Liferay.Language.get('success'),
+						type: 'success'
+					});
 
 					Liferay.Util.navigate(this.urlOverview);
 				}
@@ -103,8 +177,9 @@ class ChangeListsConfiguration extends PortletBase {
 	}
 
 	_getDataRequest(url, callback) {
-		let headers = new Headers();
+		const headers = new Headers();
 		headers.append('Content-Type', 'application/json');
+		headers.append('X-CSRF-Token', Liferay.authToken);
 
 		const request = {
 			credentials: 'include',
@@ -115,28 +190,28 @@ class ChangeListsConfiguration extends PortletBase {
 		fetch(url, request)
 			.then(response => response.json())
 			.then(response => callback(response))
-			.catch(
-				(error) => {
-					const message = typeof error === 'string' ?
-						error :
-						Liferay.Language.get('an-error-occured-while-saving-configuration');
+			.catch(error => {
+				const message =
+					typeof error === 'string'
+						? error
+						: Liferay.Language.get(
+								'an-error-occured-while-saving-configuration'
+						  );
 
-					openToast(
-						{
-							message,
-							title: Liferay.Language.get('error'),
-							type: 'danger'
-						}
-					);
-				}
-			);
+				openToast({
+					message,
+					title: Liferay.Language.get('error'),
+					type: 'danger'
+				});
+			});
 	}
 
 	_putDataRequest(url, bodyData, callback) {
-		let body = JSON.stringify(bodyData);
+		const body = JSON.stringify(bodyData);
 
-		let headers = new Headers();
+		const headers = new Headers();
 		headers.append('Content-Type', 'application/json');
+		headers.append('X-CSRF-Token', Liferay.authToken);
 
 		const request = {
 			body,
@@ -148,95 +223,175 @@ class ChangeListsConfiguration extends PortletBase {
 		fetch(url, request)
 			.then(response => response.json())
 			.then(response => callback(response))
-			.catch(
-				(error) => {
-					const message = typeof error === 'string' ?
-						error :
-						Liferay.Language.get('an-error-occured-while-saving-configuration');
+			.catch(error => {
+				const message =
+					typeof error === 'string'
+						? error
+						: Liferay.Language.get(
+								'an-error-occured-while-saving-configuration'
+						  );
 
-					openToast(
-						{
-							message,
-							title: Liferay.Language.get('error'),
-							type: 'danger'
-						}
-					);
-				}
-			);
+				openToast({
+					message,
+					title: Liferay.Language.get('error'),
+					type: 'danger'
+				});
+			});
 	}
 }
 
 /**
  * State definition.
- * @review
+ *
  * @static
  * @type {!Object}
  */
 ChangeListsConfiguration.STATE = {
-
 	/**
-	 * If true, change tracking is enabled
+	 * If <code>true</code>, change tracking is allowed.
+	 *
 	 * @instance
 	 * @memberOf ChangeListsConfiguration
-	 * @review
 	 * @type {boolean}
 	 */
+	changeTrackingAllowed: Config.bool(),
 
+	/**
+	 * If <code>true</code>, change tracking is enabled.
+	 *
+	 * @instance
+	 * @memberOf ChangeListsConfiguration
+	 * @type {boolean}
+	 */
 	changeTrackingEnabled: Config.bool(),
 
 	/**
-	 * If true, an initial fetch has already happened
+	 * If <code>true</code>, checkout change tracking confirmation is enabled.
+	 *
+	 * @instance
+	 * @memberOf ChangeListsConfiguration
+	 * @type {boolean}
+	 */
+	checkoutCTCollectionConfirmationEnabled: Config.bool(),
+
+	/**
+	 * sets which page to display based on navigationItems
+	 *
+	 * @instance
+	 * @memberOf ChangeListsConfiguration
+	 * @type {string}
+	 */
+	currentPage: Config.string().value('Global Settings'),
+
+	/**
+	 * If <code>true</code>, an initial fetch has already occurred.
+	 *
 	 * @default false
 	 * @instance
 	 * @memberOf ChangeListsConfiguration
-	 * @review
 	 * @type {boolean}
 	 */
-
 	initialFetch: Config.bool().value(false),
 
 	/**
-	 * Property that contains the url for the REST service to the change
-	 * tracking configuration endpoint
+	 * Itemlist for navigationBar
+	 *
 	 * @default undefined
 	 * @instance
 	 * @memberOf ChangeListsConfiguration
-	 * @review
+	 * @type {!array}
+	 */
+	navigationItem: Config.arrayOf(
+		Config.shapeOf({
+			active: Config.bool().value(false),
+			href: Config.string(),
+			label: Config.string().required()
+		})
+	).required(),
+
+	/**
+	 * Itemlist for navigationBar
+	 *
+	 * @default undefined
+	 * @instance
+	 * @memberOf ChangeListsConfiguration
+	 * @type {!array}
+	 */
+	navigationItems: Config.arrayOf(
+		Config.shapeOf({
+			active: Config.bool().value(false),
+			href: Config.string(),
+			label: Config.string().required()
+		})
+	).required(),
+
+	/**
+	 * If <code>true</code>, User Settings is available in navigation.
+	 *
+	 * @default false
+	 * @instance
+	 * @memberOf ChangeListsConfiguration
+	 * @type {boolean}
+	 */
+	userSettingsEnabled: Config.bool().value(false),
+
+	/**
+	 * URL for the REST service to the change tracking configuration endpoint.
+	 *
+	 * @default undefined
+	 * @instance
+	 * @memberOf ChangeListsConfiguration
 	 * @type {!string}
 	 */
-
 	urlChangeTrackingConfiguration: Config.string().required(),
 
 	/**
-	 * Property that contains the url for the 'Overview' screen
+	 * URL for the REST service to the change tracking user configuration endpoint.
+	 *
 	 * @default undefined
 	 * @instance
 	 * @memberOf ChangeListsConfiguration
-	 * @review
 	 * @type {!string}
 	 */
+	urlChangeTrackingUserConfiguration: Config.string().required(),
 
+	/**
+	 * URL for the Overview screen.
+	 *
+	 * @default undefined
+	 * @instance
+	 * @memberOf ChangeListsConfiguration
+	 * @type {!string}
+	 */
 	urlOverview: Config.string().required(),
 
 	/**
-	 * Path of the available icons.
+	 * URL for the Configuration screen.
+	 *
 	 * @default undefined
 	 * @instance
 	 * @memberOf ChangeListsConfiguration
-	 * @review
 	 * @type {!string}
 	 */
+	urlConfiguration: Config.string().required(),
 
+	/**
+	 * Path of the available icons.
+	 *
+	 * @default undefined
+	 * @instance
+	 * @memberOf ChangeListsConfiguration
+	 * @type {!string}
+	 */
 	spritemap: Config.string().required(),
 
 	/**
-	 * An array of content types that support change tracking
+	 * Content types that support change tracking.
+	 *
 	 * @instance
 	 * @memberOf ChangeListsConfiguration
-	 * @review
 	 * @type {string}
 	 */
-
 	tooltipBody: Config.string()
 };
 

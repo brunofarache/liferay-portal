@@ -14,9 +14,9 @@
 
 package com.liferay.oauth2.provider.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.service.ServiceWrapper;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides a wrapper for {@link OAuth2AuthorizationLocalService}.
@@ -36,6 +36,12 @@ public class OAuth2AuthorizationLocalServiceWrapper
 		_oAuth2AuthorizationLocalService = oAuth2AuthorizationLocalService;
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 #addOAuth2Authorization(long, long, String, long,long,
+	 String, Date, Date, String, String, String, Date, Date)}
+	 */
+	@Deprecated
 	@Override
 	public com.liferay.oauth2.provider.model.OAuth2Authorization
 		addOAuth2Authorization(
@@ -51,6 +57,25 @@ public class OAuth2AuthorizationLocalServiceWrapper
 			oAuth2ApplicationScopeAliasesId, accessTokenContent,
 			accessTokenCreateDate, accessTokenExpirationDate, remoteIPInfo,
 			refreshTokenContent, refreshTokenCreateDate,
+			refreshTokenExpirationDate);
+	}
+
+	@Override
+	public com.liferay.oauth2.provider.model.OAuth2Authorization
+		addOAuth2Authorization(
+			long companyId, long userId, String userName,
+			long oAuth2ApplicationId, long oAuth2ApplicationScopeAliasesId,
+			String accessTokenContent, java.util.Date accessTokenCreateDate,
+			java.util.Date accessTokenExpirationDate, String remoteHostInfo,
+			String remoteIPInfo, String refreshTokenContent,
+			java.util.Date refreshTokenCreateDate,
+			java.util.Date refreshTokenExpirationDate) {
+
+		return _oAuth2AuthorizationLocalService.addOAuth2Authorization(
+			companyId, userId, userName, oAuth2ApplicationId,
+			oAuth2ApplicationScopeAliasesId, accessTokenContent,
+			accessTokenCreateDate, accessTokenExpirationDate, remoteHostInfo,
+			remoteIPInfo, refreshTokenContent, refreshTokenCreateDate,
 			refreshTokenExpirationDate);
 	}
 

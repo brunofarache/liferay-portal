@@ -15,8 +15,8 @@
 package com.liferay.server.manager.internal.servlet;
 
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
@@ -62,8 +62,8 @@ import org.osgi.service.component.annotations.Reference;
 public class ServerManagerServlet extends HttpServlet {
 
 	protected void execute(
-			HttpServletRequest request, JSONObject responseJSONObject,
-			String pathInfo)
+			HttpServletRequest httpServletRequest,
+			JSONObject responseJSONObject, String pathInfo)
 		throws Exception {
 
 		String executorPath = getExecutorPath(pathInfo);
@@ -72,19 +72,23 @@ public class ServerManagerServlet extends HttpServlet {
 
 		Queue<String> arguments = getExecutorArguments(executorPath, pathInfo);
 
-		String method = request.getMethod();
+		String method = httpServletRequest.getMethod();
 
 		if (StringUtil.equalsIgnoreCase(method, HttpMethods.DELETE)) {
-			executor.executeDelete(request, responseJSONObject, arguments);
+			executor.executeDelete(
+				httpServletRequest, responseJSONObject, arguments);
 		}
 		else if (StringUtil.equalsIgnoreCase(method, HttpMethods.GET)) {
-			executor.executeRead(request, responseJSONObject, arguments);
+			executor.executeRead(
+				httpServletRequest, responseJSONObject, arguments);
 		}
 		else if (StringUtil.equalsIgnoreCase(method, HttpMethods.POST)) {
-			executor.executeCreate(request, responseJSONObject, arguments);
+			executor.executeCreate(
+				httpServletRequest, responseJSONObject, arguments);
 		}
 		else if (StringUtil.equalsIgnoreCase(method, HttpMethods.PUT)) {
-			executor.executeUpdate(request, responseJSONObject, arguments);
+			executor.executeUpdate(
+				httpServletRequest, responseJSONObject, arguments);
 		}
 	}
 
@@ -114,9 +118,9 @@ public class ServerManagerServlet extends HttpServlet {
 		return executorPathResolver.getExecutorPath(pathInfo);
 	}
 
-	protected boolean isValidUser(HttpServletRequest request) {
+	protected boolean isValidUser(HttpServletRequest httpServletRequest) {
 		try {
-			User user = _portal.getUser(request);
+			User user = _portal.getUser(httpServletRequest);
 
 			PermissionChecker permissionChecker =
 				PermissionCheckerFactoryUtil.create(user);
@@ -134,43 +138,51 @@ public class ServerManagerServlet extends HttpServlet {
 
 	@Override
 	protected void service(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException {
 
-		if (!isValidUser(request)) {
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		if (!isValidUser(httpServletRequest)) {
+			httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
 			return;
 		}
 
-		JSONObject responseJSONObject = JSONFactoryUtil.createJSONObject();
-
-		responseJSONObject.put(JSONKeys.ERROR, StringPool.BLANK);
-		responseJSONObject.put(JSONKeys.OUTPUT, StringPool.BLANK);
-		responseJSONObject.put(JSONKeys.STATUS, 0);
+		JSONObject responseJSONObject = JSONUtil.put(
+			JSONKeys.ERROR, StringPool.BLANK
+		).put(
+			JSONKeys.OUTPUT, StringPool.BLANK
+		).put(
+			JSONKeys.STATUS, 0
+		);
 
 		try {
-			execute(request, responseJSONObject, request.getPathInfo());
+			execute(
+				httpServletRequest, responseJSONObject,
+				httpServletRequest.getPathInfo());
 		}
 		catch (Exception e) {
 			responseJSONObject.put(
-				JSONKeys.ERROR, StackTraceUtil.getStackTrace(e));
-			responseJSONObject.put(JSONKeys.STATUS, 1);
+				JSONKeys.ERROR, StackTraceUtil.getStackTrace(e)
+			).put(
+				JSONKeys.STATUS, 1
+			);
 		}
 
-		String format = ParamUtil.getString(request, "format");
+		String format = ParamUtil.getString(httpServletRequest, "format");
 
 		if (format.equals("raw")) {
-			response.setContentType(ContentTypes.TEXT_PLAIN);
+			httpServletResponse.setContentType(ContentTypes.TEXT_PLAIN);
 
 			String outputStream = responseJSONObject.getString(JSONKeys.OUTPUT);
 
-			ServletResponseUtil.write(response, outputStream);
+			ServletResponseUtil.write(httpServletResponse, outputStream);
 		}
 		else {
-			response.setContentType(ContentTypes.APPLICATION_JSON);
+			httpServletResponse.setContentType(ContentTypes.APPLICATION_JSON);
 
-			ServletResponseUtil.write(response, responseJSONObject.toString());
+			ServletResponseUtil.write(
+				httpServletResponse, responseJSONObject.toString());
 		}
 	}
 

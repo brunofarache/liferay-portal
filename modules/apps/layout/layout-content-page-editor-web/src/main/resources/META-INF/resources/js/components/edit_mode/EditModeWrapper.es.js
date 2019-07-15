@@ -1,6 +1,19 @@
-import Component from 'metal-component';
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
 
-import {INITIAL_STATE} from '../../store/state.es';
+import Component from 'metal-component';
+import getConnectedComponent from '../../store/ConnectedComponent.es';
 
 /**
  * @type string
@@ -17,47 +30,43 @@ const WRAPPER_PADDED_CLASS = 'fragment-entry-link-list-wrapper--padded';
  * @review
  */
 class EditModeWrapper extends Component {
-
 	/**
 	 * @inheritdoc
 	 */
 	created() {
-		this._handleSidebarVisibleChanged = this._handleSidebarVisibleChanged.bind(this);
+		this._handleSelectedSidebarPanelIdChanged = this._handleSelectedSidebarPanelIdChanged.bind(
+			this
+		);
 
-		this.on('fragmentsEditorSidebarVisibleChanged', this._handleSidebarVisibleChanged);
+		this.on(
+			'selectedSidebarPanelIdChanged',
+			this._handleSelectedSidebarPanelIdChanged
+		);
 
-		this._handleSidebarVisibleChanged();
+		this._handleSelectedSidebarPanelIdChanged();
 	}
 
 	/**
 	 * Callback called when the sidebar visibily changes
 	 */
-	_handleSidebarVisibleChanged() {
+	_handleSelectedSidebarPanelIdChanged() {
 		const wrapper = document.getElementById('wrapper');
 
 		if (wrapper) {
 			wrapper.classList.add(WRAPPER_CLASS);
 
-			if (this.fragmentsEditorSidebarVisible) {
+			if (this.selectedSidebarPanelId) {
 				wrapper.classList.add(WRAPPER_PADDED_CLASS);
-			}
-			else {
+			} else {
 				wrapper.classList.remove(WRAPPER_PADDED_CLASS);
 			}
 		}
 	}
-
 }
 
-/**
- * State definition.
- * @review
- * @static
- * @type {!Object}
- */
-EditModeWrapper.STATE = {
-	fragmentsEditorSidebarVisible: INITIAL_STATE.fragmentsEditorSidebarVisible
-};
+const ConnectedEditModeWrapper = getConnectedComponent(EditModeWrapper, [
+	'selectedSidebarPanelId'
+]);
 
-export {EditModeWrapper};
-export default EditModeWrapper;
+export {ConnectedEditModeWrapper, EditModeWrapper};
+export default ConnectedEditModeWrapper;

@@ -14,43 +14,42 @@
 
 package com.liferay.headless.form.resource.v1_0.test;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
-import com.liferay.headless.form.dto.v1_0.FormStructure;
-import com.liferay.headless.form.resource.v1_0.FormStructureResource;
+import com.liferay.headless.form.client.dto.v1_0.FormStructure;
+import com.liferay.headless.form.client.http.HttpInvoker;
+import com.liferay.headless.form.client.pagination.Page;
+import com.liferay.headless.form.client.pagination.Pagination;
+import com.liferay.headless.form.client.resource.v1_0.FormStructureResource;
+import com.liferay.headless.form.client.serdes.v1_0.FormStructureSerDes;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.Base64;
 import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
-import com.liferay.portal.kernel.util.Http;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.odata.entity.EntityField;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.vulcan.pagination.Page;
-import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.resource.EntityModelResource;
 
 import java.lang.reflect.InvocationTargetException;
 
-import java.net.URL;
-
 import java.text.DateFormat;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -60,9 +59,9 @@ import java.util.stream.Stream;
 import javax.annotation.Generated;
 
 import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.Response;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.lang.time.DateUtils;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -95,7 +94,16 @@ public abstract class BaseFormStructureResourceTestCase {
 		irrelevantGroup = GroupTestUtil.addGroup();
 		testGroup = GroupTestUtil.addGroup();
 
-		_resourceURL = new URL("http://localhost:8080/o/headless-form/v1.0");
+		testCompany = CompanyLocalServiceUtil.getCompany(
+			testGroup.getCompanyId());
+
+		_formStructureResource.setContextCompany(testCompany);
+
+		FormStructureResource.Builder builder = FormStructureResource.builder();
+
+		formStructureResource = builder.locale(
+			LocaleUtil.getDefault()
+		).build();
 	}
 
 	@After
@@ -105,171 +113,75 @@ public abstract class BaseFormStructureResourceTestCase {
 	}
 
 	@Test
-	public void testGetContentSpaceFormStructuresPage() throws Exception {
-		Long contentSpaceId =
-			testGetContentSpaceFormStructuresPage_getContentSpaceId();
-		Long irrelevantContentSpaceId =
-			testGetContentSpaceFormStructuresPage_getIrrelevantContentSpaceId();
+	public void testClientSerDesToDTO() throws Exception {
+		ObjectMapper objectMapper = new ObjectMapper() {
+			{
+				configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
+				configure(
+					SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
+				enable(SerializationFeature.INDENT_OUTPUT);
+				setDateFormat(new ISO8601DateFormat());
+				setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+				setSerializationInclusion(JsonInclude.Include.NON_NULL);
+				setVisibility(
+					PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+				setVisibility(
+					PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
+			}
+		};
 
-		if ((irrelevantContentSpaceId != null)) {
-			FormStructure irrelevantFormStructure =
-				testGetContentSpaceFormStructuresPage_addFormStructure(
-					irrelevantContentSpaceId, randomIrrelevantFormStructure());
+		FormStructure formStructure1 = randomFormStructure();
 
-			Page<FormStructure> page = invokeGetContentSpaceFormStructuresPage(
-				irrelevantContentSpaceId, Pagination.of(1, 2));
+		String json = objectMapper.writeValueAsString(formStructure1);
 
-			Assert.assertEquals(1, page.getTotalCount());
+		FormStructure formStructure2 = FormStructureSerDes.toDTO(json);
 
-			assertEquals(
-				Arrays.asList(irrelevantFormStructure),
-				(List<FormStructure>)page.getItems());
-			assertValid(page);
-		}
-
-		FormStructure formStructure1 =
-			testGetContentSpaceFormStructuresPage_addFormStructure(
-				contentSpaceId, randomFormStructure());
-
-		FormStructure formStructure2 =
-			testGetContentSpaceFormStructuresPage_addFormStructure(
-				contentSpaceId, randomFormStructure());
-
-		Page<FormStructure> page = invokeGetContentSpaceFormStructuresPage(
-			contentSpaceId, Pagination.of(1, 2));
-
-		Assert.assertEquals(2, page.getTotalCount());
-
-		assertEqualsIgnoringOrder(
-			Arrays.asList(formStructure1, formStructure2),
-			(List<FormStructure>)page.getItems());
-		assertValid(page);
+		Assert.assertTrue(equals(formStructure1, formStructure2));
 	}
 
 	@Test
-	public void testGetContentSpaceFormStructuresPageWithPagination()
-		throws Exception {
+	public void testClientSerDesToJSON() throws Exception {
+		ObjectMapper objectMapper = new ObjectMapper() {
+			{
+				configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
+				configure(
+					SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
+				setDateFormat(new ISO8601DateFormat());
+				setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+				setSerializationInclusion(JsonInclude.Include.NON_NULL);
+				setVisibility(
+					PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+				setVisibility(
+					PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
+			}
+		};
 
-		Long contentSpaceId =
-			testGetContentSpaceFormStructuresPage_getContentSpaceId();
+		FormStructure formStructure = randomFormStructure();
 
-		FormStructure formStructure1 =
-			testGetContentSpaceFormStructuresPage_addFormStructure(
-				contentSpaceId, randomFormStructure());
-
-		FormStructure formStructure2 =
-			testGetContentSpaceFormStructuresPage_addFormStructure(
-				contentSpaceId, randomFormStructure());
-
-		FormStructure formStructure3 =
-			testGetContentSpaceFormStructuresPage_addFormStructure(
-				contentSpaceId, randomFormStructure());
-
-		Page<FormStructure> page1 = invokeGetContentSpaceFormStructuresPage(
-			contentSpaceId, Pagination.of(1, 2));
-
-		List<FormStructure> formStructures1 =
-			(List<FormStructure>)page1.getItems();
+		String json1 = objectMapper.writeValueAsString(formStructure);
+		String json2 = FormStructureSerDes.toJSON(formStructure);
 
 		Assert.assertEquals(
-			formStructures1.toString(), 2, formStructures1.size());
-
-		Page<FormStructure> page2 = invokeGetContentSpaceFormStructuresPage(
-			contentSpaceId, Pagination.of(2, 2));
-
-		Assert.assertEquals(3, page2.getTotalCount());
-
-		List<FormStructure> formStructures2 =
-			(List<FormStructure>)page2.getItems();
-
-		Assert.assertEquals(
-			formStructures2.toString(), 1, formStructures2.size());
-
-		assertEqualsIgnoringOrder(
-			Arrays.asList(formStructure1, formStructure2, formStructure3),
-			new ArrayList<FormStructure>() {
-				{
-					addAll(formStructures1);
-					addAll(formStructures2);
-				}
-			});
+			objectMapper.readTree(json1), objectMapper.readTree(json2));
 	}
 
-	protected FormStructure
-			testGetContentSpaceFormStructuresPage_addFormStructure(
-				Long contentSpaceId, FormStructure formStructure)
-		throws Exception {
+	@Test
+	public void testEscapeRegexInStringFields() throws Exception {
+		String regex = "^[0-9]+(\\.[0-9]{1,2})\"?";
 
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
-	}
+		FormStructure formStructure = randomFormStructure();
 
-	protected Long testGetContentSpaceFormStructuresPage_getContentSpaceId()
-		throws Exception {
+		formStructure.setDescription(regex);
+		formStructure.setName(regex);
 
-		return testGroup.getGroupId();
-	}
+		String json = FormStructureSerDes.toJSON(formStructure);
 
-	protected Long
-			testGetContentSpaceFormStructuresPage_getIrrelevantContentSpaceId()
-		throws Exception {
+		Assert.assertFalse(json.contains(regex));
 
-		return irrelevantGroup.getGroupId();
-	}
+		formStructure = FormStructureSerDes.toDTO(json);
 
-	protected Page<FormStructure> invokeGetContentSpaceFormStructuresPage(
-			Long contentSpaceId, Pagination pagination)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		String location =
-			_resourceURL +
-				_toPath(
-					"/content-spaces/{content-space-id}/form-structures",
-					contentSpaceId);
-
-		location = HttpUtil.addParameter(
-			location, "page", pagination.getPage());
-		location = HttpUtil.addParameter(
-			location, "pageSize", pagination.getPageSize());
-
-		options.setLocation(location);
-
-		String string = HttpUtil.URLtoString(options);
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("HTTP response: " + string);
-		}
-
-		return _outputObjectMapper.readValue(
-			string,
-			new TypeReference<Page<FormStructure>>() {
-			});
-	}
-
-	protected Http.Response invokeGetContentSpaceFormStructuresPageResponse(
-			Long contentSpaceId, Pagination pagination)
-		throws Exception {
-
-		Http.Options options = _createHttpOptions();
-
-		String location =
-			_resourceURL +
-				_toPath(
-					"/content-spaces/{content-space-id}/form-structures",
-					contentSpaceId);
-
-		location = HttpUtil.addParameter(
-			location, "page", pagination.getPage());
-		location = HttpUtil.addParameter(
-			location, "pageSize", pagination.getPageSize());
-
-		options.setLocation(location);
-
-		HttpUtil.URLtoString(options);
-
-		return options.getResponse();
+		Assert.assertEquals(regex, formStructure.getDescription());
+		Assert.assertEquals(regex, formStructure.getName());
 	}
 
 	@Test
@@ -277,7 +189,7 @@ public abstract class BaseFormStructureResourceTestCase {
 		FormStructure postFormStructure =
 			testGetFormStructure_addFormStructure();
 
-		FormStructure getFormStructure = invokeGetFormStructure(
+		FormStructure getFormStructure = formStructureResource.getFormStructure(
 			postFormStructure.getId());
 
 		assertEquals(postFormStructure, getFormStructure);
@@ -291,56 +203,124 @@ public abstract class BaseFormStructureResourceTestCase {
 			"This method needs to be implemented");
 	}
 
-	protected FormStructure invokeGetFormStructure(Long formStructureId)
-		throws Exception {
+	@Test
+	public void testGetSiteFormStructuresPage() throws Exception {
+		Page<FormStructure> page =
+			formStructureResource.getSiteFormStructuresPage(
+				testGetSiteFormStructuresPage_getSiteId(), Pagination.of(1, 2));
 
-		Http.Options options = _createHttpOptions();
+		Assert.assertEquals(0, page.getTotalCount());
 
-		String location =
-			_resourceURL +
-				_toPath(
-					"/form-structures/{form-structure-id}", formStructureId);
+		Long siteId = testGetSiteFormStructuresPage_getSiteId();
+		Long irrelevantSiteId =
+			testGetSiteFormStructuresPage_getIrrelevantSiteId();
 
-		options.setLocation(location);
+		if ((irrelevantSiteId != null)) {
+			FormStructure irrelevantFormStructure =
+				testGetSiteFormStructuresPage_addFormStructure(
+					irrelevantSiteId, randomIrrelevantFormStructure());
 
-		String string = HttpUtil.URLtoString(options);
+			page = formStructureResource.getSiteFormStructuresPage(
+				irrelevantSiteId, Pagination.of(1, 2));
 
-		if (_log.isDebugEnabled()) {
-			_log.debug("HTTP response: " + string);
+			Assert.assertEquals(1, page.getTotalCount());
+
+			assertEquals(
+				Arrays.asList(irrelevantFormStructure),
+				(List<FormStructure>)page.getItems());
+			assertValid(page);
 		}
 
-		try {
-			return _outputObjectMapper.readValue(string, FormStructure.class);
-		}
-		catch (Exception e) {
-			_log.error("Unable to process HTTP response: " + string, e);
+		FormStructure formStructure1 =
+			testGetSiteFormStructuresPage_addFormStructure(
+				siteId, randomFormStructure());
 
-			throw e;
-		}
+		FormStructure formStructure2 =
+			testGetSiteFormStructuresPage_addFormStructure(
+				siteId, randomFormStructure());
+
+		page = formStructureResource.getSiteFormStructuresPage(
+			siteId, Pagination.of(1, 2));
+
+		Assert.assertEquals(2, page.getTotalCount());
+
+		assertEqualsIgnoringOrder(
+			Arrays.asList(formStructure1, formStructure2),
+			(List<FormStructure>)page.getItems());
+		assertValid(page);
 	}
 
-	protected Http.Response invokeGetFormStructureResponse(Long formStructureId)
-		throws Exception {
+	@Test
+	public void testGetSiteFormStructuresPageWithPagination() throws Exception {
+		Long siteId = testGetSiteFormStructuresPage_getSiteId();
 
-		Http.Options options = _createHttpOptions();
+		FormStructure formStructure1 =
+			testGetSiteFormStructuresPage_addFormStructure(
+				siteId, randomFormStructure());
 
-		String location =
-			_resourceURL +
-				_toPath(
-					"/form-structures/{form-structure-id}", formStructureId);
+		FormStructure formStructure2 =
+			testGetSiteFormStructuresPage_addFormStructure(
+				siteId, randomFormStructure());
 
-		options.setLocation(location);
+		FormStructure formStructure3 =
+			testGetSiteFormStructuresPage_addFormStructure(
+				siteId, randomFormStructure());
 
-		HttpUtil.URLtoString(options);
+		Page<FormStructure> page1 =
+			formStructureResource.getSiteFormStructuresPage(
+				siteId, Pagination.of(1, 2));
 
-		return options.getResponse();
-	}
-
-	protected void assertResponseCode(
-		int expectedResponseCode, Http.Response actualResponse) {
+		List<FormStructure> formStructures1 =
+			(List<FormStructure>)page1.getItems();
 
 		Assert.assertEquals(
-			expectedResponseCode, actualResponse.getResponseCode());
+			formStructures1.toString(), 2, formStructures1.size());
+
+		Page<FormStructure> page2 =
+			formStructureResource.getSiteFormStructuresPage(
+				siteId, Pagination.of(2, 2));
+
+		Assert.assertEquals(3, page2.getTotalCount());
+
+		List<FormStructure> formStructures2 =
+			(List<FormStructure>)page2.getItems();
+
+		Assert.assertEquals(
+			formStructures2.toString(), 1, formStructures2.size());
+
+		Page<FormStructure> page3 =
+			formStructureResource.getSiteFormStructuresPage(
+				siteId, Pagination.of(1, 3));
+
+		assertEqualsIgnoringOrder(
+			Arrays.asList(formStructure1, formStructure2, formStructure3),
+			(List<FormStructure>)page3.getItems());
+	}
+
+	protected FormStructure testGetSiteFormStructuresPage_addFormStructure(
+			Long siteId, FormStructure formStructure)
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	protected Long testGetSiteFormStructuresPage_getSiteId() throws Exception {
+		return testGroup.getGroupId();
+	}
+
+	protected Long testGetSiteFormStructuresPage_getIrrelevantSiteId()
+		throws Exception {
+
+		return irrelevantGroup.getGroupId();
+	}
+
+	protected void assertHttpResponseStatusCode(
+		int expectedHttpResponseStatusCode,
+		HttpInvoker.HttpResponse actualHttpResponse) {
+
+		Assert.assertEquals(
+			expectedHttpResponseStatusCode, actualHttpResponse.getStatusCode());
 	}
 
 	protected void assertEquals(
@@ -389,14 +369,91 @@ public abstract class BaseFormStructureResourceTestCase {
 	}
 
 	protected void assertValid(FormStructure formStructure) {
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
+		boolean valid = true;
+
+		if (formStructure.getDateCreated() == null) {
+			valid = false;
+		}
+
+		if (formStructure.getDateModified() == null) {
+			valid = false;
+		}
+
+		if (formStructure.getId() == null) {
+			valid = false;
+		}
+
+		if (!Objects.equals(
+				formStructure.getSiteId(), testGroup.getGroupId())) {
+
+			valid = false;
+		}
+
+		for (String additionalAssertFieldName :
+				getAdditionalAssertFieldNames()) {
+
+			if (Objects.equals(
+					"availableLanguages", additionalAssertFieldName)) {
+
+				if (formStructure.getAvailableLanguages() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("creator", additionalAssertFieldName)) {
+				if (formStructure.getCreator() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("description", additionalAssertFieldName)) {
+				if (formStructure.getDescription() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("formPages", additionalAssertFieldName)) {
+				if (formStructure.getFormPages() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("formSuccessPage", additionalAssertFieldName)) {
+				if (formStructure.getFormSuccessPage() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("name", additionalAssertFieldName)) {
+				if (formStructure.getName() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			throw new IllegalArgumentException(
+				"Invalid additional assert field name " +
+					additionalAssertFieldName);
+		}
+
+		Assert.assertTrue(valid);
 	}
 
 	protected void assertValid(Page<FormStructure> page) {
 		boolean valid = false;
 
-		Collection<FormStructure> formStructures = page.getItems();
+		java.util.Collection<FormStructure> formStructures = page.getItems();
 
 		int size = formStructures.size();
 
@@ -410,6 +467,14 @@ public abstract class BaseFormStructureResourceTestCase {
 		Assert.assertTrue(valid);
 	}
 
+	protected String[] getAdditionalAssertFieldNames() {
+		return new String[0];
+	}
+
+	protected String[] getIgnoredEntityFieldNames() {
+		return new String[0];
+	}
+
 	protected boolean equals(
 		FormStructure formStructure1, FormStructure formStructure2) {
 
@@ -417,10 +482,125 @@ public abstract class BaseFormStructureResourceTestCase {
 			return true;
 		}
 
-		return false;
+		if (!Objects.equals(
+				formStructure1.getSiteId(), formStructure2.getSiteId())) {
+
+			return false;
+		}
+
+		for (String additionalAssertFieldName :
+				getAdditionalAssertFieldNames()) {
+
+			if (Objects.equals(
+					"availableLanguages", additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						formStructure1.getAvailableLanguages(),
+						formStructure2.getAvailableLanguages())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("creator", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						formStructure1.getCreator(),
+						formStructure2.getCreator())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("dateCreated", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						formStructure1.getDateCreated(),
+						formStructure2.getDateCreated())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("dateModified", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						formStructure1.getDateModified(),
+						formStructure2.getDateModified())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("description", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						formStructure1.getDescription(),
+						formStructure2.getDescription())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("formPages", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						formStructure1.getFormPages(),
+						formStructure2.getFormPages())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("formSuccessPage", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						formStructure1.getFormSuccessPage(),
+						formStructure2.getFormSuccessPage())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("id", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						formStructure1.getId(), formStructure2.getId())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("name", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						formStructure1.getName(), formStructure2.getName())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			throw new IllegalArgumentException(
+				"Invalid additional assert field name " +
+					additionalAssertFieldName);
+		}
+
+		return true;
 	}
 
-	protected Collection<EntityField> getEntityFields() throws Exception {
+	protected java.util.Collection<EntityField> getEntityFields()
+		throws Exception {
+
 		if (!(_formStructureResource instanceof EntityModelResource)) {
 			throw new UnsupportedOperationException(
 				"Resource is not an instance of EntityModelResource");
@@ -441,12 +621,15 @@ public abstract class BaseFormStructureResourceTestCase {
 	protected List<EntityField> getEntityFields(EntityField.Type type)
 		throws Exception {
 
-		Collection<EntityField> entityFields = getEntityFields();
+		java.util.Collection<EntityField> entityFields = getEntityFields();
 
 		Stream<EntityField> stream = entityFields.stream();
 
 		return stream.filter(
-			entityField -> Objects.equals(entityField.getType(), type)
+			entityField ->
+				Objects.equals(entityField.getType(), type) &&
+				!ArrayUtil.contains(
+					getIgnoredEntityFieldNames(), entityField.getName())
 		).collect(
 			Collectors.toList()
 		);
@@ -470,24 +653,73 @@ public abstract class BaseFormStructureResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
-		if (entityFieldName.equals("contentSpaceId")) {
-			throw new IllegalArgumentException(
-				"Invalid entity field " + entityFieldName);
-		}
-
 		if (entityFieldName.equals("creator")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
 		}
 
 		if (entityFieldName.equals("dateCreated")) {
-			sb.append(_dateFormat.format(formStructure.getDateCreated()));
+			if (operator.equals("between")) {
+				sb = new StringBundler();
+
+				sb.append("(");
+				sb.append(entityFieldName);
+				sb.append(" gt ");
+				sb.append(
+					_dateFormat.format(
+						DateUtils.addSeconds(
+							formStructure.getDateCreated(), -2)));
+				sb.append(" and ");
+				sb.append(entityFieldName);
+				sb.append(" lt ");
+				sb.append(
+					_dateFormat.format(
+						DateUtils.addSeconds(
+							formStructure.getDateCreated(), 2)));
+				sb.append(")");
+			}
+			else {
+				sb.append(entityFieldName);
+
+				sb.append(" ");
+				sb.append(operator);
+				sb.append(" ");
+
+				sb.append(_dateFormat.format(formStructure.getDateCreated()));
+			}
 
 			return sb.toString();
 		}
 
 		if (entityFieldName.equals("dateModified")) {
-			sb.append(_dateFormat.format(formStructure.getDateModified()));
+			if (operator.equals("between")) {
+				sb = new StringBundler();
+
+				sb.append("(");
+				sb.append(entityFieldName);
+				sb.append(" gt ");
+				sb.append(
+					_dateFormat.format(
+						DateUtils.addSeconds(
+							formStructure.getDateModified(), -2)));
+				sb.append(" and ");
+				sb.append(entityFieldName);
+				sb.append(" lt ");
+				sb.append(
+					_dateFormat.format(
+						DateUtils.addSeconds(
+							formStructure.getDateModified(), 2)));
+				sb.append(")");
+			}
+			else {
+				sb.append(entityFieldName);
+
+				sb.append(" ");
+				sb.append(operator);
+				sb.append(" ");
+
+				sb.append(_dateFormat.format(formStructure.getDateModified()));
+			}
 
 			return sb.toString();
 		}
@@ -505,6 +737,11 @@ public abstract class BaseFormStructureResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
+		if (entityFieldName.equals("formSuccessPage")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
 		if (entityFieldName.equals("id")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
@@ -518,7 +755,7 @@ public abstract class BaseFormStructureResourceTestCase {
 			return sb.toString();
 		}
 
-		if (entityFieldName.equals("successPage")) {
+		if (entityFieldName.equals("siteId")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
 		}
@@ -527,99 +764,35 @@ public abstract class BaseFormStructureResourceTestCase {
 			"Invalid entity field " + entityFieldName);
 	}
 
-	protected FormStructure randomFormStructure() {
+	protected FormStructure randomFormStructure() throws Exception {
 		return new FormStructure() {
 			{
-				contentSpaceId = RandomTestUtil.randomLong();
 				dateCreated = RandomTestUtil.nextDate();
 				dateModified = RandomTestUtil.nextDate();
 				description = RandomTestUtil.randomString();
 				id = RandomTestUtil.randomLong();
 				name = RandomTestUtil.randomString();
+				siteId = testGroup.getGroupId();
 			}
 		};
 	}
 
-	protected FormStructure randomIrrelevantFormStructure() {
+	protected FormStructure randomIrrelevantFormStructure() throws Exception {
+		FormStructure randomIrrelevantFormStructure = randomFormStructure();
+
+		randomIrrelevantFormStructure.setSiteId(irrelevantGroup.getGroupId());
+
+		return randomIrrelevantFormStructure;
+	}
+
+	protected FormStructure randomPatchFormStructure() throws Exception {
 		return randomFormStructure();
 	}
 
-	protected FormStructure randomPatchFormStructure() {
-		return randomFormStructure();
-	}
-
+	protected FormStructureResource formStructureResource;
 	protected Group irrelevantGroup;
+	protected Company testCompany;
 	protected Group testGroup;
-
-	protected static class Page<T> {
-
-		public Collection<T> getItems() {
-			return new ArrayList<>(items);
-		}
-
-		public long getLastPage() {
-			return lastPage;
-		}
-
-		public long getPage() {
-			return page;
-		}
-
-		public long getPageSize() {
-			return pageSize;
-		}
-
-		public long getTotalCount() {
-			return totalCount;
-		}
-
-		@JsonProperty
-		protected Collection<T> items;
-
-		@JsonProperty
-		protected long lastPage;
-
-		@JsonProperty
-		protected long page;
-
-		@JsonProperty
-		protected long pageSize;
-
-		@JsonProperty
-		protected long totalCount;
-
-	}
-
-	private Http.Options _createHttpOptions() {
-		Http.Options options = new Http.Options();
-
-		options.addHeader("Accept", "application/json");
-
-		String userNameAndPassword = "test@liferay.com:test";
-
-		String encodedUserNameAndPassword = Base64.encode(
-			userNameAndPassword.getBytes());
-
-		options.addHeader(
-			"Authorization", "Basic " + encodedUserNameAndPassword);
-
-		options.addHeader("Content-Type", "application/json");
-
-		return options;
-	}
-
-	private String _toPath(String template, Object... values) {
-		if (ArrayUtil.isEmpty(values)) {
-			return template;
-		}
-
-		for (int i = 0; i < values.length; i++) {
-			template = template.replaceFirst(
-				"\\{.*\\}", String.valueOf(values[i]));
-		}
-
-		return template;
-	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		BaseFormStructureResourceTestCase.class);
@@ -637,35 +810,9 @@ public abstract class BaseFormStructureResourceTestCase {
 
 	};
 	private static DateFormat _dateFormat;
-	private final static ObjectMapper _inputObjectMapper = new ObjectMapper() {
-		{
-			setFilterProvider(
-				new SimpleFilterProvider() {
-					{
-						addFilter(
-							"Liferay.Vulcan",
-							SimpleBeanPropertyFilter.serializeAll());
-					}
-				});
-			setSerializationInclusion(JsonInclude.Include.NON_NULL);
-		}
-	};
-	private final static ObjectMapper _outputObjectMapper = new ObjectMapper() {
-		{
-			setFilterProvider(
-				new SimpleFilterProvider() {
-					{
-						addFilter(
-							"Liferay.Vulcan",
-							SimpleBeanPropertyFilter.serializeAll());
-					}
-				});
-		}
-	};
 
 	@Inject
-	private FormStructureResource _formStructureResource;
-
-	private URL _resourceURL;
+	private com.liferay.headless.form.resource.v1_0.FormStructureResource
+		_formStructureResource;
 
 }

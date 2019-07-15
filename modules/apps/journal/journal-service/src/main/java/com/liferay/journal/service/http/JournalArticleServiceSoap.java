@@ -14,8 +14,6 @@
 
 package com.liferay.journal.service.http;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.journal.service.JournalArticleServiceUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -27,6 +25,8 @@ import java.rmi.RemoteException;
 
 import java.util.Locale;
 import java.util.Map;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the SOAP utility for the
@@ -329,6 +329,21 @@ public class JournalArticleServiceSoap {
 		try {
 			JournalArticleServiceUtil.deleteArticle(
 				groupId, articleId, articleURL, serviceContext);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static void deleteArticleDefaultValues(
+			long groupId, String articleId, String ddmStructureKey)
+		throws RemoteException {
+
+		try {
+			JournalArticleServiceUtil.deleteArticleDefaultValues(
+				groupId, articleId, ddmStructureKey);
 		}
 		catch (Exception e) {
 			_log.error(e, e);

@@ -14,8 +14,6 @@
 
 package com.liferay.layout.page.template.model.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.expando.kernel.util.ExpandoBridgeFactoryUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
@@ -40,6 +38,9 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.io.Serializable;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
+
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -51,6 +52,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The base model implementation for the LayoutPageTemplateEntry service. Represents a row in the &quot;LayoutPageTemplateEntry&quot; database table, with each column mapped to a property of this class.
@@ -86,7 +89,7 @@ public class LayoutPageTemplateEntryModelImpl
 		{"name", Types.VARCHAR}, {"type_", Types.INTEGER},
 		{"previewFileEntryId", Types.BIGINT},
 		{"defaultTemplate", Types.BOOLEAN}, {"layoutPrototypeId", Types.BIGINT},
-		{"lastPublishDate", Types.TIMESTAMP}, {"plid", Types.BIGINT},
+		{"plid", Types.BIGINT}, {"lastPublishDate", Types.TIMESTAMP},
 		{"status", Types.INTEGER}, {"statusByUserId", Types.BIGINT},
 		{"statusByUserName", Types.VARCHAR}, {"statusDate", Types.TIMESTAMP}
 	};
@@ -111,8 +114,8 @@ public class LayoutPageTemplateEntryModelImpl
 		TABLE_COLUMNS_MAP.put("previewFileEntryId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("defaultTemplate", Types.BOOLEAN);
 		TABLE_COLUMNS_MAP.put("layoutPrototypeId", Types.BIGINT);
-		TABLE_COLUMNS_MAP.put("lastPublishDate", Types.TIMESTAMP);
 		TABLE_COLUMNS_MAP.put("plid", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("lastPublishDate", Types.TIMESTAMP);
 		TABLE_COLUMNS_MAP.put("status", Types.INTEGER);
 		TABLE_COLUMNS_MAP.put("statusByUserId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("statusByUserName", Types.VARCHAR);
@@ -120,7 +123,7 @@ public class LayoutPageTemplateEntryModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table LayoutPageTemplateEntry (uuid_ VARCHAR(75) null,layoutPageTemplateEntryId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,layoutPageTemplateCollectionId LONG,classNameId LONG,classTypeId LONG,name VARCHAR(75) null,type_ INTEGER,previewFileEntryId LONG,defaultTemplate BOOLEAN,layoutPrototypeId LONG,lastPublishDate DATE null,plid LONG,status INTEGER,statusByUserId LONG,statusByUserName VARCHAR(75) null,statusDate DATE null)";
+		"create table LayoutPageTemplateEntry (uuid_ VARCHAR(75) null,layoutPageTemplateEntryId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,layoutPageTemplateCollectionId LONG,classNameId LONG,classTypeId LONG,name VARCHAR(75) null,type_ INTEGER,previewFileEntryId LONG,defaultTemplate BOOLEAN,layoutPrototypeId LONG,plid LONG,lastPublishDate DATE null,status INTEGER,statusByUserId LONG,statusByUserName VARCHAR(75) null,statusDate DATE null)";
 
 	public static final String TABLE_SQL_DROP =
 		"drop table LayoutPageTemplateEntry";
@@ -210,8 +213,8 @@ public class LayoutPageTemplateEntryModelImpl
 		model.setPreviewFileEntryId(soapModel.getPreviewFileEntryId());
 		model.setDefaultTemplate(soapModel.isDefaultTemplate());
 		model.setLayoutPrototypeId(soapModel.getLayoutPrototypeId());
-		model.setLastPublishDate(soapModel.getLastPublishDate());
 		model.setPlid(soapModel.getPlid());
+		model.setLastPublishDate(soapModel.getLastPublishDate());
 		model.setStatus(soapModel.getStatus());
 		model.setStatusByUserId(soapModel.getStatusByUserId());
 		model.setStatusByUserName(soapModel.getStatusByUserName());
@@ -336,6 +339,32 @@ public class LayoutPageTemplateEntryModelImpl
 		return _attributeSetterBiConsumers;
 	}
 
+	private static Function<InvocationHandler, LayoutPageTemplateEntry>
+		_getProxyProviderFunction() {
+
+		Class<?> proxyClass = ProxyUtil.getProxyClass(
+			LayoutPageTemplateEntry.class.getClassLoader(),
+			LayoutPageTemplateEntry.class, ModelWrapper.class);
+
+		try {
+			Constructor<LayoutPageTemplateEntry> constructor =
+				(Constructor<LayoutPageTemplateEntry>)proxyClass.getConstructor(
+					InvocationHandler.class);
+
+			return invocationHandler -> {
+				try {
+					return constructor.newInstance(invocationHandler);
+				}
+				catch (ReflectiveOperationException roe) {
+					throw new InternalError(roe);
+				}
+			};
+		}
+		catch (NoSuchMethodException nsme) {
+			throw new InternalError(nsme);
+		}
+	}
+
 	private static final Map<String, Function<LayoutPageTemplateEntry, Object>>
 		_attributeGetterFunctions;
 	private static final Map
@@ -448,17 +477,17 @@ public class LayoutPageTemplateEntryModelImpl
 			"layoutPrototypeId",
 			(BiConsumer<LayoutPageTemplateEntry, Long>)
 				LayoutPageTemplateEntry::setLayoutPrototypeId);
+		attributeGetterFunctions.put("plid", LayoutPageTemplateEntry::getPlid);
+		attributeSetterBiConsumers.put(
+			"plid",
+			(BiConsumer<LayoutPageTemplateEntry, Long>)
+				LayoutPageTemplateEntry::setPlid);
 		attributeGetterFunctions.put(
 			"lastPublishDate", LayoutPageTemplateEntry::getLastPublishDate);
 		attributeSetterBiConsumers.put(
 			"lastPublishDate",
 			(BiConsumer<LayoutPageTemplateEntry, Date>)
 				LayoutPageTemplateEntry::setLastPublishDate);
-		attributeGetterFunctions.put("plid", LayoutPageTemplateEntry::getPlid);
-		attributeSetterBiConsumers.put(
-			"plid",
-			(BiConsumer<LayoutPageTemplateEntry, Long>)
-				LayoutPageTemplateEntry::setPlid);
 		attributeGetterFunctions.put(
 			"status", LayoutPageTemplateEntry::getStatus);
 		attributeSetterBiConsumers.put(
@@ -850,17 +879,6 @@ public class LayoutPageTemplateEntryModelImpl
 
 	@JSON
 	@Override
-	public Date getLastPublishDate() {
-		return _lastPublishDate;
-	}
-
-	@Override
-	public void setLastPublishDate(Date lastPublishDate) {
-		_lastPublishDate = lastPublishDate;
-	}
-
-	@JSON
-	@Override
 	public long getPlid() {
 		return _plid;
 	}
@@ -880,6 +898,17 @@ public class LayoutPageTemplateEntryModelImpl
 
 	public long getOriginalPlid() {
 		return _originalPlid;
+	}
+
+	@JSON
+	@Override
+	public Date getLastPublishDate() {
+		return _lastPublishDate;
+	}
+
+	@Override
+	public void setLastPublishDate(Date lastPublishDate) {
+		_lastPublishDate = lastPublishDate;
 	}
 
 	@JSON
@@ -1067,8 +1096,12 @@ public class LayoutPageTemplateEntryModelImpl
 	@Override
 	public LayoutPageTemplateEntry toEscapedModel() {
 		if (_escapedModel == null) {
-			_escapedModel = (LayoutPageTemplateEntry)ProxyUtil.newProxyInstance(
-				_classLoader, _escapedModelInterfaces,
+			Function<InvocationHandler, LayoutPageTemplateEntry>
+				escapedModelProxyProviderFunction =
+					EscapedModelProxyProviderFunctionHolder.
+						_escapedModelProxyProviderFunction;
+
+			_escapedModel = escapedModelProxyProviderFunction.apply(
 				new AutoEscapeBeanHandler(this));
 		}
 
@@ -1100,8 +1133,8 @@ public class LayoutPageTemplateEntryModelImpl
 		layoutPageTemplateEntryImpl.setDefaultTemplate(isDefaultTemplate());
 		layoutPageTemplateEntryImpl.setLayoutPrototypeId(
 			getLayoutPrototypeId());
-		layoutPageTemplateEntryImpl.setLastPublishDate(getLastPublishDate());
 		layoutPageTemplateEntryImpl.setPlid(getPlid());
+		layoutPageTemplateEntryImpl.setLastPublishDate(getLastPublishDate());
 		layoutPageTemplateEntryImpl.setStatus(getStatus());
 		layoutPageTemplateEntryImpl.setStatusByUserId(getStatusByUserId());
 		layoutPageTemplateEntryImpl.setStatusByUserName(getStatusByUserName());
@@ -1306,6 +1339,8 @@ public class LayoutPageTemplateEntryModelImpl
 		layoutPageTemplateEntryCacheModel.layoutPrototypeId =
 			getLayoutPrototypeId();
 
+		layoutPageTemplateEntryCacheModel.plid = getPlid();
+
 		Date lastPublishDate = getLastPublishDate();
 
 		if (lastPublishDate != null) {
@@ -1315,8 +1350,6 @@ public class LayoutPageTemplateEntryModelImpl
 		else {
 			layoutPageTemplateEntryCacheModel.lastPublishDate = Long.MIN_VALUE;
 		}
-
-		layoutPageTemplateEntryCacheModel.plid = getPlid();
 
 		layoutPageTemplateEntryCacheModel.status = getStatus();
 
@@ -1409,11 +1442,14 @@ public class LayoutPageTemplateEntryModelImpl
 		return sb.toString();
 	}
 
-	private static final ClassLoader _classLoader =
-		LayoutPageTemplateEntry.class.getClassLoader();
-	private static final Class<?>[] _escapedModelInterfaces = new Class[] {
-		LayoutPageTemplateEntry.class, ModelWrapper.class
-	};
+	private static class EscapedModelProxyProviderFunctionHolder {
+
+		private static final Function
+			<InvocationHandler, LayoutPageTemplateEntry>
+				_escapedModelProxyProviderFunction =
+					_getProxyProviderFunction();
+
+	}
 
 	private String _uuid;
 	private String _originalUuid;
@@ -1450,10 +1486,10 @@ public class LayoutPageTemplateEntryModelImpl
 	private long _layoutPrototypeId;
 	private long _originalLayoutPrototypeId;
 	private boolean _setOriginalLayoutPrototypeId;
-	private Date _lastPublishDate;
 	private long _plid;
 	private long _originalPlid;
 	private boolean _setOriginalPlid;
+	private Date _lastPublishDate;
 	private int _status;
 	private int _originalStatus;
 	private boolean _setOriginalStatus;

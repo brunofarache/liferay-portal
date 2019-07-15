@@ -19,15 +19,15 @@ import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.bulk.selection.BulkSelection;
 import com.liferay.bulk.selection.BulkSelectionFactory;
 import com.liferay.document.library.kernel.model.DLFileEntryConstants;
+import com.liferay.document.library.util.DLAssetHelper;
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 
 import java.io.Serializable;
 
-import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Stream;
 
 /**
  * @author Adolfo Pérez
@@ -37,15 +37,21 @@ public class FileEntryAssetEntryBulkSelection
 
 	public FileEntryAssetEntryBulkSelection(
 		BulkSelection<FileEntry> fileEntryBulkSelection,
-		AssetEntryLocalService assetEntryLocalService) {
+		AssetEntryLocalService assetEntryLocalService,
+		DLAssetHelper dlAssetHelper) {
 
 		_fileEntryBulkSelection = fileEntryBulkSelection;
 		_assetEntryLocalService = assetEntryLocalService;
+		_dlAssetHelper = dlAssetHelper;
 	}
 
 	@Override
-	public String describe(Locale locale) throws PortalException {
-		return _fileEntryBulkSelection.describe(locale);
+	public <E extends PortalException> void forEach(
+			UnsafeConsumer<AssetEntry, E> unsafeConsumer)
+		throws PortalException {
+
+		_fileEntryBulkSelection.forEach(
+			fileEntry -> unsafeConsumer.accept(_toAssetEntry(fileEntry)));
 	}
 
 	@Override
@@ -61,20 +67,13 @@ public class FileEntryAssetEntryBulkSelection
 	}
 
 	@Override
-	public boolean isMultiple() {
-		return _fileEntryBulkSelection.isMultiple();
+	public long getSize() throws PortalException {
+		return _fileEntryBulkSelection.getSize();
 	}
 
 	@Override
 	public Serializable serialize() {
 		return _fileEntryBulkSelection.serialize();
-	}
-
-	@Override
-	public Stream<AssetEntry> stream() throws PortalException {
-		Stream<FileEntry> fileEntryStream = _fileEntryBulkSelection.stream();
-
-		return fileEntryStream.map(this::_toAssetEntry);
 	}
 
 	@Override
@@ -86,7 +85,8 @@ public class FileEntryAssetEntryBulkSelection
 		try {
 			return _assetEntryLocalService.getEntry(
 				DLFileEntryConstants.getClassName(),
-				fileEntry.getFileEntryId());
+				_dlAssetHelper.getAssetClassPK(
+					fileEntry, fileEntry.getLatestFileVersion()));
 		}
 		catch (PortalException pe) {
 			return ReflectionUtil.throwException(pe);
@@ -94,6 +94,7 @@ public class FileEntryAssetEntryBulkSelection
 	}
 
 	private final AssetEntryLocalService _assetEntryLocalService;
+	private final DLAssetHelper _dlAssetHelper;
 	private final BulkSelection<FileEntry> _fileEntryBulkSelection;
 
 }

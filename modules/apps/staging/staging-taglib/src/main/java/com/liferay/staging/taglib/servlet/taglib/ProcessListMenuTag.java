@@ -14,8 +14,6 @@
 
 package com.liferay.staging.taglib.servlet.taglib;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.backgroundtask.BackgroundTask;
 import com.liferay.staging.taglib.internal.servlet.ServletContextUtil;
 import com.liferay.taglib.util.IncludeTag;
@@ -23,11 +21,33 @@ import com.liferay.taglib.util.IncludeTag;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * @author Péter Borkuti
  */
 @ProviderType
 public class ProcessListMenuTag extends IncludeTag {
+
+	public BackgroundTask getBackgroundTask() {
+		return _backgroundTask;
+	}
+
+	public boolean isDeleteMenu() {
+		return _deleteMenu;
+	}
+
+	public boolean isLocalPublishing() {
+		return _localPublishing;
+	}
+
+	public boolean isRelaunchMenu() {
+		return _relaunchMenu;
+	}
+
+	public boolean isSummaryMenu() {
+		return _summaryMenu;
+	}
 
 	public void setBackgroundTask(BackgroundTask backgroundTask) {
 		_backgroundTask = backgroundTask;
@@ -73,18 +93,18 @@ public class ProcessListMenuTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-staging:process-list-menu:backgroundTask",
 			_backgroundTask);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:process-list-menu:deleteMenu", _deleteMenu);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:process-list-menu:localPublishing",
 			_localPublishing);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:process-list-menu:relaunchMenu", _relaunchMenu);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-staging:process-list-menu:summaryMenu", _summaryMenu);
 	}
 

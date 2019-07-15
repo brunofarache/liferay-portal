@@ -106,6 +106,13 @@ public abstract class BaseJSONWebServiceClientImpl
 	implements JSONWebServiceClient {
 
 	public void afterPropertiesSet() throws IOReactorException {
+		if (_classLoader != null) {
+			TypeFactory typeFactory = TypeFactory.defaultInstance();
+
+			_objectMapper.setTypeFactory(
+				typeFactory.withClassLoader(_classLoader));
+		}
+
 		HttpAsyncClientBuilder httpAsyncClientBuilder =
 			HttpAsyncClients.custom();
 
@@ -156,16 +163,20 @@ public abstract class BaseJSONWebServiceClientImpl
 
 	@Override
 	public void destroy() {
-		try {
-			_asyncHttpClient.close();
-		}
-		catch (IOException ioe) {
-			_logger.error("Unable to close client", ioe);
+		if (_asyncHttpClient != null) {
+			try {
+				_asyncHttpClient.close();
+			}
+			catch (IOException ioe) {
+				_logger.error("Unable to close client", ioe);
+			}
+
+			_asyncHttpClient = null;
 		}
 
-		_asyncHttpClient = null;
-
-		_idleConnectionMonitorThread.shutdown();
+		if (_idleConnectionMonitorThread != null) {
+			_idleConnectionMonitorThread.shutdown();
+		}
 	}
 
 	@Override
@@ -755,6 +766,10 @@ public abstract class BaseJSONWebServiceClientImpl
 		}
 	}
 
+	public void setClassLoader(ClassLoader classLoader) {
+		_classLoader = classLoader;
+	}
+
 	public void setContextPath(String contextPath) {
 		_contextPath = contextPath;
 	}
@@ -996,13 +1011,11 @@ public abstract class BaseJSONWebServiceClientImpl
 		throws IOReactorException {
 
 		PoolingNHttpClientConnectionManager
-			poolingNHttpClientConnectionManager = null;
-
-		poolingNHttpClientConnectionManager =
-			new PoolingNHttpClientConnectionManager(
-				new DefaultConnectingIOReactor(), null,
-				getSchemeIOSessionStrategyRegistry(), null, null, 60000,
-				TimeUnit.MILLISECONDS);
+			poolingNHttpClientConnectionManager =
+				new PoolingNHttpClientConnectionManager(
+					new DefaultConnectingIOReactor(), null,
+					getSchemeIOSessionStrategyRegistry(), null, null, 60000,
+					TimeUnit.MILLISECONDS);
 
 		poolingNHttpClientConnectionManager.setMaxTotal(20);
 
@@ -1350,6 +1363,7 @@ public abstract class BaseJSONWebServiceClientImpl
 		"status\":(\\d+)");
 
 	private AsyncHttpClient _asyncHttpClient;
+	private ClassLoader _classLoader;
 	private String _contextPath;
 	private Map<String, String> _headers = Collections.emptyMap();
 	private String _hostName;

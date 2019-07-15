@@ -19,8 +19,8 @@ package com.liferay.tasks.portlet;
 
 import com.liferay.asset.kernel.exception.AssetTagException;
 import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
@@ -71,14 +71,13 @@ public class TasksPortlet extends MVCPortlet {
 			actionResponse.sendRedirect(redirect);
 		}
 		else {
-			JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+			JSONObject jsonObject = JSONUtil.put("success", Boolean.TRUE);
 
-			jsonObject.put("success", Boolean.TRUE);
+			HttpServletResponse httpServletResponse =
+				PortalUtil.getHttpServletResponse(actionResponse);
 
-			HttpServletResponse response = PortalUtil.getHttpServletResponse(
-				actionResponse);
-
-			ServletResponseUtil.write(response, jsonObject.toString());
+			ServletResponseUtil.write(
+				httpServletResponse, jsonObject.toString());
 		}
 	}
 
@@ -86,10 +85,6 @@ public class TasksPortlet extends MVCPortlet {
 	public void processAction(
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws IOException, PortletException {
-
-		if (!isProcessActionRequest(actionRequest)) {
-			return;
-		}
 
 		if (!callActionMethod(actionRequest, actionResponse)) {
 			return;

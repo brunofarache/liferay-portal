@@ -14,10 +14,9 @@
 
 package com.liferay.announcements.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the remote service utility for AnnouncementsEntry. This utility wraps
@@ -138,9 +137,6 @@ public class AnnouncementsEntryServiceUtil {
 		if (_service == null) {
 			_service = (AnnouncementsEntryService)PortalBeanLocatorUtil.locate(
 				AnnouncementsEntryService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				AnnouncementsEntryServiceUtil.class, "_service");
 		}
 
 		return _service;

@@ -1,8 +1,8 @@
 package ${packagePath}.service.http;
 
-import ${apiPackagePath}.service.${entity.name}ServiceUtil;
+import ${serviceBuilder.getCompatJavaClassName("ProviderType")};
 
-import aQute.bnd.annotation.ProviderType;
+import ${apiPackagePath}.service.${entity.name}ServiceUtil;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;

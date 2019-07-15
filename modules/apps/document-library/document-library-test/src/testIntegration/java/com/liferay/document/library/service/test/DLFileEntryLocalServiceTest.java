@@ -77,7 +77,7 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.PermissionCheckerTestRule;
+import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 import com.liferay.portlet.documentlibrary.util.test.DLTestUtil;
 import com.liferay.portlet.dynamicdatamapping.util.test.DDMStructureTestUtil;
 
@@ -109,7 +109,7 @@ public class DLFileEntryLocalServiceTest {
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
-			PermissionCheckerTestRule.INSTANCE);
+			PermissionCheckerMethodTestRule.INSTANCE);
 
 	@Before
 	public void setUp() throws Exception {
@@ -393,7 +393,7 @@ public class DLFileEntryLocalServiceTest {
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(dlFolder.getGroupId());
 
-		DLAppLocalServiceUtil.addFileEntry(
+		FileEntry assetFileEntry = DLAppLocalServiceUtil.addFileEntry(
 			TestPropsValues.getUserId(), dlFolder.getRepositoryId(),
 			dlFolder.getFolderId(), RandomTestUtil.randomString(),
 			ContentTypes.TEXT_PLAIN, RandomTestUtil.randomString(),
@@ -402,7 +402,7 @@ public class DLFileEntryLocalServiceTest {
 
 		is = new ByteArrayInputStream(bytes);
 
-		FileEntry fileEntry = DLAppLocalServiceUtil.addFileEntry(
+		FileEntry noAssetFileEntry = DLAppLocalServiceUtil.addFileEntry(
 			TestPropsValues.getUserId(), dlFolder.getRepositoryId(),
 			dlFolder.getFolderId(), RandomTestUtil.randomString(),
 			ContentTypes.TEXT_PLAIN, RandomTestUtil.randomString(),
@@ -410,7 +410,7 @@ public class DLFileEntryLocalServiceTest {
 			serviceContext);
 
 		AssetEntry assetEntry = AssetEntryLocalServiceUtil.fetchEntry(
-			DLFileEntry.class.getName(), fileEntry.getFileEntryId());
+			DLFileEntry.class.getName(), noAssetFileEntry.getFileEntryId());
 
 		Assert.assertNotNull(assetEntry);
 
@@ -419,12 +419,8 @@ public class DLFileEntryLocalServiceTest {
 		List<DLFileEntry> dlFileEntries =
 			DLFileEntryLocalServiceUtil.getNoAssetFileEntries();
 
-		Assert.assertEquals(dlFileEntries.toString(), 1, dlFileEntries.size());
-
-		DLFileEntry dlFileEntry = dlFileEntries.get(0);
-
-		Assert.assertEquals(
-			fileEntry.getFileEntryId(), dlFileEntry.getFileEntryId());
+		Assert.assertFalse(dlFileEntries.contains(assetFileEntry.getModel()));
+		Assert.assertTrue(dlFileEntries.contains(noAssetFileEntry.getModel()));
 	}
 
 	@Test

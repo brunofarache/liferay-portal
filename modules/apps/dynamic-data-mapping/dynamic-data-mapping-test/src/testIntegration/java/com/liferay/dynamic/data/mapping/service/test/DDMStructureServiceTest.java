@@ -25,8 +25,8 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
-import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -302,10 +302,10 @@ public class DDMStructureServiceTest extends BaseDDMServiceTestCase {
 
 	@Test
 	public void testSearchWithSiteAdminPermission() throws Exception {
+		addStructure(_classNameId, StringUtil.randomString());
+
 		DDMStructure structure = addStructure(
 			_classNameId, StringUtil.randomString());
-
-		structure = addStructure(_classNameId, StringUtil.randomString());
 
 		String modelName = ResourceActionsUtil.getCompositeModelName(
 			PortalUtil.getClassName(_classNameId),
@@ -334,10 +334,10 @@ public class DDMStructureServiceTest extends BaseDDMServiceTestCase {
 
 	@Test
 	public void testSearchWithSiteMemberPermission() throws Exception {
+		addStructure(_classNameId, StringUtil.randomString());
+
 		DDMStructure structure = addStructure(
 			_classNameId, StringUtil.randomString());
-
-		structure = addStructure(_classNameId, StringUtil.randomString());
 
 		String modelName = ResourceActionsUtil.getCompositeModelName(
 			PortalUtil.getClassName(_classNameId),

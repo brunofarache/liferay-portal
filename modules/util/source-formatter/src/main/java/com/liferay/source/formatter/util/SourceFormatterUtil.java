@@ -18,7 +18,6 @@ import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.tools.ToolsUtil;
@@ -29,6 +28,8 @@ import com.liferay.source.formatter.checks.util.SourceUtil;
 
 import java.io.File;
 import java.io.IOException;
+
+import java.net.URL;
 
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -42,11 +43,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -59,6 +57,9 @@ public class SourceFormatterUtil {
 
 	public static final String GIT_LIFERAY_PORTAL_BRANCH =
 		"git.liferay.portal.branch";
+
+	public static final String GIT_LIFERAY_PORTAL_URL =
+		"https://raw.githubusercontent.com/liferay/liferay-portal/";
 
 	public static final String SOURCE_FORMATTER_TEST_PATH =
 		"/source/formatter/dependencies/";
@@ -172,53 +173,6 @@ public class SourceFormatterUtil {
 			recentChangesFileNames, pathMatchers);
 	}
 
-	public static List<String> getAttributeNames(
-		CheckType checkType, String checkName,
-		Map<String, Properties> propertiesMap) {
-
-		checkName = checkName.replaceAll("([a-z])([A-Z])", "$1.$2");
-
-		checkName = checkName.replaceAll("([A-Z])([A-Z][a-z])", "$1.$2");
-
-		String keyPrefix = StringUtil.toLowerCase(checkName) + ".";
-
-		if (checkType != null) {
-			String checkTypeName = checkType.getValue();
-
-			checkTypeName = checkTypeName.replaceAll("([a-z])([A-Z])", "$1.$2");
-
-			checkTypeName = checkTypeName.replaceAll(
-				"([A-Z])([A-Z][a-z])", "$1.$2");
-
-			keyPrefix = StringUtil.toLowerCase(checkTypeName) + "." + keyPrefix;
-		}
-
-		Set<String> attributeNames = new HashSet<>();
-
-		for (Map.Entry<String, Properties> entry : propertiesMap.entrySet()) {
-			Properties properties = entry.getValue();
-
-			for (Object key : properties.keySet()) {
-				String s = (String)key;
-
-				if (s.startsWith(keyPrefix)) {
-					String attributeName = StringUtil.replaceFirst(
-						s, keyPrefix, StringPool.BLANK);
-
-					attributeNames.add(attributeName);
-				}
-			}
-		}
-
-		return ListUtil.fromCollection(attributeNames);
-	}
-
-	public static List<String> getAttributeNames(
-		String checkName, Map<String, Properties> propertiesMap) {
-
-		return getAttributeNames(null, checkName, propertiesMap);
-	}
-
 	public static File getFile(String baseDirName, String fileName, int level) {
 		for (int i = 0; i < level; i++) {
 			File file = new File(baseDirName + fileName);
@@ -233,6 +187,23 @@ public class SourceFormatterUtil {
 		return null;
 	}
 
+	public static String getGitContent(String fileName, String branchName)
+		throws IOException {
+
+		URL url = getPortalGitURL(fileName, branchName);
+
+		if (url == null) {
+			return null;
+		}
+
+		try {
+			return StringUtil.read(url.openStream());
+		}
+		catch (IOException ioe) {
+			return null;
+		}
+	}
+
 	public static File getPortalDir(String baseDirName) {
 		File portalImplDir = getFile(
 			baseDirName, "portal-impl", ToolsUtil.PORTAL_MAX_DIR_LEVEL);
@@ -244,80 +215,22 @@ public class SourceFormatterUtil {
 		return portalImplDir.getParentFile();
 	}
 
-	public static String getPropertyValue(
-		String attributeName, CheckType checkType, String checkName,
-		Map<String, Properties> propertiesMap) {
+	public static URL getPortalGitURL(
+		String fileName, String portalBranchName) {
 
-		checkName = checkName.replaceAll("([a-z])([A-Z])", "$1.$2");
-
-		checkName = checkName.replaceAll("([A-Z])([A-Z][a-z])", "$1.$2");
-
-		String key = StringBundler.concat(
-			StringUtil.toLowerCase(checkName), ".", attributeName);
-
-		if (checkType != null) {
-			String checkTypeName = checkType.getValue();
-
-			checkTypeName = checkTypeName.replaceAll("([a-z])([A-Z])", "$1.$2");
-
-			checkTypeName = checkTypeName.replaceAll(
-				"([A-Z])([A-Z][a-z])", "$1.$2");
-
-			key = StringUtil.toLowerCase(checkTypeName) + "." + key;
+		if (Validator.isNull(portalBranchName)) {
+			return null;
 		}
 
-		return getPropertyValue(key, propertiesMap);
-	}
-
-	public static String getPropertyValue(
-		String propertyName, Map<String, Properties> propertiesMap) {
-
-		return getPropertyValue(propertyName, propertiesMap, null);
-	}
-
-	public static String getPropertyValue(
-		String propertyName, Map<String, Properties> propertiesMap,
-		String excludedPropertiesFileLocation) {
-
-		StringBundler sb = new StringBundler(propertiesMap.size() * 2);
-
-		for (Map.Entry<String, Properties> entry : propertiesMap.entrySet()) {
-			if (Objects.equals(
-					entry.getKey(), excludedPropertiesFileLocation)) {
-
-				continue;
-			}
-
-			Properties properties = entry.getValue();
-
-			String value = properties.getProperty(propertyName);
-
-			if (value == null) {
-				continue;
-			}
-
-			if (Validator.isBoolean(value) || Validator.isNumber(value) ||
-				propertyName.equals(GIT_LIFERAY_PORTAL_BRANCH)) {
-
-				return value;
-			}
-
-			sb.append(value);
-			sb.append(CharPool.COMMA);
+		try {
+			return new URL(
+				StringBundler.concat(
+					SourceFormatterUtil.GIT_LIFERAY_PORTAL_URL,
+					portalBranchName, StringPool.SLASH, fileName));
 		}
-
-		if (sb.index() > 0) {
-			sb.setIndex(sb.index() - 1);
+		catch (Exception e) {
+			return null;
 		}
-
-		return sb.toString();
-	}
-
-	public static String getPropertyValue(
-		String attributeName, String checkName,
-		Map<String, Properties> propertiesMap) {
-
-		return getPropertyValue(attributeName, null, checkName, propertiesMap);
 	}
 
 	public static String getSimpleName(String name) {

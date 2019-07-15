@@ -14,8 +14,10 @@
 
 package com.liferay.change.tracking.rest.internal.model.entry;
 
-import com.liferay.change.tracking.configuration.CTConfigurationRegistryUtil;
+import com.liferay.change.tracking.definition.CTDefinitionRegistryUtil;
 import com.liferay.change.tracking.model.CTEntry;
+import com.liferay.change.tracking.service.CTEntryLocalServiceUtil;
+import com.liferay.portal.kernel.dao.orm.QueryDefinition;
 
 import java.io.Serializable;
 
@@ -30,15 +32,25 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class CTEntryModel {
 
+	public static final CTEntryModel EMPTY_CT_ENTRY_MODEL = new CTEntryModel();
+
 	public static CTEntryModel forCTEntry(CTEntry ctEntry) {
 		Builder builder = new Builder();
 
-		return builder.setChangeType(
+		return builder.setAffectedByCTEntriesCount(
+			CTEntryLocalServiceUtil.getRelatedOwnerCTEntriesCount(
+				ctEntry.getCtEntryId(), new QueryDefinition<>())
+		).setChangeType(
 			ctEntry.getChangeType()
 		).setClassNameId(
 			ctEntry.getModelClassNameId()
 		).setClassPK(
 			ctEntry.getModelClassPK()
+		).setCollision(
+			ctEntry.isCollision()
+		).setContentType(
+			CTDefinitionRegistryUtil.getVersionEntityContentTypeLanguageKey(
+				ctEntry.getModelClassNameId())
 		).setCTEntryId(
 			ctEntry.getCtEntryId()
 		).setModifiedDate(
@@ -46,17 +58,22 @@ public class CTEntryModel {
 		).setResourcePrimKey(
 			ctEntry.getModelResourcePrimKey()
 		).setSiteName(
-			CTConfigurationRegistryUtil.getVersionEntitySiteName(
+			CTDefinitionRegistryUtil.getVersionEntitySiteName(
 				ctEntry.getModelClassNameId(), ctEntry.getModelClassPK())
 		).setTitle(
-			CTConfigurationRegistryUtil.getVersionEntityTitle(
+			CTDefinitionRegistryUtil.getVersionEntityTitle(
 				ctEntry.getModelClassNameId(), ctEntry.getModelClassPK())
 		).setUserName(
 			ctEntry.getUserName()
 		).setVersion(
-			CTConfigurationRegistryUtil.getVersionEntityVersion(
+			CTDefinitionRegistryUtil.getVersionEntityVersion(
 				ctEntry.getModelClassNameId(), ctEntry.getModelClassPK())
 		).build();
+	}
+
+	@XmlElement
+	public int getAffectedByCTEntriesCount() {
+		return _affectedByCTEntriesCount;
 	}
 
 	@XmlElement
@@ -75,8 +92,13 @@ public class CTEntryModel {
 	}
 
 	@XmlElement
+	public boolean getCollision() {
+		return _collision;
+	}
+
+	@XmlElement
 	public String getContentType() {
-		return "Web Content";
+		return _contentType;
 	}
 
 	@XmlElement
@@ -120,6 +142,14 @@ public class CTEntryModel {
 			return _ctEntryModel;
 		}
 
+		public CTEntryModel.Builder setAffectedByCTEntriesCount(
+			int affectedByCTEntriesCount) {
+
+			_ctEntryModel._affectedByCTEntriesCount = affectedByCTEntriesCount;
+
+			return this;
+		}
+
 		public CTEntryModel.Builder setChangeType(int changeType) {
 			_ctEntryModel._changeType = changeType;
 
@@ -134,6 +164,18 @@ public class CTEntryModel {
 
 		public CTEntryModel.Builder setClassPK(long classPK) {
 			_ctEntryModel._classPK = classPK;
+
+			return this;
+		}
+
+		public CTEntryModel.Builder setCollision(boolean collision) {
+			_ctEntryModel._collision = collision;
+
+			return this;
+		}
+
+		public CTEntryModel.Builder setContentType(String contentType) {
+			_ctEntryModel._contentType = contentType;
 
 			return this;
 		}
@@ -191,9 +233,12 @@ public class CTEntryModel {
 	private CTEntryModel() {
 	}
 
+	private int _affectedByCTEntriesCount;
 	private int _changeType;
 	private long _classNameId;
 	private long _classPK;
+	private boolean _collision;
+	private String _contentType;
 	private long _ctEntryId;
 	private Date _modifiedDate;
 	private long _resourcePrimKey;

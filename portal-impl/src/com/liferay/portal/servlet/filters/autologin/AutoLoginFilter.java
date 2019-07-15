@@ -14,6 +14,7 @@
 
 package com.liferay.portal.servlet.filters.autologin;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -27,7 +28,6 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StackTraceUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.URLCodec;
 import com.liferay.portal.kernel.util.Validator;
@@ -38,11 +38,9 @@ import com.liferay.portal.util.PropsValues;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
 import com.liferay.registry.ServiceReference;
-import com.liferay.registry.ServiceTracker;
 import com.liferay.registry.ServiceTrackerCustomizer;
-
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import com.liferay.registry.collections.ServiceTrackerCollections;
+import com.liferay.registry.collections.ServiceTrackerList;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
@@ -57,8 +55,9 @@ import javax.servlet.http.HttpSession;
 public class AutoLoginFilter extends BasePortalFilter {
 
 	protected String getLoginRemoteUser(
-			HttpServletRequest request, HttpServletResponse response,
-			HttpSession session, String[] credentials)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse, HttpSession session,
+			String[] credentials)
 		throws Exception {
 
 		if ((credentials == null) || (credentials.length != 3)) {
@@ -90,7 +89,7 @@ public class AutoLoginFilter extends BasePortalFilter {
 
 		if (PropsValues.SESSION_ENABLE_PHISHING_PROTECTION) {
 			session = AuthenticatedSessionManagerUtil.renewSession(
-				request, session);
+				httpServletRequest, session);
 		}
 
 		session.setAttribute("j_username", jUsername);
@@ -121,19 +120,20 @@ public class AutoLoginFilter extends BasePortalFilter {
 			if (PropsValues.AUTH_FORWARD_BY_LAST_PATH) {
 				redirect = redirect.concat("?redirect=");
 
-				String autoLoginRedirect = (String)request.getAttribute(
-					AutoLogin.AUTO_LOGIN_REDIRECT_AND_CONTINUE);
+				String autoLoginRedirect =
+					(String)httpServletRequest.getAttribute(
+						AutoLogin.AUTO_LOGIN_REDIRECT_AND_CONTINUE);
 
 				if (Validator.isNull(autoLoginRedirect)) {
 					autoLoginRedirect = PortalUtil.getCurrentCompleteURL(
-						request);
+						httpServletRequest);
 				}
 
 				redirect = redirect.concat(
 					URLCodec.encodeURL(autoLoginRedirect));
 			}
 
-			response.sendRedirect(redirect);
+			httpServletResponse.sendRedirect(redirect);
 		}
 
 		return jUsername;
@@ -141,13 +141,13 @@ public class AutoLoginFilter extends BasePortalFilter {
 
 	@Override
 	protected void processFilter(
-			HttpServletRequest request, HttpServletResponse response,
-			FilterChain filterChain)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse, FilterChain filterChain)
 		throws Exception {
 
-		HttpSession session = request.getSession();
+		HttpSession session = httpServletRequest.getSession();
 
-		String host = PortalUtil.getHost(request);
+		String host = PortalUtil.getHost(httpServletRequest);
 
 		if (PortalInstances.isAutoLoginIgnoreHost(host)) {
 			if (_log.isDebugEnabled()) {
@@ -155,15 +155,16 @@ public class AutoLoginFilter extends BasePortalFilter {
 			}
 
 			processFilter(
-				AutoLoginFilter.class.getName(), request, response,
-				filterChain);
+				AutoLoginFilter.class.getName(), httpServletRequest,
+				httpServletResponse, filterChain);
 
 			return;
 		}
 
 		String contextPath = PortalUtil.getPathContext();
 
-		String path = StringUtil.toLowerCase(request.getRequestURI());
+		String path = StringUtil.toLowerCase(
+			httpServletRequest.getRequestURI());
 
 		if (!contextPath.equals(StringPool.SLASH) &&
 			path.contains(contextPath)) {
@@ -177,13 +178,13 @@ public class AutoLoginFilter extends BasePortalFilter {
 			}
 
 			processFilter(
-				AutoLoginFilter.class.getName(), request, response,
-				filterChain);
+				AutoLoginFilter.class.getName(), httpServletRequest,
+				httpServletResponse, filterChain);
 
 			return;
 		}
 
-		String remoteUser = request.getRemoteUser();
+		String remoteUser = httpServletRequest.getRemoteUser();
 		String jUserName = (String)session.getAttribute("j_username");
 
 		if (!PropsValues.AUTH_LOGIN_DISABLED && (remoteUser == null) &&
@@ -191,23 +192,25 @@ public class AutoLoginFilter extends BasePortalFilter {
 
 			for (AutoLogin autoLogin : _autoLogins) {
 				try {
-					String[] credentials = autoLogin.login(request, response);
+					String[] credentials = autoLogin.login(
+						httpServletRequest, httpServletResponse);
 
-					String redirect = (String)request.getAttribute(
+					String redirect = (String)httpServletRequest.getAttribute(
 						AutoLogin.AUTO_LOGIN_REDIRECT);
 
 					if (Validator.isNotNull(redirect)) {
-						response.sendRedirect(redirect);
+						httpServletResponse.sendRedirect(redirect);
 
 						return;
 					}
 
 					String loginRemoteUser = getLoginRemoteUser(
-						request, response, session, credentials);
+						httpServletRequest, httpServletResponse, session,
+						credentials);
 
 					if (loginRemoteUser != null) {
-						request = new ProtectedServletRequest(
-							request, loginRemoteUser);
+						httpServletRequest = new ProtectedServletRequest(
+							httpServletRequest, loginRemoteUser);
 
 						if (PropsValues.PORTAL_JAAS_ENABLE) {
 							return;
@@ -217,12 +220,12 @@ public class AutoLoginFilter extends BasePortalFilter {
 							redirect = Portal.PATH_MAIN;
 						}
 						else {
-							redirect = (String)request.getAttribute(
+							redirect = (String)httpServletRequest.getAttribute(
 								AutoLogin.AUTO_LOGIN_REDIRECT_AND_CONTINUE);
 						}
 
 						if (Validator.isNotNull(redirect)) {
-							response.sendRedirect(redirect);
+							httpServletResponse.sendRedirect(redirect);
 
 							return;
 						}
@@ -233,7 +236,8 @@ public class AutoLoginFilter extends BasePortalFilter {
 
 					sb.append("Current URL ");
 
-					String currentURL = PortalUtil.getCurrentURL(request);
+					String currentURL = PortalUtil.getCurrentURL(
+						httpServletRequest);
 
 					sb.append(currentURL);
 
@@ -258,7 +262,8 @@ public class AutoLoginFilter extends BasePortalFilter {
 		}
 
 		processFilter(
-			AutoLoginFilter.class.getName(), request, response, filterChain);
+			AutoLoginFilter.class.getName(), httpServletRequest,
+			httpServletResponse, filterChain);
 	}
 
 	private static final String _PATH_CHAT_LATEST = "/-/chat/latest";
@@ -266,9 +271,9 @@ public class AutoLoginFilter extends BasePortalFilter {
 	private static final Log _log = LogFactoryUtil.getLog(
 		AutoLoginFilter.class);
 
-	private static final Set<AutoLogin> _autoLogins =
-		new CopyOnWriteArraySet<>();
-	private static final ServiceTracker<?, AutoLogin> _serviceTracker;
+	private static final ServiceTrackerList<AutoLogin> _autoLogins =
+		ServiceTrackerCollections.openList(
+			AutoLogin.class, new AutoLoginServiceTrackerCustomizer());
 
 	private static class AutoLoginServiceTrackerCustomizer
 		implements ServiceTrackerCustomizer<AutoLogin, AutoLogin> {
@@ -291,8 +296,6 @@ public class AutoLoginFilter extends BasePortalFilter {
 				return null;
 			}
 
-			_autoLogins.add(autoLogin);
-
 			return autoLogin;
 		}
 
@@ -312,15 +315,6 @@ public class AutoLoginFilter extends BasePortalFilter {
 			_autoLogins.remove(autoLogin);
 		}
 
-	}
-
-	static {
-		Registry registry = RegistryUtil.getRegistry();
-
-		_serviceTracker = registry.trackServices(
-			AutoLogin.class, new AutoLoginServiceTrackerCustomizer());
-
-		_serviceTracker.open();
 	}
 
 }

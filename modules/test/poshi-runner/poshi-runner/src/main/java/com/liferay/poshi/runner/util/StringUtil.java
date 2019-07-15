@@ -182,9 +182,8 @@ public class StringUtil {
 		if (equalsIgnoreCase(temp, end)) {
 			return true;
 		}
-		else {
-			return false;
-		}
+
+		return false;
 	}
 
 	public static boolean equalsIgnoreCase(String s1, String s2) {
@@ -278,9 +277,8 @@ public class StringUtil {
 		if (index < 0) {
 			return null;
 		}
-		else {
-			return s.substring(0, index);
-		}
+
+		return s.substring(0, index);
 	}
 
 	public static String extractLast(String s, String delimiter) {
@@ -293,9 +291,8 @@ public class StringUtil {
 		if (index < 0) {
 			return null;
 		}
-		else {
-			return s.substring(index + delimiter.length());
-		}
+
+		return s.substring(index + delimiter.length());
 	}
 
 	public static String extractLeadingDigits(String s) {
@@ -502,6 +499,18 @@ public class StringUtil {
 		return sb.substring(0, lengthInt);
 	}
 
+	public static String regexReplaceAll(
+		String s, String regex, String replacement) {
+
+		return s.replaceAll(regex, replacement);
+	}
+
+	public static String regexReplaceFirst(
+		String s, String regex, String replacement) {
+
+		return s.replaceFirst(regex, replacement);
+	}
+
 	public static String removeSpaces(String s) {
 		return s.replaceAll(" ", "");
 	}
@@ -572,9 +581,8 @@ public class StringUtil {
 				s.substring(y + oldSub.length())
 			);
 		}
-		else {
-			return s;
-		}
+
+		return s;
 	}
 
 	public static String replaceFirst(
@@ -642,8 +650,7 @@ public class StringUtil {
 			}
 		}
 
-		Integer[] splitIndexArray = splitIndexSet.toArray(
-			new Integer[splitIndexSet.size()]);
+		Integer[] splitIndexArray = splitIndexSet.toArray(new Integer[0]);
 
 		Arrays.sort(splitIndexArray);
 
@@ -683,9 +690,8 @@ public class StringUtil {
 		if (equalsIgnoreCase(temp, start)) {
 			return true;
 		}
-		else {
-			return false;
-		}
+
+		return false;
 	}
 
 	public static String stripBetween(String s, String begin, String end) {
@@ -709,11 +715,10 @@ public class StringUtil {
 
 				break;
 			}
-			else {
-				sb.append(s.substring(pos, x));
 
-				pos = y + end.length();
-			}
+			sb.append(s.substring(pos, x));
+
+			pos = y + end.length();
 		}
 
 		return sb.toString();
@@ -896,7 +901,7 @@ public class StringUtil {
 			stringList.add(string);
 		}
 
-		return stringList.toArray(new String[stringList.size()]);
+		return stringList.toArray(new String[0]);
 	}
 
 }

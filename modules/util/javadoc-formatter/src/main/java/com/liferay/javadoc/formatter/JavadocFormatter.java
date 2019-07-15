@@ -163,8 +163,8 @@ public class JavadocFormatter {
 
 		String[] excludes = {
 			"**/.git/**", "**/.gradle/**", "**/bin/**", "**/build/**",
-			"**/classes/**", "**/node_modules/**", "**/portal-client/**",
-			"**/tmp/**"
+			"**/classes/**", "**/node_modules/**", "**/node_modules_cache/**",
+			"**/portal-client/**", "**/tmp/**"
 		};
 
 		for (String limit : limits) {
@@ -187,8 +187,7 @@ public class JavadocFormatter {
 			}
 
 			List<String> fileNames = JavadocFormatterUtil.scanForFiles(
-				_inputDirName, excludes,
-				includes.toArray(new String[includes.size()]));
+				_inputDirName, excludes, includes.toArray(new String[0]));
 
 			if (fileNames.isEmpty() && Validator.isNotNull(limit) &&
 				!limit.startsWith("$")) {
@@ -366,6 +365,10 @@ public class JavadocFormatter {
 
 		int lineNumber = _getJavaModelLineNumber(javaClass, content);
 
+		if (lineNumber == -1) {
+			return commentsMap;
+		}
+
 		String indent = _getIndent(lines, lineNumber);
 
 		String javaClassComment = _getJavaClassComment(
@@ -393,7 +396,7 @@ public class JavadocFormatter {
 		for (JavaConstructor javaConstructor : javaConstructors) {
 			lineNumber = _getJavaModelLineNumber(javaConstructor, content);
 
-			if (commentsMap.containsKey(lineNumber)) {
+			if ((lineNumber == -1) || commentsMap.containsKey(lineNumber)) {
 				continue;
 			}
 
@@ -423,7 +426,7 @@ public class JavadocFormatter {
 		for (JavaMethod javaMethod : javaMethods) {
 			lineNumber = _getJavaModelLineNumber(javaMethod, content);
 
-			if (commentsMap.containsKey(lineNumber)) {
+			if ((lineNumber == -1) || commentsMap.containsKey(lineNumber)) {
 				continue;
 			}
 
@@ -453,7 +456,7 @@ public class JavadocFormatter {
 		for (JavaField javaField : javaFields) {
 			lineNumber = _getJavaModelLineNumber(javaField, content);
 
-			if (commentsMap.containsKey(lineNumber)) {
+			if ((lineNumber == -1) || commentsMap.containsKey(lineNumber)) {
 				continue;
 			}
 
@@ -1072,6 +1075,7 @@ public class JavadocFormatter {
 	private void _format(String fileName) throws Exception {
 		if (fileName.endsWith("JavadocFormatter.java") ||
 			fileName.endsWith("Mojo.java") ||
+			fileName.endsWith("package-info.java") ||
 			fileName.endsWith("SourceFormatter.java") ||
 			fileName.endsWith("WebProxyPortlet.java")) {
 
@@ -1745,6 +1749,10 @@ public class JavadocFormatter {
 	}
 
 	private int _getJavaModelLineNumber(JavaModel javaModel, String content) {
+		if (javaModel.getLineNumber() == 0) {
+			return -1;
+		}
+
 		String[] lines = StringUtil.splitLines(content);
 
 		if (javaModel instanceof JavaClass) {
@@ -1777,7 +1785,9 @@ public class JavadocFormatter {
 				for (int i = javaModel.getLineNumber(); i < lines.length; i++) {
 					String line = lines[i - 1];
 
-					if (line.matches(
+					if (!StringUtil.startsWith(
+							StringUtil.trim(line), CharPool.STAR) &&
+						line.matches(
 							".*\\W" + javaField.getName() + "(\\W.*)?")) {
 
 						return _getAdjustedLineNumber(i, javaModel);
@@ -1801,7 +1811,9 @@ public class JavadocFormatter {
 		for (int i = javaModel.getLineNumber(); i > 0; i--) {
 			String line = StringUtil.trim(lines[i - 1]);
 
-			if (line.startsWith(modifier + StringPool.SPACE)) {
+			if (line.equals(modifier) ||
+				line.startsWith(modifier + StringPool.SPACE)) {
+
 				return _getAdjustedLineNumber(i, javaModel);
 			}
 		}
@@ -2051,13 +2063,13 @@ public class JavadocFormatter {
 			Element curElement = elements.get(i);
 
 			if (!foundLastElementWithElementName) {
-				if (elementName.equals(curElement.getName())) {
-					if ((i + 1) < elements.size()) {
-						Element nextElement = elements.get(i + 1);
+				if (elementName.equals(curElement.getName()) &&
+					((i + 1) < elements.size())) {
 
-						if (!elementName.equals(nextElement.getName())) {
-							foundLastElementWithElementName = true;
-						}
+					Element nextElement = elements.get(i + 1);
+
+					if (!elementName.equals(nextElement.getName())) {
+						foundLastElementWithElementName = true;
 					}
 				}
 			}

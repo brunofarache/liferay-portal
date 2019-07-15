@@ -15,7 +15,7 @@
 package com.liferay.oauth2.provider.scope.internal.jaxrs.feature;
 
 import com.liferay.oauth2.provider.scope.internal.constants.OAuth2ProviderScopeConstants;
-import com.liferay.oauth2.provider.scope.internal.jaxrs.filter.AbstractContextContainerRequestFilter;
+import com.liferay.oauth2.provider.scope.internal.jaxrs.filter.BaseContextContainerRequestFilter;
 import com.liferay.oauth2.provider.scope.liferay.OAuth2ProviderScopeLiferayAccessControlContext;
 import com.liferay.oauth2.provider.scope.liferay.ScopeContext;
 import com.liferay.oauth2.provider.scope.spi.application.descriptor.ApplicationDescriptor;
@@ -24,7 +24,10 @@ import com.liferay.osgi.util.ServiceTrackerFactory;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.security.service.access.policy.ServiceAccessPolicyThreadLocal;
+import com.liferay.portal.kernel.security.access.control.AccessControlUtil;
+import com.liferay.portal.kernel.security.auth.AccessControlContext;
+import com.liferay.portal.kernel.security.auth.verifier.AuthVerifierResult;
+import com.liferay.portal.kernel.security.service.access.policy.ServiceAccessPolicy;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.MapUtil;
@@ -34,6 +37,7 @@ import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -86,16 +90,16 @@ public class LiferayOAuth2OSGiFeature implements Feature {
 
 		Class<? extends Application> applicationClass = _application.getClass();
 
-		String osgiJAXRSName = MapUtil.getString(
+		String osgiJaxRsName = MapUtil.getString(
 			applicationProperties, "osgi.jaxrs.name",
 			applicationClass.getName());
 
 		featureContext.register(
-			new AbstractContextContainerRequestFilter() {
+			new BaseContextContainerRequestFilter() {
 
 				@Override
 				public void filter(ContainerRequestContext requestContext) {
-					_scopeContext.setApplicationName(osgiJAXRSName);
+					_scopeContext.setApplicationName(osgiJaxRsName);
 					_scopeContext.setBundle(_bundle);
 					_scopeContext.setCompanyId(getCompanyId());
 				}
@@ -113,22 +117,38 @@ public class LiferayOAuth2OSGiFeature implements Feature {
 
 		featureContext.register(
 			(ContainerRequestFilter)a -> {
-				if (OAuth2ProviderScopeLiferayAccessControlContext.
+				if (!OAuth2ProviderScopeLiferayAccessControlContext.
 						isOAuth2AuthVerified()) {
 
-					if (_log.isDebugEnabled()) {
-						_log.debug(
-							"Enabling SAP " + oauth2ServiceAccessPolicyName);
-					}
-
-					ServiceAccessPolicyThreadLocal.
-						addActiveServiceAccessPolicyName(
-							oauth2ServiceAccessPolicyName);
+					return;
 				}
+
+				if (_log.isDebugEnabled()) {
+					_log.debug("Enabling SAP " + oauth2ServiceAccessPolicyName);
+				}
+
+				AccessControlContext accessControlContext =
+					AccessControlUtil.getAccessControlContext();
+
+				AuthVerifierResult authVerifierResult =
+					accessControlContext.getAuthVerifierResult();
+
+				if (authVerifierResult == null) {
+					return;
+				}
+
+				Map<String, Object> settings = authVerifierResult.getSettings();
+
+				List<String> serviceAccessPolicyNames =
+					(List<String>)settings.computeIfAbsent(
+						ServiceAccessPolicy.SERVICE_ACCESS_POLICY_NAMES,
+						value -> new ArrayList<>());
+
+				serviceAccessPolicyNames.add(oauth2ServiceAccessPolicyName);
 			},
 			Priorities.AUTHORIZATION - 9);
 
-		registerDescriptors(osgiJAXRSName);
+		registerDescriptors(osgiJaxRsName);
 
 		return true;
 	}
@@ -162,7 +182,7 @@ public class LiferayOAuth2OSGiFeature implements Feature {
 		}
 	}
 
-	protected void registerDescriptors(String osgiJAXRSName) {
+	protected void registerDescriptors(String osgiJaxRsName) {
 		String bundleSymbolicName = _bundle.getSymbolicName();
 
 		StringBundler sb = new StringBundler(5);
@@ -182,7 +202,7 @@ public class LiferayOAuth2OSGiFeature implements Feature {
 		Dictionary<String, Object> properties = new HashMapDictionary<>();
 
 		properties.put(
-			OAuth2ProviderScopeConstants.OSGI_JAXRS_NAME, osgiJAXRSName);
+			OAuth2ProviderScopeConstants.OSGI_JAXRS_NAME, osgiJaxRsName);
 
 		_serviceRegistrations.add(
 			_bundleContext.registerService(
@@ -190,7 +210,7 @@ public class LiferayOAuth2OSGiFeature implements Feature {
 					ScopeDescriptor.class.getName(),
 					ApplicationDescriptor.class.getName()
 				},
-				new ApplicationDescriptorsImpl(serviceTracker, osgiJAXRSName),
+				new ApplicationDescriptorsImpl(serviceTracker, osgiJaxRsName),
 				properties));
 	}
 
@@ -230,10 +250,10 @@ public class LiferayOAuth2OSGiFeature implements Feature {
 
 		public ApplicationDescriptorsImpl(
 			ServiceTracker<?, ResourceBundleLoader> serviceTracker,
-			String osgiJAXRSName) {
+			String osgiJaxRsName) {
 
 			_serviceTracker = serviceTracker;
-			_osgiJAXRSName = osgiJAXRSName;
+			_osgiJaxRsName = osgiJaxRsName;
 		}
 
 		@Override
@@ -242,10 +262,10 @@ public class LiferayOAuth2OSGiFeature implements Feature {
 				_serviceTracker.getService();
 
 			if (resourceBundleLoader == null) {
-				return _osgiJAXRSName;
+				return _osgiJaxRsName;
 			}
 
-			String key = "oauth2.application.description." + _osgiJAXRSName;
+			String key = "oauth2.application.description." + _osgiJaxRsName;
 
 			return GetterUtil.getString(
 				ResourceBundleUtil.getString(
@@ -270,7 +290,7 @@ public class LiferayOAuth2OSGiFeature implements Feature {
 				_defaultScopeDescriptor.describeScope(scope, locale));
 		}
 
-		private final String _osgiJAXRSName;
+		private final String _osgiJaxRsName;
 		private final ServiceTracker<?, ResourceBundleLoader> _serviceTracker;
 
 	}

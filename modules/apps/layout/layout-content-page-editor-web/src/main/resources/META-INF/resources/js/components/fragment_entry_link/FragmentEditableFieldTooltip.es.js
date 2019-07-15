@@ -1,3 +1,17 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 import {Align} from 'metal-position';
 import Component from 'metal-component';
 import {Config} from 'metal-state';
@@ -5,6 +19,7 @@ import debounce from 'metal-debounce';
 import dom from 'metal-dom';
 import Soy from 'metal-soy';
 
+import {getConnectedComponent} from '../../store/ConnectedComponent.es';
 import templates from './FragmentEditableFieldTooltip.soy';
 
 /**
@@ -13,13 +28,11 @@ import templates from './FragmentEditableFieldTooltip.soy';
 const WINDOW_RESIZE_DEBOUNCE_DELAY = 100;
 
 /**
- * FragmentEditableFieldTooltip
+ * Creates a Fragment Editable Field Tooltip component.
  */
 class FragmentEditableFieldTooltip extends Component {
-
 	/**
 	 * @inheritDoc
-	 * @review
 	 */
 	attached() {
 		this._alignTooltip();
@@ -27,10 +40,12 @@ class FragmentEditableFieldTooltip extends Component {
 
 	/**
 	 * @inheritDoc
-	 * @review
 	 */
 	created() {
 		this._handleDocumentClick = this._handleDocumentClick.bind(this);
+		this._handleFragmentEntryLinkListWrapperScroll = this._handleFragmentEntryLinkListWrapperScroll.bind(
+			this
+		);
 
 		this._handleWindowResize = debounce(
 			this._handleWindowResize.bind(this),
@@ -48,66 +63,74 @@ class FragmentEditableFieldTooltip extends Component {
 			'click',
 			this._handleDocumentClick
 		);
+
+		const fragmentEntryLinkListWrapper = document.querySelector(
+			'.fragment-entry-link-list-wrapper'
+		);
+
+		if (fragmentEntryLinkListWrapper) {
+			fragmentEntryLinkListWrapper.addEventListener(
+				'scroll',
+				this._handleFragmentEntryLinkListWrapperScroll
+			);
+		}
 	}
 
 	/**
 	 * @inheritDoc
-	 * @review
 	 */
 	disposed() {
-		if (this._documentClickHandler) {
-			this._documentClickHandler.removeListener();
-			this._documentClickHandler = null;
-		}
+		this._documentClickHandler.removeListener();
+		this._windowResizeHandler.removeListener();
 
-		if (this._windowResizeHandler) {
-			this._windowResizeHandler.removeListener();
-			this._windowResizeHandler = null;
+		const fragmentEntryLinkListWrapper = document.querySelector(
+			'.fragment-entry-link-list-wrapper'
+		);
+
+		if (fragmentEntryLinkListWrapper) {
+			fragmentEntryLinkListWrapper.removeEventListener(
+				'scroll',
+				this._handleFragmentEntryLinkListWrapperScroll
+			);
 		}
 	}
 
 	/**
 	 * @inheritDoc
-	 * @review
 	 */
 	rendered() {
 		this._alignTooltip();
 	}
 
 	/**
-	 * Align tooltip position acording to editable field
+	 * Aligns the tooltip position for editable fields.
+	 *
 	 * @private
-	 * @review
 	 */
 	_alignTooltip() {
 		if (this.refs.tooltip) {
-			Align.align(
-				this.refs.tooltip,
-				this.alignElement,
-				Align.Top
-			);
+			Align.align(this.refs.tooltip, this.alignElement, Align.Top, false);
 		}
 	}
 
 	/**
-	 * Handle a button click
+	 * Handles a button click.
+	 *
 	 * @param {MouseEvent} event
 	 */
 	_handleButtonClick(event) {
 		const button = event.delegateTarget;
 		const buttonId = button.dataset.tooltipButtonId;
 
-		this.emit(
-			'buttonClick',
-			{
-				buttonId
-			}
-		);
+		this.emit('buttonClick', {
+			buttonId
+		});
 	}
 
 	/**
-	 * Hide tooltip on document click when it is outside the tooltip
-	 * @param {MouseEvent} event
+	 * Hides the tooltip when a document click occurs outside the tooltip.
+	 *
+	 * @param {MouseEvent} event The document click.
 	 */
 	_handleDocumentClick(event) {
 		if (
@@ -120,56 +143,65 @@ class FragmentEditableFieldTooltip extends Component {
 	}
 
 	/**
-	 * Handle window resize event
+	 * Callback executed to align the tooltip when the window is resized.
+	 *
 	 * @private
-	 * @review
 	 */
 	_handleWindowResize() {
 		this._alignTooltip();
 	}
 
+	/**
+	 * @private
+	 */
+	_handleFragmentEntryLinkListWrapperScroll() {
+		this._alignTooltip();
+	}
 }
 
 /**
  * State definition.
- * @review
+ *
  * @static
  * @type {!Object}
  */
 FragmentEditableFieldTooltip.STATE = {
-
 	/**
-	 * Reference element used for aligning the tooltip
+	 * Reference element the tooltip alignment is based on.
+	 *
 	 * @default undefined
 	 * @instance
 	 * @memberOf FragmentEditableFieldTooltip
-	 * @review
 	 * @type {HTMLElement}
 	 */
 	alignElement: Config.object().required(),
 
 	/**
-	 * List of buttons rendered inside the tooltip
+	 * List of buttons rendered inside the tooltip.
+	 *
 	 * @default undefined
 	 * @instance
 	 * @memberOf FragmentEditableFieldTooltip
-	 * @review
 	 * @type {!Array<{
 	 *   id: !string,
 	 *   label: !string
 	 * }>}
 	 */
 	buttons: Config.arrayOf(
-		Config.shapeOf(
-			{
-				id: Config.string().required(),
-				label: Config.string().required()
-			}
-		)
+		Config.shapeOf({
+			icon: Config.string().required(),
+			id: Config.string().required(),
+			label: Config.string().required()
+		})
 	)
 };
 
-Soy.register(FragmentEditableFieldTooltip, templates);
+const ConnectedFragmentEditableFieldTooltip = getConnectedComponent(
+	FragmentEditableFieldTooltip,
+	['spritemap']
+);
 
-export {FragmentEditableFieldTooltip};
-export default FragmentEditableFieldTooltip;
+Soy.register(ConnectedFragmentEditableFieldTooltip, templates);
+
+export {ConnectedFragmentEditableFieldTooltip, FragmentEditableFieldTooltip};
+export default ConnectedFragmentEditableFieldTooltip;

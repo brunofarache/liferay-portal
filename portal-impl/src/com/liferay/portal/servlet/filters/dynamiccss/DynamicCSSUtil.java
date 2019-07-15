@@ -15,6 +15,7 @@
 package com.liferay.portal.servlet.filters.dynamiccss;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -24,7 +25,6 @@ import com.liferay.portal.kernel.service.ThemeLocalServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -45,26 +45,28 @@ import javax.servlet.http.HttpServletRequest;
 public class DynamicCSSUtil {
 
 	public static String replaceToken(
-			ServletContext servletContext, HttpServletRequest request,
-			String content)
+			ServletContext servletContext,
+			HttpServletRequest httpServletRequest, String content)
 		throws Exception {
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
-		Theme theme = _getTheme(request);
+		Theme theme = _getTheme(httpServletRequest);
 
 		if (theme == null) {
 			return content;
 		}
 
 		return replaceToken(
-			servletContext, request, themeDisplay, theme, content);
+			servletContext, httpServletRequest, themeDisplay, theme, content);
 	}
 
 	public static String replaceToken(
-			ServletContext servletContext, HttpServletRequest request,
-			ThemeDisplay themeDisplay, Theme theme, String parsedContent)
+			ServletContext servletContext,
+			HttpServletRequest httpServletRequest, ThemeDisplay themeDisplay,
+			Theme theme, String parsedContent)
 		throws Exception {
 
 		String proxyPath = PortalUtil.getPathProxy();
@@ -80,7 +82,7 @@ public class DynamicCSSUtil {
 			new String[] {"@base_url@", "@portal_ctx@", "@theme_image_path@"},
 			new String[] {
 				baseURL, PortalUtil.getPathContext(),
-				_getThemeImagesPath(request, themeDisplay, theme)
+				_getThemeImagesPath(httpServletRequest, themeDisplay, theme)
 			});
 
 		return parsedContent;
@@ -152,19 +154,16 @@ public class DynamicCSSUtil {
 		return sb.toString();
 	}
 
-	private static Theme _getTheme(HttpServletRequest request)
+	private static Theme _getTheme(HttpServletRequest httpServletRequest)
 		throws Exception {
 
-		long companyId = PortalUtil.getCompanyId(request);
+		long companyId = PortalUtil.getCompanyId(httpServletRequest);
 
-		String themeId = ParamUtil.getString(request, "themeId");
+		String themeId = ParamUtil.getString(httpServletRequest, "themeId");
 
 		if (Validator.isNotNull(themeId)) {
 			try {
-				Theme theme = ThemeLocalServiceUtil.getTheme(
-					companyId, themeId);
-
-				return theme;
+				return ThemeLocalServiceUtil.getTheme(companyId, themeId);
 			}
 			catch (Exception e) {
 				_log.error(e, e);
@@ -172,7 +171,7 @@ public class DynamicCSSUtil {
 		}
 
 		String requestURI = URLDecoder.decode(
-			request.getRequestURI(), StringPool.UTF8);
+			httpServletRequest.getRequestURI(), StringPool.UTF8);
 
 		Matcher portalThemeMatcher = _portalThemePattern.matcher(requestURI);
 
@@ -212,9 +211,7 @@ public class DynamicCSSUtil {
 		}
 
 		try {
-			Theme theme = ThemeLocalServiceUtil.getTheme(companyId, themeId);
-
-			return theme;
+			return ThemeLocalServiceUtil.getTheme(companyId, themeId);
 		}
 		catch (Exception e) {
 			_log.error(e, e);
@@ -224,7 +221,8 @@ public class DynamicCSSUtil {
 	}
 
 	private static String _getThemeImagesPath(
-			HttpServletRequest request, ThemeDisplay themeDisplay, Theme theme)
+			HttpServletRequest httpServletRequest, ThemeDisplay themeDisplay,
+			Theme theme)
 		throws Exception {
 
 		String themeImagesPath = null;
@@ -233,7 +231,7 @@ public class DynamicCSSUtil {
 			themeImagesPath = themeDisplay.getPathThemeImages();
 		}
 		else {
-			String cdnHost = PortalUtil.getCDNHost(request);
+			String cdnHost = PortalUtil.getCDNHost(httpServletRequest);
 			String themeStaticResourcePath = theme.getStaticResourcePath();
 
 			themeImagesPath =

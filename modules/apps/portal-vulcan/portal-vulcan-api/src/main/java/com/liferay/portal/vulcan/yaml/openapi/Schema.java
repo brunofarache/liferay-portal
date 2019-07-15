@@ -14,6 +14,8 @@
 
 package com.liferay.portal.vulcan.yaml.openapi;
 
+import java.beans.Transient;
+
 import java.util.List;
 import java.util.Map;
 
@@ -43,12 +45,25 @@ public class Schema {
 		return _anyOfSchemas;
 	}
 
+	public String getDefault() {
+		return _default;
+	}
+
 	public String getDescription() {
 		return _description;
 	}
 
 	public List<String> getEnumValues() {
 		return _enumValues;
+	}
+
+	/**
+	 * @deprecated As of Mueller (7.2.x)
+	 */
+	@Deprecated
+	@Transient
+	public String getExample() {
+		return _example;
 	}
 
 	public String getFormat() {
@@ -79,6 +94,10 @@ public class Schema {
 		return _type;
 	}
 
+	public boolean isDeprecated() {
+		return _deprecated;
+	}
+
 	public boolean isReadOnly() {
 		return _readOnly;
 	}
@@ -99,12 +118,29 @@ public class Schema {
 		_anyOfSchemas = anyOfSchemas;
 	}
 
+	public void setDefault(String d) {
+		_default = d;
+	}
+
+	public void setDeprecated(boolean deprecated) {
+		_deprecated = deprecated;
+	}
+
 	public void setDescription(String description) {
 		_description = description;
 	}
 
 	public void setEnumValues(List<String> enumValues) {
 		_enumValues = enumValues;
+	}
+
+	/**
+	 * @deprecated As of Mueller (7.2.x)
+	 */
+	@Deprecated
+	@Transient
+	public void setExample(String example) {
+		_example = example;
 	}
 
 	public void setFormat(String format) {
@@ -148,8 +184,11 @@ public class Schema {
 	private Schema _additionalPropertySchema;
 	private List<Schema> _allOfSchemas;
 	private List<Schema> _anyOfSchemas;
+	private String _default;
+	private boolean _deprecated;
 	private String _description;
 	private List<String> _enumValues;
+	private String _example;
 	private String _format;
 	private Items _items;
 	private List<Schema> _oneOfSchemas;

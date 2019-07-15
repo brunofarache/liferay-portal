@@ -21,8 +21,8 @@ import com.liferay.message.boards.service.MBThreadLocalServiceUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
-import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.ThemeConstants;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
@@ -161,8 +161,7 @@ public class MBUtil {
 			role.getRoleId());
 
 		if (defaultRoleActionIds != null) {
-			rolePermissions = defaultRoleActionIds.toArray(
-				new String[defaultRoleActionIds.size()]);
+			rolePermissions = defaultRoleActionIds.toArray(new String[0]);
 		}
 		else {
 			rolePermissions = new String[0];

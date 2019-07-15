@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.typeconverter.DateArrayConverter;
 import com.liferay.portal.typeconverter.NumberArrayConverter;
 import com.liferay.portal.typeconverter.NumberConverter;
@@ -479,9 +480,11 @@ public class ExpandoValueLocalServiceImpl
 		data = convertType(type, data);
 
 		if (type == ExpandoColumnConstants.BOOLEAN) {
+			Boolean booleanData = (Boolean)data;
+
 			return expandoValueLocalService.addValue(
 				companyId, className, tableName, columnName, classPK,
-				((Boolean)data).booleanValue());
+				booleanData.booleanValue());
 		}
 		else if (type == ExpandoColumnConstants.BOOLEAN_ARRAY) {
 			return expandoValueLocalService.addValue(
@@ -499,9 +502,11 @@ public class ExpandoValueLocalServiceImpl
 				(Date[])data);
 		}
 		else if (type == ExpandoColumnConstants.DOUBLE) {
+			Double doubleData = (Double)data;
+
 			return expandoValueLocalService.addValue(
 				companyId, className, tableName, columnName, classPK,
-				((Double)data).doubleValue());
+				doubleData.doubleValue());
 		}
 		else if (type == ExpandoColumnConstants.DOUBLE_ARRAY) {
 			return expandoValueLocalService.addValue(
@@ -509,9 +514,11 @@ public class ExpandoValueLocalServiceImpl
 				(double[])data);
 		}
 		else if (type == ExpandoColumnConstants.FLOAT) {
+			Float floatData = (Float)data;
+
 			return expandoValueLocalService.addValue(
 				companyId, className, tableName, columnName, classPK,
-				((Float)data).floatValue());
+				floatData.floatValue());
 		}
 		else if (type == ExpandoColumnConstants.FLOAT_ARRAY) {
 			return expandoValueLocalService.addValue(
@@ -524,9 +531,11 @@ public class ExpandoValueLocalServiceImpl
 				JSONFactoryUtil.createJSONObject(data.toString()));
 		}
 		else if (type == ExpandoColumnConstants.INTEGER) {
+			Integer integerData = (Integer)data;
+
 			return expandoValueLocalService.addValue(
 				companyId, className, tableName, columnName, classPK,
-				((Integer)data).intValue());
+				integerData.intValue());
 		}
 		else if (type == ExpandoColumnConstants.INTEGER_ARRAY) {
 			return expandoValueLocalService.addValue(
@@ -534,9 +543,11 @@ public class ExpandoValueLocalServiceImpl
 				(int[])data);
 		}
 		else if (type == ExpandoColumnConstants.LONG) {
+			Long longData = (Long)data;
+
 			return expandoValueLocalService.addValue(
 				companyId, className, tableName, columnName, classPK,
-				((Long)data).longValue());
+				longData.longValue());
 		}
 		else if (type == ExpandoColumnConstants.LONG_ARRAY) {
 			return expandoValueLocalService.addValue(
@@ -554,9 +565,11 @@ public class ExpandoValueLocalServiceImpl
 				(Number[])data);
 		}
 		else if (type == ExpandoColumnConstants.SHORT) {
+			Short shortData = (Short)data;
+
 			return expandoValueLocalService.addValue(
 				companyId, className, tableName, columnName, classPK,
-				((Short)data).shortValue());
+				shortData.shortValue());
 		}
 		else if (type == ExpandoColumnConstants.SHORT_ARRAY) {
 			return expandoValueLocalService.addValue(
@@ -576,7 +589,7 @@ public class ExpandoValueLocalServiceImpl
 
 		return expandoValueLocalService.addValue(
 			companyId, className, tableName, columnName, classPK,
-			(Map<Locale, ?>)data, Locale.getDefault());
+			(Map<Locale, ?>)data, LocaleUtil.getDefault());
 	}
 
 	@Override
@@ -816,7 +829,8 @@ public class ExpandoValueLocalServiceImpl
 			}
 			else if (type == ExpandoColumnConstants.STRING_LOCALIZED) {
 				value.setStringMap(
-					(Map<Locale, String>)attributeValue, Locale.getDefault());
+					(Map<Locale, String>)attributeValue,
+					LocaleUtil.getDefault());
 			}
 			else {
 				value.setString((String)attributeValue);

@@ -15,13 +15,10 @@
 package com.liferay.layout.admin.web.internal.product.navigation.control.menu;
 
 import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
-import com.liferay.layout.content.page.editor.constants.ContentPageEditorWebKeys;
-import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Layout;
-import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Html;
@@ -42,7 +39,6 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.ResourceBundle;
 
 import javax.portlet.PortletRequest;
@@ -76,29 +72,23 @@ public class ManageLayoutProductNavigationControlMenuEntry
 	}
 
 	@Override
-	public String getURL(HttpServletRequest request) {
+	public String getURL(HttpServletRequest httpServletRequest) {
 		return null;
 	}
 
 	@Override
 	public boolean includeIcon(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException {
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		Layout layout = themeDisplay.getLayout();
 
-		if (StringUtil.equals(
-				layout.getType(), LayoutConstants.TYPE_ASSET_DISPLAY)) {
-
-			return false;
-		}
-
-		if ((_portal.getClassNameId(Layout.class) == layout.getClassNameId()) &&
-			(layout.getClassPK() > 0)) {
-
+		if (layout.getClassNameId() == _portal.getClassNameId(Layout.class)) {
 			layout = _layoutLocalService.fetchLayout(layout.getClassPK());
 		}
 
@@ -112,12 +102,12 @@ public class ManageLayoutProductNavigationControlMenuEntry
 			_html.escape(_language.get(resourceBundle, "configure-page")));
 
 		PortletURL editPageURL = _portal.getControlPanelPortletURL(
-			request, LayoutAdminPortletKeys.GROUP_PAGES,
+			httpServletRequest, LayoutAdminPortletKeys.GROUP_PAGES,
 			PortletRequest.RENDER_PHASE);
 
 		editPageURL.setParameter("mvcRenderCommandName", "/layout/edit_layout");
 
-		String currentURL = _portal.getCurrentURL(request);
+		String currentURL = _portal.getCurrentURL(httpServletRequest);
 
 		editPageURL.setParameter("redirect", currentURL);
 		editPageURL.setParameter("backURL", currentURL);
@@ -138,7 +128,7 @@ public class ManageLayoutProductNavigationControlMenuEntry
 			iconTag.setMarkupView("lexicon");
 
 			PageContext pageContext = PageContextFactoryUtil.create(
-				request, response);
+				httpServletRequest, httpServletResponse);
 
 			values.put("iconCog", iconTag.doTagAsString(pageContext));
 
@@ -157,7 +147,7 @@ public class ManageLayoutProductNavigationControlMenuEntry
 			ReflectionUtil.throwException(je);
 		}
 
-		Writer writer = response.getWriter();
+		Writer writer = httpServletResponse.getWriter();
 
 		writer.write(StringUtil.replace(_TMPL_CONTENT, "${", "}", values));
 
@@ -165,13 +155,20 @@ public class ManageLayoutProductNavigationControlMenuEntry
 	}
 
 	@Override
-	public boolean isShow(HttpServletRequest request) throws PortalException {
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+	public boolean isShow(HttpServletRequest httpServletRequest)
+		throws PortalException {
+
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		Layout layout = themeDisplay.getLayout();
 
 		if (layout.isTypeControlPanel()) {
+			return false;
+		}
+
+		if (isEmbeddedPersonalApplicationLayout(layout)) {
 			return false;
 		}
 
@@ -181,16 +178,7 @@ public class ManageLayoutProductNavigationControlMenuEntry
 			return false;
 		}
 
-		String className = (String)request.getAttribute(
-			ContentPageEditorWebKeys.CLASS_NAME);
-
-		if (Objects.equals(
-				className, LayoutPageTemplateEntry.class.getName())) {
-
-			return false;
-		}
-
-		return super.isShow(request);
+		return super.isShow(httpServletRequest);
 	}
 
 	private static final String _TMPL_CONTENT = StringUtil.read(

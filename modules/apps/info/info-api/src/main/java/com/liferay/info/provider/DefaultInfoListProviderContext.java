@@ -14,10 +14,13 @@
 
 package com.liferay.info.provider;
 
-import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.info.display.contributor.InfoDisplayObjectProvider;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 
 import java.util.Optional;
 
@@ -26,19 +29,38 @@ import java.util.Optional;
  */
 public class DefaultInfoListProviderContext implements InfoListProviderContext {
 
-	public DefaultInfoListProviderContext(Group group, User user) {
-		_group = group;
+	public DefaultInfoListProviderContext(Company company, User user) {
+		_company = company;
 		_user = user;
 	}
 
-	@Override
-	public Optional<AssetEntry> getAssetEntryOptional() {
-		return Optional.ofNullable(_assetEntry);
+	public DefaultInfoListProviderContext(Group group, User user) {
+		_group = group;
+		_user = user;
+
+		try {
+			_company = CompanyLocalServiceUtil.getCompany(group.getCompanyId());
+		}
+		catch (PortalException pe) {
+			throw new RuntimeException(pe);
+		}
 	}
 
 	@Override
-	public Group getGroup() {
-		return _group;
+	public Company getCompany() {
+		return _company;
+	}
+
+	@Override
+	public Optional<Group> getGroupOptional() {
+		return Optional.of(_group);
+	}
+
+	@Override
+	public Optional<InfoDisplayObjectProvider>
+		getInfoDisplayObjectProviderOptional() {
+
+		return Optional.ofNullable(_infoDisplayObjectProvider);
 	}
 
 	@Override
@@ -51,16 +73,19 @@ public class DefaultInfoListProviderContext implements InfoListProviderContext {
 		return _user;
 	}
 
-	public void setAssetEntry(AssetEntry assetEntry) {
-		_assetEntry = assetEntry;
+	public void setInfoDisplayObjectProvider(
+		InfoDisplayObjectProvider infoDisplayObjectProvider) {
+
+		_infoDisplayObjectProvider = infoDisplayObjectProvider;
 	}
 
 	public void setLayout(Layout layout) {
 		_layout = layout;
 	}
 
-	private AssetEntry _assetEntry;
-	private final Group _group;
+	private final Company _company;
+	private Group _group;
+	private InfoDisplayObjectProvider _infoDisplayObjectProvider;
 	private Layout _layout;
 	private final User _user;
 

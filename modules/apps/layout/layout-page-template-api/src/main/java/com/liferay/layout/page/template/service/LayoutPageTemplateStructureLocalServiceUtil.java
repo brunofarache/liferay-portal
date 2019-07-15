@@ -14,8 +14,7 @@
 
 package com.liferay.layout.page.template.service;
 
-import aQute.bnd.annotation.ProviderType;
-
+import org.osgi.annotation.versioning.ProviderType;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.util.tracker.ServiceTracker;
@@ -406,6 +405,16 @@ public class LayoutPageTemplateStructureLocalServiceUtil {
 		return getService().getPersistedModel(primaryKeyObj);
 	}
 
+	public static
+		com.liferay.layout.page.template.model.LayoutPageTemplateStructure
+				rebuildLayoutPageTemplateStructure(
+					long groupId, long classNameId, long classPK)
+			throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().rebuildLayoutPageTemplateStructure(
+			groupId, classNameId, classPK);
+	}
+
 	/**
 	 * Updates the layout page template structure in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
@@ -420,6 +429,17 @@ public class LayoutPageTemplateStructureLocalServiceUtil {
 
 		return getService().updateLayoutPageTemplateStructure(
 			layoutPageTemplateStructure);
+	}
+
+	public static
+		com.liferay.layout.page.template.model.LayoutPageTemplateStructure
+				updateLayoutPageTemplateStructure(
+					long groupId, long classNameId, long classPK,
+					long segmentsExperienceId, String data)
+			throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().updateLayoutPageTemplateStructure(
+			groupId, classNameId, classPK, segmentsExperienceId, data);
 	}
 
 	public static

@@ -25,10 +25,12 @@ import com.liferay.dynamic.data.mapping.util.DDMUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
@@ -173,16 +175,28 @@ public class HTMLTag extends BaseHTMLTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		super.setAttributes(request);
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		super.setAttributes(httpServletRequest);
 
-		setNamespacedAttribute(request, "ddmForm", getDDMForm());
+		setNamespacedAttribute(httpServletRequest, "ddmForm", getDDMForm());
 		setNamespacedAttribute(
-			request, "ddmFormValuesInputName", getDDMFormValuesInputName());
-		setNamespacedAttribute(request, "fields", getFields());
-		setNamespacedAttribute(request, "mode", getMode());
+			httpServletRequest, "ddmFormValuesInputName",
+			getDDMFormValuesInputName());
+		setNamespacedAttribute(httpServletRequest, "fields", getFields());
+
+		if (getGroupId() <= 0) {
+			ThemeDisplay themeDisplay =
+				(ThemeDisplay)httpServletRequest.getAttribute(
+					WebKeys.THEME_DISPLAY);
+
+			setNamespacedAttribute(
+				httpServletRequest, "groupId",
+				String.valueOf(themeDisplay.getSiteGroupId()));
+		}
+
+		setNamespacedAttribute(httpServletRequest, "mode", getMode());
 		setNamespacedAttribute(
-			request, "randomNamespace", getRandomNamespace());
+			httpServletRequest, "randomNamespace", getRandomNamespace());
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(HTMLTag.class);

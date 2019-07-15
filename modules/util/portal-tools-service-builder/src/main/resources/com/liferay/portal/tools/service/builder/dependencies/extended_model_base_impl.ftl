@@ -1,10 +1,12 @@
 package ${packagePath}.model.impl;
 
+import ${serviceBuilder.getCompatJavaClassName("ProviderType")};
+import ${serviceBuilder.getCompatJavaClassName("StringBundler")};
+
 import ${apiPackagePath}.model.${entity.name};
 
 <#if entity.hasLocalService() && entity.hasEntityColumns()>
 	import ${apiPackagePath}.service.${entity.name}LocalServiceUtil;
-	import ${serviceBuilder.getCompatJavaClassName("StringBundler")};
 
 	import com.liferay.portal.kernel.exception.PortalException;
 	import com.liferay.portal.kernel.exception.SystemException;
@@ -13,8 +15,6 @@ import ${apiPackagePath}.model.${entity.name};
 	import java.util.ArrayList;
 	import java.util.List;
 </#if>
-
-import aQute.bnd.annotation.ProviderType;
 
 /**
  * The extended model base implementation for the ${entity.name} service. Represents a row in the &quot;${entity.table}&quot; database table, with each column mapped to a property of this class.

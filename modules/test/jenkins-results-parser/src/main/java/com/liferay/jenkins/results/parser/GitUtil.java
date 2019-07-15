@@ -29,11 +29,11 @@ import java.util.regex.Pattern;
  */
 public class GitUtil {
 
-	public static final int MAX_RETRIES = 1;
+	public static final long MILLIS_RETRY_DELAY = 1000;
 
-	public static final long RETRY_DELAY = 1000;
+	public static final long MILLIS_TIMEOUT = 30 * 1000;
 
-	public static final long TIMEOUT = 30 * 1000;
+	public static final int RETRIES_SIZE_MAX = 1;
 
 	public static void clone(String remoteURL, File workingDirectory) {
 		String command = JenkinsResultsParserUtil.combine(
@@ -67,27 +67,43 @@ public class GitUtil {
 	}
 
 	public static String getDefaultBranchName(File workingDirectory) {
-		ExecutionResult executionResult = executeBashCommands(
-			MAX_RETRIES, RETRY_DELAY, TIMEOUT, workingDirectory,
-			JenkinsResultsParserUtil.combine(
-				"git remote show origin | grep \"HEAD branch\" | ",
-				"cut -d \":\" -f 2"));
+		String defaultBranchName = _getDefaultBranchName(
+			workingDirectory, "origin");
 
-		if (executionResult.getExitValue() != 0) {
-			System.out.println(executionResult.getStandardError());
-
-			return null;
-		}
-
-		String defaultBranchName = executionResult.getStandardOut();
-
-		defaultBranchName = defaultBranchName.trim();
-
-		if (defaultBranchName.isEmpty()) {
-			return null;
+		if (defaultBranchName == null) {
+			defaultBranchName = _getDefaultBranchName(
+				workingDirectory, "upstream");
 		}
 
 		return defaultBranchName;
+	}
+
+	public static String getPrivateRepositoryName(String repositoryName) {
+		if (repositoryName.endsWith("-ee") ||
+			repositoryName.endsWith("-private")) {
+
+			return repositoryName;
+		}
+
+		if (repositoryName.startsWith("com-liferay")) {
+			return repositoryName + "-private";
+		}
+
+		return repositoryName + "-ee";
+	}
+
+	public static String getPublicRepositoryName(String repositoryName) {
+		if (!repositoryName.endsWith("-ee") &&
+			!repositoryName.endsWith("-private")) {
+
+			return repositoryName;
+		}
+
+		if (repositoryName.startsWith("com-liferay")) {
+			return repositoryName.replace("-private", "");
+		}
+
+		return repositoryName.replace("-ee", "");
 	}
 
 	public static RemoteGitBranch getRemoteGitBranch(
@@ -143,29 +159,34 @@ public class GitUtil {
 
 		List<RemoteGitRef> remoteGitRefs = null;
 
-		if (remoteURL.contains(_GITHUB_CACHE_PROXY_HOSTNAME)) {
-			List<String> usedGitHubCacheHostnames = new ArrayList<>(3);
+		if (remoteURL.contains(_HOSTNAME_GITHUB_CACHE_PROXY)) {
+			List<String> usedGitHubDevNodeHostnames = new ArrayList<>(3);
 
-			while ((usedGitHubCacheHostnames.size() < 3) &&
+			while ((usedGitHubDevNodeHostnames.size() < 3) &&
 				   ((remoteGitRefs == null) || remoteGitRefs.isEmpty())) {
 
-				String gitHubCacheHostname =
-					JenkinsResultsParserUtil.getRandomGitHubCacheHostname(
-						usedGitHubCacheHostnames);
+				String gitHubDevNodeHostname =
+					JenkinsResultsParserUtil.getRandomGitHubDevNodeHostname(
+						usedGitHubDevNodeHostnames);
 
-				String gitHubCacheRemoteURL = remoteURL.replace(
-					_GITHUB_CACHE_PROXY_HOSTNAME, gitHubCacheHostname);
+				String gitHubDevNodeRemoteURL = remoteURL.replace(
+					_HOSTNAME_GITHUB_CACHE_PROXY, gitHubDevNodeHostname);
+
+				if (gitHubDevNodeHostname.startsWith("slave-")) {
+					gitHubDevNodeRemoteURL = toSlaveGitHubDevNodeRemoteURL(
+						remoteURL, gitHubDevNodeHostname.substring(6));
+				}
 
 				try {
 					remoteGitRefs = getRemoteGitRefs(
 						remoteGitBranchName, workingDirectory,
-						gitHubCacheRemoteURL);
+						gitHubDevNodeRemoteURL);
 				}
 				catch (Exception e) {
 					e.printStackTrace();
 				}
 
-				usedGitHubCacheHostnames.add(gitHubCacheHostname);
+				usedGitHubDevNodeHostnames.add(gitHubDevNodeHostname);
 			}
 		}
 		else {
@@ -186,10 +207,7 @@ public class GitUtil {
 	public static List<RemoteGitRef> getRemoteGitRefs(
 		String remoteGitBranchName, File workingDirectory, String remoteURL) {
 
-		Matcher remoteURLMatcher = GitRemote.remoteURLPattern.matcher(
-			remoteURL);
-
-		if (!remoteURLMatcher.find()) {
+		if (!isValidRemoteURL(remoteURL)) {
 			throw new IllegalArgumentException(
 				"Invalid remote url " + remoteURL);
 		}
@@ -206,8 +224,8 @@ public class GitUtil {
 		}
 
 		ExecutionResult executionResult = executeBashCommands(
-			GitUtil.MAX_RETRIES, GitUtil.RETRY_DELAY, 1000 * 60 * 10,
-			workingDirectory, command);
+			GitUtil.RETRIES_SIZE_MAX, GitUtil.MILLIS_RETRY_DELAY,
+			1000 * 60 * 10, workingDirectory, command);
 
 		if (executionResult.getExitValue() != 0) {
 			throw new RuntimeException(
@@ -220,11 +238,22 @@ public class GitUtil {
 
 		List<RemoteGitRef> remoteGitRefs = new ArrayList<>();
 
+		Matcher remoteURLMatcher = GitRemote.getRemoteURLMatcher(remoteURL);
+
+		remoteURLMatcher.find();
+
+		String username = "liferay";
+
+		try {
+			username = remoteURLMatcher.group("username");
+		}
+		catch (IllegalArgumentException iae) {
+		}
+
 		RemoteGitRepository remoteGitRepository =
 			GitRepositoryFactory.getRemoteGitRepository(
 				remoteURLMatcher.group("hostname"),
-				remoteURLMatcher.group("gitRepositoryName"),
-				remoteURLMatcher.group("username"));
+				remoteURLMatcher.group("gitRepositoryName"), username);
 
 		for (String line : input.split("\n")) {
 			Pattern gitLsRemotePattern = GitRemote.gitLsRemotePattern;
@@ -257,6 +286,36 @@ public class GitUtil {
 		}
 
 		return true;
+	}
+
+	public static boolean isValidRemoteURL(String remoteURL) {
+		Matcher matcher = GitRemote.getRemoteURLMatcher(remoteURL);
+
+		if (matcher != null) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static String toSlaveGitHubDevNodeRemoteURL(
+		String gitHubDevRemoteURL, String slaveGitHubDevNodeHostname) {
+
+		Matcher matcher = GitRemote.getRemoteURLMatcher(gitHubDevRemoteURL);
+
+		if ((matcher != null) && matcher.find()) {
+			String hostname = matcher.group("hostname");
+
+			if ((hostname != null) && hostname.endsWith("github-dev")) {
+				return JenkinsResultsParserUtil.combine(
+					"root@", slaveGitHubDevNodeHostname,
+					":/opt/dev/projects/github/",
+					matcher.group("gitRepositoryName"));
+			}
+		}
+
+		throw new IllegalArgumentException(
+			"Invalid github-dev remote url " + gitHubDevRemoteURL);
 	}
 
 	public static class ExecutionResult {
@@ -302,19 +361,50 @@ public class GitUtil {
 		Process process = null;
 
 		int retries = 0;
-		List<String> usedGitHubCacheHostnames = new ArrayList<>(maxRetries);
+		List<String> usedGitHubDevNodeHostnames = new ArrayList<>(maxRetries);
 
 		while (retries < maxRetries) {
 			String[] modifiedCommands = Arrays.copyOf(
 				commands, commands.length);
 
-			String gitHubCacheHostname =
-				JenkinsResultsParserUtil.getRandomGitHubCacheHostname(
-					usedGitHubCacheHostnames);
+			String gitHubDevNodeHostname =
+				JenkinsResultsParserUtil.getRandomGitHubDevNodeHostname(
+					usedGitHubDevNodeHostnames);
 
-			for (int i = 0; i < modifiedCommands.length; i++) {
-				modifiedCommands[i] = modifiedCommands[i].replace(
-					_GITHUB_CACHE_PROXY_HOSTNAME, gitHubCacheHostname);
+			usedGitHubDevNodeHostnames.add(gitHubDevNodeHostname);
+
+			if (gitHubDevNodeHostname.startsWith("slave-")) {
+				gitHubDevNodeHostname = gitHubDevNodeHostname.substring(6);
+
+				for (int i = 0; i < modifiedCommands.length; i++) {
+					Matcher matcher = GitRemote.getRemoteURLMatcher(
+						modifiedCommands[i]);
+
+					String modifiedCommand = modifiedCommands[i];
+
+					if (!modifiedCommand.contains(
+							_HOSTNAME_GITHUB_CACHE_PROXY)) {
+
+						continue;
+					}
+
+					if (matcher != null) {
+						while (matcher.find()) {
+							modifiedCommand = modifiedCommand.replaceFirst(
+								matcher.group(0),
+								toSlaveGitHubDevNodeRemoteURL(
+									matcher.group(0), gitHubDevNodeHostname));
+						}
+					}
+
+					modifiedCommands[i] = modifiedCommand;
+				}
+			}
+			else {
+				for (int i = 0; i < modifiedCommands.length; i++) {
+					modifiedCommands[i] = modifiedCommands[i].replace(
+						_HOSTNAME_GITHUB_CACHE_PROXY, gitHubDevNodeHostname);
+				}
 			}
 
 			try {
@@ -333,7 +423,7 @@ public class GitUtil {
 						e);
 				}
 
-				usedGitHubCacheHostnames.add(gitHubCacheHostname);
+				usedGitHubDevNodeHostnames.add(gitHubDevNodeHostname);
 
 				System.out.println(
 					"Unable to execute bash commands retrying... ");
@@ -369,7 +459,35 @@ public class GitUtil {
 			process.exitValue(), standardErr.trim(), standardOut.trim());
 	}
 
-	private static final String _GITHUB_CACHE_PROXY_HOSTNAME =
+	private static String _getDefaultBranchName(
+		File workingDirectory, String gitRemoteName) {
+
+		ExecutionResult executionResult = executeBashCommands(
+			RETRIES_SIZE_MAX, MILLIS_RETRY_DELAY, MILLIS_TIMEOUT,
+			workingDirectory,
+			JenkinsResultsParserUtil.combine(
+				"git remote show ", gitRemoteName, " | grep \"HEAD branch\" | ",
+				"cut -d \":\" -f 2"));
+
+		if (executionResult.getExitValue() != 0) {
+			return null;
+		}
+
+		String defaultBranchName = executionResult.getStandardOut();
+
+		defaultBranchName = defaultBranchName.replace(
+			"Finished executing Bash commands.", "");
+
+		defaultBranchName = defaultBranchName.trim();
+
+		if (defaultBranchName.isEmpty()) {
+			return null;
+		}
+
+		return defaultBranchName;
+	}
+
+	private static final String _HOSTNAME_GITHUB_CACHE_PROXY =
 		"github-dev.liferay.com";
 
 	private static final Pattern _gitHubRefURLPattern = Pattern.compile(

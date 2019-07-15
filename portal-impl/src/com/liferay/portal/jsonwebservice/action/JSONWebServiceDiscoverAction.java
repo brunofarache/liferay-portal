@@ -14,6 +14,7 @@
 
 package com.liferay.portal.jsonwebservice.action;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.json.data.FileData;
 import com.liferay.portal.json.transformer.BeanAnalyzerTransformer;
@@ -30,7 +31,6 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MethodParameter;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.ReleaseInfo;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -63,15 +63,15 @@ import jodd.util.ReflectUtil;
  */
 public class JSONWebServiceDiscoverAction implements JSONWebServiceAction {
 
-	public JSONWebServiceDiscoverAction(HttpServletRequest request) {
-		_basePath = request.getServletPath();
-		_baseURL = String.valueOf(request.getRequestURL());
+	public JSONWebServiceDiscoverAction(HttpServletRequest httpServletRequest) {
+		_basePath = httpServletRequest.getServletPath();
+		_baseURL = String.valueOf(httpServletRequest.getRequestURL());
 
-		ServletContext servletContext = request.getServletContext();
+		ServletContext servletContext = httpServletRequest.getServletContext();
 
 		_contextName = GetterUtil.getString(
 			ParamUtil.getString(
-				request, "contextName",
+				httpServletRequest, "contextName",
 				servletContext.getServletContextName()));
 
 		_jsonWebServiceNaming =

@@ -14,11 +14,11 @@
 
 package com.liferay.oauth2.provider.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.annotation.ImplementationClassName;
 import com.liferay.portal.kernel.model.PersistedModel;
 import com.liferay.portal.kernel.util.Accessor;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The extended model interface for the OAuth2ScopeGrant service. Represents a row in the &quot;OAuth2ScopeGrant&quot; database table, with each column mapped to a property of this class.
@@ -59,5 +59,9 @@ public interface OAuth2ScopeGrant
 				}
 
 			};
+
+	public java.util.List<String> getScopeAliasesList();
+
+	public void setScopeAliasesList(java.util.List<String> scopeAliasesList);
 
 }

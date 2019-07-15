@@ -196,6 +196,10 @@ public class FolderStagedModelDataHandler
 
 		Folder existingFolder = fetchMissingReference(uuid, groupId);
 
+		if (existingFolder == null) {
+			return;
+		}
+
 		Map<Long, Long> folderIds =
 			(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
 				Folder.class);
@@ -324,8 +328,8 @@ public class FolderStagedModelDataHandler
 			return;
 		}
 
-		TrashCapability trashCapability = folder.getRepositoryCapability(
-			TrashCapability.class);
+		TrashCapability trashCapability =
+			existingFolder.getRepositoryCapability(TrashCapability.class);
 
 		if (!trashCapability.isInTrash(existingFolder)) {
 			return;

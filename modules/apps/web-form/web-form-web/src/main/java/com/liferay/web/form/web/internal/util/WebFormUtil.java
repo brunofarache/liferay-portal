@@ -183,7 +183,7 @@ public class WebFormUtil {
 				br.close();
 			}
 			catch (IOException ioe) {
-				ioe.printStackTrace();
+				_log.error(ioe, ioe);
 			}
 		}
 		else {
@@ -200,7 +200,7 @@ public class WebFormUtil {
 			}
 		}
 
-		return nodeValues.toArray(new String[nodeValues.size()]);
+		return nodeValues.toArray(new String[0]);
 	}
 
 	public static boolean validate(

@@ -15,12 +15,12 @@
 package com.liferay.portal.kernel.servlet;
 
 import com.liferay.petra.reflect.ReflectionUtil;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 
 import java.lang.reflect.Field;
 
@@ -35,23 +35,23 @@ import javax.servlet.http.HttpServletRequest;
 public class NonSerializableObjectRequestWrapper
 	extends PersistentHttpServletRequestWrapper {
 
-	public static boolean isWrapped(HttpServletRequest request) {
+	public static boolean isWrapped(HttpServletRequest httpServletRequest) {
 		if (!_WEBLOGIC_REQUEST_WRAP_NON_SERIALIZABLE) {
 			return false;
 		}
 
-		Class<?> clazz = request.getClass();
+		Class<?> clazz = httpServletRequest.getClass();
 
 		String className = clazz.getName();
 
 		if (className.startsWith("weblogic.")) {
-			request.removeAttribute(
+			httpServletRequest.removeAttribute(
 				NonSerializableObjectRequestWrapper.class.getName());
 
 			return false;
 		}
 
-		Boolean wrapped = (Boolean)request.getAttribute(
+		Boolean wrapped = (Boolean)httpServletRequest.getAttribute(
 			NonSerializableObjectRequestWrapper.class.getName());
 
 		if (wrapped == null) {
@@ -61,10 +61,12 @@ public class NonSerializableObjectRequestWrapper
 		return wrapped.booleanValue();
 	}
 
-	public NonSerializableObjectRequestWrapper(HttpServletRequest request) {
-		super(request);
+	public NonSerializableObjectRequestWrapper(
+		HttpServletRequest httpServletRequest) {
 
-		request.setAttribute(
+		super(httpServletRequest);
+
+		httpServletRequest.setAttribute(
 			NonSerializableObjectRequestWrapper.class.getName(), Boolean.TRUE);
 	}
 
@@ -144,7 +146,7 @@ public class NonSerializableObjectRequestWrapper
 					StringBundler.concat(
 						"Unable to set WebLogic class loader flag for ",
 						"attribute ", attributeName, " in servlet request ",
-						String.valueOf(servletRequest)));
+						servletRequest));
 			}
 		}
 	}

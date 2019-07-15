@@ -1,6 +1,6 @@
 package ${apiPackagePath}.model;
 
-import aQute.bnd.annotation.ProviderType;
+import ${serviceBuilder.getCompatJavaClassName("ProviderType")};
 
 import com.liferay.portal.kernel.annotation.ImplementationClassName;
 import com.liferay.portal.kernel.model.NestedSetsTreeNodeModel;

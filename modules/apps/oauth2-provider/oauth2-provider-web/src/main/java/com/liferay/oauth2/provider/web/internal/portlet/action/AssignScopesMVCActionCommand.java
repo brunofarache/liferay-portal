@@ -21,10 +21,13 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
+import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -55,18 +58,28 @@ public class AssignScopesMVCActionCommand implements MVCActionCommand {
 		String[] scopeAliases = ParamUtil.getStringValues(
 			actionRequest, "scopeAliases");
 
-		List<String> scopeAliasesList = Arrays.asList(scopeAliases);
+		List<String> scopeAliasesList = Arrays.stream(
+			scopeAliases
+		).flatMap(
+			scopeAlias -> Arrays.stream(scopeAlias.split(StringPool.SPACE))
+		).filter(
+			Validator::isNotNull
+		).collect(
+			Collectors.toList()
+		);
 
 		try {
 			_oAuth2ApplicationService.updateScopeAliases(
 				oAuth2ApplicationId, scopeAliasesList);
 		}
 		catch (PortalException pe) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(
-					"Unable to load OAuth 2 application " + oAuth2ApplicationId,
-					pe);
+			if (_log.isDebugEnabled()) {
+				_log.debug(pe, pe);
 			}
+
+			Class<?> peClass = pe.getClass();
+
+			SessionErrors.add(actionRequest, peClass.getName(), pe);
 		}
 
 		String backURL = ParamUtil.get(

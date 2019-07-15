@@ -18,9 +18,11 @@ import com.liferay.fragment.exception.DuplicateFragmentCollectionKeyException;
 import com.liferay.fragment.exception.FragmentCollectionNameException;
 import com.liferay.fragment.model.FragmentCollection;
 import com.liferay.fragment.model.FragmentEntry;
+import com.liferay.fragment.service.FragmentEntryLocalService;
 import com.liferay.fragment.service.base.FragmentCollectionLocalServiceBaseImpl;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.SystemEventConstants;
@@ -36,9 +38,16 @@ import com.liferay.portal.kernel.util.Validator;
 import java.util.Date;
 import java.util.List;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
 /**
  * @author Jürgen Kappler
  */
+@Component(
+	property = "model.class.name=com.liferay.fragment.model.FragmentCollection",
+	service = AopService.class
+)
 public class FragmentCollectionLocalServiceImpl
 	extends FragmentCollectionLocalServiceBaseImpl {
 
@@ -66,7 +75,7 @@ public class FragmentCollectionLocalServiceImpl
 		validate(name);
 
 		if (Validator.isNull(fragmentCollectionKey)) {
-			fragmentCollectionKey = _generateFragmentCollectionKey(
+			fragmentCollectionKey = generateFragmentCollectionKey(
 				groupId, name);
 		}
 
@@ -124,7 +133,7 @@ public class FragmentCollectionLocalServiceImpl
 		// Images
 
 		PortletFileRepositoryUtil.deletePortletFolder(
-			fragmentCollection.getResourcesFolderId());
+			fragmentCollection.getResourcesFolderId(false));
 
 		// Fragment entries
 
@@ -133,7 +142,7 @@ public class FragmentCollectionLocalServiceImpl
 				fragmentCollection.getFragmentCollectionId());
 
 		for (FragmentEntry fragmentEntry : fragmentEntries) {
-			fragmentEntryLocalService.deleteFragmentEntry(fragmentEntry);
+			_fragmentEntryLocalService.deleteFragmentEntry(fragmentEntry);
 		}
 
 		return fragmentCollection;
@@ -165,6 +174,31 @@ public class FragmentCollectionLocalServiceImpl
 
 		return fragmentCollectionPersistence.fetchByG_FCK(
 			groupId, _getFragmentCollectionKey(fragmentCollectionKey));
+	}
+
+	@Override
+	public String generateFragmentCollectionKey(long groupId, String name) {
+		String fragmentCollectionKey = _getFragmentCollectionKey(name);
+
+		fragmentCollectionKey = StringUtil.replace(
+			fragmentCollectionKey, CharPool.SPACE, CharPool.DASH);
+
+		String curFragmentCollectionKey = fragmentCollectionKey;
+
+		int count = 0;
+
+		while (true) {
+			FragmentCollection fragmentCollection =
+				fragmentCollectionPersistence.fetchByG_FCK(
+					groupId, curFragmentCollectionKey);
+
+			if (fragmentCollection == null) {
+				return curFragmentCollectionKey;
+			}
+
+			curFragmentCollectionKey =
+				fragmentCollectionKey + CharPool.DASH + count++;
+		}
 	}
 
 	@Override
@@ -247,30 +281,6 @@ public class FragmentCollectionLocalServiceImpl
 		}
 	}
 
-	private String _generateFragmentCollectionKey(long groupId, String name) {
-		String fragmentCollectionKey = _getFragmentCollectionKey(name);
-
-		fragmentCollectionKey = StringUtil.replace(
-			fragmentCollectionKey, CharPool.SPACE, CharPool.DASH);
-
-		String curFragmentCollectionKey = fragmentCollectionKey;
-
-		int count = 0;
-
-		while (true) {
-			FragmentCollection fragmentCollection =
-				fragmentCollectionPersistence.fetchByG_FCK(
-					groupId, curFragmentCollectionKey);
-
-			if (fragmentCollection == null) {
-				return curFragmentCollectionKey;
-			}
-
-			curFragmentCollectionKey =
-				fragmentCollectionKey + CharPool.DASH + count++;
-		}
-	}
-
 	private String _getFragmentCollectionKey(String fragmentCollectionKey) {
 		if (fragmentCollectionKey != null) {
 			fragmentCollectionKey = fragmentCollectionKey.trim();
@@ -280,5 +290,8 @@ public class FragmentCollectionLocalServiceImpl
 
 		return StringPool.BLANK;
 	}
+
+	@Reference
+	private FragmentEntryLocalService _fragmentEntryLocalService;
 
 }

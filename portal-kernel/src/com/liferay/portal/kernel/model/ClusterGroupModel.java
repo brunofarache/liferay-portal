@@ -14,9 +14,9 @@
 
 package com.liferay.portal.kernel.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.AutoEscape;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The base model interface for the ClusterGroup service. Represents a row in the &quot;ClusterGroup&quot; database table, with each column mapped to a property of this class.
@@ -27,8 +27,10 @@ import com.liferay.portal.kernel.bean.AutoEscape;
  *
  * @author Brian Wing Shun Chan
  * @see ClusterGroup
+ * @deprecated
  * @generated
  */
+@Deprecated
 @ProviderType
 public interface ClusterGroupModel extends BaseModel<ClusterGroup>, MVCCModel {
 

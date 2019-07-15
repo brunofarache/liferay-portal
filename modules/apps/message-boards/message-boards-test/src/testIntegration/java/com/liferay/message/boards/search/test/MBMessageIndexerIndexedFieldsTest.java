@@ -40,7 +40,7 @@ import com.liferay.portal.search.test.util.IndexedFieldsFixture;
 import com.liferay.portal.search.test.util.IndexerFixture;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.PermissionCheckerTestRule;
+import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 import com.liferay.users.admin.test.util.search.UserSearchFixture;
 
 import java.util.HashMap;
@@ -65,7 +65,7 @@ public class MBMessageIndexerIndexedFieldsTest {
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
-			PermissionCheckerTestRule.INSTANCE,
+			PermissionCheckerMethodTestRule.INSTANCE,
 			SynchronousDestinationTestRule.INSTANCE);
 
 	@Before
@@ -87,15 +87,13 @@ public class MBMessageIndexerIndexedFieldsTest {
 		MBMessage mbMessage = mbMessageFixture.createMBMessageWithCategory(
 			title, _user.getUserId());
 
-		String searchTerm = mbMessage.getSubject();
-
 		Document document = mbMessageIndexerFixture.searchOnlyOne(
-			searchTerm, locale);
+			title, locale);
 
 		indexedFieldsFixture.postProcessDocument(document);
 
 		FieldValuesAssert.assertFieldValues(
-			_expectedFieldValues(mbMessage), document, searchTerm);
+			_expectedFieldValues(mbMessage), document, title);
 	}
 
 	protected void setUpIndexedFieldsFixture() {
@@ -165,7 +163,6 @@ public class MBMessageIndexerIndexedFieldsTest {
 		map.put(Field.STATUS, String.valueOf(mbMessage.getStatus()));
 		map.put(Field.USER_ID, String.valueOf(mbMessage.getUserId()));
 		map.put(Field.USER_NAME, StringUtil.lowerCase(mbMessage.getUserName()));
-
 		map.put("discussion", "false");
 		map.put(
 			"parentMessageId", String.valueOf(mbMessage.getParentMessageId()));

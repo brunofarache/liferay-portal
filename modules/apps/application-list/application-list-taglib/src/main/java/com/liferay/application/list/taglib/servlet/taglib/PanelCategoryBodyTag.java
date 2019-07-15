@@ -32,6 +32,10 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class PanelCategoryBodyTag extends BasePanelTag {
 
+	public PanelCategory getPanelCategory() {
+		return _panelCategory;
+	}
+
 	public void setPanelApps(List<PanelApp> panelApps) {
 		_panelApps = panelApps;
 	}
@@ -66,13 +70,13 @@ public class PanelCategoryBodyTag extends BasePanelTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
 		String id = StringUtil.replace(
 			_panelCategory.getKey(), CharPool.PERIOD, CharPool.UNDERLINE);
 
 		id = "panel-manage-" + id;
 
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-application-list:panel-category-body:id", id);
 
 		List<PanelApp> panelApps = _panelApps;
@@ -81,11 +85,11 @@ public class PanelCategoryBodyTag extends BasePanelTag {
 			panelApps = getPanelApps();
 		}
 
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-application-list:panel-category-body:panelApps",
 			panelApps);
 
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-application-list:panel-category-body:panelCategory",
 			_panelCategory);
 	}

@@ -35,7 +35,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Eudaldo Alonso
  */
 @Component(
-	property = "form.navigator.entry.order:Integer=20",
+	property = "form.navigator.entry.order:Integer=10",
 	service = FormNavigatorEntry.class
 )
 public class JournalPermissionsFormNavigatorEntry
@@ -51,10 +51,11 @@ public class JournalPermissionsFormNavigatorEntry
 		ServiceContext serviceContext =
 			ServiceContextThreadLocal.getServiceContext();
 
-		HttpServletRequest request = serviceContext.getRequest();
+		HttpServletRequest httpServletRequest = serviceContext.getRequest();
 
-		PortletRequest portletRequest = (PortletRequest)request.getAttribute(
-			JavaConstants.JAVAX_PORTLET_REQUEST);
+		PortletRequest portletRequest =
+			(PortletRequest)httpServletRequest.getAttribute(
+				JavaConstants.JAVAX_PORTLET_REQUEST);
 
 		long classNameId = BeanParamUtil.getLong(
 			article, portletRequest, "classNameId");

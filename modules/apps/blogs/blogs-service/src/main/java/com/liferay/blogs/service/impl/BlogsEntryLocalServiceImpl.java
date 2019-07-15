@@ -16,6 +16,7 @@ package com.liferay.blogs.service.impl;
 
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetLinkConstants;
+import com.liferay.blogs.configuration.BlogsFileUploadsConfiguration;
 import com.liferay.blogs.constants.BlogsConstants;
 import com.liferay.blogs.exception.EntryContentException;
 import com.liferay.blogs.exception.EntryCoverImageCropException;
@@ -39,11 +40,12 @@ import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.comment.CommentManager;
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
@@ -55,7 +57,7 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.notifications.UserNotificationDefinition;
 import com.liferay.portal.kernel.portlet.PortletProvider;
 import com.liferay.portal.kernel.portlet.PortletProviderUtil;
-import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
+import com.liferay.portal.kernel.portletfilerepository.PortletFileRepository;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.search.Indexable;
@@ -82,7 +84,6 @@ import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SubscriptionSender;
@@ -94,7 +95,6 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
 import com.liferay.portal.linkback.LinkbackProducerUtil;
 import com.liferay.portal.util.LayoutURLUtil;
-import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.social.kernel.model.SocialActivityConstants;
 import com.liferay.subscription.service.SubscriptionLocalService;
@@ -125,7 +125,9 @@ import javax.servlet.http.HttpServletRequest;
 import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.StartTag;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 
 /**
@@ -140,6 +142,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Zsolt Berentey
  */
 @Component(
+	configurationPid = "com.liferay.blogs.configuration.BlogsFileUploadsConfiguration",
 	property = "model.class.name=com.liferay.blogs.model.BlogsEntry",
 	service = AopService.class
 )
@@ -158,7 +161,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			curFileName -> _attachmentExists(
 				blogsEntry.getGroupId(), folder.getFolderId(), curFileName));
 
-		return PortletFileRepositoryUtil.addPortletFileEntry(
+		return _portletFileRepository.addPortletFileEntry(
 			blogsEntry.getGroupId(), userId, null, 0,
 			BlogsConstants.SERVICE_NAME, folder.getFolderId(), is,
 			uniqueFileName, mimeType, true);
@@ -534,7 +537,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		Folder folder = addAttachmentsFolder(userId, groupId);
 
 		FileEntry originalFileEntry =
-			PortletFileRepositoryUtil.addPortletFileEntry(
+			_portletFileRepository.addPortletFileEntry(
 				groupId, userId, null, 0, BlogsConstants.SERVICE_NAME,
 				folder.getFolderId(), imageBytes,
 				_getUniqueFileName(
@@ -684,14 +687,14 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		long coverImageFileEntryId = entry.getCoverImageFileEntryId();
 
 		if (coverImageFileEntryId != 0) {
-			PortletFileRepositoryUtil.deletePortletFileEntry(
+			_portletFileRepository.deletePortletFileEntry(
 				coverImageFileEntryId);
 		}
 
 		long smallImageFileEntryId = entry.getSmallImageFileEntryId();
 
 		if (smallImageFileEntryId != 0) {
-			PortletFileRepositoryUtil.deletePortletFileEntry(
+			_portletFileRepository.deletePortletFileEntry(
 				smallImageFileEntryId);
 		}
 
@@ -736,12 +739,11 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		serviceContext.setAddGroupPermissions(true);
 		serviceContext.setAddGuestPermissions(true);
 
-		Repository repository =
-			PortletFileRepositoryUtil.fetchPortletRepository(
-				groupId, BlogsConstants.SERVICE_NAME);
+		Repository repository = _portletFileRepository.fetchPortletRepository(
+			groupId, BlogsConstants.SERVICE_NAME);
 
 		try {
-			return PortletFileRepositoryUtil.getPortletFolder(
+			return _portletFileRepository.getPortletFolder(
 				repository.getRepositoryId(),
 				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
 				BlogsConstants.SERVICE_NAME);
@@ -1027,9 +1029,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 		// Social
 
-		JSONObject extraDataJSONObject = JSONFactoryUtil.createJSONObject();
-
-		extraDataJSONObject.put("title", entry.getTitle());
+		JSONObject extraDataJSONObject = JSONUtil.put(
+			"title", entry.getTitle());
 
 		SocialActivityManagerUtil.addActivity(
 			userId, entry, SocialActivityConstants.TYPE_MOVE_TO_TRASH,
@@ -1093,9 +1094,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 		// Social
 
-		JSONObject extraDataJSONObject = JSONFactoryUtil.createJSONObject();
-
-		extraDataJSONObject.put("title", entry.getTitle());
+		JSONObject extraDataJSONObject = JSONUtil.put(
+			"title", entry.getTitle());
 
 		SocialActivityManagerUtil.addActivity(
 			userId, entry, SocialActivityConstants.TYPE_RESTORE_FROM_TRASH,
@@ -1403,12 +1403,12 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		entry = startWorkflowInstance(userId, entry, serviceContext);
 
 		if (deletePreviousCoverImageFileEntryId != 0) {
-			PortletFileRepositoryUtil.deletePortletFileEntry(
+			_portletFileRepository.deletePortletFileEntry(
 				deletePreviousCoverImageFileEntryId);
 		}
 
 		if (deletePreviousSmallImageFileEntryId != 0) {
-			PortletFileRepositoryUtil.deletePortletFileEntry(
+			_portletFileRepository.deletePortletFileEntry(
 				deletePreviousSmallImageFileEntryId);
 		}
 
@@ -1540,9 +1540,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			serviceContext.setCommand(Constants.ADD);
 		}
 
-		JSONObject extraDataJSONObject = JSONFactoryUtil.createJSONObject();
-
-		extraDataJSONObject.put("title", entry.getTitle());
+		JSONObject extraDataJSONObject = JSONUtil.put(
+			"title", entry.getTitle());
 
 		if (status == WorkflowConstants.STATUS_APPROVED) {
 
@@ -1652,6 +1651,13 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		return entry;
 	}
 
+	@Activate
+	@Modified
+	protected void activate(Map<String, Object> properties) {
+		_blogsFileUploadsConfiguration = ConfigurableUtil.createConfigurable(
+			BlogsFileUploadsConfiguration.class, properties);
+	}
+
 	protected long addCoverImageFileEntry(
 			long userId, long groupId, long entryId,
 			ImageSelector imageSelector)
@@ -1716,7 +1722,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		}
 
 		FileEntry processedImageFileEntry =
-			PortletFileRepositoryUtil.addPortletFileEntry(
+			_portletFileRepository.addPortletFileEntry(
 				groupId, userId, BlogsEntry.class.getName(), entryId,
 				BlogsConstants.SERVICE_NAME, folderId, bytes,
 				_getUniqueFileName(groupId, title, folderId), mimeType, true);
@@ -1780,10 +1786,10 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		serviceContext.setAddGroupPermissions(true);
 		serviceContext.setAddGuestPermissions(true);
 
-		Repository repository = PortletFileRepositoryUtil.addPortletRepository(
+		Repository repository = _portletFileRepository.addPortletRepository(
 			groupId, BlogsConstants.SERVICE_NAME, serviceContext);
 
-		return PortletFileRepositoryUtil.addPortletFolder(
+		return _portletFileRepository.addPortletFolder(
 			userId, repository.getRepositoryId(),
 			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID, folderName,
 			serviceContext);
@@ -1800,9 +1806,9 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			return entryURL;
 		}
 
-		HttpServletRequest request = serviceContext.getRequest();
+		HttpServletRequest httpServletRequest = serviceContext.getRequest();
 
-		if (request == null) {
+		if (httpServletRequest == null) {
 			return StringPool.BLANK;
 		}
 
@@ -1830,7 +1836,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		}
 
 		PortletURL portletURL = _portal.getControlPanelPortletURL(
-			request, portletId, PortletRequest.RENDER_PHASE);
+			httpServletRequest, portletId, PortletRequest.RENDER_PHASE);
 
 		portletURL.setParameter("mvcRenderCommandName", "/blogs/view_entry");
 		portletURL.setParameter("entryId", String.valueOf(entry.getEntryId()));
@@ -2091,14 +2097,15 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			return;
 		}
 
-		HttpServletRequest request = serviceContext.getRequest();
+		HttpServletRequest httpServletRequest = serviceContext.getRequest();
 
-		if (request == null) {
+		if (httpServletRequest == null) {
 			return;
 		}
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		String layoutFullURL = getLayoutFullURL(themeDisplay, serviceContext);
 
@@ -2139,14 +2146,15 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			return;
 		}
 
-		HttpServletRequest request = serviceContext.getRequest();
+		HttpServletRequest httpServletRequest = serviceContext.getRequest();
 
-		if (request == null) {
+		if (httpServletRequest == null) {
 			return;
 		}
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		String layoutFullURL = getLayoutFullURL(themeDisplay, serviceContext);
 
@@ -2251,15 +2259,14 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	protected void validate(long smallImageFileEntryId) throws PortalException {
 		if (smallImageFileEntryId != 0) {
-			FileEntry fileEntry = PortletFileRepositoryUtil.getPortletFileEntry(
+			FileEntry fileEntry = _portletFileRepository.getPortletFileEntry(
 				smallImageFileEntryId);
 
 			boolean validSmallImageExtension = false;
 
-			String[] imageExtensions = PrefsPropsUtil.getStringArray(
-				PropsKeys.BLOGS_IMAGE_EXTENSIONS, StringPool.COMMA);
+			for (String imageExtension :
+					_blogsFileUploadsConfiguration.imageExtensions()) {
 
-			for (String imageExtension : imageExtensions) {
 				if (StringPool.STAR.equals(imageExtension) ||
 					imageExtension.equals(
 						StringPool.PERIOD + fileEntry.getExtension())) {
@@ -2337,9 +2344,10 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		long groupId, long folderId, String fileName) {
 
 		try {
-			if (PortletFileRepositoryUtil.getPortletFileEntry(
-					groupId, folderId, fileName) != null) {
+			FileEntry fileEntry = _portletFileRepository.getPortletFileEntry(
+				groupId, folderId, fileName);
 
+			if (fileEntry != null) {
 				return true;
 			}
 
@@ -2358,7 +2366,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		long groupId, String fileName, long folderId) {
 
 		try {
-			return PortletFileRepositoryUtil.getPortletFileEntry(
+			return _portletFileRepository.getPortletFileEntry(
 				groupId, folderId, fileName);
 		}
 		catch (PortalException pe) {
@@ -2474,6 +2482,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	private static final Log _log = LogFactoryUtil.getLog(
 		BlogsEntryLocalServiceImpl.class);
 
+	private BlogsFileUploadsConfiguration _blogsFileUploadsConfiguration;
+
 	@Reference
 	private BlogsStatsUserLocalService _blogsStatsUserLocalService;
 
@@ -2491,6 +2501,9 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private PortletFileRepository _portletFileRepository;
 
 	@Reference
 	private SubscriptionLocalService _subscriptionLocalService;

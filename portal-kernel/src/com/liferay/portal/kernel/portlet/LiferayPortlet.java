@@ -15,14 +15,12 @@
 package com.liferay.portal.kernel.portlet;
 
 import com.liferay.petra.string.CharPool;
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.model.PortletApp;
-import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
 import com.liferay.portal.kernel.servlet.BrowserSnifferUtil;
 import com.liferay.portal.kernel.servlet.ServletResponseUtil;
 import com.liferay.portal.kernel.servlet.SessionErrors;
@@ -32,7 +30,6 @@ import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -43,7 +40,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import java.util.ArrayDeque;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Queue;
@@ -90,10 +86,6 @@ public class LiferayPortlet extends GenericPortlet {
 		throws IOException, PortletException {
 
 		try {
-			if (!isProcessActionRequest(actionRequest)) {
-				return;
-			}
-
 			if (!callActionMethod(actionRequest, actionResponse)) {
 				return;
 			}
@@ -107,13 +99,11 @@ public class LiferayPortlet extends GenericPortlet {
 			if (!SessionMessages.contains(
 					actionRequest,
 					portletId.concat(
-						SessionMessages.KEY_SUFFIX_FORCE_SEND_REDIRECT))) {
+						SessionMessages.KEY_SUFFIX_FORCE_SEND_REDIRECT)) &&
+				(isEmptySessionMessages(actionRequest) ||
+				 isAlwaysSendRedirect())) {
 
-				if (isEmptySessionMessages(actionRequest) ||
-					isAlwaysSendRedirect()) {
-
-					sendRedirect(actionRequest, actionResponse);
-				}
+				sendRedirect(actionRequest, actionResponse);
 			}
 
 			if (isAddSuccessMessage(actionRequest)) {
@@ -136,10 +126,6 @@ public class LiferayPortlet extends GenericPortlet {
 	public void serveResource(
 			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
 		throws IOException, PortletException {
-
-		if (!isProcessResourceRequest(resourceRequest)) {
-			return;
-		}
 
 		if (!callResourceMethod(resourceRequest, resourceResponse)) {
 			return;
@@ -259,8 +245,12 @@ public class LiferayPortlet extends GenericPortlet {
 		}
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	protected void checkPath(String path) throws PortletException {
-		if (Validator.isNotNull(path) && !isValidPath(path)) {
+		if (Validator.isNotNull(path)) {
 			throw new PortletException(
 				"Path " + path + " is not accessible by this portlet");
 		}
@@ -284,12 +274,6 @@ public class LiferayPortlet extends GenericPortlet {
 	protected void doDispatch(
 			RenderRequest renderRequest, RenderResponse renderResponse)
 		throws IOException, PortletException {
-
-		if (!isProcessRenderRequest(renderRequest)) {
-			renderRequest.setAttribute(WebKeys.PORTLET_DECORATE, Boolean.FALSE);
-
-			return;
-		}
 
 		WindowState windowState = renderRequest.getWindowState();
 
@@ -379,16 +363,20 @@ public class LiferayPortlet extends GenericPortlet {
 	}
 
 	protected String getJSONContentType(PortletRequest portletRequest) {
-		HttpServletRequest request = PortalUtil.getHttpServletRequest(
-			portletRequest);
+		HttpServletRequest httpServletRequest =
+			PortalUtil.getHttpServletRequest(portletRequest);
 
-		if (BrowserSnifferUtil.isIe(request)) {
+		if (BrowserSnifferUtil.isIe(httpServletRequest)) {
 			return ContentTypes.TEXT_HTML;
 		}
 
 		return ContentTypes.APPLICATION_JSON;
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	protected Set<String> getPaths(String path, String extension) {
 		Set<String> paths = new HashSet<>();
 
@@ -474,38 +462,11 @@ public class LiferayPortlet extends GenericPortlet {
 		}
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	protected void initValidPaths(String rootPath, String extension) {
-		if (rootPath.equals(StringPool.SLASH)) {
-			PortletContext portletContext = getPortletContext();
-
-			PortletApp portletApp = PortletLocalServiceUtil.getPortletApp(
-				portletContext.getPortletContextName());
-
-			if (!portletApp.isWARFile()) {
-				_log.error(
-					StringBundler.concat(
-						"Disabling paths for portlet ", getPortletName(),
-						" because root path is configured to have access to ",
-						"all portal paths"));
-
-				validPaths = new HashSet<>();
-
-				return;
-			}
-		}
-
-		validPaths = getPaths(rootPath, extension);
-
-		if (!rootPath.equals(StringPool.SLASH) &&
-			!rootPath.equals("/META-INF/") &&
-			!rootPath.equals("/META-INF/resources/")) {
-
-			validPaths.addAll(
-				getPaths(_PATH_META_INF_RESOURCES.concat(rootPath), extension));
-		}
-
-		Collections.addAll(
-			validPaths, StringUtil.split(getInitParameter("valid-paths")));
 	}
 
 	protected boolean isAddSuccessMessage(ActionRequest actionRequest) {
@@ -572,18 +533,34 @@ public class LiferayPortlet extends GenericPortlet {
 		return false;
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	protected boolean isProcessActionRequest(ActionRequest actionRequest) {
 		return isProcessPortletRequest(actionRequest);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	protected boolean isProcessPortletRequest(PortletRequest portletRequest) {
 		return _PROCESS_PORTLET_REQUEST;
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	protected boolean isProcessRenderRequest(RenderRequest renderRequest) {
 		return isProcessPortletRequest(renderRequest);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	protected boolean isProcessResourceRequest(
 		ResourceRequest resourceRequest) {
 
@@ -602,13 +579,11 @@ public class LiferayPortlet extends GenericPortlet {
 		return false;
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	protected boolean isValidPath(String path) {
-		if (validPaths.contains(path) ||
-			validPaths.contains(_PATH_META_INF_RESOURCES.concat(path))) {
-
-			return true;
-		}
-
 		return false;
 	}
 
@@ -650,14 +625,15 @@ public class LiferayPortlet extends GenericPortlet {
 			Object jsonObj)
 		throws IOException {
 
-		HttpServletResponse response = PortalUtil.getHttpServletResponse(
-			actionResponse);
+		HttpServletResponse httpServletResponse =
+			PortalUtil.getHttpServletResponse(actionResponse);
 
-		response.setContentType(getJSONContentType(portletRequest));
+		httpServletResponse.setContentType(getJSONContentType(portletRequest));
 
-		ServletResponseUtil.write(response, _toXSSSafeJSON(jsonObj.toString()));
+		ServletResponseUtil.write(
+			httpServletResponse, _toXSSSafeJSON(jsonObj.toString()));
 
-		response.flushBuffer();
+		httpServletResponse.flushBuffer();
 	}
 
 	protected void writeJSON(
@@ -675,6 +651,11 @@ public class LiferayPortlet extends GenericPortlet {
 
 	protected boolean addProcessActionSuccessMessage;
 	protected boolean alwaysSendRedirect;
+
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	protected Set<String> validPaths;
 
 	private String _toXSSSafeJSON(String json) {
@@ -688,9 +669,6 @@ public class LiferayPortlet extends GenericPortlet {
 		SessionMessages.KEY_SUFFIX_HIDE_DEFAULT_SUCCESS_MESSAGE,
 		SessionMessages.KEY_SUFFIX_REFRESH_PORTLET
 	};
-
-	private static final String _PATH_META_INF_RESOURCES =
-		"/META-INF/resources";
 
 	private static final boolean _PROCESS_PORTLET_REQUEST = true;
 

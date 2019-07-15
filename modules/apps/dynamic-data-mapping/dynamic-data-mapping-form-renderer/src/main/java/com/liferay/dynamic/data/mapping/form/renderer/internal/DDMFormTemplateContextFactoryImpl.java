@@ -133,6 +133,8 @@ public class DDMFormTemplateContextFactoryImpl
 		templateContext.put("pages", pages);
 
 		templateContext.put(
+			"paginationMode", ddmFormLayout.getPaginationMode());
+		templateContext.put(
 			"portletNamespace", ddmFormRenderingContext.getPortletNamespace());
 		templateContext.put("readOnly", ddmFormRenderingContext.isReadOnly());
 
@@ -253,7 +255,7 @@ public class DDMFormTemplateContextFactoryImpl
 		collectResourceBundles(getClass(), resourceBundles, locale);
 
 		ResourceBundle[] resourceBundlesArray = resourceBundles.toArray(
-			new ResourceBundle[resourceBundles.size()]);
+			new ResourceBundle[0]);
 
 		return new AggregateResourceBundle(resourceBundlesArray);
 	}

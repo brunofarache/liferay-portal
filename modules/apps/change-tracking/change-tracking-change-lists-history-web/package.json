@@ -1,29 +1,27 @@
 {
 	"dependencies": {
-		"clay-alert": "2.10.0",
-		"clay-autocomplete": "2.10.0",
-		"clay-button": "2.10.0",
-		"clay-data-provider": "2.10.0",
-		"clay-label": "2.10.0",
-		"clay-link": "2.10.0",
-		"clay-multi-select": "2.10.0",
-		"clay-progress-bar": "2.10.0",
-		"clay-select": "2.10.0",
-		"clay-sticker": "2.10.0",
-		"metal": "^2.16.7",
-		"metal-component": "^2.16.7",
-		"metal-dom": "^2.6.4",
-		"metal-soy": "^2.16.7",
-		"metal-state": "^2.16.7"
-	},
-	"devDependencies": {
-		"liferay-npm-scripts": "1.4.3"
+		"clay-alert": "2.16.1",
+		"clay-autocomplete": "2.16.1",
+		"clay-button": "2.16.1",
+		"clay-data-provider": "2.16.1",
+		"clay-label": "2.16.1",
+		"clay-link": "2.16.1",
+		"clay-multi-select": "2.16.1",
+		"clay-progress-bar": "2.16.1",
+		"clay-select": "2.16.1",
+		"clay-sticker": "2.16.1",
+		"frontend-js-web": "^4.0.0",
+		"metal": "2.16.8",
+		"metal-component": "2.16.8",
+		"metal-dom": "2.16.8",
+		"metal-soy": "2.16.8",
+		"metal-state": "2.16.8"
 	},
 	"name": "change-tracking-change-lists-history-web",
 	"scripts": {
-		"build": "liferay-npm-scripts build --soy --bundler",
-		"csf": "liferay-npm-scripts lint",
-		"format": "liferay-npm-scripts format"
+		"build": "liferay-npm-scripts build",
+		"checkFormat": "liferay-npm-scripts check",
+		"format": "liferay-npm-scripts fix"
 	},
-	"version": "1.0.0"
+	"version": "2.0.0"
 }

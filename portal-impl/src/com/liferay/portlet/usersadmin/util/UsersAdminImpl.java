@@ -25,11 +25,11 @@ import com.liferay.portal.kernel.model.OrgLabor;
 import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.Phone;
 import com.liferay.portal.kernel.model.Role;
-import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserGroup;
 import com.liferay.portal.kernel.model.UserGroupRole;
 import com.liferay.portal.kernel.model.Website;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Hits;
@@ -117,7 +117,7 @@ public class UsersAdminImpl implements UsersAdmin {
 
 	@Override
 	public void addPortletBreadcrumbEntries(
-			Organization organization, HttpServletRequest request,
+			Organization organization, HttpServletRequest httpServletRequest,
 			RenderResponse renderResponse)
 		throws Exception {
 
@@ -137,7 +137,8 @@ public class UsersAdminImpl implements UsersAdmin {
 				String.valueOf(ancestorOrganization.getOrganizationId()));
 
 			PortalUtil.addPortletBreadcrumbEntry(
-				request, ancestorOrganization.getName(), portletURL.toString());
+				httpServletRequest, ancestorOrganization.getName(),
+				portletURL.toString());
 		}
 
 		Organization unescapedOrganization = organization.toUnescapedModel();
@@ -147,7 +148,8 @@ public class UsersAdminImpl implements UsersAdmin {
 			String.valueOf(unescapedOrganization.getOrganizationId()));
 
 		PortalUtil.addPortletBreadcrumbEntry(
-			request, unescapedOrganization.getName(), portletURL.toString());
+			httpServletRequest, unescapedOrganization.getName(),
+			portletURL.toString());
 	}
 
 	@Override

@@ -1,19 +1,16 @@
 {
 	"dependencies": {
-		"clay-multi-select": "2.10.0",
-		"metal": "^2.5.18",
-		"metal-dom": "^2.5.18",
-		"metal-soy": "^2.4.5",
-		"metal-state": "^2.6.4"
-	},
-	"devDependencies": {
-		"liferay-npm-scripts": "1.4.3"
+		"clay-multi-select": "2.16.1",
+		"metal": "2.16.8",
+		"metal-dom": "2.16.8",
+		"metal-soy": "2.16.8",
+		"metal-state": "2.16.8"
 	},
 	"name": "asset-publisher-web",
 	"scripts": {
-		"build": "liferay-npm-scripts build --soy --bundler",
-		"csf": "liferay-npm-scripts lint",
-		"format": "liferay-npm-scripts format"
+		"build": "liferay-npm-scripts build",
+		"checkFormat": "liferay-npm-scripts check",
+		"format": "liferay-npm-scripts fix"
 	},
-	"version": "3.0.0"
+	"version": "4.0.0"
 }

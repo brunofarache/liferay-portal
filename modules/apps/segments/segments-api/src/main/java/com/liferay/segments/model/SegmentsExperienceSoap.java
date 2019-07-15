@@ -14,13 +14,13 @@
 
 package com.liferay.segments.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * This class is used by SOAP remote services, specifically {@link com.liferay.segments.service.http.SegmentsExperienceServiceSoap}.
@@ -34,6 +34,7 @@ public class SegmentsExperienceSoap implements Serializable {
 	public static SegmentsExperienceSoap toSoapModel(SegmentsExperience model) {
 		SegmentsExperienceSoap soapModel = new SegmentsExperienceSoap();
 
+		soapModel.setUuid(model.getUuid());
 		soapModel.setSegmentsExperienceId(model.getSegmentsExperienceId());
 		soapModel.setGroupId(model.getGroupId());
 		soapModel.setCompanyId(model.getCompanyId());
@@ -41,12 +42,14 @@ public class SegmentsExperienceSoap implements Serializable {
 		soapModel.setUserName(model.getUserName());
 		soapModel.setCreateDate(model.getCreateDate());
 		soapModel.setModifiedDate(model.getModifiedDate());
+		soapModel.setSegmentsExperienceKey(model.getSegmentsExperienceKey());
 		soapModel.setSegmentsEntryId(model.getSegmentsEntryId());
 		soapModel.setClassNameId(model.getClassNameId());
 		soapModel.setClassPK(model.getClassPK());
 		soapModel.setName(model.getName());
 		soapModel.setPriority(model.getPriority());
 		soapModel.setActive(model.isActive());
+		soapModel.setLastPublishDate(model.getLastPublishDate());
 
 		return soapModel;
 	}
@@ -109,6 +112,14 @@ public class SegmentsExperienceSoap implements Serializable {
 		setSegmentsExperienceId(pk);
 	}
 
+	public String getUuid() {
+		return _uuid;
+	}
+
+	public void setUuid(String uuid) {
+		_uuid = uuid;
+	}
+
 	public long getSegmentsExperienceId() {
 		return _segmentsExperienceId;
 	}
@@ -165,6 +176,14 @@ public class SegmentsExperienceSoap implements Serializable {
 		_modifiedDate = modifiedDate;
 	}
 
+	public String getSegmentsExperienceKey() {
+		return _segmentsExperienceKey;
+	}
+
+	public void setSegmentsExperienceKey(String segmentsExperienceKey) {
+		_segmentsExperienceKey = segmentsExperienceKey;
+	}
+
 	public long getSegmentsEntryId() {
 		return _segmentsEntryId;
 	}
@@ -217,6 +236,15 @@ public class SegmentsExperienceSoap implements Serializable {
 		_active = active;
 	}
 
+	public Date getLastPublishDate() {
+		return _lastPublishDate;
+	}
+
+	public void setLastPublishDate(Date lastPublishDate) {
+		_lastPublishDate = lastPublishDate;
+	}
+
+	private String _uuid;
 	private long _segmentsExperienceId;
 	private long _groupId;
 	private long _companyId;
@@ -224,11 +252,13 @@ public class SegmentsExperienceSoap implements Serializable {
 	private String _userName;
 	private Date _createDate;
 	private Date _modifiedDate;
+	private String _segmentsExperienceKey;
 	private long _segmentsEntryId;
 	private long _classNameId;
 	private long _classPK;
 	private String _name;
 	private int _priority;
 	private boolean _active;
+	private Date _lastPublishDate;
 
 }

@@ -53,6 +53,42 @@ import javax.servlet.jsp.PageContext;
  */
 public class NavigationMenuTag extends IncludeTag {
 
+	public long getDdmTemplateGroupId() {
+		return _ddmTemplateGroupId;
+	}
+
+	public String getDdmTemplateKey() {
+		return _ddmTemplateKey;
+	}
+
+	public int getDisplayDepth() {
+		return _displayDepth;
+	}
+
+	public String getExpandedLevels() {
+		return _expandedLevels;
+	}
+
+	public String getRootItemId() {
+		return _rootItemId;
+	}
+
+	public int getRootItemLevel() {
+		return _rootItemLevel;
+	}
+
+	public String getRootItemType() {
+		return _rootItemType;
+	}
+
+	public long getSiteNavigationMenuId() {
+		return _siteNavigationMenuId;
+	}
+
+	public boolean isPreview() {
+		return _preview;
+	}
+
 	@Override
 	public int processEndTag() throws Exception {
 		PortletDisplayTemplate portletDisplayTemplate =
@@ -93,7 +129,7 @@ public class NavigationMenuTag extends IncludeTag {
 			_log.error(e, e);
 		}
 
-		HttpServletResponse response =
+		HttpServletResponse httpServletResponse =
 			(HttpServletResponse)pageContext.getResponse();
 
 		Map<String, Object> contextObjects = new HashMap<>();
@@ -106,7 +142,7 @@ public class NavigationMenuTag extends IncludeTag {
 		contextObjects.put("rootLayoutType", _rootItemType);
 
 		String result = portletDisplayTemplate.renderDDMTemplate(
-			request, response, portletDisplayDDMTemplate, navItems,
+			request, httpServletResponse, portletDisplayDDMTemplate, navItems,
 			contextObjects);
 
 		JspWriter jspWriter = pageContext.getOut();
@@ -174,10 +210,11 @@ public class NavigationMenuTag extends IncludeTag {
 		_siteNavigationMenuId = 0;
 	}
 
-	protected List<NavItem> getBranchNavItems(HttpServletRequest request)
+	protected List<NavItem> getBranchNavItems(
+			HttpServletRequest httpServletRequest)
 		throws PortalException {
 
-		return NavItemUtil.getBranchNavItems(request);
+		return NavItemUtil.getBranchNavItems(httpServletRequest);
 	}
 
 	protected String getDisplayStyle() {
@@ -233,7 +270,7 @@ public class NavigationMenuTag extends IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
 	}
 
 	private List<NavItem> _getBranchNavItems() throws PortalException {
@@ -291,13 +328,13 @@ public class NavigationMenuTag extends IncludeTag {
 	}
 
 	private List<NavItem> _getMenuNavItems(
-			HttpServletRequest request, List<NavItem> branchNavItems)
+			HttpServletRequest httpServletRequest, List<NavItem> branchNavItems)
 		throws Exception {
 
 		if (_rootItemType.equals("absolute")) {
 			if (_rootItemLevel == 0) {
 				return NavItemUtil.getChildNavItems(
-					request, _siteNavigationMenuId, 0);
+					httpServletRequest, _siteNavigationMenuId, 0);
 			}
 			else if (branchNavItems.size() >= _rootItemLevel) {
 				NavItem rootNavItem = branchNavItems.get(_rootItemLevel - 1);
@@ -306,13 +343,13 @@ public class NavigationMenuTag extends IncludeTag {
 			}
 		}
 		else if (_rootItemType.equals("relative") && (_rootItemLevel >= 0) &&
-				 (_rootItemLevel < branchNavItems.size() + 1)) {
+				 (_rootItemLevel < (branchNavItems.size() + 1))) {
 
 			int absoluteLevel = branchNavItems.size() - 1 - _rootItemLevel;
 
 			if (absoluteLevel == -1) {
 				return NavItemUtil.getChildNavItems(
-					request, _siteNavigationMenuId, 0);
+					httpServletRequest, _siteNavigationMenuId, 0);
 			}
 			else if ((absoluteLevel >= 0) &&
 					 (absoluteLevel < branchNavItems.size())) {
@@ -324,7 +361,7 @@ public class NavigationMenuTag extends IncludeTag {
 		}
 		else if (_rootItemType.equals("select")) {
 			return NavItemUtil.getChildNavItems(
-				request, _siteNavigationMenuId,
+				httpServletRequest, _siteNavigationMenuId,
 				GetterUtil.getLong(_rootItemId));
 		}
 

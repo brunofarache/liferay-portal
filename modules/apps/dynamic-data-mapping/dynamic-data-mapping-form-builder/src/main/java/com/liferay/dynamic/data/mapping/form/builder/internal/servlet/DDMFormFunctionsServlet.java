@@ -60,7 +60,8 @@ public class DDMFormFunctionsServlet extends BaseDDMFormBuilderServlet {
 
 	@Override
 	protected void doGet(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException, ServletException {
 
 		Map<String, DDMExpressionFunction> ddmExpressionFunctions = null;
@@ -68,16 +69,18 @@ public class DDMFormFunctionsServlet extends BaseDDMFormBuilderServlet {
 		try {
 			ddmExpressionFunctions = getDDMExpressionFunctions();
 
-			String languageId = ParamUtil.getString(request, "languageId");
+			String languageId = ParamUtil.getString(
+				httpServletRequest, "languageId");
 
 			JSONArray jsonArray = toJSONArray(
 				ddmExpressionFunctions.entrySet(),
 				LocaleUtil.fromLanguageId(languageId));
 
-			response.setContentType(ContentTypes.APPLICATION_JSON);
-			response.setStatus(HttpServletResponse.SC_OK);
+			httpServletResponse.setContentType(ContentTypes.APPLICATION_JSON);
+			httpServletResponse.setStatus(HttpServletResponse.SC_OK);
 
-			ServletResponseUtil.write(response, jsonArray.toJSONString());
+			ServletResponseUtil.write(
+				httpServletResponse, jsonArray.toJSONString());
 		}
 		finally {
 			if (ddmExpressionFunctions != null) {
@@ -122,9 +125,10 @@ public class DDMFormFunctionsServlet extends BaseDDMFormBuilderServlet {
 		String labelLanguageKey = key + CharPool.UNDERLINE + "function";
 
 		jsonObject.put(
-			"label", LanguageUtil.get(resourceBundle, labelLanguageKey));
-
-		jsonObject.put("value", key);
+			"label", LanguageUtil.get(resourceBundle, labelLanguageKey)
+		).put(
+			"value", key
+		);
 
 		String tooltipLanguageKey = key + CharPool.UNDERLINE + "tooltip";
 

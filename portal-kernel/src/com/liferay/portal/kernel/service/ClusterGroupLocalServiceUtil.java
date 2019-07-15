@@ -14,10 +14,9 @@
 
 package com.liferay.portal.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service utility for ClusterGroup. This utility wraps
@@ -29,8 +28,10 @@ import com.liferay.portal.kernel.util.ReferenceRegistry;
  *
  * @author Brian Wing Shun Chan
  * @see ClusterGroupLocalService
+ * @deprecated
  * @generated
  */
+@Deprecated
 @ProviderType
 public class ClusterGroupLocalServiceUtil {
 
@@ -291,9 +292,6 @@ public class ClusterGroupLocalServiceUtil {
 		if (_service == null) {
 			_service = (ClusterGroupLocalService)PortalBeanLocatorUtil.locate(
 				ClusterGroupLocalService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				ClusterGroupLocalServiceUtil.class, "_service");
 		}
 
 		return _service;

@@ -31,6 +31,14 @@ public class HorizontalCardTag extends CardTag {
 		return EVAL_BODY_INCLUDE;
 	}
 
+	public Map<String, Object> getLinkData() {
+		return _linkData;
+	}
+
+	public String getText() {
+		return _text;
+	}
+
 	public void setColHTML(String colHTML) {
 		_colHTML = colHTML;
 	}
@@ -65,12 +73,14 @@ public class HorizontalCardTag extends CardTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		super.setAttributes(request);
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		super.setAttributes(httpServletRequest);
 
-		request.setAttribute("liferay-frontend:card:colHTML", _colHTML);
-		request.setAttribute("liferay-frontend:card:linkData", _linkData);
-		request.setAttribute("liferay-frontend:card:text", _text);
+		httpServletRequest.setAttribute(
+			"liferay-frontend:card:colHTML", _colHTML);
+		httpServletRequest.setAttribute(
+			"liferay-frontend:card:linkData", _linkData);
+		httpServletRequest.setAttribute("liferay-frontend:card:text", _text);
 	}
 
 	private String _colHTML;

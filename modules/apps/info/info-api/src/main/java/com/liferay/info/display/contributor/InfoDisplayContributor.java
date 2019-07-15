@@ -14,18 +14,30 @@
 
 package com.liferay.info.display.contributor;
 
+import com.liferay.asset.kernel.model.ClassType;
 import com.liferay.portal.kernel.exception.PortalException;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * @author Jürgen Kappler
  */
+@ProviderType
 public interface InfoDisplayContributor<T> {
 
 	public String getClassName();
+
+	public List<InfoDisplayField> getClassTypeInfoDisplayFields(
+			long classTypeId, Locale locale)
+		throws PortalException;
+
+	public List<ClassType> getClassTypes(long groupId, Locale locale)
+		throws PortalException;
 
 	public Set<InfoDisplayField> getInfoDisplayFields(
 			long classTypeId, Locale locale)
@@ -37,15 +49,22 @@ public interface InfoDisplayContributor<T> {
 	public Object getInfoDisplayFieldValue(T t, String fieldName, Locale locale)
 		throws PortalException;
 
+	public InfoDisplayObjectProvider getInfoDisplayObjectProvider(long classPK)
+		throws PortalException;
+
+	public InfoDisplayObjectProvider<T> getInfoDisplayObjectProvider(
+			long groupId, String urlTitle)
+		throws PortalException;
+
 	public String getInfoURLSeparator();
 
-	public default Map<String, Object> getInfoVersionDisplayFieldsValues(
+	public String getLabel(Locale locale);
+
+	public default Map<String, Object> getVersionInfoDisplayFieldsValues(
 			T t, long versionClassPK, Locale locale)
 		throws PortalException {
 
 		return getInfoDisplayFieldsValues(t, locale);
 	}
-
-	public String getLabel(Locale locale);
 
 }

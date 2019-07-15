@@ -75,7 +75,7 @@ public class FlatNPMBundleProcessor implements JSBundleProcessor {
 			_log.info("Processing NPM bundle: " + flatJSBundle);
 		}
 
-		_processRootPackage(flatJSBundle);
+		_processPackage(flatJSBundle, url, "META-INF/resources", true);
 
 		_processNodePackages(flatJSBundle);
 
@@ -93,7 +93,8 @@ public class FlatNPMBundleProcessor implements JSBundleProcessor {
 			if (part.equals(".")) {
 				continue;
 			}
-			else if (part.equals("..")) {
+
+			if (part.equals("..")) {
 				parents++;
 			}
 			else {
@@ -124,8 +125,8 @@ public class FlatNPMBundleProcessor implements JSBundleProcessor {
 	/**
 	 * Get the arguments passed to the AMD define() call.
 	 *
-	 * @param url URL of module file
-	 * @return the arguments or null if not found or read failed
+	 * @param  url URL of module file
+	 * @return the arguments or <code>null</code> if not found or read failed
 	 * @review
 	 */
 	private String _getDefineArgs(URL url) {
@@ -156,52 +157,6 @@ public class FlatNPMBundleProcessor implements JSBundleProcessor {
 		catch (IOException ioe) {
 			_log.error("Unable to read URL: " + url, ioe);
 
-			return null;
-		}
-	}
-
-	private JSONObject _getJSONObject(
-		FlatJSBundle flatJSBundle, String location) {
-
-		JSONObject jsonObject = null;
-
-		try {
-			String content = _getResourceContent(flatJSBundle, location);
-
-			if (content != null) {
-				jsonObject = _jsonFactory.createJSONObject(content);
-			}
-		}
-		catch (Exception e) {
-			_log.error(
-				StringBundler.concat(
-					"Unable to parse ", flatJSBundle, ": ", location),
-				e);
-		}
-
-		return jsonObject;
-	}
-
-	/**
-	 * Returns the contents of a resource inside a {@link FlatJSBundle}.
-	 *
-	 * @param  flatJSBundle the bundle
-	 * @param  location the resource's path
-	 * @return the contents of the resource as a String
-	 */
-	private String _getResourceContent(
-		FlatJSBundle flatJSBundle, String location) {
-
-		URL url = flatJSBundle.getResourceURL(location);
-
-		if (url == null) {
-			return null;
-		}
-
-		try {
-			return StringUtil.read(url.openStream());
-		}
-		catch (IOException ioe) {
 			return null;
 		}
 	}
@@ -315,9 +270,15 @@ public class FlatNPMBundleProcessor implements JSBundleProcessor {
 				continue;
 			}
 
-			JSONObject jsonObject = _getJSONObject(flatJSBundle, url.getPath());
+			JSONObject jsonObject = null;
 
-			if (jsonObject == null) {
+			try {
+				jsonObject = _jsonFactory.createJSONObject(
+					StringUtil.read(url.openStream()));
+			}
+			catch (Exception e) {
+				_log.error("Unable to parse " + url.getPath(), e);
+
 				continue;
 			}
 
@@ -449,7 +410,7 @@ public class FlatNPMBundleProcessor implements JSBundleProcessor {
 			String lastFolderPath = parts[parts.length - 2];
 
 			if (lastFolderPath.equals("node_modules")) {
-				_processPackage(flatJSBundle, location, false);
+				_processPackage(flatJSBundle, url, location, false);
 			}
 		}
 	}
@@ -463,13 +424,13 @@ public class FlatNPMBundleProcessor implements JSBundleProcessor {
 	 *        file
 	 */
 	private void _processPackage(
-		FlatJSBundle flatJSBundle, String location, boolean root) {
+		FlatJSBundle flatJSBundle, URL url, String location, boolean root) {
 
 		JSONObject jsonObject = null;
 
 		try {
 			jsonObject = _jsonFactory.createJSONObject(
-				_getResourceContent(flatJSBundle, location + "/package.json"));
+				StringUtil.read(url.openStream()));
 		}
 		catch (Exception e) {
 			_log.error(
@@ -515,20 +476,6 @@ public class FlatNPMBundleProcessor implements JSBundleProcessor {
 		}
 
 		flatJSBundle.addJSPackage(flatJSPackage);
-	}
-
-	/**
-	 * Processes the root package (i.e., the package located in the bundle's
-	 * <code>META-INF/resources</code> folder, as opposed to the
-	 * <code>node_modules</code> folder) of a bundle and adds it to its {@link
-	 * FlatJSBundle} descriptor.
-	 *
-	 * @param flatJSBundle the bundle containing the root package
-	 */
-	private void _processRootPackage(FlatJSBundle flatJSBundle) {
-		String location = "META-INF/resources";
-
-		_processPackage(flatJSBundle, location, true);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

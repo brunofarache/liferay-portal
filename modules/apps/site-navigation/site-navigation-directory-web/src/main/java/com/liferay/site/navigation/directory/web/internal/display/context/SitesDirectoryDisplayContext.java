@@ -19,7 +19,7 @@ import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.site.navigation.directory.web.configuration.SitesDirectoryPortletInstanceConfiguration;
+import com.liferay.site.navigation.directory.web.internal.configuration.SitesDirectoryPortletInstanceConfiguration;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -28,13 +28,14 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class SitesDirectoryDisplayContext {
 
-	public SitesDirectoryDisplayContext(HttpServletRequest request)
+	public SitesDirectoryDisplayContext(HttpServletRequest httpServletRequest)
 		throws ConfigurationException {
 
-		_request = request;
+		_httpServletRequest = httpServletRequest;
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		PortletDisplay portletDisplay = themeDisplay.getPortletDisplay();
 
@@ -49,7 +50,7 @@ public class SitesDirectoryDisplayContext {
 		}
 
 		_displayStyle = ParamUtil.getString(
-			_request, "displayStyle",
+			_httpServletRequest, "displayStyle",
 			_sitesDirectoryPortletInstanceConfiguration.displayStyle());
 
 		return _displayStyle;
@@ -61,14 +62,14 @@ public class SitesDirectoryDisplayContext {
 		}
 
 		_sites = ParamUtil.getString(
-			_request, "sites",
+			_httpServletRequest, "sites",
 			_sitesDirectoryPortletInstanceConfiguration.sites());
 
 		return _sites;
 	}
 
 	private String _displayStyle;
-	private final HttpServletRequest _request;
+	private final HttpServletRequest _httpServletRequest;
 	private String _sites;
 	private final SitesDirectoryPortletInstanceConfiguration
 		_sitesDirectoryPortletInstanceConfiguration;

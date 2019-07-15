@@ -14,10 +14,9 @@
 
 package com.liferay.asset.kernel.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the remote service utility for AssetTag. This utility wraps
@@ -208,9 +207,6 @@ public class AssetTagServiceUtil {
 		if (_service == null) {
 			_service = (AssetTagService)PortalBeanLocatorUtil.locate(
 				AssetTagService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				AssetTagServiceUtil.class, "_service");
 		}
 
 		return _service;

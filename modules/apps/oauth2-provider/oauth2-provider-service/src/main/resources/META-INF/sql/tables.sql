@@ -14,6 +14,8 @@ create table OAuth2Application (
 	modifiedDate DATE null,
 	oA2AScopeAliasesId LONG,
 	allowedGrantTypes VARCHAR(75) null,
+	clientCredentialUserId LONG,
+	clientCredentialUserName VARCHAR(75) null,
 	clientId VARCHAR(75) null,
 	clientProfile INTEGER,
 	clientSecret VARCHAR(75) null,
@@ -32,9 +34,7 @@ create table OAuth2ApplicationScopeAliases (
 	userId LONG,
 	userName VARCHAR(75) null,
 	createDate DATE null,
-	oAuth2ApplicationId LONG,
-	scopeAliases TEXT null,
-	scopeAliasesHash LONG
+	oAuth2ApplicationId LONG
 );
 
 create table OAuth2Authorization (
@@ -49,6 +49,7 @@ create table OAuth2Authorization (
 	accessTokenContentHash LONG,
 	accessTokenCreateDate DATE null,
 	accessTokenExpirationDate DATE null,
+	remoteHostInfo VARCHAR(255) null,
 	remoteIPInfo VARCHAR(75) null,
 	refreshTokenContent TEXT null,
 	refreshTokenContentHash LONG,
@@ -62,5 +63,6 @@ create table OAuth2ScopeGrant (
 	oA2AScopeAliasesId LONG,
 	applicationName VARCHAR(255) null,
 	bundleSymbolicName VARCHAR(255) null,
-	scope VARCHAR(240) null
+	scope VARCHAR(240) null,
+	scopeAliases TEXT null
 );

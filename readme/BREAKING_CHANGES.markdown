@@ -20,7 +20,7 @@ Here are some of the types of changes documented in this file:
   replaces an old API, in spite of the old API being kept in Liferay Portal for
   backwards compatibility.
 
-*This document has been reviewed through commit `85a738099b8f`.*
+*This document has been reviewed through commit `77cef15df6f0`.*
 
 ## Breaking Changes Contribution Guidelines
 
@@ -435,9 +435,9 @@ the chance of package version lock down.
 
 #### What changed?
 
-NTLM modules have been moved from the `portal-security-sso` project to a
-new project named `portal-security-sso-ntlm`.
-This new project is deprecated and available to download from Liferay Marketplace.
+NTLM modules have been moved from the `portal-security-sso` project to a new
+project named `portal-security-sso-ntlm`. This new project is deprecated and
+available to download from Liferay Marketplace.
 
 #### Who is affected?
 
@@ -464,8 +464,9 @@ authentication compared to NTLM.
 
 #### What changed?
 
-OpenID modules have been moved to a new project named `portal-security-sso-openid`.
-This new project is deprecated and available to download from Liferay Marketplace.
+OpenID modules have been moved to a new project named
+`portal-security-sso-openid`. This new project is deprecated and available to
+download from Liferay Marketplace.
 
 #### Who is affected?
 
@@ -491,9 +492,9 @@ since it runs on top of OAuth.
 
 #### What changed?
 
-Google SSO modules have been moved from the `portal-security-sso` project
-to a new project named `portal-security-sso-google`.
-This new projects is deprecated and available to download from Liferay Marketplace.
+Google SSO modules have been moved from the `portal-security-sso` project to a
+new project named `portal-security-sso-google`. This new project is deprecated
+and available to download from Liferay Marketplace.
 
 #### Who is affected?
 
@@ -512,3 +513,85 @@ SSO). OpenID Connect is the recommended specification to use Google
 implementation for authentication.
 
 ---------------------------------------
+
+### Deprecated dl.tabs.visible property
+- **Date:** 2019-Apr-10
+- **JIRA Ticket:** [LPS-93948](https://issues.liferay.com/browse/LPS-93948)
+
+#### What changed?
+
+The `dl.tabs.visible` property let users toggle the visibility of a Documents
+and Media widget's navigation tabs when placed on a widget page. This
+configuration option has been removed, so the navigation tab will never appear
+on widget pages.
+
+#### Who is affected?
+
+This affects anyone who set the `dl.tabs.visible` property to `true`.
+
+#### How should I update my code?
+
+No code changes are necessary.
+
+#### Why was this change made?
+
+Documents & Media has been reviewed from a UX perspective, and removing the
+navigation tabs in widget pages was part of a UI clean up process.
+
+---------------------------------------
+
+### Move the User Menu out of the Product Menu
+- **Date:** 2019-Apr-19
+- **JIRA Ticket:** [LPS-87868](https://issues.liferay.com/browse/LPS-87868)
+
+#### What changed?
+
+The User Menu was removed from the Product Menu, and the user menu entries were
+moved to the new Personal Menu, a dropdown menu triggered by the user avatar.
+
+#### Who is affected?
+
+This affects anyone who has customized the User Menu section of the Product
+Menu.
+
+#### How should I update my code?
+
+If you would like to keep your custom user menu entries and have them available
+in the Personal Menu, you need to implement the `PersonalMenuEntry` interface.
+All panel apps registered with the `PanelCategoryKeys.USER`,
+`PanelCategoryKeys.USER_MY_ACCOUNT`, and `PanelCategoryKeys.USER_SIGN_OUT` panel
+category keys should be converted to `PersonalMenuEntry`.
+
+#### Why was this change made?
+
+Product navigation has been reviewed from a UX perspective, and removing the
+User Menu from the Product Menu and splitting the menu to its own provides a
+better user experience.
+
+---------------------------------------
+
+### Removed Hong Kong and Macau from the List of Countries
+- **Date:** 2019-Apr-26
+- **JIRA Ticket:** [LPS-82203](https://issues.liferay.com/browse/LPS-82203)
+
+#### What changed?
+
+Hong Kong and Macau have been removed from the list of countries and listed as
+regions of China as Xianggang (region code: CN-91) and Aomen (region code:
+CN-92), respectively.
+
+#### Who is affected?
+
+This affects anyone who used Hong Kong or Macau in their addresses.
+
+#### How should I update my code?
+
+No code changes are necessary. However, if you have hardcoded the `countryId` of
+Hong Kong and Macau in your code, they should be updated to China's `countryId`.
+References to Hong Kong and Macau should be done with their corresponding
+`regionId`.
+
+#### Why was this change made?
+
+After the handover of Hong Kong in 1997 and of Macau in 1999, Hong Kong and
+Macau are now the special administrative regions of China.

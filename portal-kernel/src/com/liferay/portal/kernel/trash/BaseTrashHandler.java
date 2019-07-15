@@ -14,27 +14,25 @@
 
 package com.liferay.portal.kernel.trash;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
 import com.liferay.asset.kernel.model.AssetRenderer;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.ContainerModel;
 import com.liferay.portal.kernel.model.SystemEvent;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.TrashedModel;
-import com.liferay.portal.kernel.search.Query;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.SystemEventLocalServiceUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -44,6 +42,8 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.portlet.PortletRequest;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the base implementation of {@link TrashHandler}.
@@ -61,40 +61,12 @@ public abstract class BaseTrashHandler implements TrashHandler {
 			String referrerClassName)
 		throws PortalException {
 
-		JSONObject extraDataJSONObject = JSONFactoryUtil.createJSONObject();
-
-		extraDataJSONObject.put("inTrash", true);
+		JSONObject extraDataJSONObject = JSONUtil.put("inTrash", true);
 
 		return SystemEventLocalServiceUtil.addSystemEvent(
 			userId, groupId, getSystemEventClassName(), classPK, classUuid,
 			referrerClassName, SystemEventConstants.TYPE_DELETE,
 			extraDataJSONObject.toString());
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #checkRestorableEntry(long, long, String)}
-	 */
-	@Deprecated
-	@Override
-	public void checkDuplicateEntry(
-			long classPK, long containerModelId, String newName)
-		throws PortalException {
-
-		checkRestorableEntry(classPK, containerModelId, newName);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #checkRestorableEntry(TrashEntry, long, String)}
-	 */
-	@Deprecated
-	@Override
-	public void checkDuplicateTrashEntry(
-			TrashEntry trashEntry, long containerModelId, String newName)
-		throws PortalException {
-
-		checkRestorableEntry(trashEntry, containerModelId, newName);
 	}
 
 	@Override
@@ -114,16 +86,6 @@ public abstract class BaseTrashHandler implements TrashHandler {
 		throws PortalException {
 
 		return null;
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #getContainerModel(long)}
-	 */
-	@Deprecated
-	@Override
-	public String getContainerModelClassName() {
-		return getContainerModelClassName(0);
 	}
 
 	@Override
@@ -165,16 +127,6 @@ public abstract class BaseTrashHandler implements TrashHandler {
 
 	@Override
 	public Filter getExcludeFilter(SearchContext searchContext) {
-		return null;
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 *             #getExcludeFilter(SearchContext)}
-	 */
-	@Deprecated
-	@Override
-	public Query getExcludeQuery(SearchContext searchContext) {
 		return null;
 	}
 
@@ -340,22 +292,19 @@ public abstract class BaseTrashHandler implements TrashHandler {
 			String trashActionId)
 		throws PortalException {
 
+		if (trashActionId.equals(TrashActionKeys.MOVE)) {
+			return false;
+		}
+
 		String actionId = trashActionId;
 
-		if (trashActionId.equals(ActionKeys.DELETE)) {
+		if (trashActionId.equals(TrashActionKeys.OVERWRITE) ||
+			trashActionId.equals(TrashActionKeys.RESTORE)) {
+
 			actionId = ActionKeys.DELETE;
-		}
-		else if (trashActionId.equals(TrashActionKeys.OVERWRITE)) {
-			actionId = ActionKeys.DELETE;
-		}
-		else if (trashActionId.equals(TrashActionKeys.MOVE)) {
-			return false;
 		}
 		else if (trashActionId.equals(TrashActionKeys.RENAME)) {
 			actionId = ActionKeys.UPDATE;
-		}
-		else if (trashActionId.equals(TrashActionKeys.RESTORE)) {
-			actionId = ActionKeys.DELETE;
 		}
 
 		return hasPermission(permissionChecker, classPK, actionId);
@@ -366,13 +315,37 @@ public abstract class BaseTrashHandler implements TrashHandler {
 		return false;
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #isDeletable(long)}
+	 */
+	@Deprecated
 	@Override
 	public boolean isDeletable() {
 		return true;
 	}
 
 	@Override
+	public boolean isDeletable(long classPK) throws PortalException {
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		return hasTrashPermission(
+			permissionChecker, 0, classPK, ActionKeys.DELETE);
+	}
+
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #isMovable(long)}
+	 */
+	@Deprecated
+	@Override
 	public boolean isMovable() {
+		return false;
+	}
+
+	@Override
+	public boolean isMovable(long classPK) throws PortalException {
 		return false;
 	}
 

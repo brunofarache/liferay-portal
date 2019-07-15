@@ -36,7 +36,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	configurationPid = "com.liferay.journal.configuration.JournalFileUploadsConfiguration",
-	property = "form.navigator.entry.order:Integer=60",
+	property = "form.navigator.entry.order:Integer=70",
 	service = FormNavigatorEntry.class
 )
 public class JournalSmallImageFormNavigatorEntry
@@ -49,14 +49,15 @@ public class JournalSmallImageFormNavigatorEntry
 
 	@Override
 	public void include(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException {
 
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			JournalFileUploadsConfiguration.class.getName(),
 			_journalFileUploadsConfiguration);
 
-		super.include(request, response);
+		super.include(httpServletRequest, httpServletResponse);
 	}
 
 	@Override

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.dao.sql.transformer;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.dao.db.TestDB;
 import com.liferay.portal.kernel.dao.db.DBType;
 
@@ -32,7 +33,15 @@ public class DB2SQLTransformerLogicTest
 
 	@Override
 	public String getDropTableIfExistsTextTransformedSQL() {
-		return "DROP TABLE IF EXISTS Foo";
+		StringBundler sb = new StringBundler(5);
+
+		sb.append("BEGIN\n");
+		sb.append("DECLARE CONTINUE HANDLER FOR SQLSTATE '42704'\n");
+		sb.append("BEGIN END;\n");
+		sb.append("EXECUTE IMMEDIATE 'DROP TABLE Foo';\n");
+		sb.append("END");
+
+		return sb.toString();
 	}
 
 	@Test

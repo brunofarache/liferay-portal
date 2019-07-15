@@ -31,6 +31,7 @@ import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.Base64;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.StreamUtil;
 
@@ -38,7 +39,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -62,11 +62,7 @@ public class FileEntryAtomCollectionAdapter
 
 	@Override
 	public List<String> getEntryAuthors(FileEntry fileEntry) {
-		List<String> authors = new ArrayList<>();
-
-		authors.add(fileEntry.getUserName());
-
-		return authors;
+		return ListUtil.toList(fileEntry.getUserName());
 	}
 
 	@Override
@@ -112,8 +108,11 @@ public class FileEntryAtomCollectionAdapter
 		String portletId = PortletProviderUtil.getPortletId(
 			FileEntry.class.getName(), PortletProvider.Action.VIEW);
 
-		return AtomUtil.createFeedTitleFromPortletName(
-			atomRequestContext, portletId) + " files";
+		String feedTitleFromPortletName =
+			AtomUtil.createFeedTitleFromPortletName(
+				atomRequestContext, portletId);
+
+		return feedTitleFromPortletName + " files";
 	}
 
 	@Override
@@ -220,11 +219,9 @@ public class FileEntryAtomCollectionAdapter
 
 		ServiceContext serviceContext = new ServiceContext();
 
-		FileEntry fileEntry = _dlAppService.addFileEntry(
+		return _dlAppService.addFileEntry(
 			repositoryId, folderId, title, mimeType, title, summary, null,
 			contentInputStream, contentDecoded.length, serviceContext);
-
-		return fileEntry;
 	}
 
 	@Override
@@ -261,11 +258,9 @@ public class FileEntryAtomCollectionAdapter
 
 		ServiceContext serviceContext = new ServiceContext();
 
-		FileEntry fileEntry = _dlAppService.addFileEntry(
+		return _dlAppService.addFileEntry(
 			repositoryId, folderId, title, mimeType, title, description, null,
 			contentInputStream, content.length, serviceContext);
-
-		return fileEntry;
 	}
 
 	@Override

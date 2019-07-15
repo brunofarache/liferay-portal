@@ -15,8 +15,10 @@
 package com.liferay.headless.form.client.dto.v1_0;
 
 import com.liferay.headless.form.client.function.UnsafeSupplier;
+import com.liferay.headless.form.client.serdes.v1_0.FormStructureSerDes;
 
 import java.util.Date;
+import java.util.Objects;
 
 import javax.annotation.Generated;
 
@@ -47,27 +49,6 @@ public class FormStructure {
 	}
 
 	protected String[] availableLanguages;
-
-	public Long getContentSpaceId() {
-		return contentSpaceId;
-	}
-
-	public void setContentSpaceId(Long contentSpaceId) {
-		this.contentSpaceId = contentSpaceId;
-	}
-
-	public void setContentSpaceId(
-		UnsafeSupplier<Long, Exception> contentSpaceIdUnsafeSupplier) {
-
-		try {
-			contentSpaceId = contentSpaceIdUnsafeSupplier.get();
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	protected Long contentSpaceId;
 
 	public Creator getCreator() {
 		return creator;
@@ -174,6 +155,28 @@ public class FormStructure {
 
 	protected FormPage[] formPages;
 
+	public FormSuccessPage getFormSuccessPage() {
+		return formSuccessPage;
+	}
+
+	public void setFormSuccessPage(FormSuccessPage formSuccessPage) {
+		this.formSuccessPage = formSuccessPage;
+	}
+
+	public void setFormSuccessPage(
+		UnsafeSupplier<FormSuccessPage, Exception>
+			formSuccessPageUnsafeSupplier) {
+
+		try {
+			formSuccessPage = formSuccessPageUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected FormSuccessPage formSuccessPage;
+
 	public Long getId() {
 		return id;
 	}
@@ -212,25 +215,51 @@ public class FormStructure {
 
 	protected String name;
 
-	public SuccessPage getSuccessPage() {
-		return successPage;
+	public Long getSiteId() {
+		return siteId;
 	}
 
-	public void setSuccessPage(SuccessPage successPage) {
-		this.successPage = successPage;
+	public void setSiteId(Long siteId) {
+		this.siteId = siteId;
 	}
 
-	public void setSuccessPage(
-		UnsafeSupplier<SuccessPage, Exception> successPageUnsafeSupplier) {
+	public void setSiteId(
+		UnsafeSupplier<Long, Exception> siteIdUnsafeSupplier) {
 
 		try {
-			successPage = successPageUnsafeSupplier.get();
+			siteId = siteIdUnsafeSupplier.get();
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	protected SuccessPage successPage;
+	protected Long siteId;
+
+	@Override
+	public boolean equals(Object object) {
+		if (this == object) {
+			return true;
+		}
+
+		if (!(object instanceof FormStructure)) {
+			return false;
+		}
+
+		FormStructure formStructure = (FormStructure)object;
+
+		return Objects.equals(toString(), formStructure.toString());
+	}
+
+	@Override
+	public int hashCode() {
+		String string = toString();
+
+		return string.hashCode();
+	}
+
+	public String toString() {
+		return FormStructureSerDes.toJSON(this);
+	}
 
 }

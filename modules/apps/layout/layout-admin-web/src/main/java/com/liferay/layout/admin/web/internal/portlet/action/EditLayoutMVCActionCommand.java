@@ -45,8 +45,10 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.util.PropsValues;
 
+import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -98,8 +100,7 @@ public class EditLayoutMVCActionCommand extends BaseMVCActionCommand {
 		Map<Locale, String> robotsMap = LocalizationUtil.getLocalizationMap(
 			actionRequest, "robots");
 		String type = ParamUtil.getString(uploadPortletRequest, "type");
-		boolean showInMenu = ParamUtil.getBoolean(
-			uploadPortletRequest, "showInMenu");
+		boolean hidden = ParamUtil.getBoolean(uploadPortletRequest, "hidden");
 		Map<Locale, String> friendlyURLMap =
 			LocalizationUtil.getLocalizationMap(actionRequest, "friendlyURL");
 		boolean deleteLogo = ParamUtil.getBoolean(actionRequest, "deleteLogo");
@@ -121,6 +122,16 @@ public class EditLayoutMVCActionCommand extends BaseMVCActionCommand {
 		Layout layout = _layoutLocalService.getLayout(
 			groupId, privateLayout, layoutId);
 
+		String oldFriendlyURL = layout.getFriendlyURL();
+
+		Collection<String> values = friendlyURLMap.values();
+
+		values.removeIf(value -> Validator.isNull(value));
+
+		if (friendlyURLMap.isEmpty()) {
+			friendlyURLMap = layout.getFriendlyURLMap();
+		}
+
 		String currentType = layout.getType();
 
 		if (StringUtil.equals(
@@ -133,8 +144,19 @@ public class EditLayoutMVCActionCommand extends BaseMVCActionCommand {
 		layout = _layoutService.updateLayout(
 			groupId, privateLayout, layoutId, layout.getParentLayoutId(),
 			nameMap, titleMap, descriptionMap, keywordsMap, robotsMap, type,
-			!showInMenu, friendlyURLMap, !deleteLogo, iconBytes,
-			serviceContext);
+			hidden, friendlyURLMap, !deleteLogo, iconBytes, serviceContext);
+
+		Layout draftLayout = _layoutLocalService.fetchLayout(
+			_portal.getClassNameId(Layout.class), layout.getPlid());
+
+		if (draftLayout != null) {
+			_layoutService.updateLayout(
+				groupId, privateLayout, draftLayout.getLayoutId(),
+				draftLayout.getParentLayoutId(), nameMap, titleMap,
+				descriptionMap, keywordsMap, robotsMap, type,
+				draftLayout.isHidden(), draftLayout.getFriendlyURLMap(),
+				!deleteLogo, iconBytes, serviceContext);
+		}
 
 		themeDisplay.clearLayoutFriendlyURL(layout);
 
@@ -198,13 +220,13 @@ public class EditLayoutMVCActionCommand extends BaseMVCActionCommand {
 				layoutTypeSettingsProperties.toString());
 		}
 
-		HttpServletResponse response = _portal.getHttpServletResponse(
-			actionResponse);
+		HttpServletResponse httpServletResponse =
+			_portal.getHttpServletResponse(actionResponse);
 
 		EventsProcessorUtil.process(
 			PropsKeys.LAYOUT_CONFIGURATION_ACTION_UPDATE,
 			layoutTypePortlet.getConfigurationActionUpdate(),
-			uploadPortletRequest, response);
+			uploadPortletRequest, httpServletResponse);
 
 		_actionUtil.updateLookAndFeel(
 			actionRequest, themeDisplay.getCompanyId(), liveGroupId,
@@ -213,7 +235,10 @@ public class EditLayoutMVCActionCommand extends BaseMVCActionCommand {
 
 		String redirect = ParamUtil.getString(actionRequest, "redirect");
 
-		if (Validator.isNull(redirect)) {
+		if (Validator.isNull(redirect) ||
+			(redirect.contains(oldFriendlyURL) &&
+			 !Objects.equals(layout.getFriendlyURL(), oldFriendlyURL))) {
+
 			redirect = _portal.getLayoutFullURL(layout, themeDisplay);
 		}
 

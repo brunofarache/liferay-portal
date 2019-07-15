@@ -15,7 +15,7 @@
 package com.liferay.talend.wizard;
 
 import com.liferay.talend.connection.LiferayConnectionProperties;
-import com.liferay.talend.connection.LiferaySiteSelectorProperties;
+import com.liferay.talend.ui.UIKeys;
 
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.api.wizard.ComponentWizard;
@@ -37,16 +37,16 @@ public class LiferayConnectionWizard extends ComponentWizard {
 
 		connection.init();
 
-		addForm(connection.getForm(LiferayConnectionProperties.FORM_WIZARD));
+		addForm(connection.getForm(UIKeys.FORM_WIZARD));
 
-		siteSelector = new LiferaySiteSelectorProperties("siteSelector");
+		schemaList = new LiferaySchemaListProperties("schemaList");
 
-		siteSelector.setConnection(connection);
-		siteSelector.setRepositoryLocation(getRepositoryLocation());
+		schemaList.setConnection(connection);
+		schemaList.setRepositoryLocation(getRepositoryLocation());
 
-		siteSelector.init();
+		schemaList.init();
 
-		addForm(siteSelector.getForm(Form.MAIN));
+		addForm(schemaList.getForm(Form.MAIN));
 	}
 
 	public void setupProperties(
@@ -56,7 +56,7 @@ public class LiferayConnectionWizard extends ComponentWizard {
 
 		this.connection.copyValuesFrom(liferayConnectionProperties);
 
-		this.siteSelector.setConnection(liferayConnectionProperties);
+		schemaList.setConnection(connection);
 	}
 
 	public boolean supportsProperties(ComponentProperties componentProperties) {
@@ -68,6 +68,6 @@ public class LiferayConnectionWizard extends ComponentWizard {
 	}
 
 	public LiferayConnectionProperties connection;
-	public LiferaySiteSelectorProperties siteSelector;
+	public LiferaySchemaListProperties schemaList;
 
 }

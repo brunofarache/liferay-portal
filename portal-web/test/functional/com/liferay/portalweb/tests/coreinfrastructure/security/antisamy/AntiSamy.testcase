@@ -1,5 +1,6 @@
 @component-name = "portal-security"
 definition {
+
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "AntiSamy";
@@ -26,10 +27,9 @@ definition {
 	@priority = "4"
 	test AssertNoWikiJavascript {
 		ProductMenu.gotoPortlet(
-			category = "Build",
+			category = "Site Builder",
 			panel = "Site Administration",
-			portlet = "Pages"
-		);
+			portlet = "Pages");
 
 		SitePages.addPublicPage(pageName = "AntiSamy Test Page");
 
@@ -47,19 +47,19 @@ definition {
 
 		WikiPage.addFrontPagePG(
 			htmlSource = "true",
-			wikiPageContent = "${wikiPageContent}"
-		);
+			wikiPageContent = "${wikiPageContent}");
 
-		WikiPage.viewPG(wikiPageContent = "PASS", wikiPageTitle = "FrontPage");
+		WikiPage.viewPG(
+			wikiPageContent = "PASS",
+			wikiPageTitle = "FrontPage");
 	}
 
 	@priority = "4"
 	test AssertWebContentJavascript {
 		ProductMenu.gotoPortlet(
-			category = "Build",
+			category = "Site Builder",
 			panel = "Site Administration",
-			portlet = "Pages"
-		);
+			portlet = "Pages");
 
 		SitePages.addPublicPage(pageName = "Web Content Display Page");
 
@@ -77,12 +77,11 @@ definition {
 
 		WebContent.addPGViaWCD(
 			webContentContent = "${webContentContent}",
-			webContentTitle = "WC WebContent Title"
-		);
+			webContentTitle = "WC WebContent Title");
 
 		WebContent.viewPGViaWCD(
 			webContentContent = "PASS",
-			webContentTitle = "Web Content Title"
-		);
+			webContentTitle = "Web Content Title");
 	}
+
 }

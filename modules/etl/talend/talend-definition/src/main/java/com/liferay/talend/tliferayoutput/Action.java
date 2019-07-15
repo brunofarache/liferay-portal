@@ -15,18 +15,35 @@
 package com.liferay.talend.tliferayoutput;
 
 import java.util.Arrays;
+import java.util.Locale;
+import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.ws.rs.HttpMethod;
 
 /**
  * @author Zoltán Takács
  */
 public enum Action {
 
-	Delete("DELETE"), Unavailable("NOOP"), Update("PUT"), Upsert("POST");
+	Delete(HttpMethod.DELETE.toLowerCase(Locale.US)),
+	Insert(HttpMethod.POST.toLowerCase(Locale.US)), Unavailable("NOOP"),
+	Update(HttpMethod.PATCH.toLowerCase(Locale.US));
 
 	public static Stream<Action> getActionsStream() {
 		return _actionsStreamSupplier.get();
+	}
+
+	public static Set<String> getAvailableMethodNames() {
+		Stream<Action> actionsStream = getActionsStream();
+
+		return actionsStream.map(
+			Action::getMethodName
+		).collect(
+			Collectors.toSet()
+		);
 	}
 
 	public String getMethodName() {

@@ -17,12 +17,12 @@
 <%
 String p_u_i_d = ParamUtil.getString(request, "p_u_i_d");
 int step = ParamUtil.getInteger(request, "step", 1);
-String displayStyle = ParamUtil.getString(request, "displayStyle", "list");
 String eventName = ParamUtil.getString(request, "eventName", liferayPortletResponse.getNamespace() + "selectSiteRole");
 String syncEntitiesEventName = ParamUtil.getString(request, "syncEntitiesEventName", liferayPortletResponse.getNamespace() + "syncSiteRoles");
 
 User selUser = PortalUtil.getSelectedUser(request);
 
+long groupId = 0;
 long uniqueGroupId = 0;
 
 List<Group> groups = null;
@@ -54,11 +54,15 @@ if (step == 1) {
 	}
 }
 
+if (step == 2) {
+	groupId = ParamUtil.getLong(request, "groupId", uniqueGroupId);
+}
+
 SelectRoleManagementToolbarDisplayContext SelectRoleManagementToolbarDisplayContext = new SelectRoleManagementToolbarDisplayContext(request, renderRequest, renderResponse, eventName);
 
 PortletURL portletURL = SelectRoleManagementToolbarDisplayContext.getPortletURL();
 
-SearchContainer roleSearchContainer = SelectRoleManagementToolbarDisplayContext.getRoleSearchContainer(filterManageableRoles);
+SearchContainer roleSearchContainer = SelectRoleManagementToolbarDisplayContext.getRoleSearchContainer(filterManageableRoles, groupId);
 %>
 
 <clay:management-toolbar
@@ -152,8 +156,6 @@ SearchContainer roleSearchContainer = SelectRoleManagementToolbarDisplayContext.
 		<c:when test="<%= step == 2 %>">
 
 			<%
-			long groupId = ParamUtil.getLong(request, "groupId", uniqueGroupId);
-
 			Group group = GroupServiceUtil.getGroup(groupId);
 
 			portletURL.setParameter("groupId", String.valueOf(groupId));

@@ -14,13 +14,13 @@
 
 package com.liferay.oauth2.provider.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.ShardedModel;
 
 import java.util.Date;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The base model interface for the OAuth2ApplicationScopeAliases service. Represents a row in the &quot;OAuth2ApplicationScopeAliases&quot; database table, with each column mapped to a property of this class.
@@ -158,34 +158,5 @@ public interface OAuth2ApplicationScopeAliasesModel
 	 * @param oAuth2ApplicationId the o auth2 application ID of this o auth2 application scope aliases
 	 */
 	public void setOAuth2ApplicationId(long oAuth2ApplicationId);
-
-	/**
-	 * Returns the scope aliases of this o auth2 application scope aliases.
-	 *
-	 * @return the scope aliases of this o auth2 application scope aliases
-	 */
-	@AutoEscape
-	public String getScopeAliases();
-
-	/**
-	 * Sets the scope aliases of this o auth2 application scope aliases.
-	 *
-	 * @param scopeAliases the scope aliases of this o auth2 application scope aliases
-	 */
-	public void setScopeAliases(String scopeAliases);
-
-	/**
-	 * Returns the scope aliases hash of this o auth2 application scope aliases.
-	 *
-	 * @return the scope aliases hash of this o auth2 application scope aliases
-	 */
-	public long getScopeAliasesHash();
-
-	/**
-	 * Sets the scope aliases hash of this o auth2 application scope aliases.
-	 *
-	 * @param scopeAliasesHash the scope aliases hash of this o auth2 application scope aliases
-	 */
-	public void setScopeAliasesHash(long scopeAliasesHash);
 
 }

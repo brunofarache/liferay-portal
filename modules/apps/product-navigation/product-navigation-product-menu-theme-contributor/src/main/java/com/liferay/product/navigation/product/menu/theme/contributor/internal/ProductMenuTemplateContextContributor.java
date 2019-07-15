@@ -14,20 +14,27 @@
 
 package com.liferay.product.navigation.product.menu.theme.contributor.internal;
 
+import com.liferay.application.list.PanelCategory;
+import com.liferay.application.list.PanelCategoryRegistry;
+import com.liferay.application.list.constants.PanelCategoryKeys;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.template.TemplateContextContributor;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.SessionClicks;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.product.navigation.product.menu.constants.ProductNavigationProductMenuWebKeys;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Julio Camarero
@@ -42,16 +49,17 @@ public class ProductMenuTemplateContextContributor
 
 	@Override
 	public void prepare(
-		Map<String, Object> contextObjects, HttpServletRequest request) {
+		Map<String, Object> contextObjects,
+		HttpServletRequest httpServletRequest) {
 
-		if (!isShowProductMenu(request)) {
+		if (!isShowProductMenu(httpServletRequest)) {
 			return;
 		}
 
 		String cssClass = GetterUtil.getString(
 			contextObjects.get("bodyCssClass"));
 		String productMenuState = SessionClicks.get(
-			request,
+			httpServletRequest,
 			ProductNavigationProductMenuWebKeys.
 				PRODUCT_NAVIGATION_PRODUCT_MENU_STATE,
 			"closed");
@@ -62,25 +70,41 @@ public class ProductMenuTemplateContextContributor
 		contextObjects.put("liferay_product_menu_state", productMenuState);
 	}
 
-	protected boolean isShowProductMenu(HttpServletRequest request) {
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
-		if (themeDisplay.isImpersonated()) {
-			return true;
-		}
+	protected boolean isShowProductMenu(HttpServletRequest httpServletRequest) {
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		if (!themeDisplay.isSignedIn()) {
 			return false;
 		}
 
+		String layoutMode = ParamUtil.getString(
+			httpServletRequest, "p_l_mode", Constants.VIEW);
+
+		if (layoutMode.equals(Constants.PREVIEW)) {
+			return false;
+		}
+
 		User user = themeDisplay.getUser();
 
-		if (!user.isSetupComplete()) {
+		if (!themeDisplay.isImpersonated() && !user.isSetupComplete()) {
+			return false;
+		}
+
+		List<PanelCategory> childPanelCategories =
+			_panelCategoryRegistry.getChildPanelCategories(
+				PanelCategoryKeys.ROOT, themeDisplay.getPermissionChecker(),
+				themeDisplay.getScopeGroup());
+
+		if (childPanelCategories.isEmpty()) {
 			return false;
 		}
 
 		return true;
 	}
+
+	@Reference
+	private PanelCategoryRegistry _panelCategoryRegistry;
 
 }

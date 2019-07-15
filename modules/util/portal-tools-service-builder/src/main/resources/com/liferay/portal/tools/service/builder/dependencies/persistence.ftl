@@ -1,11 +1,11 @@
 package ${apiPackagePath}.service.persistence;
 
+import ${serviceBuilder.getCompatJavaClassName("ProviderType")};
+
 <#assign noSuchEntity = serviceBuilder.getNoSuchEntityException(entity) />
 
 import ${apiPackagePath}.exception.${noSuchEntity}Exception;
 import ${apiPackagePath}.model.${entity.name};
-
-import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;

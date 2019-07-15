@@ -14,10 +14,9 @@
 
 package com.liferay.opensocial.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortletBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the remote service utility for Gadget. This utility wraps
@@ -83,9 +82,6 @@ public class GadgetServiceUtil {
 			_service = (GadgetService)PortletBeanLocatorUtil.locate(
 				ServletContextUtil.getServletContextName(),
 				GadgetService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				GadgetServiceUtil.class, "_service");
 		}
 
 		return _service;

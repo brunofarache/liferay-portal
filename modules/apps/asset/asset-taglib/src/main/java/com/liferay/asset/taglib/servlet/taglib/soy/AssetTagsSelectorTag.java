@@ -31,7 +31,6 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.ServerDetector;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.taglib.aui.AUIUtil;
@@ -154,17 +153,15 @@ public class AssetTagsSelectorTag extends ComponentRendererTag {
 	protected void cleanUp() {
 		super.cleanUp();
 
-		if (!ServerDetector.isResin()) {
-			_className = null;
-			_classPK = 0;
-			_groupIds = null;
-			_hiddenInput = "assetTagNames";
-			_id = null;
-			_ignoreRequestValue = false;
-			_namespace = null;
-			_showSelectButton = false;
-			_tagNames = null;
-		}
+		_className = null;
+		_classPK = 0;
+		_groupIds = null;
+		_hiddenInput = "assetTagNames";
+		_id = null;
+		_ignoreRequestValue = false;
+		_namespace = null;
+		_showSelectButton = true;
+		_tagNames = null;
 	}
 
 	private String _getEventName() {
@@ -291,7 +288,7 @@ public class AssetTagsSelectorTag extends ComponentRendererTag {
 	private String _id;
 	private boolean _ignoreRequestValue;
 	private String _namespace;
-	private Boolean _showSelectButton = false;
+	private Boolean _showSelectButton = true;
 	private String _tagNames;
 
 }

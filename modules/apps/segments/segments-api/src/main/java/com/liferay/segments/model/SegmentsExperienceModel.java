@@ -14,19 +14,19 @@
 
 package com.liferay.segments.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.kernel.exception.LocaleException;
 import com.liferay.portal.kernel.model.AttachedModel;
 import com.liferay.portal.kernel.model.BaseModel;
-import com.liferay.portal.kernel.model.GroupedModel;
 import com.liferay.portal.kernel.model.LocalizedModel;
 import com.liferay.portal.kernel.model.ShardedModel;
+import com.liferay.portal.kernel.model.StagedGroupedModel;
 
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The base model interface for the SegmentsExperience service. Represents a row in the &quot;SegmentsExperience&quot; database table, with each column mapped to a property of this class.
@@ -41,8 +41,8 @@ import java.util.Map;
  */
 @ProviderType
 public interface SegmentsExperienceModel
-	extends AttachedModel, BaseModel<SegmentsExperience>, GroupedModel,
-			LocalizedModel, ShardedModel {
+	extends AttachedModel, BaseModel<SegmentsExperience>, LocalizedModel,
+			ShardedModel, StagedGroupedModel {
 
 	/*
 	 * NOTE FOR DEVELOPERS:
@@ -63,6 +63,23 @@ public interface SegmentsExperienceModel
 	 * @param primaryKey the primary key of this segments experience
 	 */
 	public void setPrimaryKey(long primaryKey);
+
+	/**
+	 * Returns the uuid of this segments experience.
+	 *
+	 * @return the uuid of this segments experience
+	 */
+	@AutoEscape
+	@Override
+	public String getUuid();
+
+	/**
+	 * Sets the uuid of this segments experience.
+	 *
+	 * @param uuid the uuid of this segments experience
+	 */
+	@Override
+	public void setUuid(String uuid);
 
 	/**
 	 * Returns the segments experience ID of this segments experience.
@@ -190,6 +207,21 @@ public interface SegmentsExperienceModel
 	 */
 	@Override
 	public void setModifiedDate(Date modifiedDate);
+
+	/**
+	 * Returns the segments experience key of this segments experience.
+	 *
+	 * @return the segments experience key of this segments experience
+	 */
+	@AutoEscape
+	public String getSegmentsExperienceKey();
+
+	/**
+	 * Sets the segments experience key of this segments experience.
+	 *
+	 * @param segmentsExperienceKey the segments experience key of this segments experience
+	 */
+	public void setSegmentsExperienceKey(String segmentsExperienceKey);
 
 	/**
 	 * Returns the segments entry ID of this segments experience.
@@ -380,6 +412,22 @@ public interface SegmentsExperienceModel
 	 * @param active the active of this segments experience
 	 */
 	public void setActive(boolean active);
+
+	/**
+	 * Returns the last publish date of this segments experience.
+	 *
+	 * @return the last publish date of this segments experience
+	 */
+	@Override
+	public Date getLastPublishDate();
+
+	/**
+	 * Sets the last publish date of this segments experience.
+	 *
+	 * @param lastPublishDate the last publish date of this segments experience
+	 */
+	@Override
+	public void setLastPublishDate(Date lastPublishDate);
 
 	@Override
 	public String[] getAvailableLanguageIds();

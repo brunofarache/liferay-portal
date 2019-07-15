@@ -245,11 +245,12 @@ public class ProcessUtilTest {
 
 	@Test
 	public void testInterruptPause() throws Exception {
-		String threadName =
-			ReflectionTestUtil.invoke(
-				ProcessUtil.class, "_buildThreadNamePrefix",
-				new Class<?>[] {List.class},
-				Arrays.asList(_buildArguments(Pause.class))) + "StdOut";
+		String threadNamePrefix = ReflectionTestUtil.invoke(
+			ProcessUtil.class, "_buildThreadNamePrefix",
+			new Class<?>[] {List.class},
+			Arrays.asList(_buildArguments(Pause.class)));
+
+		String threadName = threadNamePrefix + "StdOut";
 
 		SyncThrowableThread<Void> syncThrowableThread =
 			new SyncThrowableThread<>(
@@ -349,7 +350,7 @@ public class ProcessUtilTest {
 
 		Collections.addAll(argumentsList, arguments);
 
-		return argumentsList.toArray(new String[argumentsList.size()]);
+		return argumentsList.toArray(new String[0]);
 	}
 
 	private static final String _CLASS_PATH;

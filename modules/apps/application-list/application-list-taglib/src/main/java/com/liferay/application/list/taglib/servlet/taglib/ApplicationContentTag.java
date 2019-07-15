@@ -21,6 +21,10 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class ApplicationContentTag extends BasePanelTag {
 
+	public String getPortletId() {
+		return _portletId;
+	}
+
 	@Override
 	public void setPortletId(String portletId) {
 		_portletId = portletId;
@@ -39,8 +43,8 @@ public class ApplicationContentTag extends BasePanelTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-application-list:application-content:portletId",
 			_portletId);
 	}

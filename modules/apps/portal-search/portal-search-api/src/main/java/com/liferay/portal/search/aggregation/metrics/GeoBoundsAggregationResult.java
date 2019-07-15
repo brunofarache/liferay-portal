@@ -14,10 +14,10 @@
 
 package com.liferay.portal.search.aggregation.metrics;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.search.aggregation.AggregationResult;
 import com.liferay.portal.search.geolocation.GeoLocationPoint;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Michael C. Han
@@ -29,8 +29,8 @@ public interface GeoBoundsAggregationResult extends AggregationResult {
 
 	public GeoLocationPoint getTopLeft();
 
-	public void setBottomRight(GeoLocationPoint bottomRight);
+	public void setBottomRight(GeoLocationPoint geoLocationPoint);
 
-	public void setTopLeft(GeoLocationPoint topLeft);
+	public void setTopLeft(GeoLocationPoint geoLocationPoint);
 
 }

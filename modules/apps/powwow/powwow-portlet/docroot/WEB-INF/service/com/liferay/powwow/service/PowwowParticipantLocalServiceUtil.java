@@ -14,10 +14,9 @@
 
 package com.liferay.powwow.service;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.bean.PortletBeanLocatorUtil;
-import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the local service utility for PowwowParticipant. This utility wraps
@@ -354,9 +353,6 @@ public class PowwowParticipantLocalServiceUtil {
 				(PowwowParticipantLocalService)PortletBeanLocatorUtil.locate(
 					ServletContextUtil.getServletContextName(),
 					PowwowParticipantLocalService.class.getName());
-
-			ReferenceRegistry.registerReference(
-				PowwowParticipantLocalServiceUtil.class, "_service");
 		}
 
 		return _service;

@@ -23,6 +23,8 @@ RatingsStats ratingsStats = (RatingsStats)request.getAttribute("view_entry_conte
 
 boolean showFlags = ParamUtil.getBoolean(request, "showFlags");
 boolean showOnlyIcons = ParamUtil.getBoolean(request, "showOnlyIcons");
+
+BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortletInstanceConfigurationUtil.getBlogsPortletInstanceConfiguration(themeDisplay);
 %>
 
 <div class="autofit-float autofit-row autofit-row-center widget-toolbar">
@@ -48,7 +50,7 @@ boolean showOnlyIcons = ParamUtil.getBoolean(request, "showOnlyIcons");
 			</portlet:renderURL>
 
 			<liferay-util:whitespace-remover>
-				<a class="btn btn-outline-borderless btn-outline-secondary btn-sm" href="<%= viewEntryCommentsURL.toString() %>">
+				<a class="btn btn-outline-borderless btn-outline-secondary btn-sm" href="<%= viewEntryCommentsURL.toString() %>" title="<liferay-ui:message key="comments" />">
 					<span class="inline-item inline-item-before">
 						<clay:icon
 							symbol="comments"

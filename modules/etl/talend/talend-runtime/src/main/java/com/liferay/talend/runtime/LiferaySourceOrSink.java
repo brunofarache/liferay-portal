@@ -14,47 +14,39 @@
 
 package com.liferay.talend.runtime;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.NullNode;
-
-import com.liferay.talend.avro.ExpectedFormSchemaInferrer;
-import com.liferay.talend.avro.ResourceCollectionSchemaInferrer;
+import com.liferay.talend.avro.EndpointSchemaInferrer;
+import com.liferay.talend.common.exception.MalformedURLException;
+import com.liferay.talend.common.json.JsonFinder;
+import com.liferay.talend.common.oas.OASParameter;
+import com.liferay.talend.common.oas.constants.OASConstants;
+import com.liferay.talend.common.util.StringUtil;
+import com.liferay.talend.common.util.URIUtil;
 import com.liferay.talend.connection.LiferayConnectionProperties;
 import com.liferay.talend.connection.LiferayConnectionPropertiesProvider;
-import com.liferay.talend.runtime.apio.ApioException;
-import com.liferay.talend.runtime.apio.ApioResult;
-import com.liferay.talend.runtime.apio.constants.JSONLDConstants;
-import com.liferay.talend.runtime.apio.constants.SchemaOrgConstants;
-import com.liferay.talend.runtime.apio.jsonld.ApioApiDocumentation;
-import com.liferay.talend.runtime.apio.jsonld.ApioEntryPoint;
-import com.liferay.talend.runtime.apio.jsonld.ApioForm;
-import com.liferay.talend.runtime.apio.jsonld.ApioResourceCollection;
-import com.liferay.talend.runtime.apio.jsonld.ApioSingleModel;
-import com.liferay.talend.runtime.apio.jsonld.ApioUtils;
-import com.liferay.talend.runtime.apio.operation.Operation;
+import com.liferay.talend.properties.ExceptionUtils;
 import com.liferay.talend.runtime.client.RESTClient;
-import com.liferay.talend.utils.URIUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.stream.Stream;
+import java.util.TreeSet;
 
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.ProcessingException;
+import javax.ws.rs.core.Response;
 
 import org.apache.avro.Schema;
-import org.apache.commons.lang3.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +55,7 @@ import org.talend.components.api.component.runtime.SourceOrSink;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.daikon.NamedThing;
-import org.talend.daikon.SimpleNamedThing;
+import org.talend.daikon.exception.TalendRuntimeException;
 import org.talend.daikon.i18n.GlobalI18N;
 import org.talend.daikon.i18n.I18nMessageProvider;
 import org.talend.daikon.i18n.I18nMessages;
@@ -73,272 +65,86 @@ import org.talend.daikon.properties.ValidationResultMutable;
 
 /**
  * @author Zoltán Takács
+ * @author Igor Beslic
+ * @author Ivica Cardic
  */
 public class LiferaySourceOrSink
 	extends TranslatableImpl
 	implements LiferaySourceOrSinkRuntime, SourceOrSink {
 
-	public JsonNode doApioDeleteRequest(RuntimeContainer runtimeContainer)
+	public JsonObject doDeleteRequest(RuntimeContainer runtimeContainer) {
+		return doDeleteRequest(runtimeContainer, null);
+	}
+
+	public JsonObject doDeleteRequest(
+		RuntimeContainer runtimeContainer, String resourceURL) {
+
+		RESTClient restClient = getRestClient(runtimeContainer, resourceURL);
+
+		return _readJsonObject(restClient.executeDeleteRequest());
+	}
+
+	public JsonObject doDeleteRequest(String resourceURL) {
+		return doDeleteRequest(null, resourceURL);
+	}
+
+	public JsonObject doGetRequest(RuntimeContainer runtimeContainer) {
+		return doGetRequest(runtimeContainer, null);
+	}
+
+	public JsonObject doGetRequest(
+		RuntimeContainer runtimeContainer, String resourceURL) {
+
+		RESTClient restClient = getRestClient(runtimeContainer, resourceURL);
+
+		return _readJsonObject(restClient.executeGetRequest());
+	}
+
+	public JsonObject doGetRequest(String resourceURL) {
+		return doGetRequest(null, resourceURL);
+	}
+
+	public JsonObject doPatchRequest(
+			RuntimeContainer runtimeContainer, JsonObject jsonObject)
 		throws IOException {
 
-		return doApioDeleteRequest(runtimeContainer, null);
+		return doPatchRequest(runtimeContainer, null, jsonObject);
 	}
 
-	public JsonNode doApioDeleteRequest(
-			RuntimeContainer runtimeContainer, String resourceURL)
+	public JsonObject doPatchRequest(
+		RuntimeContainer runtimeContainer, String resourceURL,
+		JsonObject jsonObject) {
+
+		RESTClient restClient = getRestClient(runtimeContainer, resourceURL);
+
+		return _readJsonObject(restClient.executePatchRequest(jsonObject));
+	}
+
+	public JsonObject doPatchRequest(
+		String resourceURL, JsonObject jsonObject) {
+
+		return doPatchRequest(null, resourceURL, jsonObject);
+	}
+
+	public JsonObject doPostRequest(
+		RuntimeContainer runtimeContainer, JsonObject jsonObject) {
+
+		return doPostRequest(runtimeContainer, null, jsonObject);
+	}
+
+	public JsonObject doPostRequest(
+		RuntimeContainer runtimeContainer, String resourceURL,
+		JsonObject jsonObject) {
+
+		RESTClient restClient = getRestClient(runtimeContainer, resourceURL);
+
+		return _readJsonObject(restClient.executePostRequest(jsonObject));
+	}
+
+	public JsonObject doPostRequest(String resourceURL, JsonObject jsonObject)
 		throws IOException {
 
-		RESTClient restClient = null;
-		ApioResult apioResult = null;
-
-		try {
-			restClient = getRestClient(runtimeContainer, resourceURL);
-
-			apioResult = restClient.executeDeleteRequest();
-		}
-		catch (ApioException ae) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(ae.toString());
-			}
-
-			throw new IOException(ae);
-		}
-
-		JsonNode jsonNode = NullNode.getInstance();
-
-		try {
-			jsonNode = _toJsonNode(apioResult);
-		}
-		catch (JsonMappingException jme) {
-			if (_log.isDebugEnabled()) {
-				_log.debug("Empty body was sent by the server");
-			}
-		}
-
-		return jsonNode;
-	}
-
-	public JsonNode doApioDeleteRequest(String resourceURL) throws IOException {
-		return doApioDeleteRequest(null, resourceURL);
-	}
-
-	public JsonNode doApioGetRequest(RuntimeContainer runtimeContainer)
-		throws IOException {
-
-		return doApioGetRequest(runtimeContainer, null);
-	}
-
-	public JsonNode doApioGetRequest(
-			RuntimeContainer runtimeContainer, String resourceURL)
-		throws IOException {
-
-		RESTClient restClient = null;
-		ApioResult apioResult = null;
-
-		try {
-			restClient = getRestClient(runtimeContainer, resourceURL);
-
-			apioResult = restClient.executeGetRequest();
-		}
-		catch (ApioException ae) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(ae.toString());
-			}
-
-			throw ae;
-		}
-
-		return _toJsonNode(apioResult);
-	}
-
-	public JsonNode doApioGetRequest(String resourceURL) throws IOException {
-		return doApioGetRequest(null, resourceURL);
-	}
-
-	public JsonNode doApioPostRequest(
-			RuntimeContainer runtimeContainer, JsonNode apioForm)
-		throws IOException {
-
-		return doApioPostRequest(runtimeContainer, null, apioForm);
-	}
-
-	public JsonNode doApioPostRequest(
-			RuntimeContainer runtimeContainer, String resourceURL,
-			JsonNode apioForm)
-		throws IOException {
-
-		RESTClient restClient = null;
-		ApioResult apioResult = null;
-
-		try {
-			restClient = getRestClient(runtimeContainer, resourceURL);
-
-			apioResult = restClient.executePostRequest(apioForm);
-		}
-		catch (ApioException ae) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(ae.toString());
-			}
-
-			throw new IOException(ae);
-		}
-
-		return _toJsonNode(apioResult);
-	}
-
-	public JsonNode doApioPostRequest(String resourceURL, JsonNode apioForm)
-		throws IOException {
-
-		return doApioPostRequest(null, resourceURL, apioForm);
-	}
-
-	public JsonNode doApioPutRequest(
-			RuntimeContainer runtimeContainer, JsonNode apioForm)
-		throws IOException {
-
-		return doApioPutRequest(runtimeContainer, null, apioForm);
-	}
-
-	public JsonNode doApioPutRequest(
-			RuntimeContainer runtimeContainer, String resourceURL,
-			JsonNode apioForm)
-		throws IOException {
-
-		RESTClient restClient = null;
-		ApioResult apioResult = null;
-
-		try {
-			restClient = getRestClient(runtimeContainer, resourceURL);
-
-			apioResult = restClient.executePutRequest(apioForm);
-		}
-		catch (ApioException ae) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(ae.toString());
-			}
-
-			throw new IOException(ae);
-		}
-
-		return _toJsonNode(apioResult);
-	}
-
-	public JsonNode doApioPutRequest(String resourceURL, JsonNode apioForm)
-		throws IOException {
-
-		return doApioPutRequest(null, resourceURL, apioForm);
-	}
-
-	@Override
-	public String getActualWebSiteName(String webSiteURL) throws IOException {
-		JsonNode webSiteNameJsonNode = doApioGetRequest(webSiteURL);
-
-		webSiteNameJsonNode = webSiteNameJsonNode.path("name");
-
-		return webSiteNameJsonNode.asText();
-	}
-
-	public Map<String, String> getApioResourceEndpointsMap(
-		RuntimeContainer runtimeContainer) {
-
-		JsonNode jsonNode = null;
-
-		try {
-			jsonNode = doApioGetRequest(runtimeContainer);
-		}
-		catch (IOException ioe) {
-			if (_log.isDebugEnabled()) {
-				_log.debug("Unable to fetch resources: " + ioe.getMessage());
-			}
-
-			return Collections.emptyMap();
-		}
-
-		if (jsonNode.size() == 0) {
-			if (_log.isDebugEnabled()) {
-				_log.debug("Unable to find any exposed resources");
-			}
-
-			return Collections.emptyMap();
-		}
-
-		ApioEntryPoint apioEntryPoint = null;
-
-		try {
-			apioEntryPoint = new ApioEntryPoint(jsonNode);
-		}
-		catch (IOException ioe) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(
-					"The response is not a JSON-LD Entry point. Try a " +
-						"fallback method for parsing the old JSON-Home " +
-							"response.");
-			}
-
-			return _getJsonHomeRootEndpointMap(jsonNode);
-		}
-
-		return _getRootEndpointMap(apioEntryPoint);
-	}
-
-	@Override
-	public List<NamedThing> getAvailableWebSites() throws IOException {
-		String webSitesEndpointURL = null;
-		List<NamedThing> webSitesList = new ArrayList<>();
-
-		try {
-			webSitesEndpointURL = _getWebSitesEndpointURL();
-		}
-		catch (NoSuchElementException nsee) {
-			return webSitesList;
-		}
-
-		JsonNode resourceCollectionJsonNode = doApioGetRequest(
-			webSitesEndpointURL);
-
-		ApioResourceCollection webSitesApioResourceCollection =
-			new ApioResourceCollection(resourceCollectionJsonNode);
-
-		String actualPage =
-			webSitesApioResourceCollection.getResourceActualPage();
-		String nextPage = webSitesApioResourceCollection.getResourceNextPage();
-		String lastPage = webSitesApioResourceCollection.getResourceLastPage();
-
-		do {
-			JsonNode webSitesJsonNode =
-				webSitesApioResourceCollection.getMemberJsonNode();
-
-			for (JsonNode jsonNode : webSitesJsonNode) {
-				JsonNode webSiteURLJsonNode = jsonNode.path(JSONLDConstants.ID);
-				JsonNode webSiteNameJsonNode = jsonNode.path(
-					SchemaOrgConstants.Property.NAME);
-
-				String webSiteURL = webSiteURLJsonNode.asText();
-
-				String webSiteId = URIUtils.getLastPathSegment(webSiteURL);
-
-				webSitesList.add(
-					new SimpleNamedThing(
-						webSiteId, webSiteNameJsonNode.asText()));
-			}
-
-			actualPage = webSitesApioResourceCollection.getResourceActualPage();
-			nextPage = webSitesApioResourceCollection.getResourceNextPage();
-
-			if (StringUtils.isNotBlank(nextPage)) {
-				webSitesApioResourceCollection = new ApioResourceCollection(
-					doApioGetRequest(nextPage));
-			}
-		}
-		while (StringUtils.isNotBlank(nextPage) &&
-			   !lastPage.equals(actualPage));
-
-		Comparator<NamedThing> comparator = Comparator.comparing(
-			NamedThing::getDisplayName);
-
-		Collections.sort(webSitesList, comparator);
-
-		return webSitesList;
+		return doPostRequest(null, resourceURL, jsonObject);
 	}
 
 	public LiferayConnectionProperties getConnectionProperties() {
@@ -354,12 +160,6 @@ public class LiferaySourceOrSink
 		return liferayConnectionProperties;
 	}
 
-	/**
-	 * If referenceComponentId is not <code>null</code>, it should return the
-	 * reference connection properties
-	 *
-	 * @review
-	 */
 	public LiferayConnectionProperties getEffectiveConnection(
 		RuntimeContainer runtimeContainer) {
 
@@ -403,236 +203,139 @@ public class LiferaySourceOrSink
 	}
 
 	@Override
-	public Schema getEndpointSchema(
-			RuntimeContainer runtimeContainer, String resourceURL)
-		throws IOException {
+	public Set<String> getEndpointList(String operation) {
+		LiferayConnectionProperties liferayConnectionProperties =
+			getEffectiveConnection(null);
 
-		JsonNode jsonNode = doApioGetRequest(resourceURL);
+		JsonObject oasJsonObject = doGetRequest(
+			liferayConnectionProperties.getApiSpecURL());
 
-		ApioResourceCollection apioResourceCollection =
-			new ApioResourceCollection(jsonNode);
-
-		return getResourceSchemaByType(
-			apioResourceCollection.getResourceCollectionType());
+		return _extractEndpoints(operation, oasJsonObject);
 	}
 
 	@Override
-	public Schema getExpectedFormSchema(Operation operation)
-		throws IOException {
-
-		ApioForm apioForm = null;
-
-		if (StringUtils.isNotEmpty(operation.getExpects())) {
-			JsonNode jsonNode = doApioGetRequest(operation.getExpects());
-
-			apioForm = new ApioForm(jsonNode);
-		}
-
-		return ExpectedFormSchemaInferrer.inferSchemaByFormOperation(
-			operation, apioForm);
-	}
-
-	@Override
-	public String getResourceCollectionType(String resourceURL)
-		throws IOException {
-
-		JsonNode jsonNode = doApioGetRequest(resourceURL);
-
-		ApioResourceCollection apioResourceCollection =
-			new ApioResourceCollection(jsonNode);
-
-		return apioResourceCollection.getResourceCollectionType();
-	}
-
-	@Override
-	public List<NamedThing> getResourceList(String webSiteURL)
-		throws IOException {
-
-		if (StringUtils.isEmpty(webSiteURL)) {
-			return getSchemaNames(null);
-		}
-
-		List<NamedThing> resourceNames = new ArrayList<>();
-
-		Map<String, String> resourceCollections =
-			_getWebSiteResourceEndpointsMap(webSiteURL);
-
-		for (Map.Entry<String, String> entry : resourceCollections.entrySet()) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(
-					"resource: {}, href: {} ", entry.getValue(),
-					entry.getKey());
-			}
-
-			resourceNames.add(
-				new SimpleNamedThing(
-					entry.getValue(), entry.getValue(), entry.getKey()));
-		}
-
-		return resourceNames;
-	}
-
-	@Override
-	public Schema getResourceSchemaByType(String resourceType)
-		throws IOException {
+	public Map<String, String> getEndpointMap(String operation) {
+		Map<String, String> endpointMap = new TreeMap<>();
 
 		LiferayConnectionProperties liferayConnectionProperties =
 			getEffectiveConnection(null);
 
-		String endpointURL = liferayConnectionProperties.endpoint.getValue();
+		JsonObject oasJsonObject = doGetRequest(
+			liferayConnectionProperties.getApiSpecURL());
 
-		JsonNode apiDocumentationJsonNode = doApioGetRequest(
-			endpointURL.concat("/doc"));
+		Set<String> endpoints = _extractEndpoints(operation, oasJsonObject);
 
-		ApioApiDocumentation apioApiDocumentation = new ApioApiDocumentation(
-			apiDocumentationJsonNode);
+		for (String endpoint : endpoints) {
+			endpointMap.put(
+				endpoint,
+				_endpointSchemaInferrer.extractEndpointSchemaName(
+					endpoint, operation, oasJsonObject));
+		}
 
-		List<ApioApiDocumentation.SupportedClass> supportedClasses =
-			apioApiDocumentation.getSupportedClasses();
+		return endpointMap;
+	}
 
-		Stream<ApioApiDocumentation.SupportedClass> supportedClassStream =
-			supportedClasses.stream();
+	/**
+	 * @deprecated As of Mueller (7.2.x)
+	 */
+	@Deprecated
+	@Override
+	public Schema getEndpointSchema(
+		RuntimeContainer runtimeContainer, String endpoint) {
 
-		ApioApiDocumentation.SupportedClass resourceSupportedClass =
-			supportedClassStream.filter(
-				supportedClass -> resourceType.equals(supportedClass.getName())
-			).findFirst(
-			).orElseThrow(
-				() -> new IOException(
-					String.format(
-						"Unable to find '%s' type in the API Documentation",
-						resourceType))
-			);
-
-		return ResourceCollectionSchemaInferrer.inferSchemaByResourceType(
-			resourceSupportedClass);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public List<Operation> getResourceSupportedOperations(String resourceURL)
-		throws IOException {
+	public Schema getEndpointSchema(String endpoint, String operation) {
+		LiferayConnectionProperties liferayConnectionProperties =
+			getEffectiveConnection(null);
 
-		List<Operation> aggregatedResourceOperations = new ArrayList<>();
+		JsonObject oasJsonObject = doGetRequest(
+			liferayConnectionProperties.getApiSpecURL());
 
-		JsonNode jsonNode = doApioGetRequest(resourceURL);
-
-		ApioResourceCollection apioResourceCollection =
-			new ApioResourceCollection(jsonNode);
-
-		List<Operation> collectionOperations =
-			apioResourceCollection.getResourceOperations();
-
-		aggregatedResourceOperations.addAll(collectionOperations);
-
-		JsonNode resourceEntryJsonNode =
-			apioResourceCollection.getFirstEntryJsonNode();
-
-		JsonNode resourceEntryURLJsonNode = resourceEntryJsonNode.path(
-			JSONLDConstants.ID);
-
-		jsonNode = doApioGetRequest(resourceEntryURLJsonNode.asText());
-
-		ApioSingleModel resourceEntry = new ApioSingleModel(jsonNode);
-
-		List<Operation> resourceOperations =
-			resourceEntry.getResourceOperations();
-
-		aggregatedResourceOperations.addAll(resourceOperations);
-
-		return aggregatedResourceOperations;
+		return _endpointSchemaInferrer.inferSchema(
+			endpoint, operation, oasJsonObject);
 	}
 
-	public RESTClient getRestClient(RuntimeContainer runtimeContainer)
-		throws ApioException {
+	@Override
+	public List<OASParameter> getParameters(String endpoint, String operation) {
+		List<OASParameter> oasParameters = new ArrayList<>();
 
 		LiferayConnectionProperties liferayConnectionProperties =
-			getEffectiveConnection(runtimeContainer);
+			getEffectiveConnection(null);
 
-		if (restClient == null) {
-			restClient = new RESTClient(liferayConnectionProperties);
-		}
-		else {
-			String endpoint = restClient.getEndpoint();
+		String apiSpecURLHref = liferayConnectionProperties.getApiSpecURL();
 
-			if (!endpoint.equals(
-					liferayConnectionProperties.endpoint.getValue())) {
+		JsonObject oasJsonObject = doGetRequest(apiSpecURLHref);
 
-				if (_log.isDebugEnabled()) {
-					_log.debug(
-						"Endpoint has been changed, initialize a new " +
-							"RESTClient");
-				}
+		String jsonFinderPath = StringUtil.replace(
+			OASConstants.PATH_ENDPOINT_OPERATION_PARAMETERS_PATTERN,
+			"ENDPOINT_TPL", endpoint, "OPERATION_TPL",
+			StringUtil.toLowerCase(operation));
 
-				restClient = new RESTClient(liferayConnectionProperties);
+		JsonArray parametersJsonArray = _jsonFinder.getDescendantJsonArray(
+			jsonFinderPath, oasJsonObject);
 
-				return restClient;
-			}
+		for (int i = 0; i < parametersJsonArray.size(); i++) {
+			oasParameters.add(
+				_toParameter(parametersJsonArray.getJsonObject(i)));
 		}
 
-		return restClient;
+		return oasParameters;
+	}
+
+	public RESTClient getRestClient(RuntimeContainer runtimeContainer) {
+		return getRestClient(runtimeContainer, null);
 	}
 
 	public RESTClient getRestClient(
-			RuntimeContainer runtimeContainer, String resourceURL)
-		throws ApioException {
+		RuntimeContainer runtimeContainer, String resourceURL) {
 
 		if ((resourceURL == null) || resourceURL.isEmpty()) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(
-					"Resource URL was null or empty value, fall back to the " +
-						"connection property");
+			if (restClient != null) {
+				return restClient;
 			}
 
-			return getRestClient(runtimeContainer);
+			restClient = new RESTClient(
+				getEffectiveConnection(runtimeContainer));
+
+			return restClient;
 		}
 
-		LiferayConnectionProperties liferayConnectionProperties =
-			getEffectiveConnection(runtimeContainer);
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("New REST Client with \"{}\" endpoint", resourceURL);
+		if ((restClient != null) && restClient.matches(resourceURL)) {
+			return restClient;
 		}
 
-		return new RESTClient(resourceURL, liferayConnectionProperties);
+		return new RESTClient(
+			getEffectiveConnection(runtimeContainer), resourceURL);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x)
+	 */
+	@Deprecated
 	@Override
 	public List<NamedThing> getSchemaNames(RuntimeContainer runtimeContainer)
 		throws IOException {
 
-		List<NamedThing> schemaNames = new ArrayList<>();
-
-		Map<String, String> resourceCollections = getApioResourceEndpointsMap(
-			runtimeContainer);
-
-		for (Map.Entry<String, String> entry : resourceCollections.entrySet()) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(
-					"resource: {}, href: {} ", entry.getValue(),
-					entry.getKey());
-			}
-
-			schemaNames.add(
-				new SimpleNamedThing(
-					entry.getValue(), entry.getValue(), entry.getKey()));
-		}
-
-		return schemaNames;
+		throw new UnsupportedOperationException();
 	}
 
-	@Override
-	public boolean hasWebSiteResource() {
-		Map<String, String> apioResourceEndpointsMap =
-			getApioResourceEndpointsMap(null);
+	public Set<String> getSupportedOperations(String endpoint) {
+		LiferayConnectionProperties liferayConnectionProperties =
+			getEffectiveConnection(null);
 
-		Set<Map.Entry<String, String>> resourceCollectionEntrySet =
-			apioResourceEndpointsMap.entrySet();
+		JsonObject oasJsonObject = doGetRequest(
+			liferayConnectionProperties.getApiSpecURL());
 
-		Stream<Map.Entry<String, String>> stream =
-			resourceCollectionEntrySet.stream();
+		String jsonFinderPath = StringUtil.replace(
+			OASConstants.PATH_ENDPOINT_PATTERN, "ENDPOINT_TPL", endpoint);
 
-		return stream.anyMatch(
-			LiferaySourceOrSink::_hasWebSiteResourcePredicate);
+		JsonObject endpointJsonObject = _jsonFinder.getDescendantJsonObject(
+			jsonFinderPath, oasJsonObject);
+
+		return endpointJsonObject.keySet();
 	}
 
 	@Override
@@ -651,8 +354,8 @@ public class LiferaySourceOrSink
 		try {
 			getRestClient(runtimeContainer);
 		}
-		catch (ApioException ae) {
-			validationResultMutable.setStatus(ValidationResult.Result.ERROR);
+		catch (TalendRuntimeException tre) {
+			return ExceptionUtils.exceptionToValidationResult(tre);
 		}
 
 		return validationResultMutable;
@@ -663,92 +366,85 @@ public class LiferaySourceOrSink
 		LiferayConnectionProperties liferayConnectionProperties =
 			getEffectiveConnection(runtimeContainer);
 
-		boolean anonymousLogin =
-			liferayConnectionProperties.anonymousLogin.getValue();
-		String endpoint = liferayConnectionProperties.endpoint.getValue();
-		String password = liferayConnectionProperties.password.getValue();
-		String userId = liferayConnectionProperties.userId.getValue();
+		try {
+			URIUtil.validateOpenAPISpecURL(
+				liferayConnectionProperties.getApiSpecURL());
+		}
+		catch (MalformedURLException murle) {
+			return new ValidationResult(
+				ValidationResult.Result.ERROR, murle.getMessage());
+		}
+
+		String target = liferayConnectionProperties.getApiSpecURL();
 
 		if (_log.isDebugEnabled()) {
 			_log.debug(
-				"Validate endpoint: {}",
-				liferayConnectionProperties.endpoint.getValue());
+				"Validate API spec URL: {}",
+				liferayConnectionProperties.getApiSpecURL());
 			_log.debug(
 				"Validate user ID: {}",
-				liferayConnectionProperties.userId.getValue());
+				liferayConnectionProperties.getUserId());
 		}
 
-		ValidationResultMutable validationResultMutable =
-			new ValidationResultMutable();
-
-		if ((endpoint == null) || endpoint.isEmpty()) {
-			validationResultMutable.setMessage(
+		if (_isNullString(target)) {
+			return new ValidationResult(
+				ValidationResult.Result.ERROR,
 				i18nMessages.getMessage(
-					"error.validation.connection.endpoint"));
-
-			validationResultMutable.setStatus(ValidationResult.Result.ERROR);
-
-			return validationResultMutable;
+					"error.validation.connection.apiSpecURL"));
 		}
 
-		if (!anonymousLogin) {
-			_validateCredentials(userId, password, validationResultMutable);
+		if (_isNullString(liferayConnectionProperties.getUserId()) ||
+			_isNullString(liferayConnectionProperties.getPassword())) {
 
-			if (validationResultMutable.getStatus() ==
-					ValidationResult.Result.ERROR) {
-
-				return validationResultMutable;
-			}
+			return new ValidationResult(
+				ValidationResult.Result.ERROR,
+				i18nMessages.getMessage(
+					"error.validation.connection.credentials"));
 		}
 
-		return validateConnection(liferayConnectionProperties);
+		return validateConnection(
+			liferayConnectionProperties, runtimeContainer);
 	}
 
 	@Override
 	public ValidationResult validateConnection(
-		LiferayConnectionPropertiesProvider
-			liferayConnectionPropertiesProvider) {
-
-		ValidationResultMutable validationResultMutable =
-			new ValidationResultMutable();
-
-		validationResultMutable.setStatus(ValidationResult.Result.OK);
+		LiferayConnectionPropertiesProvider liferayConnectionPropertiesProvider,
+		RuntimeContainer runtimeContainer) {
 
 		try {
-			LiferaySourceOrSink liferaySourceOrSink = new LiferaySourceOrSink();
+			doGetRequest(runtimeContainer);
 
-			liferaySourceOrSink.initialize(
-				null,
-				(LiferayConnectionProperties)
-					liferayConnectionPropertiesProvider);
-
-			doApioGetRequest((RuntimeContainer)null);
-
-			validationResultMutable.setMessage(
+			return new ValidationResult(
+				ValidationResult.Result.OK,
 				i18nMessages.getMessage("success.validation.connection"));
 		}
-		catch (ApioException ae) {
-			validationResultMutable.setMessage(
+		catch (TalendRuntimeException tre) {
+			_log.error(tre.getMessage(), tre);
+
+			return new ValidationResult(
+				ValidationResult.Result.ERROR,
 				i18nMessages.getMessage(
 					"error.validation.connection.testconnection",
-					ae.getLocalizedMessage(), ae.getCode()));
-			validationResultMutable.setStatus(ValidationResult.Result.ERROR);
-		}
-		catch (IOException ioe) {
-			validationResultMutable.setMessage(
-				i18nMessages.getMessage(
-					"error.validation.connection.testconnection.json"));
-			validationResultMutable.setStatus(ValidationResult.Result.ERROR);
+					tre.getLocalizedMessage()));
 		}
 		catch (ProcessingException pe) {
-			validationResultMutable.setMessage(
+			_log.error(pe.getMessage(), pe);
+
+			return new ValidationResult(
+				ValidationResult.Result.ERROR,
 				i18nMessages.getMessage(
 					"error.validation.connection.testconnection.jersey",
 					pe.getLocalizedMessage()));
-			validationResultMutable.setStatus(ValidationResult.Result.ERROR);
 		}
+		catch (Throwable t) {
+			_log.error(t.getMessage(), t);
 
-		return validationResultMutable;
+			return new ValidationResult(
+				ValidationResult.Result.ERROR,
+				i18nMessages.getMessage(
+					"error.validation.connection.testconnection.general",
+					t.getLocalizedMessage()));
+		}
 	}
 
 	protected static final String KEY_CONNECTION_PROPERTIES = "Connection";
@@ -765,189 +461,96 @@ public class LiferaySourceOrSink
 
 	protected volatile LiferayConnectionPropertiesProvider
 		liferayConnectionPropertiesProvider;
-	protected final ObjectMapper objectMapper = new ObjectMapper();
 	protected RESTClient restClient;
 
-	private static boolean _hasWebSiteResourcePredicate(
-		Map.Entry<String, String> entry) {
+	private Set<String> _extractEndpoints(
+		String operation, JsonObject oasJsonObject) {
 
-		if (SchemaOrgConstants.Vocabulary.COMMERCE_WEB_SITE.equals(
-				entry.getValue()) ||
-			SchemaOrgConstants.Type.COMMERCE_WEB_SITE.equals(
-				entry.getValue())) {
+		Set<String> endpoints = new TreeSet<>();
 
+		JsonObject pathsJsonObject = oasJsonObject.getJsonObject(
+			OASConstants.PATHS);
+
+		pathsJsonObject.forEach(
+			(path, operationsJsonValue) -> {
+				JsonObject operationsJsonObject =
+					operationsJsonValue.asJsonObject();
+
+				operationsJsonObject.forEach(
+					(operationName, operationJsonValue) -> {
+						if (!Objects.equals(
+								operation,
+								StringUtil.toUpperCase(operationName))) {
+
+							return;
+						}
+
+						if (!Objects.equals(operation, HttpMethod.GET)) {
+							endpoints.add(path);
+
+							return;
+						}
+
+						if (_jsonFinder.hasPath(
+								OASConstants.PATH_RESPONSE_SCHEMA_REFERENCE,
+								operationJsonValue.asJsonObject()) ||
+							_jsonFinder.hasPath(
+								OASConstants.
+									PATH_RESPONSE_SCHEMA_ITEMS_REFERENCE,
+								operationJsonValue.asJsonObject())) {
+
+							endpoints.add(path);
+						}
+					});
+			});
+
+		return endpoints;
+	}
+
+	private boolean _isNullString(String value) {
+		if (value == null) {
+			return true;
+		}
+
+		value = value.trim();
+
+		if (value.isEmpty()) {
 			return true;
 		}
 
 		return false;
 	}
 
-	private Map<String, String> _getJsonHomeRootEndpointMap(JsonNode jsonNode) {
-		Map<String, String> resourcesMap = new TreeMap<>();
+	private JsonObject _readJsonObject(Response response) {
+		JsonReader jsonReader = Json.createReader(
+			(InputStream)response.getEntity());
 
-		JsonNode resourcesJsonNode = jsonNode.findPath(
-			JSONLDConstants.RESOURCES);
-
-		Iterator<String> fieldNames = resourcesJsonNode.fieldNames();
-
-		while (fieldNames.hasNext()) {
-			String fieldName = fieldNames.next();
-
-			JsonNode fieldValue = resourcesJsonNode.get(fieldName);
-
-			if (fieldValue.has(JSONLDConstants.HREF)) {
-				JsonNode hrefJsonNode = fieldValue.get(JSONLDConstants.HREF);
-
-				resourcesMap.put(hrefJsonNode.asText(), fieldName);
-			}
-		}
-
-		return resourcesMap;
+		return jsonReader.readObject();
 	}
 
-	/**
-	 * Returns the exposed entry points in a Map. The key is the ID of a given
-	 * resource collection and the value is the resource URL's last path segment
-	 * to be able to construct URLs from it
-	 *
-	 * @param  apioEntryPoint
-	 * @return Map<String, String> Resource ID / URL last path segment, empty
-	 *         otherwise
-	 * @review
-	 */
-	private Map<String, String> _getRootEndpointMap(
-		ApioEntryPoint apioEntryPoint) {
+	private OASParameter _toParameter(JsonObject jsonObject) {
+		OASParameter oasParameter = new OASParameter();
 
-		Set<String> rootEndpointURLs = apioEntryPoint.getRootEndpointURLs();
-		Map<String, String> rootEndpointURLMap = new TreeMap<>();
+		oasParameter.setType(
+			OASParameter.Type.valueOf(
+				StringUtil.toUpperCase(jsonObject.getString("in"))));
 
-		rootEndpointURLs.forEach(
-			endpointURL -> rootEndpointURLMap.put(
-				endpointURL, URIUtils.getLastPathSegment(endpointURL)));
+		oasParameter.setName(jsonObject.getString("name"));
 
-		return rootEndpointURLMap;
-	}
-
-	private Map<String, String> _getWebSiteResourceCollectionsDescriptor(
-			JsonNode jsonNode)
-		throws IOException {
-
-		ApioSingleModel apioSingleModel = new ApioSingleModel(jsonNode);
-
-		JsonNode contextJsonNode = apioSingleModel.getContextJsonNode();
-
-		Map<String, String> resourcesMap = new TreeMap<>();
-		List<String> typeCoercionTermKeys = ApioUtils.getTypeCoercionTermKeys(
-			contextJsonNode);
-
-		for (String typeCoercionTermKey : typeCoercionTermKeys) {
-			JsonNode resourceHrefJsonNode = jsonNode.path(typeCoercionTermKey);
-
-			String resourceHref = resourceHrefJsonNode.asText();
-
-			JsonNode idJsonNode = apioSingleModel.getIdJsonNode();
-
-			String id = idJsonNode.asText();
-
-			if (resourceHref.startsWith(id)) {
-				String resourcePathName = URIUtils.getLastPathSegment(
-					resourceHref);
-
-				resourcesMap.put(resourceHref, resourcePathName);
-			}
+		if (jsonObject.containsKey("required")) {
+			oasParameter.setRequired(jsonObject.getBoolean("required"));
 		}
 
-		return resourcesMap;
-	}
-
-	private Map<String, String> _getWebSiteResourceEndpointsMap(
-		String webSiteURL) {
-
-		JsonNode jsonNode = null;
-
-		try {
-			jsonNode = doApioGetRequest(webSiteURL);
-
-			return _getWebSiteResourceCollectionsDescriptor(jsonNode);
-		}
-		catch (IOException ioe) {
-			if (_log.isDebugEnabled()) {
-				_log.debug("Unable to fetch resources: " + ioe.getMessage());
-			}
-		}
-
-		return Collections.emptyMap();
-	}
-
-	private String _getWebSitesEndpointURL() throws IOException {
-		Map<String, String> apioResourceEndpointsMap =
-			getApioResourceEndpointsMap(null);
-
-		Set<Map.Entry<String, String>> resourceCollectionEntrySet =
-			apioResourceEndpointsMap.entrySet();
-
-		Stream<Map.Entry<String, String>> stream =
-			resourceCollectionEntrySet.stream();
-
-		Optional<String> webSiteHrefOptional = stream.filter(
-			LiferaySourceOrSink::_hasWebSiteResourcePredicate
-		).map(
-			Map.Entry::getKey
-		).findFirst();
-
-		return webSiteHrefOptional.get();
-	}
-
-	private JsonNode _toJsonNode(ApioResult apioResult) throws IOException {
-		JsonNode jsonNode = null;
-
-		if (_log.isDebugEnabled()) {
-			_log.debug(apioResult.getBody());
-		}
-
-		try {
-			jsonNode = objectMapper.readTree(apioResult.getBody());
-		}
-		catch (IOException ioe) {
-			if (_log.isDebugEnabled()) {
-				_log.debug("Unable to read JSON object", ioe);
-			}
-
-			throw ioe;
-		}
-
-		return jsonNode;
-	}
-
-	private void _validateCredentials(
-		String userId, String password,
-		ValidationResultMutable validationResultMutable) {
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("Validating credentials...");
-		}
-
-		if ((userId == null) || userId.isEmpty()) {
-			validationResultMutable.setMessage(
-				i18nMessages.getMessage("error.validation.connection.userId"));
-			validationResultMutable.setStatus(ValidationResult.Result.ERROR);
-
-			return;
-		}
-
-		if ((password == null) || password.isEmpty()) {
-			validationResultMutable.setMessage(
-				i18nMessages.getMessage(
-					"error.validation.connection.password"));
-			validationResultMutable.setStatus(ValidationResult.Result.ERROR);
-
-			return;
-		}
+		return oasParameter;
 	}
 
 	private static final Logger _log = LoggerFactory.getLogger(
 		LiferaySourceOrSink.class);
 
 	private static final long serialVersionUID = 3109815759807236523L;
+
+	private final EndpointSchemaInferrer _endpointSchemaInferrer =
+		new EndpointSchemaInferrer();
+	private final JsonFinder _jsonFinder = new JsonFinder();
 
 }

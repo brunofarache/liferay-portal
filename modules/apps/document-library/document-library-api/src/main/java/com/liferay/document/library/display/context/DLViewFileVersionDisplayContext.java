@@ -52,6 +52,10 @@ public interface DLViewFileVersionDisplayContext extends DLDisplayContext {
 
 	public String getDiscussionLabel(Locale locale);
 
+	public default String getIconFileMimeType() {
+		return "document-default";
+	}
+
 	public Menu getMenu() throws PortalException;
 
 	public List<ToolbarItem> getToolbarItems() throws PortalException;
@@ -75,12 +79,14 @@ public interface DLViewFileVersionDisplayContext extends DLDisplayContext {
 	public boolean isVersionInfoVisible() throws PortalException;
 
 	public default void renderCustomThumbnail(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException, ServletException {
 	}
 
 	public void renderPreview(
-			HttpServletRequest request, HttpServletResponse response)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
 		throws IOException, ServletException;
 
 }

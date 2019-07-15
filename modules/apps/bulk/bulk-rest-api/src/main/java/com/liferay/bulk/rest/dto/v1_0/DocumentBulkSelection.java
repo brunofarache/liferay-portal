@@ -20,9 +20,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
+import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
 
-import graphql.annotations.annotationTypes.GraphQLField;
-import graphql.annotations.annotationTypes.GraphQLName;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import javax.annotation.Generated;
 
@@ -38,6 +44,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "DocumentBulkSelection")
 public class DocumentBulkSelection {
 
+	@Schema
 	public String[] getDocumentIds() {
 		return documentIds;
 	}
@@ -53,6 +60,9 @@ public class DocumentBulkSelection {
 		try {
 			documentIds = documentIdsUnsafeSupplier.get();
 		}
+		catch (RuntimeException re) {
+			throw re;
+		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -62,6 +72,7 @@ public class DocumentBulkSelection {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String[] documentIds;
 
+	@Schema
 	public SelectionScope getSelectionScope() {
 		return selectionScope;
 	}
@@ -78,6 +89,9 @@ public class DocumentBulkSelection {
 		try {
 			selectionScope = selectionScopeUnsafeSupplier.get();
 		}
+		catch (RuntimeException re) {
+			throw re;
+		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -87,22 +101,48 @@ public class DocumentBulkSelection {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected SelectionScope selectionScope;
 
+	@Override
+	public boolean equals(Object object) {
+		if (this == object) {
+			return true;
+		}
+
+		if (!(object instanceof DocumentBulkSelection)) {
+			return false;
+		}
+
+		DocumentBulkSelection documentBulkSelection =
+			(DocumentBulkSelection)object;
+
+		return Objects.equals(toString(), documentBulkSelection.toString());
+	}
+
+	@Override
+	public int hashCode() {
+		String string = toString();
+
+		return string.hashCode();
+	}
+
 	public String toString() {
 		StringBundler sb = new StringBundler();
 
 		sb.append("{");
 
-		sb.append("\"documentIds\": ");
+		if (documentIds != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
 
-		if (documentIds == null) {
-			sb.append("null");
-		}
-		else {
+			sb.append("\"documentIds\": ");
+
 			sb.append("[");
 
 			for (int i = 0; i < documentIds.length; i++) {
 				sb.append("\"");
-				sb.append(documentIds[i]);
+
+				sb.append(_escape(documentIds[i]));
+
 				sb.append("\"");
 
 				if ((i + 1) < documentIds.length) {
@@ -113,11 +153,50 @@ public class DocumentBulkSelection {
 			sb.append("]");
 		}
 
-		sb.append(", ");
+		if (selectionScope != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
 
-		sb.append("\"selectionScope\": ");
+			sb.append("\"selectionScope\": ");
 
-		sb.append(selectionScope);
+			sb.append(String.valueOf(selectionScope));
+		}
+
+		sb.append("}");
+
+		return sb.toString();
+	}
+
+	private static String _escape(Object object) {
+		String string = String.valueOf(object);
+
+		return string.replaceAll("\"", "\\\\\"");
+	}
+
+	private static String _toJSON(Map<String, ?> map) {
+		StringBuilder sb = new StringBuilder("{");
+
+		@SuppressWarnings("unchecked")
+		Set set = map.entrySet();
+
+		@SuppressWarnings("unchecked")
+		Iterator<Map.Entry<String, ?>> iterator = set.iterator();
+
+		while (iterator.hasNext()) {
+			Map.Entry<String, ?> entry = iterator.next();
+
+			sb.append("\"");
+			sb.append(entry.getKey());
+			sb.append("\":");
+			sb.append("\"");
+			sb.append(entry.getValue());
+			sb.append("\"");
+
+			if (iterator.hasNext()) {
+				sb.append(",");
+			}
+		}
 
 		sb.append("}");
 

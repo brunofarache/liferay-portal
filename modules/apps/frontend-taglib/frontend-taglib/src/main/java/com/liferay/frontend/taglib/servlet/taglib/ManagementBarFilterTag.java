@@ -36,6 +36,18 @@ public class ManagementBarFilterTag extends IncludeTag implements BodyTag {
 		return super.doStartTag();
 	}
 
+	public String getLabel() {
+		return _label;
+	}
+
+	public List<ManagementBarFilterItem> getManagementBarFilterItems() {
+		return _managementBarFilterItems;
+	}
+
+	public String getValue() {
+		return _value;
+	}
+
 	public void setDisabled(boolean disabled) {
 		_disabled = disabled;
 	}
@@ -104,15 +116,15 @@ public class ManagementBarFilterTag extends IncludeTag implements BodyTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		httpServletRequest.setAttribute(
 			"liferay-frontend:management-bar-filter:disabled", isDisabled());
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-frontend:management-bar-filter:label", _label);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-frontend:management-bar-filter:managementBarFilterItems",
 			_managementBarFilterItems);
-		request.setAttribute(
+		httpServletRequest.setAttribute(
 			"liferay-frontend:management-bar-filter:value", _value);
 	}
 

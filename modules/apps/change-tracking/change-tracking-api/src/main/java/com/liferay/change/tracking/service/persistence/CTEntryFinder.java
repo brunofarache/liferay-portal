@@ -14,7 +14,7 @@
 
 package com.liferay.change.tracking.service.persistence;
 
-import aQute.bnd.annotation.ProviderType;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * @author Brian Wing Shun Chan
@@ -22,6 +22,11 @@ import aQute.bnd.annotation.ProviderType;
  */
 @ProviderType
 public interface CTEntryFinder {
+
+	public int countByCTCollectionId(
+		long ctCollectionId,
+		com.liferay.portal.kernel.dao.orm.QueryDefinition
+			<com.liferay.change.tracking.model.CTEntry> queryDefinition);
 
 	public int countByRelatedCTEntries(
 		long ctEntryId,
@@ -40,12 +45,19 @@ public interface CTEntryFinder {
 			com.liferay.portal.kernel.dao.orm.QueryDefinition
 				<com.liferay.change.tracking.model.CTEntry> queryDefinition);
 
-	public java.util.List<com.liferay.change.tracking.model.CTEntry> findByC_R(
-		long ctCollectionId, long modelResourcePrimKey,
-		com.liferay.portal.kernel.dao.orm.QueryDefinition
-			<com.liferay.change.tracking.model.CTEntry> queryDefinition);
+	public java.util.List<com.liferay.change.tracking.model.CTEntry>
+		findByCTCI_MCNI(
+			long ctCollectionId, long modelClassNameId,
+			com.liferay.portal.kernel.dao.orm.QueryDefinition
+				<com.liferay.change.tracking.model.CTEntry> queryDefinition);
 
-	public com.liferay.change.tracking.model.CTEntry findByC_C_C(
+	public java.util.List<com.liferay.change.tracking.model.CTEntry>
+		findByCTCI_MRPK(
+			long ctCollectionId, long modelResourcePrimKey,
+			com.liferay.portal.kernel.dao.orm.QueryDefinition
+				<com.liferay.change.tracking.model.CTEntry> queryDefinition);
+
+	public com.liferay.change.tracking.model.CTEntry findByCTCI_MCNI_MCPK(
 		long ctCollectionId, long modelClassNameId, long modelClassPK);
 
 }

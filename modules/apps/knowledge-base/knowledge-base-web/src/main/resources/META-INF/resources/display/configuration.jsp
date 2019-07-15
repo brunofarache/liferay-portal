@@ -46,7 +46,6 @@ kbDisplayPortletInstanceConfiguration = ParameterMapUtil.setParameterMap(KBDispl
 		<liferay-ui:tabs
 			names="<%= tabsNames %>"
 			refresh="<%= false %>"
-			type="tabs nav-tabs-default"
 		>
 			<liferay-ui:section>
 				<liferay-frontend:fieldset-group>
@@ -130,10 +129,10 @@ kbDisplayPortletInstanceConfiguration = ParameterMapUtil.setParameterMap(KBDispl
 </liferay-frontend:edit-form>
 
 <aui:script>
-	var <portlet:namespace />form = document.querySelector('#<portlet:namespace />fm');
+	var <portlet:namespace />form = document.getElementById('<portlet:namespace />fm');
 
 	if (<portlet:namespace />form) {
-		<portlet:namespace />form.querySelector('#<portlet:namespace />selectKBObjectButton').addEventListener(
+		document.getElementById('<portlet:namespace />selectKBObjectButton').addEventListener(
 			'click',
 			function(event) {
 				Liferay.Util.selectEntity(
@@ -158,7 +157,7 @@ kbDisplayPortletInstanceConfiguration = ParameterMapUtil.setParameterMap(KBDispl
 						uri: '<%= HtmlUtil.escapeJS(selectKBObjectURL) %>'
 					},
 					function(event) {
-						<portlet:namespace />form.querySelector('#<portlet:namespace />resourceClassNameId').value = event.resourceclassnameid;
+						document.getElementById('<portlet:namespace />resourceClassNameId').value = event.resourceclassnameid;
 
 						var kbObjectData = {
 							idString: 'resourcePrimKey',

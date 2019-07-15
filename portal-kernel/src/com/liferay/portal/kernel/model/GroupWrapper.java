@@ -14,12 +14,12 @@
 
 package com.liferay.portal.kernel.model;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.model.wrapper.BaseModelWrapper;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * <p>
@@ -240,19 +240,6 @@ public class GroupWrapper
 	@Override
 	public java.util.List<Group> getChildren(boolean site) {
 		return model.getChildren(site);
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link
-	 #getChildrenWithLayouts(boolean, int, int,
-	 OrderByComparator)}
-	 */
-	@Deprecated
-	@Override
-	public java.util.List<Group> getChildrenWithLayouts(
-		boolean site, int start, int end) {
-
-		return model.getChildrenWithLayouts(site, start, end);
 	}
 
 	@Override
@@ -856,15 +843,6 @@ public class GroupWrapper
 	@Override
 	public boolean isActive() {
 		return model.isActive();
-	}
-
-	/**
-	 * @deprecated As of Wilberforce (7.0.x), replaced by {@link #hasAncestor}
-	 */
-	@Deprecated
-	@Override
-	public boolean isChild(long groupId) {
-		return model.isChild(groupId);
 	}
 
 	@Override

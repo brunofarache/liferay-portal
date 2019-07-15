@@ -14,8 +14,6 @@
 
 package com.liferay.dynamic.data.mapping.service.http;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.dynamic.data.mapping.service.DDMStructureServiceUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -25,6 +23,8 @@ import java.rmi.RemoteException;
 
 import java.util.Locale;
 import java.util.Map;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the SOAP utility for the
@@ -479,6 +479,31 @@ public class DDMStructureServiceSoap {
 		}
 	}
 
+	public static com.liferay.dynamic.data.mapping.model.DDMStructureSoap[]
+			getStructures(
+				long companyId, long[] groupIds, long classNameId,
+				String keywords, int status, int start, int end,
+				com.liferay.portal.kernel.util.OrderByComparator
+					<com.liferay.dynamic.data.mapping.model.DDMStructure>
+						orderByComparator)
+		throws RemoteException {
+
+		try {
+			java.util.List<com.liferay.dynamic.data.mapping.model.DDMStructure>
+				returnValue = DDMStructureServiceUtil.getStructures(
+					companyId, groupIds, classNameId, keywords, status, start,
+					end, orderByComparator);
+
+			return com.liferay.dynamic.data.mapping.model.DDMStructureSoap.
+				toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
 	public static int getStructuresCount(
 			long companyId, long[] groupIds, long classNameId)
 		throws RemoteException {
@@ -486,6 +511,24 @@ public class DDMStructureServiceSoap {
 		try {
 			int returnValue = DDMStructureServiceUtil.getStructuresCount(
 				companyId, groupIds, classNameId);
+
+			return returnValue;
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static int getStructuresCount(
+			long companyId, long[] groupIds, long classNameId, String keywords,
+			int status)
+		throws RemoteException {
+
+		try {
+			int returnValue = DDMStructureServiceUtil.getStructuresCount(
+				companyId, groupIds, classNameId, keywords, status);
 
 			return returnValue;
 		}

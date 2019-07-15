@@ -14,7 +14,6 @@
 
 package com.liferay.portal.search.elasticsearch6.internal.search.engine.adapter.search;
 
-import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.filter.FilterTranslator;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
@@ -27,12 +26,16 @@ import com.liferay.portal.search.elasticsearch6.internal.filter.FilterToQueryBui
 import com.liferay.portal.search.elasticsearch6.internal.query.QueryToQueryBuilderTranslator;
 import com.liferay.portal.search.elasticsearch6.internal.stats.StatsTranslator;
 import com.liferay.portal.search.engine.adapter.search.BaseSearchRequest;
+import com.liferay.portal.search.filter.ComplexQueryBuilderFactory;
+import com.liferay.portal.search.filter.ComplexQueryPart;
+import com.liferay.portal.search.query.BooleanQuery;
 import com.liferay.portal.search.query.Query;
 import com.liferay.portal.search.stats.StatsRequest;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.common.unit.TimeValue;
@@ -75,17 +78,78 @@ public class CommonSearchRequestBuilderAssemblerImpl
 		setTypes(searchRequestBuilder, baseSearchRequest);
 	}
 
+	protected QueryBuilder combine(
+		QueryBuilder queryBuilder, List<ComplexQueryPart> complexQueryParts) {
+
+		if (complexQueryParts.isEmpty()) {
+			return queryBuilder;
+		}
+
+		BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+
+		if (queryBuilder != null) {
+			boolQueryBuilder.should(queryBuilder);
+		}
+
+		BooleanQuery booleanQuery =
+			(BooleanQuery)_complexQueryBuilderFactory.builder(
+			).addParts(
+				complexQueryParts
+			).build();
+
+		copy(booleanQuery.getFilterQueryClauses(), boolQueryBuilder::filter);
+		copy(booleanQuery.getMustNotQueryClauses(), boolQueryBuilder::mustNot);
+		copy(booleanQuery.getMustQueryClauses(), boolQueryBuilder::must);
+		copy(booleanQuery.getShouldQueryClauses(), boolQueryBuilder::should);
+
+		return boolQueryBuilder;
+	}
+
+	protected QueryBuilder combine(
+		QueryBuilder queryBuilder, QueryBuilder legacyQueryBuilder) {
+
+		if (queryBuilder == null) {
+			return legacyQueryBuilder;
+		}
+
+		if (legacyQueryBuilder == null) {
+			return queryBuilder;
+		}
+
+		BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+
+		return boolQueryBuilder.must(
+			queryBuilder
+		).must(
+			legacyQueryBuilder
+		);
+	}
+
+	protected void copy(List<Query> clauses, Consumer<QueryBuilder> consumer) {
+		clauses.stream(
+		).map(
+			this::translateQuery
+		).forEach(
+			consumer
+		);
+	}
+
 	protected QueryBuilder getQueryBuilder(
 		BaseSearchRequest baseSearchRequest) {
 
-		Query query = baseSearchRequest.getQuery();
+		QueryBuilder queryBuilder = translateQuery(
+			baseSearchRequest.getQuery());
 
-		if (query != null) {
-			return _queryToQueryBuilderTranslator.translate(
-				baseSearchRequest.getQuery());
-		}
+		QueryBuilder legacyQueryBuilder = translateQuery(
+			baseSearchRequest.getQuery71());
 
-		return translateQuery(baseSearchRequest.getQuery71());
+		QueryBuilder combinedQueryBuilder = combine(
+			queryBuilder, legacyQueryBuilder);
+
+		List<ComplexQueryPart> complexQueryParts =
+			baseSearchRequest.getComplexQueryParts();
+
+		return combine(combinedQueryBuilder, complexQueryParts);
 	}
 
 	protected void setAggregations(
@@ -113,6 +177,13 @@ public class CommonSearchRequestBuilderAssemblerImpl
 		AggregationTranslator<AggregationBuilder> aggregationTranslator) {
 
 		_aggregationTranslator = aggregationTranslator;
+	}
+
+	@Reference(unbind = "-")
+	protected void setComplexQueryBuilderFactory(
+		ComplexQueryBuilderFactory complexQueryBuilderFactory) {
+
+		_complexQueryBuilderFactory = complexQueryBuilderFactory;
 	}
 
 	protected void setExplain(
@@ -319,11 +390,15 @@ public class CommonSearchRequestBuilderAssemblerImpl
 	protected QueryBuilder translateQuery(
 		com.liferay.portal.kernel.search.Query query) {
 
+		if (query == null) {
+			return null;
+		}
+
 		QueryBuilder queryBuilder =
 			_legacyQueryToQueryBuilderTranslator.translate(query, null);
 
 		if ((query.getPreBooleanFilter() == null) ||
-			(query instanceof BooleanQuery)) {
+			(query instanceof com.liferay.portal.kernel.search.BooleanQuery)) {
 
 			return queryBuilder;
 		}
@@ -344,7 +419,16 @@ public class CommonSearchRequestBuilderAssemblerImpl
 		return boolQueryBuilder;
 	}
 
+	protected QueryBuilder translateQuery(Query query) {
+		if (query != null) {
+			return _queryToQueryBuilderTranslator.translate(query);
+		}
+
+		return null;
+	}
+
 	private AggregationTranslator<AggregationBuilder> _aggregationTranslator;
+	private ComplexQueryBuilderFactory _complexQueryBuilderFactory;
 	private FacetTranslator _facetTranslator;
 	private FilterTranslator<QueryBuilder> _filterToQueryBuilderTranslator;
 	private com.liferay.portal.search.elasticsearch6.internal.legacy.query.
