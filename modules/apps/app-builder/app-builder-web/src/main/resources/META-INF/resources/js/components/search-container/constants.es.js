@@ -103,7 +103,8 @@ export const CUSTOM_OBJECTS = {
 			dateCreated: Liferay.Language.get('create-date')
 		},
 		{
-			dateModified: Liferay.Language.get('modified-date')
+			dateModified: Liferay.Language.get('modified-date'),
+			asc: false
 		}
 	],
 	EMPTY_STATE: {

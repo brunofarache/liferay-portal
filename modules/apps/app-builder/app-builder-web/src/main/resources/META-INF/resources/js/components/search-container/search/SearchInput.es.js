@@ -37,39 +37,35 @@ export default function SearchInput({keywords, onSearch}) {
 	};
 
 	return (
-		<nav className="management-bar management-bar-light navbar navbar-expand-md">
+		<div className="navbar-form navbar-form-autofit navbar-overlay navbar-overlay-sm-down">
 			<div className="container-fluid container-fluid-max-xl">
-				<div className="navbar-form navbar-form-autofit navbar-overlay navbar-overlay-sm-down">
-					<div className="container-fluid container-fluid-max-xl">
-						<div className="input-group">
-							<div className="input-group-item">
-								<input
-									aria-label="Search for"
-									className="form-control input-group-inset input-group-inset-after"
-									onChange={onChange}
-									onKeyDown={onKeyDown}
-									placeholder="Search for"
-									type="text"
-									value={value}
-								/>
+				<div className="input-group">
+					<div className="input-group-item">
+						<input
+							aria-label="Search for"
+							className="form-control input-group-inset input-group-inset-after"
+							onChange={onChange}
+							onKeyDown={onKeyDown}
+							placeholder="Search for"
+							type="text"
+							value={value}
+						/>
 
-								<div className="input-group-inset-item input-group-inset-item-after">
-									<button
-										className="btn btn-unstyled"
-										onClick={onClick}
-										type="button"
-									>
-										<ClayIcon
-											spritemap={`${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`}
-											symbol="search"
-										/>
-									</button>
-								</div>
-							</div>
+						<div className="input-group-inset-item input-group-inset-item-after">
+							<button
+								className="btn btn-unstyled"
+								onClick={onClick}
+								type="button"
+							>
+								<ClayIcon
+									spritemap={`${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`}
+									symbol="search"
+								/>
+							</button>
 						</div>
 					</div>
 				</div>
 			</div>
-		</nav>
+		</div>
 	);
 }

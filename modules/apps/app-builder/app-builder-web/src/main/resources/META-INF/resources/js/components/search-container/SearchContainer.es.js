@@ -28,12 +28,13 @@ export default function SearchContainer({
 	endpoint,
 	formatter
 }) {
-	const [loading, setLoading] = useState(true);
+	const [isLoading, setLoading] = useState(true);
 
 	const [state, setState] = useState({
 		keywords: '',
 		page: 1,
-		pageSize: 20
+		pageSize: 20,
+		sort: ''
 	});
 
 	const {resource, refetch} = useResource({
@@ -58,7 +59,7 @@ export default function SearchContainer({
 		LoadingIndicator = <EmptyState {...emptyState} />;
 	}
 
-	if (loading) {
+	if (isLoading) {
 		LoadingIndicator = <ClayLoadingIndicator />;
 	}
 
@@ -68,10 +69,6 @@ export default function SearchContainer({
 			...prevState,
 			...nextState
 		}));
-	};
-
-	const onSearch = keywords => {
-		fetchItems({keywords, page: 1});
 	};
 
 	const onPageChange = page => {
@@ -88,6 +85,14 @@ export default function SearchContainer({
 		}
 
 		fetchItems({page: 1, pageSize});
+	};
+
+	const onSearch = keywords => {
+		fetchItems({keywords, page: 1});
+	};
+
+	const onSort = sort => {
+		fetchItems({sort, page: 1});
 	};
 
 	const refetchOnDelete = actions =>
@@ -116,12 +121,16 @@ export default function SearchContainer({
 		});
 
 	const {keywords, page, pageSize} = state;
+	const {length: itemsCount} = items || [];
 
 	return (
 		<Fragment>
 			<SearchBar
+				columns={columns}
+				isLoading={isLoading}
 				keywords={keywords}
 				onSearch={onSearch}
+				onSort={onSort}
 				totalCount={totalCount}
 			/>
 
@@ -136,7 +145,7 @@ export default function SearchContainer({
 
 						<div className="taglib-search-iterator-page-iterator-bottom">
 							<PaginationBar
-								itemsCount={items.length}
+								itemsCount={itemsCount}
 								onPageChange={onPageChange}
 								onPageSizeChange={onPageSizeChange}
 								page={page}
