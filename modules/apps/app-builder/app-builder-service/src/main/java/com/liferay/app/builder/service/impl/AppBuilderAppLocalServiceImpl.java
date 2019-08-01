@@ -56,21 +56,17 @@ public class AppBuilderAppLocalServiceImpl
 			Map<Locale, String> nameMap, String settings)
 		throws PortalException {
 
-		validateDataListView(deDataListViewId);
-		validateStructureId(ddmStructureId);
-		validateStructureLayoutId(ddmStructureLayoutId);
+		User user = userLocalService.getUser(userId);
+
+		validate(ddmStructureId, ddmStructureLayoutId, deDataListViewId);
 
 		AppBuilderApp appBuilderApp = appBuilderAppPersistence.create(
 			counterLocalService.increment());
 
 		appBuilderApp.setGroupId(groupId);
 		appBuilderApp.setCompanyId(companyId);
-		appBuilderApp.setUserId(userId);
-
-		User user = userLocalService.getUser(userId);
-
+		appBuilderApp.setUserId(user.getUserId());
 		appBuilderApp.setUserName(user.getFullName());
-
 		appBuilderApp.setCreateDate(new Date());
 		appBuilderApp.setModifiedDate(new Date());
 		appBuilderApp.setDdmStructureId(ddmStructureId);
@@ -82,20 +78,9 @@ public class AppBuilderAppLocalServiceImpl
 		return appBuilderAppPersistence.update(appBuilderApp);
 	}
 
-	protected void validateDataListView(long deDataListViewId)
-		throws PortalException {
-
-		DEDataListView deDataListView =
-			_deDataListViewLocalService.fetchDEDataListView(deDataListViewId);
-
-		if (deDataListView == null) {
-			throw new NoSuchDataListViewException(
-				"No DEDataListView exists with the DEDataListView ID " +
-					deDataListViewId);
-		}
-	}
-
-	protected void validateStructureId(long ddmStructureId)
+	protected void validate(
+			long ddmStructureId, long ddmStructureLayoutId,
+			long deDataListViewId)
 		throws PortalException {
 
 		DDMStructure ddmStructure = _ddmStructureLocalService.fetchStructure(
@@ -106,10 +91,6 @@ public class AppBuilderAppLocalServiceImpl
 				"No DDMStructure exists with the DDMStructure ID " +
 					ddmStructureId);
 		}
-	}
-
-	protected void validateStructureLayoutId(long ddmStructureLayoutId)
-		throws PortalException {
 
 		DDMStructureLayout ddmStructureLayout =
 			_ddmStructureLayoutLocalService.fetchStructureLayout(
@@ -119,6 +100,15 @@ public class AppBuilderAppLocalServiceImpl
 			throw new NoSuchStructureLayoutException(
 				"No DDMStructureLayout exists with the DDMStructureLayout ID " +
 					ddmStructureLayoutId);
+		}
+
+		DEDataListView deDataListView =
+			_deDataListViewLocalService.fetchDEDataListView(deDataListViewId);
+
+		if (deDataListView == null) {
+			throw new NoSuchDataListViewException(
+				"No DEDataListView exists with the DEDataListView ID " +
+					deDataListViewId);
 		}
 	}
 
