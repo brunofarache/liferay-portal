@@ -27,16 +27,14 @@ export default ({
 	totalCount
 }) => {
 	useEffect(() => {
-		renderMessage(
-			() =>
-				!isLoading && (
-					<SearchSubnavigationBar
-						keywords={keywords}
-						onSearch={onSearch}
-						totalCount={totalCount}
-					/>
-				)
-		);
+		renderMessage(() => (
+			<SearchSubnavigationBar
+				isLoading={isLoading}
+				keywords={keywords}
+				onSearch={onSearch}
+				totalCount={totalCount}
+			/>
+		));
 	}, [isLoading, keywords, onSearch, renderMessage, totalCount]);
 
 	return (

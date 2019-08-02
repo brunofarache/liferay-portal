@@ -15,7 +15,9 @@
 import React from 'react';
 import lang from '../../../utils/lang.es';
 
-export default ({keywords, onSearch, totalCount}) => {
+export default ({isLoading, keywords, onSearch, totalCount}) => {
+	const invisible = isLoading ? 'invisible' : '';
+
 	const clear = () => {
 		onSearch('');
 	};
@@ -23,7 +25,9 @@ export default ({keywords, onSearch, totalCount}) => {
 	return (
 		<>
 			{keywords && (
-				<nav className="tbar tbar-inline-xs-down subnav-tbar subnav-tbar-primary">
+				<nav
+					className={`tbar tbar-inline-xs-down subnav-tbar subnav-tbar-primary ${invisible}`}
+				>
 					<div className="container-fluid container-fluid-max-xl">
 						<ul className="tbar-nav tbar-nav-wrap">
 							<li className="tbar-item tbar-item-expand">
