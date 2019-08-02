@@ -67,7 +67,7 @@ export default ({
 					totalCount={totalCount}
 				/>
 
-				{!!addURL && <AddButton href={addURL} />}
+				{addURL && <AddButton href={addURL} />}
 			</ManagementToolbar>
 
 			<SearchContainer
