@@ -12,17 +12,17 @@
  * details.
  */
 
-import React, {Fragment} from 'react';
+import React from 'react';
 import {Route, Switch} from 'react-router-dom';
 import CustomObjectNavigationBar from './CustomObjectNavigationBar.es';
 import ListApps from './ListApps.es';
 import ListFormViews from './ListFormViews.es';
 import ListTableViews from './ListTableViews.es';
 
-export default ({match: {path, url}}) => {
+export default ({match: {path}}) => {
 	return (
-		<Fragment>
-			<CustomObjectNavigationBar url={url} />
+		<>
+			<CustomObjectNavigationBar />
 
 			<Switch>
 				<Route component={ListFormViews} path={`${path}/form-views`} />
@@ -34,6 +34,6 @@ export default ({match: {path, url}}) => {
 
 				<Route component={ListApps} path={`${path}/deployments`} />
 			</Switch>
-		</Fragment>
+		</>
 	);
 };
