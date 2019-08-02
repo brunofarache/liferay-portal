@@ -12,7 +12,7 @@
  * details.
  */
 
-import React, {Fragment, useCallback, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {
 	ManagementToolbar,
 	SearchBar,
@@ -56,7 +56,7 @@ export default ({
 	const {keywords, sort} = state;
 
 	return (
-		<Fragment>
+		<>
 			<ManagementToolbar>
 				<SearchBar
 					columns={columns}
@@ -81,6 +81,6 @@ export default ({
 				onTotalCountChange={onTotalCountChange}
 				sort={sort}
 			/>
-		</Fragment>
+		</>
 	);
 };

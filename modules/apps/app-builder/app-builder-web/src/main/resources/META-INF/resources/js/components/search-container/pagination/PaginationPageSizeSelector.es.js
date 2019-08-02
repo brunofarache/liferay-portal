@@ -14,7 +14,7 @@
 
 import ClayDropDown, {Align} from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
-import React, {Fragment, useState} from 'react';
+import React, {useState} from 'react';
 import lang from '../../../utils/lang.es';
 
 const {Item, ItemList} = ClayDropDown;
@@ -34,7 +34,7 @@ export default function PaginationPageSizeSelector({
 	const lastEntry = firstEntry + itemsCount - 1;
 
 	return (
-		<Fragment>
+		<>
 			<ClayDropDown
 				active={active}
 				alignmentPosition={Align.RightCenter}
@@ -69,6 +69,6 @@ export default function PaginationPageSizeSelector({
 					totalCount
 				])}
 			</p>
-		</Fragment>
+		</>
 	);
 }

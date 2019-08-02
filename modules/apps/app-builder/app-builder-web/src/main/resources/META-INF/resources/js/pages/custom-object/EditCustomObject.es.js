@@ -12,8 +12,8 @@
  * details.
  */
 
-import React, {Fragment} from 'react';
+import React from 'react';
 
 export default () => {
-	return <Fragment></Fragment>;
+	return <></>;
 };

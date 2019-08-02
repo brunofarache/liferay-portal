@@ -14,7 +14,7 @@
 
 import {useResource} from '@clayui/data-provider';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
-import React, {Fragment, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import PaginationBar from './pagination/PaginationBar.es';
 import EmptyState from './table/EmptyState.es';
 import Table from './table/Table.es';
@@ -132,10 +132,10 @@ export default ({
 	const {length: itemsCount} = items || [];
 
 	return (
-		<Fragment>
+		<>
 			<div className="container-fluid container-fluid-max-xl">
 				{LoadingIndicator || (
-					<Fragment>
+					<>
 						<Table
 							actions={refetchOnDelete(actions)}
 							columns={columns}
@@ -153,9 +153,9 @@ export default ({
 								totalPages={totalPages}
 							/>
 						</div>
-					</Fragment>
+					</>
 				)}
 			</div>
-		</Fragment>
+		</>
 	);
 };

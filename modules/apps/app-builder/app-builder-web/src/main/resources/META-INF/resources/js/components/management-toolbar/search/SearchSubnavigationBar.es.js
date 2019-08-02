@@ -12,7 +12,7 @@
  * details.
  */
 
-import React, {Fragment} from 'react';
+import React from 'react';
 import lang from '../../../utils/lang.es';
 
 export default function SearchSubnavigationBar({
@@ -25,7 +25,7 @@ export default function SearchSubnavigationBar({
 	};
 
 	return (
-		<Fragment>
+		<>
 			{keywords !== '' && (
 				<nav className="tbar tbar-inline-xs-down subnav-tbar subnav-tbar-primary">
 					<div className="container-fluid container-fluid-max-xl">
@@ -59,6 +59,6 @@ export default function SearchSubnavigationBar({
 					</div>
 				</nav>
 			)}
-		</Fragment>
+		</>
 	);
 }
