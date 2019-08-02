@@ -46,10 +46,18 @@ export default ({
 	});
 
 	const onSearch = keywords => {
+		if (state.keywords === keywords) {
+			return;
+		}
+
 		setState({...state, keywords});
 	};
 
 	const onSort = sort => {
+		if (state.sort === sort) {
+			return;
+		}
+
 		setState({...state, sort});
 	};
 

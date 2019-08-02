@@ -71,8 +71,8 @@ describe('SearchContainer', () => {
 			document.querySelector('span.loading-animation')
 		);
 
-		expect(queryByText(EMPTY_STATE.title)).toBeTruthy();
-		expect(queryByText(EMPTY_STATE.description)).toBeTruthy();
+		expect(queryByText(EMPTY_STATE.empty.title)).toBeTruthy();
+		expect(queryByText(EMPTY_STATE.empty.description)).toBeTruthy();
 	});
 
 	it('renders with 1 item', async () => {

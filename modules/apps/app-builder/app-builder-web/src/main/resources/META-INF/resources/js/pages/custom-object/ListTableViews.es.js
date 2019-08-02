@@ -40,10 +40,12 @@ const TABLE_VIEWS = {
 		}
 	],
 	EMPTY_STATE: {
-		description: Liferay.Language.get(
-			'create-one-or-more-tables-to-display-the-data-held-in-your-data-object'
-		),
-		title: Liferay.Language.get('there-are-no-table-views-yet')
+		empty: {
+			description: Liferay.Language.get(
+				'create-one-or-more-tables-to-display-the-data-held-in-your-data-object'
+			),
+			title: Liferay.Language.get('there-are-no-table-views-yet')
+		}
 	},
 	FORMATTER: items =>
 		items.map(item => ({

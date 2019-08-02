@@ -23,11 +23,7 @@ export default ({keywords, onSearch}) => {
 	};
 
 	const onClick = () => {
-		const trimmed = value.trim();
-
-		if (trimmed !== '') {
-			onSearch(trimmed);
-		}
+		onSearch(value.trim());
 	};
 
 	const onKeyDown = event => {

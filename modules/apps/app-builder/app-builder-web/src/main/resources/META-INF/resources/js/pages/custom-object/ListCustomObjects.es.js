@@ -56,10 +56,12 @@ const CUSTOM_OBJECTS = {
 		}
 	],
 	EMPTY_STATE: {
-		description: Liferay.Language.get(
-			'custom-objects-define-the-types-of-data-your-business-application-needs'
-		),
-		title: Liferay.Language.get('there-are-no-custom-objects-yet')
+		empty: {
+			description: Liferay.Language.get(
+				'custom-objects-define-the-types-of-data-your-business-application-needs'
+			),
+			title: Liferay.Language.get('there-are-no-custom-objects-yet')
+		}
 	},
 	FORMATTER: items =>
 		items.map(item => ({

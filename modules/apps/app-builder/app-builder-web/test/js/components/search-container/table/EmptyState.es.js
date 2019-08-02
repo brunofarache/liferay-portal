@@ -21,7 +21,11 @@ describe('EmptyState', () => {
 
 	it('renders', () => {
 		const {queryByText} = render(
-			<EmptyState description="description" title="title" />
+			<EmptyState
+				emptyState={{
+					empty: {description: 'description', title: 'title'}
+				}}
+			/>
 		);
 
 		expect(queryByText('title')).toBeTruthy();
@@ -29,7 +33,9 @@ describe('EmptyState', () => {
 	});
 
 	it('renders without title', () => {
-		const {queryByText} = render(<EmptyState description="description" />);
+		const {queryByText} = render(
+			<EmptyState emptyState={{empty: {description: 'description'}}} />
+		);
 
 		expect(queryByText('title')).toBeNull();
 		expect(queryByText('description')).toBeTruthy();

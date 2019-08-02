@@ -29,8 +29,8 @@ const createItems = size => {
 
 export const ACTIONS = [
 	{
-		name: 'Delete',
-		callback: () => {}
+		callback: () => {},
+		name: 'Delete'
 	}
 ];
 
@@ -47,8 +47,10 @@ export const COLUMNS = [
 ];
 
 export const EMPTY_STATE = {
-	title: 'title',
-	description: 'description'
+	empty: {
+		description: 'description',
+		title: 'title'
+	}
 };
 
 export const ENDPOINT = '/endpoint';

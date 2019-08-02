@@ -69,22 +69,24 @@ export default ({
 		}
 	}, [onTotalCountChange, totalCount]);
 
-	let LoadingIndicator;
-
-	if (!items || items.length === 0) {
-		LoadingIndicator = <EmptyState {...emptyState} />;
-	}
-
-	if (isLoading) {
-		LoadingIndicator = <ClayLoadingIndicator />;
-	}
-
 	const fetchItems = nextState => {
 		setLoading(true);
 		setState(prevState => ({
 			...prevState,
 			...nextState
 		}));
+	};
+
+	const getLoadingIndicator = (emptyState, isLoading, items, keywords) => {
+		if (isLoading) {
+			return <ClayLoadingIndicator />;
+		}
+
+		if (!items || items.length === 0) {
+			return <EmptyState emptyState={emptyState} keywords={keywords} />;
+		}
+
+		return null;
 	};
 
 	const onPageChange = page => {
@@ -134,7 +136,12 @@ export default ({
 	return (
 		<>
 			<div className="container-fluid container-fluid-max-xl">
-				{LoadingIndicator || (
+				{getLoadingIndicator(
+					emptyState,
+					isLoading,
+					items,
+					keywords
+				) || (
 					<>
 						<Table
 							actions={refetchOnDelete(actions)}

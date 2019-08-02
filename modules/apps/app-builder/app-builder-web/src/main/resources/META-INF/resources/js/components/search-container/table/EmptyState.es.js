@@ -13,12 +13,40 @@
  */
 
 import React from 'react';
+import lang from '../../../utils/lang.es';
 
-export default ({description, title}) => {
+export default ({emptyState, keywords = ''}) => {
+	const defaultEmpty = {
+		title: Liferay.Language.get('there-are-no-entries'),
+		description: null
+	};
+
+	const defaultSearch = {
+		title: Liferay.Language.get('no-results-were-found'),
+		description: lang.sub(
+			Liferay.Language.get('sorry,-there-are-not-results-for-x'),
+			[keywords]
+		)
+	};
+
+	const empty = {
+		...defaultEmpty,
+		...emptyState.empty
+	};
+
+	const search = {
+		...defaultSearch,
+		...emptyState.search
+	};
+
+	const isSearch = keywords !== '';
+	const {description, title} = isSearch ? search : empty;
+	const className = isSearch ? 'taglib-search-state' : 'taglib-empty-state';
+
 	return (
 		<div className="taglib-empty-result-message">
 			<div className="text-center">
-				<div className="taglib-empty-state" />
+				<div className={className} />
 
 				{title && (
 					<h1 className="taglib-empty-result-message-title">
@@ -26,9 +54,11 @@ export default ({description, title}) => {
 					</h1>
 				)}
 
-				<p className="taglib-empty-result-message-description">
-					{description}
-				</p>
+				{description && (
+					<p className="taglib-empty-result-message-description">
+						{description}
+					</p>
+				)}
 			</div>
 		</div>
 	);
