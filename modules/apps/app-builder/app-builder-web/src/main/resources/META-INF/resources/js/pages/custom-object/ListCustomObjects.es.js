@@ -20,52 +20,53 @@ import {confirmDelete} from '../../utils/client.es';
 const CUSTOM_OBJECTS = {
 	ACTIONS: [
 		{
-			name: Liferay.Language.get('form-views'),
-			link: item => `#/custom-object/${item.id}/form-views`
+			link: item => `#/custom-object/${item.id}/form-views`,
+			name: Liferay.Language.get('form-views')
 		},
 		{
-			name: Liferay.Language.get('table-views'),
-			link: item => `#/custom-object/${item.id}/table-views`
+			link: item => `#/custom-object/${item.id}/table-views`,
+			name: Liferay.Language.get('table-views')
 		},
 		{
-			name: Liferay.Language.get('deployments'),
-			link: item => `#/custom-object/${item.id}/deployments`
+			link: item => `#/custom-object/${item.id}/deployments`,
+			name: Liferay.Language.get('deployments')
 		},
 		{
 			name: 'divider'
 		},
 		{
-			name: Liferay.Language.get('delete'),
-			callback: confirmDelete('/o/data-engine/v1.0/data-definitions/')
+			callback: confirmDelete('/o/data-engine/v1.0/data-definitions/'),
+			name: Liferay.Language.get('delete')
 		}
 	],
 	COLUMNS: [
 		{
-			name: Liferay.Language.get('name')
+			key: 'name',
+			link: item => `/custom-object/${item.id}/form-views`,
+			value: Liferay.Language.get('name')
 		},
 		{
-			dateCreated: Liferay.Language.get('create-date')
+			key: 'dateCreated',
+			value: Liferay.Language.get('create-date')
 		},
 		{
-			dateModified: Liferay.Language.get('modified-date'),
-			asc: false
+			asc: false,
+			key: 'dateModified',
+			value: Liferay.Language.get('modified-date')
 		}
 	],
 	EMPTY_STATE: {
-		title: Liferay.Language.get('there-are-no-custom-objects-yet'),
 		description: Liferay.Language.get(
 			'custom-objects-define-the-types-of-data-your-business-application-needs'
-		)
+		),
+		title: Liferay.Language.get('there-are-no-custom-objects-yet')
 	},
 	FORMATTER: items =>
 		items.map(item => ({
 			dateCreated: moment(item.dateCreated).fromNow(),
 			dateModified: moment(item.dateModified).fromNow(),
 			id: item.id,
-			name: {
-				name: item.name.en_US,
-				link: item => `/custom-object/${item.id}/form-views`
-			}
+			name: item.name.en_US
 		}))
 };
 

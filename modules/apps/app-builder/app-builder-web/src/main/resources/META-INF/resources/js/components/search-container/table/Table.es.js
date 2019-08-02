@@ -31,7 +31,7 @@ export default ({actions, columns, items}) => {
 							headingCell
 							key={index}
 						>
-							{Object.values(column)[0]}
+							{column.value}
 						</Cell>
 					))}
 					{actions.length > 0 && <Cell>{''}</Cell>}
@@ -41,13 +41,11 @@ export default ({actions, columns, items}) => {
 				{items.map(item => (
 					<Row data-testid="item" key={item.id}>
 						{columns.map((column, index) => {
-							let content = item[Object.keys(column)[0]];
+							let cell = item[column.key];
 
-							if (typeof content === 'object' && content.link) {
-								content = (
-									<Link to={content.link(item)}>
-										{content.name}
-									</Link>
+							if (column.hasOwnProperty('link')) {
+								cell = (
+									<Link to={column.link(item)}>{cell}</Link>
 								);
 							}
 
@@ -60,7 +58,7 @@ export default ({actions, columns, items}) => {
 									headingTitle={index === 0}
 									key={index}
 								>
-									{content}
+									{cell}
 								</Cell>
 							);
 						})}

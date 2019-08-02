@@ -20,26 +20,30 @@ import {confirmDelete} from '../../utils/client.es';
 const TABLE_VIEWS = {
 	ACTIONS: [
 		{
-			name: Liferay.Language.get('delete'),
-			callback: confirmDelete('/o/data-engine/v1.0/data-list-views/')
+			callback: confirmDelete('/o/data-engine/v1.0/data-list-views/'),
+			name: Liferay.Language.get('delete')
 		}
 	],
 	COLUMNS: [
 		{
-			name: Liferay.Language.get('name')
+			key: 'name',
+			value: Liferay.Language.get('name')
 		},
 		{
-			dateCreated: Liferay.Language.get('create-date')
+			key: 'dateCreated',
+			value: Liferay.Language.get('create-date')
 		},
 		{
-			dateModified: Liferay.Language.get('modified-date')
+			asc: false,
+			key: 'dateModified',
+			value: Liferay.Language.get('modified-date')
 		}
 	],
 	EMPTY_STATE: {
-		title: Liferay.Language.get('there-are-no-table-views-yet'),
 		description: Liferay.Language.get(
 			'create-one-or-more-tables-to-display-the-data-held-in-your-data-object'
-		)
+		),
+		title: Liferay.Language.get('there-are-no-table-views-yet')
 	},
 	FORMATTER: items =>
 		items.map(item => ({

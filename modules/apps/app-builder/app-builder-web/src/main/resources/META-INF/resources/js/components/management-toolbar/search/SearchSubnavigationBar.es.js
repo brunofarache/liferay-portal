@@ -22,7 +22,7 @@ export default ({keywords, onSearch, totalCount}) => {
 
 	return (
 		<>
-			{keywords !== '' && (
+			{keywords && (
 				<nav className="tbar tbar-inline-xs-down subnav-tbar subnav-tbar-primary">
 					<div className="container-fluid container-fluid-max-xl">
 						<ul className="tbar-nav tbar-nav-wrap">

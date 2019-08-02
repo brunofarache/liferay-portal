@@ -20,32 +20,38 @@ import {confirmDelete} from '../../utils/client.es';
 const APPS = {
 	ACTIONS: [
 		{
-			name: Liferay.Language.get('delete'),
-			callback: confirmDelete('/o/app-builder/v1.0/apps/')
+			callback: confirmDelete('/o/app-builder/v1.0/apps/'),
+			name: Liferay.Language.get('delete')
 		}
 	],
 	COLUMNS: [
 		{
-			name: Liferay.Language.get('name')
+			key: 'name',
+			value: Liferay.Language.get('name')
 		},
 		{
-			type: Liferay.Language.get('deployed-as')
+			key: 'type',
+			value: Liferay.Language.get('deployed-as')
 		},
 		{
-			dateCreated: Liferay.Language.get('create-date')
+			key: 'dateCreated',
+			value: Liferay.Language.get('create-date')
 		},
 		{
-			dateModified: Liferay.Language.get('modified-date')
+			asc: false,
+			key: 'dateModified',
+			value: Liferay.Language.get('modified-date')
 		},
 		{
-			status: Liferay.Language.get('status')
+			key: 'status',
+			value: Liferay.Language.get('status')
 		}
 	],
 	EMPTY_STATE: {
-		title: Liferay.Language.get('there-are-no-deployments-yet'),
 		description: Liferay.Language.get(
 			'select-the-form-and-table-view-you-want-and-deploy-your-app-as-a-widget-standalone-or-place-it-in-the-product-menu'
-		)
+		),
+		title: Liferay.Language.get('there-are-no-deployments-yet')
 	},
 	FORMATTER: items =>
 		items.map(item => ({

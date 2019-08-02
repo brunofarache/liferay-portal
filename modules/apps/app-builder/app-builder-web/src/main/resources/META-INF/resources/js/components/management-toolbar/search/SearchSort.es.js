@@ -21,19 +21,17 @@ const {Group, Item, ItemList} = ClayDropDown;
 export default ({columns, onSort}) => {
 	let defaultColumn = columns.find(column => column.hasOwnProperty('asc'));
 
-	if (defaultColumn === undefined) {
-		const key = Object.keys(columns[0])[0];
-
+	if (!defaultColumn) {
 		defaultColumn = {
-			[key]: key,
+			...columns[0],
 			asc: true
 		};
 	}
 
 	const [state, setState] = useState({
 		active: false,
-		column: Object.keys(defaultColumn)[0],
-		asc: defaultColumn.asc
+		asc: defaultColumn.asc,
+		column: defaultColumn.key
 	});
 
 	const sort = (asc, column) => {
@@ -83,16 +81,12 @@ export default ({columns, onSort}) => {
 						<Group header={Liferay.Language.get('order-by')}>
 							{columns.map((columnObject, index) => (
 								<Item
-									active={
-										column === Object.keys(columnObject)[0]
-									}
+									active={column === columnObject.key}
 									href="javascript:;"
 									key={index}
-									onClick={() =>
-										sort(asc, Object.keys(columnObject)[0])
-									}
+									onClick={() => sort(asc, columnObject.key)}
 								>
-									{Object.values(columnObject)[0]}
+									{columnObject.value}
 								</Item>
 							))}
 						</Group>

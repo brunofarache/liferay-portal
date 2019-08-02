@@ -20,26 +20,30 @@ import {confirmDelete} from '../../utils/client.es';
 const FORM_VIEWS = {
 	ACTIONS: [
 		{
-			name: Liferay.Language.get('delete'),
-			callback: confirmDelete('/o/data-engine/v1.0/data-layouts/')
+			callback: confirmDelete('/o/data-engine/v1.0/data-layouts/'),
+			name: Liferay.Language.get('delete')
 		}
 	],
 	COLUMNS: [
 		{
-			name: Liferay.Language.get('name')
+			key: 'name',
+			value: Liferay.Language.get('name')
 		},
 		{
-			dateCreated: Liferay.Language.get('create-date')
+			key: 'dateCreated',
+			value: Liferay.Language.get('create-date')
 		},
 		{
-			dateModified: Liferay.Language.get('modified-date')
+			asc: false,
+			key: 'dateModified',
+			value: Liferay.Language.get('modified-date')
 		}
 	],
 	EMPTY_STATE: {
-		title: Liferay.Language.get('there-are-no-form-views-yet'),
 		description: Liferay.Language.get(
 			'create-one-or-more-forms-to-display-the-data-held-in-your-data-object'
-		)
+		),
+		title: Liferay.Language.get('there-are-no-form-views-yet')
 	},
 	FORMATTER: items =>
 		items.map(item => ({
