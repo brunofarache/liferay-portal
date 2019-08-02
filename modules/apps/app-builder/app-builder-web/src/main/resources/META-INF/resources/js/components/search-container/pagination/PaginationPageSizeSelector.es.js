@@ -19,13 +19,7 @@ import lang from '../../../utils/lang.es';
 
 const {Item, ItemList} = ClayDropDown;
 
-export default function PaginationPageSizeSelector({
-	itemsCount,
-	onPageSizeChange,
-	page,
-	pageSize,
-	totalCount
-}) {
+export default ({itemsCount, onPageSizeChange, page, pageSize, totalCount}) => {
 	const [active, setActive] = useState(false);
 
 	const options = [5, 10, 20, 30, 50, 75];
@@ -71,4 +65,4 @@ export default function PaginationPageSizeSelector({
 			</p>
 		</>
 	);
-}
+};

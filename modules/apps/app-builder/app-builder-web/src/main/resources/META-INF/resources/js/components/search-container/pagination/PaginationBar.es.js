@@ -16,7 +16,7 @@ import React from 'react';
 import PaginationPageSelector from './PaginationPageSelector.es';
 import PaginationPageSizeSelector from './PaginationPageSizeSelector.es';
 
-export default function PaginationBar({
+export default ({
 	itemsCount,
 	onPageChange,
 	onPageSizeChange,
@@ -24,7 +24,7 @@ export default function PaginationBar({
 	pageSize,
 	totalCount,
 	totalPages
-}) {
+}) => {
 	return (
 		<div className="pagination-bar">
 			<PaginationPageSizeSelector
@@ -42,4 +42,4 @@ export default function PaginationBar({
 			/>
 		</div>
 	);
-}
+};

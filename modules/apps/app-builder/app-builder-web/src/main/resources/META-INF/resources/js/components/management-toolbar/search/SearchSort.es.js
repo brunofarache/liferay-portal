@@ -18,7 +18,7 @@ import React, {useState} from 'react';
 
 const {Group, Item, ItemList} = ClayDropDown;
 
-export default function SearchSort({columns, onSort}) {
+export default ({columns, onSort}) => {
 	let defaultColumn = columns.find(column => column.hasOwnProperty('asc'));
 
 	if (defaultColumn === undefined) {
@@ -119,4 +119,4 @@ export default function SearchSort({columns, onSort}) {
 			</li>
 		</ul>
 	);
-}
+};

@@ -15,11 +15,7 @@
 import ClayPagination from '@clayui/pagination';
 import React from 'react';
 
-export default function PaginationPageSelector({
-	onPageChange,
-	page,
-	totalPages
-}) {
+export default ({onPageChange, page, totalPages}) => {
 	return (
 		<ClayPagination
 			activePage={page}
@@ -28,4 +24,4 @@ export default function PaginationPageSelector({
 			totalPages={totalPages}
 		/>
 	);
-}
+};

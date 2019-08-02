@@ -18,7 +18,7 @@ import {Route, HashRouter as Router, Switch} from 'react-router-dom';
 import ListCustomObjects from './pages/custom-object/ListCustomObjects.es';
 import ViewCustomObject from './pages/custom-object/ViewCustomObject.es';
 
-export default function App() {
+export default () => {
 	return (
 		<ClayIconSpriteContext.Provider
 			value={`${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`}
@@ -35,4 +35,4 @@ export default function App() {
 			</Router>
 		</ClayIconSpriteContext.Provider>
 	);
-}
+};

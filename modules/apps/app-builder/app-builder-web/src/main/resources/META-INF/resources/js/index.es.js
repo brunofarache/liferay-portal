@@ -16,6 +16,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App.es';
 
-export default function(id) {
+export default id => {
 	ReactDOM.render(<App />, document.getElementById(id));
-}
+};

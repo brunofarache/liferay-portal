@@ -15,11 +15,7 @@
 import React from 'react';
 import lang from '../../../utils/lang.es';
 
-export default function SearchSubnavigationBar({
-	keywords,
-	onSearch,
-	totalCount
-}) {
+export default ({keywords, onSearch, totalCount}) => {
 	const clear = () => {
 		onSearch('');
 	};
@@ -61,4 +57,4 @@ export default function SearchSubnavigationBar({
 			)}
 		</>
 	);
-}
+};

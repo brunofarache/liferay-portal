@@ -14,7 +14,7 @@
 
 import React from 'react';
 
-export default function EmptyState({description, title}) {
+export default ({description, title}) => {
 	return (
 		<div className="taglib-empty-result-message">
 			<div className="text-center">
@@ -32,4 +32,4 @@ export default function EmptyState({description, title}) {
 			</div>
 		</div>
 	);
-}
+};

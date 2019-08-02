@@ -19,7 +19,7 @@ import DropDown from './DropDown.es';
 
 const {Body, Cell, Head, Row} = ClayTable;
 
-export default function Table({actions, columns, items}) {
+export default ({actions, columns, items}) => {
 	return (
 		<ClayTable hover={false}>
 			<Head>
@@ -72,4 +72,4 @@ export default function Table({actions, columns, items}) {
 			</Body>
 		</ClayTable>
 	);
-}
+};
