@@ -25,7 +25,6 @@ import com.liferay.dynamic.data.mapping.storage.StorageType;
 import com.liferay.dynamic.data.mapping.test.util.DDMStructureLayoutTestHelper;
 import com.liferay.dynamic.data.mapping.test.util.DDMStructureTestHelper;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -49,14 +48,10 @@ public class AppResourceTest extends BaseAppResourceTestCase {
 	public void setUp() throws Exception {
 		super.setUp();
 
-		DDMFormLayout ddmFormLayout = new DDMFormLayout();
-
-		ddmFormLayout.setDefaultLocale(new Locale("en_US"));
-
-		_ddmStructure = _addDDMStructure(testGroup);
+		_ddmStructure = _addDDMStructure();
 
 		_ddmStructureLayout = _addDDMStructureLayout(
-			ddmFormLayout, testGroup, _ddmStructure.getStructureId());
+			_ddmStructure.getStructureId());
 
 		_deDataListView = _deDataListViewLocalService.addDEDataListView(
 			testGroup.getGroupId(), testCompany.getCompanyId(),
@@ -66,7 +61,7 @@ public class AppResourceTest extends BaseAppResourceTestCase {
 	}
 
 	@Override
-	protected App randomApp() throws Exception {
+	protected App randomApp() {
 		return new App() {
 			{
 				dataDefinitionId = _ddmStructure.getStructureId();
@@ -89,9 +84,7 @@ public class AppResourceTest extends BaseAppResourceTestCase {
 	}
 
 	@Override
-	protected Long testGetDataDefinitionAppsPage_getDataDefinitionId()
-		throws Exception {
-
+	protected Long testGetDataDefinitionAppsPage_getDataDefinitionId() {
 		return _ddmStructure.getStructureId();
 	}
 
@@ -103,10 +96,10 @@ public class AppResourceTest extends BaseAppResourceTestCase {
 			_ddmStructure.getStructureId(), app);
 	}
 
-	private DDMStructure _addDDMStructure(Group group) throws Exception {
+	private DDMStructure _addDDMStructure() throws Exception {
 		DDMStructureTestHelper ddmStructureTestHelper =
 			new DDMStructureTestHelper(
-				PortalUtil.getClassNameId(_RESOURCE_NAME), group);
+				PortalUtil.getClassNameId(_RESOURCE_NAME), testGroup);
 
 		return ddmStructureTestHelper.addStructure(
 			PortalUtil.getClassNameId(_RESOURCE_NAME),
@@ -115,12 +108,15 @@ public class AppResourceTest extends BaseAppResourceTestCase {
 			StorageType.JSON.getValue());
 	}
 
-	private DDMStructureLayout _addDDMStructureLayout(
-			DDMFormLayout ddmFormLayout, Group group, long structureId)
+	private DDMStructureLayout _addDDMStructureLayout(long structureId)
 		throws Exception {
 
+		DDMFormLayout ddmFormLayout = new DDMFormLayout();
+
+		ddmFormLayout.setDefaultLocale(new Locale("en_US"));
+
 		DDMStructureLayoutTestHelper ddmStructureLayoutTestHelper =
-			new DDMStructureLayoutTestHelper(group);
+			new DDMStructureLayoutTestHelper(testGroup);
 
 		return ddmStructureLayoutTestHelper.addStructureLayout(
 			structureId, ddmFormLayout);
