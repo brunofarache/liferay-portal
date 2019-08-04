@@ -12,82 +12,94 @@
  * details.
  */
 
-import React, {useCallback, useState} from 'react';
-import {
-	ManagementToolbar,
-	SearchBar
-} from '../../components/management-toolbar/index.es';
-import SearchContainer from '../../components/search-container/SearchContainer.es';
+import {useResource} from '@clayui/data-provider';
+import React, {useReducer, useState} from 'react';
+import {ManagementToolbar, SearchBar} from '../management-toolbar/index.es';
+import SearchSubnavigationBar from '../management-toolbar/search/SearchSubnavigationBar.es';
+import SearchContainer from '../search-container/SearchContainer.es';
+import {reducer, SearchContext} from '../search-container/SearchContext.es';
+import {getURL} from '../../utils/client.es';
 
 export default ({
 	actions,
 	addButton,
 	columns,
-	emptyState,
 	endpoint,
+	emptyState,
 	formatter
 }) => {
-	const [isLoading, setLoading] = useState(false);
+	const [isLoading, setLoading] = useState(true);
 
-	const onLoadingChange = useCallback(isLoading => {
-		setLoading(isLoading);
-	}, []);
-
-	const [totalCount, setTotalCount] = useState(0);
-
-	const onTotalCountChange = useCallback(totalCount => {
-		setTotalCount(totalCount);
-	}, []);
-
-	const [state, setState] = useState({
+	const [state, dispatch] = useReducer(reducer, {
 		keywords: '',
+		page: 1,
+		pageSize: 20,
 		sort: ''
 	});
 
-	const onSearch = keywords => {
-		if (state.keywords === keywords) {
-			return;
+	const {refetch, resource} = useResource({
+		fetchDelay: 0,
+		link: getURL(endpoint),
+		onNetworkStatusChange: status => setLoading(status < 4),
+		variables: {
+			...state
+		}
+	});
+
+	let items = [];
+	let totalCount = 0;
+	let totalPages = 1;
+
+	if (resource) {
+		({items = [], totalCount, lastPage: totalPages} = resource);
+	}
+
+	if (state.page > totalPages) {
+		dispatch({type: 'CHANGE_PAGE', page: totalPages});
+	}
+
+	const formattedItems = formatter(items);
+
+	const refetchOnActions = actions.map(action => {
+		if (!action.callback) {
+			return action;
 		}
 
-		setState({...state, keywords});
-	};
+		return {
+			...action,
+			callback: item => {
+				action.callback(item).then(confirmed => {
+					if (!confirmed) {
+						return;
+					}
 
-	const onSort = sort => {
-		if (state.sort === sort) {
-			return;
-		}
-
-		setState({...state, sort});
-	};
-
-	const {keywords, sort} = state;
+					refetch();
+				});
+			}
+		};
+	});
 
 	return (
-		<>
+		<SearchContext.Provider value={{dispatch, isLoading, state}}>
 			<ManagementToolbar>
-				<SearchBar
-					columns={columns}
-					isLoading={isLoading}
-					keywords={keywords}
-					onSearch={onSearch}
-					onSort={onSort}
-					totalCount={totalCount}
-				/>
+				<SearchBar columns={columns} totalCount={totalCount} />
 
 				{addButton && addButton()}
 			</ManagementToolbar>
 
+			<SearchSubnavigationBar totalCount={totalCount} />
+
 			<SearchContainer
-				actions={actions}
+				actions={refetchOnActions}
 				columns={columns}
 				emptyState={emptyState}
-				endpoint={endpoint}
-				formatter={formatter}
-				keywords={keywords}
-				onLoadingChange={onLoadingChange}
-				onTotalCountChange={onTotalCountChange}
-				sort={sort}
+				isEmpty={totalCount === 0}
+				isLoading={isLoading}
+				items={formattedItems}
+				keywords={state.keywords}
+				totalCount={totalCount}
+				totalPages={totalPages}
 			/>
-		</>
+		</SearchContext.Provider>
 	);
 };

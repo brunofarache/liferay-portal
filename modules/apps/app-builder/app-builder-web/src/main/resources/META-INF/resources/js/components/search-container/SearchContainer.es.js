@@ -12,157 +12,28 @@
  * details.
  */
 
-import {useResource} from '@clayui/data-provider';
-import ClayLoadingIndicator from '@clayui/loading-indicator';
-import React, {useEffect, useState} from 'react';
+import React from 'react';
+import {withLoading} from '../loading/Loading.es';
 import PaginationBar from './pagination/PaginationBar.es';
-import EmptyState from './table/EmptyState.es';
+import {withEmpty} from './table/EmptyState.es';
 import Table from './table/Table.es';
-import {getURL} from '../../utils/client.es';
 
-export default ({
-	actions,
-	columns,
-	emptyState,
-	endpoint,
-	formatter,
-	keywords,
-	onLoadingChange,
-	onTotalCountChange,
-	sort
-}) => {
-	const [isLoading, setLoading] = useState(true);
-
-	const [state, setState] = useState({
-		page: 1,
-		pageSize: 20
-	});
-
-	const {resource, refetch} = useResource({
-		fetchDelay: 0,
-		link: getURL(endpoint),
-		onNetworkStatusChange: status => setLoading(status < 4),
-		variables: {
-			...state,
-			keywords,
-			sort
-		}
-	});
-
-	let items = [];
-	let totalCount = 0;
-	let totalPages = 1;
-
-	if (resource) {
-		({items, totalCount, lastPage: totalPages} = resource);
-	}
-
-	useEffect(() => {
-		if (onLoadingChange) {
-			onLoadingChange(isLoading);
-		}
-	}, [isLoading, onLoadingChange]);
-
-	useEffect(() => {
-		if (onTotalCountChange) {
-			onTotalCountChange(totalCount);
-		}
-	}, [onTotalCountChange, totalCount]);
-
-	const fetchItems = nextState => {
-		setLoading(true);
-		setState(prevState => ({
-			...prevState,
-			...nextState
-		}));
-	};
-
-	const getLoadingIndicator = (emptyState, isLoading, items, keywords) => {
-		if (isLoading) {
-			return <ClayLoadingIndicator />;
-		}
-
-		if (!items || items.length === 0) {
-			return <EmptyState emptyState={emptyState} keywords={keywords} />;
-		}
-
-		return null;
-	};
-
-	const onPageChange = page => {
-		if (state.page === page) {
-			return;
-		}
-
-		fetchItems({page});
-	};
-
-	const onPageSizeChange = pageSize => {
-		if (state.pageSize === pageSize) {
-			return;
-		}
-
-		fetchItems({page: 1, pageSize});
-	};
-
-	const refetchOnDelete = actions =>
-		actions.map(action => {
-			if (!action.callback) {
-				return action;
-			}
-
-			return {
-				...action,
-				callback: item => {
-					action.callback(item).then(confirmed => {
-						if (!confirmed) {
-							return;
-						}
-
-						if (state.page > 1 && items.length === 1) {
-							onPageChange(state.page - 1);
-							return;
-						}
-
-						refetch();
-					});
-				}
-			};
-		});
-
-	const {page, pageSize} = state;
+const SearchContainer = ({actions, columns, items, totalCount, totalPages}) => {
 	const {length: itemsCount} = items || [];
 
 	return (
-		<>
-			<div className="container-fluid container-fluid-max-xl">
-				{getLoadingIndicator(
-					emptyState,
-					isLoading,
-					items,
-					keywords
-				) || (
-					<>
-						<Table
-							actions={refetchOnDelete(actions)}
-							columns={columns}
-							items={formatter(items)}
-						/>
+		<div className="container-fluid container-fluid-max-xl">
+			<Table actions={actions} columns={columns} items={items} />
 
-						<div className="taglib-search-iterator-page-iterator-bottom">
-							<PaginationBar
-								itemsCount={itemsCount}
-								onPageChange={onPageChange}
-								onPageSizeChange={onPageSizeChange}
-								page={page}
-								pageSize={pageSize}
-								totalCount={totalCount}
-								totalPages={totalPages}
-							/>
-						</div>
-					</>
-				)}
+			<div className="taglib-search-iterator-page-iterator-bottom">
+				<PaginationBar
+					itemsCount={itemsCount}
+					totalCount={totalCount}
+					totalPages={totalPages}
+				/>
 			</div>
-		</>
+		</div>
 	);
 };
+
+export default withLoading(withEmpty(SearchContainer));

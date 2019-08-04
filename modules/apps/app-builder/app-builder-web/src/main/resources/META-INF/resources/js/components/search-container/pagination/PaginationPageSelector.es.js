@@ -13,14 +13,20 @@
  */
 
 import ClayPagination from '@clayui/pagination';
-import React from 'react';
+import React, {useContext} from 'react';
+import {SearchContext} from '../SearchContext.es';
 
-export default ({onPageChange, page, totalPages}) => {
+export default ({totalPages}) => {
+	const {
+		dispatch,
+		state: {page}
+	} = useContext(SearchContext);
+
 	return (
 		<ClayPagination
 			activePage={page}
 			ellipsisBuffer={0}
-			onPageChange={onPageChange}
+			onPageChange={page => dispatch({type: 'CHANGE_PAGE', page})}
 			totalPages={totalPages}
 		/>
 	);

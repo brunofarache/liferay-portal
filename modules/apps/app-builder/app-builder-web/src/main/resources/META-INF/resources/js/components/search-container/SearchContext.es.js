@@ -13,16 +13,36 @@
  */
 
 import React from 'react';
-import SearchInput from './SearchInput.es';
-import SearchSort from './SearchSort.es';
 
-export default ({columns}) => {
-	return (
-		<div className="navbar-form navbar-form-autofit navbar-overlay navbar-overlay-sm-down">
-			<div className="container-fluid container-fluid-max-xl">
-				<SearchSort columns={columns} />
-				<SearchInput />
-			</div>
-		</div>
-	);
+const SearchContext = React.createContext();
+
+const reducer = (state, action) => {
+	switch (action.type) {
+		case 'CHANGE_PAGE':
+			return {
+				...state,
+				page: action.page
+			};
+		case 'CHANGE_PAGE_SIZE':
+			return {
+				...state,
+				page: 1,
+				pageSize: action.pageSize
+			};
+		case 'SEARCH':
+			return {
+				...state,
+				page: 1,
+				keywords: action.keywords
+			};
+		case 'SORT':
+			return {
+				...state,
+				sort: action.sort
+			};
+		default:
+			return state;
+	}
 };
+
+export {SearchContext, reducer};

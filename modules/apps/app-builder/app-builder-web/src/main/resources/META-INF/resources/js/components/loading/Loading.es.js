@@ -12,17 +12,25 @@
  * details.
  */
 
+import ClayLoadingIndicator from '@clayui/loading-indicator';
 import React from 'react';
-import SearchInput from './SearchInput.es';
-import SearchSort from './SearchSort.es';
 
-export default ({columns}) => {
-	return (
-		<div className="navbar-form navbar-form-autofit navbar-overlay navbar-overlay-sm-down">
-			<div className="container-fluid container-fluid-max-xl">
-				<SearchSort columns={columns} />
-				<SearchInput />
-			</div>
-		</div>
-	);
+const Loading = () => {
+	return <ClayLoadingIndicator />;
 };
+
+export const withLoading = Component => {
+	const Wrapper = props => {
+		const {isLoading, ...restProps} = props;
+
+		if (isLoading) {
+			return <Loading />;
+		}
+
+		return <Component {...restProps} />;
+	};
+
+	return Wrapper;
+};
+
+export default Loading;

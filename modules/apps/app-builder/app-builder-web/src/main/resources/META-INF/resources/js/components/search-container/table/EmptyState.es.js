@@ -15,7 +15,7 @@
 import React from 'react';
 import lang from '../../../utils/lang.es';
 
-export default ({emptyState, keywords = ''}) => {
+const EmptyState = ({emptyState, keywords = ''}) => {
 	const defaultEmpty = {
 		title: Liferay.Language.get('there-are-no-entries'),
 		description: null
@@ -63,3 +63,17 @@ export default ({emptyState, keywords = ''}) => {
 		</div>
 	);
 };
+
+export const withEmpty = Component => {
+	const Wrapper = ({emptyState, isEmpty, keywords, ...restProps}) => {
+		if (isEmpty) {
+			return <EmptyState emptyState={emptyState} keywords={keywords} />;
+		}
+
+		return <Component {...restProps} />;
+	};
+
+	return Wrapper;
+};
+
+export default EmptyState;

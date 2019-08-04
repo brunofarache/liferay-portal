@@ -14,16 +14,20 @@
 
 import ClayDropDown, {Align} from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
+import {SearchContext} from '../SearchContext.es';
 import lang from '../../../utils/lang.es';
 
 const {Item, ItemList} = ClayDropDown;
 
-export default ({itemsCount, onPageSizeChange, page, pageSize, totalCount}) => {
+export default ({itemsCount, totalCount}) => {
+	const {
+		dispatch,
+		state: {page, pageSize}
+	} = useContext(SearchContext);
+
 	const [active, setActive] = useState(false);
-
 	const options = [5, 10, 20, 30, 50, 75];
-
 	const firstEntry = pageSize * (page - 1) + 1;
 	const lastEntry = firstEntry + itemsCount - 1;
 
@@ -42,15 +46,19 @@ export default ({itemsCount, onPageSizeChange, page, pageSize, totalCount}) => {
 				}
 			>
 				<ItemList>
-					{options.map((option, index) => (
+					{options.map((size, index) => (
 						<Item
+							active={pageSize === size}
 							key={index}
 							onClick={() => {
 								setActive(false);
-								onPageSizeChange(option);
+								dispatch({
+									type: 'CHANGE_PAGE_SIZE',
+									pageSize: size
+								});
 							}}
 						>
-							{option}
+							{size}
 						</Item>
 					))}
 				</ItemList>

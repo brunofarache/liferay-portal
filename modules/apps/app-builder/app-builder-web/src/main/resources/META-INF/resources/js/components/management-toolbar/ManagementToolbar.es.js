@@ -12,31 +12,14 @@
  * details.
  */
 
-import React, {Children, useCallback, useState} from 'react';
+import React from 'react';
 
 export default ({children}) => {
-	const [{messageRenderer}, updateMessageRenderer] = useState({
-		messageRenderer: () => {}
-	});
-
-	const renderMessage = useCallback(
-		value => updateMessageRenderer({messageRenderer: value}),
-		[]
-	);
-
 	return (
-		<>
-			<nav className="management-bar management-bar-light navbar navbar-expand-md">
-				<div className="container-fluid container-fluid-max-xl">
-					{Children.map(
-						children,
-						child =>
-							child && React.cloneElement(child, {renderMessage})
-					)}
-				</div>
-			</nav>
-
-			{messageRenderer()}
-		</>
+		<nav className="management-bar management-bar-light navbar navbar-expand-md">
+			<div className="container-fluid container-fluid-max-xl">
+				{children}
+			</div>
+		</nav>
 	);
 };

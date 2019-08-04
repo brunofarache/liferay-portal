@@ -12,15 +12,18 @@
  * details.
  */
 
-import React from 'react';
+import React, {useContext} from 'react';
+import {SearchContext} from '../../search-container/SearchContext.es';
 import lang from '../../../utils/lang.es';
 
-export default ({isLoading, keywords, onSearch, totalCount}) => {
-	const invisible = isLoading ? 'invisible' : '';
+export default ({totalCount}) => {
+	const {
+		dispatch,
+		isLoading,
+		state: {keywords}
+	} = useContext(SearchContext);
 
-	const clear = () => {
-		onSearch('');
-	};
+	const invisible = isLoading ? 'invisible' : '';
 
 	return (
 		<>
@@ -49,7 +52,12 @@ export default ({isLoading, keywords, onSearch, totalCount}) => {
 									<a
 										className=" component-link tbar-link"
 										href="javascript:;"
-										onClick={clear}
+										onClick={() =>
+											dispatch({
+												type: 'SEARCH',
+												keywords: ''
+											})
+										}
 									>
 										Clear
 									</a>

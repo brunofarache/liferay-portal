@@ -13,17 +13,19 @@
  */
 
 import ClayIcon from '@clayui/icon';
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
+import {SearchContext} from '../../search-container/SearchContext.es';
 
-export default ({keywords, onSearch}) => {
-	const [value, setValue] = useState(keywords);
+export default () => {
+	const {dispatch, state} = useContext(SearchContext);
+	const [keywords, setKeywords] = useState(state.keywords);
 
 	const onChange = event => {
-		setValue(event.target.value);
+		setKeywords(event.target.value);
 	};
 
 	const onClick = () => {
-		onSearch(value.trim());
+		dispatch({type: 'SEARCH', keywords: keywords.trim()});
 	};
 
 	const onKeyDown = event => {
@@ -44,7 +46,7 @@ export default ({keywords, onSearch}) => {
 							onKeyDown={onKeyDown}
 							placeholder="Search for"
 							type="text"
-							value={value}
+							value={keywords}
 						/>
 
 						<div className="input-group-inset-item input-group-inset-item-after">
@@ -53,10 +55,7 @@ export default ({keywords, onSearch}) => {
 								onClick={onClick}
 								type="button"
 							>
-								<ClayIcon
-									spritemap={`${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`}
-									symbol="search"
-								/>
+								<ClayIcon symbol="search" />
 							</button>
 						</div>
 					</div>

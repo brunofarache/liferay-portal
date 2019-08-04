@@ -16,7 +16,7 @@ import {waitForElementToBeRemoved} from '@testing-library/dom';
 import {cleanup, render} from '@testing-library/react';
 import React from 'react';
 import {disableActWarnings, restoreConsole} from '../../utils.es';
-import SearchContainer from '../../../../src/main/resources/META-INF/resources/js/components/search-container/SearchContainer.es';
+import ListView from '../../../../src/main/resources/META-INF/resources/js/components/list-view/ListView.es';
 import lang from '../../../../src/main/resources/META-INF/resources/js/utils/lang.es';
 
 import {
@@ -51,14 +51,14 @@ const setup = () => {
 	});
 };
 
-describe('SearchContainer', () => {
+describe('ListView', () => {
 	setup();
 
 	it('renders with empty state', async () => {
 		fetch.mockResponse(JSON.stringify(RESPONSES.NO_ITEMS));
 
 		const {queryByText} = render(
-			<SearchContainer
+			<ListView
 				actions={ACTIONS}
 				columns={COLUMNS}
 				emptyState={EMPTY_STATE}
@@ -79,7 +79,7 @@ describe('SearchContainer', () => {
 		fetch.mockResponse(JSON.stringify(RESPONSES.ONE_ITEM));
 
 		const {container, queryAllByTestId} = render(
-			<SearchContainer
+			<ListView
 				actions={ACTIONS}
 				columns={COLUMNS}
 				emptyState={EMPTY_STATE}
@@ -105,7 +105,7 @@ describe('SearchContainer', () => {
 		fetch.mockResponse(JSON.stringify(RESPONSES.TWENTY_ONE_ITEMS));
 
 		const {container, queryAllByTestId} = render(
-			<SearchContainer
+			<ListView
 				actions={ACTIONS}
 				columns={COLUMNS}
 				emptyState={EMPTY_STATE}

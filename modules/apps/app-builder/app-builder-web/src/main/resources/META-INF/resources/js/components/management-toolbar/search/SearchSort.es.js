@@ -14,11 +14,13 @@
 
 import ClayDropDown, {Align} from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
+import {SearchContext} from '../../search-container/SearchContext.es';
 
 const {Group, Item, ItemList} = ClayDropDown;
 
-export default ({columns, onSort}) => {
+export default ({columns}) => {
+	const {dispatch} = useContext(SearchContext);
 	let defaultColumn = columns.find(column => column.hasOwnProperty('asc'));
 
 	if (!defaultColumn) {
@@ -41,7 +43,7 @@ export default ({columns, onSort}) => {
 			column
 		});
 
-		onSort(`${column}:${asc ? 'asc' : 'desc'}`);
+		dispatch({type: 'SORT', sort: `${column}:${asc ? 'asc' : 'desc'}`});
 	};
 
 	const {active, asc, column} = state;
