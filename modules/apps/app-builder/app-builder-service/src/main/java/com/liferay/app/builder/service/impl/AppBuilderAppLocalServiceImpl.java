@@ -16,12 +16,6 @@ package com.liferay.app.builder.service.impl;
 
 import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.app.builder.service.base.AppBuilderAppLocalServiceBaseImpl;
-import com.liferay.dynamic.data.mapping.exception.NoSuchStructureException;
-import com.liferay.dynamic.data.mapping.exception.NoSuchStructureLayoutException;
-import com.liferay.dynamic.data.mapping.model.DDMStructure;
-import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
-import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalService;
-import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.User;
@@ -33,7 +27,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Brian Wing Shun Chan
@@ -55,8 +48,6 @@ public class AppBuilderAppLocalServiceImpl
 
 		User user = userLocalService.getUser(userId);
 
-		validate(ddmStructureId, ddmStructureLayoutId);
-
 		AppBuilderApp appBuilderApp = appBuilderAppPersistence.create(
 			counterLocalService.increment());
 
@@ -74,34 +65,5 @@ public class AppBuilderAppLocalServiceImpl
 
 		return appBuilderAppPersistence.update(appBuilderApp);
 	}
-
-	protected void validate(long ddmStructureId, long ddmStructureLayoutId)
-		throws PortalException {
-
-		DDMStructure ddmStructure = _ddmStructureLocalService.fetchStructure(
-			ddmStructureId);
-
-		if (ddmStructure == null) {
-			throw new NoSuchStructureException(
-				"Dynamic data mapping structure " + ddmStructureId +
-					" does not exist");
-		}
-
-		DDMStructureLayout ddmStructureLayout =
-			_ddmStructureLayoutLocalService.fetchStructureLayout(
-				ddmStructureLayoutId);
-
-		if (ddmStructureLayout == null) {
-			throw new NoSuchStructureLayoutException(
-				"Dynamic data mapping structure layout " +
-					ddmStructureLayoutId + " does not exist");
-		}
-	}
-
-	@Reference
-	private DDMStructureLayoutLocalService _ddmStructureLayoutLocalService;
-
-	@Reference
-	private DDMStructureLocalService _ddmStructureLocalService;
 
 }

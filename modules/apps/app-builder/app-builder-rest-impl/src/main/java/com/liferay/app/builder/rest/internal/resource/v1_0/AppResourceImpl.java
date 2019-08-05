@@ -16,11 +16,17 @@ package com.liferay.app.builder.rest.internal.resource.v1_0;
 
 import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.app.builder.rest.dto.v1_0.App;
+import com.liferay.app.builder.rest.internal.jaxrs.exception.NoSuchDataListViewException;
 import com.liferay.app.builder.rest.internal.odata.entity.v1_0.AppBuilderAppEntityModel;
 import com.liferay.app.builder.rest.internal.resource.v1_0.util.LocalizedValueUtil;
 import com.liferay.app.builder.rest.resource.v1_0.AppResource;
 import com.liferay.app.builder.service.AppBuilderAppLocalService;
+import com.liferay.data.engine.rest.client.resource.v1_0.DataListViewResource;
+import com.liferay.dynamic.data.mapping.exception.NoSuchStructureException;
+import com.liferay.dynamic.data.mapping.exception.NoSuchStructureLayoutException;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
+import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
+import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -29,7 +35,9 @@ import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.security.auth.AuthTokenUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.CookieKeys;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.odata.entity.EntityModel;
@@ -154,6 +162,9 @@ public class AppResourceImpl
 	public App postDataDefinitionApp(Long dataDefinitionId, App app)
 		throws Exception {
 
+		_validate(
+			dataDefinitionId, app.getDataLayoutId(), app.getDataListViewId());
+
 		return _toApp(
 			_appBuilderAppLocalService.addAppBuilderApp(
 				app.getSiteId(), contextCompany.getCompanyId(), app.getUserId(),
@@ -203,11 +214,64 @@ public class AppResourceImpl
 		};
 	}
 
+	private void _validate(
+			long ddmStructureId, long ddmStructureLayoutId,
+			long deDataListViewId)
+		throws Exception {
+
+		DDMStructure ddmStructure = _ddmStructureLocalService.fetchStructure(
+			ddmStructureId);
+
+		if (ddmStructure == null) {
+			throw new NoSuchStructureException(
+				"Dynamic data mapping structure " + ddmStructureId +
+					" does not exist");
+		}
+
+		DDMStructureLayout ddmStructureLayout =
+			_ddmStructureLayoutLocalService.fetchStructureLayout(
+				ddmStructureLayoutId);
+
+		if (ddmStructureLayout == null) {
+			throw new NoSuchStructureLayoutException(
+				"Dynamic data mapping structure layout " +
+					ddmStructureLayoutId + " does not exist");
+		}
+
+		String sessionId = CookieKeys.getCookie(
+			contextHttpServletRequest, CookieKeys.JSESSIONID);
+
+		DataListViewResource dataListViewResource =
+			DataListViewResource.builder(
+			).header(
+				"Cookie", "JSESSIONID=" + sessionId
+			).parameter(
+				"p_auth", AuthTokenUtil.getToken(contextHttpServletRequest)
+			).endpoint(
+				_portal.getHost(contextHttpServletRequest),
+				contextHttpServletRequest.getServerPort(),
+				contextHttpServletRequest.getScheme()
+			).build();
+
+		try {
+			dataListViewResource.getDataListView(deDataListViewId);
+		}
+		catch (Exception e) {
+			throw new NoSuchDataListViewException(
+				"Data engine data list view " + deDataListViewId +
+					" does not exist",
+				e);
+		}
+	}
+
 	private static final EntityModel _entityModel =
 		new AppBuilderAppEntityModel();
 
 	@Reference
 	private AppBuilderAppLocalService _appBuilderAppLocalService;
+
+	@Reference
+	private DDMStructureLayoutLocalService _ddmStructureLayoutLocalService;
 
 	@Reference
 	private DDMStructureLocalService _ddmStructureLocalService;
