@@ -16,19 +16,15 @@ package com.liferay.app.builder.rest.resource.v1_0.test;
 
 import com.liferay.app.builder.rest.client.dto.v1_0.App;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
-import com.liferay.data.engine.model.DEDataListView;
-import com.liferay.data.engine.service.DEDataListViewLocalService;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
 import com.liferay.dynamic.data.mapping.storage.StorageType;
 import com.liferay.dynamic.data.mapping.test.util.DDMStructureLayoutTestHelper;
 import com.liferay.dynamic.data.mapping.test.util.DDMStructureTestHelper;
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.test.rule.Inject;
 
 import java.io.InputStream;
 
@@ -52,12 +48,6 @@ public class AppResourceTest extends BaseAppResourceTestCase {
 
 		_ddmStructureLayout = _addDDMStructureLayout(
 			_ddmStructure.getStructureId());
-
-		_deDataListView = _deDataListViewLocalService.addDEDataListView(
-			testGroup.getGroupId(), testCompany.getCompanyId(),
-			testGroup.getCreatorUserId(), StringPool.BLANK,
-			_ddmStructure.getStructureId(), StringPool.BLANK, null,
-			StringPool.BLANK);
 	}
 
 	@Override
@@ -66,7 +56,7 @@ public class AppResourceTest extends BaseAppResourceTestCase {
 			{
 				dataDefinitionId = _ddmStructure.getStructureId();
 				dataLayoutId = _ddmStructureLayout.getStructureLayoutId();
-				dataListViewId = _deDataListView.getDeDataListViewId();
+				dataListViewId = RandomTestUtil.randomLong();
 				siteId = testGroup.getGroupId();
 				settings = new HashMap<String, Object>() {
 					{
@@ -136,9 +126,5 @@ public class AppResourceTest extends BaseAppResourceTestCase {
 
 	private DDMStructure _ddmStructure;
 	private DDMStructureLayout _ddmStructureLayout;
-	private DEDataListView _deDataListView;
-
-	@Inject
-	private DEDataListViewLocalService _deDataListViewLocalService;
 
 }

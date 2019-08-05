@@ -16,9 +16,6 @@ package com.liferay.app.builder.service.impl;
 
 import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.app.builder.service.base.AppBuilderAppLocalServiceBaseImpl;
-import com.liferay.data.engine.exception.NoSuchDataListViewException;
-import com.liferay.data.engine.model.DEDataListView;
-import com.liferay.data.engine.service.DEDataListViewLocalService;
 import com.liferay.dynamic.data.mapping.exception.NoSuchStructureException;
 import com.liferay.dynamic.data.mapping.exception.NoSuchStructureLayoutException;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
@@ -58,7 +55,7 @@ public class AppBuilderAppLocalServiceImpl
 
 		User user = userLocalService.getUser(userId);
 
-		validate(ddmStructureId, ddmStructureLayoutId, deDataListViewId);
+		validate(ddmStructureId, ddmStructureLayoutId);
 
 		AppBuilderApp appBuilderApp = appBuilderAppPersistence.create(
 			counterLocalService.increment());
@@ -78,9 +75,7 @@ public class AppBuilderAppLocalServiceImpl
 		return appBuilderAppPersistence.update(appBuilderApp);
 	}
 
-	protected void validate(
-			long ddmStructureId, long ddmStructureLayoutId,
-			long deDataListViewId)
+	protected void validate(long ddmStructureId, long ddmStructureLayoutId)
 		throws PortalException {
 
 		DDMStructure ddmStructure = _ddmStructureLocalService.fetchStructure(
@@ -101,15 +96,6 @@ public class AppBuilderAppLocalServiceImpl
 				"Dynamic data mapping structure layout " +
 					ddmStructureLayoutId + " does not exist");
 		}
-
-		DEDataListView deDataListView =
-			_deDataListViewLocalService.fetchDEDataListView(deDataListViewId);
-
-		if (deDataListView == null) {
-			throw new NoSuchDataListViewException(
-				"Data engine data list view " + deDataListViewId +
-					" does not exist");
-		}
 	}
 
 	@Reference
@@ -117,8 +103,5 @@ public class AppBuilderAppLocalServiceImpl
 
 	@Reference
 	private DDMStructureLocalService _ddmStructureLocalService;
-
-	@Reference
-	private DEDataListViewLocalService _deDataListViewLocalService;
 
 }
