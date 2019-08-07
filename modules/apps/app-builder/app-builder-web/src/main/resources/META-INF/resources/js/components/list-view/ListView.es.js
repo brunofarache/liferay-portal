@@ -26,7 +26,8 @@ export default ({
 	columns,
 	endpoint,
 	emptyState,
-	formatter
+	formatter,
+	sortColumns
 }) => {
 	const [isLoading, setLoading] = useState(true);
 
@@ -82,7 +83,7 @@ export default ({
 	return (
 		<SearchContext.Provider value={{dispatch, isLoading, state}}>
 			<ManagementToolbar>
-				<SearchBar columns={columns} totalCount={totalCount} />
+				<SearchBar columns={sortColumns} totalCount={totalCount} />
 
 				{addButton && addButton()}
 			</ManagementToolbar>

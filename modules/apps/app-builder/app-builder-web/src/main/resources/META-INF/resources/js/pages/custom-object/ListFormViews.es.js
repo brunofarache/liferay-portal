@@ -68,6 +68,7 @@ export default ({
 			emptyState={FORM_VIEWS.EMPTY_STATE}
 			endpoint={`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}/data-layouts`}
 			formatter={FORM_VIEWS.FORMATTER}
+			sortColumns={FORM_VIEWS.COLUMNS}
 		/>
 	);
 };

@@ -68,6 +68,7 @@ export default ({
 			emptyState={TABLE_VIEWS.EMPTY_STATE}
 			endpoint={`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}/data-list-views`}
 			formatter={TABLE_VIEWS.FORMATTER}
+			sortColumns={TABLE_VIEWS.COLUMNS}
 		/>
 	);
 };

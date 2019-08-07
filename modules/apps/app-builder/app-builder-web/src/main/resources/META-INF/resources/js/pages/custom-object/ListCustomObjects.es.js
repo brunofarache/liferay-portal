@@ -161,6 +161,7 @@ export default () => {
 			emptyState={CUSTOM_OBJECTS.EMPTY_STATE}
 			endpoint={`/o/data-engine/v1.0/sites/${Liferay.ThemeDisplay.getCompanyGroupId()}/data-definitions`}
 			formatter={CUSTOM_OBJECTS.FORMATTER}
+			sortColumns={CUSTOM_OBJECTS.COLUMNS}
 		/>
 	);
 };

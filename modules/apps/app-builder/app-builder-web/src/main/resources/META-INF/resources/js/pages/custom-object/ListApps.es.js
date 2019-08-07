@@ -48,6 +48,21 @@ const APPS = {
 			value: Liferay.Language.get('status')
 		}
 	],
+	SORT_COLUMNS: [
+		{
+			key: 'name',
+			value: Liferay.Language.get('name')
+		},
+		{
+			key: 'dateCreated',
+			value: Liferay.Language.get('create-date')
+		},
+		{
+			asc: false,
+			key: 'dateModified',
+			value: Liferay.Language.get('modified-date')
+		}
+	],
 	EMPTY_STATE: {
 		empty: {
 			description: Liferay.Language.get(
@@ -79,6 +94,7 @@ export default ({
 			emptyState={APPS.EMPTY_STATE}
 			endpoint={`/o/app-builder/v1.0/data-definitions/${dataDefinitionId}/apps`}
 			formatter={APPS.FORMATTER}
+			sortColumns={APPS.SORT_COLUMNS}
 		/>
 	);
 };
