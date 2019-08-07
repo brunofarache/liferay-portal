@@ -33,22 +33,6 @@ export const deleteItem = endpoint => {
 	});
 };
 
-export const formatDeployedAs = allDeployedAs => {
-	let deployedAs = '';
-
-	allDeployedAs.forEach((currentValue, index) => {
-		deployedAs = deployedAs.concat(currentValue);
-
-		if (index < allDeployedAs.length - 2) {
-			deployedAs = deployedAs.concat(', ');
-		} else if (index == allDeployedAs.length - 2) {
-			deployedAs = deployedAs.concat(' and ');
-		}
-	});
-
-	return deployedAs;
-};
-
 export const getURL = (path, params = {['p_auth']: Liferay.authToken}) => {
 	const uri = new URL(`${window.location.origin}${path}`);
 	const keys = Object.keys(params);

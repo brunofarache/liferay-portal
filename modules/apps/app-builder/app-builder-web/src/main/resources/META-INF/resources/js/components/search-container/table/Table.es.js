@@ -13,13 +13,11 @@
  */
 
 import ClayTable from '@clayui/table';
-import ClayLabel from '@clayui/label';
 import React from 'react';
 import {Link} from 'react-router-dom';
 import DropDown from './DropDown.es';
 
 const {Body, Cell, Head, Row} = ClayTable;
-const spritemap = 'icons.svg';
 
 export default ({actions, columns, items}) => {
 	return (
@@ -48,25 +46,6 @@ export default ({actions, columns, items}) => {
 							if (Object.hasOwnProperty.call(column, 'link')) {
 								cell = (
 									<Link to={column.link(item)}>{cell}</Link>
-								);
-							}
-
-							if (column.key === 'status') {
-								let displayType;
-
-								if (item.status.toLowerCase() === 'deployed') {
-									displayType = 'success';
-								} else {
-									displayType = 'secondary';
-								}
-
-								cell = (
-									<ClayLabel
-										displayType={displayType}
-										spritemap={spritemap}
-									>
-										{item.status.toUpperCase()}
-									</ClayLabel>
 								);
 							}
 
