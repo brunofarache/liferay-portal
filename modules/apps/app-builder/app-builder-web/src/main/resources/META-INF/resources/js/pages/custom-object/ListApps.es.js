@@ -74,7 +74,7 @@ const APPS = {
 							: 'secondary'
 					}
 				>
-					{item.settings.deploymentStatus.toUpperCase()}
+					{Liferay.Language.get(item.settings.deploymentStatus)}
 				</ClayLabel>
 			),
 			type: item.settings.deploymentTypes.reduce(
@@ -83,7 +83,7 @@ const APPS = {
 					(index === item.settings.deploymentTypes.length - 1
 						? ' and '
 						: ', ') +
-					currentValue
+					Liferay.Language.get(currentValue)
 			)
 		}))
 };
