@@ -21,6 +21,8 @@ const {Group, Item, ItemList} = ClayDropDown;
 
 export default ({columns}) => {
 	const {dispatch} = useContext(SearchContext);
+	columns = columns.filter(column => column.sortable);
+
 	let defaultColumn = columns.find(column =>
 		Object.hasOwnProperty.call(column, 'asc')
 	);
