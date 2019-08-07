@@ -16,6 +16,7 @@ import moment from 'moment';
 import React from 'react';
 import ListView from '../../components/list-view/ListView.es';
 import {confirmDelete} from '../../utils/client.es';
+import {formatDeployedAs} from '../../utils/client.es';
 
 const APPS = {
 	ACTIONS: [
@@ -61,8 +62,8 @@ const APPS = {
 			dateModified: moment(item.dateModified).fromNow(),
 			id: item.id,
 			name: item.name.en_US,
-			status: item.settings.status,
-			type: item.settings.type
+			status: item.settings.deploymentStatus,
+			type: formatDeployedAs(item.settings.deploymentTypes)
 		}))
 };
 
