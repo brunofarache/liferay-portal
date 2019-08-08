@@ -40,11 +40,11 @@ export default () => {
 				<div className="input-group">
 					<div className="input-group-item">
 						<input
-							aria-label="Search for"
+							aria-label={Liferay.Language.get('search-for')}
 							className="form-control input-group-inset input-group-inset-after"
 							onChange={onChange}
 							onKeyDown={onKeyDown}
-							placeholder="Search for"
+							placeholder={Liferay.Language.get('search-for')}
 							type="text"
 							value={keywords}
 						/>

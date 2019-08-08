@@ -13,14 +13,25 @@
  */
 
 import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App.es';
+import {ManagementToolbar} from '../../components/management-toolbar/index.es';
 
-export default id => {
-	const container = document.getElementById(id);
-	ReactDOM.render(<App />, container);
-
-	Liferay.once('destroyPortlet', () =>
-		ReactDOM.unmountComponentAtNode(container)
+export default () => {
+	return (
+		<ManagementToolbar>
+			<ul class="tbar-nav">
+				<li class="tbar-item tbar-item-expand">
+					<div className="input-group">
+						<div className="input-group-item">
+							<input
+								aria-label={Liferay.Language.get('untitled-table-view')}
+								className="form-control"
+								placeholder={Liferay.Language.get('untitled-table-view')}
+								type="text"
+							/>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</ManagementToolbar>
 	);
 };
