@@ -18,6 +18,33 @@ import React from 'react';
 import ListView from '../../components/list-view/ListView.es';
 import {confirmDelete} from '../../utils/client.es';
 
+const DEPLOYMENT_STATUS = {
+	deployed: Liferay.Language.get('deployed'),
+	undeployed: Liferay.Language.get('undeployed')
+};
+
+const DEPLOYMENT_TYPES = {
+	productMenu: Liferay.Language.get('product-menu'),
+	standalone: Liferay.Language.get('standalone'),
+	widget: Liferay.Language.get('widget')
+};
+
+const concatTypes = types => {
+	return types.reduce((acc, cur, index) => {
+		if (index < types.length - 2) {
+			return `${acc + DEPLOYMENT_TYPES[cur]}, `;
+		}
+
+		if (index == types.length - 2) {
+			return `${acc + DEPLOYMENT_TYPES[cur]} ${Liferay.Language.get(
+				'and'
+			).toLowerCase()} `;
+		}
+
+		return acc + DEPLOYMENT_TYPES[cur];
+	}, '');
+};
+
 const APPS = {
 	ACTIONS: [
 		{
@@ -74,17 +101,10 @@ const APPS = {
 							: 'secondary'
 					}
 				>
-					{item.settings.deploymentStatus.toUpperCase()}
+					{DEPLOYMENT_STATUS[item.settings.deploymentStatus]}
 				</ClayLabel>
 			),
-			type: item.settings.deploymentTypes.reduce(
-				(accumulator, currentValue, index) =>
-					accumulator +
-					(index === item.settings.deploymentTypes.length - 1
-						? ' and '
-						: ', ') +
-					currentValue
-			)
+			type: concatTypes(item.settings.deploymentTypes)
 		}))
 };
 
