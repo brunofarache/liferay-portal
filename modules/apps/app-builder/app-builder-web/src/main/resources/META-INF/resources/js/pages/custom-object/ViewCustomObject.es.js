@@ -23,27 +23,33 @@ import ListTableViews from '../table-view/ListTableViews.es';
 export default ({match: {path}}) => {
 	return (
 		<Switch>
+			<Route component={EditTableView} path={`${path}/table-views/add`} />
+
 			<Route
-				component={EditTableView}
-				path={`${path}/table-views/add`}
+				path={path}
+				render={() => (
+					<>
+						<CustomObjectNavigationBar />
+
+						<Switch>
+							<Route
+								component={ListFormViews}
+								path={`${path}/form-views`}
+							/>
+
+							<Route
+								component={ListTableViews}
+								path={`${path}/table-views`}
+							/>
+
+							<Route
+								component={ListApps}
+								path={`${path}/deployments`}
+							/>
+						</Switch>
+					</>
+				)}
 			/>
-
-			<Route path={path} render={() => (
-				<>
-					<CustomObjectNavigationBar />
-
-					<Switch>
-						<Route component={ListFormViews} path={`${path}/form-views`} />
-
-						<Route
-							component={ListTableViews}
-							path={`${path}/table-views`}
-						/>
-
-						<Route component={ListApps} path={`${path}/deployments`} />
-					</Switch>
-				</>
-			)} />
 		</Switch>
 	);
 };
