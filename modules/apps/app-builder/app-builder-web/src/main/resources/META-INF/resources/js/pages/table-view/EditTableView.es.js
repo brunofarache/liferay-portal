@@ -13,9 +13,32 @@
  */
 
 import ClayButton from '@clayui/button';
-import React from 'react';
+import React, {useState} from 'react';
+import {addItem} from '../../utils/client.es';
 
-export default () => {
+export default ({
+	history,
+	match: {
+		params: {dataDefinitionId}
+	}
+}) => {
+	const [name, setName] = useState('');
+
+	const addTableView = () => {
+		addItem(
+			`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}/data-list-views`,
+			{
+				name: {
+					value: name
+				}
+			}
+		).then(() => history.goBack());
+	};
+
+	const onChange = event => {
+		setName(event.target.value);
+	};
+
 	return (
 		<nav className="component-tbar subnav-tbar-light tbar tbar-article">
 			<div className="container-fluid container-fluid-max-xl">
@@ -28,10 +51,12 @@ export default () => {
 										'untitled-table-view'
 									)}
 									className="form-control form-control-inline"
+									onChange={onChange}
 									placeholder={Liferay.Language.get(
 										'untitled-table-view'
 									)}
 									type="text"
+									value={name}
 								/>
 							</div>
 						</div>
@@ -41,11 +66,16 @@ export default () => {
 							<ClayButton
 								className="mr-3"
 								displayType="secondary"
+								onClick={() => history.goBack()}
 								small
 							>
 								{Liferay.Language.get('cancel')}
 							</ClayButton>
-							<ClayButton className="mr-3" small>
+							<ClayButton
+								className="mr-3"
+								onClick={addTableView}
+								small
+							>
 								{Liferay.Language.get('save')}
 							</ClayButton>
 						</div>
