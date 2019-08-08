@@ -14,9 +14,9 @@
 
 import {ClayButtonWithIcon} from '@clayui/button';
 import React from 'react';
-import {NavLink} from 'react-router-dom';
+import {Link} from 'react-router-dom';
 
-const withLink = (button, href) => <NavLink to={href}>{button}</NavLink>;
+const withLink = (button, href) => <Link to={href}>{button}</Link>;
 
 export default ({href, onClick, tooltip}) => {
 	let className = 'nav-btn nav-btn-monospaced navbar-breakpoint-down-d-none';

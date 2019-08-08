@@ -12,6 +12,16 @@
  * details.
  */
 
+export const addItem = (endpoint, item) => {
+	return fetch(getURL(endpoint), {
+		body: JSON.stringify(item),
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		method: 'POST'
+	});
+};
+
 export const confirmDelete = endpoint => item =>
 	new Promise((resolve, reject) => {
 		const confirmed = confirm(

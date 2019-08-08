@@ -17,23 +17,39 @@ import {Route, Switch} from 'react-router-dom';
 import CustomObjectNavigationBar from './CustomObjectNavigationBar.es';
 import ListApps from './ListApps.es';
 import ListFormViews from './ListFormViews.es';
-import ListTableViews from './ListTableViews.es';
+import EditTableView from '../table-view/EditTableView.es';
+import ListTableViews from '../table-view/ListTableViews.es';
 
 export default ({match: {path}}) => {
 	return (
-		<>
-			<CustomObjectNavigationBar />
+		<Switch>
+			<Route component={EditTableView} path={`${path}/table-views/add`} />
 
-			<Switch>
-				<Route component={ListFormViews} path={`${path}/form-views`} />
+			<Route
+				path={path}
+				render={() => (
+					<>
+						<CustomObjectNavigationBar />
 
-				<Route
-					component={ListTableViews}
-					path={`${path}/table-views`}
-				/>
+						<Switch>
+							<Route
+								component={ListFormViews}
+								path={`${path}/form-views`}
+							/>
 
-				<Route component={ListApps} path={`${path}/deployments`} />
-			</Switch>
-		</>
+							<Route
+								component={ListTableViews}
+								path={`${path}/table-views`}
+							/>
+
+							<Route
+								component={ListApps}
+								path={`${path}/deployments`}
+							/>
+						</Switch>
+					</>
+				)}
+			/>
+		</Switch>
 	);
 };

@@ -12,25 +12,21 @@
  * details.
  */
 
+import {ClayIconSpriteContext} from '@clayui/icon';
 import React from 'react';
-import {Route, HashRouter as Router, Switch} from 'react-router-dom';
-import {AppContextProvider} from './AppContext.es';
-import ListCustomObjects from './pages/custom-object/ListCustomObjects.es';
-import ViewCustomObject from './pages/custom-object/ViewCustomObject.es';
 
-export default () => {
-	return (
-		<AppContextProvider>
-			<Router>
-				<Switch>
-					<Route component={ListCustomObjects} exact path="/" />
+const AppContext = React.createContext();
 
-					<Route
-						component={ViewCustomObject}
-						path="/custom-object/:dataDefinitionId(\d+)"
-					/>
-				</Switch>
-			</Router>
-		</AppContextProvider>
-	);
-};
+const AppContextProvider = ({children}) => (
+	<AppContext.Provider
+		value={{siteId: Liferay.ThemeDisplay.getCompanyGroupId()}}
+	>
+		<ClayIconSpriteContext.Provider
+			value={`${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`}
+		>
+			{children}
+		</ClayIconSpriteContext.Provider>
+	</AppContext.Provider>
+);
+
+export {AppContext, AppContextProvider};

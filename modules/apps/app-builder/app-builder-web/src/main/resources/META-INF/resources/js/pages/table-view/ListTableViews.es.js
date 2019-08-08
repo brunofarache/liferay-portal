@@ -15,6 +15,7 @@
 import moment from 'moment';
 import React from 'react';
 import ListView from '../../components/list-view/ListView.es';
+import {AddButton} from '../../components/management-toolbar/index.es';
 import {confirmDelete} from '../../utils/client.es';
 
 const TABLE_VIEWS = {
@@ -61,12 +62,19 @@ const TABLE_VIEWS = {
 
 export default ({
 	match: {
-		params: {dataDefinitionId}
+		params: {dataDefinitionId},
+		url
 	}
 }) => {
 	return (
 		<ListView
 			actions={TABLE_VIEWS.ACTIONS}
+			addButton={() => (
+				<AddButton
+					href={`${url}/add`}
+					tooltip={Liferay.Language.get('new-custom-object')}
+				/>
+			)}
 			columns={TABLE_VIEWS.COLUMNS}
 			emptyState={TABLE_VIEWS.EMPTY_STATE}
 			endpoint={`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}/data-list-views`}

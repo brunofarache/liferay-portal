@@ -18,8 +18,8 @@ import App from './App.es';
 
 export default id => {
 	const container = document.getElementById(id);
-
 	ReactDOM.render(<App />, container);
+
 	Liferay.once('destroyPortlet', () =>
 		ReactDOM.unmountComponentAtNode(container)
 	);

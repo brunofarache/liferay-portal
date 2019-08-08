@@ -76,7 +76,6 @@ export default ({columns}) => {
 
 								<ClayIcon
 									className="inline-item inline-item-after"
-									spritemap={`${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`}
 									symbol="caret-bottom"
 								/>
 							</span>
@@ -111,10 +110,7 @@ export default ({columns}) => {
 					onClick={() => sort(!asc, column)}
 					title={Liferay.Language.get('reverse-sort-direction')}
 				>
-					<ClayIcon
-						spritemap={`${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`}
-						symbol="order-arrow"
-					/>
+					<ClayIcon symbol="order-arrow" />
 				</a>
 			</li>
 		</ul>

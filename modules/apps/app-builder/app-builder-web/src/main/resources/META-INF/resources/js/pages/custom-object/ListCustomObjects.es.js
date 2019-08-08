@@ -16,7 +16,8 @@ import ClayButton from '@clayui/button';
 import ClayForm from '@clayui/form';
 import ClayIcon from '@clayui/icon';
 import moment from 'moment';
-import React, {useRef, useState} from 'react';
+import React, {useContext, useRef, useState} from 'react';
+import {AppContext} from '../../AppContext.es';
 import ListView from '../../components/list-view/ListView.es';
 import {confirmDelete} from '../../utils/client.es';
 import {AddButton} from '../../components/management-toolbar/index.es';
@@ -81,8 +82,8 @@ const CUSTOM_OBJECTS = {
 };
 
 export default () => {
+	const {siteId} = useContext(AppContext);
 	const addButtonRef = useRef();
-
 	const [popoverVisible, setPopoverVisible] = useState(false);
 
 	const onClickAddButton = () => setPopoverVisible(!popoverVisible);
@@ -162,7 +163,7 @@ export default () => {
 			)}
 			columns={CUSTOM_OBJECTS.COLUMNS}
 			emptyState={CUSTOM_OBJECTS.EMPTY_STATE}
-			endpoint={`/o/data-engine/v1.0/sites/${Liferay.ThemeDisplay.getCompanyGroupId()}/data-definitions`}
+			endpoint={`/o/data-engine/v1.0/sites/${siteId}/data-definitions`}
 			formatter={CUSTOM_OBJECTS.FORMATTER}
 		/>
 	);
