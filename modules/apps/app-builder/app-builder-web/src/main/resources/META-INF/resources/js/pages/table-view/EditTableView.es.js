@@ -14,43 +14,44 @@
 
 import ClayButton from '@clayui/button';
 import React from 'react';
-import {ManagementToolbar} from '../../components/management-toolbar/index.es';
 
 export default () => {
 	return (
-		<ManagementToolbar>
-			<ul className="tbar-nav">
-				<li className="tbar-item tbar-item-expand">
-					<div className="input-group">
-						<div className="input-group-item">
-							<input
-								aria-label={Liferay.Language.get(
-									'untitled-table-view'
-								)}
-								className="form-control"
-								placeholder={Liferay.Language.get(
-									'untitled-table-view'
-								)}
-								type="text"
-							/>
+		<nav className="component-tbar subnav-tbar-light tbar tbar-article">
+			<div className="container-fluid container-fluid-max-xl">
+				<ul className="tbar-nav">
+					<li className="tbar-item tbar-item-expand">
+						<div className="input-group">
+							<div className="input-group-item">
+								<input
+									aria-label={Liferay.Language.get(
+										'untitled-table-view'
+									)}
+									className="form-control form-control-inline"
+									placeholder={Liferay.Language.get(
+										'untitled-table-view'
+									)}
+									type="text"
+								/>
+							</div>
 						</div>
-					</div>
-				</li>
-				<li className="tbar-item">
-					<div className="tbar-section">
-						<ClayButton
-							className="mr-3"
-							displayType="secondary"
-							small
-						>
-							{Liferay.Language.get('cancel')}
-						</ClayButton>
-						<ClayButton className="mr-3" small>
-							{Liferay.Language.get('save')}
-						</ClayButton>
-					</div>
-				</li>
-			</ul>
-		</ManagementToolbar>
+					</li>
+					<li className="tbar-item">
+						<div className="tbar-section">
+							<ClayButton
+								className="mr-3"
+								displayType="secondary"
+								small
+							>
+								{Liferay.Language.get('cancel')}
+							</ClayButton>
+							<ClayButton className="mr-3" small>
+								{Liferay.Language.get('save')}
+							</ClayButton>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</nav>
 	);
 };
