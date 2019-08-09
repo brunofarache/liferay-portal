@@ -18,7 +18,6 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
@@ -46,17 +45,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Validation {
 
 	@Schema
-	public LocalizedValue getErrorMessage() {
+	public String getErrorMessage() {
 		return errorMessage;
 	}
 
-	public void setErrorMessage(LocalizedValue errorMessage) {
+	public void setErrorMessage(String errorMessage) {
 		this.errorMessage = errorMessage;
 	}
 
 	@JsonIgnore
 	public void setErrorMessage(
-		UnsafeSupplier<LocalizedValue, Exception> errorMessageUnsafeSupplier) {
+		UnsafeSupplier<String, Exception> errorMessageUnsafeSupplier) {
 
 		try {
 			errorMessage = errorMessageUnsafeSupplier.get();
@@ -71,7 +70,7 @@ public class Validation {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected LocalizedValue errorMessage;
+	protected String errorMessage;
 
 	@Schema
 	public String getExpression() {
