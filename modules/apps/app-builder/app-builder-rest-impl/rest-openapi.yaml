@@ -32,7 +32,7 @@ components:
                     format: int64
                     type: integer
                 status:
-                    type: integer
+                    type: string
                 userId:
                     format: int64
                     type: integer
