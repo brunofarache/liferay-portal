@@ -293,7 +293,7 @@ public class DDMFormFieldFactoryHelper {
 					_defaultLocale, languageKey);
 			}
 
-			ddmFormFieldValidation.setErrorMessage(
+			ddmFormFieldValidation.setLocalizedErrorMessage(
 				createLocalizedValue(validationErrorMessage));
 		}
 
