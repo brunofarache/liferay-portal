@@ -139,7 +139,7 @@ public abstract class BaseDDMFormSerializerTestCase extends BaseDDMTestCase {
 		DDMFormFieldValidation ddmFormFieldValidation =
 			new DDMFormFieldValidation();
 
-		ddmFormFieldValidation.setErrorMessage(
+		ddmFormFieldValidation.setLocalizedErrorMessage(
 			DDMFormValuesTestUtil.createLocalizedValue(
 				"Field ".concat(
 					ddmFormField.getName()
