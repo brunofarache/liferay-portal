@@ -126,7 +126,7 @@ public class JSONObjectToDDMFormFieldTransformer {
 		JSONObject jsonObject = _jsonFactory.createJSONObject(
 			serializedDDMFormFieldProperty);
 
-		ddmFormFieldValidation.setErrorMessage(
+		ddmFormFieldValidation.setLocalizedErrorMessage(
 			deserializeLocalizedValue(jsonObject.getString("errorMessage")));
 		ddmFormFieldValidation.setExpression(
 			jsonObject.getString("expression"));

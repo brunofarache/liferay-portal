@@ -231,24 +231,24 @@ public class DDMFormContextToDDMForm
 
 		JSONObject jsonObject = jsonFactory.createJSONObject(serializedValue);
 
-		String errorMessageValue = jsonObject.getString("errorMessage");
-
-		LocalizedValue errorMessage = null;
-
 		JSONObject errorMessageJSONObject = jsonObject.getJSONObject(
 			"errorMessage");
 
-		if (errorMessageJSONObject == null) {
-			errorMessage = new LocalizedValue();
+		LocalizedValue localizedErrorMessage;
 
-			errorMessage.addString(defaultLocale, errorMessageValue);
+		String errorMessage = jsonObject.getString("errorMessage");
+
+		if (errorMessageJSONObject == null) {
+			localizedErrorMessage = new LocalizedValue();
+
+			localizedErrorMessage.addString(defaultLocale, errorMessage);
 		}
 		else {
-			errorMessage = getLocalizedValue(
+			localizedErrorMessage = getLocalizedValue(
 				errorMessageJSONObject, availableLocales);
 		}
 
-		ddmFormFieldValidation.setErrorMessage(errorMessage);
+		ddmFormFieldValidation.setLocalizedErrorMessage(localizedErrorMessage);
 
 		ddmFormFieldValidation.setExpression(
 			jsonObject.getString("expression"));

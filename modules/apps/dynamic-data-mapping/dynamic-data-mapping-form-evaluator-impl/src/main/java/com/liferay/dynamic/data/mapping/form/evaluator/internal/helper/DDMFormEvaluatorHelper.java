@@ -474,22 +474,22 @@ public class DDMFormEvaluatorHelper {
 		builder.withInstanceId(fieldInstanceId);
 
 		if (!valid) {
-			String errorMessageValue = null;
+			LocalizedValue localizedErrorMessage =
+				ddmFormFieldValidation.getLocalizedErrorMessage();
 
-			LocalizedValue errorMessage =
-				ddmFormFieldValidation.getErrorMessage();
+			String errorMessage = null;
 
-			if (errorMessage != null) {
-				errorMessageValue = errorMessage.getString(
+			if (localizedErrorMessage != null) {
+				errorMessage = localizedErrorMessage.getString(
 					_resourceBundle.getLocale());
 			}
 
-			if (errorMessageValue == null) {
-				errorMessageValue = LanguageUtil.get(
+			if (errorMessage == null) {
+				errorMessage = LanguageUtil.get(
 					_resourceBundle, "this-field-is-invalid");
 			}
 
-			builder.withParameter("errorMessage", errorMessageValue);
+			builder.withParameter("errorMessage", errorMessage);
 		}
 
 		ddmFormEvaluatorExpressionObserver.updateFieldProperty(builder.build());
