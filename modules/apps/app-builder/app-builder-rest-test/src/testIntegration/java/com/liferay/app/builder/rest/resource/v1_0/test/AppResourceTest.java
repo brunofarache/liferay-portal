@@ -14,6 +14,7 @@
 
 package com.liferay.app.builder.rest.resource.v1_0.test;
 
+import com.liferay.app.builder.model.AppBuilderAppStatus;
 import com.liferay.app.builder.rest.client.dto.v1_0.App;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.data.engine.model.DEDataListView;
@@ -29,7 +30,6 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.Inject;
 
 import java.io.InputStream;
@@ -80,7 +80,7 @@ public class AppResourceTest extends BaseAppResourceTestCase {
 							});
 					}
 				};
-				status = WorkflowConstants.STATUS_APPROVED;
+				status = AppBuilderAppStatus.DEPLOYED.getName();
 				userId = testGroup.getCreatorUserId();
 			}
 		};
