@@ -53,12 +53,13 @@ public class AppBuilderAppLocalServiceWrapper
 	public com.liferay.app.builder.model.AppBuilderApp addAppBuilderApp(
 			long groupId, long companyId, long userId, long ddmStructureId,
 			long ddmStructureLayoutId, long deDataListViewId,
-			java.util.Map<java.util.Locale, String> nameMap, String settings)
+			java.util.Map<java.util.Locale, String> nameMap, String settings,
+			int status)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _appBuilderAppLocalService.addAppBuilderApp(
 			groupId, companyId, userId, ddmStructureId, ddmStructureLayoutId,
-			deDataListViewId, nameMap, settings);
+			deDataListViewId, nameMap, settings, status);
 	}
 
 	/**
@@ -382,12 +383,13 @@ public class AppBuilderAppLocalServiceWrapper
 	public com.liferay.app.builder.model.AppBuilderApp updateAppBuilderApp(
 			long userId, long appBuilderAppId, long ddmStructureId,
 			long ddmStructureLayoutId, long deDataListViewId,
-			java.util.Map<java.util.Locale, String> nameMap, String settings)
+			java.util.Map<java.util.Locale, String> nameMap, String settings,
+			int status)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _appBuilderAppLocalService.updateAppBuilderApp(
 			userId, appBuilderAppId, ddmStructureId, ddmStructureLayoutId,
-			deDataListViewId, nameMap, settings);
+			deDataListViewId, nameMap, settings, status);
 	}
 
 	@Override
