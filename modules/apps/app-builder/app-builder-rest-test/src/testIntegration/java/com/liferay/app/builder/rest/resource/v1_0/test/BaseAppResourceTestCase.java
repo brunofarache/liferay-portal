@@ -177,11 +177,15 @@ public abstract class BaseAppResourceTestCase {
 
 		App app = randomApp();
 
+		app.setStatus(regex);
+
 		String json = AppSerDes.toJSON(app);
 
 		Assert.assertFalse(json.contains(regex));
 
 		app = AppSerDes.toDTO(json);
+
+		Assert.assertEquals(regex, app.getStatus());
 	}
 
 	@Test
@@ -1049,8 +1053,11 @@ public abstract class BaseAppResourceTestCase {
 		}
 
 		if (entityFieldName.equals("status")) {
-			throw new IllegalArgumentException(
-				"Invalid entity field " + entityFieldName);
+			sb.append("'");
+			sb.append(String.valueOf(app.getStatus()));
+			sb.append("'");
+
+			return sb.toString();
 		}
 
 		if (entityFieldName.equals("userId")) {
@@ -1072,6 +1079,7 @@ public abstract class BaseAppResourceTestCase {
 				dateModified = RandomTestUtil.nextDate();
 				id = RandomTestUtil.randomLong();
 				siteId = testGroup.getGroupId();
+				status = RandomTestUtil.randomString();
 				userId = RandomTestUtil.randomLong();
 			}
 		};

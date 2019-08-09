@@ -164,7 +164,11 @@ public class AppSerDes {
 
 			sb.append("\"status\": ");
 
-			sb.append(app.getStatus());
+			sb.append("\"");
+
+			sb.append(_escape(app.getStatus()));
+
+			sb.append("\"");
 		}
 
 		if (app.getUserId() != null) {
@@ -410,8 +414,7 @@ public class AppSerDes {
 			}
 			else if (Objects.equals(jsonParserFieldName, "status")) {
 				if (jsonParserFieldValue != null) {
-					app.setStatus(
-						Integer.valueOf((String)jsonParserFieldValue));
+					app.setStatus((String)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "userId")) {
