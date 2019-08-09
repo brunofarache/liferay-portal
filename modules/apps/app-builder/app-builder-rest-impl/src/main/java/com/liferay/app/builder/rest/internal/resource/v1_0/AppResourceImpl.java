@@ -15,6 +15,7 @@
 package com.liferay.app.builder.rest.internal.resource.v1_0;
 
 import com.liferay.app.builder.model.AppBuilderApp;
+import com.liferay.app.builder.model.AppBuilderAppStatus;
 import com.liferay.app.builder.rest.dto.v1_0.App;
 import com.liferay.app.builder.rest.internal.jaxrs.exception.NoSuchDataListViewException;
 import com.liferay.app.builder.rest.internal.odata.entity.v1_0.AppBuilderAppEntityModel;
@@ -27,6 +28,7 @@ import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -172,7 +174,8 @@ public class AppResourceImpl
 	public App postDataDefinitionApp(Long dataDefinitionId, App app)
 		throws Exception {
 
-		_validate(app.getDataLayoutId(), app.getDataListViewId());
+		_validate(
+			app.getDataLayoutId(), app.getDataListViewId(), app.getStatus());
 
 		DDMStructure ddmStructure = _ddmStructureLocalService.getStructure(
 			dataDefinitionId);
@@ -183,12 +186,14 @@ public class AppResourceImpl
 				PrincipalThreadLocal.getUserId(), dataDefinitionId,
 				app.getDataLayoutId(), app.getDataListViewId(),
 				LocalizedValueUtil.toLocaleStringMap(app.getName()),
-				_toJSON(app.getSettings())));
+				_toJSON(app.getSettings()),
+				AppBuilderAppStatus.parse(app.getStatus())));
 	}
 
 	@Override
 	public App putApp(Long appId, App app) throws Exception {
-		_validate(app.getDataLayoutId(), app.getDataListViewId());
+		_validate(
+			app.getDataLayoutId(), app.getDataListViewId(), app.getStatus());
 
 		DDMStructure ddmStructure = _ddmStructureLocalService.getStructure(
 			app.getDataDefinitionId());
@@ -199,7 +204,8 @@ public class AppResourceImpl
 				ddmStructure.getStructureId(), app.getDataLayoutId(),
 				app.getDataListViewId(),
 				LocalizedValueUtil.toLocaleStringMap(app.getName()),
-				_toJSON(app.getSettings())));
+				_toJSON(app.getSettings()),
+				AppBuilderAppStatus.parse(app.getStatus())));
 	}
 
 	private App _toApp(AppBuilderApp appBuilderApp) throws Exception {
@@ -215,7 +221,7 @@ public class AppResourceImpl
 					appBuilderApp.getNameMap());
 				settings = _toSettings(appBuilderApp.getSettings());
 				siteId = appBuilderApp.getGroupId();
-				status = appBuilderApp.getStatus();
+				status = AppBuilderAppStatus.parse(appBuilderApp.getStatus());
 				userId = appBuilderApp.getUserId();
 			}
 		};
@@ -240,7 +246,8 @@ public class AppResourceImpl
 		};
 	}
 
-	private void _validate(long ddmStructureLayoutId, long deDataListViewId)
+	private void _validate(
+			long ddmStructureLayoutId, long deDataListViewId, String status)
 		throws Exception {
 
 		DDMStructureLayout ddmStructureLayout =
@@ -275,6 +282,17 @@ public class AppResourceImpl
 			throw new NoSuchDataListViewException(
 				"Data engine data list view " + deDataListViewId +
 					" does not exist",
+				e);
+		}
+
+		try {
+			AppBuilderAppStatus.parse(status);
+		}
+		catch (Exception e) {
+			throw new Exception(
+				StringBundler.concat(
+					"Status must be \"", AppBuilderAppStatus.DEPLOYED.getName(),
+					"\" or \"", AppBuilderAppStatus.UNDEPLOYED.getName(), "\""),
 				e);
 		}
 	}
