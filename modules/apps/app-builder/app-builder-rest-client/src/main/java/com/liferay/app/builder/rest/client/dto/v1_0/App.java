@@ -217,16 +217,16 @@ public class App {
 
 	protected Long siteId;
 
-	public Integer getStatus() {
+	public String getStatus() {
 		return status;
 	}
 
-	public void setStatus(Integer status) {
+	public void setStatus(String status) {
 		this.status = status;
 	}
 
 	public void setStatus(
-		UnsafeSupplier<Integer, Exception> statusUnsafeSupplier) {
+		UnsafeSupplier<String, Exception> statusUnsafeSupplier) {
 
 		try {
 			status = statusUnsafeSupplier.get();
@@ -236,7 +236,7 @@ public class App {
 		}
 	}
 
-	protected Integer status;
+	protected String status;
 
 	public Long getUserId() {
 		return userId;
