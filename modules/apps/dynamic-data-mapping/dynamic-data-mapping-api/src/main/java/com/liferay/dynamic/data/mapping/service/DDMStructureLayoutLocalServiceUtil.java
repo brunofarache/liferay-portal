@@ -456,8 +456,45 @@ public class DDMStructureLayoutLocalServiceUtil {
 		return getService().getStructureLayouts(groupId, start, end);
 	}
 
+	public static java.util.List
+		<com.liferay.dynamic.data.mapping.model.DDMStructureLayout>
+			getStructureLayouts(
+				long groupId, long classNameId, int start, int end,
+				com.liferay.portal.kernel.util.OrderByComparator
+					<com.liferay.dynamic.data.mapping.model.DDMStructureLayout>
+						orderByComparator) {
+
+		return getService().getStructureLayouts(
+			groupId, classNameId, start, end, orderByComparator);
+	}
+
+	public static java.util.List
+		<com.liferay.dynamic.data.mapping.model.DDMStructureLayout>
+			getStructureLayouts(
+				long groupId, long classNameId, long structureVersionId,
+				int start, int end,
+				com.liferay.portal.kernel.util.OrderByComparator
+					<com.liferay.dynamic.data.mapping.model.DDMStructureLayout>
+						orderByComparator) {
+
+		return getService().getStructureLayouts(
+			groupId, classNameId, structureVersionId, start, end,
+			orderByComparator);
+	}
+
 	public static int getStructureLayoutsCount(long groupId) {
 		return getService().getStructureLayoutsCount(groupId);
+	}
+
+	public static int getStructureLayoutsCount(long groupId, long classNameId) {
+		return getService().getStructureLayoutsCount(groupId, classNameId);
+	}
+
+	public static int getStructureLayoutsCount(
+		long groupId, long classNameId, long structureVersionId) {
+
+		return getService().getStructureLayoutsCount(
+			groupId, classNameId, structureVersionId);
 	}
 
 	public static java.util.List
