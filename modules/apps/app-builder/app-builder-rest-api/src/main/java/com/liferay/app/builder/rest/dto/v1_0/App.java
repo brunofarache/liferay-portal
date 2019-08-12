@@ -299,17 +299,17 @@ public class App {
 	protected Long siteId;
 
 	@Schema
-	public Integer getStatus() {
+	public String getStatus() {
 		return status;
 	}
 
-	public void setStatus(Integer status) {
+	public void setStatus(String status) {
 		this.status = status;
 	}
 
 	@JsonIgnore
 	public void setStatus(
-		UnsafeSupplier<Integer, Exception> statusUnsafeSupplier) {
+		UnsafeSupplier<String, Exception> statusUnsafeSupplier) {
 
 		try {
 			status = statusUnsafeSupplier.get();
@@ -324,7 +324,7 @@ public class App {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Integer status;
+	protected String status;
 
 	@Schema
 	public Long getUserId() {
@@ -489,7 +489,11 @@ public class App {
 
 			sb.append("\"status\": ");
 
-			sb.append(status);
+			sb.append("\"");
+
+			sb.append(_escape(status));
+
+			sb.append("\"");
 		}
 
 		if (userId != null) {

@@ -95,13 +95,12 @@ const APPS = {
 			status: (
 				<ClayLabel
 					displayType={
-						item.settings.deploymentStatus.toLowerCase() ===
-						'deployed'
+						item.status.toLowerCase() === 'deployed'
 							? 'success'
 							: 'secondary'
 					}
 				>
-					{DEPLOYMENT_STATUS[item.settings.deploymentStatus]}
+					{DEPLOYMENT_STATUS[item.status.toLowerCase()]}
 				</ClayLabel>
 			),
 			type: concatTypes(item.settings.deploymentTypes)
