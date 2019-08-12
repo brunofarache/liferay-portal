@@ -462,10 +462,19 @@
 		<finder name="StructureVersionId" return-type="DDMStructureLayout">
 			<finder-column name="structureVersionId" />
 		</finder>
+		<finder name="G_C" return-type="Collection">
+			<finder-column name="groupId" />
+			<finder-column name="classNameId" />
+		</finder>
 		<finder name="G_C_S" return-type="DDMStructureLayout" unique="true">
 			<finder-column name="groupId" />
 			<finder-column name="classNameId" />
 			<finder-column name="structureLayoutKey" />
+		</finder>
+		<finder name="G_C_SV" return-type="Collection">
+			<finder-column name="groupId" />
+			<finder-column name="classNameId" />
+			<finder-column name="structureVersionId" />
 		</finder>
 
 		<!-- References -->
