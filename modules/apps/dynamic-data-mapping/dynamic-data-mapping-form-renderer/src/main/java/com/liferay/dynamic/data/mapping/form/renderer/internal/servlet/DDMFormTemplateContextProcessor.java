@@ -359,7 +359,7 @@ public class DDMFormTemplateContextProcessor {
 		DDMFormFieldValidation ddmFormFieldValidation =
 			new DDMFormFieldValidation();
 
-		ddmFormFieldValidation.setLocalizedErrorMessage(
+		ddmFormFieldValidation.setErrorMessageLocalizedValue(
 			getLocalizedValue(jsonObject.getString("errorMessage")));
 
 		ddmFormFieldValidation.setExpression(

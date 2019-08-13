@@ -562,14 +562,14 @@ public class DDMFormFieldTemplateContextFactory {
 			return;
 		}
 
-		LocalizedValue localizedErrorMessage =
-			ddmFormFieldValidation.getLocalizedErrorMessage();
+		LocalizedValue errorMessageLocalizedValue =
+			ddmFormFieldValidation.getErrorMessageLocalizedValue();
 
 		String errorMessage = StringPool.BLANK;
 
-		if (localizedErrorMessage != null) {
+		if (errorMessageLocalizedValue != null) {
 			errorMessage = GetterUtil.getString(
-				localizedErrorMessage.getString(_locale));
+				errorMessageLocalizedValue.getString(_locale));
 		}
 
 		Map<String, String> validation = new HashMap<>();
