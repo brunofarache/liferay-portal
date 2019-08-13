@@ -14,6 +14,7 @@
 
 import ClayButton from '@clayui/button';
 import React, {useState} from 'react';
+import Sidebar from '../../components/sidebar/Sidebar.es';
 import {addItem} from '../../utils/client.es';
 
 export default ({
@@ -40,48 +41,51 @@ export default ({
 	};
 
 	return (
-		<nav className="component-tbar subnav-tbar-light tbar tbar-article">
-			<div className="container-fluid container-fluid-max-xl">
-				<ul className="tbar-nav">
-					<li className="tbar-item tbar-item-expand">
-						<div className="input-group">
-							<div className="input-group-item">
-								<input
-									aria-label={Liferay.Language.get(
-										'untitled-table-view'
-									)}
-									className="form-control form-control-inline"
-									onChange={onChange}
-									placeholder={Liferay.Language.get(
-										'untitled-table-view'
-									)}
-									type="text"
-									value={name}
-								/>
+		<>
+			<nav className="component-tbar subnav-tbar-light tbar tbar-article">
+				<div className="container-fluid container-fluid-max-xl">
+					<ul className="tbar-nav">
+						<li className="tbar-item tbar-item-expand">
+							<div className="input-group">
+								<div className="input-group-item">
+									<input
+										aria-label={Liferay.Language.get(
+											'untitled-table-view'
+										)}
+										className="form-control form-control-inline"
+										onChange={onChange}
+										placeholder={Liferay.Language.get(
+											'untitled-table-view'
+										)}
+										type="text"
+										value={name}
+									/>
+								</div>
 							</div>
-						</div>
-					</li>
-					<li className="tbar-item">
-						<div className="tbar-section">
-							<ClayButton
-								className="mr-3"
-								displayType="secondary"
-								onClick={() => history.goBack()}
-								small
-							>
-								{Liferay.Language.get('cancel')}
-							</ClayButton>
-							<ClayButton
-								className="mr-3"
-								onClick={addTableView}
-								small
-							>
-								{Liferay.Language.get('save')}
-							</ClayButton>
-						</div>
-					</li>
-				</ul>
-			</div>
-		</nav>
+						</li>
+						<li className="tbar-item">
+							<div className="tbar-section">
+								<ClayButton
+									className="mr-3"
+									displayType="secondary"
+									onClick={() => history.goBack()}
+									small
+								>
+									{Liferay.Language.get('cancel')}
+								</ClayButton>
+								<ClayButton
+									className="mr-3"
+									onClick={addTableView}
+									small
+								>
+									{Liferay.Language.get('save')}
+								</ClayButton>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</nav>
+			<Sidebar />
+		</>
 	);
 };
