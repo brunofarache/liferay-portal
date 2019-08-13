@@ -1,0 +1,9 @@
+.sidebar-container {
+	border-top-width: 0;
+	display: flex;
+	flex-flow: column;
+	height: 100%;
+	position: fixed;
+	right: 0;
+	width: $sidebarWidth;
+}

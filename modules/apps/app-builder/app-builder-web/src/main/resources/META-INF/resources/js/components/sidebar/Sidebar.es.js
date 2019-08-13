@@ -13,20 +13,20 @@
  */
 
 import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App.es';
+import Body from './Body.es';
+import Footer from './Footer.es';
+import Header from './Header.es';
 
-export default id => {
-	const container = document.getElementById(id);
-
-	ReactDOM.render(
-		<div className="app-builder-root">
-			<App />
-		</div>,
-		container
-	);
-
-	Liferay.once('destroyPortlet', () =>
-		ReactDOM.unmountComponentAtNode(container)
+const Sidebar = ({children}) => {
+	return (
+		<div className="sidebar-container">
+			<div className="sidebar sidebar-light">{children}</div>
+		</div>
 	);
 };
+
+Sidebar.Body = Body;
+Sidebar.Footer = Footer;
+Sidebar.Header = Header;
+
+export default Sidebar;

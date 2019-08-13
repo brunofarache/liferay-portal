@@ -20,8 +20,8 @@ export const addItem = (endpoint, item) => {
 			'Content-Type': 'application/json'
 		},
 		method: 'POST'
-	}).then(result => {
-		return result.json();
+	}).then(response => {
+		return response.json();
 	});
 };
 
@@ -43,6 +43,18 @@ export const confirmDelete = endpoint => item =>
 export const deleteItem = endpoint => {
 	return fetch(getURL(endpoint), {
 		method: 'DELETE'
+	});
+};
+
+export const getItem = endpoint => {
+	return fetch(getURL(endpoint), {
+		headers: {
+			Accept: 'application/json',
+			'Content-Type': 'application/json'
+		},
+		method: 'GET'
+	}).then(response => {
+		return response.json();
 	});
 };
 
