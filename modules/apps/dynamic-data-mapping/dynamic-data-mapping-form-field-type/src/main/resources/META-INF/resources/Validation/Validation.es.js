@@ -239,6 +239,15 @@ Validation.STATE = {
 	/**
 	 * @default undefined
 	 * @instance
+	 * @memberof Validation
+	 * @type {?(string|undefined)}
+	 */
+
+	dataType: Config.string().valueFn('_dataTypeValueFn'),
+
+	/**
+	 * @default undefined
+	 * @instance
 	 * @memberof Options
 	 * @type {?string}
 	 */
@@ -253,14 +262,6 @@ Validation.STATE = {
 	 */
 
 	editingLanguageId: Config.string(),
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Validation
-	 * @type {?(string|undefined)}
-	 */
-
-	dataType: Config.string().valueFn('_dataTypeValueFn'),
 
 	/**
 	 * @default false
