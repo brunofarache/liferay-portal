@@ -295,13 +295,13 @@ public class DDMFormBuilderContextFactoryHelper {
 
 		JSONObject errorMessageJSONObject = _jsonFactory.createJSONObject();
 
-		LocalizedValue localizedErrorMessage =
-			ddmFormFieldValidation.getLocalizedErrorMessage();
+		LocalizedValue errorMessageLocalizedValue =
+			ddmFormFieldValidation.getErrorMessageLocalizedValue();
 
 		for (Locale availableLocale : availableLocales) {
 			errorMessageJSONObject.put(
 				LocaleUtil.toLanguageId(availableLocale),
-				localizedErrorMessage.getString(availableLocale));
+				errorMessageLocalizedValue.getString(availableLocale));
 		}
 
 		JSONObject jsonObject = _jsonFactory.createJSONObject();

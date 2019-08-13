@@ -474,13 +474,13 @@ public class DDMFormEvaluatorHelper {
 		builder.withInstanceId(fieldInstanceId);
 
 		if (!valid) {
-			LocalizedValue localizedErrorMessage =
-				ddmFormFieldValidation.getLocalizedErrorMessage();
+			LocalizedValue errorMessageLocalizedValue =
+				ddmFormFieldValidation.getErrorMessageLocalizedValue();
 
 			String errorMessage = null;
 
-			if (localizedErrorMessage != null) {
-				errorMessage = localizedErrorMessage.getString(
+			if (errorMessageLocalizedValue != null) {
+				errorMessage = errorMessageLocalizedValue.getString(
 					_resourceBundle.getLocale());
 			}
 

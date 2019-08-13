@@ -32,7 +32,8 @@ public class DDMFormFieldValidation implements Serializable {
 		DDMFormFieldValidation ddmFormFieldValidation) {
 
 		_expression = ddmFormFieldValidation._expression;
-		_localizedErrorMessage = ddmFormFieldValidation._localizedErrorMessage;
+		_errorMessageLocalizedValue =
+			ddmFormFieldValidation._errorMessageLocalizedValue;
 	}
 
 	@Override
@@ -49,8 +50,8 @@ public class DDMFormFieldValidation implements Serializable {
 			(DDMFormFieldValidation)obj;
 
 		if (Objects.equals(
-				_localizedErrorMessage,
-				ddmFormFieldValidation._localizedErrorMessage) &&
+				_errorMessageLocalizedValue,
+				ddmFormFieldValidation._errorMessageLocalizedValue) &&
 			Objects.equals(_expression, ddmFormFieldValidation._expression)) {
 
 			return true;
@@ -61,52 +62,54 @@ public class DDMFormFieldValidation implements Serializable {
 
 	/**
 	 * @deprecated As of Mueller (7.2.x), replaced by {@link
-	 #getLocalizedErrorMessage()}
+	 #getErrorMessageLocalizedValue()}
 	 */
 	@Deprecated
 	public String getErrorMessage() {
-		return _localizedErrorMessage.getString(
-			_localizedErrorMessage.getDefaultLocale());
+		return _errorMessageLocalizedValue.getString(
+			_errorMessageLocalizedValue.getDefaultLocale());
+	}
+
+	public LocalizedValue getErrorMessageLocalizedValue() {
+		return _errorMessageLocalizedValue;
 	}
 
 	public String getExpression() {
 		return _expression;
 	}
 
-	public LocalizedValue getLocalizedErrorMessage() {
-		return _localizedErrorMessage;
-	}
-
 	@Override
 	public int hashCode() {
-		int hash = HashUtil.hash(0, _localizedErrorMessage);
+		int hash = HashUtil.hash(0, _errorMessageLocalizedValue);
 
 		return HashUtil.hash(hash, _expression);
 	}
 
 	/**
 	 * @deprecated As of Mueller (7.2.x), replaced by {@link
-	 #setLocalizedErrorMessage(LocalizedValue)}
+	 #setErrorMessageLocalizedValue(LocalizedValue)}
 	 */
 	@Deprecated
 	public void setErrorMessage(String errorMessage) {
-		LocalizedValue localizedValue = new LocalizedValue();
+		LocalizedValue errorMessageLocalizedValue = new LocalizedValue();
 
-		localizedValue.addString(
-			localizedValue.getDefaultLocale(), errorMessage);
+		errorMessageLocalizedValue.addString(
+			errorMessageLocalizedValue.getDefaultLocale(), errorMessage);
 
-		setLocalizedErrorMessage(localizedValue);
+		setErrorMessageLocalizedValue(errorMessageLocalizedValue);
+	}
+
+	public void setErrorMessageLocalizedValue(
+		LocalizedValue errorMessageLocalizedValue) {
+
+		_errorMessageLocalizedValue = errorMessageLocalizedValue;
 	}
 
 	public void setExpression(String expression) {
 		_expression = expression;
 	}
 
-	public void setLocalizedErrorMessage(LocalizedValue localizedErrorMessage) {
-		_localizedErrorMessage = localizedErrorMessage;
-	}
-
+	private LocalizedValue _errorMessageLocalizedValue;
 	private String _expression;
-	private LocalizedValue _localizedErrorMessage;
 
 }

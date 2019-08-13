@@ -75,7 +75,7 @@ public class DDMFormValuesValidatorTest {
 			new DDMFormFieldValidation();
 
 		ddmFormFieldValidation.setExpression("Height <= 3.5");
-		ddmFormFieldValidation.setLocalizedErrorMessage(
+		ddmFormFieldValidation.setErrorMessageLocalizedValue(
 			DDMFormValuesTestUtil.createLocalizedValue(
 				"maximum height allowed 3.5.", LocaleUtil.US));
 
@@ -106,7 +106,7 @@ public class DDMFormValuesValidatorTest {
 		DDMFormFieldValidation ddmFormFieldValidation =
 			new DDMFormFieldValidation();
 
-		ddmFormFieldValidation.setLocalizedErrorMessage(
+		ddmFormFieldValidation.setErrorMessageLocalizedValue(
 			DDMFormValuesTestUtil.createLocalizedValue(
 				"Age must be greater than 18.", LocaleUtil.US));
 		ddmFormFieldValidation.setExpression("Age > 18");
@@ -713,7 +713,7 @@ public class DDMFormValuesValidatorTest {
 			new DDMFormFieldValidation();
 
 		ddmFormFieldValidation.setExpression("Age > 18");
-		ddmFormFieldValidation.setLocalizedErrorMessage(
+		ddmFormFieldValidation.setErrorMessageLocalizedValue(
 			DDMFormValuesTestUtil.createLocalizedValue(
 				"Age must be greater than 18.", LocaleUtil.US));
 
