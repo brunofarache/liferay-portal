@@ -12,135 +12,45 @@
  * details.
  */
 
+import ClayIcon from '@clayui/icon';
 import React from 'react';
+import Button from '../button/Button.es';
 
 export default () => {
 	return (
 		<div className="sidebar-container">
 			<div className="sidebar sidebar-light">
-				<nav className="component-tbar tbar">
-					<div className="container-fluid">
-						<ul className="tbar-nav">
-							<li className="tbar-item">
-								<a
-									className="component-action disabled"
-									href="#disabled"
-									role="button"
-									tabIndex="-1"
-								>
-									<svg
-										className="lexicon-icon lexicon-icon-angle-left"
-										focusable="false"
-										role="presentation"
-									>
-										<use href="/images/icons/icons.svg#angle-left"></use>
-									</svg>
-								</a>
-							</li>
-							<li className="tbar-item tbar-item-expand">
-								<div className="tbar-section">
-									<span className="text-truncate-inline">
-										<span className="text-truncate">
-											Item 1 of
-											3,138,732,873,467,182,321,341,231,234,342,559,827,334,424
-										</span>
-									</span>
-								</div>
-							</li>
-							<li className="tbar-item">
-								<a
-									className="component-action"
-									href="#1"
-									role="button"
-								>
-									<svg
-										className="lexicon-icon lexicon-icon-angle-right"
-										focusable="false"
-										role="presentation"
-									>
-										<use href="/images/icons/icons.svg#angle-right"></use>
-									</svg>
-								</a>
-							</li>
-							<li className="tbar-item">
-								<a
-									className="component-action"
-									href="#1"
-									role="button"
-								>
-									<svg
-										className="lexicon-icon lexicon-icon-times"
-										focusable="false"
-										role="presentation"
-									>
-										<use href="/images/icons/icons.svg#times"></use>
-									</svg>
-								</a>
-							</li>
-						</ul>
-					</div>
-				</nav>
 				<div className="sidebar-header">
 					<div className="autofit-row sidebar-section">
 						<div className="autofit-col autofit-col-expand">
-							<h4 className="component-title">
-								<span className="text-truncate-inline">
-									<a className="text-truncate" href="#1">
-										Image1.jpg
-									</a>
-								</span>
-							</h4>
-							<p className="component-subtitle">Basic Document</p>
-						</div>
-						<div className="autofit-col">
-							<div className="dropdown dropdown-action">
-								<a
-									aria-expanded="false"
-									aria-haspopup="true"
-									className="component-action dropdown-toggle"
-									data-toggle="dropdown"
-									href="#1"
-									role="button"
-								>
-									<svg
-										className="lexicon-icon lexicon-icon-ellipsis-v"
-										focusable="false"
-										role="presentation"
-									>
-										<use href="/images/icons/icons.svg#ellipsis-v"></use>
-									</svg>
-								</a>
-								<ul
-									className="dropdown-menu"
-									style={{
-										left: '0px',
-										position: 'absolute',
-										top: '0px',
-										transform:
-											'translate3d(-197px, 32px, 0px)',
-										willChange: 'transform'
-									}}
-									x-placement="bottom-start"
-								>
-									<li>
-										<a
-											className="dropdown-item"
-											href="#1"
-											role="button"
+							<div className="input-group">
+								<div className="input-group-item">
+									<input
+										aria-label={Liferay.Language.get(
+											'search'
+										)}
+										className="form-control input-group-inset input-group-inset-after"
+										placeholder={Liferay.Language.get(
+											'search'
+										)}
+										type="text"
+									/>
+
+									<div className="input-group-inset-item input-group-inset-item-after">
+										<button
+											className="btn btn-unstyled"
+											type="button"
 										>
-											Download
-										</a>
-									</li>
-									<li>
-										<a
-											className="dropdown-item"
-											href="#1"
-											role="button"
-										>
-											Move to Recycle Bin
-										</a>
-									</li>
-								</ul>
+											<ClayIcon symbol="search" />
+										</button>
+									</div>
+								</div>
+								<div className="input-group-item input-group-item-shrink">
+									<Button
+										displayType="secondary"
+										symbol="angle-right"
+									/>
+								</div>
 							</div>
 						</div>
 					</div>
