@@ -20,7 +20,7 @@ import Button from '../button/Button.es';
 
 const {Item} = ClayNavigationBar;
 
-export default () => {
+export default ({dataDefinitionFields}) => {
 	return (
 		<div className="sidebar-container">
 			<div className="sidebar sidebar-light">
@@ -66,7 +66,7 @@ export default () => {
 								className="nav-link"
 								displayType="unstyled"
 							>
-								Columns
+								{Liferay.Language.get('columns')}
 							</ClayLink>
 						</Item>
 						<Item>
@@ -74,10 +74,41 @@ export default () => {
 								className="nav-link"
 								displayType="unstyled"
 							>
-							    Filters
+							    {Liferay.Language.get('filters')}
 							</ClayLink>
 						</Item>
 					</ClayNavigationBar>
+					<dl className="sidebar-dl sidebar-section">
+						<dd className="sidebar-dd">
+							<ul className="list-group sidebar-list-group">
+								{dataDefinitionFields.map(
+									(dataDefinitionField, index) => (
+										<li
+											className="list-group-item list-group-item-flex"
+											key={index}
+										>
+											<div className="autofit-col">
+												<div className="sticker sticker-secondary">
+													<span className="inline-item">
+														<ClayIcon symbol="drag" />
+													</span>
+												</div>
+											</div>
+											<div className="autofit-col autofit-col-expand">
+												<section className="autofit-section">
+													<div className="list-group-title text-truncate-inline">
+														{
+															dataDefinitionField.name
+														}
+													</div>
+												</section>
+											</div>
+										</li>
+									)
+								)}
+							</ul>
+						</dd>
+					</dl>
 				</div>
 			</div>
 		</div>

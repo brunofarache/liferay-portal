@@ -13,9 +13,9 @@
  */
 
 import ClayButton from '@clayui/button';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Sidebar from '../../components/sidebar/Sidebar.es';
-import {addItem} from '../../utils/client.es';
+import {addItem, getItem} from '../../utils/client.es';
 
 export default ({
 	history,
@@ -24,6 +24,7 @@ export default ({
 	}
 }) => {
 	const [name, setName] = useState('');
+	const [dataDefinition, setDataDefinition] = useState({});
 
 	const addTableView = () => {
 		addItem(
@@ -39,6 +40,14 @@ export default ({
 	const onChange = event => {
 		setName(event.target.value);
 	};
+
+	useEffect(() => {
+		getItem(
+			`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}`
+		).then(setDataDefinition);
+	}, [dataDefinitionId]);
+
+	const {dataDefinitionFields = []} = dataDefinition;
 
 	return (
 		<>
@@ -85,7 +94,7 @@ export default ({
 					</ul>
 				</div>
 			</nav>
-			<Sidebar />
+			<Sidebar dataDefinitionFields={dataDefinitionFields} />
 		</>
 	);
 };
