@@ -286,6 +286,19 @@ public class DEDataListViewLocalServiceWrapper
 		return _deDataListViewLocalService.getDEDataListViews(start, end);
 	}
 
+	@Override
+	public java.util.List<com.liferay.data.engine.model.DEDataListView>
+		getDEDataListViews(
+			long groupId, long companyId, long ddmStructureId, int start,
+			int end,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<com.liferay.data.engine.model.DEDataListView>
+					orderByComparator) {
+
+		return _deDataListViewLocalService.getDEDataListViews(
+			groupId, companyId, ddmStructureId, start, end, orderByComparator);
+	}
+
 	/**
 	 * Returns all the de data list views matching the UUID and company.
 	 *
@@ -331,6 +344,14 @@ public class DEDataListViewLocalServiceWrapper
 	@Override
 	public int getDEDataListViewsCount() {
 		return _deDataListViewLocalService.getDEDataListViewsCount();
+	}
+
+	@Override
+	public int getDEDataListViewsCount(
+		long groupId, long companyId, long ddmStructureId) {
+
+		return _deDataListViewLocalService.getDEDataListViewsCount(
+			groupId, companyId, ddmStructureId);
 	}
 
 	@Override

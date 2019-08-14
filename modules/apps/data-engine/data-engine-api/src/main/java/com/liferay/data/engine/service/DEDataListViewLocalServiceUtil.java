@@ -271,6 +271,18 @@ public class DEDataListViewLocalServiceUtil {
 		return getService().getDEDataListViews(start, end);
 	}
 
+	public static java.util.List<com.liferay.data.engine.model.DEDataListView>
+		getDEDataListViews(
+			long groupId, long companyId, long ddmStructureId, int start,
+			int end,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<com.liferay.data.engine.model.DEDataListView>
+					orderByComparator) {
+
+		return getService().getDEDataListViews(
+			groupId, companyId, ddmStructureId, start, end, orderByComparator);
+	}
+
 	/**
 	 * Returns all the de data list views matching the UUID and company.
 	 *
@@ -313,6 +325,13 @@ public class DEDataListViewLocalServiceUtil {
 	 */
 	public static int getDEDataListViewsCount() {
 		return getService().getDEDataListViewsCount();
+	}
+
+	public static int getDEDataListViewsCount(
+		long groupId, long companyId, long ddmStructureId) {
+
+		return getService().getDEDataListViewsCount(
+			groupId, companyId, ddmStructureId);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery
