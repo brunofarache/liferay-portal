@@ -173,24 +173,19 @@ public class DataListViewResourceImpl
 	private OrderByComparator<DEDataListView>
 		_getDEDataListViewOrderByComparator(Sort sort) {
 
-		OrderByComparator<DEDataListView> orderByComparator = null;
+		String sortFieldName = sort.getFieldName();
 
-		String fieldName = sort.getFieldName();
+		boolean ascending = !sort.isReverse();
 
-		if (StringUtil.startsWith(fieldName, "createDate")) {
-			orderByComparator = new DEDataListViewCreateDateComparator(
-				!sort.isReverse());
+		if (StringUtil.startsWith(sortFieldName, "createDate")) {
+			return new DEDataListViewCreateDateComparator(ascending);
 		}
-		else if (StringUtil.startsWith(fieldName, "modified")) {
-			orderByComparator = new DEDataListViewModifiedDateComparator(
-				!sort.isReverse());
+		else if (StringUtil.startsWith(sortFieldName, "localized_name")) {
+			return new DEDataListViewNameComparator(ascending);
 		}
-		else if (StringUtil.startsWith(fieldName, "localized_name")) {
-			orderByComparator = new DEDataListViewNameComparator(
-				!sort.isReverse());
+		else {
+			return new DEDataListViewModifiedDateComparator(ascending);
 		}
-
-		return orderByComparator;
 	}
 
 	private DataListView _toDataListView(DEDataListView deDataListView)
