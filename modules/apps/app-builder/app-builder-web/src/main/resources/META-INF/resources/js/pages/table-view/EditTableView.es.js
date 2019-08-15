@@ -18,8 +18,8 @@ import ClayLink from '@clayui/link';
 import ClayNavigationBar from '@clayui/navigation-bar';
 import React, {useEffect, useState} from 'react';
 import Button from '../../components/button/Button.es';
+import {Loading} from '../../components/loading/Loading.es';
 import Sidebar from '../../components/sidebar/Sidebar.es';
-import {withLoading} from '../../components/loading/Loading.es';
 import {addItem, getItem} from '../../utils/client.es';
 
 const {Item} = ClayNavigationBar;
@@ -31,6 +31,12 @@ export default ({
 		params: {dataDefinitionId}
 	}
 }) => {
+	const [isOpen, setOpen] = useState(true);
+
+	const toggle = () => {
+		setOpen(!isOpen);
+	};
+
 	const [name, setName] = useState('');
 	const [dataDefinition, setDataDefinition] = useState(null);
 
@@ -56,10 +62,9 @@ export default ({
 	}, [dataDefinitionId]);
 
 	const {dataDefinitionFields = []} = dataDefinition || {};
-	const Container = withLoading(({children}) => <>{children}</>);
 
 	return (
-		<Container isLoading={dataDefinition === null}>
+		<Loading isLoading={dataDefinition === null}>
 			<nav className="component-tbar subnav-tbar-light tbar tbar-article">
 				<div className="container-fluid container-fluid-max-xl">
 					<ul className="tbar-nav">
@@ -103,7 +108,7 @@ export default ({
 					</ul>
 				</div>
 			</nav>
-			<Sidebar>
+			<Sidebar isOpen={isOpen}>
 				<Header>
 					<div className="autofit-row sidebar-section">
 						<div className="autofit-col autofit-col-expand">
@@ -132,6 +137,7 @@ export default ({
 								<div className="input-group-item input-group-item-shrink">
 									<Button
 										displayType="secondary"
+										onClick={toggle}
 										symbol="angle-right"
 									/>
 								</div>
@@ -191,6 +197,6 @@ export default ({
 					</dl>
 				</Body>
 			</Sidebar>
-		</Container>
+		</Loading>
 	);
 };

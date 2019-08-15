@@ -12,14 +12,15 @@
  * details.
  */
 
+import classNames from 'classnames';
 import React from 'react';
 import Body from './Body.es';
 import Footer from './Footer.es';
 import Header from './Header.es';
 
-const Sidebar = ({children}) => {
+const Sidebar = ({children, isOpen}) => {
 	return (
-		<div className="sidebar-container">
+		<div className={classNames('sidebar-container', {'closed': !isOpen})}>
 			<div className="sidebar sidebar-light">{children}</div>
 		</div>
 	);

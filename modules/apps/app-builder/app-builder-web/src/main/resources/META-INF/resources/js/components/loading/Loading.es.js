@@ -15,16 +15,12 @@
 import ClayLoadingIndicator from '@clayui/loading-indicator';
 import React from 'react';
 
-const Loading = () => {
-	return <ClayLoadingIndicator />;
-};
-
 export const withLoading = Component => {
 	const Wrapper = props => {
 		const {isLoading, ...restProps} = props;
 
 		if (isLoading) {
-			return <Loading />;
+			return <ClayLoadingIndicator />;
 		}
 
 		return <Component {...restProps} />;
@@ -33,4 +29,4 @@ export const withLoading = Component => {
 	return Wrapper;
 };
 
-export default Loading;
+export const Loading = withLoading(({children}) => <>{children}</>);
