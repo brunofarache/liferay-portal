@@ -23,7 +23,6 @@ public class AppBuilderPortletKeys {
 		"com_liferay_app_builder_web_internal_portlet_CustomObjectsPortlet";
 
 	public static final String PRODUCT_MENU_APP =
-		"com_liferay_app_builder_web_internal_deploy_type_product_menu_" +
-			"ProductMenuAppPortlet";
+		"com_liferay_app_builder_web_internal_portlet_ProductMenuAppPortlet";
 
 }

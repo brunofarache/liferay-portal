@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.app.builder.web.internal.deploy.type.product.menu;
+package com.liferay.app.builder.web.internal.portlet;
 
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 

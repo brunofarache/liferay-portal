@@ -12,13 +12,17 @@
  * details.
  */
 
-package com.liferay.app.builder.web.internal.deploy.type.product.menu;
+package com.liferay.app.builder.web.internal.deploy;
 
 import com.liferay.app.builder.constants.AppBuilderAppConstants;
 import com.liferay.app.builder.deploy.AppDeployer;
 import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.app.builder.service.AppBuilderAppLocalService;
+import com.liferay.app.builder.web.internal.application.list.ProductMenuAppPanelApp;
+import com.liferay.app.builder.web.internal.application.list.ProductMenuAppPanelCategory;
+import com.liferay.app.builder.web.internal.constants.AppBuilderPanelCategoryKeys;
 import com.liferay.app.builder.web.internal.constants.AppBuilderPortletKeys;
+import com.liferay.app.builder.web.internal.portlet.ProductMenuAppPortlet;
 import com.liferay.application.list.PanelApp;
 import com.liferay.application.list.PanelCategory;
 import com.liferay.application.list.constants.PanelCategoryKeys;
@@ -59,12 +63,14 @@ public class ProductMenuAppDeployer implements AppDeployer {
 		AppBuilderApp appBuilderApp =
 			_appBuilderAppLocalService.getAppBuilderApp(appId);
 
-		_deployAppPortlet(
-			appId, appBuilderApp.getName(LocaleThreadLocal.getDefaultLocale()));
+		String appName = appBuilderApp.getName(
+			LocaleThreadLocal.getDefaultLocale());
+
+		_deployAppPortlet(appId, appName);
 
 		_deployAppPanelApp(appId);
 
-		_deployAppPanelCategory(appId);
+		_deployAppPanelCategory(appId, appName);
 
 		appBuilderApp.setStatus(
 			AppBuilderAppConstants.Status.DEPLOYED.getValue());
@@ -121,9 +127,7 @@ public class ProductMenuAppDeployer implements AppDeployer {
 		Dictionary properties = new HashMapDictionary() {
 			{
 				put("panel.app.order:Integer", 100);
-				put(
-					"panel.category.key",
-					"product_menu.productMenuApp_" + appId);
+				put("panel.category.key", _getPanelCategoryKey(appId));
 			}
 		};
 
@@ -133,13 +137,13 @@ public class ProductMenuAppDeployer implements AppDeployer {
 				PanelApp.class, productMenuAppPanelApp, properties));
 	}
 
-	private void _deployAppPanelCategory(long appId) {
+	private void _deployAppPanelCategory(long appId, String appName) {
 		Dictionary properties = new HashMapDictionary() {
 			{
 				put("panel.category.key", PanelCategoryKeys.CONTROL_PANEL);
 				put("panel.category.order:Integer", 600);
-				put("key", "product_menu.productMenuApp_" + appId);
-				put("label", "Product Menu App" + appId);
+				put("key", _getPanelCategoryKey(appId));
+				put("label", appName);
 			}
 		};
 
@@ -173,6 +177,11 @@ public class ProductMenuAppDeployer implements AppDeployer {
 			appId,
 			_bundleContext.registerService(
 				Portlet.class, new ProductMenuAppPortlet(), properties));
+	}
+
+	private String _getPanelCategoryKey(long appId) {
+		return AppBuilderPanelCategoryKeys.CONTROL_PANEL_APP_BUILDER_APP +
+			appId;
 	}
 
 	private String _getPortletName(long appId) {
