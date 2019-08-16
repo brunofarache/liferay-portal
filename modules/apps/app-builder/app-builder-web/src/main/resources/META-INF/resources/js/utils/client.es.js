@@ -66,3 +66,16 @@ export const getURL = (path, params = {['p_auth']: Liferay.authToken}) => {
 
 	return uri.toString();
 };
+
+export const updateItem = (endpoint, item) => {
+	return fetch(getURL(endpoint), {
+		body: JSON.stringify(item),
+		headers: {
+			Accept: 'application/json',
+			'Content-Type': 'application/json'
+		},
+		method: 'PUT'
+	}).then(response => {
+		return response.json();
+	});
+};

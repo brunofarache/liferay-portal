@@ -20,7 +20,7 @@ import Header from './Header.es';
 
 const Sidebar = ({children, isOpen}) => {
 	return (
-		<div className={classNames('sidebar-container', {'closed': !isOpen})}>
+		<div className={classNames('sidebar-container', {closed: !isOpen})}>
 			<div className="sidebar sidebar-light">{children}</div>
 		</div>
 	);

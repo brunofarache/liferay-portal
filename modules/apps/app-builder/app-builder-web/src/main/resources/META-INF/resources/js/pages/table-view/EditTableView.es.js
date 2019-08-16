@@ -19,7 +19,7 @@ import React, {useEffect, useState} from 'react';
 import Button from '../../components/button/Button.es';
 import {Loading} from '../../components/loading/Loading.es';
 import Sidebar from '../../components/sidebar/Sidebar.es';
-import {addItem, getItem} from '../../utils/client.es';
+import {addItem, getItem, updateItem} from '../../utils/client.es';
 
 const {Item} = ClayNavigationBar;
 const {Body, Header} = Sidebar;
@@ -27,7 +27,7 @@ const {Body, Header} = Sidebar;
 export default ({
 	history,
 	match: {
-		params: {dataDefinitionId}
+		params: {dataDefinitionId, dataListViewId}
 	}
 }) => {
 	const [isOpen, setOpen] = useState(true);
@@ -36,31 +36,70 @@ export default ({
 		setOpen(!isOpen);
 	};
 
-	const [name, setName] = useState('');
-	const [dataDefinition, setDataDefinition] = useState(null);
+	const [state, setState] = useState({
+		dataDefinition: null,
+		dataListView: null
+	});
 
-	const addTableView = () => {
-		addItem(
-			`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}/data-list-views`,
-			{
-				name: {
-					value: name
-				}
-			}
-		).then(() => history.goBack());
+	const onSave = () => {
+		if (dataListViewId) {
+			updateItem(
+				`/o/data-engine/v1.0/data-list-views/${dataListViewId}`,
+				dataListView
+			).then(() => history.goBack());
+		} else {
+			addItem(
+				`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}/data-list-views`,
+				dataListView
+			).then(() => history.goBack());
+		}
 	};
 
 	const onChange = event => {
-		setName(event.target.value);
+		const name = event.target.value;
+
+		setState(prevState => ({
+			...prevState,
+			dataListView: {
+				...prevState.dataListView,
+				name: {
+					en_US: name
+				}
+			}
+		}));
 	};
 
 	useEffect(() => {
-		getItem(
+		const getDataDefinition = getItem(
 			`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}`
-		).then(setDataDefinition);
-	}, [dataDefinitionId]);
+		);
 
+		if (dataListViewId) {
+			const getDataListView = getItem(
+				`/o/data-engine/v1.0/data-list-views/${dataListViewId}`
+			);
+
+			Promise.all([getDataDefinition, getDataListView]).then(
+				([dataDefinition, dataListView]) => {
+					setState({
+						dataDefinition,
+						dataListView
+					});
+				}
+			);
+		} else {
+			getDataDefinition.then(dataDefinition => {
+				setState(prevState => ({
+					...prevState,
+					dataDefinition
+				}));
+			});
+		}
+	}, [dataDefinitionId, dataListViewId]);
+
+	const {dataDefinition, dataListView} = state;
 	const {dataDefinitionFields = []} = dataDefinition || {};
+	const {name: {en_US: dataListViewName = ''} = {}} = dataListView || {};
 
 	return (
 		<Loading isLoading={dataDefinition === null}>
@@ -80,7 +119,7 @@ export default ({
 											'untitled-table-view'
 										)}
 										type="text"
-										value={name}
+										value={dataListViewName}
 									/>
 								</div>
 							</div>
@@ -95,11 +134,7 @@ export default ({
 								>
 									{Liferay.Language.get('cancel')}
 								</Button>
-								<Button
-									className="mr-3"
-									onClick={addTableView}
-									small
-								>
+								<Button className="mr-3" onClick={onSave} small>
 									{Liferay.Language.get('save')}
 								</Button>
 							</div>
