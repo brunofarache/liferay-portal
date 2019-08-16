@@ -28,6 +28,8 @@ const ACTIONS = [
 const COLUMNS = [
 	{
 		key: 'name',
+		link: item =>
+			`/custom-object/${item.dataDefinitionId}/table-views/${item.id}`,
 		sortable: true,
 		value: Liferay.Language.get('name')
 	},
@@ -53,6 +55,7 @@ const EMPTY_STATE = {
 
 const FORMATTER = items =>
 	items.map(item => ({
+		...item,
 		dateCreated: moment(item.dateCreated).fromNow(),
 		dateModified: moment(item.dateModified).fromNow(),
 		id: item.id,
