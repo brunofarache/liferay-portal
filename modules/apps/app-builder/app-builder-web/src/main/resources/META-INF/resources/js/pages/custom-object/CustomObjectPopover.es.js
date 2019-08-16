@@ -13,9 +13,9 @@
  */
 
 import React, {useEffect, useRef, useState} from 'react';
-import ClayButton from '@clayui/button';
 import ClayForm from '@clayui/form';
 import ClayIcon from '@clayui/icon';
+import Button from '../../components/button/Button.es';
 import Popover from '../../components/popover/Popover.es';
 
 const CustomObjectPopover = ({
@@ -121,7 +121,7 @@ const CustomObjectPopover = ({
 			footer={() => (
 				<div className="clearfix border-top p-3" style={{width: 450}}>
 					<div className="pull-right">
-						<ClayButton
+						<Button
 							className="mr-3"
 							displayType="secondary"
 							onClick={() => {
@@ -132,11 +132,11 @@ const CustomObjectPopover = ({
 							small
 						>
 							{Liferay.Language.get('cancel')}
-						</ClayButton>
+						</Button>
 
-						<ClayButton onClick={() => handleSubmit()} small>
+						<Button onClick={() => handleSubmit()} small>
 							{Liferay.Language.get('continue')}
-						</ClayButton>
+						</Button>
 					</div>
 				</div>
 			)}

@@ -15,7 +15,9 @@
 import ClayDropDown, {Align} from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
 import React, {useContext, useState} from 'react';
+import classNames from 'classnames';
 import {SearchContext} from '../../search-container/SearchContext.es';
+import Button from '../../../components/button/Button.es';
 
 const {Group, Item, ItemList} = ClayDropDown;
 
@@ -65,12 +67,7 @@ export default ({columns}) => {
 						}))
 					}
 					trigger={
-						<button
-							aria-expanded="false"
-							aria-haspopup="true"
-							className="btn nav-link btn-unstyled"
-							type="button"
-						>
+						<Button className="nav-link" displayType="unstyled">
 							<span className="navbar-breakpoint-down-d-none">
 								{Liferay.Language.get('filter-and-order')}
 
@@ -79,7 +76,7 @@ export default ({columns}) => {
 									symbol="caret-bottom"
 								/>
 							</span>
-						</button>
+						</Button>
 					}
 				>
 					<ItemList>
@@ -100,18 +97,16 @@ export default ({columns}) => {
 			</li>
 
 			<li className="nav-item">
-				<a
-					className={`nav-link nav-link-monospaced ${
-						asc
-							? 'order-arrow-up-active'
-							: 'order-arrow-down-active'
-					}`}
-					href="javascript:;"
+				<Button
+					className={classNames('nav-link', 'nav-link-monospaced', {
+						'order-arrow-down-active': !asc,
+						'order-arrow-up-active': asc
+					})}
+					displayType="unstyled"
 					onClick={() => sort(!asc, column)}
-					title={Liferay.Language.get('reverse-sort-direction')}
-				>
-					<ClayIcon symbol="order-arrow" />
-				</a>
+					symbol="order-arrow"
+					tooltip={Liferay.Language.get('reverse-sort-direction')}
+				/>
 			</li>
 		</ul>
 	);

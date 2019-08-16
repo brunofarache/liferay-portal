@@ -16,6 +16,7 @@ import ClayDropDown, {Align} from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
 import React, {useState} from 'react';
 import DropDownAction from './DropDownAction.es';
+import Button from '../../button/Button.es';
 
 const {ItemList} = ClayDropDown;
 
@@ -29,9 +30,9 @@ export default ({actions, item}) => {
 			className="dropdown-action"
 			onActiveChange={newVal => setActive(newVal)}
 			trigger={
-				<button className="page-link" type="button">
+				<Button className="page-link" displayType="unstyled">
 					<ClayIcon symbol="ellipsis-v" />
-				</button>
+				</Button>
 			}
 		>
 			<ItemList>
