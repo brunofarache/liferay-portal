@@ -15,9 +15,9 @@
 import React from 'react';
 import {Route, Switch} from 'react-router-dom';
 import CustomObjectNavigationBar from './CustomObjectNavigationBar.es';
-import EditFormView from './EditFormView.es';
-import ListApps from './ListApps.es';
-import ListFormViews from './ListFormViews.es';
+import ListApps from '../app/ListApps.es';
+import EditFormView from '../form-view/EditFormView.es';
+import ListFormViews from '../form-view/ListFormViews.es';
 import EditTableView from '../table-view/EditTableView.es';
 import ListTableViews from '../table-view/ListTableViews.es';
 
