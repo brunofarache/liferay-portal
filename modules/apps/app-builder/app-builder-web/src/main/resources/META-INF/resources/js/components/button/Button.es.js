@@ -13,42 +13,37 @@
  */
 
 import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
+import classNames from 'classnames';
 import React from 'react';
 import {Link} from 'react-router-dom';
 
-const withLink = (button, href) => <Link to={href}>{button}</Link>;
-
-const Button = ({
-	className,
-	children,
-	displayType,
-	forwardRef,
-	href,
-	onClick,
-	symbol,
-	tooltip
-}) => {
-	if (tooltip) {
-		className += ' lfr-portal-tooltip';
-	}
+const Button = props => {
+	const {
+		className,
+		children,
+		forwardRef,
+		href,
+		symbol,
+		tooltip,
+		...restProps
+	} = props;
 
 	const Button = symbol ? ClayButtonWithIcon : ClayButton;
 
 	let button = (
 		<Button
-			className={className}
+			className={classNames(className, {'lfr-portal-tooltip': tooltip})}
 			data-title={tooltip}
-			displayType={displayType}
-			onClick={onClick}
 			ref={forwardRef}
 			symbol={symbol}
+			{...restProps}
 		>
 			{children}
 		</Button>
 	);
 
 	if (href) {
-		button = withLink(button, href);
+		button = <Link to={href}>{button}</Link>;
 	}
 
 	return button;

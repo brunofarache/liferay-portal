@@ -12,7 +12,6 @@
  * details.
  */
 
-import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
 import ClayLink from '@clayui/link';
 import ClayNavigationBar from '@clayui/navigation-bar';
@@ -88,21 +87,21 @@ export default ({
 						</li>
 						<li className="tbar-item">
 							<div className="tbar-section">
-								<ClayButton
+								<Button
 									className="mr-3"
 									displayType="secondary"
 									onClick={() => history.goBack()}
 									small
 								>
 									{Liferay.Language.get('cancel')}
-								</ClayButton>
-								<ClayButton
+								</Button>
+								<Button
 									className="mr-3"
 									onClick={addTableView}
 									small
 								>
 									{Liferay.Language.get('save')}
-								</ClayButton>
+								</Button>
 							</div>
 						</li>
 					</ul>
@@ -126,12 +125,10 @@ export default ({
 									/>
 
 									<div className="input-group-inset-item input-group-inset-item-after">
-										<button
-											className="btn btn-unstyled"
-											type="button"
-										>
-											<ClayIcon symbol="search" />
-										</button>
+										<Button
+											displayType="unstyled"
+											symbol="search"
+										/>
 									</div>
 								</div>
 								<div className="input-group-item input-group-item-shrink">

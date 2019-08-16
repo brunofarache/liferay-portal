@@ -16,6 +16,7 @@ import ClayDropDown, {Align} from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
 import React, {useContext, useState} from 'react';
 import {SearchContext} from '../SearchContext.es';
+import Button from '../../button/Button.es';
 import lang from '../../../utils/lang.es';
 
 const {Item, ItemList} = ClayDropDown;
@@ -41,10 +42,10 @@ export default ({itemsCount, totalCount}) => {
 				className="pagination-items-per-page"
 				onActiveChange={newVal => setActive(newVal)}
 				trigger={
-					<button className="page-link" type="button">
-						{`${pageSize} Entries`}
+					<Button className="page-link" displayType="unstyled">
+						{`${pageSize} Entries`}s
 						<ClayIcon symbol="caret-double-l" />
-					</button>
+					</Button>
 				}
 			>
 				<ItemList>

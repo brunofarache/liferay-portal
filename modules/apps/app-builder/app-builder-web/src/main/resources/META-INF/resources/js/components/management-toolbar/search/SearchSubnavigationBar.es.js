@@ -13,6 +13,7 @@
  */
 
 import React, {useContext} from 'react';
+import Button from '../../button/Button.es';
 import {SearchContext} from '../../search-container/SearchContext.es';
 import lang from '../../../utils/lang.es';
 
@@ -51,9 +52,9 @@ export default ({totalCount}) => {
 							</li>
 							<li className="tbar-item">
 								<div className="tbar-section">
-									<a
-										className=" component-link tbar-link"
-										href="javascript:;"
+									<Button
+										className="component-link tbar-link"
+										displayType="unstyled"
 										onClick={() =>
 											dispatch({
 												keywords: '',
@@ -62,7 +63,7 @@ export default ({totalCount}) => {
 										}
 									>
 										Clear
-									</a>
+									</Button>
 								</div>
 							</li>
 						</ul>

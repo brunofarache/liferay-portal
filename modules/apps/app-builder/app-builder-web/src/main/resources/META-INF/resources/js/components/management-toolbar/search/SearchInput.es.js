@@ -12,9 +12,9 @@
  * details.
  */
 
-import ClayIcon from '@clayui/icon';
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {SearchContext} from '../../search-container/SearchContext.es';
+import Button from '../../../components/button/Button.es';
 import {useKeyDown} from '../../../hooks/index.es';
 
 export default () => {
@@ -56,13 +56,11 @@ export default () => {
 						/>
 
 						<div className="input-group-inset-item input-group-inset-item-after">
-							<button
-								className="btn btn-unstyled"
+							<Button
+								displayType="unstyled"
 								onClick={onClick}
-								type="button"
-							>
-								<ClayIcon symbol="search" />
-							</button>
+								symbol="search"
+							/>
 						</div>
 					</div>
 				</div>

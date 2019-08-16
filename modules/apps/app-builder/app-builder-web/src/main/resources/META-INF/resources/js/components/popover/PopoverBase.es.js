@@ -12,7 +12,7 @@
  * details.
  */
 
-import getCN from 'classnames';
+import classNames from 'classnames';
 import omitDefinedProps from '../../utils/omitDefinedProps.es';
 import React from 'react';
 import {PropTypes} from 'prop-types';
@@ -37,15 +37,13 @@ const PopoverBase = ({
 	visible = false,
 	...otherProps
 }) => {
-	const classes = getCN('popover', className, {
-		[`clay-popover-${placement}`]: placement,
-		['hide']: !visible
-	});
-
 	return (
 		<div
 			{...omitDefinedProps(otherProps, PopoverBase.propTypes)}
-			className={classes}
+			className={classNames('popover', className, {
+				[`clay-popover-${placement}`]: placement,
+				hide: !visible
+			})}
 			ref={forwardRef}
 		>
 			{placement !== 'none' && <div className="arrow" />}

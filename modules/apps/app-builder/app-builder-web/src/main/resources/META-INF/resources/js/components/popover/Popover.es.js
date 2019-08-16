@@ -13,7 +13,7 @@
  */
 
 import PopoverBase from './PopoverBase.es';
-import getCN from 'classnames';
+import classNames from 'classnames';
 import {Align} from 'metal-position';
 import React, {useEffect, useState} from 'react';
 import {PropTypes} from 'prop-types';
@@ -89,14 +89,13 @@ const Popover = ({
 	}, [alignElement, forwardRef, suggestedPosition, visible]);
 
 	const withoutContent = !content;
-	const classes = getCN(className, {
-		'no-content': withoutContent,
-		'popover-large': width > 600
-	});
 
 	return (
 		<PopoverBase
-			className={classes}
+			className={classNames(className, {
+				'no-content': withoutContent,
+				'popover-large': width > 600
+			})}
 			forwardRef={forwardRef}
 			placement={showArrow ? position : null}
 			visible={visible}
