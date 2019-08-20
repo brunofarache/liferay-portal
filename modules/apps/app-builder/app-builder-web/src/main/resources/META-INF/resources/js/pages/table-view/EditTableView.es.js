@@ -22,7 +22,7 @@ import Sidebar from '../../components/sidebar/Sidebar.es';
 import {addItem, getItem, updateItem} from '../../utils/client.es';
 
 const {Item} = ClayNavigationBar;
-const {Body, Header} = Sidebar;
+const {Body} = Sidebar;
 
 export default ({
 	history,
@@ -30,8 +30,6 @@ export default ({
 		params: {dataDefinitionId, dataListViewId}
 	}
 }) => {
-	const [isOpen, setOpen] = useState(true);
-
 	const [state, setState] = useState({
 		dataDefinition: null,
 		dataListView: null
@@ -90,10 +88,6 @@ export default ({
 				dataListView
 			).then(() => history.goBack());
 		}
-	};
-
-	const toggle = () => {
-		setOpen(!isOpen);
 	};
 
 	useEffect(() => {
@@ -181,41 +175,7 @@ export default ({
 					</div>
 				</nav>
 			</form>
-			<Sidebar isOpen={isOpen} toggle={toggle}>
-				<Header>
-					<div className="autofit-row sidebar-section">
-						<div className="autofit-col autofit-col-expand">
-							<div className="input-group">
-								<div className="input-group-item">
-									<input
-										aria-label={Liferay.Language.get(
-											'search'
-										)}
-										className="form-control input-group-inset input-group-inset-after"
-										placeholder={Liferay.Language.get(
-											'search'
-										)}
-										type="text"
-									/>
-
-									<div className="input-group-inset-item input-group-inset-item-after">
-										<Button
-											displayType="unstyled"
-											symbol="search"
-										/>
-									</div>
-								</div>
-								<div className="input-group-item input-group-item-shrink">
-									<Button
-										displayType="secondary"
-										onClick={toggle}
-										symbol="angle-right"
-									/>
-								</div>
-							</div>
-						</div>
-					</div>
-				</Header>
+			<Sidebar>
 				<Body>
 					<ClayNavigationBar triggerLabel="Item 1">
 						<Item active>

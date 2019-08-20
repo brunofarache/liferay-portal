@@ -13,28 +13,46 @@
  */
 
 import classNames from 'classnames';
-import React from 'react';
+import React, {useState} from 'react';
 import Body from './Body.es';
 import Footer from './Footer.es';
 import Header from './Header.es';
+import SearchHeader from './SearchHeader';
 import Button from '../button/Button.es';
 
-const Sidebar = ({children, isOpen, toggle}) => {
+const Sidebar = ({children, closeable = true, searchable = true}) => {
+	const [isOpen, setOpen] = useState(true);
+
+	const onToggle = () => {
+		setOpen(!isOpen);
+	};
+
 	return (
 		<div>
-			<div className={classNames('app-builder-sidebar', 'mini')}>
-				<Button
-					displayType="secondary"
-					onClick={toggle}
-					symbol="angle-left"
-				/>
-			</div>
+			{closeable && (
+				<div className={classNames('app-builder-sidebar', 'mini')}>
+					<Button
+						displayType="secondary"
+						onClick={onToggle}
+						symbol="angle-left"
+					/>
+				</div>
+			)}
 			<div
 				className={classNames('app-builder-sidebar', 'main', {
 					closed: !isOpen
 				})}
 			>
-				<div className="sidebar sidebar-light">{children}</div>
+				<div className="sidebar sidebar-light">
+					{(closeable || searchable) && (
+						<SearchHeader
+							closeable={closeable}
+							onToggle={onToggle}
+							searchable={closeable}
+						/>
+					)}
+					{children}
+				</div>
 			</div>
 		</div>
 	);
