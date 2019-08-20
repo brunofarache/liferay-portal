@@ -20,6 +20,11 @@ import {confirmDelete} from '../../utils/client.es';
 
 const ACTIONS = [
 	{
+		link: item =>
+			`#/custom-object/${item.dataDefinitionId}/table-views/${item.id}`,
+		name: Liferay.Language.get('edit')
+	},
+	{
 		callback: confirmDelete('/o/data-engine/v1.0/data-list-views/'),
 		name: Liferay.Language.get('delete')
 	}
