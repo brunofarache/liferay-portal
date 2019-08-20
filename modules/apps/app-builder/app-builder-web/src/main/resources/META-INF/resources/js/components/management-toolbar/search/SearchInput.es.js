@@ -12,10 +12,9 @@
  * details.
  */
 
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {SearchContext} from '../../search-container/SearchContext.es';
 import Button from '../../../components/button/Button.es';
-import {useKeyDown} from '../../../hooks/index.es';
 
 export default ({disabled}) => {
 	const {
@@ -33,39 +32,43 @@ export default ({disabled}) => {
 		setKeywords(event.target.value);
 	};
 
-	const onClick = () => {
+	const handleSubmit = () => {
 		dispatch({keywords: keywords.trim(), type: 'SEARCH'});
 	};
-
-	const inputRef = useRef();
-	useKeyDown(onClick, 13, inputRef);
 
 	return (
 		<div className="navbar-form navbar-form-autofit navbar-overlay navbar-overlay-sm-down">
 			<div className="container-fluid container-fluid-max-xl">
-				<div className="input-group">
-					<div className="input-group-item">
-						<input
-							aria-label={Liferay.Language.get('search-for')}
-							className="form-control input-group-inset input-group-inset-after"
-							disabled={disabled}
-							onChange={onChange}
-							placeholder={Liferay.Language.get('search-for')}
-							ref={inputRef}
-							type="text"
-							value={keywords}
-						/>
+				<form
+					onSubmit={event => {
+						event.preventDefault();
 
-						<div className="input-group-inset-item input-group-inset-item-after">
-							<Button
+						handleSubmit();
+					}}
+				>
+					<div className="input-group">
+						<div className="input-group-item">
+							<input
+								aria-label={Liferay.Language.get('search-for')}
+								className="form-control input-group-inset input-group-inset-after"
 								disabled={disabled}
-								displayType="unstyled"
-								onClick={onClick}
-								symbol="search"
+								onChange={onChange}
+								placeholder={Liferay.Language.get('search-for')}
+								type="text"
+								value={keywords}
 							/>
+
+							<div className="input-group-inset-item input-group-inset-item-after">
+								<Button
+									disabled={disabled}
+									displayType="unstyled"
+									onClick={handleSubmit}
+									symbol="search"
+								/>
+							</div>
 						</div>
 					</div>
-				</div>
+				</form>
 			</div>
 		</div>
 	);

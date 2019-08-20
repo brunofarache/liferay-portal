@@ -72,7 +72,7 @@ export default ({
 		};
 	};
 
-	const onSave = () => {
+	const handleSubmit = () => {
 		const dataListView = validate();
 
 		if (dataListView === null) {
@@ -130,45 +130,57 @@ export default ({
 
 	return (
 		<Loading isLoading={dataDefinition === null}>
-			<nav className="component-tbar subnav-tbar-light tbar tbar-article">
-				<div className="container-fluid container-fluid-max-xl">
-					<ul className="tbar-nav">
-						<li className="tbar-item tbar-item-expand">
-							<div className="input-group">
-								<div className="input-group-item">
-									<input
-										aria-label={Liferay.Language.get(
-											'untitled-table-view'
-										)}
-										className="form-control form-control-inline"
-										onChange={onChange}
-										placeholder={Liferay.Language.get(
-											'untitled-table-view'
-										)}
-										type="text"
-										value={dataListViewName}
-									/>
+			<form
+				onSubmit={event => {
+					event.preventDefault();
+
+					handleSubmit();
+				}}
+			>
+				<nav className="component-tbar subnav-tbar-light tbar tbar-article">
+					<div className="container-fluid container-fluid-max-xl">
+						<ul className="tbar-nav">
+							<li className="tbar-item tbar-item-expand">
+								<div className="input-group">
+									<div className="input-group-item">
+										<input
+											aria-label={Liferay.Language.get(
+												'untitled-table-view'
+											)}
+											className="form-control form-control-inline"
+											onChange={onChange}
+											placeholder={Liferay.Language.get(
+												'untitled-table-view'
+											)}
+											type="text"
+											value={dataListViewName}
+										/>
+									</div>
 								</div>
-							</div>
-						</li>
-						<li className="tbar-item">
-							<div className="tbar-section">
-								<Button
-									className="mr-3"
-									displayType="secondary"
-									onClick={() => history.goBack()}
-									small
-								>
-									{Liferay.Language.get('cancel')}
-								</Button>
-								<Button className="mr-3" onClick={onSave} small>
-									{Liferay.Language.get('save')}
-								</Button>
-							</div>
-						</li>
-					</ul>
-				</div>
-			</nav>
+							</li>
+							<li className="tbar-item">
+								<div className="tbar-section">
+									<Button
+										className="mr-3"
+										displayType="secondary"
+										onClick={() => history.goBack()}
+										small
+									>
+										{Liferay.Language.get('cancel')}
+									</Button>
+									<Button
+										className="mr-3"
+										onClick={handleSubmit}
+										small
+									>
+										{Liferay.Language.get('save')}
+									</Button>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</nav>
+			</form>
 			<Sidebar isOpen={isOpen} toggle={toggle}>
 				<Header>
 					<div className="autofit-row sidebar-section">

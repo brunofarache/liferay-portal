@@ -78,6 +78,7 @@ export default ({
 			actions={ACTIONS}
 			addButton={() => (
 				<Button
+					className="nav-btn nav-btn-monospaced navbar-breakpoint-down-d-none"
 					href={`${url}/add`}
 					symbol="plus"
 					tooltip={Liferay.Language.get('new-custom-object')}
