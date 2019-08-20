@@ -21,10 +21,10 @@ import SearchHeader from './SearchHeader';
 import Button from '../button/Button.es';
 
 const Sidebar = ({children, closeable = true, searchable = true}) => {
-	const [isOpen, setOpen] = useState(true);
+	const [isClosed, setClosed] = useState(false);
 
 	const onToggle = () => {
-		setOpen(!isOpen);
+		setClosed(!isClosed);
 	};
 
 	return (
@@ -40,7 +40,7 @@ const Sidebar = ({children, closeable = true, searchable = true}) => {
 			)}
 			<div
 				className={classNames('app-builder-sidebar', 'main', {
-					closed: !isOpen
+					closed: isClosed
 				})}
 			>
 				<div className="sidebar sidebar-light">
