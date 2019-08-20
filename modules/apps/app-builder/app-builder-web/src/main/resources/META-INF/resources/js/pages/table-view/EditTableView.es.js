@@ -142,7 +142,7 @@ export default ({
 					</ul>
 				</div>
 			</nav>
-			<Sidebar isOpen={isOpen}>
+			<Sidebar isOpen={isOpen} toggle={toggle}>
 				<Header>
 					<div className="autofit-row sidebar-section">
 						<div className="autofit-col autofit-col-expand">

@@ -17,11 +17,25 @@ import React from 'react';
 import Body from './Body.es';
 import Footer from './Footer.es';
 import Header from './Header.es';
+import Button from '../button/Button.es';
 
-const Sidebar = ({children, isOpen}) => {
+const Sidebar = ({children, isOpen, toggle}) => {
 	return (
-		<div className={classNames('sidebar-container', {closed: !isOpen})}>
-			<div className="sidebar sidebar-light">{children}</div>
+		<div>
+			<div className={classNames('app-builder-sidebar', 'mini')}>
+				<Button
+					displayType="secondary"
+					onClick={toggle}
+					symbol="angle-left"
+				/>
+			</div>
+			<div
+				className={classNames('app-builder-sidebar', 'main', {
+					closed: !isOpen
+				})}
+			>
+				<div className="sidebar sidebar-light">{children}</div>
+			</div>
 		</div>
 	);
 };
