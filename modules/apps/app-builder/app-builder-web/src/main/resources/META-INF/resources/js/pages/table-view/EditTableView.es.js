@@ -12,16 +12,14 @@
  * details.
  */
 
-import ClayIcon from '@clayui/icon';
-import ClayLink from '@clayui/link';
-import ClayNavigationBar from '@clayui/navigation-bar';
 import React, {useEffect, useState} from 'react';
+import EditTableViewTabs from './EditTableViewTabs.es';
+import EditTableViewTabColumns from './EditTableViewTabColumns.es';
 import Button from '../../components/button/Button.es';
 import {Loading} from '../../components/loading/Loading.es';
 import Sidebar from '../../components/sidebar/Sidebar.es';
 import {addItem, getItem, updateItem} from '../../utils/client.es';
 
-const {Item} = ClayNavigationBar;
 const {Body} = Sidebar;
 
 export default ({
@@ -177,55 +175,8 @@ export default ({
 			</form>
 			<Sidebar onSearch={() => {}}>
 				<Body>
-					<ClayNavigationBar triggerLabel="Item 1">
-						<Item active>
-							<ClayLink
-								className="nav-link"
-								displayType="unstyled"
-							>
-								{Liferay.Language.get('columns')}
-							</ClayLink>
-						</Item>
-						<Item>
-							<ClayLink
-								className="nav-link"
-								displayType="unstyled"
-							>
-								{Liferay.Language.get('filters')}
-							</ClayLink>
-						</Item>
-					</ClayNavigationBar>
-					<dl className="sidebar-dl sidebar-section">
-						<dd className="sidebar-dd">
-							<ul className="list-group sidebar-list-group">
-								{dataDefinitionFields.map(
-									(dataDefinitionField, index) => (
-										<li
-											className="list-group-item list-group-item-flex"
-											key={index}
-										>
-											<div className="autofit-col">
-												<div className="sticker sticker-secondary">
-													<span className="inline-item">
-														<ClayIcon symbol="drag" />
-													</span>
-												</div>
-											</div>
-											<div className="autofit-col autofit-col-expand">
-												<section className="autofit-section">
-													<div className="list-group-title text-truncate-inline">
-														{
-															dataDefinitionField.name
-														}
-													</div>
-												</section>
-											</div>
-										</li>
-									)
-								)}
-							</ul>
-						</dd>
-					</dl>
+					<EditTableViewTabs />
+					<EditTableViewTabColumns columns={dataDefinitionFields} />
 				</Body>
 			</Sidebar>
 		</Loading>
