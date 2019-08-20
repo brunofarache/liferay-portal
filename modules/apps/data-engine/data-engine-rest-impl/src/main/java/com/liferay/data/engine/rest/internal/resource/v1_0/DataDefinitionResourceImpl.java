@@ -38,7 +38,6 @@ import com.liferay.dynamic.data.mapping.service.DDMStructureVersionLocalService;
 import com.liferay.dynamic.data.mapping.util.comparator.StructureCreateDateComparator;
 import com.liferay.dynamic.data.mapping.util.comparator.StructureModifiedDateComparator;
 import com.liferay.dynamic.data.mapping.util.comparator.StructureNameComparator;
-import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
@@ -166,7 +165,7 @@ public class DataDefinitionResourceImpl
 						pagination.getEndPosition(),
 						_toOrderByComparator(
 							(Sort)ArrayUtil.getValue(sorts, 0))),
-					_toDataDefinition()),
+					this::_toDataDefinition),
 				pagination,
 				_ddmStructureLocalService.getStructuresCount(
 					siteId,
@@ -348,10 +347,10 @@ public class DataDefinitionResourceImpl
 		return _portal.getClassNameId(InternalDataDefinition.class);
 	}
 
-	private UnsafeFunction<DDMStructure, DataDefinition, Exception>
-		_toDataDefinition() {
+	private DataDefinition _toDataDefinition(DDMStructure ddmStructure)
+		throws Exception {
 
-		return ddmStructure -> DataDefinitionUtil.toDataDefinition(
+		return DataDefinitionUtil.toDataDefinition(
 			ddmStructure, _fieldTypeTracker);
 	}
 
