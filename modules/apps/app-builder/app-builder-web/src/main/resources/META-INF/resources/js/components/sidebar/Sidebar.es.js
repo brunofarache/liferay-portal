@@ -20,7 +20,7 @@ import Header from './Header.es';
 import SearchHeader from './SearchHeader';
 import Button from '../button/Button.es';
 
-const Sidebar = ({children, closeable = true, searchable = true}) => {
+const Sidebar = ({children, closeable = true, onSearch = null}) => {
 	const [isClosed, setClosed] = useState(false);
 
 	const onToggle = () => {
@@ -44,11 +44,11 @@ const Sidebar = ({children, closeable = true, searchable = true}) => {
 				})}
 			>
 				<div className="sidebar sidebar-light">
-					{(closeable || searchable) && (
+					{(closeable || onSearch) && (
 						<SearchHeader
 							closeable={closeable}
+							onSearch={onSearch}
 							onToggle={onToggle}
-							searchable={closeable}
 						/>
 					)}
 					{children}

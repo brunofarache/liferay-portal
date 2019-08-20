@@ -12,23 +12,37 @@
  * details.
  */
 
-import React from 'react';
+import React, {useState} from 'react';
 import Header from './Header.es';
 import Button from '../button/Button.es';
 
-export default ({closeable, onToggle, searchable}) => {
+export default ({closeable, onSearch, onToggle}) => {
+	const [keywords, setKeywords] = useState('');
+
+	const onChange = event => {
+		const {value} = event.target;
+
+		setKeywords(value);
+
+		if (onSearch) {
+			onSearch(value);
+		}
+	};
+
 	return (
 		<Header>
 			<div className="autofit-row sidebar-section">
 				<div className="autofit-col autofit-col-expand">
 					<div className="input-group">
-						{searchable && (
+						{onSearch && (
 							<div className="input-group-item">
 								<input
 									aria-label={Liferay.Language.get('search')}
 									className="form-control input-group-inset input-group-inset-after"
+									onChange={onChange}
 									placeholder={Liferay.Language.get('search')}
 									type="text"
+									value={keywords}
 								/>
 
 								<div className="input-group-inset-item input-group-inset-item-after">

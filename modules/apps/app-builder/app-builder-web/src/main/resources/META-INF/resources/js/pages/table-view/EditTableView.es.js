@@ -175,7 +175,7 @@ export default ({
 					</div>
 				</nav>
 			</form>
-			<Sidebar>
+			<Sidebar onSearch={() => {}}>
 				<Body>
 					<ClayNavigationBar triggerLabel="Item 1">
 						<Item active>
