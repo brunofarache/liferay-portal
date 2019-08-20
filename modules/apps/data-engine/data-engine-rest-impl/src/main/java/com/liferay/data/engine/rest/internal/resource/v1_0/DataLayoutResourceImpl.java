@@ -217,8 +217,7 @@ public class DataLayoutResourceImpl
 					this::_toDataLayout),
 				pagination,
 				_ddmStructureLayoutLocalService.getStructureLayoutsCount(
-					siteId, _portal.getClassNameId(InternalDataLayout.class),
-					_portal.getClassNameId(InternalDataLayout.class)));
+					siteId, _portal.getClassNameId(InternalDataLayout.class)));
 		}
 
 		return SearchUtil.search(
