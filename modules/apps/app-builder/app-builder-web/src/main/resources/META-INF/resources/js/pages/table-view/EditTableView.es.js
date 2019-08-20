@@ -32,28 +32,10 @@ export default ({
 }) => {
 	const [isOpen, setOpen] = useState(true);
 
-	const toggle = () => {
-		setOpen(!isOpen);
-	};
-
 	const [state, setState] = useState({
 		dataDefinition: null,
 		dataListView: null
 	});
-
-	const onSave = () => {
-		if (dataListViewId) {
-			updateItem(
-				`/o/data-engine/v1.0/data-list-views/${dataListViewId}`,
-				dataListView
-			).then(() => history.goBack());
-		} else {
-			addItem(
-				`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}/data-list-views`,
-				dataListView
-			).then(() => history.goBack());
-		}
-	};
 
 	const onChange = event => {
 		const name = event.target.value;
@@ -67,6 +49,51 @@ export default ({
 				}
 			}
 		}));
+	};
+
+	const validate = () => {
+		const {dataListView} = state;
+
+		if (!dataListView) {
+			return null;
+		}
+
+		const name = dataListView.name.en_US.trim();
+
+		if (name === '') {
+			return null;
+		}
+
+		return {
+			...dataListView,
+			name: {
+				en_US: name
+			}
+		};
+	};
+
+	const onSave = () => {
+		const dataListView = validate();
+
+		if (dataListView === null) {
+			return;
+		}
+
+		if (dataListViewId) {
+			updateItem(
+				`/o/data-engine/v1.0/data-list-views/${dataListViewId}`,
+				dataListView
+			).then(() => history.goBack());
+		} else {
+			addItem(
+				`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}/data-list-views`,
+				dataListView
+			).then(() => history.goBack());
+		}
+	};
+
+	const toggle = () => {
+		setOpen(!isOpen);
 	};
 
 	useEffect(() => {
