@@ -208,7 +208,7 @@ public class DataLayoutResourceImpl
 			return Page.of(
 				transform(
 					_ddmStructureLayoutLocalService.getStructureLayouts(
-						siteId, contextCompany.getCompanyId(),
+						siteId,
 						_portal.getClassNameId(InternalDataLayout.class),
 						pagination.getStartPosition(),
 						pagination.getEndPosition(),
@@ -217,7 +217,7 @@ public class DataLayoutResourceImpl
 					this::_toDataLayout),
 				pagination,
 				_ddmStructureLayoutLocalService.getStructureLayoutsCount(
-					siteId, contextCompany.getCompanyId(),
+					siteId, _portal.getClassNameId(InternalDataLayout.class),
 					_portal.getClassNameId(InternalDataLayout.class)));
 		}
 
