@@ -16,9 +16,8 @@ import React, {useContext, useEffect, useRef, useState} from 'react';
 import {SearchContext} from '../../search-container/SearchContext.es';
 import Button from '../../../components/button/Button.es';
 import {useKeyDown} from '../../../hooks/index.es';
-import getCN from 'classnames';
 
-export default ({isDisabled}) => {
+export default ({disabled}) => {
 	const {
 		dispatch,
 		state: {query}
@@ -35,7 +34,7 @@ export default ({isDisabled}) => {
 	};
 
 	const onClick = () => {
-		if (!isDisabled) dispatch({keywords: keywords.trim(), type: 'SEARCH'});
+		dispatch({keywords: keywords.trim(), type: 'SEARCH'});
 	};
 
 	const inputRef = useRef();
@@ -48,12 +47,8 @@ export default ({isDisabled}) => {
 					<div className="input-group-item">
 						<input
 							aria-label={Liferay.Language.get('search-for')}
-							className={getCN(
-								'form-control',
-								'input-group-inset',
-								'input-group-inset-after'
-							)}
-							disabled={isDisabled}
+							className="form-control input-group-inset input-group-inset-after"
+							disabled={disabled}
 							onChange={onChange}
 							placeholder={Liferay.Language.get('search-for')}
 							ref={inputRef}
@@ -63,7 +58,7 @@ export default ({isDisabled}) => {
 
 						<div className="input-group-inset-item input-group-inset-item-after">
 							<Button
-								disabled={isDisabled}
+								disabled={disabled}
 								displayType="unstyled"
 								onClick={onClick}
 								symbol="search"
