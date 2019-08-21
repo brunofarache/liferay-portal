@@ -16,10 +16,11 @@ import ClayDropDown, {Align} from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
 import React, {useContext, useState} from 'react';
 import {SearchContext} from '../../search-container/SearchContext.es';
+import getCN from 'classnames';
 
 const {Group, Item, ItemList} = ClayDropDown;
 
-export default ({columns}) => {
+export default ({columns, isDisabled}) => {
 	const {dispatch} = useContext(SearchContext);
 	columns = columns.filter(column => column.sortable);
 
@@ -68,7 +69,8 @@ export default ({columns}) => {
 						<button
 							aria-expanded="false"
 							aria-haspopup="true"
-							className="btn nav-link btn-unstyled"
+							className={getCN('btn', 'nav-link', 'btn-unstyled')}
+							disabled={isDisabled}
 							type="button"
 						>
 							<span className="navbar-breakpoint-down-d-none">
@@ -105,7 +107,7 @@ export default ({columns}) => {
 						asc
 							? 'order-arrow-up-active'
 							: 'order-arrow-down-active'
-					}`}
+					} ${isDisabled ? 'disabled' : ''}`}
 					href="javascript:;"
 					onClick={() => sort(!asc, column)}
 					title={Liferay.Language.get('reverse-sort-direction')}
