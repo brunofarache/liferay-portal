@@ -21,7 +21,7 @@ import Button from '../../../components/button/Button.es';
 
 const {Group, Item, ItemList} = ClayDropDown;
 
-export default ({columns}) => {
+export default ({columns, isDisabled}) => {
 	const {dispatch} = useContext(SearchContext);
 	columns = columns.filter(column => column.sortable);
 
@@ -67,7 +67,7 @@ export default ({columns}) => {
 						}))
 					}
 					trigger={
-						<Button className="nav-link" displayType="unstyled">
+						<Button className="nav-link" disabled={isDisabled} displayType="unstyled">
 							<span className="navbar-breakpoint-down-d-none">
 								{Liferay.Language.get('filter-and-order')}
 
@@ -102,6 +102,7 @@ export default ({columns}) => {
 						'order-arrow-down-active': !asc,
 						'order-arrow-up-active': asc
 					})}
+					disabled={isDisabled}
 					displayType="unstyled"
 					onClick={() => sort(!asc, column)}
 					symbol="order-arrow"
