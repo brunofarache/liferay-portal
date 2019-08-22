@@ -20,11 +20,18 @@ import Header from './Header.es';
 import SearchHeader from './SearchHeader';
 import Button from '../button/Button.es';
 
-const Sidebar = ({children, closeable = true, onSearch = null}) => {
+const Sidebar = ({
+	children,
+	closeable = true,
+	onClosed = () => {},
+	onSearch = null
+}) => {
 	const [isClosed, setClosed] = useState(false);
 
 	const onToggle = () => {
-		setClosed(!isClosed);
+		const closed = !isClosed;
+		setClosed(closed);
+		onClosed(closed);
 	};
 
 	return (
