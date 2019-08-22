@@ -12,20 +12,12 @@
  * details.
  */
 
-package com.liferay.app.builder.web.internal.constants;
+package com.liferay.app.builder.web.internal.portlet;
+
+import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 
 /**
- * @author Bruno Farache
+ * @author Gabriel Albuquerque
  */
-public class AppBuilderPortletKeys {
-
-	public static final String CUSTOM_OBJECTS =
-		"com_liferay_app_builder_web_internal_portlet_CustomObjectsPortlet";
-
-	public static final String PRODUCT_MENU_APP =
-		"com_liferay_app_builder_web_internal_portlet_ProductMenuAppPortlet";
-
-	public static final String WIDGET_APP =
-		"com_liferay_app_builder_web_internal_portlet_WidgetAppPortlet";
-
+public class WidgetAppPortlet extends MVCPortlet {
 }
