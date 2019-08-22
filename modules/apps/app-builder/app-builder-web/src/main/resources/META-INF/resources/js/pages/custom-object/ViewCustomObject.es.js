@@ -18,7 +18,7 @@ import CustomObjectNavigationBar from './CustomObjectNavigationBar.es';
 import ListApps from '../app/ListApps.es';
 import EditFormView from '../form-view/EditFormView.es';
 import ListFormViews from '../form-view/ListFormViews.es';
-import {useTitle} from '../../hooks/index.es';
+import {useBack, useTitle} from '../../hooks/index.es';
 import EditTableView from '../table-view/EditTableView.es';
 import ListTableViews from '../table-view/ListTableViews.es';
 import {getItem} from '../../utils/client.es';
@@ -38,6 +38,7 @@ export default ({
 	}, [dataDefinitionId]);
 
 	useTitle(title);
+	useBack(() => {});
 
 	return (
 		<Switch>

@@ -12,7 +12,8 @@
  * details.
  */
 
+import useBack from './useBack.es';
 import useKeyDown from './useKeyDown.es';
 import useTitle from './useTitle.es';
 
-export {useKeyDown, useTitle};
+export {useBack, useKeyDown, useTitle};
