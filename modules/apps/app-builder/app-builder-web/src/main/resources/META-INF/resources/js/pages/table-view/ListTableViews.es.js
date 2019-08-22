@@ -51,13 +51,6 @@ const COLUMNS = [
 	}
 ];
 
-const EMPTY_STATE = {
-	description: Liferay.Language.get(
-		'create-one-or-more-tables-to-display-the-data-held-in-your-data-object'
-	),
-	title: Liferay.Language.get('there-are-no-table-views-yet')
-};
-
 const FORMATTER = items =>
 	items.map(item => ({
 		...item,
@@ -81,11 +74,21 @@ export default ({
 					className="nav-btn nav-btn-monospaced navbar-breakpoint-down-d-none"
 					href={`${url}/add`}
 					symbol="plus"
-					tooltip={Liferay.Language.get('new-custom-object')}
+					tooltip={Liferay.Language.get('new-table-view')}
 				/>
 			)}
 			columns={COLUMNS}
-			emptyState={EMPTY_STATE}
+			emptyState={{
+				button: () => (
+					<Button displayType="secondary" href={`${url}/add`}>
+						{Liferay.Language.get('new-table-view')}
+					</Button>
+				),
+				description: Liferay.Language.get(
+					'create-one-or-more-tables-to-display-the-data-held-in-your-data-object'
+				),
+				title: Liferay.Language.get('there-are-no-table-views-yet')
+			}}
 			endpoint={`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}/data-list-views`}
 			formatter={FORMATTER}
 		/>
