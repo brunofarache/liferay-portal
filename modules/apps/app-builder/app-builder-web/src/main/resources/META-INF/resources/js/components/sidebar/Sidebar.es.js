@@ -14,10 +14,6 @@
 
 import classNames from 'classnames';
 import React, {useState} from 'react';
-import Body from './Body.es';
-import Footer from './Footer.es';
-import Header from './Header.es';
-import SearchHeader from './SearchHeader';
 import Button from '../button/Button.es';
 
 const Sidebar = ({
@@ -43,7 +39,7 @@ const Sidebar = ({
 			>
 				<div className="sidebar sidebar-light">
 					{(closeable || onSearch) && (
-						<SearchHeader
+						<SidebarSearchInput
 							closeable={closeable}
 							onSearch={onSearch}
 							onToggle={handleToggle}
@@ -69,5 +65,76 @@ const Sidebar = ({
 	);
 };
 
+const SidebarBody = ({children}) => {
+	return <div className="sidebar-body">{children}</div>;
+};
+
+const SidebarFooter = ({children}) => {
+	return <div className="sidebar-footer">{children}</div>;
+};
+
+const SidebarHeader = ({children}) => {
+	return <div className="pb-0 sidebar-header">{children}</div>;
+};
+
+const SidebarSearchInput = ({closeable, onSearch, onToggle}) => {
+	const [keywords, setKeywords] = useState('');
+
+	const onChange = event => {
+		const {value} = event.target;
+
+		setKeywords(value);
+
+		if (onSearch) {
+			onSearch(value);
+		}
+	};
+
+	return (
+		<SidebarHeader>
+			<div className="autofit-row sidebar-section">
+				<div className="autofit-col autofit-col-expand">
+					<div className="input-group">
+						{onSearch && (
+							<div className="input-group-item">
+								<input
+									aria-label={Liferay.Language.get('search')}
+									className="form-control input-group-inset input-group-inset-after"
+									onChange={onChange}
+									placeholder={Liferay.Language.get('search')}
+									type="text"
+									value={keywords}
+								/>
+
+								<div className="input-group-inset-item input-group-inset-item-after">
+									<Button
+										displayType="unstyled"
+										symbol="search"
+									/>
+								</div>
+							</div>
+						)}
+						{closeable && (
+							<div className="input-group-item input-group-item-shrink">
+								<Button
+									displayType="secondary"
+									onClick={onToggle}
+									symbol="angle-right"
+								/>
+							</div>
+						)}
+					</div>
+				</div>
+			</div>
+		</SidebarHeader>
+	);
+};
+
+Sidebar.Body = SidebarBody;
+Sidebar.Footer = SidebarFooter;
+Sidebar.Header = SidebarHeader;
+Sidebar.SearchInput = SidebarSearchInput;
+
 export default Sidebar;
-export {Body, Footer, Header};
+
+export {SidebarBody, SidebarFooter, SidebarHeader, SidebarSearchInput};

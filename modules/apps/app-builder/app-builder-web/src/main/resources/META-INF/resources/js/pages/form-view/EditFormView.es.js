@@ -13,7 +13,7 @@
  */
 
 import React, {useState, useRef, useContext, useEffect} from 'react';
-import Sidebar, {Body} from '../../components/sidebar/Sidebar.es';
+import Sidebar from '../../components/sidebar/Sidebar.es';
 import {addItem, getItem, updateItem} from '../../utils/client.es';
 import UpperToolbar from '../../components/upper-toolbar/UpperToolbar.es';
 import {useSidebarContent} from '../../hooks/index.es';
@@ -159,7 +159,7 @@ export default ({
 				</UpperToolbar.Group>
 			</UpperToolbar>
 			<Sidebar onSearch={setKeywords} onToggle={handleSidebarToggle}>
-				<Body>
+				<Sidebar.Body>
 					<nav className="component-tbar tbar">
 						<div className="container-fluid">
 							<ul className="nav nav-underline" role="tablist">
@@ -186,7 +186,7 @@ export default ({
 							/>
 						</div>
 					</div>
-				</Body>
+				</Sidebar.Body>
 			</Sidebar>
 		</div>
 	);

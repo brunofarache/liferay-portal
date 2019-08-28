@@ -16,7 +16,7 @@ import React, {useEffect, useState} from 'react';
 import EditTableViewTabs from './EditTableViewTabs.es';
 import EditTableViewTabColumns from './EditTableViewTabColumns.es';
 import {Loading} from '../../components/loading/Loading.es';
-import Sidebar, {Body} from '../../components/sidebar/Sidebar.es';
+import Sidebar from '../../components/sidebar/Sidebar.es';
 import {addItem, getItem, updateItem} from '../../utils/client.es';
 import UpperToolbar from '../../components/upper-toolbar/UpperToolbar.es';
 import ControlMenu from '../../components/control-menu/ControlMenu.es';
@@ -163,12 +163,12 @@ export default ({
 					</UpperToolbar>
 				</form>
 				<Sidebar onSearch={() => {}}>
-					<Body>
+					<Sidebar.Body>
 						<EditTableViewTabs />
 						<EditTableViewTabColumns
 							columns={dataDefinitionFields}
 						/>
-					</Body>
+					</Sidebar.Body>
 				</Sidebar>
 			</Loading>
 		</>
