@@ -15,11 +15,7 @@
 import React, {useState, useRef, useContext, useEffect} from 'react';
 import Sidebar, {Body} from '../../components/sidebar/Sidebar.es';
 import {addItem, getItem, updateItem} from '../../utils/client.es';
-import UpperToolbar, {
-	UpperToolbarButton,
-	UpperToolbarGroup,
-	UpperToolbarInput
-} from '../../components/upper-toolbar/UpperToolbar.es';
+import UpperToolbar from '../../components/upper-toolbar/UpperToolbar.es';
 import {useSidebarContent} from '../../hooks/index.es';
 import FieldTypeList from '../../components/field-types/FieldTypeList.es';
 import {AppContext} from '../../AppContext.es';
@@ -140,26 +136,26 @@ export default ({
 	return (
 		<div className="app-builder-form-view">
 			<UpperToolbar>
-				<UpperToolbarInput
+				<UpperToolbar.Input
 					onInput={onInput}
 					onKeyDown={onKeyDown}
 					placeholder={Liferay.Language.get('untitled-form-view')}
 					value={dataLayoutName}
 				/>
-				<UpperToolbarGroup>
-					<UpperToolbarButton
+				<UpperToolbar.Group>
+					<UpperToolbar.Button
 						displayType="secondary"
 						onClick={handleCancel}
 					>
 						{Liferay.Language.get('cancel')}
-					</UpperToolbarButton>
-					<UpperToolbarButton
+					</UpperToolbar.Button>
+					<UpperToolbar.Button
 						disabled={submitDisabled}
 						onClick={onSave}
 					>
 						{Liferay.Language.get('save')}
-					</UpperToolbarButton>
-				</UpperToolbarGroup>
+					</UpperToolbar.Button>
+				</UpperToolbar.Group>
 			</UpperToolbar>
 			<Sidebar onSearch={setKeywords} onToggle={handleSidebarToggle}>
 				<Body>

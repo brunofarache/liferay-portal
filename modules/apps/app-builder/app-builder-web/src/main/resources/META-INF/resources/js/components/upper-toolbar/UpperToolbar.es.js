@@ -68,7 +68,13 @@ const UpperToolbarGroup = ({children}) => {
 	);
 };
 
+UpperToolbar.Button = UpperToolbarButton;
+UpperToolbar.Group = UpperToolbarGroup;
+UpperToolbar.Input = UpperToolbarInput;
+UpperToolbar.Item = UpperToolbarItem;
+
 export default UpperToolbar;
+
 export {
 	UpperToolbarButton,
 	UpperToolbarGroup,
