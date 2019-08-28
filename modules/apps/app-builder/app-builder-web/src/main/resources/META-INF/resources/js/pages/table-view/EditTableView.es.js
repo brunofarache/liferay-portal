@@ -17,14 +17,12 @@ import EditTableViewTabs from './EditTableViewTabs.es';
 import EditTableViewTabColumns from './EditTableViewTabColumns.es';
 import Button from '../../components/button/Button.es';
 import {Loading} from '../../components/loading/Loading.es';
-import Sidebar from '../../components/sidebar/Sidebar.es';
+import Sidebar, {Body} from '../../components/sidebar/Sidebar.es';
 import {addItem, getItem, updateItem} from '../../utils/client.es';
 import UpperToolbar, {
 	UpperToolbarItem
 } from '../../components/upper-toolbar/UpperToolbar.es';
 import ControlMenu from '../../components/control-menu/ControlMenu.es';
-
-const {Body} = Sidebar;
 
 export default ({
 	history,

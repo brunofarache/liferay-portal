@@ -69,8 +69,5 @@ const Sidebar = ({
 	);
 };
 
-Sidebar.Body = Body;
-Sidebar.Footer = Footer;
-Sidebar.Header = Header;
-
 export default Sidebar;
+export {Body, Footer, Header};

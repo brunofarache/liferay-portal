@@ -13,14 +13,7 @@
  */
 
 import React from 'react';
-
-const UpperToolbarItem = ({children, expand}) => {
-	return (
-		<li className={`tbar-item ${expand ? 'tbar-item-expand' : ''}`}>
-			<div className="tbar-section">{children}</div>
-		</li>
-	);
-};
+import Button from '../button/Button.es';
 
 const UpperToolbar = ({children}) => {
 	return (
@@ -32,5 +25,53 @@ const UpperToolbar = ({children}) => {
 	);
 };
 
+const UpperToolbarButton = ({children, ...otherProps}) => {
+	return (
+		<div className="input-group-item">
+			<Button className="mr-3" small {...otherProps}>
+				{children}
+			</Button>
+		</div>
+	);
+};
+
+const UpperToolbarInput = props => {
+	return (
+		<UpperToolbarItem expand={true}>
+			<div className="input-group">
+				<div className="input-group-item">
+					<input
+						aria-label={props.placeholder}
+						className="form-control form-control-inline"
+						{...props}
+						type="text"
+					/>
+				</div>
+			</div>
+		</UpperToolbarItem>
+	);
+};
+
+const UpperToolbarItem = ({children, expand}) => {
+	return (
+		<li className={`tbar-item ${expand ? 'tbar-item-expand' : ''}`}>
+			<div className="tbar-section">{children}</div>
+		</li>
+	);
+};
+
+const UpperToolbarGroup = ({children}) => {
+	return (
+		<UpperToolbarItem>
+			<div className="input-group">{children}</div>
+		</UpperToolbarItem>
+	);
+};
+
 export default UpperToolbar;
-export {UpperToolbarItem};
+export {
+	UpperToolbarButton,
+	UpperToolbarGroup,
+	UpperToolbarInput,
+	UpperToolbarItem
+};

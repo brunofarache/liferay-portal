@@ -13,11 +13,12 @@
  */
 
 import React, {useState, useRef, useContext, useEffect} from 'react';
-import Button from '../../components/button/Button.es';
-import Sidebar from '../../components/sidebar/Sidebar.es';
+import Sidebar, {Body} from '../../components/sidebar/Sidebar.es';
 import {addItem, getItem, updateItem} from '../../utils/client.es';
 import UpperToolbar, {
-	UpperToolbarItem
+	UpperToolbarButton,
+	UpperToolbarGroup,
+	UpperToolbarInput
 } from '../../components/upper-toolbar/UpperToolbar.es';
 import {useSidebarContent} from '../../hooks/index.es';
 import FieldTypeList from '../../components/field-types/FieldTypeList.es';
@@ -139,46 +140,29 @@ export default ({
 	return (
 		<div className="app-builder-form-view">
 			<UpperToolbar>
-				<UpperToolbarItem expand={true}>
-					<div className="input-group">
-						<div className="input-group-item">
-							<input
-								aria-label={Liferay.Language.get(
-									'untitled-form-view'
-								)}
-								className="form-control form-control-inline"
-								onInput={onInput}
-								onKeyDown={onKeyDown}
-								placeholder={Liferay.Language.get(
-									'untitled-form-view'
-								)}
-								type="text"
-								value={dataLayoutName}
-							/>
-						</div>
-					</div>
-				</UpperToolbarItem>
-				<UpperToolbarItem>
-					<Button
-						className="mr-3"
+				<UpperToolbarInput
+					onInput={onInput}
+					onKeyDown={onKeyDown}
+					placeholder={Liferay.Language.get('untitled-form-view')}
+					value={dataLayoutName}
+				/>
+				<UpperToolbarGroup>
+					<UpperToolbarButton
 						displayType="secondary"
 						onClick={handleCancel}
-						small
 					>
 						{Liferay.Language.get('cancel')}
-					</Button>
-					<Button
-						className="mr-3"
+					</UpperToolbarButton>
+					<UpperToolbarButton
 						disabled={submitDisabled}
 						onClick={onSave}
-						small
 					>
 						{Liferay.Language.get('save')}
-					</Button>
-				</UpperToolbarItem>
+					</UpperToolbarButton>
+				</UpperToolbarGroup>
 			</UpperToolbar>
 			<Sidebar onSearch={setKeywords} onToggle={handleSidebarToggle}>
-				<Sidebar.Body>
+				<Body>
 					<nav className="component-tbar tbar">
 						<div className="container-fluid">
 							<ul className="nav nav-underline" role="tablist">
@@ -205,7 +189,7 @@ export default ({
 							/>
 						</div>
 					</div>
-				</Sidebar.Body>
+				</Body>
 			</Sidebar>
 		</div>
 	);
