@@ -13,11 +13,11 @@
  */
 
 import React, {useContext} from 'react';
-import {withLoading} from '../loading/Loading.es';
-import {withEmpty} from './table/EmptyState.es';
-import Table from './table/Table.es';
 import {ClayPaginationWithBar} from '@clayui/pagination';
 import {SearchContext} from './SearchContext.es';
+import {withEmpty} from './table/EmptyState.es';
+import Table from './table/Table.es';
+import {withLoading} from '../loading/Loading.es';
 
 const SearchContainer = ({actions, columns, items, totalCount}) => {
 	const {
@@ -27,34 +27,15 @@ const SearchContainer = ({actions, columns, items, totalCount}) => {
 		}
 	} = useContext(SearchContext);
 
-	const deltas = [
-		{
-			label: 5
-		},
-		{
-			label: 10
-		},
-		{
-			label: 20
-		},
-		{
-			label: 30
-		},
-		{
-			label: 50
-		},
-		{
-			label: 75
-		}
-	];
-
 	return (
 		<div className="container-fluid container-fluid-max-xl">
 			<Table actions={actions} columns={columns} items={items} />
 
 			<div className="taglib-search-iterator-page-iterator-bottom">
 				<ClayPaginationWithBar
-					deltas={deltas}
+					deltas={[5, 10, 20, 30, 50, 75].map(size => {
+						return {label: size};
+					})}
 					ellipsisBuffer={3}
 					initialActivePage={page}
 					initialSelectedDelta={{label: pageSize}}
