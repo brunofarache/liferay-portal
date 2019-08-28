@@ -149,6 +149,7 @@ export default ({
 					>
 						{Liferay.Language.get('cancel')}
 					</UpperToolbar.Button>
+
 					<UpperToolbar.Button
 						disabled={submitDisabled}
 						onClick={onSave}

@@ -15,13 +15,10 @@
 import React, {useEffect, useState} from 'react';
 import EditTableViewTabs from './EditTableViewTabs.es';
 import EditTableViewTabColumns from './EditTableViewTabColumns.es';
-import Button from '../../components/button/Button.es';
 import {Loading} from '../../components/loading/Loading.es';
 import Sidebar, {Body} from '../../components/sidebar/Sidebar.es';
 import {addItem, getItem, updateItem} from '../../utils/client.es';
-import UpperToolbar, {
-	UpperToolbarItem
-} from '../../components/upper-toolbar/UpperToolbar.es';
+import UpperToolbar from '../../components/upper-toolbar/UpperToolbar.es';
 import ControlMenu from '../../components/control-menu/ControlMenu.es';
 
 export default ({
@@ -41,7 +38,7 @@ export default ({
 		title = Liferay.Language.get('edit-table-view');
 	}
 
-	const onChange = event => {
+	const onInput = event => {
 		const name = event.target.value;
 
 		setState(prevState => ({
@@ -141,41 +138,28 @@ export default ({
 					}}
 				>
 					<UpperToolbar>
-						<UpperToolbarItem expand={true}>
-							<div className="input-group">
-								<div className="input-group-item">
-									<input
-										aria-label={Liferay.Language.get(
-											'untitled-table-view'
-										)}
-										className="form-control form-control-inline"
-										onChange={onChange}
-										placeholder={Liferay.Language.get(
-											'untitled-table-view'
-										)}
-										type="text"
-										value={dataListViewName}
-									/>
-								</div>
-							</div>
-						</UpperToolbarItem>
-						<UpperToolbarItem>
-							<Button
-								className="mr-3"
+						<UpperToolbar.Input
+							onInput={onInput}
+							placeholder={Liferay.Language.get(
+								'untitled-table-view'
+							)}
+							value={dataListViewName}
+						/>
+						<UpperToolbar.Group>
+							<UpperToolbar.Button
 								displayType="secondary"
 								onClick={() => history.goBack()}
-								small
 							>
 								{Liferay.Language.get('cancel')}
-							</Button>
-							<Button
-								className="mr-3"
+							</UpperToolbar.Button>
+
+							<UpperToolbar.Button
+								disabled={dataListViewName.trim() === ''}
 								onClick={handleSubmit}
-								small
 							>
 								{Liferay.Language.get('save')}
-							</Button>
-						</UpperToolbarItem>
+							</UpperToolbar.Button>
+						</UpperToolbar.Group>
 					</UpperToolbar>
 				</form>
 				<Sidebar onSearch={() => {}}>
