@@ -40,6 +40,9 @@ export default ({
 
 	const {refetch, resource} = useResource({
 		fetchDelay: 0,
+		fetchOptions: {
+			credentials: 'same-origin'
+		},
 		link: getURL(endpoint),
 		onNetworkStatusChange: status =>
 			dispatch({isLoading: status < 4, type: 'LOADING'}),
