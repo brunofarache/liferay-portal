@@ -27,15 +27,17 @@ const SearchContainer = ({actions, columns, items, totalCount}) => {
 		}
 	} = useContext(SearchContext);
 
+	const deltas = [5, 10, 20, 30, 50, 75].map(size => {
+		return {label: size};
+	});
+
 	return (
 		<div className="container-fluid container-fluid-max-xl">
 			<Table actions={actions} columns={columns} items={items} />
 
 			<div className="taglib-search-iterator-page-iterator-bottom">
 				<ClayPaginationWithBar
-					deltas={[5, 10, 20, 30, 50, 75].map(size => {
-						return {label: size};
-					})}
+					deltas={deltas}
 					ellipsisBuffer={3}
 					initialActivePage={page}
 					initialSelectedDelta={{label: pageSize}}
