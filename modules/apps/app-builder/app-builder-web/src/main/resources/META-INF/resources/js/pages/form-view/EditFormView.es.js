@@ -13,12 +13,12 @@
  */
 
 import React, {useState, useRef, useContext, useEffect} from 'react';
+import {AppContext} from '../../AppContext.es';
+import FieldTypeList from '../../components/field-types/FieldTypeList.es';
 import Sidebar from '../../components/sidebar/Sidebar.es';
-import {addItem, getItem, updateItem} from '../../utils/client.es';
 import UpperToolbar from '../../components/upper-toolbar/UpperToolbar.es';
 import {useSidebarContent} from '../../hooks/index.es';
-import FieldTypeList from '../../components/field-types/FieldTypeList.es';
-import {AppContext} from '../../AppContext.es';
+import {addItem, getItem, updateItem} from '../../utils/client.es';
 
 export default ({
 	dataDefinitionId,

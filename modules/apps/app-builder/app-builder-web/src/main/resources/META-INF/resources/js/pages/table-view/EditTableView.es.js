@@ -13,12 +13,12 @@
  */
 
 import React, {useEffect, useState} from 'react';
-import EditTableViewTabColumns from './EditTableViewTabColumns.es';
+import ControlMenu from '../../components/control-menu/ControlMenu.es';
+import FieldTypeList from '../../components/field-types/FieldTypeList.es';
 import {Loading} from '../../components/loading/Loading.es';
 import Sidebar from '../../components/sidebar/Sidebar.es';
-import {addItem, getItem, updateItem} from '../../utils/client.es';
 import UpperToolbar from '../../components/upper-toolbar/UpperToolbar.es';
-import ControlMenu from '../../components/control-menu/ControlMenu.es';
+import {addItem, getItem, updateItem} from '../../utils/client.es';
 
 export default ({
 	history,
@@ -165,9 +165,23 @@ export default ({
 					<Sidebar.Body>
 						<Sidebar.Tab tabs={[Liferay.Language.get('columns')]} />
 
-						<EditTableViewTabColumns
-							columns={dataDefinitionFields}
-						/>
+						<div className="tab-content">
+							<div
+								className="active fade mt-3 show tab-pane"
+								role="tabpanel"
+							>
+								<FieldTypeList
+									fieldTypes={dataDefinitionFields.map(
+										field => ({
+											description: field.fieldType,
+											icon: field.fieldType,
+											label: field.name,
+											name: field.fieldType
+										})
+									)}
+								/>
+							</div>
+						</div>
 					</Sidebar.Body>
 				</Sidebar>
 			</Loading>
