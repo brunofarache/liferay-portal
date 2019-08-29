@@ -14,7 +14,6 @@
 
 import ClayTable from '@clayui/table';
 import React from 'react';
-import Link from '../../link/Link.es';
 import DropDown from './DropDown.es';
 
 const {Body, Cell, Head, Row} = ClayTable;
@@ -40,28 +39,18 @@ export default ({actions, columns, items}) => {
 			<Body>
 				{items.map(item => (
 					<Row data-testid="item" key={item.id}>
-						{columns.map((column, index) => {
-							let cell = item[column.key];
-
-							if (Object.hasOwnProperty.call(column, 'link')) {
-								cell = (
-									<Link to={column.link(item)}>{cell}</Link>
-								);
-							}
-
-							return (
-								<Cell
-									className={
-										index > 0 && 'table-cell-expand-smaller'
-									}
-									expanded={index === 0}
-									headingTitle={index === 0}
-									key={index}
-								>
-									{cell}
-								</Cell>
-							);
-						})}
+						{columns.map((column, index) => (
+							<Cell
+								className={
+									index > 0 && 'table-cell-expand-smaller'
+								}
+								expanded={index === 0}
+								headingTitle={index === 0}
+								key={index}
+							>
+								{item[column.key]}
+							</Cell>
+						))}
 						<Cell>
 							<DropDown actions={actions} item={item} />
 						</Cell>

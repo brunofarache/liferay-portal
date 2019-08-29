@@ -14,6 +14,7 @@
 
 import moment from 'moment';
 import React from 'react';
+import {Link} from 'react-router-dom';
 import Button from '../../components/button/Button.es';
 import ListView from '../../components/list-view/ListView.es';
 import {confirmDelete} from '../../utils/client.es';
@@ -33,8 +34,6 @@ const ACTIONS = [
 const COLUMNS = [
 	{
 		key: 'name',
-		link: item =>
-			`/custom-object/${item.dataDefinitionId}/table-views/${item.id}`,
 		sortable: true,
 		value: Liferay.Language.get('name')
 	},
@@ -51,21 +50,21 @@ const COLUMNS = [
 	}
 ];
 
-const FORMATTER = items =>
-	items.map(item => ({
-		...item,
-		dateCreated: moment(item.dateCreated).fromNow(),
-		dateModified: moment(item.dateModified).fromNow(),
-		id: item.id,
-		name: item.name.en_US
-	}));
-
 export default ({
 	match: {
 		params: {dataDefinitionId},
 		url
 	}
 }) => {
+	const FORMATTER = items =>
+		items.map(item => ({
+			...item,
+			dateCreated: moment(item.dateCreated).fromNow(),
+			dateModified: moment(item.dateModified).fromNow(),
+			id: item.id,
+			name: <Link to={`${url}/${item.id}`}>{item.name.en_US}</Link>
+		}));
+
 	return (
 		<ListView
 			actions={ACTIONS}

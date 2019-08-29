@@ -14,7 +14,7 @@
 
 import moment from 'moment';
 import React, {useContext, useEffect, useRef, useState} from 'react';
-import {withRouter} from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import CustomObjectPopover from './CustomObjectPopover.es';
 import {AppContext} from '../../AppContext.es';
 import Button from '../../components/button/Button.es';
@@ -67,15 +67,7 @@ const COLUMNS = [
 	}
 ];
 
-const FORMATTER = items =>
-	items.map(item => ({
-		dateCreated: moment(item.dateCreated).fromNow(),
-		dateModified: moment(item.dateModified).fromNow(),
-		id: item.id,
-		name: item.name.en_US
-	}));
-
-export default withRouter(({history}) => {
+export default ({history}) => {
 	const {basePortletURL, siteId} = useContext(AppContext);
 	const addButtonRef = useRef();
 	const emptyStateButtonRef = useRef();
@@ -186,7 +178,18 @@ export default withRouter(({history}) => {
 					)
 				}}
 				endpoint={`/o/data-engine/v1.0/sites/${siteId}/data-definitions`}
-				formatter={FORMATTER}
+				formatter={items =>
+					items.map(item => ({
+						dateCreated: moment(item.dateCreated).fromNow(),
+						dateModified: moment(item.dateModified).fromNow(),
+						id: item.id,
+						name: (
+							<Link to={`/custom-object/${item.id}/form-views`}>
+								{item.name.en_US}
+							</Link>
+						)
+					}))
+				}
 			/>
 
 			<CustomObjectPopover
@@ -198,4 +201,4 @@ export default withRouter(({history}) => {
 			/>
 		</>
 	);
-});
+};

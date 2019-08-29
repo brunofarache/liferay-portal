@@ -53,7 +53,6 @@ export default ({
 	const COLUMNS = [
 		{
 			key: 'name',
-			link: getItemURL,
 			sortable: true,
 			value: Liferay.Language.get('name')
 		},
@@ -108,7 +107,7 @@ export default ({
 					dateCreated: moment(item.dateCreated).fromNow(),
 					dateModified: moment(item.dateModified).fromNow(),
 					id: item.id,
-					name: item.name.en_US
+					name: <a href={getItemURL(item)}>{item.name.en_US}</a>
 				}))
 			}
 		/>
