@@ -35,19 +35,23 @@ const SearchContainer = ({actions, columns, items, totalCount}) => {
 		<div className="container-fluid container-fluid-max-xl">
 			<Table actions={actions} columns={columns} items={items} />
 
-			<div className="taglib-search-iterator-page-iterator-bottom">
-				<ClayPaginationWithBar
-					deltas={deltas}
-					ellipsisBuffer={3}
-					initialActivePage={page}
-					initialSelectedDelta={{label: pageSize}}
-					onDeltaChange={pageSize =>
-						dispatch({pageSize, type: 'CHANGE_PAGE_SIZE'})
-					}
-					onPageChange={page => dispatch({page, type: 'CHANGE_PAGE'})}
-					totalItems={totalCount}
-				/>
-			</div>
+			{totalCount > 5 && (
+				<div className="taglib-search-iterator-page-iterator-bottom">
+					<ClayPaginationWithBar
+						deltas={deltas}
+						ellipsisBuffer={3}
+						initialActivePage={page}
+						initialSelectedDelta={{label: pageSize}}
+						onDeltaChange={pageSize =>
+							dispatch({pageSize, type: 'CHANGE_PAGE_SIZE'})
+						}
+						onPageChange={page =>
+							dispatch({page, type: 'CHANGE_PAGE'})
+						}
+						totalItems={totalCount}
+					/>
+				</div>
+			)}
 		</div>
 	);
 };
