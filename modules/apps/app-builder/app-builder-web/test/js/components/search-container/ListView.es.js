@@ -16,7 +16,6 @@ import {waitForElementToBeRemoved} from '@testing-library/dom';
 import {cleanup, render} from '@testing-library/react';
 import React from 'react';
 import ListView from '../../../../src/main/resources/META-INF/resources/js/components/list-view/ListView.es';
-import lang from '../../../../src/main/resources/META-INF/resources/js/utils/lang.es';
 
 import {
 	ACTIONS,
@@ -27,22 +26,10 @@ import {
 	RESPONSES
 } from '../../constants.es';
 
-const setup = () => {
-	let originalSub;
-
-	beforeEach(() => {
-		originalSub = lang.sub;
-		lang.sub = jest.fn();
-	});
-
+describe('ListView', () => {
 	afterEach(() => {
-		lang.sub = originalSub;
 		cleanup();
 	});
-};
-
-describe('ListView', () => {
-	setup();
 
 	it('renders with empty state', async () => {
 		fetch.mockResponse(JSON.stringify(RESPONSES.NO_ITEMS));
@@ -68,7 +55,7 @@ describe('ListView', () => {
 	it('renders with 1 item', async () => {
 		fetch.mockResponse(JSON.stringify(RESPONSES.ONE_ITEM));
 
-		const {container, queryAllByTestId} = render(
+		const {container, queryAllByTestId, queryAllByText} = render(
 			<ListView
 				actions={ACTIONS}
 				columns={COLUMNS}
@@ -84,17 +71,13 @@ describe('ListView', () => {
 
 		expect(queryAllByTestId('item').length).toBe(1);
 		expect(container.querySelectorAll('li.page-item').length).toBe(3);
-
-		const [first, second, third] = lang.sub.mock.calls[0][1];
-		expect(first).toBe(1);
-		expect(second).toBe(1);
-		expect(third).toBe(1);
+		expect(queryAllByText('Showing 1 to 1 of 1').length).toBe(1);
 	});
 
 	it('renders with 21 items and 2 pages', async () => {
 		fetch.mockResponse(JSON.stringify(RESPONSES.TWENTY_ONE_ITEMS));
 
-		const {container, queryAllByTestId} = render(
+		const {container, queryAllByTestId, queryAllByText} = render(
 			<ListView
 				actions={ACTIONS}
 				columns={COLUMNS}
@@ -114,10 +97,6 @@ describe('ListView', () => {
 			container.querySelector('li.page-item.active').firstElementChild
 				.textContent
 		).toBe('1');
-
-		const [first, second, third] = lang.sub.mock.calls[0][1];
-		expect(first).toBe(1);
-		expect(second).toBe(20);
-		expect(third).toBe(21);
+		expect(queryAllByText('Showing 1 to 20 of 21').length).toBe(1);
 	});
 });
