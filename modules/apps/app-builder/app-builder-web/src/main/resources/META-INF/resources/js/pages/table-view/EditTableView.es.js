@@ -31,6 +31,8 @@ export default ({
 		dataListView: null
 	});
 
+	const [keywords, setKeywords] = useState('');
+
 	let title = Liferay.Language.get('new-table-view');
 
 	if (dataListViewId) {
@@ -161,7 +163,7 @@ export default ({
 						</UpperToolbar.Group>
 					</UpperToolbar>
 				</form>
-				<Sidebar onSearch={() => {}}>
+				<Sidebar onSearch={setKeywords}>
 					<Sidebar.Body>
 						<Sidebar.Tab tabs={[Liferay.Language.get('columns')]} />
 
@@ -173,6 +175,7 @@ export default ({
 									label: field.name,
 									name: field.fieldType
 								}))}
+								keywords={keywords}
 							/>
 						</Sidebar.TabContent>
 					</Sidebar.Body>
