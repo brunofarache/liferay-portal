@@ -101,7 +101,9 @@ const SidebarSearchInput = ({closeable, onSearch, onToggle}) => {
 									aria-label={Liferay.Language.get('search')}
 									className="form-control input-group-inset input-group-inset-after"
 									onChange={onChange}
-									placeholder={Liferay.Language.get('search')}
+									placeholder={`${Liferay.Language.get(
+										'search'
+									)}...`}
 									type="text"
 									value={keywords}
 								/>
@@ -130,11 +132,40 @@ const SidebarSearchInput = ({closeable, onSearch, onToggle}) => {
 	);
 };
 
+const SidebarTab = ({tabs}) => {
+	return (
+		<nav className="component-tbar tbar">
+			<div className="container-fluid">
+				<ul className="nav nav-underline" role="tablist">
+					{tabs.map((tab, index) => (
+						<li className="nav-item" key={index}>
+							<a
+								className="active nav-link"
+								href="javascript:;"
+								role="tab"
+							>
+								{tab}
+							</a>
+						</li>
+					))}
+				</ul>
+			</div>
+		</nav>
+	);
+};
+
 Sidebar.Body = SidebarBody;
 Sidebar.Footer = SidebarFooter;
 Sidebar.Header = SidebarHeader;
 Sidebar.SearchInput = SidebarSearchInput;
+Sidebar.Tab = SidebarTab;
 
 export default Sidebar;
 
-export {SidebarBody, SidebarFooter, SidebarHeader, SidebarSearchInput};
+export {
+	SidebarBody,
+	SidebarFooter,
+	SidebarHeader,
+	SidebarSearchInput,
+	SidebarTab
+};

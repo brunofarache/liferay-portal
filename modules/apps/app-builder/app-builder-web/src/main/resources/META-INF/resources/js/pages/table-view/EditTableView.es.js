@@ -13,7 +13,6 @@
  */
 
 import React, {useEffect, useState} from 'react';
-import EditTableViewTabs from './EditTableViewTabs.es';
 import EditTableViewTabColumns from './EditTableViewTabColumns.es';
 import {Loading} from '../../components/loading/Loading.es';
 import Sidebar from '../../components/sidebar/Sidebar.es';
@@ -164,7 +163,8 @@ export default ({
 				</form>
 				<Sidebar onSearch={() => {}}>
 					<Sidebar.Body>
-						<EditTableViewTabs />
+						<Sidebar.Tab tabs={[Liferay.Language.get('columns')]} />
+
 						<EditTableViewTabColumns
 							columns={dataDefinitionFields}
 						/>

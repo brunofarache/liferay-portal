@@ -160,21 +160,8 @@ export default ({
 			</UpperToolbar>
 			<Sidebar onSearch={setKeywords} onToggle={handleSidebarToggle}>
 				<Sidebar.Body>
-					<nav className="component-tbar tbar">
-						<div className="container-fluid">
-							<ul className="nav nav-underline" role="tablist">
-								<li className="nav-item">
-									<a
-										className="active nav-link"
-										href="javascript:;"
-										role="tab"
-									>
-										{Liferay.Language.get('fields')}
-									</a>
-								</li>
-							</ul>
-						</div>
-					</nav>
+					<Sidebar.Tab tabs={[Liferay.Language.get('fields')]} />
+
 					<div className="tab-content">
 						<div
 							className="active fade mt-3 show tab-pane"
