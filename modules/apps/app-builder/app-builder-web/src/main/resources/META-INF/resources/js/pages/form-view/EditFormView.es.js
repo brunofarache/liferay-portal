@@ -162,17 +162,12 @@ export default ({
 				<Sidebar.Body>
 					<Sidebar.Tab tabs={[Liferay.Language.get('fields')]} />
 
-					<div className="tab-content">
-						<div
-							className="active fade mt-3 show tab-pane"
-							role="tabpanel"
-						>
-							<FieldTypeList
-								fieldTypes={fieldTypes}
-								keywords={keywords}
-							/>
-						</div>
-					</div>
+					<Sidebar.TabContent>
+						<FieldTypeList
+							fieldTypes={fieldTypes}
+							keywords={keywords}
+						/>
+					</Sidebar.TabContent>
 				</Sidebar.Body>
 			</Sidebar>
 		</div>

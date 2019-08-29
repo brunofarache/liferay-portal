@@ -165,23 +165,16 @@ export default ({
 					<Sidebar.Body>
 						<Sidebar.Tab tabs={[Liferay.Language.get('columns')]} />
 
-						<div className="tab-content">
-							<div
-								className="active fade mt-3 show tab-pane"
-								role="tabpanel"
-							>
-								<FieldTypeList
-									fieldTypes={dataDefinitionFields.map(
-										field => ({
-											description: field.fieldType,
-											icon: field.fieldType,
-											label: field.name,
-											name: field.fieldType
-										})
-									)}
-								/>
-							</div>
-						</div>
+						<Sidebar.TabContent>
+							<FieldTypeList
+								fieldTypes={dataDefinitionFields.map(field => ({
+									description: field.fieldType,
+									icon: field.fieldType,
+									label: field.name,
+									name: field.fieldType
+								}))}
+							/>
+						</Sidebar.TabContent>
 					</Sidebar.Body>
 				</Sidebar>
 			</Loading>

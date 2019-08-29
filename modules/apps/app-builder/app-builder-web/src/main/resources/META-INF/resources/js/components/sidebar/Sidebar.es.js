@@ -154,11 +154,22 @@ const SidebarTab = ({tabs}) => {
 	);
 };
 
+const SidebarTabContent = ({children}) => {
+	return (
+		<div className="tab-content">
+			<div className="active fade mt-3 show tab-pane" role="tabpanel">
+				{children}
+			</div>
+		</div>
+	);
+};
+
 Sidebar.Body = SidebarBody;
 Sidebar.Footer = SidebarFooter;
 Sidebar.Header = SidebarHeader;
 Sidebar.SearchInput = SidebarSearchInput;
 Sidebar.Tab = SidebarTab;
+Sidebar.TabContent = SidebarTabContent;
 
 export default Sidebar;
 
@@ -167,5 +178,6 @@ export {
 	SidebarFooter,
 	SidebarHeader,
 	SidebarSearchInput,
-	SidebarTab
+	SidebarTab,
+	SidebarTabContent
 };
