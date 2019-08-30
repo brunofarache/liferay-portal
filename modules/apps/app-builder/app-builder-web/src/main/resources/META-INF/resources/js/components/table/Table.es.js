@@ -33,7 +33,7 @@ export default ({actions, columns, items}) => {
 							{column.value}
 						</Cell>
 					))}
-					{actions.length > 0 && <Cell>{''}</Cell>}
+					{actions && <Cell>{''}</Cell>}
 				</Row>
 			</Head>
 			<Body>

@@ -17,7 +17,7 @@ import Button from '../button/Button.es';
 
 const UpperToolbar = ({children}) => {
 	return (
-		<nav className="component-tbar subnav-tbar-light tbar tbar-article">
+		<nav className="component-tbar subnav-tbar-light tbar">
 			<div className="container-fluid container-fluid-max-xl">
 				<ul className="tbar-nav">{children}</ul>
 			</div>

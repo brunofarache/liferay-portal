@@ -144,7 +144,7 @@ export default DragDropContext(HTML5Backend)(
 		const [keywords, setKeywords] = useState('');
 
 		return (
-			<div className="app-builder-form-view">
+			<>
 				<DragLayer />
 
 				<UpperToolbar>
@@ -182,7 +182,7 @@ export default DragDropContext(HTML5Backend)(
 						</Sidebar.TabContent>
 					</Sidebar.Body>
 				</Sidebar>
-			</div>
+			</>
 		);
 	}
 );
