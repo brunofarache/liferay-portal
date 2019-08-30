@@ -19,10 +19,10 @@ import ListView from '../../../../src/main/resources/META-INF/resources/js/compo
 
 import {
 	ACTIONS,
+	BODY,
 	COLUMNS,
 	EMPTY_STATE,
 	ENDPOINT,
-	FORMATTER,
 	RESPONSES
 } from '../../constants.es';
 
@@ -40,8 +40,9 @@ describe('ListView', () => {
 				columns={COLUMNS}
 				emptyState={EMPTY_STATE}
 				endpoint={ENDPOINT}
-				formatter={FORMATTER}
-			/>
+			>
+				{BODY}
+			</ListView>
 		);
 
 		await waitForElementToBeRemoved(() =>
@@ -61,8 +62,9 @@ describe('ListView', () => {
 				columns={COLUMNS}
 				emptyState={EMPTY_STATE}
 				endpoint={ENDPOINT}
-				formatter={FORMATTER}
-			/>
+			>
+				{BODY}
+			</ListView>
 		);
 
 		await waitForElementToBeRemoved(() =>
@@ -82,8 +84,9 @@ describe('ListView', () => {
 				columns={COLUMNS}
 				emptyState={EMPTY_STATE}
 				endpoint={ENDPOINT}
-				formatter={FORMATTER}
-			/>
+			>
+				{BODY}
+			</ListView>
 		);
 
 		await waitForElementToBeRemoved(() => {

@@ -23,10 +23,10 @@ import {getURL} from '../../utils/client.es';
 export default ({
 	actions,
 	addButton,
+	children,
 	columns,
 	endpoint,
-	emptyState,
-	formatter
+	emptyState
 }) => {
 	const [state, dispatch] = useReducer(reducer, {
 		isLoading: true,
@@ -63,8 +63,6 @@ export default ({
 		dispatch({page: totalPages, type: 'CHANGE_PAGE'});
 	}
 
-	const formattedItems = formatter(items);
-
 	const refetchOnActions = actions.map(action => {
 		if (!action.callback) {
 			return action;
@@ -100,7 +98,7 @@ export default ({
 				emptyState={emptyState}
 				isEmpty={totalCount === 0}
 				isLoading={state.isLoading}
-				items={formattedItems}
+				items={items.map(item => children(item))}
 				keywords={state.query.keywords}
 				totalCount={totalCount}
 			/>

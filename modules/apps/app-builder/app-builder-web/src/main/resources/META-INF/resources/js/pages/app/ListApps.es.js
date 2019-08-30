@@ -86,26 +86,6 @@ const EMPTY_STATE = {
 	title: Liferay.Language.get('there-are-no-deployments-yet')
 };
 
-const FORMATTER = items =>
-	items.map(item => ({
-		dateCreated: moment(item.dateCreated).fromNow(),
-		dateModified: moment(item.dateModified).fromNow(),
-		id: item.id,
-		name: item.name.en_US,
-		status: (
-			<ClayLabel
-				displayType={
-					item.status.toLowerCase() === 'deployed'
-						? 'success'
-						: 'secondary'
-				}
-			>
-				{DEPLOYMENT_STATUS[item.status.toLowerCase()]}
-			</ClayLabel>
-		),
-		type: concatTypes(item.settings.deploymentTypes)
-	}));
-
 export default ({
 	match: {
 		params: {dataDefinitionId}
@@ -117,7 +97,25 @@ export default ({
 			columns={COLUMNS}
 			emptyState={EMPTY_STATE}
 			endpoint={`/o/app-builder/v1.0/data-definitions/${dataDefinitionId}/apps`}
-			formatter={FORMATTER}
-		/>
+		>
+			{item => ({
+				dateCreated: moment(item.dateCreated).fromNow(),
+				dateModified: moment(item.dateModified).fromNow(),
+				id: item.id,
+				name: item.name.en_US,
+				status: (
+					<ClayLabel
+						displayType={
+							item.status.toLowerCase() === 'deployed'
+								? 'success'
+								: 'secondary'
+						}
+					>
+						{DEPLOYMENT_STATUS[item.status.toLowerCase()]}
+					</ClayLabel>
+				),
+				type: concatTypes(item.settings.deploymentTypes)
+			})}
+		</ListView>
 	);
 };

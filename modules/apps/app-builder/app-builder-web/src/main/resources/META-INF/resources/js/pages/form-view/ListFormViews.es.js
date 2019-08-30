@@ -101,15 +101,14 @@ export default ({
 				title: Liferay.Language.get('there-are-no-form-views-yet')
 			}}
 			endpoint={`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}/data-layouts`}
-			formatter={items =>
-				items.map(item => ({
-					dataDefinitionId,
-					dateCreated: moment(item.dateCreated).fromNow(),
-					dateModified: moment(item.dateModified).fromNow(),
-					id: item.id,
-					name: <a href={getItemURL(item)}>{item.name.en_US}</a>
-				}))
-			}
-		/>
+		>
+			{item => ({
+				dataDefinitionId,
+				dateCreated: moment(item.dateCreated).fromNow(),
+				dateModified: moment(item.dateModified).fromNow(),
+				id: item.id,
+				name: <a href={getItemURL(item)}>{item.name.en_US}</a>
+			})}
+		</ListView>
 	);
 };

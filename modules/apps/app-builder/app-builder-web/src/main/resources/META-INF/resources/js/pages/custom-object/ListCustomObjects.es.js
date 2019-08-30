@@ -178,19 +178,18 @@ export default ({history}) => {
 					)
 				}}
 				endpoint={`/o/data-engine/v1.0/sites/${siteId}/data-definitions`}
-				formatter={items =>
-					items.map(item => ({
-						dateCreated: moment(item.dateCreated).fromNow(),
-						dateModified: moment(item.dateModified).fromNow(),
-						id: item.id,
-						name: (
-							<Link to={`/custom-object/${item.id}/form-views`}>
-								{item.name.en_US}
-							</Link>
-						)
-					}))
-				}
-			/>
+			>
+				{item => ({
+					dateCreated: moment(item.dateCreated).fromNow(),
+					dateModified: moment(item.dateModified).fromNow(),
+					id: item.id,
+					name: (
+						<Link to={`/custom-object/${item.id}/form-views`}>
+							{item.name.en_US}
+						</Link>
+					)
+				})}
+			</ListView>
 
 			<CustomObjectPopover
 				alignElement={alignElement}

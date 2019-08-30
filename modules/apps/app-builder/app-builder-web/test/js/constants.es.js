@@ -34,6 +34,8 @@ export const ACTIONS = [
 	}
 ];
 
+export const BODY = item => item;
+
 export const COLUMNS = [
 	{
 		name: 'Name'
@@ -52,8 +54,6 @@ export const EMPTY_STATE = {
 };
 
 export const ENDPOINT = '/endpoint';
-
-export const FORMATTER = items => items;
 
 export const ITEMS = {
 	ONE: createItems(1),

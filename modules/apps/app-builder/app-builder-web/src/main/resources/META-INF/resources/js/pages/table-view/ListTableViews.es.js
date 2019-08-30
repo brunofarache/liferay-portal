@@ -56,15 +56,6 @@ export default ({
 		url
 	}
 }) => {
-	const FORMATTER = items =>
-		items.map(item => ({
-			...item,
-			dateCreated: moment(item.dateCreated).fromNow(),
-			dateModified: moment(item.dateModified).fromNow(),
-			id: item.id,
-			name: <Link to={`${url}/${item.id}`}>{item.name.en_US}</Link>
-		}));
-
 	return (
 		<ListView
 			actions={ACTIONS}
@@ -89,7 +80,14 @@ export default ({
 				title: Liferay.Language.get('there-are-no-table-views-yet')
 			}}
 			endpoint={`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}/data-list-views`}
-			formatter={FORMATTER}
-		/>
+		>
+			{item => ({
+				...item,
+				dateCreated: moment(item.dateCreated).fromNow(),
+				dateModified: moment(item.dateModified).fromNow(),
+				id: item.id,
+				name: <Link to={`${url}/${item.id}`}>{item.name.en_US}</Link>
+			})}
+		</ListView>
 	);
 };
