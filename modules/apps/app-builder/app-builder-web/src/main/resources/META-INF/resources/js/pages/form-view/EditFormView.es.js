@@ -141,7 +141,7 @@ export default ({
 	const [keywords, setKeywords] = useState('');
 
 	return (
-		<div className="app-builder-form-view">
+		<>
 			<DragLayer />
 
 			<UpperToolbar>
@@ -179,6 +179,6 @@ export default ({
 					</Sidebar.TabContent>
 				</Sidebar.Body>
 			</Sidebar>
-		</div>
+		</>
 	);
 };

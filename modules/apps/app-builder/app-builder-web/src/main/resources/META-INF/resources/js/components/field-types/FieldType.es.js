@@ -21,7 +21,7 @@ import {getEmptyImage} from 'react-dnd-html5-backend';
 import FieldTypeDragPreview from './FieldTypeDragPreview.es';
 
 export default props => {
-	const {description, icon, label, name} = props;
+	const {description, icon, label, name, onAddField = () => {}} = props;
 
 	const [{dragging}, drag, preview] = useDrag({
 		collect: monitor => ({
@@ -52,6 +52,7 @@ export default props => {
 				'pt-3': true
 			})}
 			data-field-type-name={name}
+			onDoubleClick={() => onAddField(label)}
 			ref={drag}
 		>
 			<div className="autofit-col pl-2 pr-2">
