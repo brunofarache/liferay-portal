@@ -16,7 +16,7 @@ import ClayDropDown, {Align} from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
 import React, {useContext, useState} from 'react';
 import classNames from 'classnames';
-import {SearchContext} from '../../table/SearchContext.es';
+import SearchContext from './SearchContext.es';
 import Button from '../../../components/button/Button.es';
 
 const {Group, Item, ItemList} = ClayDropDown;

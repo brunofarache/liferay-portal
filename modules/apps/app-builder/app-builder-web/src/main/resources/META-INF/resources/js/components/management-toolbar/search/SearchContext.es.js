@@ -62,4 +62,6 @@ const reducer = (state, action) => {
 	}
 };
 
-export {SearchContext, reducer};
+export default SearchContext;
+
+export {reducer};

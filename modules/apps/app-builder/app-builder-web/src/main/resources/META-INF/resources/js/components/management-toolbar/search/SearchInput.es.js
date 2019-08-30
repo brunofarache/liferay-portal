@@ -13,7 +13,7 @@
  */
 
 import React, {useContext, useEffect, useState} from 'react';
-import {SearchContext} from '../../table/SearchContext.es';
+import SearchContext from './SearchContext.es';
 import Button from '../../../components/button/Button.es';
 
 export default ({disabled}) => {
