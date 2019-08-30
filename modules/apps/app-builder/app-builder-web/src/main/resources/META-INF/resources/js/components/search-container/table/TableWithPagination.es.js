@@ -14,12 +14,12 @@
 
 import React, {useContext} from 'react';
 import {ClayPaginationWithBar} from '@clayui/pagination';
-import {SearchContext} from './SearchContext.es';
-import {withEmpty} from './table/EmptyState.es';
-import Table from './table/Table.es';
-import {withLoading} from '../loading/Loading.es';
+import {SearchContext} from '../SearchContext.es';
+import {withEmpty} from './EmptyState.es';
+import Table from './Table.es';
+import {withLoading} from '../../loading/Loading.es';
 
-const SearchContainer = ({actions, columns, items, totalCount}) => {
+const TableWithPagination = ({actions, columns, items, totalCount}) => {
 	const {
 		dispatch,
 		state: {
@@ -56,4 +56,4 @@ const SearchContainer = ({actions, columns, items, totalCount}) => {
 	);
 };
 
-export default withLoading(withEmpty(SearchContainer));
+export default withLoading(withEmpty(TableWithPagination));

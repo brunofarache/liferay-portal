@@ -16,7 +16,7 @@ import {useResource} from '@clayui/data-provider';
 import React, {useReducer} from 'react';
 import {ManagementToolbar, SearchBar} from '../management-toolbar/index.es';
 import SearchSubnavigationBar from '../management-toolbar/search/SearchSubnavigationBar.es';
-import SearchContainer from '../search-container/SearchContainer.es';
+import TableWithPagination from '../search-container/table/TableWithPagination.es';
 import {reducer, SearchContext} from '../search-container/SearchContext.es';
 import {getURL} from '../../utils/client.es';
 
@@ -92,7 +92,7 @@ export default ({
 
 			<SearchSubnavigationBar totalCount={totalCount} />
 
-			<SearchContainer
+			<TableWithPagination
 				actions={refetchOnActions}
 				columns={columns}
 				emptyState={emptyState}
