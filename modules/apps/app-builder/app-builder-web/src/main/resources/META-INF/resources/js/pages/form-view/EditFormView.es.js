@@ -83,12 +83,16 @@ export default ({
 			updateItem(
 				`/o/data-engine/v1.0/data-layouts/${dataLayoutId}`,
 				dataLayout
-			).then(() => Liferay.Util.navigate(listUrl));
+			).then(() => {
+				window.location.href = `${listUrl}`;
+			});
 		} else {
 			addItem(
 				`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}/data-layouts`,
 				dataLayout
-			).then(() => Liferay.Util.navigate(listUrl));
+			).then(() => {
+				window.location.href = `${listUrl}`;
+			});
 		}
 	};
 
@@ -106,7 +110,7 @@ export default ({
 		if (newCustomObject) {
 			Liferay.Util.navigate(basePortletURL);
 		} else {
-			Liferay.Util.navigate(listUrl);
+			window.location.href = `${listUrl}`;
 		}
 	};
 
