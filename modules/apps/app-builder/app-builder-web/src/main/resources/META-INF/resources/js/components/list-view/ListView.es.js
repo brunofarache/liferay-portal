@@ -16,8 +16,8 @@ import {useResource} from '@clayui/data-provider';
 import React, {useReducer} from 'react';
 import {ManagementToolbar, SearchBar} from '../management-toolbar/index.es';
 import SearchSubnavigationBar from '../management-toolbar/search/SearchSubnavigationBar.es';
-import TableWithPagination from '../search-container/table/TableWithPagination.es';
-import {reducer, SearchContext} from '../search-container/SearchContext.es';
+import TableWithPagination from '../table/TableWithPagination.es';
+import {reducer, SearchContext} from '../table/SearchContext.es';
 import {getURL} from '../../utils/client.es';
 
 export default ({

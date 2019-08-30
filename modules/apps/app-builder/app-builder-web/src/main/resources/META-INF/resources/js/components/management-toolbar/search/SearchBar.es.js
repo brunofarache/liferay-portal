@@ -15,7 +15,7 @@
 import React, {useContext} from 'react';
 import SearchInput from './SearchInput.es';
 import SearchSort from './SearchSort.es';
-import {SearchContext} from '../../search-container/SearchContext.es';
+import {SearchContext} from '../../table/SearchContext.es';
 
 export default ({columns, totalCount}) => {
 	const {

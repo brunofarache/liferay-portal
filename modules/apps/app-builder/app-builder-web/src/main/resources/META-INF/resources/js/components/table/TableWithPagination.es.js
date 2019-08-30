@@ -14,10 +14,10 @@
 
 import React, {useContext} from 'react';
 import {ClayPaginationWithBar} from '@clayui/pagination';
-import {SearchContext} from '../SearchContext.es';
+import {SearchContext} from './SearchContext.es';
 import {withEmpty} from './EmptyState.es';
 import Table from './Table.es';
-import {withLoading} from '../../loading/Loading.es';
+import {withLoading} from '../loading/Loading.es';
 
 const TableWithPagination = ({actions, columns, items, totalCount}) => {
 	const {

@@ -14,7 +14,7 @@
 
 import React, {useContext} from 'react';
 import Button from '../../button/Button.es';
-import {SearchContext} from '../../search-container/SearchContext.es';
+import {SearchContext} from '../../table/SearchContext.es';
 import lang from '../../../utils/lang.es';
 
 export default ({totalCount}) => {
