@@ -41,7 +41,8 @@ export default ({
 	const {refetch, resource} = useResource({
 		fetchDelay: 0,
 		fetchOptions: {
-			credentials: 'same-origin'
+			credentials: 'same-origin',
+			method: 'GET'
 		},
 		link: getURL(endpoint),
 		onNetworkStatusChange: status =>
