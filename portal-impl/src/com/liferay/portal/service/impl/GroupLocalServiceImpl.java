@@ -361,7 +361,8 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		if (className.equals(Group.class.getName())) {
 			if (!site && (liveGroupId == 0) &&
 				!(groupKey.equals(GroupConstants.CONTROL_PANEL) ||
-				  groupKey.equals(GroupConstants.FORMS))) {
+				  groupKey.equals(GroupConstants.FORMS) ||
+				  groupKey.startsWith("App"))) {
 
 				throw new IllegalArgumentException();
 			}
