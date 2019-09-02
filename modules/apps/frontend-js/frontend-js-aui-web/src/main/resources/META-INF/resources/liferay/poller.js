@@ -230,18 +230,18 @@ AUI.add(
 		};
 
 		var Poller = {
-			init: function(options) {
+			init(options) {
 				var instance = this;
 
 				instance.setEncryptedUserId(options.encryptedUserId);
 				instance.setSupportsComet(options.supportsComet);
 			},
 
-			addListener: function(key, listener, scope) {
+			addListener(key, listener, scope) {
 				_portlets[key] = {
 					initialRequest: true,
-					listener: listener,
-					scope: scope
+					listener,
+					scope
 				};
 
 				if (!_enabled) {
@@ -251,11 +251,11 @@ AUI.add(
 				}
 			},
 
-			cancelCustomDelay: function() {
+			cancelCustomDelay() {
 				_customDelay = null;
 			},
 
-			getDelay: function() {
+			getDelay() {
 				if (_customDelay !== null) {
 					_requestDelay = _customDelay;
 				} else if (_delayIndex <= _maxDelay) {
@@ -274,13 +274,13 @@ AUI.add(
 			getReceiveUrl: _getReceiveUrl,
 			getSendUrl: _getSendUrl,
 
-			isSupportsComet: function() {
+			isSupportsComet() {
 				return _supportsComet;
 			},
 
 			processResponse: _processResponse,
 
-			removeListener: function(key) {
+			removeListener(key) {
 				var instance = this;
 
 				if (key in _portlets) {
@@ -294,13 +294,13 @@ AUI.add(
 				}
 			},
 
-			resume: function() {
+			resume() {
 				_suspended = false;
 
 				_createRequestTimer();
 			},
 
-			setCustomDelay: function(delay) {
+			setCustomDelay(delay) {
 				if (delay === null) {
 					_customDelay = delay;
 				} else {
@@ -308,23 +308,23 @@ AUI.add(
 				}
 			},
 
-			setDelay: function(delay) {
+			setDelay(delay) {
 				_requestDelay = delay / 1000;
 			},
 
-			setEncryptedUserId: function(encryptedUserId) {
+			setEncryptedUserId(encryptedUserId) {
 				_encryptedUserId = encryptedUserId;
 			},
 
-			setSupportsComet: function(supportsComet) {
+			setSupportsComet(supportsComet) {
 				_supportsComet = supportsComet;
 			},
 
-			setUrl: function(url) {
+			setUrl(url) {
 				_url = url;
 			},
 
-			submitRequest: function(key, data, chunkId) {
+			submitRequest(key, data, chunkId) {
 				if (!_frozen && key in _portlets) {
 					for (var i in data) {
 						if (data.hasOwnProperty(i)) {
@@ -346,7 +346,7 @@ AUI.add(
 					}
 
 					var requestData = {
-						data: data,
+						data,
 						portletId: key
 					};
 
@@ -360,7 +360,7 @@ AUI.add(
 				}
 			},
 
-			suspend: function() {
+			suspend() {
 				_cancelRequestTimer();
 
 				_suspended = true;

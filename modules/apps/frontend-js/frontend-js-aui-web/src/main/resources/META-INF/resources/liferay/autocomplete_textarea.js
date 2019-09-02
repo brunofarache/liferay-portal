@@ -36,13 +36,13 @@ AUI.add(
 		var AutoCompleteTextarea = function() {};
 
 		AutoCompleteTextarea.prototype = {
-			initializer: function() {
+			initializer() {
 				var instance = this;
 
 				instance._bindUIACTextarea();
 			},
 
-			destructor: function() {
+			destructor() {
 				var instance = this;
 
 				if (instance._inputMirror) {
@@ -50,7 +50,7 @@ AUI.add(
 				}
 			},
 
-			_bindUIACTextarea: function() {
+			_bindUIACTextarea() {
 				var instance = this;
 
 				var inputNode = instance.get(STR_INPUT_NODE);
@@ -64,13 +64,13 @@ AUI.add(
 				];
 			},
 
-			_getACPositionBase: function() {
+			_getACPositionBase() {
 				var instance = this;
 
 				return instance.get(STR_INPUT_NODE).getXY();
 			},
 
-			_getACPositionOffset: function() {
+			_getACPositionOffset() {
 				var instance = this;
 
 				var inputNode = instance.get(STR_INPUT_NODE);
@@ -78,13 +78,13 @@ AUI.add(
 				return [0, Lang.toInt(inputNode.getStyle('fontSize'))];
 			},
 
-			_getACVal: function() {
+			_getACVal() {
 				var instance = this;
 
 				return instance.get(STR_INPUT_NODE).val();
 			},
 
-			_getPrevTrigger: function(content, position) {
+			_getPrevTrigger(content, position) {
 				var instance = this;
 
 				var result = -1;
@@ -110,7 +110,7 @@ AUI.add(
 				};
 			},
 
-			_getQuery: function(val) {
+			_getQuery(val) {
 				var instance = this;
 
 				var result = null;
@@ -147,7 +147,7 @@ AUI.add(
 				return result;
 			},
 
-			_onKeyUp: function(event) {
+			_onKeyUp(event) {
 				var instance = this;
 
 				var acVisible = instance.get('visible');
@@ -161,7 +161,7 @@ AUI.add(
 				}
 			},
 
-			_setACVal: function(text) {
+			_setACVal(text) {
 				var instance = this;
 
 				var inputNode = instance.get(STR_INPUT_NODE);
@@ -169,7 +169,7 @@ AUI.add(
 				inputNode.val(text);
 			},
 
-			_updateValue: function(text) {
+			_updateValue(text) {
 				var instance = this;
 
 				var caretIndex = instance._getCaretIndex();

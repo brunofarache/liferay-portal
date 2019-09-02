@@ -81,7 +81,7 @@ AUI.add(
 			NS: 'liferayalloyeditor',
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					var editorConfig = instance.get('editorConfig');
@@ -99,7 +99,7 @@ AUI.add(
 					instance._srcNode = srcNode;
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					instance._eventHandles = [
@@ -172,7 +172,7 @@ AUI.add(
 					}
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					var editor = instance._alloyEditor;
@@ -200,7 +200,7 @@ AUI.add(
 					window[instance.get('namespace')].instanceReady = false;
 				},
 
-				focus: function() {
+				focus() {
 					var instance = this;
 
 					if (instance.instanceReady) {
@@ -210,7 +210,7 @@ AUI.add(
 					}
 				},
 
-				getCkData: function() {
+				getCkData() {
 					var instance = this;
 
 					var data = instance.getNativeEditor().getData();
@@ -225,13 +225,13 @@ AUI.add(
 					return data;
 				},
 
-				getEditor: function() {
+				getEditor() {
 					var instance = this;
 
 					return instance._alloyEditor;
 				},
 
-				getHTML: function() {
+				getHTML() {
 					var instance = this;
 
 					return instance.get('textMode')
@@ -239,13 +239,13 @@ AUI.add(
 						: instance.getCkData();
 				},
 
-				getNativeEditor: function() {
+				getNativeEditor() {
 					var instance = this;
 
 					return instance._alloyEditor.get('nativeEditor');
 				},
 
-				getText: function() {
+				getText() {
 					var instance = this;
 
 					var editorName = instance.getNativeEditor().name;
@@ -261,7 +261,7 @@ AUI.add(
 					return text;
 				},
 
-				setHTML: function(value) {
+				setHTML(value) {
 					var instance = this;
 
 					if (instance.instanceReady) {
@@ -275,7 +275,7 @@ AUI.add(
 					}
 				},
 
-				_afterGet: function(attrName) {
+				_afterGet(attrName) {
 					var instance = this;
 
 					var alterReturn;
@@ -308,7 +308,7 @@ AUI.add(
 					return alterReturn;
 				},
 
-				_afterVal: function(value) {
+				_afterVal(value) {
 					var instance = this;
 
 					if (value) {
@@ -321,7 +321,7 @@ AUI.add(
 					);
 				},
 
-				_changeLocale: function(localeChange) {
+				_changeLocale(localeChange) {
 					var instance = this;
 
 					var nativeEditor = instance.getNativeEditor();
@@ -332,13 +332,13 @@ AUI.add(
 					editable.changeAttr('lang', localeChange.lang);
 				},
 
-				_getEditorMethod: function(method) {
+				_getEditorMethod(method) {
 					return Lang.isFunction(method)
 						? method
 						: window[method] || method;
 				},
 
-				_initializeData: function() {
+				_initializeData() {
 					var instance = this;
 
 					var contents = instance.get('contents');
@@ -360,7 +360,7 @@ AUI.add(
 					}
 				},
 
-				_onBlur: function(event) {
+				_onBlur(event) {
 					var instance = this;
 
 					var blurFn = instance.get('onBlurMethod');
@@ -370,7 +370,7 @@ AUI.add(
 					}
 				},
 
-				_onChange: function() {
+				_onChange() {
 					var instance = this;
 
 					var changeFn = instance.get('onChangeMethod');
@@ -380,7 +380,7 @@ AUI.add(
 					}
 				},
 
-				_onCustomDataProcessorLoaded: function() {
+				_onCustomDataProcessorLoaded() {
 					var instance = this;
 
 					instance.customDataProcessorLoaded = true;
@@ -390,7 +390,7 @@ AUI.add(
 					}
 				},
 
-				_onDataReady: function(event) {
+				_onDataReady(event) {
 					var instance = this;
 
 					if (instance._pendingData) {
@@ -404,7 +404,7 @@ AUI.add(
 					}
 				},
 
-				_onError: function(event) {
+				_onError(event) {
 					new Liferay.Notification({
 						closeable: true,
 						delay: {
@@ -418,7 +418,7 @@ AUI.add(
 					}).render();
 				},
 
-				_onFocus: function(event) {
+				_onFocus(event) {
 					var instance = this;
 
 					var focusFn = instance.get('onFocusMethod');
@@ -428,7 +428,7 @@ AUI.add(
 					}
 				},
 
-				_onFocusFix: function(activeElement, nativeEditor) {
+				_onFocusFix(activeElement, nativeEditor) {
 					var instance = this;
 
 					setTimeout(function() {
@@ -437,7 +437,7 @@ AUI.add(
 					}, 100);
 				},
 
-				_onInstanceReady: function() {
+				_onInstanceReady() {
 					var instance = this;
 
 					var editorNamespace = instance.get('namespace');
@@ -527,13 +527,13 @@ AUI.add(
 					}
 				},
 
-				_onKey: function(event) {
+				_onKey(event) {
 					if (event.data.keyCode === KEY_ENTER) {
 						event.cancel();
 					}
 				},
 
-				_onLocaleChangedHandler: function(event) {
+				_onLocaleChangedHandler(event) {
 					var instance = this;
 
 					var contentsLanguage = event.item.getAttribute(
@@ -554,13 +554,13 @@ AUI.add(
 					}
 				},
 
-				_onSetData: function(event) {
+				_onSetData(event) {
 					var instance = this;
 
 					instance._dataReady = false;
 				},
 
-				_validateEditorMethod: function(method) {
+				_validateEditorMethod(method) {
 					return Lang.isString(method) || Lang.isFunction(method);
 				}
 			}

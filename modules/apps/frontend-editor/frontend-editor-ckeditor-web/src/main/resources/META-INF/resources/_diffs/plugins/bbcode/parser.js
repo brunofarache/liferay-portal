@@ -69,7 +69,7 @@
 	Parser.prototype = {
 		constructor: Parser,
 
-		init: function() {
+		init() {
 			var instance = this;
 
 			var stack = [];
@@ -89,7 +89,7 @@
 			instance._dataPointer = 0;
 		},
 
-		parse: function(data) {
+		parse(data) {
 			var instance = this;
 
 			var lexer = new Liferay.BBCodeLexer(data);
@@ -134,7 +134,7 @@
 			return result;
 		},
 
-		_handleData: function(token, data) {
+		_handleData(token, data) {
 			var instance = this;
 
 			var length = data.length;
@@ -163,7 +163,7 @@
 			instance._dataPointer = lastIndex;
 		},
 
-		_handleTagEnd: function(token) {
+		_handleTagEnd(token) {
 			var instance = this;
 
 			var pos = 0;
@@ -202,7 +202,7 @@
 			}
 		},
 
-		_handleTagStart: function(token) {
+		_handleTagStart(token) {
 			var instance = this;
 
 			var tagName = token[1].toLowerCase();
@@ -238,7 +238,7 @@
 			}
 		},
 
-		_isValidTag: function(tagName) {
+		_isValidTag(tagName) {
 			var valid = false;
 
 			if (tagName && tagName.length) {
@@ -248,7 +248,7 @@
 			return valid;
 		},
 
-		_reset: function() {
+		_reset() {
 			var instance = this;
 
 			instance._stack.length = 0;

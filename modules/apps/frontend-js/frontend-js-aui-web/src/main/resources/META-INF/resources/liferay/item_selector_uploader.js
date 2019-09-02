@@ -43,12 +43,12 @@ AUI.add(
 
 			EXTENDS: A.Base,
 
-			NAME: NAME,
+			NAME,
 
 			NS: NAME,
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					var uploader = instance._getUploader();
@@ -79,7 +79,7 @@ AUI.add(
 					];
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					if (instance._uploader) {
@@ -93,7 +93,7 @@ AUI.add(
 					new A.EventHandle(instance._eventHandles).detach();
 				},
 
-				startUpload: function(file, url) {
+				startUpload(file, url) {
 					var instance = this;
 
 					file = new A.FileHTML5(file);
@@ -111,7 +111,7 @@ AUI.add(
 					instance.rootNode.addClass(CSS_UPLOADING);
 				},
 
-				_createProgressBar: function() {
+				_createProgressBar() {
 					var instance = this;
 
 					var rootNode = instance.rootNode;
@@ -132,7 +132,7 @@ AUI.add(
 					instance._progressBar = progressbar;
 				},
 
-				_getUploader: function() {
+				_getUploader() {
 					var instance = this;
 
 					var uploader = instance._uploader;
@@ -148,7 +148,7 @@ AUI.add(
 					return uploader;
 				},
 
-				_onCancel: function() {
+				_onCancel() {
 					var instance = this;
 
 					instance._currentFile.cancelUpload();
@@ -158,7 +158,7 @@ AUI.add(
 					instance.fire('itemUploadCancel');
 				},
 
-				_onUploadComplete: function(event) {
+				_onUploadComplete(event) {
 					var instance = this;
 
 					instance._stopProgress();
@@ -172,7 +172,7 @@ AUI.add(
 					instance.fire(eventName, data);
 				},
 
-				_onUploadError: function(event) {
+				_onUploadError(event) {
 					var instance = this;
 
 					event.target.cancelUpload();
@@ -182,7 +182,7 @@ AUI.add(
 					instance.fire('itemUploadError', event.details[0]);
 				},
 
-				_onUploadProgress: function(event) {
+				_onUploadProgress(event) {
 					var instance = this;
 
 					var percentLoaded = Math.round(event.percentLoaded);
@@ -193,7 +193,7 @@ AUI.add(
 					);
 				},
 
-				_stopProgress: function() {
+				_stopProgress() {
 					var instance = this;
 
 					instance._progressBar.set(STR_VALUE, 0);

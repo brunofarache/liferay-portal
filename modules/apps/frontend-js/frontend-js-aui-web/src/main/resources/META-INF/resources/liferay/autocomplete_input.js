@@ -51,7 +51,7 @@ AUI.add(
 			},
 
 			regExp: {
-				validator: function(newVal) {
+				validator(newVal) {
 					return Lang.isRegExp(newVal) || Lang.isString(newVal);
 				},
 				value: '(?:\\strigger|^trigger)(\\w[\\s\\w]*)'
@@ -74,7 +74,7 @@ AUI.add(
 		};
 
 		AutoCompleteInputBase.prototype = {
-			initializer: function() {
+			initializer() {
 				var instance = this;
 
 				instance
@@ -106,13 +106,13 @@ AUI.add(
 				);
 			},
 
-			destructor: function() {
+			destructor() {
 				var instance = this;
 
 				new A.EventHandle(instance._eventHandles).detach();
 			},
 
-			_acResultFormatter: function(query, results) {
+			_acResultFormatter(query, results) {
 				var instance = this;
 
 				var tplResults = instance.get('tplResults');
@@ -122,7 +122,7 @@ AUI.add(
 				});
 			},
 
-			_adjustACPosition: function() {
+			_adjustACPosition() {
 				var instance = this;
 
 				var xy = instance._getACPositionBase();
@@ -149,7 +149,7 @@ AUI.add(
 				instance.get('boundingBox').setXY(xy);
 			},
 
-			_afterACVisibleChange: function(event) {
+			_afterACVisibleChange(event) {
 				var instance = this;
 
 				if (event.newVal) {
@@ -159,7 +159,7 @@ AUI.add(
 				instance._uiSetVisible(event.newVal);
 			},
 
-			_bindUIACIBase: function() {
+			_bindUIACIBase() {
 				var instance = this;
 
 				instance.on('query', instance._onACQuery, instance);
@@ -171,7 +171,7 @@ AUI.add(
 				);
 			},
 
-			_defSelectFn: function(event) {
+			_defSelectFn(event) {
 				var instance = this;
 
 				var text = event.result.text;
@@ -193,7 +193,7 @@ AUI.add(
 				instance.hide();
 			},
 
-			_getRegExp: function() {
+			_getRegExp() {
 				var instance = this;
 
 				var regExp = instance.get('regExp');
@@ -210,7 +210,7 @@ AUI.add(
 				return regExp;
 			},
 
-			_getTriggers: function() {
+			_getTriggers() {
 				var instance = this;
 
 				if (!instance._triggers) {
@@ -230,7 +230,7 @@ AUI.add(
 				return instance._triggers;
 			},
 
-			_keyDown: function() {
+			_keyDown() {
 				var instance = this;
 
 				if (instance.get(STR_VISIBLE)) {
@@ -238,7 +238,7 @@ AUI.add(
 				}
 			},
 
-			_onACQuery: function(event) {
+			_onACQuery(event) {
 				var instance = this;
 
 				var input = instance._getQuery(event.query);
@@ -256,7 +256,7 @@ AUI.add(
 				}
 			},
 
-			_processKeyUp: function(query) {
+			_processKeyUp(query) {
 				var instance = this;
 
 				if (query) {
@@ -270,7 +270,7 @@ AUI.add(
 				}
 			},
 
-			_setTriggerConfig: function(trigger) {
+			_setTriggerConfig(trigger) {
 				var instance = this;
 
 				if (trigger !== instance._trigger) {
@@ -290,7 +290,7 @@ AUI.add(
 
 			_syncUIPosAlign: Lang.emptyFn,
 
-			_validateOffset: function(value) {
+			_validateOffset(value) {
 				return Array.isArray(value) || Lang.isNumber(value);
 			}
 		};

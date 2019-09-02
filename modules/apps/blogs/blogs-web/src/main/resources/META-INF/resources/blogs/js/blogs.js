@@ -82,7 +82,7 @@ AUI.add(
 			NS: 'liferay-blogs',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					instance._bindUI();
@@ -113,7 +113,7 @@ AUI.add(
 					);
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					if (instance._saveDraftTimer) {
@@ -123,7 +123,7 @@ AUI.add(
 					new A.EventHandle(instance._eventHandles).detach();
 				},
 
-				setDescription: function(text) {
+				setDescription(text) {
 					var instance = this;
 
 					var description = instance._customDescription;
@@ -158,7 +158,7 @@ AUI.add(
 					}
 				},
 
-				updateFriendlyURL: function(title) {
+				updateFriendlyURL(title) {
 					var instance = this;
 
 					var urlTitleInput = instance.one('#urlTitle');
@@ -178,7 +178,7 @@ AUI.add(
 					instance._originalFriendlyURLChanged = true;
 				},
 
-				_automaticURL: function() {
+				_automaticURL() {
 					return (
 						this.one('#urlOptions')
 							.one('input:checked')
@@ -186,7 +186,7 @@ AUI.add(
 					);
 				},
 
-				_beforePublishBtnClick: function(event) {
+				_beforePublishBtnClick(event) {
 					var instance = this;
 
 					var form = Liferay.Form.get(instance.ns('fm'));
@@ -200,7 +200,7 @@ AUI.add(
 					);
 				},
 
-				_beforeSaveBtnClick: function() {
+				_beforeSaveBtnClick() {
 					var instance = this;
 
 					var form = Liferay.Form.get(instance.ns('fm'));
@@ -208,7 +208,7 @@ AUI.add(
 					form.removeRule(instance.ns('titleEditor'), 'required');
 				},
 
-				_bindUI: function() {
+				_bindUI() {
 					var instance = this;
 
 					instance._captionNode = instance.one(
@@ -297,7 +297,7 @@ AUI.add(
 					instance._eventHandles = eventHandles;
 				},
 
-				_checkImagesBeforeSave: function(draft, ajax) {
+				_checkImagesBeforeSave(draft, ajax) {
 					var instance = this;
 
 					if (instance._hasTempImages()) {
@@ -317,7 +317,7 @@ AUI.add(
 					}
 				},
 
-				_configureAbstract: function(event) {
+				_configureAbstract(event) {
 					var instance = this;
 
 					var target = event.target;
@@ -339,7 +339,7 @@ AUI.add(
 					instance.setDescription(description);
 				},
 
-				_getContentImages: function(content) {
+				_getContentImages(content) {
 					var contentDom = document.createElement('div');
 
 					contentDom.innerHTML = content;
@@ -364,7 +364,7 @@ AUI.add(
 					return finalImages;
 				},
 
-				_getPrincipalForm: function(formName) {
+				_getPrincipalForm(formName) {
 					var instance = this;
 
 					return instance.one(
@@ -372,19 +372,19 @@ AUI.add(
 					);
 				},
 
-				_getTempImages: function() {
+				_getTempImages() {
 					var instance = this;
 
 					return instance.all('img[data-random-id]');
 				},
 
-				_hasTempImages: function() {
+				_hasTempImages() {
 					var instance = this;
 
 					return instance._getTempImages().size() > 0;
 				},
 
-				_initDraftSaveInterval: function() {
+				_initDraftSaveInterval() {
 					var instance = this;
 
 					instance._saveDraftTimer = A.later(
@@ -406,7 +406,7 @@ AUI.add(
 					instance._oldTitle = entry ? entry.title : STR_BLANK;
 				},
 
-				_onChangeURLOptions: function() {
+				_onChangeURLOptions() {
 					var instance = this;
 
 					var urlTitleInput = instance.one('#urlTitle');
@@ -437,7 +437,7 @@ AUI.add(
 					}
 				},
 
-				_removeCaption: function() {
+				_removeCaption() {
 					var instance = this;
 
 					var captionNode = instance._captionNode;
@@ -451,7 +451,7 @@ AUI.add(
 					);
 				},
 
-				_saveEntry: function(draft, ajax) {
+				_saveEntry(draft, ajax) {
 					var instance = this;
 
 					var constants = instance.get('constants');
@@ -501,8 +501,8 @@ AUI.add(
 									.one('#assetTagNames')
 									.val(),
 								cmd: constants.ADD,
-								content: content,
-								coverImageCaption: coverImageCaption,
+								content,
+								coverImageCaption,
 								coverImageFileEntryCropRegion: instance
 									.one('#coverImageFileEntryCropRegion')
 									.val(),
@@ -531,9 +531,9 @@ AUI.add(
 								referringPortletResource: instance
 									.one('#referringPortletResource')
 									.val(),
-								subtitle: subtitle,
-								title: title,
-								urlTitle: urlTitle,
+								subtitle,
+								title,
+								urlTitle,
 								workflowAction: constants.ACTION_SAVE_DRAFT
 							});
 
@@ -645,7 +645,7 @@ AUI.add(
 					}
 				},
 
-				_shorten: function(text) {
+				_shorten(text) {
 					var instance = this;
 
 					var descriptionLength = instance.get('descriptionLength');
@@ -668,7 +668,7 @@ AUI.add(
 					return text;
 				},
 
-				_showCaption: function() {
+				_showCaption() {
 					var instance = this;
 
 					var captionNode = instance._captionNode;
@@ -678,10 +678,7 @@ AUI.add(
 					}
 				},
 
-				_updateContentImages: function(
-					finalContent,
-					attributeDataImageId
-				) {
+				_updateContentImages(finalContent, attributeDataImageId) {
 					var instance = this;
 
 					var originalContent = window[
@@ -744,7 +741,7 @@ AUI.add(
 					}
 				},
 
-				_updateStatus: function(text) {
+				_updateStatus(text) {
 					var instance = this;
 
 					var saveStatus = instance.one('#saveStatus');

@@ -18,7 +18,7 @@
 	var usedModules = {};
 
 	var Dependency = {
-		provide: function(obj, methodName, methodFn, modules, proto) {
+		provide(obj, methodName, methodFn, modules, proto) {
 			if (!Array.isArray(modules)) {
 				modules = [modules];
 			}
@@ -111,13 +111,13 @@
 			obj[methodName] = proxy;
 		},
 
-		_getAOP: function(obj, methodName) {
+		_getAOP(obj, methodName) {
 			var instance = this;
 
 			return obj._yuiaop && obj._yuiaop[methodName];
 		},
 
-		_proxy: function(obj, methodName, methodFn, context, guid, modules, A) {
+		_proxy(obj, methodName, methodFn, context, guid, modules, A) {
 			var args;
 
 			var queue = Dependency._proxyLoaders[guid];
@@ -133,7 +133,7 @@
 			}
 		},
 
-		_replaceMethod: function(obj, methodName, methodFn, context) {
+		_replaceMethod(obj, methodName, methodFn, context) {
 			var instance = this;
 
 			var AOP = Dependency._getAOP(obj, methodName);

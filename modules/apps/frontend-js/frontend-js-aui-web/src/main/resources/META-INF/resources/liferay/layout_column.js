@@ -56,7 +56,7 @@ AUI.add(
 			prototype: {
 				dragItem: 0,
 
-				_positionNode: function(event) {
+				_positionNode(event) {
 					var instance = this;
 
 					var portalLayout = event.currentTarget;
@@ -81,7 +81,7 @@ AUI.add(
 					}
 				},
 
-				_syncProxyNodeSize: function() {
+				_syncProxyNodeSize() {
 					var instance = this;
 
 					var dragNode = DDM.activeDrag.get('dragNode');
@@ -97,18 +97,18 @@ AUI.add(
 				}
 			},
 
-			register: function() {
+			register() {
 				var columnLayoutDefaults = A.merge(
 					Layout.DEFAULT_LAYOUT_OPTIONS,
 					{
 						after: {
-							'drag:end': function(event) {
+							'drag:end'(event) {
 								Layout._columnContainer.removeClass(
 									CSS_DRAGGING
 								);
 							},
 
-							'drag:start': function(event) {
+							'drag:start'(event) {
 								var node = DDM.activeDrag.get('node');
 								var nodeId = node.get('id');
 
@@ -126,18 +126,18 @@ AUI.add(
 							}
 						},
 						on: {
-							'drag:start': function(event) {
+							'drag:start'(event) {
 								Liferay.fire('portletDragStart');
 							},
 
-							'drop:enter': function(event) {
+							'drop:enter'(event) {
 								Liferay.Layout.updateOverNestedPortletInfo();
 							},
 
-							'drop:exit': function(event) {
+							'drop:exit'(event) {
 								Liferay.Layout.updateOverNestedPortletInfo();
 							},
-							placeholderAlign: function(event) {
+							placeholderAlign(event) {
 								var portalLayout = event.currentTarget;
 
 								var activeDrop = portalLayout.activeDrop;

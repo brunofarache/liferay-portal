@@ -76,7 +76,7 @@ AUI.add(
 		A.mix(
 			Liferay.InputMoveBoxes.prototype,
 			{
-				renderUI: function() {
+				renderUI() {
 					var instance = this;
 
 					instance._contentBox = instance.get('contentBox');
@@ -98,7 +98,7 @@ AUI.add(
 					);
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					var dd = instance._sortable.delegate.dd;
@@ -127,7 +127,7 @@ AUI.add(
 					);
 				},
 
-				_afterDragStart: function(event) {
+				_afterDragStart(event) {
 					var instance = this;
 
 					var dragNode = event.target.get('dragNode');
@@ -135,7 +135,7 @@ AUI.add(
 					dragNode.addClass('move-option-dragging');
 				},
 
-				_afterDropHit: function(event) {
+				_afterDropHit(event) {
 					var instance = this;
 
 					var dragNode = event.drag.get(STR_NODE);
@@ -144,12 +144,12 @@ AUI.add(
 					var value = dragNode.attr('data-value');
 
 					instance._afterDropHitTask({
-						dropNode: dropNode,
-						value: value
+						dropNode,
+						value
 					});
 				},
 
-				_afterDropHitFn: function(event) {
+				_afterDropHitFn(event) {
 					var instance = this;
 
 					instance._syncSelectedSortList();
@@ -177,11 +177,11 @@ AUI.add(
 					instance._sortLeftBox(item, referenceNodeIndex);
 				},
 
-				_getOption: function(box, value) {
+				_getOption(box, value) {
 					return box.one('option[value="' + value + '"]');
 				},
 
-				_onCheckBoxChange: function(event) {
+				_onCheckBoxChange(event) {
 					var instance = this;
 
 					var currentTarget = event.currentTarget;
@@ -209,7 +209,7 @@ AUI.add(
 					instance._toggleMoveOption(currentTarget, option);
 				},
 
-				_onEditSelectionClick: function(event) {
+				_onEditSelectionClick(event) {
 					var instance = this;
 
 					var btn = event.currentTarget;
@@ -230,7 +230,7 @@ AUI.add(
 					sortableContainer.toggleClass(STR_SORT_LIST_ACTIVE);
 				},
 
-				_renderButtons: function() {
+				_renderButtons() {
 					var instance = this;
 
 					var buttonTpl = Lang.sub(TPL_EDIT_SELECTION, [
@@ -244,7 +244,7 @@ AUI.add(
 					);
 				},
 
-				_renderSortList: function() {
+				_renderSortList() {
 					var instance = this;
 
 					var options = instance._contentBox.all(
@@ -288,7 +288,7 @@ AUI.add(
 					instance._syncSelectedSortList();
 				},
 
-				_sortLeftBox: function(item, index) {
+				_sortLeftBox(item, index) {
 					var instance = this;
 
 					var leftBox = instance._leftBox;
@@ -298,7 +298,7 @@ AUI.add(
 					leftBox.insertBefore(item, referenceNode);
 				},
 
-				_syncSelectedSortList: function() {
+				_syncSelectedSortList() {
 					var instance = this;
 
 					instance._selectedSortList = instance._sortableContainer.all(
@@ -306,7 +306,7 @@ AUI.add(
 					);
 				},
 
-				_toggleMoveOption: function(checkbox, option) {
+				_toggleMoveOption(checkbox, option) {
 					var instance = this;
 
 					var moveOption = checkbox.ancestor(SELECTOR_MOVE_OPTION);

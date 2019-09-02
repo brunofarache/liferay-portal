@@ -25,7 +25,7 @@ AUI.add(
 			NS: 'zindex',
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -41,7 +41,7 @@ AUI.add(
 					});
 				},
 
-				_setHostZIndex: function() {
+				_setHostZIndex() {
 					var instance = this;
 
 					instance

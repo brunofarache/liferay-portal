@@ -41,7 +41,7 @@ AUI.add(
 			NAME: 'uadexport',
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					instance._renderTimer = A.later(
@@ -56,7 +56,7 @@ AUI.add(
 					);
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					if (instance._renderTimer) {
@@ -64,7 +64,7 @@ AUI.add(
 					}
 				},
 
-				_isBackgroundTaskInProgress: function() {
+				_isBackgroundTaskInProgress() {
 					var instance = this;
 
 					var exportProcessesNode = instance.get(
@@ -76,7 +76,7 @@ AUI.add(
 					);
 				},
 
-				_renderExportProcesses: function() {
+				_renderExportProcesses() {
 					var instance = this;
 
 					var exportProcessesNode = instance.get(
@@ -103,7 +103,7 @@ AUI.add(
 					}
 				},
 
-				_scheduleRenderProcess: function() {
+				_scheduleRenderProcess() {
 					var instance = this;
 
 					var renderInterval = RENDER_INTERVAL_IDLE;
@@ -119,7 +119,7 @@ AUI.add(
 					);
 				},
 
-				_setNode: function(val) {
+				_setNode(val) {
 					var instance = this;
 
 					if (isString(val)) {

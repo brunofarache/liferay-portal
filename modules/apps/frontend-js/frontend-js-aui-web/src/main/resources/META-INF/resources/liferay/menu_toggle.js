@@ -58,12 +58,12 @@ AUI.add(
 				}
 			},
 
-			NAME: NAME,
+			NAME,
 
 			NS: NAME,
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					var trigger = instance.get('trigger');
@@ -82,7 +82,7 @@ AUI.add(
 					instance._bindUI();
 				},
 
-				_addMenuFilter: function() {
+				_addMenuFilter() {
 					var instance = this;
 
 					var menuFilter = instance._menuFilter;
@@ -112,7 +112,7 @@ AUI.add(
 					}
 				},
 
-				_bindUI: function() {
+				_bindUI() {
 					var instance = this;
 
 					if (instance._triggerNode) {
@@ -132,7 +132,7 @@ AUI.add(
 					}
 				},
 
-				_createMenuFilter: function(menu, menuItems) {
+				_createMenuFilter(menu, menuItems) {
 					var instance = this;
 
 					var results = [];
@@ -143,7 +143,7 @@ AUI.add(
 								.one('.nav-item-label')
 								.text()
 								.trim(),
-							node: node
+							node
 						});
 					});
 
@@ -159,7 +159,7 @@ AUI.add(
 					return instance._menuFilter;
 				},
 
-				_getEventOutside: function(event) {
+				_getEventOutside(event) {
 					var eventOutside = event._event.type;
 
 					eventOutside = eventOutside.toLowerCase();
@@ -175,7 +175,7 @@ AUI.add(
 					return eventOutside;
 				},
 
-				_isContent: function(target) {
+				_isContent(target) {
 					var instance = this;
 
 					return instance._content.some(function(item, index) {
@@ -183,7 +183,7 @@ AUI.add(
 					});
 				},
 
-				_isTouchEvent: function(event) {
+				_isTouchEvent(event) {
 					var eventType = event._event.type;
 
 					var touchEvent =
@@ -192,7 +192,7 @@ AUI.add(
 					return touchEvent && Liferay.Util.isTablet();
 				},
 
-				_toggleContent: function(force) {
+				_toggleContent(force) {
 					var instance = this;
 
 					instance._content.toggleClass('open', force);
@@ -212,7 +212,7 @@ AUI.add(
 					}
 				},
 
-				_toggleMenu: function(event, target) {
+				_toggleMenu(event, target) {
 					var instance = this;
 
 					var open = !instance.get('open');
@@ -266,7 +266,7 @@ AUI.add(
 					}
 				},
 
-				_validateContent: function(value) {
+				_validateContent(value) {
 					var instance = this;
 
 					return (

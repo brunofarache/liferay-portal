@@ -16,7 +16,7 @@ AUI.add(
 	'liferay-product-navigation-control-menu',
 	function(A) {
 		var ControlMenu = {
-			init: function(containerId) {
+			init(containerId) {
 				var instance = this;
 
 				var controlMenu = A.one(containerId);

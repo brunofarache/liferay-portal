@@ -30,7 +30,7 @@ AUI.add(
 			NAME: 'layoutstreenoderadio',
 
 			prototype: {
-				renderUI: function() {
+				renderUI() {
 					var instance = this;
 
 					LayoutsTreeNodeRadio.superclass.renderUI.apply(
@@ -62,7 +62,7 @@ AUI.add(
 					instance.get('iconEl').remove();
 				},
 
-				_uiSetChecked: function(val) {
+				_uiSetChecked(val) {
 					var instance = this;
 
 					instance
@@ -71,7 +71,7 @@ AUI.add(
 						.attr('checked', val ? 'checked' : '');
 				},
 
-				_valueCheckEl: function() {
+				_valueCheckEl() {
 					var instance = this;
 
 					var checkName = instance.get('checkName');

@@ -48,7 +48,7 @@ AUI.add(
 			NAME: 'inline-editor-ckeditor',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					var editor = instance.get(EDITOR);
@@ -87,19 +87,19 @@ AUI.add(
 					);
 				},
 
-				isContentDirty: function() {
+				isContentDirty() {
 					var instance = this;
 
 					return instance.get(EDITOR).checkDirty();
 				},
 
-				resetDirty: function() {
+				resetDirty() {
 					var instance = this;
 
 					instance.get(EDITOR).resetDirty();
 				},
 
-				_attachScrollListener: function() {
+				_attachScrollListener() {
 					var instance = this;
 
 					var notice = instance.getEditNotice();
@@ -113,7 +113,7 @@ AUI.add(
 					}
 				},
 
-				_destructor: function() {
+				_destructor() {
 					var instance = this;
 
 					A.Array.invoke(instance._eventHandles, 'removeListener');
@@ -123,7 +123,7 @@ AUI.add(
 					}
 				},
 
-				_getAutoSaveTimeout: function() {
+				_getAutoSaveTimeout() {
 					var instance = this;
 
 					var editor = instance.get(EDITOR);
@@ -131,7 +131,7 @@ AUI.add(
 					return editor.config.autoSaveTimeout;
 				},
 
-				_getCloseNoticeTimeout: function() {
+				_getCloseNoticeTimeout() {
 					var instance = this;
 
 					var editor = instance.get(EDITOR);
@@ -139,7 +139,7 @@ AUI.add(
 					return editor.config.closeNoticeTimeout;
 				},
 
-				_onEditorBlur: function() {
+				_onEditorBlur() {
 					var instance = this;
 
 					instance.stopSaveTask();
@@ -149,7 +149,7 @@ AUI.add(
 					}
 				},
 
-				_onEditorFocus: function() {
+				_onEditorFocus() {
 					var instance = this;
 
 					var originalContentNode = A.one(
@@ -185,7 +185,7 @@ AUI.add(
 					instance.resetDirty();
 				},
 
-				_restoreContent: function() {
+				_restoreContent() {
 					var instance = this;
 
 					var originalContentNode = A.one(
@@ -203,7 +203,7 @@ AUI.add(
 					}
 				},
 
-				_updateNoticePosition: function() {
+				_updateNoticePosition() {
 					var instance = this;
 
 					var notice = instance.getEditNotice();

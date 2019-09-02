@@ -29,7 +29,7 @@ AUI.add(
 			NS: 'checkContentDisplayPage',
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -60,13 +60,13 @@ AUI.add(
 					host.get('boundingBox').addClass('lfr-tree-display-page');
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					new A.EventHandle(instance._eventHandles).detach();
 				},
 
-				_beforeClickNodeEl: function(event) {
+				_beforeClickNodeEl(event) {
 					var instance = this;
 					var result;
 
@@ -81,7 +81,7 @@ AUI.add(
 					return result;
 				},
 
-				_beforeFormatNodeLabel: function(node, cssClass, label, title) {
+				_beforeFormatNodeLabel(node, cssClass, label, title) {
 					var result;
 
 					if (!node.contentDisplayPage) {
@@ -103,7 +103,7 @@ AUI.add(
 					return result;
 				},
 
-				_formatRootNode: function(rootConfig, children) {
+				_formatRootNode(rootConfig, children) {
 					var instance = this;
 
 					return new A.Do.AlterReturn(
@@ -114,7 +114,7 @@ AUI.add(
 					);
 				},
 
-				_onTreeAppend: function(event) {
+				_onTreeAppend(event) {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);

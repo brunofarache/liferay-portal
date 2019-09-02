@@ -114,7 +114,7 @@ AUI.add(
 		};
 
 		Notice.prototype = {
-			close: function() {
+			close() {
 				var instance = this;
 
 				var notice = instance._notice;
@@ -128,7 +128,7 @@ AUI.add(
 				}
 			},
 
-			setClosing: function() {
+			setClosing() {
 				var instance = this;
 
 				var alerts = A.all('.popup-alert-notice, .popup-alert-warning');
@@ -146,7 +146,7 @@ AUI.add(
 				}
 			},
 
-			_addCloseButton: function(notice) {
+			_addCloseButton(notice) {
 				var instance = this;
 
 				var closeButton;
@@ -175,7 +175,7 @@ AUI.add(
 				}
 			},
 
-			_addToggleButton: function(notice) {
+			_addToggleButton(notice) {
 				var instance = this;
 
 				if (instance._useToggleButton) {
@@ -217,7 +217,7 @@ AUI.add(
 				}
 			},
 
-			_afterNoticeShow: function(event) {
+			_afterNoticeShow(event) {
 				var instance = this;
 
 				instance._preventHide();
@@ -265,7 +265,7 @@ AUI.add(
 				});
 			},
 
-			_beforeNoticeHide: function(event) {
+			_beforeNoticeHide(event) {
 				var instance = this;
 
 				var returnVal;
@@ -290,13 +290,13 @@ AUI.add(
 				return returnVal;
 			},
 
-			_beforeNoticeShow: function(event) {
+			_beforeNoticeShow(event) {
 				var instance = this;
 
 				instance._notice.toggle(true);
 			},
 
-			_createHTML: function() {
+			_createHTML() {
 				var instance = this;
 
 				var content = instance._content;
@@ -344,7 +344,7 @@ AUI.add(
 				instance._notice = notice;
 			},
 
-			_preventHide: function() {
+			_preventHide() {
 				var instance = this;
 
 				if (instance._hideHandle) {

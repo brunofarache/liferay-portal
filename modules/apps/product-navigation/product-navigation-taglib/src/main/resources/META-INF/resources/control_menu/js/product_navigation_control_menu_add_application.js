@@ -39,7 +39,7 @@ AUI.add(
 			NAME: 'addapplication',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					instance._config = config;
@@ -74,7 +74,7 @@ AUI.add(
 					instance._bindUI();
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					instance._panelSearch.destroy();
@@ -82,7 +82,7 @@ AUI.add(
 					new A.EventHandle(instance._eventHandles).detach();
 				},
 
-				_addApplication: function(event) {
+				_addApplication(event) {
 					var instance = this;
 
 					var portlet = event.currentTarget;
@@ -94,7 +94,7 @@ AUI.add(
 					instance.addPortlet(portlet);
 				},
 
-				_bindUI: function() {
+				_bindUI() {
 					var instance = this;
 
 					instance._eventHandles.push(
@@ -112,7 +112,7 @@ AUI.add(
 					);
 				},
 
-				_onPortletClose: function(event) {
+				_onPortletClose(event) {
 					var instance = this;
 
 					var item = instance._entriesPanel.one(

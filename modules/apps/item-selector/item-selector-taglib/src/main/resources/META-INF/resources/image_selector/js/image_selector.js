@@ -108,7 +108,7 @@ AUI.add(
 			NAME: 'imageselector',
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					instance._fileEntryImageNode = instance.one('#image');
@@ -132,7 +132,7 @@ AUI.add(
 					instance._renderUploader();
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					instance._uploader.destroy();
@@ -140,7 +140,7 @@ AUI.add(
 					new A.EventHandle(instance._eventHandles).detach();
 				},
 
-				_bindUI: function() {
+				_bindUI() {
 					var instance = this;
 
 					instance._updateImageDataFn = A.bind(
@@ -189,7 +189,7 @@ AUI.add(
 					];
 				},
 
-				_cancelTimer: function() {
+				_cancelTimer() {
 					var instance = this;
 
 					if (instance._timer) {
@@ -199,7 +199,7 @@ AUI.add(
 					}
 				},
 
-				_cancelUpload: function() {
+				_cancelUpload() {
 					var instance = this;
 
 					instance._uploader.queue.cancelUpload();
@@ -207,7 +207,7 @@ AUI.add(
 					instance._stopProgress();
 				},
 
-				_createProgressBar: function() {
+				_createProgressBar() {
 					var instance = this;
 
 					var progressBar = new A.ProgressBar({
@@ -218,7 +218,7 @@ AUI.add(
 					instance._progressBar = progressBar;
 				},
 
-				_defImageDataFn: function(event) {
+				_defImageDataFn(event) {
 					var instance = this;
 
 					var fileEntryId = event.imageData.fileEntryId;
@@ -259,12 +259,12 @@ AUI.add(
 					}
 				},
 
-				_onBrowseClick: function() {
+				_onBrowseClick() {
 					var instance = this;
 
 					var itemSelectorDialog = new A.LiferayItemSelectorDialog({
 						after: {
-							selectedItemChange: function(event) {
+							selectedItemChange(event) {
 								var selectedItem = event.newVal;
 
 								if (selectedItem) {
@@ -285,11 +285,11 @@ AUI.add(
 					instance._cancelTimer();
 				},
 
-				_onContentDragStart: function(event) {
+				_onContentDragStart(event) {
 					event.preventDefault();
 				},
 
-				_onDeleteClick: function(event) {
+				_onDeleteClick(event) {
 					var instance = this;
 
 					Liferay.fire(STR_IMAGE_DELETED, {
@@ -299,7 +299,7 @@ AUI.add(
 					instance._updateImageData(event);
 				},
 
-				_onFileSelect: function(event) {
+				_onFileSelect(event) {
 					var instance = this;
 
 					instance._cancelTimer();
@@ -340,7 +340,7 @@ AUI.add(
 					instance._uploader.uploadThese(event.fileList);
 				},
 
-				_onImageLoaded: function(event) {
+				_onImageLoaded(event) {
 					var instance = this;
 
 					event.preventDefault();
@@ -368,7 +368,7 @@ AUI.add(
 					}
 				},
 
-				_onUploadComplete: function(event) {
+				_onUploadComplete(event) {
 					var instance = this;
 
 					instance._uploadCompleted = true;
@@ -397,11 +397,11 @@ AUI.add(
 					}
 
 					Liferay.fire(fireEvent, {
-						imageData: imageData
+						imageData
 					});
 				},
 
-				_onUploadProgress: function(event) {
+				_onUploadProgress(event) {
 					var instance = this;
 
 					var progressBar = instance._progressBar;
@@ -453,7 +453,7 @@ AUI.add(
 					}
 				},
 
-				_onUploadStart: function() {
+				_onUploadStart() {
 					var instance = this;
 
 					instance.rootNode.addClass(CSS_PROGRESS_ACTIVE);
@@ -463,7 +463,7 @@ AUI.add(
 					instance._uploadCompleted = false;
 				},
 
-				_renderUploader: function() {
+				_renderUploader() {
 					var instance = this;
 
 					instance._uploader = new A.Uploader({
@@ -498,7 +498,7 @@ AUI.add(
 					instance._createProgressBar();
 				},
 
-				_showErrorMessage: function(event) {
+				_showErrorMessage(event) {
 					var instance = this;
 
 					instance._cancelTimer();
@@ -597,7 +597,7 @@ AUI.add(
 					browseImageControls.hide();
 				},
 
-				_showImagePreview: function(file) {
+				_showImagePreview(file) {
 					var instance = this;
 
 					if (A.config.win.FileReader) {
@@ -616,7 +616,7 @@ AUI.add(
 					}
 				},
 
-				_stopProgress: function(event) {
+				_stopProgress(event) {
 					var instance = this;
 
 					instance.rootNode.removeClass(CSS_PROGRESS_ACTIVE);
@@ -628,7 +628,7 @@ AUI.add(
 					}
 				},
 
-				_updateImageData: function(imageData) {
+				_updateImageData(imageData) {
 					var instance = this;
 
 					instance._errorNodeAlert.hide();

@@ -42,7 +42,7 @@ AUI.add(
 			ATTRS: {
 				aceOptions: {
 					validator: Lang.isObject,
-					valueFn: function() {
+					valueFn() {
 						var instance = this;
 
 						var aceEditor = instance.getEditor();
@@ -62,7 +62,7 @@ AUI.add(
 				},
 
 				height: {
-					validator: function(value) {
+					validator(value) {
 						return Lang.isString(value) || Lang.isNumber(value);
 					},
 					value: 'auto'
@@ -70,7 +70,7 @@ AUI.add(
 
 				themes: {
 					validator: Array.isArray,
-					valueFn: function() {
+					valueFn() {
 						return [
 							{
 								cssClass: '',
@@ -89,7 +89,7 @@ AUI.add(
 				},
 
 				width: {
-					validator: function(value) {
+					validator(value) {
 						return Lang.isString(value) || Lang.isNumber(value);
 					},
 					value: '100%'
@@ -107,7 +107,7 @@ AUI.add(
 			prototype: {
 				CONTENT_TEMPLATE: null,
 
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					var aceEditor = instance.getEditor();
@@ -124,7 +124,7 @@ AUI.add(
 					}
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					var updateActiveLineFn = A.bind(
@@ -145,7 +145,7 @@ AUI.add(
 					);
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					var aceEditor = instance.getEditor();
@@ -157,7 +157,7 @@ AUI.add(
 					new A.EventHandle(instance._eventHandles).detach();
 				},
 
-				getEditor: function() {
+				getEditor() {
 					var instance = this;
 
 					if (!instance.editor) {
@@ -183,7 +183,7 @@ AUI.add(
 					return instance.editor;
 				},
 
-				switchTheme: function(themeToSwitch) {
+				switchTheme(themeToSwitch) {
 					var instance = this;
 
 					var themes = instance.get(STR_THEMES);
@@ -212,14 +212,14 @@ AUI.add(
 					instance._currentThemeIndex = currentThemeIndex;
 
 					instance.fire('themeSwitched', {
-						currentThemeIndex: currentThemeIndex,
-						nextThemeIndex: nextThemeIndex,
-						prevThemeIndex: prevThemeIndex,
-						themes: themes
+						currentThemeIndex,
+						nextThemeIndex,
+						prevThemeIndex,
+						themes
 					});
 				},
 
-				_highlightActiveGutterLine: function(line) {
+				_highlightActiveGutterLine(line) {
 					var instance = this;
 
 					var session = instance.getSession();
@@ -236,7 +236,7 @@ AUI.add(
 					instance._currentLine = line;
 				},
 
-				_initializeThemes: function() {
+				_initializeThemes() {
 					var instance = this;
 
 					var themes = instance.get(STR_THEMES);
@@ -248,7 +248,7 @@ AUI.add(
 					}
 				},
 
-				_notifyEditorChange: function(data) {
+				_notifyEditorChange(data) {
 					var instance = this;
 
 					instance.fire('change', {
@@ -257,7 +257,7 @@ AUI.add(
 					});
 				},
 
-				_updateActiveLine: function() {
+				_updateActiveLine() {
 					var instance = this;
 
 					var line = instance.getEditor().getCursorPosition().row;

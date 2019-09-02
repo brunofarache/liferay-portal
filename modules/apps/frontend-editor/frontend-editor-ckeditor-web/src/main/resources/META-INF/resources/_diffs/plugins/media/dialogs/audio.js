@@ -114,13 +114,13 @@ CKEDITOR.dialog.add('audio', function(editor) {
 
 		title: Liferay.Language.get('audio-properties'),
 
-		onOk: function() {
+		onOk() {
 			var instance = this;
 
 			editor.plugins.media.onOkCallback(instance, editor, 'audio');
 		},
 
-		onShow: function() {
+		onShow() {
 			var instance = this;
 
 			editor.plugins.media.onShowCallback(instance, editor, 'audio');

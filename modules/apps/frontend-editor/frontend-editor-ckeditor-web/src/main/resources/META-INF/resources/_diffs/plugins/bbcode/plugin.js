@@ -14,7 +14,7 @@
 
 (function() {
 	var commandObject = {
-		exec: function(editor) {
+		exec(editor) {
 			editor.focus();
 			editor.fire('saveSnapshot');
 
@@ -47,7 +47,7 @@
 			}, 0);
 		},
 
-		refresh: function(editor, path) {
+		refresh(editor, path) {
 			var firstBlock = path.block || path.blockLimit;
 
 			var buttonState = CKEDITOR.TRISTATE_OFF;
@@ -65,7 +65,7 @@
 	};
 
 	CKEDITOR.plugins.add('bbcode', {
-		init: function(editor) {
+		init(editor) {
 			var instance = this;
 
 			var path = instance.path;

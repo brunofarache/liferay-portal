@@ -49,7 +49,7 @@ AUI.add(
 		var SimpleColorPicker = A.Component.create({
 			ATTRS: {
 				color: {
-					setter: function(val) {
+					setter(val) {
 						return val.toUpperCase();
 					},
 					validator: Lang.isString,
@@ -61,7 +61,7 @@ AUI.add(
 				},
 
 				pallete: {
-					setter: function(val) {
+					setter(val) {
 						return AArray.invoke(val, 'toUpperCase');
 					},
 					validator: Lang.isArray,
@@ -99,13 +99,13 @@ AUI.add(
 			UI_ATTRS: ['color', 'pallete'],
 
 			prototype: {
-				renderUI: function() {
+				renderUI() {
 					var instance = this;
 
 					instance._renderPallete();
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					var contentBox = instance.get('contentBox');
@@ -118,7 +118,7 @@ AUI.add(
 					);
 				},
 
-				_onClickColor: function(event) {
+				_onClickColor(event) {
 					var instance = this;
 
 					var pallete = instance.get('pallete');
@@ -129,7 +129,7 @@ AUI.add(
 					);
 				},
 
-				_renderPallete: function() {
+				_renderPallete() {
 					var instance = this;
 
 					instance.items = A.NodeList.create(
@@ -141,7 +141,7 @@ AUI.add(
 					instance.get('contentBox').setContent(instance.items);
 				},
 
-				_uiSetColor: function(val) {
+				_uiSetColor(val) {
 					var instance = this;
 
 					var pallete = instance.get('pallete');
@@ -157,7 +157,7 @@ AUI.add(
 					}
 				},
 
-				_uiSetPallete: function(val) {
+				_uiSetPallete(val) {
 					var instance = this;
 
 					if (instance.get('rendered')) {

@@ -71,7 +71,7 @@ AUI.add(
 			EXTENDS: A.Base,
 			NAME: 'liferaysession',
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					instance._cookieOptions = {
@@ -88,7 +88,7 @@ AUI.add(
 					instance._startTimer();
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					new A.EventHandle(instance._eventHandlers).detach();
@@ -96,19 +96,19 @@ AUI.add(
 					instance._stopTimer();
 				},
 
-				expire: function() {
+				expire() {
 					var instance = this;
 
 					instance.set('sessionState', 'expired', SRC_EVENT_OBJ);
 				},
 
-				extend: function() {
+				extend() {
 					var instance = this;
 
 					instance.set('sessionState', 'active', SRC_EVENT_OBJ);
 				},
 
-				registerInterval: function(fn) {
+				registerInterval(fn) {
 					var instance = this;
 
 					var fnId;
@@ -123,14 +123,14 @@ AUI.add(
 					return fnId;
 				},
 
-				resetInterval: function() {
+				resetInterval() {
 					var instance = this;
 
 					instance._stopTimer();
 					instance._startTimer();
 				},
 
-				unregisterInterval: function(fnId) {
+				unregisterInterval(fnId) {
 					var instance = this;
 
 					var registered = instance._registered;
@@ -142,13 +142,13 @@ AUI.add(
 					return fnId;
 				},
 
-				warn: function() {
+				warn() {
 					var instance = this;
 
 					instance.set('sessionState', 'warned', SRC_EVENT_OBJ);
 				},
 
-				_afterSessionStateChange: function(event) {
+				_afterSessionStateChange(event) {
 					var instance = this;
 
 					var details = event.details;
@@ -166,7 +166,7 @@ AUI.add(
 					);
 				},
 
-				_defActivatedFn: function(event) {
+				_defActivatedFn(event) {
 					var instance = this;
 
 					instance.set('timestamp');
@@ -176,7 +176,7 @@ AUI.add(
 					}
 				},
 
-				_defExpiredFn: function(event) {
+				_defExpiredFn(event) {
 					var instance = this;
 
 					A.clearInterval(instance._intervalId);
@@ -188,7 +188,7 @@ AUI.add(
 					}
 				},
 
-				_expireSession: function() {
+				_expireSession() {
 					var instance = this;
 
 					Liferay.Util.fetch(URL_BASE + 'expire_session').then(
@@ -208,13 +208,13 @@ AUI.add(
 					);
 				},
 
-				_getLengthInMillis: function(value) {
+				_getLengthInMillis(value) {
 					var instance = this;
 
 					return value * 1000;
 				},
 
-				_getTimestamp: function(value) {
+				_getTimestamp(value) {
 					var instance = this;
 
 					return (
@@ -225,7 +225,7 @@ AUI.add(
 					);
 				},
 
-				_getWarningTime: function() {
+				_getWarningTime() {
 					var instance = this;
 
 					return (
@@ -234,7 +234,7 @@ AUI.add(
 					);
 				},
 
-				_initEvents: function() {
+				_initEvents() {
 					var instance = this;
 
 					instance.publish('activated', {
@@ -275,7 +275,7 @@ AUI.add(
 					];
 				},
 
-				_onSessionStateChange: function(event) {
+				_onSessionStateChange(event) {
 					var instance = this;
 
 					var newVal = event.newVal;
@@ -288,7 +288,7 @@ AUI.add(
 					}
 				},
 
-				_setTimestamp: function(value) {
+				_setTimestamp(value) {
 					var instance = this;
 
 					value = String(value || Date.now());
@@ -304,13 +304,13 @@ AUI.add(
 					}
 				},
 
-				_setWarningLength: function(value) {
+				_setWarningLength(value) {
 					var instance = this;
 
 					return Math.min(instance.get('sessionLength'), value);
 				},
 
-				_startTimer: function() {
+				_startTimer() {
 					var instance = this;
 
 					var sessionLength = instance.get('sessionLength');
@@ -403,7 +403,7 @@ AUI.add(
 					}, interval);
 				},
 
-				_stopTimer: function() {
+				_stopTimer() {
 					var instance = this;
 
 					A.clearInterval(instance._intervalId);
@@ -425,7 +425,7 @@ AUI.add(
 			NAME: 'liferaysessiondisplay',
 			NS: 'display',
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					var host = instance.get('host');
@@ -475,7 +475,7 @@ AUI.add(
 					}
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					if (instance._banner) {
@@ -483,13 +483,13 @@ AUI.add(
 					}
 				},
 
-				_afterDefActivatedFn: function(event) {
+				_afterDefActivatedFn(event) {
 					var instance = this;
 
 					instance._uiSetActivated();
 				},
 
-				_afterDefExpiredFn: function(event) {
+				_afterDefExpiredFn(event) {
 					var instance = this;
 
 					instance._host.unregisterInterval(instance._intervalId);
@@ -497,7 +497,7 @@ AUI.add(
 					instance._uiSetExpired();
 				},
 
-				_beforeHostWarned: function(event) {
+				_beforeHostWarned(event) {
 					var instance = this;
 
 					var host = instance._host;
@@ -565,7 +565,7 @@ AUI.add(
 					});
 				},
 
-				_destroyBanner: function() {
+				_destroyBanner() {
 					var instance = this;
 
 					instance._banner = false;
@@ -579,13 +579,13 @@ AUI.add(
 					}
 				},
 
-				_formatNumber: function(value) {
+				_formatNumber(value) {
 					var instance = this;
 
 					return Lang.String.padNumber(Math.floor(value), 2);
 				},
 
-				_formatTime: function(time) {
+				_formatTime(time) {
 					var instance = this;
 
 					time = Number(time);
@@ -611,7 +611,7 @@ AUI.add(
 					return time;
 				},
 
-				_getBanner: function() {
+				_getBanner() {
 					var instance = this;
 
 					var banner = instance._banner;
@@ -626,7 +626,7 @@ AUI.add(
 							duration: 500,
 							message: instance._warningText,
 							on: {
-								click: function(event) {
+								click(event) {
 									if (
 										event.domEvent.target.test(
 											'.alert-link'
@@ -652,7 +652,7 @@ AUI.add(
 					return banner;
 				},
 
-				_onHostSessionStateChange: function(event) {
+				_onHostSessionStateChange(event) {
 					var instance = this;
 
 					if (event.newVal == 'warned') {
@@ -660,7 +660,7 @@ AUI.add(
 					}
 				},
 
-				_uiSetActivated: function() {
+				_uiSetActivated() {
 					var instance = this;
 
 					DOC.title = instance.reset('pageTitle').get('pageTitle');
@@ -674,7 +674,7 @@ AUI.add(
 					}
 				},
 
-				_uiSetExpired: function() {
+				_uiSetExpired() {
 					var instance = this;
 
 					var banner = instance._getBanner();
@@ -688,7 +688,7 @@ AUI.add(
 					DOC.title = instance.get('pageTitle');
 				},
 
-				_uiSetRemainingTime: function(remainingTime) {
+				_uiSetRemainingTime(remainingTime) {
 					var instance = this;
 
 					remainingTime = instance._formatTime(remainingTime);

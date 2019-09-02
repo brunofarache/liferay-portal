@@ -34,7 +34,7 @@
 
 		TPL_SCRIPT_SUFFIX_END: '}' + ');',
 
-		init: function(editor) {
+		init(editor) {
 			var instance = this;
 
 			CKEDITOR.dialog.add('audio', instance.path + 'dialogs/audio.js');
@@ -112,7 +112,7 @@
 			editor.lang.fakeobjects.video = Liferay.Language.get('video');
 		},
 
-		afterInit: function(editor) {
+		afterInit(editor) {
 			var dataProcessor = editor.dataProcessor;
 
 			var dataFilter = dataProcessor && dataProcessor.dataFilter;
@@ -121,7 +121,7 @@
 			if (dataFilter) {
 				dataFilter.addRules({
 					elements: {
-						div: function(realElement) {
+						div(realElement) {
 							var attributeClass =
 								realElement.attributes['class'];
 
@@ -220,7 +220,7 @@
 			if (htmlFilter) {
 				htmlFilter.addRules({
 					elements: {
-						div: function(realElement) {
+						div(realElement) {
 							var attributeClass =
 								realElement.attributes['class'];
 
@@ -248,11 +248,11 @@
 			}
 		},
 
-		applyMediaScript: function(mediaNode, dialog, configText) {
+		applyMediaScript(mediaNode, dialog, configText) {
 			var instance = this;
 
 			var dialogReplace = {
-				dialog: dialog
+				dialog
 			};
 
 			var mediaAUI = 'Audio';
@@ -278,7 +278,7 @@
 			);
 
 			var textScriptRender = scriptRender.output({
-				mediaAUI: mediaAUI
+				mediaAUI
 			});
 
 			instance.replaceScriptContent(
@@ -294,7 +294,7 @@
 			);
 		},
 
-		createDivStructure: function(editor, containerClass, boundingBoxClass) {
+		createDivStructure(editor, containerClass, boundingBoxClass) {
 			var divNode = editor.document.createElement(STR_DIV);
 
 			divNode.setAttribute('class', containerClass);
@@ -313,7 +313,7 @@
 			return divNode;
 		},
 
-		getPlaceholderCss: function() {
+		getPlaceholderCss() {
 			var instance = this;
 
 			return (
@@ -338,11 +338,11 @@
 			);
 		},
 
-		hasClass: function(attributeClass, target) {
+		hasClass(attributeClass, target) {
 			return attributeClass && attributeClass.indexOf(target) != -1;
 		},
 
-		isElementType: function(el, type) {
+		isElementType(el, type) {
 			var instance = this;
 
 			return (
@@ -350,7 +350,7 @@
 			);
 		},
 
-		onLoad: function() {
+		onLoad() {
 			var instance = this;
 
 			if (CKEDITOR.addCss) {
@@ -358,7 +358,7 @@
 			}
 		},
 
-		onOkCallback: function(callerInstance, editor, dialog) {
+		onOkCallback(callerInstance, editor, dialog) {
 			var instance = this;
 
 			var extraStyles = {};
@@ -411,7 +411,7 @@
 			}
 		},
 
-		onShowCallback: function(instance, editor, dialog) {
+		onShowCallback(instance, editor, dialog) {
 			instance.fakeImage = null;
 
 			var fakeImage = instance.getSelectedElement();
@@ -419,7 +419,7 @@
 			this.restoreElement(editor, instance, fakeImage, dialog);
 		},
 
-		replaceScriptContent: function(divNode, scriptContent) {
+		replaceScriptContent(divNode, scriptContent) {
 			if (divNode.getChildCount() == 2) {
 				var scriptTmp = null;
 
@@ -439,7 +439,7 @@
 			}
 		},
 
-		restoreElement: function(editor, instance, fakeImage, type) {
+		restoreElement(editor, instance, fakeImage, type) {
 			var content = null;
 
 			if (

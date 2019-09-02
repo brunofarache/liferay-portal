@@ -117,7 +117,7 @@ AUI.add(
 					pathThemeImages: themeDisplay.getPathThemeImages()
 				}),
 
-				renderUI: function() {
+				renderUI() {
 					var instance = this;
 
 					var boundingBox = instance.get(STR_BOUNDING_BOX);
@@ -136,7 +136,7 @@ AUI.add(
 						height: '100%',
 						mode: 'html',
 						on: {
-							themeSwitched: function(event) {
+							themeSwitched(event) {
 								var editorSwitchTheme =
 									instance._editorSwitchTheme;
 
@@ -166,7 +166,7 @@ AUI.add(
 					);
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					var boundingBox = instance.get(STR_BOUNDING_BOX);
@@ -205,7 +205,7 @@ AUI.add(
 					];
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					var sourceEditor = instance._editor;
@@ -217,13 +217,13 @@ AUI.add(
 					new A.EventHandle(instance._eventHandles).detach();
 				},
 
-				resizeEditor: function() {
+				resizeEditor() {
 					var instance = this;
 
 					instance._editor.getEditor().resize();
 				},
 
-				_getHtml: function(val) {
+				_getHtml(val) {
 					var instance = this;
 
 					var dataProcessor = instance.get('dataProcessor');
@@ -235,7 +235,7 @@ AUI.add(
 					return val;
 				},
 
-				_getValue: function(val) {
+				_getValue(val) {
 					var instance = this;
 
 					return instance._editor
@@ -243,7 +243,7 @@ AUI.add(
 						: val;
 				},
 
-				_onEditorChange: function(event) {
+				_onEditorChange(event) {
 					var instance = this;
 
 					instance._previewPanel.html(
@@ -251,7 +251,7 @@ AUI.add(
 					);
 				},
 
-				_onLayoutChange: function(event) {
+				_onLayoutChange(event) {
 					var instance = this;
 
 					instance
@@ -262,7 +262,7 @@ AUI.add(
 					instance.resizeEditor();
 				},
 
-				_onLayoutClick: function(event) {
+				_onLayoutClick(event) {
 					var instance = this;
 
 					instance.set(
@@ -271,17 +271,17 @@ AUI.add(
 					);
 				},
 
-				_onPreviewLink: function(event) {
+				_onPreviewLink(event) {
 					event.currentTarget.attr('target', '_blank');
 				},
 
-				_onValueChange: function(event) {
+				_onValueChange(event) {
 					var instance = this;
 
 					instance._editor.set(STR_VALUE, event.newVal);
 				},
 
-				_switchTheme: function(event) {
+				_switchTheme(event) {
 					var instance = this;
 
 					instance._editor.switchTheme();

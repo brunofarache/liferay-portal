@@ -36,7 +36,7 @@ AUI.add(
 			ATTRS: {
 				navBlock: {
 					lazyAdd: false,
-					setter: function(value) {
+					setter(value) {
 						var instance = this;
 
 						value = A.one(value);
@@ -56,7 +56,7 @@ AUI.add(
 			NAME: 'navigation',
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					var navBlock = instance.get('navBlock');
@@ -90,7 +90,7 @@ AUI.add(
 					}
 				},
 
-				_createTempTab: function(tpl) {
+				_createTempTab(tpl) {
 					var instance = this;
 
 					var tempLink = Lang.sub(tpl, {

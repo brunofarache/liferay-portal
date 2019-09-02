@@ -26,13 +26,13 @@
 
 		readyCounter: 0,
 
-		destroyComponents: function(portletId) {
+		destroyComponents(portletId) {
 			Liferay.destroyComponents(function(component, componentConfig) {
 				return portletId === componentConfig.portletId;
 			});
 		},
 
-		isStatic: function(portletId) {
+		isStatic(portletId) {
 			var instance = this;
 
 			var id = Util.getPortletId(portletId.id || portletId);
@@ -40,9 +40,9 @@
 			return id in instance._staticPortlets;
 		},
 
-		refreshLayout: function(portletBoundary) {},
+		refreshLayout(portletBoundary) {},
 
-		register: function(portletId) {
+		register(portletId) {
 			var instance = this;
 
 			if (instance.list.indexOf(portletId) < 0) {
@@ -50,7 +50,7 @@
 			}
 		},
 
-		_defCloseFn: function(event) {
+		_defCloseFn(event) {
 			var instance = this;
 
 			event.portlet.remove(true);
@@ -79,7 +79,7 @@
 			}
 		},
 
-		_loadMarkupHeadElements: function(response, loadHTML) {
+		_loadMarkupHeadElements(response, loadHTML) {
 			var markupHeadElements = response.markupHeadElements;
 
 			if (markupHeadElements && markupHeadElements.length) {
@@ -95,7 +95,7 @@
 			}
 		},
 
-		_loadPortletFiles: function(response, loadHTML) {
+		_loadPortletFiles(response, loadHTML) {
 			var footerCssPaths = response.footerCssPaths || [];
 			var headerCssPaths = response.headerCssPaths || [];
 
@@ -127,7 +127,7 @@
 
 			if (javascriptPaths.length) {
 				A.Get.script(javascriptPaths, {
-					onEnd: function(obj) {
+					onEnd(obj) {
 						loadHTML(responseHTML);
 					}
 				});
@@ -136,7 +136,7 @@
 			}
 		},
 
-		_mergeOptions: function(portlet, options) {
+		_mergeOptions(portlet, options) {
 			options = options || {};
 
 			options.doAsUserId =
@@ -191,7 +191,7 @@
 				}
 
 				Liferay.fire('addPortlet', {
-					portlet: portlet
+					portlet
 				});
 			};
 
@@ -252,7 +252,7 @@
 			var data = {
 				cmd: 'add',
 				dataType: 'JSON',
-				doAsUserId: doAsUserId,
+				doAsUserId,
 				p_auth: Liferay.authToken,
 				p_l_id: plid,
 				p_p_col_id: currentColumnId,
@@ -261,7 +261,7 @@
 				p_p_id: portletId,
 				p_p_isolated: true,
 				p_v_l_s_g_id: themeDisplay.getSiteGroupId(),
-				portletData: portletData
+				portletData
 			};
 
 			var firstPortlet = container.one('.portlet-boundary');
@@ -278,11 +278,11 @@
 			data.currentURL = Liferay.currentURL;
 
 			instance.addHTML({
-				beforePortletLoaded: beforePortletLoaded,
-				data: data,
-				onComplete: onComplete,
-				placeHolder: placeHolder,
-				url: url
+				beforePortletLoaded,
+				data,
+				onComplete,
+				placeHolder,
+				url
 			});
 		},
 		['aui-base']
@@ -526,7 +526,7 @@
 
 					var formData = Liferay.Util.objectToFormData({
 						cmd: 'minimize',
-						doAsUserId: doAsUserId,
+						doAsUserId,
 						p_auth: Liferay.authToken,
 						p_l_id: plid,
 						p_p_id: portlet.portletId,
@@ -543,7 +543,7 @@
 					).then(response => {
 						if (response.ok && restore) {
 							var data = {
-								doAsUserId: doAsUserId,
+								doAsUserId,
 								p_l_id: plid,
 								p_p_boundary: false,
 								p_p_id: portlet.portletId,
@@ -609,7 +609,7 @@
 							doAsUserId: themeDisplay.getDoAsUserIdEncoded(),
 							obj: portlet,
 							plid: themeDisplay.getPlid(),
-							portletId: portletId
+							portletId
 						});
 
 						handle.detach();
@@ -618,15 +618,15 @@
 			}
 
 			Liferay.fire('portletReady', {
-				portlet: portlet,
-				portletId: portletId
+				portlet,
+				portletId
 			});
 
 			instance.readyCounter++;
 
 			if (instance.readyCounter === instance.list.length) {
 				Liferay.fire('allPortletsReady', {
-					portletId: portletId
+					portletId
 				});
 			}
 		},
@@ -677,7 +677,7 @@
 
 					instance.addHTML({
 						data: A.mix(params, data, true),
-						onComplete: function(portlet, portletId) {
+						onComplete(portlet, portletId) {
 							portlet.refreshURL = url;
 
 							if (portlet) {
@@ -687,13 +687,13 @@
 							Liferay.fire(
 								portlet.portletId + ':portletRefreshed',
 								{
-									portlet: portlet,
-									portletId: portletId
+									portlet,
+									portletId
 								}
 							);
 						},
-						placeHolder: placeHolder,
-						url: url
+						placeHolder,
+						url
 					});
 				} else if (!portlet.getData('pendingRefresh')) {
 					portlet.setData('pendingRefresh', true);
@@ -783,16 +783,16 @@
 					{
 						cache: false,
 						dialog: {
-							destroyOnHide: destroyOnHide
+							destroyOnHide
 						},
 						dialogIframe: {
-							bodyCssClass: bodyCssClass,
+							bodyCssClass,
 							id: namespace + 'configurationIframe',
-							uri: uri
+							uri
 						},
 						id: namespace + 'configurationIframeDialog',
 						title: titleHtml,
-						uri: uri
+						uri
 					},
 					function(dialog) {
 						dialog.once('drag:init', function() {

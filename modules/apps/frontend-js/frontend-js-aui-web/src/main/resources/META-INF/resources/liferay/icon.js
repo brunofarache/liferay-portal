@@ -25,7 +25,7 @@ AUI.add(
 		var _ICON_REGISTRY = {};
 
 		var Icon = {
-			register: function(config) {
+			register(config) {
 				var instance = this;
 
 				var doc = A.one(A.config.doc);
@@ -56,7 +56,7 @@ AUI.add(
 				});
 			},
 
-			_forcePost: function(event) {
+			_forcePost(event) {
 				var instance = this;
 
 				if (!Liferay.SPA || !Liferay.SPA.app) {
@@ -66,13 +66,13 @@ AUI.add(
 				}
 			},
 
-			_getConfig: function(event) {
+			_getConfig(event) {
 				var instance = this;
 
 				return _ICON_REGISTRY[event.currentTarget.attr('id')];
 			},
 
-			_handleDocClick: function(event) {
+			_handleDocClick(event) {
 				var instance = this;
 
 				var config = instance._getConfig(event);
@@ -88,7 +88,7 @@ AUI.add(
 				}
 			},
 
-			_handleDocMouseOut: function(event) {
+			_handleDocMouseOut(event) {
 				var instance = this;
 
 				var config = instance._getConfig(event);
@@ -98,7 +98,7 @@ AUI.add(
 				}
 			},
 
-			_handleDocMouseOver: function(event) {
+			_handleDocMouseOver(event) {
 				var instance = this;
 
 				var config = instance._getConfig(event);
@@ -108,7 +108,7 @@ AUI.add(
 				}
 			},
 
-			_onMouseHover: function(event, src) {
+			_onMouseHover(event, src) {
 				var instance = this;
 
 				var img = event.currentTarget.one('img');
@@ -118,7 +118,7 @@ AUI.add(
 				}
 			},
 
-			_useDialog: function(event) {
+			_useDialog(event) {
 				Liferay.Util.openInDialog(event, {
 					dialog: {
 						destroyOnHide: true

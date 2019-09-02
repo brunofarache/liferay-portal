@@ -52,7 +52,7 @@ AUI.add(
 			NAME: 'restoreentry',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					instance._eventCheckEntry = instance.ns('checkEntry');
@@ -70,19 +70,19 @@ AUI.add(
 					instance._eventHandles = eventHandles;
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					A.Array.invoke(instance._eventHandles, 'detach');
 				},
 
-				_afterCheckEntryFailure: function(uri) {
+				_afterCheckEntryFailure(uri) {
 					var instance = this;
 
 					submitForm(instance._hrefFm, uri);
 				},
 
-				_afterCheckEntrySuccess: function(response, uri) {
+				_afterCheckEntrySuccess(response, uri) {
 					var instance = this;
 
 					if (response.success) {
@@ -102,13 +102,13 @@ AUI.add(
 					}
 				},
 
-				_afterPopupCheckEntryFailure: function(form) {
+				_afterPopupCheckEntryFailure(form) {
 					var instance = this;
 
 					submitForm(form);
 				},
 
-				_afterPopupCheckEntrySuccess: function(response, form) {
+				_afterPopupCheckEntrySuccess(response, form) {
 					var instance = this;
 
 					if (response.success) {
@@ -146,7 +146,7 @@ AUI.add(
 					}
 				},
 
-				_checkEntry: function(event) {
+				_checkEntry(event) {
 					var instance = this;
 
 					var uri = event.uri;
@@ -168,7 +168,7 @@ AUI.add(
 						});
 				},
 
-				_getPopup: function() {
+				_getPopup() {
 					var instance = this;
 
 					var popup = instance._popup;
@@ -197,7 +197,7 @@ AUI.add(
 					return popup;
 				},
 
-				_initializeRestorePopup: function() {
+				_initializeRestorePopup() {
 					var instance = this;
 
 					var restoreTrashEntryFm = instance.byId(
@@ -234,7 +234,7 @@ AUI.add(
 					});
 				},
 
-				_onRestoreTrashEntryFmSubmit: function(event, form) {
+				_onRestoreTrashEntryFmSubmit(event, form) {
 					var instance = this;
 
 					var newName = instance.byId('newName');
@@ -271,7 +271,7 @@ AUI.add(
 					}
 				},
 
-				_showPopup: function(data, uri) {
+				_showPopup(data, uri) {
 					var instance = this;
 
 					var popup = instance._getPopup();

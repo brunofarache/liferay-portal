@@ -66,7 +66,7 @@ AUI.add(
 				},
 
 				strings: {
-					setter: function(value) {
+					setter(value) {
 						return A.merge(value, {
 							items: Liferay.Language.get('items'),
 							next: Liferay.Language.get('next'),
@@ -89,7 +89,7 @@ AUI.add(
 
 			EXTENDS: A.Pagination,
 
-			NAME: NAME,
+			NAME,
 
 			prototype: {
 				TPL_CONTAINER:
@@ -119,7 +119,7 @@ AUI.add(
 				TPL_RESULTS:
 					'<small class="search-results" id="{id}">{value}</small>',
 
-				renderUI: function() {
+				renderUI() {
 					var instance = this;
 
 					Pagination.superclass.renderUI.apply(instance, arguments);
@@ -177,7 +177,7 @@ AUI.add(
 							return Lang.sub(instance.TPL_ITEM, {
 								idLi: namespace + 'itemLiId' + index,
 								idLink: namespace + 'itemLinkId' + index,
-								index: index,
+								index,
 								value: item
 							});
 						});
@@ -208,7 +208,7 @@ AUI.add(
 					Liferay.Menu.register(deltaSelectorId);
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					Pagination.superclass.bindUI.apply(instance, arguments);
@@ -239,19 +239,19 @@ AUI.add(
 					);
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					new A.EventHandle(instance._eventHandles).detach();
 				},
 
-				_afterResultsChange: function(event) {
+				_afterResultsChange(event) {
 					var instance = this;
 
 					instance._syncResults();
 				},
 
-				_dispatchRequest: function(state) {
+				_dispatchRequest(state) {
 					var instance = this;
 
 					if (!state.hasOwnProperty(ITEMS_PER_PAGE)) {
@@ -264,7 +264,7 @@ AUI.add(
 					);
 				},
 
-				_getLabelContent: function(itemsPerPage) {
+				_getLabelContent(itemsPerPage) {
 					var instance = this;
 
 					var results = {};
@@ -280,7 +280,7 @@ AUI.add(
 					return results;
 				},
 
-				_getResultsContent: function(page, itemsPerPage) {
+				_getResultsContent(page, itemsPerPage) {
 					var instance = this;
 
 					var results = instance.get(RESULTS);
@@ -313,7 +313,7 @@ AUI.add(
 					return resultsContent;
 				},
 
-				_onChangeRequest: function(event) {
+				_onChangeRequest(event) {
 					var instance = this;
 
 					var state = event.state;
@@ -326,7 +326,7 @@ AUI.add(
 					instance._syncResults(page, itemsPerPage);
 				},
 
-				_onItemClick: function(event) {
+				_onItemClick(event) {
 					var instance = this;
 
 					var itemsPerPage = Lang.toInt(
@@ -338,7 +338,7 @@ AUI.add(
 					instance.set(ITEMS_PER_PAGE, itemsPerPage);
 				},
 
-				_onItemsPerPageChange: function(event) {
+				_onItemsPerPageChange(event) {
 					var instance = this;
 
 					var page = instance.get(PAGE);
@@ -346,8 +346,8 @@ AUI.add(
 					var itemsPerPage = event.newVal;
 
 					instance._dispatchRequest({
-						itemsPerPage: itemsPerPage,
-						page: page
+						itemsPerPage,
+						page
 					});
 
 					var results = instance.get(RESULTS);
@@ -358,7 +358,7 @@ AUI.add(
 					);
 				},
 
-				_syncLabel: function(itemsPerPage) {
+				_syncLabel(itemsPerPage) {
 					var instance = this;
 
 					var results = instance._getLabelContent(itemsPerPage);
@@ -371,7 +371,7 @@ AUI.add(
 						.html(results.title);
 				},
 
-				_syncResults: function(page, itemsPerPage) {
+				_syncResults(page, itemsPerPage) {
 					var instance = this;
 
 					var result = instance._getResultsContent(
@@ -382,7 +382,7 @@ AUI.add(
 					instance._searchResults.html(result);
 				},
 
-				_uiSetVisible: function(val) {
+				_uiSetVisible(val) {
 					var instance = this;
 
 					var hideClass = instance.get('hideClass');

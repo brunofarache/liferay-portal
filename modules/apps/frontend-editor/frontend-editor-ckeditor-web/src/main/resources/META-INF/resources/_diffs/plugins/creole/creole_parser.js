@@ -62,7 +62,7 @@
 		grammar: null,
 		options: null,
 
-		parse: function(node, data, options) {
+		parse(node, data, options) {
 			if (options) {
 				for (var i in this.options) {
 					if (typeof options[i] == 'undefined') {
@@ -106,11 +106,11 @@
 		attrs: null,
 		children: null,
 
-		match: function(data, options) {
+		match(data, options) {
 			return data.match(this.regex);
 		},
 
-		build: function(node, r, options) {
+		build(node, r, options) {
 			var data;
 			if (this.capture !== null) {
 				data = r[this.capture];
@@ -142,7 +142,7 @@
 			return this;
 		},
 
-		apply: function(node, data, options) {
+		apply(node, data, options) {
 			var tail = '' + data;
 			var matches = [];
 
@@ -205,7 +205,7 @@
 		},
 
 		fallback: {
-			apply: function(node, data, options) {
+			apply(node, data, options) {
 				if (options && options.forIE) {
 					// workaround for bad IE
 					data = data.replace(/\n/g, ' \r');
@@ -331,7 +331,7 @@
 
 			img: {
 				regex: rx.img,
-				build: function(node, r, options) {
+				build(node, r, options) {
 					var imagePath = r[1];
 					var imagePathPrefix = options ? options.imagePrefix : '';
 
@@ -354,7 +354,7 @@
 
 			namedUri: {
 				regex: '\\[\\[(' + rx.uri + ')\\|(' + rx.linkText + ')\\]\\]',
-				build: function(node, r, options) {
+				build(node, r, options) {
 					var link = document.createElement('a');
 					link.href = r[1];
 					if (options && options.isPlainUri) {
@@ -368,7 +368,7 @@
 
 			namedLink: {
 				regex: '\\[\\[(' + rx.link + ')\\|(' + rx.linkText + ')\\]\\]',
-				build: function(node, r, options) {
+				build(node, r, options) {
 					var link = document.createElement('a');
 
 					link.href =
@@ -434,7 +434,7 @@
 				')\\|(' +
 				rx.linkText +
 				')\\]\\]',
-			build: function(node, r, options) {
+			build(node, r, options) {
 				var link = document.createElement('a');
 
 				var m, f;

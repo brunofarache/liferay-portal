@@ -66,7 +66,7 @@ AUI.add(
 			NAME: 'exportimport',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					instance._bindUI();
@@ -100,7 +100,7 @@ AUI.add(
 					);
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					if (instance._contentOptionsDialog) {
@@ -120,7 +120,7 @@ AUI.add(
 					}
 				},
 
-				getDateRangeChecker: function() {
+				getDateRangeChecker() {
 					var instance = this;
 
 					var today = new Date();
@@ -150,7 +150,7 @@ AUI.add(
 					return dateRangeChecker;
 				},
 
-				showNotification: function(dateChecker) {
+				showNotification(dateChecker) {
 					var instance = this;
 
 					if (instance._notice) {
@@ -181,7 +181,7 @@ AUI.add(
 					instance._notice.show();
 				},
 
-				_bindUI: function() {
+				_bindUI() {
 					var instance = this;
 
 					var form = instance.get('form');
@@ -337,7 +337,7 @@ AUI.add(
 					}
 				},
 
-				_changeLayouts: function(privateLayout) {
+				_changeLayouts(privateLayout) {
 					var instance = this;
 
 					var privateLayoutNode = instance.byId('privateLayout');
@@ -349,7 +349,7 @@ AUI.add(
 					instance._reloadForm();
 				},
 
-				_getContentDialog: function(portletId, portletTitle) {
+				_getContentDialog(portletId, portletTitle) {
 					var instance = this;
 
 					var contentNode = instance.byId('content_' + portletId);
@@ -370,7 +370,7 @@ AUI.add(
 										{
 											label: Liferay.Language.get('ok'),
 											on: {
-												click: function(event) {
+												click(event) {
 													event.domEvent.preventDefault();
 
 													instance._setContentLabels(
@@ -391,7 +391,7 @@ AUI.add(
 												'cancel'
 											),
 											on: {
-												click: function(event) {
+												click(event) {
 													event.domEvent.preventDefault();
 
 													instance._restoreNodeInputStates(
@@ -417,7 +417,7 @@ AUI.add(
 					return contentDialog;
 				},
 
-				_getContentOptionsDialog: function() {
+				_getContentOptionsDialog() {
 					var instance = this;
 
 					var contentOptionsDialog = instance._contentOptionsDialog;
@@ -439,7 +439,7 @@ AUI.add(
 										{
 											label: Liferay.Language.get('ok'),
 											on: {
-												click: function(event) {
+												click(event) {
 													event.domEvent.preventDefault();
 
 													instance._setContentOptionsLabels();
@@ -458,7 +458,7 @@ AUI.add(
 												'cancel'
 											),
 											on: {
-												click: function(event) {
+												click(event) {
 													event.domEvent.preventDefault();
 
 													instance._restoreNodeInputStates(
@@ -484,7 +484,7 @@ AUI.add(
 					return contentOptionsDialog;
 				},
 
-				_getGlobalConfigurationDialog: function() {
+				_getGlobalConfigurationDialog() {
 					var instance = this;
 
 					var globalConfigurationDialog =
@@ -512,7 +512,7 @@ AUI.add(
 													'ok'
 												),
 												on: {
-													click: function(event) {
+													click(event) {
 														event.domEvent.preventDefault();
 
 														instance._setGlobalConfigurationLabels();
@@ -527,7 +527,7 @@ AUI.add(
 													'cancel'
 												),
 												on: {
-													click: function(event) {
+													click(event) {
 														event.domEvent.preventDefault();
 
 														globalConfigurationDialog.hide();
@@ -550,7 +550,7 @@ AUI.add(
 					return globalConfigurationDialog;
 				},
 
-				_getNotificationMessage: function(dateChecker) {
+				_getNotificationMessage(dateChecker) {
 					var instance = this;
 
 					var message;
@@ -571,7 +571,7 @@ AUI.add(
 					return message;
 				},
 
-				_getScheduledPublishingEventsDialog: function() {
+				_getScheduledPublishingEventsDialog() {
 					var instance = this;
 
 					var scheduledPublishingEventsDialog =
@@ -599,7 +599,7 @@ AUI.add(
 													'close'
 												),
 												on: {
-													click: function(event) {
+													click(event) {
 														event.domEvent.preventDefault();
 
 														scheduledPublishingEventsDialog.hide();
@@ -620,7 +620,7 @@ AUI.add(
 					return scheduledPublishingEventsDialog;
 				},
 
-				_getSelectedDates: function() {
+				_getSelectedDates() {
 					var instance = this;
 
 					var startDatePicker = Liferay.component(
@@ -654,12 +654,12 @@ AUI.add(
 					startDate.setMilliseconds(0);
 
 					return {
-						endDate: endDate,
-						startDate: startDate
+						endDate,
+						startDate
 					};
 				},
 
-				_getValue: function(nodeName) {
+				_getValue(nodeName) {
 					var instance = this;
 
 					var value = STR_EMPTY;
@@ -673,7 +673,7 @@ AUI.add(
 					return value;
 				},
 
-				_initLabels: function() {
+				_initLabels() {
 					var instance = this;
 
 					instance
@@ -689,7 +689,7 @@ AUI.add(
 					instance._setGlobalConfigurationLabels();
 				},
 
-				_isBackgroundTaskInProgress: function() {
+				_isBackgroundTaskInProgress() {
 					var instance = this;
 
 					var processesNode = instance.get('processesNode');
@@ -699,7 +699,7 @@ AUI.add(
 					);
 				},
 
-				_isChecked: function(nodeName) {
+				_isChecked(nodeName) {
 					var instance = this;
 
 					var node = instance.get(nodeName);
@@ -707,7 +707,7 @@ AUI.add(
 					return node && node.attr(STR_CHECKED);
 				},
 
-				_onViewBackgroundTaskDetails: function(config) {
+				_onViewBackgroundTaskDetails(config) {
 					var instance = this;
 
 					var node = instance.byId(instance.ns(config.nodeId));
@@ -730,11 +730,11 @@ AUI.add(
 						dialog: {
 							bodyContent: bodyNode
 						},
-						title: title
+						title
 					});
 				},
 
-				_preventNameRequiredChecking: function() {
+				_preventNameRequiredChecking() {
 					var instance = this;
 
 					var nameRequiredNode = instance.byId('nameRequired');
@@ -744,7 +744,7 @@ AUI.add(
 					}
 				},
 
-				_rangeEndsInPast: function(today) {
+				_rangeEndsInPast(today) {
 					var instance = this;
 
 					var selectedDates = instance._getSelectedDates();
@@ -752,7 +752,7 @@ AUI.add(
 					return ADate.isGreaterOrEqual(today, selectedDates.endDate);
 				},
 
-				_rangeEndsLater: function() {
+				_rangeEndsLater() {
 					var instance = this;
 
 					var selectedDates = instance._getSelectedDates();
@@ -763,7 +763,7 @@ AUI.add(
 					);
 				},
 
-				_rangeStartsInPast: function(today) {
+				_rangeStartsInPast(today) {
 					var instance = this;
 
 					var selectedDates = instance._getSelectedDates();
@@ -774,7 +774,7 @@ AUI.add(
 					);
 				},
 
-				_refreshDeletions: function() {
+				_refreshDeletions() {
 					var instance = this;
 
 					if (instance._isChecked('deletionsNode')) {
@@ -792,7 +792,7 @@ AUI.add(
 					}
 				},
 
-				_reloadForm: function() {
+				_reloadForm() {
 					var instance = this;
 
 					var cmdNode = instance.byId('cmd');
@@ -869,7 +869,7 @@ AUI.add(
 					}
 				},
 
-				_renderProcesses: function() {
+				_renderProcesses() {
 					var instance = this;
 
 					var checkedCheckboxes = A.all(
@@ -921,7 +921,7 @@ AUI.add(
 					}
 				},
 
-				_restoreNodeCheckedState: function(node, state) {
+				_restoreNodeCheckedState(node, state) {
 					var val = state.value;
 
 					if (val !== undefined) {
@@ -929,7 +929,7 @@ AUI.add(
 					}
 				},
 
-				_restoreNodeHiddenState: function(node, state) {
+				_restoreNodeHiddenState(node, state) {
 					var hiddenList = node.ancestorsByClassName(STR_HIDE);
 
 					hiddenList.each(function(hiddenNode) {
@@ -945,7 +945,7 @@ AUI.add(
 					}
 				},
 
-				_restoreNodeInputStates: function(node) {
+				_restoreNodeInputStates(node) {
 					var instance = this;
 
 					var inputNodes = [];
@@ -968,7 +968,7 @@ AUI.add(
 					});
 				},
 
-				_scheduleRenderProcess: function() {
+				_scheduleRenderProcess() {
 					var instance = this;
 
 					var renderInterval = RENDER_INTERVAL_IDLE;
@@ -984,7 +984,7 @@ AUI.add(
 					);
 				},
 
-				_setContentLabels: function(portletId) {
+				_setContentLabels(portletId) {
 					var instance = this;
 
 					var contentNode = instance.byId('content_' + portletId);
@@ -1023,7 +1023,7 @@ AUI.add(
 					);
 				},
 
-				_setContentOptionsLabels: function() {
+				_setContentOptionsLabels() {
 					var instance = this;
 
 					var selectedContentOptions = [];
@@ -1047,7 +1047,7 @@ AUI.add(
 					);
 				},
 
-				_setGlobalConfigurationLabels: function() {
+				_setGlobalConfigurationLabels() {
 					var instance = this;
 
 					var selectedGlobalConfiguration = [];
@@ -1077,7 +1077,7 @@ AUI.add(
 					);
 				},
 
-				_setLabels: function(linkId, labelDivId, label) {
+				_setLabels(linkId, labelDivId, label) {
 					var instance = this;
 
 					var linkNode = instance.byId(linkId);
@@ -1097,7 +1097,7 @@ AUI.add(
 					}
 				},
 
-				_setNode: function(val) {
+				_setNode(val) {
 					var instance = this;
 
 					if (Lang.isString(val)) {
@@ -1109,7 +1109,7 @@ AUI.add(
 					return val;
 				},
 
-				_storeNodeInputStates: function(node) {
+				_storeNodeInputStates(node) {
 					var instance = this;
 
 					var inputNodes = [];
@@ -1132,13 +1132,13 @@ AUI.add(
 						}
 
 						inputStates[id] = {
-							hiddenList: hiddenList,
+							hiddenList,
 							value: val
 						};
 					});
 				},
 
-				_updateDateRange: function(event) {
+				_updateDateRange(event) {
 					var instance = this;
 
 					var dateChecker = instance.getDateRangeChecker();
@@ -1154,7 +1154,7 @@ AUI.add(
 					}
 				},
 
-				_updateincompleteProcessMessage: function(inProgress, content) {
+				_updateincompleteProcessMessage(inProgress, content) {
 					var instance = this;
 
 					var incompleteProcessMessageNode = instance.get(

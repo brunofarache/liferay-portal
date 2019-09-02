@@ -108,10 +108,10 @@ AUI.add(
 
 			EXTENDS: A.Base,
 
-			NAME: NAME,
+			NAME,
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					instance._dialogId = A.guid();
@@ -120,13 +120,13 @@ AUI.add(
 					instance._bindUI();
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					new A.EventHandle(instance._eventHandles).detach();
 				},
 
-				_bindUI: function() {
+				_bindUI() {
 					var instance = this;
 
 					instance._eventHandles = [
@@ -149,7 +149,7 @@ AUI.add(
 					];
 				},
 
-				_getSelectDialog: function() {
+				_getSelectDialog() {
 					var instance = this;
 
 					var dialog = instance._dialog;
@@ -180,7 +180,7 @@ AUI.add(
 					return dialog;
 				},
 
-				_getSelectDialogContent: function() {
+				_getSelectDialogContent() {
 					var instance = this;
 
 					var selectedAssetAddonEntries = instance.get(
@@ -213,7 +213,7 @@ AUI.add(
 					return A.Node.create(content);
 				},
 
-				_getSelectDialogFooterToolbar: function() {
+				_getSelectDialogFooterToolbar() {
 					var instance = this;
 
 					var footerToolbar = [
@@ -238,19 +238,19 @@ AUI.add(
 					return footerToolbar;
 				},
 
-				_hideSelectDialog: function() {
+				_hideSelectDialog() {
 					var instance = this;
 
 					instance._getSelectDialog().hide();
 				},
 
-				_onSelectClick: function(event) {
+				_onSelectClick(event) {
 					var instance = this;
 
 					instance._showSelectDialog();
 				},
 
-				_onSummaryItemRemove: function(event) {
+				_onSummaryItemRemove(event) {
 					var instance = this;
 
 					var selectedAssetAddonEntries = instance.get(
@@ -273,7 +273,7 @@ AUI.add(
 					);
 				},
 
-				_setAssetAddonEntries: function(val) {
+				_setAssetAddonEntries(val) {
 					var instance = this;
 
 					var entriesMap = {};
@@ -285,14 +285,14 @@ AUI.add(
 					instance._entriesMap = entriesMap;
 				},
 
-				_showSelectDialog: function() {
+				_showSelectDialog() {
 					var instance = this;
 
 					instance._syncUI();
 					instance._getSelectDialog().show();
 				},
 
-				_syncUI: function() {
+				_syncUI() {
 					var instance = this;
 
 					instance.get(STR_ASSET_ADDON_ENTRIES);
@@ -329,7 +329,7 @@ AUI.add(
 						.val(selectedAssetAddonEntries.join(','));
 				},
 
-				_updateSelectedEntries: function() {
+				_updateSelectedEntries() {
 					var instance = this;
 
 					var dialog = instance._getSelectDialog();

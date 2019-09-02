@@ -41,7 +41,7 @@ AUI.add(
 
 			TIME_DESC: ['weeks', 'days', 'hours', 'minutes'],
 
-			getDescription: function(milliseconds) {
+			getDescription(milliseconds) {
 				var instance = this;
 
 				var desc = 'minutes';
@@ -64,8 +64,8 @@ AUI.add(
 				}
 
 				return {
-					desc: desc,
-					value: value
+					desc,
+					value
 				};
 			}
 		};
@@ -75,7 +75,7 @@ AUI.add(
 		var CalendarUtil = {
 			NOTIFICATION_DEFAULT_TYPE: 'email',
 
-			createSchedulerEvent: function(calendarBooking) {
+			createSchedulerEvent(calendarBooking) {
 				var instance = this;
 
 				var endDate = new Date(
@@ -122,7 +122,7 @@ AUI.add(
 				return schedulerEvent;
 			},
 
-			destroyEvent: function(schedulerEvent) {
+			destroyEvent(schedulerEvent) {
 				var instance = this;
 
 				var scheduler = schedulerEvent.get('scheduler');
@@ -132,7 +132,7 @@ AUI.add(
 				scheduler.syncEventsUI();
 			},
 
-			fillURLParameters: function(url, data) {
+			fillURLParameters(url, data) {
 				var instance = this;
 
 				url = Lang.sub(url, data);
@@ -140,7 +140,7 @@ AUI.add(
 				return url.replace(REGEX_UNFILLED_PARAMETER, '');
 			},
 
-			getCalendarName: function(name, calendarResourceName) {
+			getCalendarName(name, calendarResourceName) {
 				var instance = this;
 
 				if (name !== calendarResourceName) {
@@ -152,7 +152,7 @@ AUI.add(
 				return name;
 			},
 
-			getDateFromObject: function(object) {
+			getDateFromObject(object) {
 				var day = toInt(object.day);
 				var hour = toInt(object.hour);
 				var minute = toInt(object.minute);
@@ -162,7 +162,7 @@ AUI.add(
 				return new Date(year, month, day, hour, minute);
 			},
 
-			getDatesList: function(startDate, total) {
+			getDatesList(startDate, total) {
 				var instance = this;
 
 				var ADate = A.Date;
@@ -178,7 +178,7 @@ AUI.add(
 				return output;
 			},
 
-			getLocalizationMap: function(value) {
+			getLocalizationMap(value) {
 				var instance = this;
 
 				var map = {};
@@ -188,7 +188,7 @@ AUI.add(
 				return JSON.stringify(map);
 			},
 
-			setEventAttrs: function(schedulerEvent, data) {
+			setEventAttrs(schedulerEvent, data) {
 				var instance = this;
 
 				var scheduler = schedulerEvent.get('scheduler');
@@ -236,7 +236,7 @@ AUI.add(
 				}
 			},
 
-			toLocalTime: function(utc) {
+			toLocalTime(utc) {
 				var instance = this;
 
 				if (!isDate(utc)) {
@@ -250,7 +250,7 @@ AUI.add(
 				);
 			},
 
-			toUTC: function(date) {
+			toUTC(date) {
 				var instance = this;
 
 				if (!isDate(date)) {
@@ -264,7 +264,7 @@ AUI.add(
 				);
 			},
 
-			updateSchedulerEvents: function(schedulerEvents, calendarBooking) {
+			updateSchedulerEvents(schedulerEvents, calendarBooking) {
 				A.each(schedulerEvents, function(schedulerEvent) {
 					if (schedulerEvent.isRecurring()) {
 						var scheduler = schedulerEvent.get('scheduler');

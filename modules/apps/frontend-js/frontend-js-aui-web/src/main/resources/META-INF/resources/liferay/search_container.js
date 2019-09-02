@@ -32,7 +32,7 @@ AUI.add(
 
 			NAME: 'searchcontainer',
 
-			constructor: function(config) {
+			constructor(config) {
 				var id = config.id;
 
 				config.boundingBox = config.boundingBox || '#' + id;
@@ -42,7 +42,7 @@ AUI.add(
 				SearchContainer.superclass.constructor.apply(this, arguments);
 			},
 
-			get: function(id) {
+			get(id) {
 				var instance = this;
 
 				var searchContainer = null;
@@ -51,7 +51,7 @@ AUI.add(
 					searchContainer = instance._cache[id];
 				} else {
 					searchContainer = new SearchContainer({
-						id: id
+						id
 					}).render();
 				}
 
@@ -59,7 +59,7 @@ AUI.add(
 			},
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					instance._ids = [];
@@ -69,7 +69,7 @@ AUI.add(
 					SearchContainer.register(instance);
 				},
 
-				renderUI: function() {
+				renderUI() {
 					var instance = this;
 
 					var id = instance.get('id');
@@ -108,7 +108,7 @@ AUI.add(
 					}
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					instance.publish('addRow', {
@@ -120,7 +120,7 @@ AUI.add(
 					});
 				},
 
-				syncUI: function() {
+				syncUI() {
 					var instance = this;
 
 					var dataStore = instance._dataStore;
@@ -134,7 +134,7 @@ AUI.add(
 					}
 				},
 
-				addRow: function(arr, id) {
+				addRow(arr, id) {
 					var instance = this;
 
 					var row;
@@ -167,9 +167,9 @@ AUI.add(
 						instance.updateDataStore();
 
 						instance.fire('addRow', {
-							id: id,
+							id,
 							ids: instance._ids,
-							row: row,
+							row,
 							rowData: arr
 						});
 					}
@@ -177,7 +177,7 @@ AUI.add(
 					return row;
 				},
 
-				deleteRow: function(obj, id) {
+				deleteRow(obj, id) {
 					var instance = this;
 
 					if (Lang.isNumber(obj) || Lang.isString(obj)) {
@@ -207,7 +207,7 @@ AUI.add(
 					}
 
 					instance.fire('deleteRow', {
-						id: id,
+						id,
 						ids: instance._ids,
 						row: obj
 					});
@@ -225,7 +225,7 @@ AUI.add(
 					}
 				},
 
-				executeAction: function(name, params) {
+				executeAction(name, params) {
 					var instance = this;
 
 					if (instance._actions[name]) {
@@ -233,7 +233,7 @@ AUI.add(
 					}
 				},
 
-				getData: function(toArray) {
+				getData(toArray) {
 					var instance = this;
 
 					var ids = instance._ids;
@@ -245,25 +245,25 @@ AUI.add(
 					return ids;
 				},
 
-				getForm: function() {
+				getForm() {
 					var instance = this;
 
 					return instance.get(STR_BOUNDING_BOX).ancestor('form');
 				},
 
-				getSize: function() {
+				getSize() {
 					var instance = this;
 
 					return instance._ids.length;
 				},
 
-				registerAction: function(name, fn) {
+				registerAction(name, fn) {
 					var instance = this;
 
 					instance._actions[name] = fn;
 				},
 
-				updateDataStore: function(ids) {
+				updateDataStore(ids) {
 					var instance = this;
 
 					if (ids) {
@@ -281,7 +281,7 @@ AUI.add(
 					}
 				},
 
-				_addRow: function(event) {
+				_addRow(event) {
 					var instance = this;
 
 					instance._parentContainer.show();
@@ -291,7 +291,7 @@ AUI.add(
 					}
 				},
 
-				_deleteRow: function(event) {
+				_deleteRow(event) {
 					var instance = this;
 
 					var action = 'show';
@@ -308,7 +308,7 @@ AUI.add(
 				}
 			},
 
-			register: function(obj) {
+			register(obj) {
 				var instance = this;
 
 				var id = obj.get('id');

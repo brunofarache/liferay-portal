@@ -43,7 +43,7 @@ AUI.add(
 		var SchedulerModelSync = function(config) {};
 
 		SchedulerModelSync.prototype = {
-			sync: function(action, options, callback) {
+			sync(action, options, callback) {
 				var instance = this;
 
 				var actionMethod = instance['_do' + toInitialCap(action)];
@@ -53,7 +53,7 @@ AUI.add(
 				}
 			},
 
-			_doRead: function() {
+			_doRead() {
 				var instance = this;
 
 				var args = arguments;
@@ -81,7 +81,7 @@ AUI.add(
 				},
 
 				content: {
-					getter: function(val) {
+					getter(val) {
 						var content = val;
 
 						if (val) {
@@ -90,7 +90,7 @@ AUI.add(
 
 						return content;
 					},
-					setter: function(val) {
+					setter(val) {
 						var content = val;
 
 						if (val) {
@@ -166,7 +166,7 @@ AUI.add(
 				},
 
 				reminder: {
-					getter: function() {
+					getter() {
 						var instance = this;
 
 						return (
@@ -214,7 +214,7 @@ AUI.add(
 			prototype: {
 				eventModel: Liferay.SchedulerEvent,
 
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					instance._uiSetLoading(instance.get('loading'));
@@ -226,7 +226,7 @@ AUI.add(
 					instance.on('statusChange', instance._onStatusChange);
 				},
 
-				syncUI: function() {
+				syncUI() {
 					var instance = this;
 
 					Liferay.SchedulerEvent.superclass.syncUI.apply(
@@ -237,7 +237,7 @@ AUI.add(
 					instance._uiSetStatus(instance.get('status'));
 				},
 
-				isMasterBooking: function() {
+				isMasterBooking() {
 					var instance = this;
 
 					return (
@@ -246,7 +246,7 @@ AUI.add(
 					);
 				},
 
-				intersects: function(evt) {
+				intersects(evt) {
 					var instance = this;
 
 					var endDate = instance.get('endDate');
@@ -263,7 +263,7 @@ AUI.add(
 					);
 				},
 
-				isRecurring: function() {
+				isRecurring() {
 					var instance = this;
 
 					return (
@@ -273,7 +273,7 @@ AUI.add(
 					);
 				},
 
-				syncNodeColorUI: function() {
+				syncNodeColorUI() {
 					var instance = this;
 
 					Liferay.SchedulerEvent.superclass.syncNodeColorUI.apply(
@@ -303,7 +303,7 @@ AUI.add(
 					}
 				},
 
-				syncWithServer: function() {
+				syncWithServer() {
 					var instance = this;
 
 					var calendarBookingId = instance.get('calendarBookingId');
@@ -326,7 +326,7 @@ AUI.add(
 					);
 				},
 
-				_isPastEvent: function() {
+				_isPastEvent() {
 					var instance = this;
 
 					var endDate = instance.get('endDate');
@@ -346,7 +346,7 @@ AUI.add(
 					return result;
 				},
 
-				_isShortDurationEventIntersecting: function(evtStartDate) {
+				_isShortDurationEventIntersecting(evtStartDate) {
 					var instance = this;
 					var shortDurationEventIntersecting = false;
 
@@ -369,25 +369,25 @@ AUI.add(
 					return shortDurationEventIntersecting;
 				},
 
-				_onLoadingChange: function(event) {
+				_onLoadingChange(event) {
 					var instance = this;
 
 					instance._uiSetLoading(event.newVal);
 				},
 
-				_onStartDateChange: function(event) {
+				_onStartDateChange(event) {
 					var instance = this;
 
 					instance._uiSetStartDate(event.newVal);
 				},
 
-				_onStatusChange: function(event) {
+				_onStatusChange(event) {
 					var instance = this;
 
 					instance._uiSetStatus(event.newVal);
 				},
 
-				_uiSetEndDate: function(val) {
+				_uiSetEndDate(val) {
 					var instance = this;
 
 					Liferay.SchedulerEvent.superclass._uiSetEndDate.apply(
@@ -407,7 +407,7 @@ AUI.add(
 					);
 				},
 
-				_uiSetLoading: function(val) {
+				_uiSetLoading(val) {
 					var instance = this;
 
 					instance
@@ -415,7 +415,7 @@ AUI.add(
 						.toggleClass('calendar-portlet-event-loading', val);
 				},
 
-				_uiSetStartDate: function(val) {
+				_uiSetStartDate(val) {
 					var instance = this;
 
 					var node = instance.get('node');
@@ -430,7 +430,7 @@ AUI.add(
 					);
 				},
 
-				_uiSetStatus: function(val) {
+				_uiSetStatus(val) {
 					var instance = this;
 
 					var node = instance.get('node');
@@ -506,7 +506,7 @@ AUI.add(
 
 				permissions: {
 					lazyAdd: false,
-					setter: function(val) {
+					setter(val) {
 						var instance = this;
 
 						instance.set('disabled', !val.MANAGE_BOOKINGS);
@@ -527,7 +527,7 @@ AUI.add(
 			NAME: 'scheduler-calendar',
 
 			prototype: {
-				getDisplayName: function() {
+				getDisplayName() {
 					var instance = this;
 
 					var name = instance.get('name');
@@ -550,7 +550,7 @@ AUI.add(
 					return name;
 				},
 
-				_afterColorChange: function(event) {
+				_afterColorChange(event) {
 					var instance = this;
 
 					Calendar.superclass._afterColorChange.apply(
@@ -578,7 +578,7 @@ AUI.add(
 					}
 				},
 
-				_afterVisibleChange: function(event) {
+				_afterVisibleChange(event) {
 					var instance = this;
 
 					Calendar.superclass._afterVisibleChange.apply(
@@ -600,7 +600,7 @@ AUI.add(
 			A.SchedulerEvents,
 			[Liferay.SchedulerModelSync],
 			{
-				getEventsPerPage: function(activeView, eventsPerPage) {
+				getEventsPerPage(activeView, eventsPerPage) {
 					var instance = this;
 
 					var viewName = activeView.get('name');
@@ -612,7 +612,7 @@ AUI.add(
 					return eventsPerPage;
 				},
 
-				getLoadEndDate: function(activeView, maxDaysDisplayed) {
+				getLoadEndDate(activeView, maxDaysDisplayed) {
 					var instance = this;
 
 					var date = activeView.getNextDate();
@@ -634,7 +634,7 @@ AUI.add(
 					return date;
 				},
 
-				getLoadStartDate: function(activeView) {
+				getLoadStartDate(activeView) {
 					var instance = this;
 
 					var scheduler = activeView.get('scheduler');
@@ -649,7 +649,7 @@ AUI.add(
 					return date;
 				},
 
-				_doRead: function(options, callback) {
+				_doRead(options, callback) {
 					var instance = this;
 
 					var scheduler = instance.get('scheduler');

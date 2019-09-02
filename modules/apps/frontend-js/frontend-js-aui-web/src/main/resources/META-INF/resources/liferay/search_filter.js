@@ -25,7 +25,7 @@ AUI.add(
 			NAME: 'searchimpl',
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					this._bindUIACBase();
@@ -74,7 +74,7 @@ AUI.add(
 			NAME: 'searchfilter',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					var nodeList = instance.get('nodeList');

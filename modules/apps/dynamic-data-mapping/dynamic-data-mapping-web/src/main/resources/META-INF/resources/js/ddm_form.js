@@ -136,7 +136,7 @@ AUI.add(
 		};
 
 		FieldsSupport.prototype = {
-			eachParent: function(fn) {
+			eachParent(fn) {
 				var instance = this;
 
 				var parent = instance.get('parent');
@@ -148,7 +148,7 @@ AUI.add(
 				}
 			},
 
-			extractInstanceId: function(fieldNode) {
+			extractInstanceId(fieldNode) {
 				var instance = this;
 
 				var fieldInstanceId = fieldNode.getData('fieldNamespace');
@@ -156,7 +156,7 @@ AUI.add(
 				return fieldInstanceId.replace(INSTANCE_ID_PREFIX, '');
 			},
 
-			getDefaultLocale: function() {
+			getDefaultLocale() {
 				var instance = this;
 
 				var defaultLocale = themeDisplay.getDefaultLanguageId();
@@ -170,7 +170,7 @@ AUI.add(
 				return defaultLocale;
 			},
 
-			getFieldInfo: function(tree, key, value) {
+			getFieldInfo(tree, key, value) {
 				var queue = new A.Queue(tree);
 
 				var addToQueue = function(item) {
@@ -202,13 +202,13 @@ AUI.add(
 				return fieldInfo;
 			},
 
-			getFieldNodes: function() {
+			getFieldNodes() {
 				var instance = this;
 
 				return instance.get('container').all('> .field-wrapper');
 			},
 
-			getForm: function() {
+			getForm() {
 				var instance = this;
 
 				var root;
@@ -220,7 +220,7 @@ AUI.add(
 				return root || instance;
 			},
 
-			getReadOnly: function() {
+			getReadOnly() {
 				var instance = this;
 
 				var retVal = false;
@@ -241,7 +241,7 @@ AUI.add(
 				return retVal;
 			},
 
-			_getField: function(fieldNode) {
+			_getField(fieldNode) {
 				var instance = this;
 
 				var displayLocale = instance.get('displayLocale');
@@ -268,8 +268,8 @@ AUI.add(
 						{
 							container: fieldNode,
 							dataType: fieldDefinition.dataType,
-							definition: definition,
-							displayLocale: displayLocale,
+							definition,
+							displayLocale,
 							instanceId: fieldInstanceId,
 							name: fieldName,
 							parent: instance,
@@ -285,7 +285,7 @@ AUI.add(
 				return field;
 			},
 
-			_getTemplate: function(callback) {
+			_getTemplate(callback) {
 				var instance = this;
 
 				var key =
@@ -310,7 +310,7 @@ AUI.add(
 					});
 			},
 
-			_getTemplateResourceURL: function() {
+			_getTemplateResourceURL() {
 				var instance = this;
 
 				var container = instance.get('container');
@@ -338,7 +338,7 @@ AUI.add(
 				return templateResourceURL.toString();
 			},
 
-			_valueDisplayLocale: function() {
+			_valueDisplayLocale() {
 				var instance = this;
 
 				var displayLocale = instance.get('displayLocale');
@@ -356,7 +356,7 @@ AUI.add(
 				return displayLocale;
 			},
 
-			_valueFields: function() {
+			_valueFields() {
 				var instance = this;
 
 				var fields = [];
@@ -423,7 +423,7 @@ AUI.add(
 			NAME: 'liferay-ddm-field',
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					instance.eventHandlers = [];
@@ -431,7 +431,7 @@ AUI.add(
 					instance.bindUI();
 				},
 
-				renderUI: function() {
+				renderUI() {
 					var instance = this;
 
 					if (instance.get('repeatable')) {
@@ -449,7 +449,7 @@ AUI.add(
 					});
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					instance.eventHandlers.push(
@@ -473,7 +473,7 @@ AUI.add(
 					}
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					AArray.invoke(instance.eventHandlers, 'detach');
@@ -485,7 +485,7 @@ AUI.add(
 					instance.get('container').remove();
 				},
 
-				createField: function(fieldTemplate) {
+				createField(fieldTemplate) {
 					var instance = this;
 
 					var fieldNode = A.Node.create(fieldTemplate);
@@ -509,7 +509,7 @@ AUI.add(
 					return field;
 				},
 
-				getDefaultLocalization: function(locale) {
+				getDefaultLocalization(locale) {
 					var instance = this;
 
 					var localizationMap = instance.get('localizationMap');
@@ -535,7 +535,7 @@ AUI.add(
 					return localizationMap[locale];
 				},
 
-				getFieldByNameInFieldDefinition: function(name) {
+				getFieldByNameInFieldDefinition(name) {
 					var instance = this;
 
 					var definition = instance.get('definition');
@@ -551,7 +551,7 @@ AUI.add(
 					});
 				},
 
-				getFieldDefinition: function() {
+				getFieldDefinition() {
 					var instance = this;
 
 					var definition = instance.get('definition');
@@ -561,7 +561,7 @@ AUI.add(
 					return instance.getFieldInfo(definition, 'name', name);
 				},
 
-				getFirstFieldByName: function(name) {
+				getFirstFieldByName(name) {
 					var instance = this;
 
 					return AArray.find(instance.get('fields'), function(item) {
@@ -569,7 +569,7 @@ AUI.add(
 					});
 				},
 
-				getInputName: function() {
+				getInputName() {
 					var instance = this;
 
 					var fieldsNamespace = instance.get('fieldsNamespace');
@@ -590,7 +590,7 @@ AUI.add(
 						.join('');
 				},
 
-				getInputNode: function() {
+				getInputNode() {
 					var instance = this;
 
 					return instance
@@ -598,13 +598,13 @@ AUI.add(
 						.one('[name=' + instance.getInputName() + ']');
 				},
 
-				getLabelNode: function() {
+				getLabelNode() {
 					var instance = this;
 
 					return instance.get('container').one('.control-label');
 				},
 
-				getPredefinedValueByLocale: function(locale) {
+				getPredefinedValueByLocale(locale) {
 					var instance = this;
 
 					var name = instance.get('name');
@@ -631,7 +631,7 @@ AUI.add(
 					return predefinedValue;
 				},
 
-				getRepeatedSiblings: function() {
+				getRepeatedSiblings() {
 					var instance = this;
 
 					return instance.getSiblings().filter(function(item) {
@@ -639,7 +639,7 @@ AUI.add(
 					});
 				},
 
-				getRuleInputName: function() {
+				getRuleInputName() {
 					var instance = this;
 
 					var inputName = instance.getInputName();
@@ -647,13 +647,13 @@ AUI.add(
 					return inputName;
 				},
 
-				getSiblings: function() {
+				getSiblings() {
 					var instance = this;
 
 					return instance.get('parent').get('fields');
 				},
 
-				getValue: function() {
+				getValue() {
 					var instance = this;
 
 					var inputNode = instance.getInputNode();
@@ -661,7 +661,7 @@ AUI.add(
 					return Lang.String.unescapeHTML(inputNode.val());
 				},
 
-				parseContent: function(content) {
+				parseContent(content) {
 					var instance = this;
 
 					var container = instance.get('container');
@@ -673,7 +673,7 @@ AUI.add(
 					parser.parseContent(content);
 				},
 
-				populateRepeatedSiblings: function(locale) {
+				populateRepeatedSiblings(locale) {
 					var instance = this;
 
 					var siblings = instance.getRepeatedSiblings();
@@ -687,7 +687,7 @@ AUI.add(
 					});
 				},
 
-				remove: function() {
+				remove() {
 					var instance = this;
 
 					var siblings = instance.getSiblings();
@@ -703,7 +703,7 @@ AUI.add(
 					instance.get('container').remove(true);
 				},
 
-				renderRepeatableUI: function() {
+				renderRepeatableUI() {
 					var instance = this;
 
 					var container = instance.get('container');
@@ -726,7 +726,7 @@ AUI.add(
 					);
 				},
 
-				repeat: function() {
+				repeat() {
 					var instance = this;
 
 					instance._getTemplate(function(fieldTemplate) {
@@ -752,7 +752,7 @@ AUI.add(
 					});
 				},
 
-				setLabel: function(label) {
+				setLabel(label) {
 					var instance = this;
 
 					var labelNode = instance.getLabelNode();
@@ -778,7 +778,7 @@ AUI.add(
 					}
 				},
 
-				setValue: function(value) {
+				setValue(value) {
 					var instance = this;
 
 					var inputNode = instance.getInputNode();
@@ -788,7 +788,7 @@ AUI.add(
 					}
 				},
 
-				syncLabel: function(locale) {
+				syncLabel(locale) {
 					var instance = this;
 
 					var fieldDefinition = instance.getFieldDefinition();
@@ -802,7 +802,7 @@ AUI.add(
 					}
 				},
 
-				syncReadOnlyUI: function() {
+				syncReadOnlyUI() {
 					var instance = this;
 
 					var readOnly = instance.getReadOnly();
@@ -844,7 +844,7 @@ AUI.add(
 					}
 				},
 
-				syncRepeatablelUI: function() {
+				syncRepeatablelUI() {
 					var instance = this;
 
 					var container = instance.get('container');
@@ -856,7 +856,7 @@ AUI.add(
 						.toggle(siblings.length > 1);
 				},
 
-				syncValueUI: function() {
+				syncValueUI() {
 					var instance = this;
 
 					var dataType = instance.get('dataType');
@@ -887,7 +887,7 @@ AUI.add(
 					}
 				},
 
-				toJSON: function() {
+				toJSON() {
 					var instance = this;
 
 					var fieldJSON = {
@@ -925,7 +925,7 @@ AUI.add(
 					return fieldJSON;
 				},
 
-				updateLocalizationMap: function(locale) {
+				updateLocalizationMap(locale) {
 					var instance = this;
 
 					var localizationMap = instance.get('localizationMap');
@@ -950,12 +950,12 @@ AUI.add(
 					instance.set('localizationMap', localizationMap);
 				},
 
-				_addFieldValidation: function(newField, originalField) {
+				_addFieldValidation(newField, originalField) {
 					var instance = this;
 
 					instance.fire('liferay-ddm-field:repeat', {
 						field: newField,
-						originalField: originalField
+						originalField
 					});
 
 					newField.get('fields').forEach(function(item, index) {
@@ -974,7 +974,7 @@ AUI.add(
 					});
 				},
 
-				_addTip: function(labelNode, tipNode) {
+				_addTip(labelNode, tipNode) {
 					if (tipNode) {
 						var instance = this;
 
@@ -995,7 +995,7 @@ AUI.add(
 					}
 				},
 
-				_afterFormRegistered: function(event) {
+				_afterFormRegistered(event) {
 					var instance = this;
 
 					var formNode = instance.get('formNode');
@@ -1005,19 +1005,19 @@ AUI.add(
 					}
 				},
 
-				_getLocalizable: function() {
+				_getLocalizable() {
 					var instance = this;
 
 					return instance.getFieldDefinition().localizable === true;
 				},
 
-				_getRepeatable: function() {
+				_getRepeatable() {
 					var instance = this;
 
 					return instance.getFieldDefinition().repeatable === true;
 				},
 
-				_handleToolbarClick: function(event) {
+				_handleToolbarClick(event) {
 					var instance = this;
 
 					var currentTarget = event.currentTarget;
@@ -1041,7 +1041,7 @@ AUI.add(
 					event.stopPropagation();
 				},
 
-				_onLocaleChanged: function(event) {
+				_onLocaleChanged(event) {
 					var instance = this;
 
 					var currentLocale = instance.get('displayLocale');
@@ -1056,7 +1056,7 @@ AUI.add(
 					instance.syncReadOnlyUI();
 				},
 
-				_removeFieldValidation: function(field) {
+				_removeFieldValidation(field) {
 					var instance = this;
 
 					field.get('fields').forEach(function(item, index) {
@@ -1064,11 +1064,11 @@ AUI.add(
 					});
 
 					instance.fire('liferay-ddm-field:remove', {
-						field: field
+						field
 					});
 				},
 
-				_valueFormNode: function() {
+				_valueFormNode() {
 					var instance = this;
 
 					var container = instance.get('container');
@@ -1076,7 +1076,7 @@ AUI.add(
 					return container.ancestor('form', true);
 				},
 
-				_valueLiferayForm: function() {
+				_valueLiferayForm() {
 					var instance = this;
 
 					var formNode = instance.get('formNode');
@@ -1090,7 +1090,7 @@ AUI.add(
 					return Liferay.Form.get(formName);
 				},
 
-				_valueLocalizationMap: function() {
+				_valueLocalizationMap() {
 					var instance = this;
 
 					var instanceId = instance.get('instanceId');
@@ -1118,19 +1118,19 @@ AUI.add(
 			EXTENDS: Field,
 
 			prototype: {
-				getLabelNode: function() {
+				getLabelNode() {
 					var instance = this;
 
 					return instance.get('container').one('label');
 				},
 
-				getValue: function() {
+				getValue() {
 					var instance = this;
 
 					return instance.getInputNode().test(':checked') + '';
 				},
 
-				setLabel: function(label) {
+				setLabel(label) {
 					var instance = this;
 
 					var labelNode = instance.getLabelNode();
@@ -1154,7 +1154,7 @@ AUI.add(
 					instance._addTip(labelNode, tipNode);
 				},
 
-				setValue: function(value) {
+				setValue(value) {
 					var instance = this;
 
 					instance.getInputNode().attr('checked', value === 'true');
@@ -1168,7 +1168,7 @@ AUI.add(
 			EXTENDS: Field,
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					var container = instance.get('container');
@@ -1203,7 +1203,7 @@ AUI.add(
 					instance.set('colorPicker', colorPicker);
 				},
 
-				getValue: function() {
+				getValue() {
 					var instance = this;
 
 					var container = instance.get('container');
@@ -1212,7 +1212,7 @@ AUI.add(
 					return valueField.val();
 				},
 
-				setValue: function(value) {
+				setValue(value) {
 					var instance = this;
 
 					var container = instance.get('container');
@@ -1231,7 +1231,7 @@ AUI.add(
 					colorPicker.set('color', value);
 				},
 
-				validateField: function(valueField) {
+				validateField(valueField) {
 					var instance = this;
 
 					var liferayForm = instance.get('liferayForm');
@@ -1253,7 +1253,7 @@ AUI.add(
 			EXTENDS: Field,
 
 			prototype: {
-				getDatePicker: function() {
+				getDatePicker() {
 					var instance = this;
 
 					var inputNode = instance.getInputNode();
@@ -1263,7 +1263,7 @@ AUI.add(
 					);
 				},
 
-				getValue: function() {
+				getValue() {
 					var instance = this;
 
 					var datePicker = instance.getDatePicker();
@@ -1285,7 +1285,7 @@ AUI.add(
 					return value;
 				},
 
-				repeat: function() {
+				repeat() {
 					var instance = this;
 
 					instance._getTemplate(function(fieldTemplate) {
@@ -1304,7 +1304,7 @@ AUI.add(
 					});
 				},
 
-				setValue: function(value) {
+				setValue(value) {
 					var instance = this;
 
 					var datePicker = instance.getDatePicker();
@@ -1352,7 +1352,7 @@ AUI.add(
 			EXTENDS: Field,
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					var container = instance.get('container');
@@ -1365,7 +1365,7 @@ AUI.add(
 					);
 				},
 
-				syncUI: function() {
+				syncUI() {
 					var instance = this;
 
 					var parsedValue = instance.getParsedValue(
@@ -1387,7 +1387,7 @@ AUI.add(
 					clearButtonNode.toggle(!!parsedValue.uuid);
 				},
 
-				getDocumentLibrarySelectorURL: function() {
+				getDocumentLibrarySelectorURL() {
 					var instance = this;
 
 					var form = instance.getForm();
@@ -1407,7 +1407,7 @@ AUI.add(
 					return retVal;
 				},
 
-				getDocumentLibraryURL: function(criteria) {
+				getDocumentLibraryURL(criteria) {
 					var instance = this;
 
 					var container = instance.get('container');
@@ -1426,7 +1426,7 @@ AUI.add(
 					};
 
 					var documentLibraryParameters = {
-						criteria: criteria,
+						criteria,
 						itemSelectedEventName:
 							portletNamespace + 'selectDocumentLibrary',
 						'0_json': JSON.stringify(criterionJSON),
@@ -1446,7 +1446,7 @@ AUI.add(
 					return documentLibraryURL.toString();
 				},
 
-				getParsedValue: function(value) {
+				getParsedValue(value) {
 					var instance = this;
 
 					if (Lang.isString(value)) {
@@ -1460,7 +1460,7 @@ AUI.add(
 					return value;
 				},
 
-				getRuleInputName: function() {
+				getRuleInputName() {
 					var instance = this;
 
 					var inputName = instance.getInputName();
@@ -1468,7 +1468,7 @@ AUI.add(
 					return inputName + 'Title';
 				},
 
-				getUploadURL: function() {
+				getUploadURL() {
 					var uploadParameters = {
 						cmd: 'add_temp',
 						'javax.portlet.action':
@@ -1485,7 +1485,7 @@ AUI.add(
 					return uploadURL.toString();
 				},
 
-				setValue: function(value) {
+				setValue(value) {
 					var instance = this;
 
 					var parsedValue = instance.getParsedValue(value);
@@ -1504,7 +1504,7 @@ AUI.add(
 					instance.syncUI();
 				},
 
-				syncReadOnlyUI: function() {
+				syncReadOnlyUI() {
 					var instance = this;
 
 					var readOnly = instance.getReadOnly();
@@ -1532,7 +1532,7 @@ AUI.add(
 					}
 				},
 
-				_handleButtonsClick: function(event) {
+				_handleButtonsClick(event) {
 					var instance = this;
 
 					if (!instance.get('readOnly')) {
@@ -1546,13 +1546,13 @@ AUI.add(
 					}
 				},
 
-				_handleClearButtonClick: function(event) {
+				_handleClearButtonClick(event) {
 					var instance = this;
 
 					instance.setValue('');
 				},
 
-				_handleSelectButtonClick: function(event) {
+				_handleSelectButtonClick(event) {
 					var instance = this;
 
 					var portletNamespace = instance.get('portletNamespace');
@@ -1560,7 +1560,7 @@ AUI.add(
 					var itemSelectorDialog = new A.LiferayItemSelectorDialog({
 						eventName: portletNamespace + 'selectDocumentLibrary',
 						on: {
-							selectedItemChange: function(event) {
+							selectedItemChange(event) {
 								var selectedItem = event.newVal;
 
 								if (selectedItem) {
@@ -1584,7 +1584,7 @@ AUI.add(
 					itemSelectorDialog.open();
 				},
 
-				_validateField: function(fieldNode) {
+				_validateField(fieldNode) {
 					var instance = this;
 
 					var liferayForm = instance.get('liferayForm');
@@ -1606,7 +1606,7 @@ AUI.add(
 			EXTENDS: Field,
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					var container = instance.get('container');
@@ -1619,7 +1619,7 @@ AUI.add(
 					);
 				},
 
-				syncUI: function() {
+				syncUI() {
 					var instance = this;
 
 					var parsedValue = instance.getParsedValue(
@@ -1654,7 +1654,7 @@ AUI.add(
 					clearButtonNode.toggle(!!parsedValue.classPK);
 				},
 
-				getParsedValue: function(value) {
+				getParsedValue(value) {
 					if (Lang.isString(value)) {
 						if (value !== '') {
 							value = JSON.parse(value);
@@ -1666,7 +1666,7 @@ AUI.add(
 					return value;
 				},
 
-				getRuleInputName: function() {
+				getRuleInputName() {
 					var instance = this;
 
 					var inputName = instance.getInputName();
@@ -1674,7 +1674,7 @@ AUI.add(
 					return inputName + 'Title';
 				},
 
-				getWebContentSelectorURL: function() {
+				getWebContentSelectorURL() {
 					var instance = this;
 
 					var container = instance.get('container');
@@ -1689,7 +1689,7 @@ AUI.add(
 
 					var webContentSelectorParameters = {
 						eventName: 'selectContent',
-						groupId: groupId,
+						groupId,
 						p_p_auth: container.getData('assetBrowserAuthToken'),
 						selectedGroupId: groupId,
 						showNonindexable: true,
@@ -1709,7 +1709,7 @@ AUI.add(
 					return webContentSelectorURL.toString();
 				},
 
-				setValue: function(value) {
+				setValue(value) {
 					var instance = this;
 
 					var parsedValue = instance.getParsedValue(value);
@@ -1728,7 +1728,7 @@ AUI.add(
 					instance.syncUI();
 				},
 
-				showNotice: function(message) {
+				showNotice(message) {
 					var instance = this;
 
 					if (!instance.notice) {
@@ -1742,7 +1742,7 @@ AUI.add(
 					instance.notice.show();
 				},
 
-				syncReadOnlyUI: function() {
+				syncReadOnlyUI() {
 					var instance = this;
 
 					var readOnly = instance.getReadOnly();
@@ -1762,7 +1762,7 @@ AUI.add(
 					clearButtonNode.attr('disabled', readOnly);
 				},
 
-				_handleButtonsClick: function(event) {
+				_handleButtonsClick(event) {
 					var instance = this;
 
 					if (!instance.get('readOnly')) {
@@ -1776,7 +1776,7 @@ AUI.add(
 					}
 				},
 
-				_handleClearButtonClick: function() {
+				_handleClearButtonClick() {
 					var instance = this;
 
 					instance.setValue('');
@@ -1784,7 +1784,7 @@ AUI.add(
 					instance._hideMessage();
 				},
 
-				_handleSelectButtonClick: function(event) {
+				_handleSelectButtonClick(event) {
 					var instance = this;
 
 					Liferay.Util.selectEntity(
@@ -1817,7 +1817,7 @@ AUI.add(
 					);
 				},
 
-				_hideMessage: function() {
+				_hideMessage() {
 					var instance = this;
 
 					var container = instance.get('container');
@@ -1837,7 +1837,7 @@ AUI.add(
 					formGroup.removeClass('has-warning');
 				},
 
-				_validateField: function(fieldNode) {
+				_validateField(fieldNode) {
 					var instance = this;
 
 					var liferayForm = instance.get('liferayForm');
@@ -1862,7 +1862,7 @@ AUI.add(
 				},
 
 				selectedLayout: {
-					valueFn: function() {
+					valueFn() {
 						var instance = this;
 
 						var layoutValue = instance.getParsedValue(
@@ -1880,7 +1880,7 @@ AUI.add(
 				},
 
 				selectedLayoutPath: {
-					valueFn: function() {
+					valueFn() {
 						var instance = this;
 
 						var layoutValue = instance.getParsedValue(
@@ -1901,10 +1901,10 @@ AUI.add(
 							themeDisplay.getScopeGroupId();
 
 						var layoutsRoot = {
-							groupId: groupId,
+							groupId,
 							label: Liferay.Language.get('all'),
 							layoutId: 0,
-							privateLayout: privateLayout
+							privateLayout
 						};
 
 						return [layoutsRoot];
@@ -1915,7 +1915,7 @@ AUI.add(
 			EXTENDS: Field,
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					var container = instance.get('container');
@@ -1944,7 +1944,7 @@ AUI.add(
 					);
 				},
 
-				getParsedValue: function(value) {
+				getParsedValue(value) {
 					var instance = this;
 
 					if (Lang.isString(value)) {
@@ -1958,7 +1958,7 @@ AUI.add(
 					return value;
 				},
 
-				getRuleInputName: function() {
+				getRuleInputName() {
 					var instance = this;
 
 					var inputName = instance.getInputName();
@@ -1966,7 +1966,7 @@ AUI.add(
 					return inputName + 'LayoutName';
 				},
 
-				setValue: function(value) {
+				setValue(value) {
 					var instance = this;
 
 					var container = instance.get('container');
@@ -2002,7 +2002,7 @@ AUI.add(
 					LinkToPageField.superclass.setValue.call(instance, value);
 				},
 
-				syncReadOnlyUI: function() {
+				syncReadOnlyUI() {
 					var instance = this;
 
 					var readOnly = instance.getReadOnly();
@@ -2022,12 +2022,7 @@ AUI.add(
 					clearButtonNode.attr('disabled', readOnly);
 				},
 
-				_addBreadcrumbElement: function(
-					label,
-					layoutId,
-					groupId,
-					privateLayout
-				) {
+				_addBreadcrumbElement(label, layoutId, groupId, privateLayout) {
 					var instance = this;
 
 					var breadcrumbNode = instance._modal.bodyNode.one(
@@ -2036,22 +2031,17 @@ AUI.add(
 
 					var breadcrumbElementNode = A.Node.create(
 						Lang.sub(TPL_PAGES_BREADCRUMB_ELEMENT, {
-							groupId: groupId,
-							label: label,
-							layoutId: layoutId,
-							privateLayout: privateLayout
+							groupId,
+							label,
+							layoutId,
+							privateLayout
 						})
 					);
 
 					breadcrumbNode.append(breadcrumbElementNode);
 				},
 
-				_addListElement: function(
-					layout,
-					container,
-					selected,
-					prepend
-				) {
+				_addListElement(layout, container, selected, prepend) {
 					var instance = this;
 
 					var entryNode = A.Node.create(
@@ -2077,7 +2067,7 @@ AUI.add(
 					}
 				},
 
-				_afterSelectedLayoutChange: function(event) {
+				_afterSelectedLayoutChange(event) {
 					var instance = this;
 
 					var modal = instance._modal;
@@ -2094,13 +2084,13 @@ AUI.add(
 					}
 				},
 
-				_afterSelectedLayoutPathChange: function(event) {
+				_afterSelectedLayoutPathChange(event) {
 					var instance = this;
 
 					instance._renderBreadcrumb(event.newVal);
 				},
 
-				_canLoadMore: function(key, start, end) {
+				_canLoadMore(key, start, end) {
 					var instance = this;
 
 					var cache = instance._getCache(key);
@@ -2108,7 +2098,7 @@ AUI.add(
 					return !cache || start < cache.start || end > cache.end;
 				},
 
-				_cleanSelectedLayout: function() {
+				_cleanSelectedLayout() {
 					var instance = this;
 
 					var checkedElement = instance._modal.bodyNode.one(
@@ -2122,7 +2112,7 @@ AUI.add(
 					}
 				},
 
-				_getCache: function(key) {
+				_getCache(key) {
 					var instance = this;
 
 					var cache;
@@ -2134,7 +2124,7 @@ AUI.add(
 					return cache;
 				},
 
-				_getModalConfig: function() {
+				_getModalConfig() {
 					var instance = this;
 
 					return {
@@ -2143,7 +2133,7 @@ AUI.add(
 							height: 600,
 							modal: true,
 							on: {
-								destroy: function() {
+								destroy() {
 									instance.set('selectedLayout', null);
 								}
 							},
@@ -2196,7 +2186,7 @@ AUI.add(
 					};
 				},
 
-				_handleBreadcrumbElementClick: function(event) {
+				_handleBreadcrumbElementClick(event) {
 					var instance = this;
 
 					var currentTargetLayoutId = Number(
@@ -2262,13 +2252,13 @@ AUI.add(
 					}
 				},
 
-				_handleCancelButtonClick: function() {
+				_handleCancelButtonClick() {
 					var instance = this;
 
 					instance._modal.hide();
 				},
 
-				_handleChooseButtonClick: function() {
+				_handleChooseButtonClick() {
 					var instance = this;
 
 					var selectedLayout = instance.get('selectedLayout');
@@ -2278,7 +2268,7 @@ AUI.add(
 					instance._modal.hide();
 				},
 
-				_handleClearButtonClick: function() {
+				_handleClearButtonClick() {
 					var instance = this;
 
 					instance._clearedModal = true;
@@ -2291,7 +2281,7 @@ AUI.add(
 					);
 				},
 
-				_handleControlButtonsClick: function(event) {
+				_handleControlButtonsClick(event) {
 					var instance = this;
 
 					if (!instance.get('readOnly')) {
@@ -2305,7 +2295,7 @@ AUI.add(
 					}
 				},
 
-				_handleListEntryClick: function(event) {
+				_handleListEntryClick(event) {
 					var instance = this;
 
 					var currentTarget = event.currentTarget;
@@ -2335,10 +2325,10 @@ AUI.add(
 							);
 
 							selectedLayoutPath.push({
-								groupId: groupId,
-								label: label,
-								layoutId: layoutId,
-								privateLayout: privateLayout
+								groupId,
+								label,
+								layoutId,
+								privateLayout
 							});
 
 							instance.set(
@@ -2368,25 +2358,25 @@ AUI.add(
 							inputRadioNode.attr('checked', 'true');
 
 							instance.set('selectedLayout', {
-								groupId: groupId,
-								label: label,
-								layoutId: layoutId,
+								groupId,
+								label,
+								layoutId,
 								path: instance.get('selectedLayoutPath'),
-								privateLayout: privateLayout
+								privateLayout
 							});
 						}
 					} else if (event.target.hasClass('lfr-ddm-page-radio')) {
 						instance.set('selectedLayout', {
-							groupId: groupId,
-							label: label,
-							layoutId: layoutId,
+							groupId,
+							label,
+							layoutId,
 							path: instance.get('selectedLayoutPath'),
-							privateLayout: privateLayout
+							privateLayout
 						});
 					}
 				},
 
-				_handleModalScroll: function(event) {
+				_handleModalScroll(event) {
 					var instance = this;
 
 					var listNode = event.currentTarget;
@@ -2481,7 +2471,7 @@ AUI.add(
 					}
 				},
 
-				_handleNavbarClick: function(event) {
+				_handleNavbarClick(event) {
 					var instance = this;
 
 					var currentTarget = event.currentTarget;
@@ -2500,19 +2490,19 @@ AUI.add(
 					instance._renderLayoutsList(privateLayout);
 				},
 
-				_handleSelectButtonClick: function() {
+				_handleSelectButtonClick() {
 					var instance = this;
 
 					instance._openLinkToPageModal();
 				},
 
-				_hideLoader: function() {
+				_hideLoader() {
 					var instance = this;
 
 					instance._loadingAnimationNode.remove();
 				},
 
-				_initBreadcrumb: function() {
+				_initBreadcrumb() {
 					var instance = this;
 
 					var breadcrumbNode = A.Node.create(TPL_PAGES_BREADCRUMB);
@@ -2527,7 +2517,7 @@ AUI.add(
 					);
 				},
 
-				_initLayoutsList: function() {
+				_initLayoutsList() {
 					var instance = this;
 
 					var bodyNode = instance._modal.bodyNode;
@@ -2546,7 +2536,7 @@ AUI.add(
 					}
 				},
 
-				_isListNodeEmpty: function(key) {
+				_isListNodeEmpty(key) {
 					var instance = this;
 
 					var cache = instance._getCache(key);
@@ -2554,7 +2544,7 @@ AUI.add(
 					return !(cache && cache.layouts);
 				},
 
-				_openLinkToPageModal: function() {
+				_openLinkToPageModal() {
 					var instance = this;
 
 					var value = instance.getParsedValue(instance.getValue());
@@ -2608,7 +2598,7 @@ AUI.add(
 					instance._syncModalHeight();
 				},
 
-				_renderBreadcrumb: function(layoutsPath) {
+				_renderBreadcrumb(layoutsPath) {
 					var instance = this;
 
 					var bodyNode = instance._modal.bodyNode;
@@ -2633,7 +2623,7 @@ AUI.add(
 					}
 				},
 
-				_renderLayouts: function(layouts) {
+				_renderLayouts(layouts) {
 					var instance = this;
 
 					var bodyNode = instance._modal.bodyNode;
@@ -2655,7 +2645,7 @@ AUI.add(
 					instance._syncModalHeight();
 				},
 
-				_renderLayoutsFragment: function(layouts, key, direction) {
+				_renderLayoutsFragment(layouts, key, direction) {
 					var instance = this;
 
 					var bodyNode = instance._modal.bodyNode;
@@ -2701,7 +2691,7 @@ AUI.add(
 					instance._syncModalHeight();
 				},
 
-				_renderLayoutsList: function(privateLayout) {
+				_renderLayoutsList(privateLayout) {
 					var instance = this;
 
 					var bodyNode = instance._modal.bodyNode;
@@ -2764,7 +2754,7 @@ AUI.add(
 					}
 				},
 
-				_renderNavbar: function(privateLayout) {
+				_renderNavbar(privateLayout) {
 					var instance = this;
 
 					var navbar = instance._navbar;
@@ -2792,7 +2782,7 @@ AUI.add(
 					}
 				},
 
-				_requestInitialLayouts: function(
+				_requestInitialLayouts(
 					parentLayoutId,
 					groupId,
 					privateLayout,
@@ -2814,7 +2804,7 @@ AUI.add(
 					);
 				},
 
-				_requestLayouts: function(
+				_requestLayouts(
 					parentLayoutId,
 					groupId,
 					privateLayout,
@@ -2834,14 +2824,14 @@ AUI.add(
 						if (instance._canLoadMore(key, start, end)) {
 							const data = new URLSearchParams({
 								cmd: 'get',
-								end: end,
+								end,
 								expandParentLayouts: false,
-								groupId: groupId,
+								groupId,
 								p_auth: Liferay.authToken,
 								paginate: true,
-								parentLayoutId: parentLayoutId,
-								privateLayout: privateLayout,
-								start: start
+								parentLayoutId,
+								privateLayout,
+								start
 							});
 
 							Liferay.Util.fetch(
@@ -2876,11 +2866,7 @@ AUI.add(
 					}
 				},
 
-				_requestSiblingLayouts: function(
-					groupId,
-					privateLayout,
-					callback
-				) {
+				_requestSiblingLayouts(groupId, privateLayout, callback) {
 					var instance = this;
 
 					var cache;
@@ -2909,12 +2895,12 @@ AUI.add(
 						const data = new URLSearchParams({
 							cmd: 'getSiblingLayoutsJSON',
 							expandParentLayouts: false,
-							groupId: groupId,
+							groupId,
 							layoutId: selectedLayout.layoutId,
 							max: instance.get('delta'),
 							p_auth: Liferay.authToken,
 							paginate: true,
-							privateLayout: privateLayout
+							privateLayout
 						});
 
 						Liferay.Util.fetch(
@@ -2982,7 +2968,7 @@ AUI.add(
 					}
 				},
 
-				_resetBreadcrumb: function(privateLayout) {
+				_resetBreadcrumb(privateLayout) {
 					var instance = this;
 
 					var selectedLayoutRoot = instance.get(
@@ -2994,11 +2980,7 @@ AUI.add(
 					instance.set('selectedLayoutPath', [selectedLayoutRoot]);
 				},
 
-				_setSelectedLayoutPath: function(
-					groupId,
-					privateLayout,
-					response
-				) {
+				_setSelectedLayoutPath(groupId, privateLayout, response) {
 					var instance = this;
 
 					var ancestorLayoutIds = response.ancestorLayoutIds;
@@ -3016,10 +2998,10 @@ AUI.add(
 							index--
 						) {
 							selectedLayoutPath.push({
-								groupId: groupId,
+								groupId,
 								label: ancestorLayoutNames[index],
 								layoutId: ancestorLayoutIds[index],
-								privateLayout: privateLayout
+								privateLayout
 							});
 						}
 
@@ -3027,13 +3009,13 @@ AUI.add(
 					}
 				},
 
-				_showLoader: function(node) {
+				_showLoader(node) {
 					var instance = this;
 
 					instance._loadingAnimationNode.appendTo(node);
 				},
 
-				_syncModalHeight: function() {
+				_syncModalHeight() {
 					var instance = this;
 
 					var modal = instance._modal;
@@ -3049,7 +3031,7 @@ AUI.add(
 					);
 				},
 
-				_updateCache: function(key, layouts, start, end, total) {
+				_updateCache(key, layouts, start, end, total) {
 					var instance = this;
 
 					var cache = instance._cache[key];
@@ -3058,12 +3040,12 @@ AUI.add(
 						var path = instance.get('selectedLayoutPath');
 
 						cache = {
-							end: end,
-							layouts: layouts,
+							end,
+							layouts,
 							oldStart: 0,
 							path: path.slice(),
-							start: start,
-							total: total
+							start,
+							total
 						};
 
 						instance._cache[key] = cache;
@@ -3086,7 +3068,7 @@ AUI.add(
 					}
 				},
 
-				_validateField: function(fieldNode) {
+				_validateField(fieldNode) {
 					var instance = this;
 
 					var liferayForm = instance.get('liferayForm');
@@ -3110,7 +3092,7 @@ AUI.add(
 			EXTENDS: Field,
 
 			prototype: {
-				getFieldNodes: function() {
+				getFieldNodes() {
 					var instance = this;
 
 					return instance
@@ -3132,7 +3114,7 @@ AUI.add(
 			EXTENDS: DocumentLibraryField,
 
 			prototype: {
-				syncUI: function() {
+				syncUI() {
 					var instance = this;
 
 					var parsedValue = instance.getParsedValue(
@@ -3173,7 +3155,7 @@ AUI.add(
 					previewButtonNode.toggle(notEmpty);
 				},
 
-				getDocumentLibrarySelectorURL: function() {
+				getDocumentLibrarySelectorURL() {
 					var instance = this;
 
 					var form = instance.getForm();
@@ -3191,7 +3173,7 @@ AUI.add(
 					return retVal;
 				},
 
-				getDocumentLibraryURL: function(criteria) {
+				getDocumentLibraryURL(criteria) {
 					var instance = this;
 
 					var container = instance.get('container');
@@ -3217,7 +3199,7 @@ AUI.add(
 					};
 
 					var documentLibraryParameters = {
-						criteria: criteria,
+						criteria,
 						itemSelectedEventName:
 							portletNamespace + 'selectDocumentLibrary',
 						'0_json': JSON.stringify(journalCriterionJSON),
@@ -3236,7 +3218,7 @@ AUI.add(
 					return documentLibraryURL.toString();
 				},
 
-				getValue: function() {
+				getValue() {
 					var instance = this;
 
 					var value;
@@ -3263,7 +3245,7 @@ AUI.add(
 					return value;
 				},
 
-				isNotEmpty: function(value) {
+				isNotEmpty(value) {
 					var instance = this;
 
 					var parsedValue = instance.getParsedValue(value);
@@ -3275,7 +3257,7 @@ AUI.add(
 					);
 				},
 
-				setValue: function(value) {
+				setValue(value) {
 					var instance = this;
 
 					var parsedValue = instance.getParsedValue(value);
@@ -3304,7 +3286,7 @@ AUI.add(
 					instance.syncUI();
 				},
 
-				_getImagePreviewURL: function() {
+				_getImagePreviewURL() {
 					var instance = this;
 
 					var imagePreviewURL;
@@ -3326,7 +3308,7 @@ AUI.add(
 					return imagePreviewURL;
 				},
 
-				_handleButtonsClick: function(event) {
+				_handleButtonsClick(event) {
 					var instance = this;
 
 					var currentTarget = event.currentTarget;
@@ -3341,7 +3323,7 @@ AUI.add(
 					);
 				},
 
-				_handlePreviewButtonClick: function(event) {
+				_handlePreviewButtonClick(event) {
 					var instance = this;
 
 					if (!instance.viewer) {
@@ -3374,7 +3356,7 @@ AUI.add(
 					instance.viewer.show();
 				},
 
-				_validateField: function(fieldNode) {
+				_validateField(fieldNode) {
 					var instance = this;
 
 					var liferayForm = instance.get('liferayForm');
@@ -3396,7 +3378,7 @@ AUI.add(
 			EXTENDS: Field,
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					Liferay.componentReady(instance.getInputName()).then(
@@ -3410,7 +3392,7 @@ AUI.add(
 					);
 				},
 
-				onPositionChange: function(event) {
+				onPositionChange(event) {
 					var instance = this;
 
 					var inputName = instance.getInputName();
@@ -3437,7 +3419,7 @@ AUI.add(
 			EXTENDS: Field,
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					instance.readOnlyLabel = A.Node.create(
@@ -3452,13 +3434,13 @@ AUI.add(
 					});
 				},
 
-				getEditor: function() {
+				getEditor() {
 					var instance = this;
 
 					return window[instance.getInputName() + 'Editor'];
 				},
 
-				getValue: function() {
+				getValue() {
 					var instance = this;
 
 					var editor = instance.getEditor();
@@ -3468,7 +3450,7 @@ AUI.add(
 						: editor.getHTML();
 				},
 
-				setValue: function(value) {
+				setValue(value) {
 					var instance = this;
 
 					var editorComponentName =
@@ -3497,7 +3479,7 @@ AUI.add(
 					});
 				},
 
-				syncReadOnlyUI: function() {
+				syncReadOnlyUI() {
 					var instance = this;
 
 					instance.readOnlyLabel.html(
@@ -3515,7 +3497,7 @@ AUI.add(
 					instance.get('container').toggle(!readOnly);
 				},
 
-				_afterRenderTextHTMLField: function() {
+				_afterRenderTextHTMLField() {
 					var instance = this;
 
 					var container = instance.get('container');
@@ -3532,7 +3514,7 @@ AUI.add(
 			EXTENDS: Field,
 
 			prototype: {
-				getInputNode: function() {
+				getInputNode() {
 					var instance = this;
 
 					var container = instance.get('container');
@@ -3542,7 +3524,7 @@ AUI.add(
 					);
 				},
 
-				getRadioNodes: function() {
+				getRadioNodes() {
 					var instance = this;
 
 					var container = instance.get('container');
@@ -3552,7 +3534,7 @@ AUI.add(
 					);
 				},
 
-				getValue: function() {
+				getValue() {
 					var instance = this;
 
 					var value = '';
@@ -3567,7 +3549,7 @@ AUI.add(
 					return value;
 				},
 
-				setLabel: function() {
+				setLabel() {
 					var instance = this;
 
 					var container = instance.get('container');
@@ -3594,7 +3576,7 @@ AUI.add(
 					RadioField.superclass.setLabel.apply(instance, arguments);
 				},
 
-				setValue: function(value) {
+				setValue(value) {
 					var instance = this;
 
 					var radioNodes = instance.getRadioNodes();
@@ -3606,7 +3588,7 @@ AUI.add(
 						.set('checked', true);
 				},
 
-				syncReadOnlyUI: function() {
+				syncReadOnlyUI() {
 					var instance = this;
 
 					var readOnly = instance.getReadOnly();
@@ -3624,7 +3606,7 @@ AUI.add(
 			EXTENDS: RadioField,
 
 			prototype: {
-				getInputNode: function() {
+				getInputNode() {
 					var instance = this;
 
 					return Field.prototype.getInputNode.apply(
@@ -3633,7 +3615,7 @@ AUI.add(
 					);
 				},
 
-				getValue: function() {
+				getValue() {
 					var instance = this;
 
 					var selectedItems = instance
@@ -3654,7 +3636,7 @@ AUI.add(
 					return value;
 				},
 
-				setLabel: function() {
+				setLabel() {
 					var instance = this;
 
 					var options = instance._getOptions();
@@ -3678,7 +3660,7 @@ AUI.add(
 					Field.prototype.setLabel.apply(instance, arguments);
 				},
 
-				setValue: function(value) {
+				setValue(value) {
 					var instance = this;
 
 					if (Lang.isString(value)) {
@@ -3696,7 +3678,7 @@ AUI.add(
 						});
 				},
 
-				_getOptions: function() {
+				_getOptions() {
 					var instance = this;
 
 					var fieldDefinition = instance.getFieldDefinition();
@@ -3708,14 +3690,14 @@ AUI.add(
 					return fieldOptions;
 				},
 
-				_getPlaceholderOption: function() {
+				_getPlaceholderOption() {
 					var instance = this;
 					var label = {};
 
 					label[instance.get('displayLocale')] = '';
 
 					return {
-						label: label,
+						label,
 						value: ''
 					};
 				}
@@ -3728,7 +3710,7 @@ AUI.add(
 			EXTENDS: Field,
 
 			prototype: {
-				getValue: function() {
+				getValue() {
 					return '';
 				}
 			}
@@ -3782,7 +3764,7 @@ AUI.add(
 			NAME: 'liferay-ddm-form',
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					instance.eventHandlers = [];
@@ -3793,13 +3775,13 @@ AUI.add(
 					instance.renderUI();
 				},
 
-				renderUI: function() {
+				renderUI() {
 					var instance = this;
 
 					AArray.invoke(instance.get('fields'), 'renderUI');
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					var formNode = instance.get('formNode');
@@ -3847,7 +3829,7 @@ AUI.add(
 					}
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					AArray.invoke(instance.eventHandlers, 'detach');
@@ -3864,7 +3846,7 @@ AUI.add(
 					instance.repeatableInstances = null;
 				},
 
-				addAvailableLanguageIds: function(availableLanguageIds) {
+				addAvailableLanguageIds(availableLanguageIds) {
 					var instance = this;
 
 					var currentAvailableLanguageIds = instance.get(
@@ -3878,7 +3860,7 @@ AUI.add(
 					});
 				},
 
-				finalizeRepeatableFieldLocalizations: function() {
+				finalizeRepeatableFieldLocalizations() {
 					var instance = this;
 
 					var defaultLocale = instance.getDefaultLocale();
@@ -3900,7 +3882,7 @@ AUI.add(
 					);
 				},
 
-				moveField: function(parentField, oldIndex, newIndex) {
+				moveField(parentField, oldIndex, newIndex) {
 					var instance = this;
 
 					var fields = parentField.get('fields');
@@ -3908,7 +3890,7 @@ AUI.add(
 					fields.splice(newIndex, 0, fields.splice(oldIndex, 1)[0]);
 				},
 
-				populateBlankLocalizationMap: function(
+				populateBlankLocalizationMap(
 					defaultLocale,
 					originalField,
 					repeatedField
@@ -3963,7 +3945,7 @@ AUI.add(
 					}
 				},
 
-				registerRepeatable: function(field) {
+				registerRepeatable(field) {
 					var instance = this;
 
 					var fieldName = field.get('name');
@@ -4021,7 +4003,7 @@ AUI.add(
 								placeholder: A.Node.create(
 									'<div class="form-builder-placeholder"></div>'
 								),
-								sortCondition: function(event) {
+								sortCondition(event) {
 									var dropNode = event.drop.get('node');
 
 									var dropNodeAncestor = dropNode.ancestor();
@@ -4078,7 +4060,7 @@ AUI.add(
 					drag.addInvalid('.lfr-source-editor');
 				},
 
-				toJSON: function() {
+				toJSON() {
 					var instance = this;
 
 					var definition = instance.get('definition');
@@ -4095,17 +4077,17 @@ AUI.add(
 						defaultLanguageId:
 							definition.defaultLanguageId ||
 							themeDisplay.getDefaultLanguageId(),
-						fieldValues: fieldValues
+						fieldValues
 					};
 				},
 
-				unregisterRepeatable: function(field) {
+				unregisterRepeatable(field) {
 					var instance = this;
 
 					field.get('container').dd.destroy();
 				},
 
-				updateDDMFormInputValue: function() {
+				updateDDMFormInputValue() {
 					var instance = this;
 
 					var ddmFormValuesInput = instance.get('ddmFormValuesInput');
@@ -4113,7 +4095,7 @@ AUI.add(
 					ddmFormValuesInput.val(JSON.stringify(instance.toJSON()));
 				},
 
-				_afterFormRegistered: function(event) {
+				_afterFormRegistered(event) {
 					var instance = this;
 
 					var formNode = instance.get('formNode');
@@ -4123,7 +4105,7 @@ AUI.add(
 					}
 				},
 
-				_afterRenderField: function(event) {
+				_afterRenderField(event) {
 					var instance = this;
 
 					var field = event.field;
@@ -4133,14 +4115,14 @@ AUI.add(
 					}
 				},
 
-				_afterRepeatableDragAlign: function() {
+				_afterRepeatableDragAlign() {
 					var DDM = A.DD.DDM;
 
 					DDM.syncActiveShims();
 					DDM._dropMove();
 				},
 
-				_afterRepeatableDragEnd: function(event, parentField) {
+				_afterRepeatableDragEnd(event, parentField) {
 					var instance = this;
 
 					var node = event.target.get('node');
@@ -4164,7 +4146,7 @@ AUI.add(
 					instance.moveField(parentField, oldIndex, newIndex);
 				},
 
-				_afterUpdateRepeatableFields: function(event) {
+				_afterUpdateRepeatableFields(event) {
 					var instance = this;
 
 					var field = event.field;
@@ -4207,7 +4189,7 @@ AUI.add(
 					}
 				},
 
-				_onDefaultLocaleChanged: function(event) {
+				_onDefaultLocaleChanged(event) {
 					var instance = this;
 
 					var definition = instance.get('definition');
@@ -4219,7 +4201,7 @@ AUI.add(
 					instance.set('definition', definition);
 				},
 
-				_onLiferaySubmitForm: function(event) {
+				_onLiferaySubmitForm(event) {
 					var instance = this;
 
 					var formNode = instance.get('formNode');
@@ -4229,7 +4211,7 @@ AUI.add(
 					}
 				},
 
-				_onSubmitForm: function(event) {
+				_onSubmitForm(event) {
 					var instance = this;
 
 					instance.finalizeRepeatableFieldLocalizations();
@@ -4237,7 +4219,7 @@ AUI.add(
 					instance.updateDDMFormInputValue();
 				},
 
-				_valueFormNode: function() {
+				_valueFormNode() {
 					var instance = this;
 
 					var container = instance.get('container');
@@ -4245,7 +4227,7 @@ AUI.add(
 					return container.ancestor('form', true);
 				},
 
-				_valueLiferayForm: function() {
+				_valueLiferayForm() {
 					var instance = this;
 
 					var formNode = instance.get('formNode');
@@ -4265,7 +4247,7 @@ AUI.add(
 			EXTENDS: A.SortableList,
 
 			prototype: {
-				_createDrag: function(node) {
+				_createDrag(node) {
 					var instance = this;
 
 					var helper = instance.get('helper');
@@ -4273,7 +4255,7 @@ AUI.add(
 					if (!A.DD.DDM.getDrag(node)) {
 						var dragOptions = {
 							bubbleTargets: instance,
-							node: node,
+							node,
 							target: true
 						};
 

@@ -101,7 +101,7 @@ AUI.add(
 			NAME: 'simulationdevice',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					instance._eventHandles = [];
@@ -139,7 +139,7 @@ AUI.add(
 					instance._bindUI();
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					new A.EventHandle(instance._eventHandles).detach();
@@ -147,7 +147,7 @@ AUI.add(
 					instance._simulationDeviceNode.remove();
 				},
 
-				hideDeviceDialog: function() {
+				hideDeviceDialog() {
 					var instance = this;
 
 					var dialog = Liferay.Util.getWindow(instance._dialogId);
@@ -155,7 +155,7 @@ AUI.add(
 					dialog.hide();
 				},
 
-				showDeviceDialog: function() {
+				showDeviceDialog() {
 					var instance = this;
 
 					var dialog = Liferay.Util.getWindow(instance._dialogId);
@@ -163,7 +163,7 @@ AUI.add(
 					dialog.show();
 				},
 
-				_bindUI: function() {
+				_bindUI() {
 					var instance = this;
 
 					var eventHandles = instance._eventHandles;
@@ -210,7 +210,7 @@ AUI.add(
 					}
 				},
 
-				_normalizeDialogAttrs: function(device, rotation) {
+				_normalizeDialogAttrs(device, rotation) {
 					var instance = this;
 
 					var dialogAutoHeight = false;
@@ -259,7 +259,7 @@ AUI.add(
 					};
 				},
 
-				_onDeviceClick: function(event) {
+				_onDeviceClick(event) {
 					var instance = this;
 
 					var deviceList = instance.get(STR_DEVICES);
@@ -303,7 +303,7 @@ AUI.add(
 					}
 				},
 
-				_onResize: function(event) {
+				_onResize(event) {
 					var instance = this;
 
 					var eventInfo = event.info;
@@ -331,13 +331,13 @@ AUI.add(
 					instance._sizeStatusContent.html(info);
 				},
 
-				_onResizeEnd: function(event) {
+				_onResizeEnd(event) {
 					var instance = this;
 
 					instance._sizeStatus.hide();
 				},
 
-				_onResizeStart: function(event) {
+				_onResizeStart(event) {
 					var instance = this;
 
 					var sizeStatus = instance._sizeStatus;
@@ -374,7 +374,7 @@ AUI.add(
 					sizeStatus.show();
 				},
 
-				_onSizeInput: function(event) {
+				_onSizeInput(event) {
 					var instance = this;
 
 					var inputHeight = instance.get(STR_INPUT_HEIGHT).val();
@@ -386,13 +386,13 @@ AUI.add(
 					Liferay.Util.getWindow(instance._dialogId);
 
 					instance._openDeviceDialog({
-						height: height,
+						height,
 						resizable: true,
-						width: width
+						width
 					});
 				},
 
-				_openDeviceDialog: function(device, rotation) {
+				_openDeviceDialog(device, rotation) {
 					var instance = this;
 
 					var dialog = Liferay.Util.getWindow(instance._dialogId);
@@ -415,10 +415,10 @@ AUI.add(
 							},
 							autoSizeNode: simulationDeviceNode,
 							constrain: simulationDeviceNode,
-							height: height,
+							height,
 							hideOn: [],
 							render: simulationDeviceNode,
-							width: width
+							width
 						};
 
 						Liferay.Util.openWindow(
@@ -445,7 +445,7 @@ AUI.add(
 
 								dialogWindow.plug(A.Plugin.SizeAnim, {
 									after: {
-										end: function(event) {
+										end(event) {
 											var selectedDevice =
 												instance._selectedDevice;
 
@@ -461,7 +461,7 @@ AUI.add(
 													false
 											);
 										},
-										start: function(event) {
+										start(event) {
 											AObject.each(
 												instance.get(STR_DEVICES),
 												function(item, index) {
@@ -514,8 +514,8 @@ AUI.add(
 						dialog.setAttrs(dialogAttrs);
 
 						dialog.iframe.node.setStyles({
-							height: height,
-							width: width
+							height,
+							width
 						});
 
 						dialog.show();

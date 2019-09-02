@@ -50,7 +50,7 @@ AUI.add(
 			NS: 'liferayalloyeditorsource',
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -117,7 +117,7 @@ AUI.add(
 					];
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					var sourceEditor = instance._sourceEditor;
@@ -141,7 +141,7 @@ AUI.add(
 					new A.EventHandle(instance._eventHandles).detach();
 				},
 
-				_createSourceEditor: function() {
+				_createSourceEditor() {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -150,7 +150,7 @@ AUI.add(
 						boundingBox: instance._editorSource,
 						mode: 'html',
 						on: {
-							themeSwitched: function(event) {
+							themeSwitched(event) {
 								var editorSwitchTheme =
 									instance._editorSwitchTheme;
 
@@ -175,7 +175,7 @@ AUI.add(
 					instance._sourceEditor = sourceEditor;
 				},
 
-				_getEditorStateLexiconIcon: function() {
+				_getEditorStateLexiconIcon() {
 					var instance = this;
 
 					var currentState = MAP_TOGGLE_STATE[instance._isVisible];
@@ -193,7 +193,7 @@ AUI.add(
 					return icon;
 				},
 
-				_getHTML: function() {
+				_getHTML() {
 					var instance = this;
 
 					var sourceEditor = instance._sourceEditor;
@@ -208,13 +208,13 @@ AUI.add(
 					}
 				},
 
-				_onEditorUpdate: function(event) {
+				_onEditorUpdate(event) {
 					var instance = this;
 
 					instance._toggleSourceSwitchFn(event.data.state);
 				},
 
-				_onFullScreenBtnClick: function() {
+				_onFullScreenBtnClick() {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -239,7 +239,7 @@ AUI.add(
 										{
 											label: strings.cancel,
 											on: {
-												click: function() {
+												click() {
 													fullScreenDialog.hide();
 												}
 											}
@@ -248,7 +248,7 @@ AUI.add(
 											cssClass: 'btn-primary',
 											label: strings.done,
 											on: {
-												click: function() {
+												click() {
 													fullScreenDialog.hide();
 													instance._switchMode({
 														content: fullScreenEditor.get(
@@ -297,7 +297,7 @@ AUI.add(
 					}
 				},
 
-				_onSwitchBlur: function(event) {
+				_onSwitchBlur(event) {
 					var instance = this;
 
 					instance._isFocused = false;
@@ -307,7 +307,7 @@ AUI.add(
 					});
 				},
 
-				_onSwitchFocus: function(event) {
+				_onSwitchFocus(event) {
 					var instance = this;
 
 					instance._isFocused = true;
@@ -317,25 +317,25 @@ AUI.add(
 					});
 				},
 
-				_onSwitchMouseDown: function() {
+				_onSwitchMouseDown() {
 					var instance = this;
 
 					instance._isClicked = true;
 				},
 
-				_onSwitchMouseOut: function() {
+				_onSwitchMouseOut() {
 					var instance = this;
 
 					instance._isClicked = false;
 				},
 
-				_refreshTooltip: function() {
+				_refreshTooltip() {
 					if (Liferay.Data.LFR_PORTAL_TOOLTIP) {
 						Liferay.Data.LFR_PORTAL_TOOLTIP.getTooltip().renderUI();
 					}
 				},
 
-				_setHTML: function(value) {
+				_setHTML(value) {
 					var instance = this;
 
 					var sourceEditor = instance._sourceEditor;
@@ -345,7 +345,7 @@ AUI.add(
 					}
 				},
 
-				_switchMode: function(event) {
+				_switchMode(event) {
 					var instance = this;
 
 					instance._isClicked = false;
@@ -375,7 +375,7 @@ AUI.add(
 					}
 				},
 
-				_switchTheme: function(event) {
+				_switchTheme(event) {
 					var instance = this;
 
 					instance._sourceEditor.switchTheme();
@@ -383,7 +383,7 @@ AUI.add(
 					instance._refreshTooltip();
 				},
 
-				_toggleEditorModeUI: function() {
+				_toggleEditorModeUI() {
 					var instance = this;
 
 					var editorFullscreen = instance._editorFullscreen;
@@ -418,7 +418,7 @@ AUI.add(
 					});
 				},
 
-				_toggleSourceSwitch: function(editorState) {
+				_toggleSourceSwitch(editorState) {
 					var instance = this;
 
 					var showSourceSwitch = true;

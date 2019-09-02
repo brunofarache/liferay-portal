@@ -31,7 +31,7 @@ AUI.add(
 			NAME: 'addcontent',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					instance._config = config;
@@ -46,19 +46,19 @@ AUI.add(
 					instance._bindUI();
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					new A.EventHandle(instance._eventHandles).detach();
 				},
 
-				_afterSuccess: function(response) {
+				_afterSuccess(response) {
 					var instance = this;
 
 					instance._entriesPanel.setContent(response);
 				},
 
-				_bindUI: function() {
+				_bindUI() {
 					var instance = this;
 
 					instance._eventHandles.push(
@@ -79,7 +79,7 @@ AUI.add(
 					);
 				},
 
-				_refreshContentList: function(event) {
+				_refreshContentList(event) {
 					var instance = this;
 
 					var delta = event.delta;

@@ -51,7 +51,7 @@ AUI.add(
 			NS: 'covercropper',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -76,7 +76,7 @@ AUI.add(
 					instance._bindUI();
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					instance._dd.destroy();
@@ -84,7 +84,7 @@ AUI.add(
 					new A.EventHandle(instance._eventHandles).detach();
 				},
 
-				_bindUI: function() {
+				_bindUI() {
 					var instance = this;
 
 					instance._eventHandles = [
@@ -96,7 +96,7 @@ AUI.add(
 					];
 				},
 
-				_constrainDrag: function(event) {
+				_constrainDrag(event) {
 					var instance = this;
 
 					var direction = instance.get(STR_DIRECTION);
@@ -137,7 +137,7 @@ AUI.add(
 					}
 				},
 
-				_getConstrain: function() {
+				_getConstrain() {
 					var instance = this;
 
 					var constrain = {};
@@ -167,7 +167,7 @@ AUI.add(
 					return constrain;
 				},
 
-				_onImageUpdated: function(event) {
+				_onImageUpdated(event) {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);

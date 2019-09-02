@@ -261,8 +261,8 @@ Liferay = window.Liferay || {};
 		ioConfig = Object.assign(
 			{
 				data: {
-					cmd: cmd,
-					p_auth: p_auth
+					cmd,
+					p_auth
 				},
 				dataType: 'JSON'
 			},
@@ -323,7 +323,7 @@ Liferay = window.Liferay || {};
 		A.namespace('config.io'),
 		{
 			method: 'POST',
-			uriFormatter: function(value) {
+			uriFormatter(value) {
 				return Liferay.Util.getURLWithSessionId(value);
 			}
 		},

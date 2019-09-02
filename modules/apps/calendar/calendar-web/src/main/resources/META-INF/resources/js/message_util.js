@@ -26,22 +26,16 @@ AUI.add(
 			'</p>';
 
 		Liferay.CalendarMessageUtil = {
-			confirm: function(
-				message,
-				yesButtonLabel,
-				noButtonLabel,
-				yesFn,
-				noFn
-			) {
+			confirm(message, yesButtonLabel, noButtonLabel, yesFn, noFn) {
 				var instance = this;
 
 				var confirmationPanel;
 
 				var getButtonConfig = function(label, callback) {
 					return {
-						label: label,
+						label,
 						on: {
-							click: function() {
+							click() {
 								if (callback) {
 									callback.apply(this, arguments);
 								}
@@ -72,7 +66,7 @@ AUI.add(
 				return confirmationPanel.render().show();
 			},
 
-			promptSchedulerEventUpdate: function(data) {
+			promptSchedulerEventUpdate(data) {
 				var instance = this;
 
 				data.answers = {};
@@ -122,7 +116,7 @@ AUI.add(
 				queue.run();
 			},
 
-			showAlert: function(container, message) {
+			showAlert(container, message) {
 				new A.Alert({
 					animated: true,
 					bodyContent: message,
@@ -133,7 +127,7 @@ AUI.add(
 				}).render(container);
 			},
 
-			showErrorMessage: function(container, errorMessage) {
+			showErrorMessage(container, errorMessage) {
 				var instance = this;
 
 				var alert = instance._alert;
@@ -162,7 +156,7 @@ AUI.add(
 				instance._alert = alert;
 			},
 
-			showSuccessMessage: function(container, message) {
+			showSuccessMessage(container, message) {
 				var instance = this;
 
 				if (!message) {
@@ -186,7 +180,7 @@ AUI.add(
 						show: 0
 					},
 					icon: 'check',
-					message: message,
+					message,
 					type: 'success'
 				});
 
@@ -199,7 +193,7 @@ AUI.add(
 				instance._alert = alert;
 			},
 
-			_queueableQuestionUpdateAllInvited: function(data) {
+			_queueableQuestionUpdateAllInvited(data) {
 				var instance = this;
 
 				var answers = data.answers;
@@ -223,7 +217,7 @@ AUI.add(
 				}
 			},
 
-			_queueableQuestionUpdateRecurring: function(data) {
+			_queueableQuestionUpdateRecurring(data) {
 				var instance = this;
 
 				var answers = data.answers;
@@ -256,7 +250,7 @@ AUI.add(
 				}
 			},
 
-			_queueableQuestionUserCalendarOnly: function(data) {
+			_queueableQuestionUserCalendarOnly(data) {
 				var instance = this;
 
 				var answers = data.answers;

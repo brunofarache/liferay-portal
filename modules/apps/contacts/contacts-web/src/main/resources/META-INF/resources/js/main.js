@@ -165,7 +165,7 @@ AUI.add(
 			NAME: 'contactscenter',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					instance._config = config;
@@ -232,7 +232,7 @@ AUI.add(
 					instance._showIcon = config.showIcon;
 				},
 
-				addContactResult: function(data) {
+				addContactResult(data) {
 					var instance = this;
 
 					instance._setVisibleSelectedUsersView();
@@ -263,7 +263,7 @@ AUI.add(
 					);
 				},
 
-				addContactResults: function(data) {
+				addContactResults(data) {
 					var instance = this;
 
 					var contacts = data.contacts;
@@ -273,7 +273,7 @@ AUI.add(
 					});
 				},
 
-				closePopup: function() {
+				closePopup() {
 					var instance = this;
 
 					if (instance._popup) {
@@ -281,7 +281,7 @@ AUI.add(
 					}
 				},
 
-				deleteContactResult: function(userId) {
+				deleteContactResult(userId) {
 					var instance = this;
 
 					instance._setVisibleSelectedUsersView();
@@ -305,7 +305,7 @@ AUI.add(
 					}
 				},
 
-				deleteContactResults: function(userIds) {
+				deleteContactResults(userIds) {
 					var instance = this;
 
 					userIds.map(function(userId) {
@@ -313,7 +313,7 @@ AUI.add(
 					});
 				},
 
-				renderContent: function(data, clear) {
+				renderContent(data, clear) {
 					var instance = this;
 
 					if (clear) {
@@ -348,7 +348,7 @@ AUI.add(
 					}
 				},
 
-				renderEntry: function(data, lastNameAnchor) {
+				renderEntry(data, lastNameAnchor) {
 					var instance = this;
 
 					var contact = data.contact;
@@ -373,7 +373,7 @@ AUI.add(
 					instance.showMessage(true, data.message);
 				},
 
-				renderSelectedContacts: function(data, lastNameAnchor) {
+				renderSelectedContacts(data, lastNameAnchor) {
 					var instance = this;
 
 					var contacts = data.contacts;
@@ -413,7 +413,7 @@ AUI.add(
 					instance.showMessage(true, data.message);
 				},
 
-				showMessage: function(success, message) {
+				showMessage(success, message) {
 					var instance = this;
 
 					if (instance._messageContainer) {
@@ -441,7 +441,7 @@ AUI.add(
 					}
 				},
 
-				showMoreResult: function(responseData, lastNameAnchor) {
+				showMoreResult(responseData, lastNameAnchor) {
 					var instance = this;
 
 					var contactUserHTML = instance._renderResult(
@@ -460,7 +460,7 @@ AUI.add(
 					contactResultContent.append(contactUserHTML.join(''));
 				},
 
-				showPopup: function(title, uri) {
+				showPopup(title, uri) {
 					var instance = this;
 
 					instance._getPopup();
@@ -474,7 +474,7 @@ AUI.add(
 					instance._popup.io.start();
 				},
 
-				updateContacts: function(keywords, filterBy) {
+				updateContacts(keywords, filterBy) {
 					var instance = this;
 
 					if (instance._contactList) {
@@ -485,7 +485,7 @@ AUI.add(
 					}
 				},
 
-				_clearContactResult: function() {
+				_clearContactResult() {
 					var instance = this;
 
 					instance._detailUserView.empty();
@@ -520,7 +520,7 @@ AUI.add(
 					instance._checkAll.set('checked', false);
 				},
 
-				_createContactList: function(config) {
+				_createContactList(config) {
 					var instance = this;
 
 					var contactsResult = config.contactsResult;
@@ -531,14 +531,14 @@ AUI.add(
 						inputNode: contactsSearchInput,
 						listNode: contactsResult,
 						minQueryLength: 0,
-						requestTemplate: function(query) {
+						requestTemplate(query) {
 							var data = {};
 
 							data[instance._namespace + 'keywords'] = query;
 
 							return data;
 						},
-						resultTextLocator: function(response) {
+						resultTextLocator(response) {
 							var result = '';
 
 							if (typeof response.toString != STR_UNDEFINED) {
@@ -562,7 +562,7 @@ AUI.add(
 					instance._contactList = contactList;
 				},
 
-				_createDataSource: function(url) {
+				_createDataSource(url) {
 					var instance = this;
 
 					return new A.DataSource.IO({
@@ -570,7 +570,7 @@ AUI.add(
 							method: 'POST'
 						},
 						on: {
-							request: function(event) {
+							request(event) {
 								var contactFilter = A.one(
 									'#' + instance._namespace + 'filterBy'
 								);
@@ -604,7 +604,7 @@ AUI.add(
 					});
 				},
 
-				_deleteEntry: function(contact) {
+				_deleteEntry(contact) {
 					var instance = this;
 
 					var config = instance._config;
@@ -644,7 +644,7 @@ AUI.add(
 					}
 				},
 
-				_editEntry: function(contact) {
+				_editEntry(contact) {
 					var instance = this;
 
 					var config = instance._config;
@@ -670,7 +670,7 @@ AUI.add(
 					);
 				},
 
-				_getPopup: function() {
+				_getPopup() {
 					var instance = this;
 
 					if (!instance._popup) {
@@ -696,7 +696,7 @@ AUI.add(
 					}
 				},
 
-				_getRequestTemplate: function(filterBy) {
+				_getRequestTemplate(filterBy) {
 					var instance = this;
 
 					return function(query) {
@@ -712,7 +712,7 @@ AUI.add(
 					};
 				},
 
-				_onCheckAll: function(event) {
+				_onCheckAll(event) {
 					var instance = this;
 
 					var config = instance._config;
@@ -765,7 +765,7 @@ AUI.add(
 					}
 				},
 
-				_renderContact: function(data) {
+				_renderContact(data) {
 					var instance = this;
 
 					var user = data.user;
@@ -789,7 +789,7 @@ AUI.add(
 					});
 				},
 
-				_renderEntryDetailView: function(contact) {
+				_renderEntryDetailView(contact) {
 					var instance = this;
 
 					var icon = '';
@@ -812,7 +812,7 @@ AUI.add(
 					instance._detailUserView.setContent(contactSummary);
 				},
 
-				_renderEntryToolbar: function(contact) {
+				_renderEntryToolbar(contact) {
 					var instance = this;
 
 					instance._userToolbar.empty();
@@ -825,7 +825,7 @@ AUI.add(
 								icon: 'icon-edit',
 								label: Liferay.Language.get('edit'),
 								on: {
-									click: function(event) {
+									click(event) {
 										instance._editEntry(contact);
 									}
 								}
@@ -834,7 +834,7 @@ AUI.add(
 								icon: 'icon-remove',
 								label: Liferay.Language.get('delete'),
 								on: {
-									click: function(event) {
+									click(event) {
 										instance._deleteEntry(contact);
 									}
 								}
@@ -843,7 +843,7 @@ AUI.add(
 					}).render();
 				},
 
-				_renderResult: function(data, displayMessage, lastNameAnchor) {
+				_renderResult(data, displayMessage, lastNameAnchor) {
 					var instance = this;
 
 					var count = data.count;
@@ -986,7 +986,7 @@ AUI.add(
 					return buffer;
 				},
 
-				_setVisibleDetailUserView: function() {
+				_setVisibleDetailUserView() {
 					var instance = this;
 
 					instance._contactCenterToolbar.hide();
@@ -996,7 +996,7 @@ AUI.add(
 					instance._selectedUsersView.hide();
 				},
 
-				_setVisibleSelectedUsersView: function() {
+				_setVisibleSelectedUsersView() {
 					var instance = this;
 
 					instance._userToolbar.empty();
@@ -1008,13 +1008,13 @@ AUI.add(
 					instance._selectedUsersView.show();
 				},
 
-				_showButton: function(node) {
+				_showButton(node) {
 					node.show();
 
 					node.removeClass('hidden');
 				},
 
-				_updateContactsResult: function(event) {
+				_updateContactsResult(event) {
 					var instance = this;
 
 					var data = JSON.parse(event.data.responseText);
@@ -1033,7 +1033,7 @@ AUI.add(
 					);
 				},
 
-				_updateToolbarButtonsAdd: function(data) {
+				_updateToolbarButtonsAdd(data) {
 					var instance = this;
 
 					var user = data.user;
@@ -1095,7 +1095,7 @@ AUI.add(
 					}
 				},
 
-				_updateToolbarButtonsRemove: function(userId) {
+				_updateToolbarButtonsRemove(userId) {
 					var instance = this;
 
 					var blockUserIdIndex = instance._buttonBlockUserIds.indexOf(
@@ -1225,7 +1225,7 @@ AUI.add(
 					}
 				},
 
-				_updateUserIcons: function(user) {
+				_updateUserIcons(user) {
 					var instance = this;
 
 					var contactsAction = A.one('.contacts-action');
@@ -1266,7 +1266,7 @@ AUI.add(
 					contactsAction.show();
 				},
 
-				_updateUserToolBar: function(user) {
+				_updateUserToolBar(user) {
 					var instance = this;
 
 					instance._userToolbar.hide();
@@ -1325,7 +1325,7 @@ AUI.add(
 			A.Base,
 			[A.AutoCompleteBase],
 			{
-				initializer: function(config) {
+				initializer(config) {
 					this._listNode = A.one(config.listNode);
 
 					this._bindUIACBase();

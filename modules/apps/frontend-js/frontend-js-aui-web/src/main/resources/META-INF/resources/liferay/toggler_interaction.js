@@ -59,12 +59,12 @@ AUI.add(
 
 			EXTENDS: Liferay.TogglerKeyFilter,
 
-			NAME: NAME,
+			NAME,
 
 			NS: NAME,
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -94,13 +94,13 @@ AUI.add(
 					instance._focusManager = container.focusManager;
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					new A.EventHandle(instance._eventHandles).detach();
 				},
 
-				_childrenEventHandler: function(event) {
+				_childrenEventHandler(event) {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -126,7 +126,7 @@ AUI.add(
 					instance._focusManager.set('activeDescendant', header);
 				},
 
-				_getDescendants: function() {
+				_getDescendants() {
 					var instance = this;
 
 					var result =
@@ -141,7 +141,7 @@ AUI.add(
 					return result;
 				},
 
-				_headerEventHandler: function(event) {
+				_headerEventHandler(event) {
 					var instance = this;
 
 					instance._focusManager.refresh();
@@ -152,7 +152,7 @@ AUI.add(
 					);
 				},
 
-				_onExpandedChange: function(event) {
+				_onExpandedChange(event) {
 					var instance = this;
 
 					if (event.silent) {

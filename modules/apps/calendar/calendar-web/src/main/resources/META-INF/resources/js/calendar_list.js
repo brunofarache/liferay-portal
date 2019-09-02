@@ -128,7 +128,7 @@ AUI.add(
 			UI_ATTRS: ['calendars'],
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					instance.simpleMenu = new Liferay.SimpleMenu(
@@ -136,7 +136,7 @@ AUI.add(
 					);
 				},
 
-				renderUI: function() {
+				renderUI() {
 					var instance = this;
 
 					instance._renderCalendars();
@@ -144,7 +144,7 @@ AUI.add(
 					instance.simpleMenu.render();
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					var contentBox = instance.get('contentBox');
@@ -180,7 +180,7 @@ AUI.add(
 					);
 				},
 
-				add: function(calendar) {
+				add(calendar) {
 					var instance = this;
 
 					var calendars = instance.get('calendars');
@@ -190,13 +190,13 @@ AUI.add(
 					instance.set('calendars', calendars);
 				},
 
-				clear: function() {
+				clear() {
 					var instance = this;
 
 					instance.set('calendars', []);
 				},
 
-				getCalendar: function(calendarId) {
+				getCalendar(calendarId) {
 					var instance = this;
 
 					var calendars = instance.get('calendars');
@@ -216,7 +216,7 @@ AUI.add(
 					return calendar;
 				},
 
-				getCalendarByNode: function(node) {
+				getCalendarByNode(node) {
 					var instance = this;
 
 					var calendars = instance.get('calendars');
@@ -224,7 +224,7 @@ AUI.add(
 					return calendars[instance.items.indexOf(node)];
 				},
 
-				getCalendarNode: function(calendar) {
+				getCalendarNode(calendar) {
 					var instance = this;
 
 					var calendars = instance.get('calendars');
@@ -232,7 +232,7 @@ AUI.add(
 					return instance.items.item(calendars.indexOf(calendar));
 				},
 
-				remove: function(calendar) {
+				remove(calendar) {
 					var instance = this;
 
 					var calendars = instance.get('calendars');
@@ -246,13 +246,13 @@ AUI.add(
 					}
 
 					instance.fire('calendarRemoved', {
-						calendar: calendar
+						calendar
 					});
 
 					instance.set('calendars', calendars);
 				},
 
-				_clearCalendarColor: function(calendar) {
+				_clearCalendarColor(calendar) {
 					var instance = this;
 
 					var node = instance.getCalendarNode(calendar);
@@ -264,7 +264,7 @@ AUI.add(
 					colorNode.setAttribute('style', STR_BLANK);
 				},
 
-				_onCalendarColorChange: function(event) {
+				_onCalendarColorChange(event) {
 					var instance = this;
 
 					var target = event.target;
@@ -274,7 +274,7 @@ AUI.add(
 					}
 				},
 
-				_onCalendarVisibleChange: function(event) {
+				_onCalendarVisibleChange(event) {
 					var instance = this;
 
 					var target = event.target;
@@ -286,7 +286,7 @@ AUI.add(
 					}
 				},
 
-				_onClick: function(event) {
+				_onClick(event) {
 					var instance = this;
 
 					var target = event.target.ancestor(
@@ -332,7 +332,7 @@ AUI.add(
 					}
 				},
 
-				_onHoverOut: function(event) {
+				_onHoverOut(event) {
 					var instance = this;
 
 					var currentTarget = event.currentTarget;
@@ -346,7 +346,7 @@ AUI.add(
 					currentTarget.removeClass(CSS_CALENDAR_LIST_ITEM_HOVER);
 				},
 
-				_onHoverOver: function(event) {
+				_onHoverOver(event) {
 					var instance = this;
 
 					var currentTarget = event.currentTarget;
@@ -363,7 +363,7 @@ AUI.add(
 					}
 				},
 
-				_onSimpleMenuVisibleChange: function(event) {
+				_onSimpleMenuVisibleChange(event) {
 					var instance = this;
 
 					if (instance.activeNode && !event.newVal) {
@@ -373,7 +373,7 @@ AUI.add(
 					}
 				},
 
-				_renderCalendars: function() {
+				_renderCalendars() {
 					var instance = this;
 
 					var calendars = instance.get('calendars');
@@ -381,14 +381,14 @@ AUI.add(
 
 					instance.items = A.NodeList.create(
 						TPL_CALENDAR_LIST_ITEM.parse({
-							calendars: calendars
+							calendars
 						})
 					);
 
 					contentBox.setContent(instance.items);
 				},
 
-				_setCalendarColor: function(calendar, val) {
+				_setCalendarColor(calendar, val) {
 					var instance = this;
 
 					var node = instance.getCalendarNode(calendar);
@@ -403,7 +403,7 @@ AUI.add(
 					});
 				},
 
-				_setCalendars: function(val) {
+				_setCalendars(val) {
 					var instance = this;
 
 					var scheduler = instance.get('scheduler');
@@ -433,7 +433,7 @@ AUI.add(
 					return val;
 				},
 
-				_setSimpleMenu: function(val) {
+				_setSimpleMenu(val) {
 					var instance = this;
 
 					var result = val;
@@ -463,7 +463,7 @@ AUI.add(
 					return result;
 				},
 
-				_uiSetCalendars: function(val) {
+				_uiSetCalendars(val) {
 					var instance = this;
 
 					if (instance.get('rendered')) {

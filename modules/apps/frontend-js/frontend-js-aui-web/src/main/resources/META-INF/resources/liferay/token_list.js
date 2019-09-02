@@ -31,7 +31,7 @@ AUI().add(
 			'</span>',
 			'</tpl>',
 			{
-				getTokenText: function(str, values) {
+				getTokenText(str, values) {
 					if ('html' in values) {
 						str = values.html;
 					} else {
@@ -57,7 +57,7 @@ AUI().add(
 			NAME: 'liferaytokenlist',
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					instance._buffer = [];
@@ -68,13 +68,13 @@ AUI().add(
 					);
 				},
 
-				renderUI: function() {
+				renderUI() {
 					var instance = this;
 
 					instance.add(instance.get('children'));
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					var boundingBox = instance.get('boundingBox');
@@ -91,7 +91,7 @@ AUI().add(
 					});
 				},
 
-				add: function(token) {
+				add(token) {
 					var instance = this;
 
 					if (token) {
@@ -107,7 +107,7 @@ AUI().add(
 					}
 				},
 
-				_addToken: function() {
+				_addToken() {
 					var instance = this;
 
 					var buffer = instance._buffer;
@@ -117,13 +117,13 @@ AUI().add(
 					buffer.length = 0;
 				},
 
-				_defCloseFn: function(event) {
+				_defCloseFn(event) {
 					var instance = this;
 
 					event.item.remove();
 				},
 
-				_onClick: function(event) {
+				_onClick(event) {
 					var instance = this;
 
 					instance.fire('close', {

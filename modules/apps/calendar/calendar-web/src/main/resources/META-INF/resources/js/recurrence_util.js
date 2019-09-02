@@ -46,7 +46,7 @@ AUI.add(
 
 			WEEKDAY_LABELS: {},
 
-			getSummary: function(recurrence) {
+			getSummary(recurrence) {
 				var instance = this;
 
 				var key;
@@ -132,7 +132,7 @@ AUI.add(
 				return A.Lang.sub(instance.RECURRENCE_SUMMARIES[key], params);
 			},
 
-			openConfirmationPanel: function(
+			openConfirmationPanel(
 				actionName,
 				onlyThisInstanceFn,
 				allFollowingFn,
@@ -180,14 +180,10 @@ AUI.add(
 				return instance.confirmationPanel.render().show();
 			},
 
-			_createConfirmationPanel: function(
-				title,
-				bodyContent,
-				footerContent
-			) {
+			_createConfirmationPanel(title, bodyContent, footerContent) {
 				return Liferay.Util.Window.getWindow({
 					dialog: {
-						bodyContent: bodyContent,
+						bodyContent,
 						destroyOnHide: true,
 						height: 400,
 						hideOn: [],
@@ -197,16 +193,16 @@ AUI.add(
 						},
 						width: 700
 					},
-					title: title
+					title
 				});
 			},
 
-			_createConfirmationPanelContent: function(description, options) {
+			_createConfirmationPanelContent(description, options) {
 				var instance = this;
 
 				var contentNode = A.Node.create(
 					A.Lang.sub(instance.RECURRING_EVENT_MODAL_TEMPLATE, {
-						description: description
+						description
 					})
 				);
 
@@ -231,7 +227,7 @@ AUI.add(
 				return contentNode;
 			},
 
-			_getConfirmationPanelButtons: function(
+			_getConfirmationPanelButtons(
 				onlyThisInstanceFn,
 				allFollowingFn,
 				allEventsInFn,
@@ -243,10 +239,10 @@ AUI.add(
 
 				var getButtonConfig = function(label, callback, cssClass) {
 					return {
-						cssClass: cssClass,
-						label: label,
+						cssClass,
+						label,
 						on: {
-							click: function() {
+							click() {
 								if (callback) {
 									callback.apply(this, arguments);
 								}

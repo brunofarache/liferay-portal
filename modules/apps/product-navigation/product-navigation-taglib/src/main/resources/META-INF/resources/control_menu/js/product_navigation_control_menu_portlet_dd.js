@@ -33,18 +33,18 @@ AUI.add(
 
 			EXTENDS: A.Plugin.Base,
 
-			NAME: NAME,
+			NAME,
 
 			NS: NAME,
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					instance._bindUIDragDrop();
 				},
 
-				_bindUIDragDrop: function() {
+				_bindUIDragDrop() {
 					var instance = this;
 
 					var portletItemOptions = {
@@ -58,7 +58,7 @@ AUI.add(
 							target: false
 						},
 						dragNodes: '[data-draggable]',
-						dropContainer: function(dropNode) {
+						dropContainer(dropNode) {
 							return dropNode.one(Layout.options.dropContainer);
 						}
 					};
@@ -87,7 +87,7 @@ AUI.add(
 					Liferay.fire('initLayout');
 				},
 
-				_onDragEnd: function(event) {
+				_onDragEnd(event) {
 					var instance = this;
 
 					var portletItem = event.currentTarget;
@@ -98,8 +98,8 @@ AUI.add(
 						var portletNode = event.target.get(STR_NODE);
 
 						instance.fire('dragEnd', {
-							appendNode: appendNode,
-							portletNode: portletNode
+							appendNode,
+							portletNode
 						});
 					}
 				}

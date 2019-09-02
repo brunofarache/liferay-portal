@@ -29,24 +29,24 @@ AUI.add(
 			A.Base,
 			[Liferay.PortletBase],
 			{
-				deleteCalendar: function(calendarId, callback) {
+				deleteCalendar(calendarId, callback) {
 					var instance = this;
 
 					instance._invokeService(
 						{
 							'/calendar.calendar/delete-calendar': {
-								calendarId: calendarId
+								calendarId
 							}
 						},
 						{
-							success: function() {
+							success() {
 								callback(this.get('responseData'));
 							}
 						}
 					);
 				},
 
-				deleteEvent: function(schedulerEvent, success) {
+				deleteEvent(schedulerEvent, success) {
 					var instance = this;
 
 					instance._invokeService(
@@ -58,7 +58,7 @@ AUI.add(
 							}
 						},
 						{
-							success: function(data) {
+							success(data) {
 								if (success) {
 									success.call(instance, data);
 									MessageUtil.showSuccessMessage(
@@ -70,17 +70,13 @@ AUI.add(
 					);
 				},
 
-				deleteEventInstance: function(
-					schedulerEvent,
-					allFollowing,
-					success
-				) {
+				deleteEventInstance(schedulerEvent, allFollowing, success) {
 					var instance = this;
 
 					instance._invokeService(
 						{
 							'/calendar.calendarbooking/delete-calendar-booking-instance': {
-								allFollowing: allFollowing,
+								allFollowing,
 								calendarBookingId: schedulerEvent.get(
 									'calendarBookingId'
 								),
@@ -91,7 +87,7 @@ AUI.add(
 							}
 						},
 						{
-							success: function(data) {
+							success(data) {
 								if (success) {
 									success.call(instance, data);
 									MessageUtil.showSuccessMessage(
@@ -103,26 +99,23 @@ AUI.add(
 					);
 				},
 
-				getCalendar: function(calendarId, callback) {
+				getCalendar(calendarId, callback) {
 					var instance = this;
 
 					instance._invokeResourceURL({
-						callback: callback,
+						callback,
 						queryParameters: {
-							calendarId: calendarId
+							calendarId
 						},
 						resourceId: 'calendar'
 					});
 				},
 
-				getCalendarBookingInvitees: function(
-					calendarBookingId,
-					callback
-				) {
+				getCalendarBookingInvitees(calendarBookingId, callback) {
 					var instance = this;
 
 					instance._invokeResourceURL({
-						callback: callback,
+						callback,
 						queryParameters: {
 							parentCalendarBookingId: calendarBookingId
 						},
@@ -130,7 +123,7 @@ AUI.add(
 					});
 				},
 
-				getCalendarRenderingRules: function(
+				getCalendarRenderingRules(
 					calendarIds,
 					startDate,
 					endDate,
@@ -140,18 +133,18 @@ AUI.add(
 					var instance = this;
 
 					instance._invokeResourceURL({
-						callback: callback,
+						callback,
 						payload: {
 							calendarIds: calendarIds.join(),
 							endTime: endDate.getTime(),
-							ruleName: ruleName,
+							ruleName,
 							startTime: startDate.getTime()
 						},
 						resourceId: 'calendarRenderingRules'
 					});
 				},
 
-				getCurrentTime: function(callback) {
+				getCurrentTime(callback) {
 					var instance = this;
 
 					var lastCurrentTime = instance.lastCurrentTime;
@@ -179,7 +172,7 @@ AUI.add(
 					}
 
 					instance._invokeResourceURL({
-						callback: function(dateObj) {
+						callback(dateObj) {
 							instance.lastCurrentTime = CalendarUtil.getDateFromObject(
 								dateObj
 							);
@@ -192,23 +185,23 @@ AUI.add(
 					});
 				},
 
-				getEvent: function(calendarBookingId, success, failure) {
+				getEvent(calendarBookingId, success, failure) {
 					var instance = this;
 
 					instance._invokeService(
 						{
 							'/calendar.calendarbooking/get-calendar-booking': {
-								calendarBookingId: calendarBookingId
+								calendarBookingId
 							}
 						},
 						{
-							failure: failure,
-							success: success
+							failure,
+							success
 						}
 					);
 				},
 
-				getEvents: function(
+				getEvents(
 					calendarIds,
 					eventsPerPage,
 					startDate,
@@ -219,7 +212,7 @@ AUI.add(
 					var instance = this;
 
 					instance._invokeResourceURL({
-						callback: callback,
+						callback,
 						payload: {
 							calendarIds: calendarIds.join(','),
 							endTimeDay: endDate.getDate(),
@@ -227,7 +220,7 @@ AUI.add(
 							endTimeMinute: endDate.getMinutes(),
 							endTimeMonth: endDate.getMonth(),
 							endTimeYear: endDate.getFullYear(),
-							eventsPerPage: eventsPerPage,
+							eventsPerPage,
 							startTimeDay: startDate.getDate(),
 							startTimeHour: startDate.getHours(),
 							startTimeMinute: startDate.getMinutes(),
@@ -239,19 +232,19 @@ AUI.add(
 					});
 				},
 
-				getResourceCalendars: function(calendarResourceId, callback) {
+				getResourceCalendars(calendarResourceId, callback) {
 					var instance = this;
 
 					instance._invokeResourceURL({
-						callback: callback,
+						callback,
 						queryParameters: {
-							calendarResourceId: calendarResourceId
+							calendarResourceId
 						},
 						resourceId: 'resourceCalendars'
 					});
 				},
 
-				hasExclusiveCalendarBooking: function(
+				hasExclusiveCalendarBooking(
 					calendarId,
 					startDate,
 					endDate,
@@ -260,11 +253,11 @@ AUI.add(
 					var instance = this;
 
 					instance._invokeResourceURL({
-						callback: function(result) {
+						callback(result) {
 							callback(result.hasExclusiveCalendarBooking);
 						},
 						queryParameters: {
-							calendarId: calendarId,
+							calendarId,
 							endTimeDay: endDate.getDate(),
 							endTimeHour: endDate.getHours(),
 							endTimeMinute: endDate.getMinutes(),
@@ -280,7 +273,7 @@ AUI.add(
 					});
 				},
 
-				invokeTransition: function(
+				invokeTransition(
 					schedulerEvent,
 					instanceIndex,
 					status,
@@ -294,24 +287,24 @@ AUI.add(
 					instance._invokeService(
 						{
 							'/calendar.calendarbooking/invoke-transition': {
-								allFollowing: allFollowing,
+								allFollowing,
 								calendarBookingId: schedulerEvent.get(
 									'calendarBookingId'
 								),
-								instanceIndex: instanceIndex,
-								status: status,
-								updateInstance: updateInstance,
+								instanceIndex,
+								status,
+								updateInstance,
 								userId: instance.get('userId')
 							}
 						},
 						{
-							start: function() {
+							start() {
 								schedulerEvent.set('loading', true, {
 									silent: true
 								});
 							},
 
-							success: function(data) {
+							success(data) {
 								schedulerEvent.set('loading', false, {
 									silent: true
 								});
@@ -330,18 +323,18 @@ AUI.add(
 					);
 				},
 
-				updateCalendarColor: function(calendarId, color) {
+				updateCalendarColor(calendarId, color) {
 					var instance = this;
 
 					instance._invokeService({
 						'/calendar.calendar/update-color': {
-							calendarId: calendarId,
+							calendarId,
 							color: parseInt(color.substr(1), 16)
 						}
 					});
 				},
 
-				updateEvent: function(
+				updateEvent(
 					schedulerEvent,
 					updateInstance,
 					allFollowing,
@@ -354,7 +347,7 @@ AUI.add(
 
 					instance._invokeActionURL({
 						actionName: 'updateSchedulerCalendarBooking',
-						callback: function(data) {
+						callback(data) {
 							schedulerEvent.set('loading', false, {
 								silent: true
 							});
@@ -383,7 +376,7 @@ AUI.add(
 						},
 						payload: {
 							allDay: schedulerEvent.get('allDay'),
-							allFollowing: allFollowing,
+							allFollowing,
 							calendarBookingId: schedulerEvent.get(
 								'calendarBookingId'
 							),
@@ -403,12 +396,12 @@ AUI.add(
 							title: LString.unescapeHTML(
 								schedulerEvent.get('content')
 							),
-							updateInstance: updateInstance
+							updateInstance
 						}
 					});
 				},
 
-				_invokeActionURL: function(params) {
+				_invokeActionURL(params) {
 					var instance = this;
 
 					var url = Liferay.PortletURL.createActionURL();
@@ -444,7 +437,7 @@ AUI.add(
 						});
 				},
 
-				_invokeResourceURL: function(params) {
+				_invokeResourceURL(params) {
 					var instance = this;
 
 					var url = Liferay.PortletURL.createResourceURL();
@@ -487,7 +480,7 @@ AUI.add(
 						});
 				},
 
-				_invokeService: function(payload, callback) {
+				_invokeService(payload, callback) {
 					var instance = this;
 
 					callback = callback || {};

@@ -27,13 +27,13 @@ AUI.add(
 		var AddContentDragDrop = function() {};
 
 		AddContentDragDrop.prototype = {
-			initializer: function() {
+			initializer() {
 				var instance = this;
 
 				instance._bindUIDragDrop();
 			},
 
-			_bindUIDragDrop: function() {
+			_bindUIDragDrop() {
 				var instance = this;
 
 				var portletItemOptions = {
@@ -47,7 +47,7 @@ AUI.add(
 						target: false
 					},
 					dragNodes: '[data-draggable]',
-					dropContainer: function(dropNode) {
+					dropContainer(dropNode) {
 						return dropNode.one(Layout.options.dropContainer);
 					}
 				};
@@ -69,7 +69,7 @@ AUI.add(
 				Liferay.fire('initLayout');
 			},
 
-			_onDragEnd: function(event) {
+			_onDragEnd(event) {
 				var instance = this;
 
 				var portletItem = event.currentTarget;
@@ -104,7 +104,7 @@ AUI.add(
 			prototype: {
 				PROXY_TITLE: PROXY_NODE_ITEM.one('.portlet-title'),
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					PortletItem.superclass.bindUI.apply(this, arguments);
@@ -115,7 +115,7 @@ AUI.add(
 					);
 				},
 
-				_getAppendNode: function() {
+				_getAppendNode() {
 					var instance = this;
 
 					instance.appendNode = DDM.activeDrag.get(STR_NODE).clone();
@@ -123,7 +123,7 @@ AUI.add(
 					return instance.appendNode;
 				},
 
-				_onDragStart: function() {
+				_onDragStart() {
 					var instance = this;
 
 					PortletItem.superclass._onDragStart.apply(this, arguments);
@@ -133,7 +133,7 @@ AUI.add(
 					instance.lazyEvents = false;
 				},
 
-				_onPlaceholderAlign: function(event) {
+				_onPlaceholderAlign(event) {
 					var instance = this;
 
 					var drop = event.drop;
@@ -150,7 +150,7 @@ AUI.add(
 					}
 				},
 
-				_positionNode: function(event) {
+				_positionNode(event) {
 					var instance = this;
 
 					var portalLayout = event.currentTarget;
@@ -193,7 +193,7 @@ AUI.add(
 					}
 				},
 
-				_syncProxyTitle: function() {
+				_syncProxyTitle() {
 					var instance = this;
 
 					var node = DDM.activeDrag.get(STR_NODE);

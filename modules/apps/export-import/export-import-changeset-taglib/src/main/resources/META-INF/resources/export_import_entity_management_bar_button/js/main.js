@@ -47,7 +47,7 @@ AUI.add(
 			NAME: 'exportImportManagementBarButton',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					var namespace = instance.NS;
@@ -61,13 +61,13 @@ AUI.add(
 					instance._bindUI();
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					new A.EventHandle(instance._eventHandles).detach();
 				},
 
-				_bindUI: function() {
+				_bindUI() {
 					var instance = this;
 
 					instance._eventHandles = [
@@ -79,7 +79,7 @@ AUI.add(
 					];
 				},
 
-				_exportImportEntity: function() {
+				_exportImportEntity() {
 					var instance = this;
 
 					var searchContainer = instance._searchContainer.plug(

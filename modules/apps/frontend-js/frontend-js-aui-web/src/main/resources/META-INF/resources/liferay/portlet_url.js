@@ -62,7 +62,7 @@ AUI.add(
 			}
 
 			instance.options = {
-				basePortletURL: basePortletURL,
+				basePortletURL,
 				escapeXML: null,
 				secure: null
 			};
@@ -87,13 +87,13 @@ AUI.add(
 			 * @deprecated
 			 */
 
-			setCopyCurrentRenderParameters: function() {
+			setCopyCurrentRenderParameters() {
 				var instance = this;
 
 				return instance;
 			},
 
-			setDoAsGroupId: function(doAsGroupId) {
+			setDoAsGroupId(doAsGroupId) {
 				var instance = this;
 
 				instance.reservedParams.doAsGroupId = doAsGroupId;
@@ -101,7 +101,7 @@ AUI.add(
 				return instance;
 			},
 
-			setDoAsUserId: function(doAsUserId) {
+			setDoAsUserId(doAsUserId) {
 				var instance = this;
 
 				instance.reservedParams.doAsUserId = doAsUserId;
@@ -113,13 +113,13 @@ AUI.add(
 			 * @deprecated
 			 */
 
-			setEncrypt: function() {
+			setEncrypt() {
 				var instance = this;
 
 				return instance;
 			},
 
-			setEscapeXML: function(escapeXML) {
+			setEscapeXML(escapeXML) {
 				var instance = this;
 
 				instance.options.escapeXML = escapeXML;
@@ -127,7 +127,7 @@ AUI.add(
 				return instance;
 			},
 
-			setLifecycle: function(lifecycle) {
+			setLifecycle(lifecycle) {
 				var instance = this;
 
 				var reservedParams = instance.reservedParams;
@@ -145,7 +145,7 @@ AUI.add(
 				return instance;
 			},
 
-			setName: function(name) {
+			setName(name) {
 				var instance = this;
 
 				instance.setParameter('javax.portlet.action', name);
@@ -153,7 +153,7 @@ AUI.add(
 				return instance;
 			},
 
-			setParameter: function(key, value) {
+			setParameter(key, value) {
 				var instance = this;
 
 				if (instance._isReservedParam(key)) {
@@ -165,7 +165,7 @@ AUI.add(
 				return instance;
 			},
 
-			setParameters: function(parameters) {
+			setParameters(parameters) {
 				var instance = this;
 
 				A.each(parameters, function(item, index) {
@@ -175,7 +175,7 @@ AUI.add(
 				return instance;
 			},
 
-			setPlid: function(plid) {
+			setPlid(plid) {
 				var instance = this;
 
 				instance.reservedParams.p_l_id = plid;
@@ -187,13 +187,13 @@ AUI.add(
 			 * @deprecated
 			 */
 
-			setPortletConfiguration: function() {
+			setPortletConfiguration() {
 				var instance = this;
 
 				return instance;
 			},
 
-			setPortletId: function(portletId) {
+			setPortletId(portletId) {
 				var instance = this;
 
 				instance.reservedParams.p_p_id = portletId;
@@ -201,7 +201,7 @@ AUI.add(
 				return instance;
 			},
 
-			setPortletMode: function(portletMode) {
+			setPortletMode(portletMode) {
 				var instance = this;
 
 				instance.reservedParams.p_p_mode = portletMode;
@@ -209,7 +209,7 @@ AUI.add(
 				return instance;
 			},
 
-			setResourceId: function(resourceId) {
+			setResourceId(resourceId) {
 				var instance = this;
 
 				instance.reservedParams.p_p_resource_id = resourceId;
@@ -220,7 +220,7 @@ AUI.add(
 			/*
 			 * @deprecated since 7.2, unused
 			 */
-			setSecure: function(secure) {
+			setSecure(secure) {
 				var instance = this;
 
 				instance.options.secure = secure;
@@ -228,7 +228,7 @@ AUI.add(
 				return instance;
 			},
 
-			setWindowState: function(windowState) {
+			setWindowState(windowState) {
 				var instance = this;
 
 				instance.reservedParams.p_p_state = windowState;
@@ -236,7 +236,7 @@ AUI.add(
 				return instance;
 			},
 
-			toString: function() {
+			toString() {
 				var instance = this;
 
 				var options = instance.options;
@@ -274,7 +274,7 @@ AUI.add(
 				return portletURL.toString();
 			},
 
-			_isReservedParam: function(paramName) {
+			_isReservedParam(paramName) {
 				var instance = this;
 
 				var result = false;
@@ -296,19 +296,19 @@ AUI.add(
 
 			RESOURCE_PHASE: '2',
 
-			createActionURL: function() {
+			createActionURL() {
 				return new PortletURL(PortletURL.ACTION_PHASE);
 			},
 
-			createRenderURL: function() {
+			createRenderURL() {
 				return new PortletURL(PortletURL.RENDER_PHASE);
 			},
 
-			createResourceURL: function() {
+			createResourceURL() {
 				return new PortletURL(PortletURL.RESOURCE_PHASE);
 			},
 
-			createURL: function(basePortletURL, params) {
+			createURL(basePortletURL, params) {
 				return new PortletURL(null, params, basePortletURL);
 			}
 		});

@@ -52,14 +52,14 @@ AUI.add(
 			NAME: 'logoeditor',
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					instance.renderUI();
 					instance.bindUI();
 				},
 
-				renderUI: function() {
+				renderUI() {
 					var instance = this;
 
 					instance._cropRegionNode = instance.one('#cropRegion');
@@ -74,7 +74,7 @@ AUI.add(
 					instance._submitButton = instance.one('#submitButton');
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					instance.publish('uploadComplete', {
@@ -102,7 +102,7 @@ AUI.add(
 					);
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					var imageCropper = instance._imageCropper;
@@ -112,7 +112,7 @@ AUI.add(
 					}
 				},
 
-				resize: function() {
+				resize() {
 					var instance = this;
 
 					var portraitPreviewImg = instance._portraitPreviewImg;
@@ -125,7 +125,7 @@ AUI.add(
 					}
 				},
 
-				_defUploadCompleteFn: function(event) {
+				_defUploadCompleteFn(event) {
 					var instance = this;
 
 					var response = event.response;
@@ -173,7 +173,7 @@ AUI.add(
 					}
 				},
 
-				_defUploadStartFn: function(event, id, obj) {
+				_defUploadStartFn(event, id, obj) {
 					var instance = this;
 
 					instance._getMessageNode().remove();
@@ -181,7 +181,7 @@ AUI.add(
 					Liferay.Util.toggleDisabled(instance._submitButton, true);
 				},
 
-				_getMessageNode: function(message, cssClass) {
+				_getMessageNode(message, cssClass) {
 					var instance = this;
 
 					var messageNode = instance._messageNode;
@@ -207,7 +207,7 @@ AUI.add(
 					return messageNode;
 				},
 
-				_onFileNameChange: function(event) {
+				_onFileNameChange(event) {
 					var instance = this;
 
 					var formValidator = Liferay.Form.get(
@@ -245,13 +245,13 @@ AUI.add(
 							.then(response => response.json())
 							.then(response => {
 								instance.fire('uploadComplete', {
-									response: response
+									response
 								});
 							});
 					}
 				},
 
-				_onImageLoad: function(event) {
+				_onImageLoad(event) {
 					var instance = this;
 
 					var imageCropper = instance._imageCropper;
@@ -289,15 +289,15 @@ AUI.add(
 							imageCropper.syncImageUI();
 
 							imageCropper.setAttrs({
-								cropHeight: cropHeight,
-								cropWidth: cropWidth,
+								cropHeight,
+								cropWidth,
 								x: 0,
 								y: 0
 							});
 						} else {
 							imageCropper = new A.ImageCropper({
-								cropHeight: cropHeight,
-								cropWidth: cropWidth,
+								cropHeight,
+								cropWidth,
 								preserveRatio: instance.get('preserveRatio'),
 								srcNode: portraitPreviewImg
 							}).render();
@@ -318,7 +318,7 @@ AUI.add(
 					}
 				},
 
-				_onSubmit: function(event) {
+				_onSubmit(event) {
 					var instance = this;
 
 					var imageCropper = instance._imageCropper;
@@ -340,7 +340,7 @@ AUI.add(
 					}
 				},
 
-				_setCropBackgroundSize: function(width, height) {
+				_setCropBackgroundSize(width, height) {
 					var instance = this;
 
 					if (instance._imageCrop) {
@@ -351,7 +351,7 @@ AUI.add(
 					}
 				},
 
-				_showError: function(message) {
+				_showError(message) {
 					new Liferay.Alert({
 						closeable: true,
 						delay: {
@@ -359,7 +359,7 @@ AUI.add(
 							show: 0
 						},
 						duration: 500,
-						message: message,
+						message,
 						type: 'danger'
 					}).render();
 				}

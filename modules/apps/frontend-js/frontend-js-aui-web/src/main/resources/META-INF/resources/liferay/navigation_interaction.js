@@ -26,14 +26,14 @@ AUI.add(
 		var NavigationInteraction = A.Component.create({
 			EXTENDS: A.Plugin.Base,
 
-			NAME: NAME,
+			NAME,
 
 			NS: NAME,
 
 			prototype: {
 				MAP_HOVER: {},
 
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					var host = instance.get('host');
@@ -78,7 +78,7 @@ AUI.add(
 					instance._initNodeFocusManager();
 				},
 
-				_handleExit: function(event) {
+				_handleExit(event) {
 					var instance = this;
 
 					var focusManager = instance._focusManager;
@@ -98,7 +98,7 @@ AUI.add(
 					}
 				},
 
-				_handleKey: function(event, direction) {
+				_handleKey(event, direction) {
 					var instance = this;
 
 					if (!instance._isTriggerVisible()) {
@@ -133,13 +133,13 @@ AUI.add(
 						instance._focusManager.focus(item.one('a'));
 					} else {
 						Liferay.fire('exitNavigation', {
-							direction: direction,
+							direction,
 							navigation: instance.get('host')
 						});
 					}
 				},
 
-				_handleKeyDown: function(event) {
+				_handleKeyDown(event) {
 					var instance = this;
 
 					var handler;
@@ -157,19 +157,19 @@ AUI.add(
 					}
 				},
 
-				_handleLeft: function(event) {
+				_handleLeft(event) {
 					var instance = this;
 
 					instance._handleKey(event, DIRECTION_LEFT);
 				},
 
-				_handleRight: function(event) {
+				_handleRight(event) {
 					var instance = this;
 
 					instance._handleKey(event, DIRECTION_RIGHT);
 				},
 
-				_handleShowNavigationMenu: function(menuNew, menuOld, event) {
+				_handleShowNavigationMenu(menuNew, menuOld, event) {
 					var instance = this;
 
 					if (
@@ -228,7 +228,7 @@ AUI.add(
 					}
 				},
 
-				_hideMenu: function() {
+				_hideMenu() {
 					var instance = this;
 
 					var mapHover = instance.MAP_HOVER;
@@ -240,7 +240,7 @@ AUI.add(
 					}
 				},
 
-				_initChildMenuHandlers: function(navigation) {
+				_initChildMenuHandlers(navigation) {
 					var instance = this;
 
 					if (navigation) {
@@ -260,7 +260,7 @@ AUI.add(
 					}
 				},
 
-				_initNodeFocusManager: function() {
+				_initNodeFocusManager() {
 					var instance = this;
 
 					var host = instance.get('host');
@@ -291,7 +291,7 @@ AUI.add(
 					instance._focusManager = focusManager;
 				},
 
-				_isTriggerVisible: function() {
+				_isTriggerVisible() {
 					var instance = this;
 
 					return !!(
@@ -300,7 +300,7 @@ AUI.add(
 					);
 				},
 
-				_onMouseToggle: function(event) {
+				_onMouseToggle(event) {
 					var instance = this;
 
 					var mapHover = instance.MAP_HOVER;
@@ -316,7 +316,7 @@ AUI.add(
 					Liferay.fire(eventType, mapHover);
 				},
 
-				_showMenu: function(event) {
+				_showMenu(event) {
 					var instance = this;
 
 					event.halt();

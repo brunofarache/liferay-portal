@@ -33,7 +33,7 @@
 	var defaultVideoWidth = 400;
 
 	CKEDITOR.plugins.add('itemselector', {
-		init: function(editor) {
+		init(editor) {
 			var instance = this;
 
 			instance._audioTPL = new CKEDITOR.template(TPL_AUDIO_SCRIPT);
@@ -41,7 +41,7 @@
 
 			editor.addCommand('audioselector', {
 				canUndo: false,
-				exec: function(editor, callback) {
+				exec(editor, callback) {
 					var onSelectedAudioChangeFn = AUI().bind(
 						'_onSelectedAudioChange',
 						instance,
@@ -65,7 +65,7 @@
 
 			editor.addCommand('imageselector', {
 				canUndo: false,
-				exec: function(editor, callback) {
+				exec(editor, callback) {
 					var onSelectedImageChangeFn = AUI().bind(
 						'_onSelectedImageChange',
 						instance,
@@ -89,7 +89,7 @@
 
 			editor.addCommand('linkselector', {
 				canUndo: false,
-				exec: function(editor, callback) {
+				exec(editor, callback) {
 					var onSelectedLinkChangeFn = AUI().bind(
 						'_onSelectedLinkChange',
 						instance,
@@ -113,7 +113,7 @@
 
 			editor.addCommand('videoselector', {
 				canUndo: false,
-				exec: function(editor, callback) {
+				exec(editor, callback) {
 					var onSelectedVideoChangeFn = AUI().bind(
 						'_onSelectedVideoChange',
 						instance,
@@ -210,7 +210,7 @@
 			});
 		},
 
-		_bindBrowseButton: function(
+		_bindBrowseButton(
 			editor,
 			dialogDefinition,
 			tabName,
@@ -236,7 +236,7 @@
 			}
 		},
 
-		_commitAudioValue: function(value, node, extraStyles) {
+		_commitAudioValue(value, node, extraStyles) {
 			var instance = this;
 
 			node.setAttribute('data-document-url', value);
@@ -261,7 +261,7 @@
 			});
 		},
 
-		_commitMediaValue: function(value, editor, type) {
+		_commitMediaValue(value, editor, type) {
 			var instance = this;
 
 			var mediaPlugin = editor.plugins.media;
@@ -288,7 +288,7 @@
 			}
 		},
 
-		_commitVideoValue: function(value, node, extraStyles) {
+		_commitVideoValue(value, node, extraStyles) {
 			var instance = this;
 
 			node.setAttribute('data-document-url', value);
@@ -326,13 +326,13 @@
 			return instance._videoTPL.output({
 				height: videoHeight,
 				ogvUrl: videoOgvUrl,
-				poster: poster,
+				poster,
 				url: videoUrl,
 				width: videoWidth
 			});
 		},
 
-		_getCommitMediaValueFn: function(value, editor, type) {
+		_getCommitMediaValueFn(value, editor, type) {
 			var instance = this;
 
 			var commitValueFn = function(node, extraStyles) {
@@ -362,7 +362,7 @@
 			return commitValueFn;
 		},
 
-		_getItemSelectorDialog: function(editor, url, callback) {
+		_getItemSelectorDialog(editor, url, callback) {
 			var instance = this;
 
 			var eventName = editor.name + 'selectItem';
@@ -378,8 +378,8 @@
 			} else {
 				AUI().use('liferay-item-selector-dialog', function(A) {
 					itemSelectorDialog = new A.LiferayItemSelectorDialog({
-						eventName: eventName,
-						url: url,
+						eventName,
+						url,
 						zIndex: CKEDITOR.getNextZIndex()
 					});
 
@@ -390,7 +390,7 @@
 			}
 		},
 
-		_getItemSrc: function(editor, selectedItem) {
+		_getItemSrc(editor, selectedItem) {
 			var itemSrc = selectedItem.value;
 
 			if (selectedItem.returnType === STR_FILE_ENTRY_RETURN_TYPE) {
@@ -407,7 +407,7 @@
 			return itemSrc;
 		},
 
-		_isEmptySelection: function(editor) {
+		_isEmptySelection(editor) {
 			var selection = editor.getSelection();
 
 			var ranges = selection.getRanges();
@@ -418,7 +418,7 @@
 			);
 		},
 
-		_onSelectedAudioChange: function(editor, callback, event) {
+		_onSelectedAudioChange(editor, callback, event) {
 			var instance = this;
 
 			var selectedItem = event.newVal;
@@ -436,7 +436,7 @@
 			}
 		},
 
-		_onSelectedImageChange: function(editor, callback, event) {
+		_onSelectedImageChange(editor, callback, event) {
 			var instance = this;
 
 			var selectedItem = event.newVal;
@@ -485,7 +485,7 @@
 										editor.fire('editorInteraction', {
 											nativeEvent: {},
 											selectionData: {
-												element: element,
+												element,
 												region: element.getClientRect()
 											}
 										});
@@ -502,7 +502,7 @@
 			}
 		},
 
-		_onSelectedLinkChange: function(editor, callback, event) {
+		_onSelectedLinkChange(editor, callback, event) {
 			var instance = this;
 
 			var selectedItem = event.newVal;
@@ -523,7 +523,7 @@
 			}
 		},
 
-		_onSelectedVideoChange: function(editor, callback, event) {
+		_onSelectedVideoChange(editor, callback, event) {
 			var instance = this;
 
 			var selectedItem = event.newVal;

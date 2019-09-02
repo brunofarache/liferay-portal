@@ -53,7 +53,7 @@ AUI.add(
 			NAME: 'progress',
 
 			prototype: {
-				renderUI: function() {
+				renderUI() {
 					var instance = this;
 
 					Progress.superclass.renderUI.call(instance, arguments);
@@ -67,7 +67,7 @@ AUI.add(
 					instance._frame = frame;
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					Progress.superclass.bindUI.call(instance, arguments);
@@ -82,7 +82,7 @@ AUI.add(
 					);
 				},
 
-				startProgress: function() {
+				startProgress() {
 					var instance = this;
 
 					if (!instance.get('rendered')) {
@@ -98,7 +98,7 @@ AUI.add(
 					}, instance.get(STR_UPDATE_PERIOD));
 				},
 
-				updateProgress: function() {
+				updateProgress() {
 					var instance = this;
 
 					var url = Lang.sub(TPL_URL_UPDATE, [
@@ -110,7 +110,7 @@ AUI.add(
 					instance._frame.attr('src', url);
 				},
 
-				_afterComplete: function(event) {
+				_afterComplete(event) {
 					var instance = this;
 
 					instance
@@ -122,7 +122,7 @@ AUI.add(
 					instance._iframeLoadHandle.detach();
 				},
 
-				_afterValueChange: function(event) {
+				_afterValueChange(event) {
 					var instance = this;
 
 					var label = instance.get('message');
@@ -134,7 +134,7 @@ AUI.add(
 					instance.set('label', label);
 				},
 
-				_onIframeLoad: function(event) {
+				_onIframeLoad(event) {
 					var instance = this;
 
 					setTimeout(function() {

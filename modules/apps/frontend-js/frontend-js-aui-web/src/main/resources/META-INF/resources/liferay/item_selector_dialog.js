@@ -71,13 +71,13 @@ AUI.add(
 				/*
 				 * @deprecated since 7.2, unused
 				 */
-				close: function() {
+				close() {
 					var instance = this;
 
 					Util.getWindow(instance.get(STR_EVENT_NAME)).hide();
 				},
 
-				open: function() {
+				open() {
 					var instance = this;
 
 					var strings = instance.get('strings');
@@ -99,7 +99,7 @@ AUI.add(
 								destroyOnHide: true,
 								modal: true,
 								on: {
-									visibleChange: function(event) {
+									visibleChange(event) {
 										if (!event.newVal) {
 											instance.set(
 												STR_SELECTED_ITEM,
@@ -116,7 +116,7 @@ AUI.add(
 										id: 'cancelButton',
 										label: strings.cancel,
 										on: {
-											click: function() {
+											click() {
 												instance.close();
 											}
 										}
@@ -127,7 +127,7 @@ AUI.add(
 										id: 'addButton',
 										label: strings.add,
 										on: {
-											click: function() {
+											click() {
 												instance._selectedItem =
 													instance._currentItem;
 												instance.close();
@@ -135,9 +135,9 @@ AUI.add(
 										}
 									}
 								],
-								zIndex: zIndex
+								zIndex
 							},
-							eventName: eventName,
+							eventName,
 							id: eventName,
 							stack: !zIndex,
 							title: instance.get('title'),
@@ -147,7 +147,7 @@ AUI.add(
 					);
 				},
 
-				_onItemSelected: function(event) {
+				_onItemSelected(event) {
 					var instance = this;
 
 					var currentItem = event.data;

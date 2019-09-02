@@ -45,7 +45,7 @@ AUI.add(
 			NAME: 'panelsearch',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					var nodeList = instance.get('nodeList');
@@ -56,7 +56,7 @@ AUI.add(
 
 					var applicationSearch = new Liferay.SearchFilter({
 						inputNode: instance.get('inputNode'),
-						nodeList: nodeList,
+						nodeList,
 						nodeSelector: instance.get('nodeSelector')
 					});
 
@@ -66,7 +66,7 @@ AUI.add(
 					instance._bindUISearch();
 				},
 
-				_bindUISearch: function() {
+				_bindUISearch() {
 					var instance = this;
 
 					instance._eventHandles = instance._eventHandles || [];
@@ -87,13 +87,13 @@ AUI.add(
 					);
 				},
 
-				_onSearchInputKeyDown: function(event) {
+				_onSearchInputKeyDown(event) {
 					if (event.isKey('ENTER')) {
 						event.halt();
 					}
 				},
 
-				_setItemsVisibility: function(visible) {
+				_setItemsVisibility(visible) {
 					var instance = this;
 
 					instance._nodes.each(function(item, index) {
@@ -113,7 +113,7 @@ AUI.add(
 					});
 				},
 
-				_updateList: function(event) {
+				_updateList(event) {
 					var instance = this;
 
 					var categories = instance._categories;

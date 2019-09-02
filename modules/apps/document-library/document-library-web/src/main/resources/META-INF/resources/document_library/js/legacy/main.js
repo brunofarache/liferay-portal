@@ -75,7 +75,7 @@ AUI.add(
 			NAME: 'documentlibrary',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					var eventHandles = [];
@@ -144,7 +144,7 @@ AUI.add(
 					instance._eventHandles = eventHandles;
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					A.Array.invoke(instance._eventHandles, 'detach');
@@ -152,13 +152,13 @@ AUI.add(
 					instance._documentLibraryContainer.purge(true);
 				},
 
-				getFolderId: function() {
+				getFolderId() {
 					var instance = this;
 
 					return instance._folderId;
 				},
 
-				handleActionItemClicked: function(event) {
+				handleActionItemClicked(event) {
 					var instance = this;
 
 					var action = event.data.item.data.action;
@@ -219,7 +219,7 @@ AUI.add(
 					}
 				},
 
-				handleCreationMenuMoreButtonClicked: function(event) {
+				handleCreationMenuMoreButtonClicked(event) {
 					event.preventDefault();
 
 					var instance = this;
@@ -235,7 +235,7 @@ AUI.add(
 					});
 				},
 
-				handleFilterItemClicked: function(event) {
+				handleFilterItemClicked(event) {
 					var instance = this;
 
 					var itemData = event.data.item.data;
@@ -289,11 +289,7 @@ AUI.add(
 					}
 				},
 
-				showFolderDialog: function(
-					selectedItems,
-					parameterName,
-					parameterValue
-				) {
+				showFolderDialog(selectedItems, parameterName, parameterValue) {
 					var instance = this;
 
 					var namespace = instance.NS;
@@ -336,7 +332,7 @@ AUI.add(
 					);
 				},
 
-				_handleSearchContainerRowToggled: function(event) {
+				_handleSearchContainerRowToggled(event) {
 					var instance = this;
 
 					var selectedElements = event.elements.allSelectedElements;
@@ -350,7 +346,7 @@ AUI.add(
 					}
 				},
 
-				_moveCurrentSelection: function(newFolderId) {
+				_moveCurrentSelection(newFolderId) {
 					var instance = this;
 
 					var form = instance.get('form').node;
@@ -373,11 +369,7 @@ AUI.add(
 					submitForm(form, actionUrl, false);
 				},
 
-				_moveSingleElement: function(
-					newFolderId,
-					parameterName,
-					parameterValue
-				) {
+				_moveSingleElement(newFolderId, parameterName, parameterValue) {
 					var instance = this;
 
 					var actionUrl = instance.get('editEntryUrl');
@@ -389,19 +381,19 @@ AUI.add(
 
 					var formNode = A.Node.create(
 						A.Lang.sub(TPL_MOVE_FORM, {
-							actionUrl: actionUrl,
-							namespace: namespace,
-							newFolderId: newFolderId,
-							parameterName: parameterName,
-							parameterValue: parameterValue,
-							redirectUrl: redirectUrl
+							actionUrl,
+							namespace,
+							newFolderId,
+							parameterName,
+							parameterValue,
+							redirectUrl
 						})
 					);
 
 					submitForm(formNode, actionUrl, false);
 				},
 
-				_moveToFolder: function(obj) {
+				_moveToFolder(obj) {
 					var instance = this;
 
 					var dropTarget = obj.targetItem;
@@ -422,7 +414,7 @@ AUI.add(
 					}
 				},
 
-				_moveToTrash: function() {
+				_moveToTrash() {
 					var instance = this;
 
 					instance._processAction(
@@ -431,7 +423,7 @@ AUI.add(
 					);
 				},
 
-				_openDocument: function(event) {
+				_openDocument(event) {
 					var instance = this;
 
 					Liferay.Util.openDocument(event.webDavUrl, null, function(
@@ -456,7 +448,7 @@ AUI.add(
 					});
 				},
 
-				_openModalCategories: function() {
+				_openModalCategories() {
 					var instance = this;
 
 					var editCategoriesComponent = Liferay.component(
@@ -478,7 +470,7 @@ AUI.add(
 					}
 				},
 
-				_openModalMove: function() {
+				_openModalMove() {
 					var instance = this;
 
 					var selectedItems = 0;
@@ -493,7 +485,7 @@ AUI.add(
 					this.showFolderDialog(selectedItems);
 				},
 
-				_openModalTags: function() {
+				_openModalTags() {
 					var instance = this;
 
 					var editTagsComponent = Liferay.component(
@@ -515,7 +507,7 @@ AUI.add(
 					}
 				},
 
-				_plugUpload: function(event, config) {
+				_plugUpload(event, config) {
 					var instance = this;
 
 					instance.plug(Liferay.DocumentLibraryUpload, {
@@ -533,7 +525,7 @@ AUI.add(
 					});
 				},
 
-				_processAction: function(action, url, redirectUrl) {
+				_processAction(action, url, redirectUrl) {
 					var instance = this;
 
 					var namespace = instance.NS;

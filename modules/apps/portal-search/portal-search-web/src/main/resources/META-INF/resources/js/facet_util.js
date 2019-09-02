@@ -16,7 +16,7 @@ AUI.add(
 	'liferay-search-facet-util',
 	function(A) {
 		var FacetUtil = {
-			addURLParameter: function(key, value, parameterArray) {
+			addURLParameter(key, value, parameterArray) {
 				key = encodeURIComponent(key);
 				value = encodeURIComponent(value);
 
@@ -25,7 +25,7 @@ AUI.add(
 				return parameterArray;
 			},
 
-			changeSelection: function(event) {
+			changeSelection(event) {
 				var form = event.currentTarget.form;
 
 				if (!form) {
@@ -50,7 +50,7 @@ AUI.add(
 				FacetUtil.selectTerms(form, selections);
 			},
 
-			clearSelections: function(event) {
+			clearSelections(event) {
 				var form = A.one(event.target).ancestor('form');
 
 				if (!form) {
@@ -62,7 +62,7 @@ AUI.add(
 				FacetUtil.selectTerms(form._node, selections);
 			},
 
-			removeURLParameters: function(key, parameterArray) {
+			removeURLParameters(key, parameterArray) {
 				key = encodeURIComponent(key);
 
 				var newParameters = parameterArray.filter(function(item) {
@@ -78,7 +78,7 @@ AUI.add(
 				return newParameters;
 			},
 
-			selectTerms: function(form, selections) {
+			selectTerms(form, selections) {
 				var formParameterName = document.querySelector(
 					'#' + form.id + ' input.facet-parameter-name'
 				);
@@ -90,7 +90,7 @@ AUI.add(
 				);
 			},
 
-			setURLParameter: function(url, name, value) {
+			setURLParameter(url, name, value) {
 				var parts = url.split('?');
 
 				var address = parts[0];
@@ -110,7 +110,7 @@ AUI.add(
 				return address + '?' + queryString;
 			},
 
-			setURLParameters: function(key, values, parameterArray) {
+			setURLParameters(key, values, parameterArray) {
 				var newParameters = FacetUtil.removeURLParameters(
 					key,
 					parameterArray
@@ -127,7 +127,7 @@ AUI.add(
 				return newParameters;
 			},
 
-			updateQueryString: function(key, selections, queryString) {
+			updateQueryString(key, selections, queryString) {
 				var search = queryString;
 
 				var hasQuestionMark = false;

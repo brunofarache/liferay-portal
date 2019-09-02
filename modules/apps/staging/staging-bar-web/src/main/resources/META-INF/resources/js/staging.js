@@ -18,7 +18,7 @@ AUI.add(
 		var Lang = A.Lang;
 
 		var StagingBar = {
-			init: function(config) {
+			init(config) {
 				var instance = this;
 
 				var namespace = config.namespace;

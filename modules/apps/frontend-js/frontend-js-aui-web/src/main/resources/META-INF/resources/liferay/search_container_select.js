@@ -53,7 +53,7 @@ AUI.add(
 				},
 
 				keepSelection: {
-					setter: function(keepSelection) {
+					setter(keepSelection) {
 						if (Lang.isString(keepSelection)) {
 							keepSelection = new RegExp(keepSelection);
 						} else if (!Lang.isRegExp(keepSelection)) {
@@ -91,7 +91,7 @@ AUI.add(
 			NS: 'select',
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -142,35 +142,35 @@ AUI.add(
 					];
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					new A.EventHandle(instance._eventHandles).detach();
 				},
 
-				getAllSelectedElements: function() {
+				getAllSelectedElements() {
 					var instance = this;
 
 					return instance._getAllElements(true);
 				},
 
-				getCurrentPageElements: function() {
+				getCurrentPageElements() {
 					var instance = this;
 
 					return instance._getCurrentPageElements();
 				},
 
-				getCurrentPageSelectedElements: function() {
+				getCurrentPageSelectedElements() {
 					var instance = this;
 
 					return instance._getCurrentPageElements(true);
 				},
 
-				isSelected: function(element) {
+				isSelected(element) {
 					return element.one(STR_CHECKBOX_SELECTOR).attr(STR_CHECKED);
 				},
 
-				toggleAllRows: function(selected, bulkSelection) {
+				toggleAllRows(selected, bulkSelection) {
 					var instance = this;
 
 					var elements = bulkSelection
@@ -193,7 +193,7 @@ AUI.add(
 					instance._notifyRowToggle();
 				},
 
-				toggleRow: function(config, row) {
+				toggleRow(config, row) {
 					var instance = this;
 
 					if (config && config.toggleCheckbox) {
@@ -209,7 +209,7 @@ AUI.add(
 					instance._notifyRowToggle();
 				},
 
-				_addRestoreTask: function() {
+				_addRestoreTask() {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -229,7 +229,7 @@ AUI.add(
 					});
 				},
 
-				_addRestoreTaskState: function() {
+				_addRestoreTaskState() {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -248,7 +248,7 @@ AUI.add(
 					Liferay.DOMTaskRunner.addTaskState({
 						data: {
 							bulkSelection: instance.get('bulkSelection'),
-							elements: elements,
+							elements,
 							selector:
 								instance.get(STR_ROW_SELECTOR) +
 								' ' +
@@ -258,7 +258,7 @@ AUI.add(
 					});
 				},
 
-				_getActions: function(elements) {
+				_getActions(elements) {
 					var instance = this;
 
 					var actions = elements
@@ -295,7 +295,7 @@ AUI.add(
 					actions[0]);
 				},
 
-				_getAllElements: function(onlySelected) {
+				_getAllElements(onlySelected) {
 					var instance = this;
 
 					return instance._getElements(
@@ -304,7 +304,7 @@ AUI.add(
 					);
 				},
 
-				_getCurrentPageElements: function(onlySelected) {
+				_getCurrentPageElements(onlySelected) {
 					var instance = this;
 
 					return instance._getElements(
@@ -315,7 +315,7 @@ AUI.add(
 					);
 				},
 
-				_getElements: function(selector, onlySelected) {
+				_getElements(selector, onlySelected) {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -325,13 +325,13 @@ AUI.add(
 					return host.get(STR_CONTENT_BOX).all(selector + checked);
 				},
 
-				_isActionUrl: function(url) {
+				_isActionUrl(url) {
 					var uri = new A.Url(url);
 
 					return uri.getParameter('p_p_lifecycle') === 1;
 				},
 
-				_notifyRowToggle: function() {
+				_notifyRowToggle() {
 					var instance = this;
 
 					var allSelectedElements = instance.getAllSelectedElements();
@@ -340,7 +340,7 @@ AUI.add(
 						actions: instance._getActions(allSelectedElements),
 						elements: {
 							allElements: instance._getAllElements(),
-							allSelectedElements: allSelectedElements,
+							allSelectedElements,
 							currentPageElements: instance._getCurrentPageElements(),
 							currentPageSelectedElements: instance.getCurrentPageSelectedElements()
 						}
@@ -349,7 +349,7 @@ AUI.add(
 					instance.get(STR_HOST).fire('rowToggled', payload);
 				},
 
-				_onClickRowSelector: function(config, event) {
+				_onClickRowSelector(config, event) {
 					var instance = this;
 
 					var row = event.currentTarget.ancestor(
@@ -359,7 +359,7 @@ AUI.add(
 					instance.toggleRow(config, row);
 				},
 
-				_onStartNavigate: function(event) {
+				_onStartNavigate(event) {
 					var instance = this;
 
 					if (
@@ -372,7 +372,7 @@ AUI.add(
 				}
 			},
 
-			restoreTask: function(state, params, node) {
+			restoreTask(state, params, node) {
 				var container = A.one(node).one('#' + params.containerId);
 
 				container.setData('bulkSelection', state.data.bulkSelection);
@@ -409,7 +409,7 @@ AUI.add(
 				}
 			},
 
-			testRestoreTask: function(state, params, node) {
+			testRestoreTask(state, params, node) {
 				return (
 					state.owner === params.searchContainerId &&
 					A.one(node).one('#' + params.containerId)

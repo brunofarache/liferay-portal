@@ -45,7 +45,7 @@ AUI.add(
 			NAME: 'interval-selector',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					instance.eventHandlers = [];
@@ -74,13 +74,13 @@ AUI.add(
 					instance.bindUI();
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					instance.startDurationPreservation();
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					instance.stopDurationPreservation();
@@ -88,13 +88,13 @@ AUI.add(
 					instance.eventHandlers = null;
 				},
 
-				setDuration: function(duration) {
+				setDuration(duration) {
 					var instance = this;
 
 					instance._duration = duration;
 				},
 
-				startDurationPreservation: function() {
+				startDurationPreservation() {
 					var instance = this;
 
 					instance.eventHandlers.push(
@@ -129,13 +129,13 @@ AUI.add(
 					);
 				},
 
-				stopDurationPreservation: function() {
+				stopDurationPreservation() {
 					var instance = this;
 
 					AArray.invoke(instance.eventHandlers, 'detach');
 				},
 
-				_initPicker: function(picker) {
+				_initPicker(picker) {
 					var instance = this;
 
 					var attrs = picker.getAttrs();
@@ -145,7 +145,7 @@ AUI.add(
 					picker.useInputNodeOnce(inputNode);
 				},
 
-				_onEndDatePickerSelectionChange: function() {
+				_onEndDatePickerSelectionChange() {
 					var instance = this;
 
 					instance._setEndDate();
@@ -167,7 +167,7 @@ AUI.add(
 					instance._validate();
 				},
 
-				_onEndTimePickerSelectionChange: function() {
+				_onEndTimePickerSelectionChange() {
 					var instance = this;
 
 					instance._setEndTime();
@@ -190,7 +190,7 @@ AUI.add(
 					instance._validate();
 				},
 
-				_onStartDatePickerSelectionChange: function() {
+				_onStartDatePickerSelectionChange() {
 					var instance = this;
 
 					instance._setStartDate();
@@ -207,7 +207,7 @@ AUI.add(
 					instance._validate();
 				},
 
-				_onStartTimePickerSelectionChange: function() {
+				_onStartTimePickerSelectionChange() {
 					var instance = this;
 
 					instance._setStartTime();
@@ -225,7 +225,7 @@ AUI.add(
 					instance._validate();
 				},
 
-				_setDuration: function() {
+				_setDuration() {
 					var instance = this;
 
 					instance._duration =
@@ -233,7 +233,7 @@ AUI.add(
 						instance._startDate.valueOf();
 				},
 
-				_setEndDate: function() {
+				_setEndDate() {
 					var instance = this;
 
 					var endDatePicker = instance.get('endDatePicker');
@@ -249,7 +249,7 @@ AUI.add(
 					endDate.setYear(endDateObj.getFullYear());
 				},
 
-				_setEndDatePickerDate: function() {
+				_setEndDatePickerDate() {
 					var instance = this;
 
 					var endDatePicker = instance.get('endDatePicker');
@@ -259,7 +259,7 @@ AUI.add(
 					endDatePicker.selectDates([instance._endDate]);
 				},
 
-				_setEndTime: function() {
+				_setEndTime() {
 					var instance = this;
 
 					var endTimePicker = instance.get('endTimePicker');
@@ -270,7 +270,7 @@ AUI.add(
 					instance._endDate.setMinutes(endTime.getMinutes());
 				},
 
-				_setEndTimePickerTime: function() {
+				_setEndTimePickerTime() {
 					var instance = this;
 
 					var endTimePicker = instance.get('endTimePicker');
@@ -278,7 +278,7 @@ AUI.add(
 					endTimePicker.selectDates([instance._endDate]);
 				},
 
-				_setStartDate: function() {
+				_setStartDate() {
 					var instance = this;
 
 					var startDatePicker = instance.get('startDatePicker');
@@ -294,7 +294,7 @@ AUI.add(
 					startDate.setYear(startDateObj.getFullYear());
 				},
 
-				_setStartDatePickerDate: function() {
+				_setStartDatePickerDate() {
 					var instance = this;
 
 					var startDatePicker = instance.get('startDatePicker');
@@ -304,7 +304,7 @@ AUI.add(
 					startDatePicker.selectDates([instance._startDate]);
 				},
 
-				_setStartTime: function() {
+				_setStartTime() {
 					var instance = this;
 
 					var startTimePicker = instance.get('startTimePicker');
@@ -317,7 +317,7 @@ AUI.add(
 					startDate.setMinutes(startTime.getMinutes());
 				},
 
-				_setStartTimePickerTime: function() {
+				_setStartTimePickerTime() {
 					var instance = this;
 
 					var startTimePicker = instance.get('startTimePicker');
@@ -325,7 +325,7 @@ AUI.add(
 					startTimePicker.selectDates([instance._startDate]);
 				},
 
-				_validate: function() {
+				_validate() {
 					var instance = this;
 
 					var validDate = instance._duration > 0;

@@ -33,7 +33,7 @@ AUI.add(
 		A.mix(
 			Sortable.prototype,
 			{
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					var id = 'sortable-' + A.guid();
@@ -86,7 +86,7 @@ AUI.add(
 					Sortable.reg(instance, id);
 				},
 
-				_onDragHorizontal: function(event) {
+				_onDragHorizontal(event) {
 					var instance = this;
 
 					var pageX = event.pageX;
@@ -98,7 +98,7 @@ AUI.add(
 					instance._x = pageX;
 				},
 
-				_setDragMethod: function() {
+				_setDragMethod() {
 					var instance = this;
 
 					var dragMethod;

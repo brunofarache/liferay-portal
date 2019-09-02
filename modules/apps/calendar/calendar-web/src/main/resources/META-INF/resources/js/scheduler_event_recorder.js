@@ -98,7 +98,7 @@ AUI.add(
 			NAME: 'scheduler-event-recorder',
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					var popoverBB = instance.popover.get('boundingBox');
@@ -111,7 +111,7 @@ AUI.add(
 					);
 				},
 
-				getTemplateData: function() {
+				getTemplateData() {
 					var instance = this;
 
 					var editing = true;
@@ -146,7 +146,7 @@ AUI.add(
 						availableCalendars: calendarContainer.get(
 							'availableCalendars'
 						),
-						calendar: calendar,
+						calendar,
 						calendarIds: AObject.keys(
 							calendarContainer.get('availableCalendars')
 						),
@@ -154,7 +154,7 @@ AUI.add(
 							schedulerEvent,
 							CalendarWorkflow.STATUS_DENIED
 						),
-						editing: editing,
+						editing,
 						endTime: templateData.endDate,
 						hasWorkflowInstanceLink: schedulerEvent.get(
 							'hasWorkflowInstanceLink'
@@ -164,14 +164,14 @@ AUI.add(
 							schedulerEvent,
 							CalendarWorkflow.STATUS_MAYBE
 						),
-						permissions: permissions,
+						permissions,
 						startTime: templateData.startDate,
 						status: schedulerEvent.get('status'),
 						workflowStatus: CalendarWorkflow
 					});
 				},
 
-				getUpdatedSchedulerEvent: function(optAttrMap) {
+				getUpdatedSchedulerEvent(optAttrMap) {
 					var instance = this;
 
 					var attrMap = {
@@ -202,7 +202,7 @@ AUI.add(
 
 				isMasterBooking: Lang.emptyFnFalse,
 
-				populateForm: function() {
+				populateForm() {
 					var instance = this;
 
 					var bodyTemplate = instance.get('bodyTemplate');
@@ -262,7 +262,7 @@ AUI.add(
 					instance._showResources();
 				},
 
-				_getFooterToolbar: function() {
+				_getFooterToolbar() {
 					var instance = this;
 
 					var schedulerEvent = instance.get('event');
@@ -376,7 +376,7 @@ AUI.add(
 					return children;
 				},
 
-				_handleEditEvent: function(event) {
+				_handleEditEvent(event) {
 					var instance = this;
 
 					var scheduler = instance.get('scheduler');
@@ -427,7 +427,7 @@ AUI.add(
 					Liferay.Util.openWindow({
 						dialog: {
 							after: {
-								destroy: function(event) {
+								destroy(event) {
 									scheduler.load();
 								}
 							},
@@ -448,7 +448,7 @@ AUI.add(
 					instance.hidePopover();
 				},
 
-				_handleEventAnswer: function(event) {
+				_handleEventAnswer(event) {
 					var instance = this;
 
 					var currentTarget = event.currentTarget;
@@ -507,7 +507,7 @@ AUI.add(
 					}
 				},
 
-				_handleViewEvent: function(event) {
+				_handleViewEvent(event) {
 					var instance = this;
 
 					var viewCalendarBookingURL = decodeURIComponent(
@@ -525,7 +525,7 @@ AUI.add(
 					Liferay.Util.openWindow({
 						dialog: {
 							after: {
-								destroy: function(event) {
+								destroy(event) {
 									schedulerEvent.syncWithServer();
 								}
 							},
@@ -545,22 +545,19 @@ AUI.add(
 					event.domEvent.preventDefault();
 				},
 
-				_hasDeleteButton: function(permissions, calendar, status) {
+				_hasDeleteButton(permissions, calendar, status) {
 					return permissions.MANAGE_BOOKINGS && calendar;
 				},
 
-				_hasEditButton: function(permissions, calendar, status) {
+				_hasEditButton(permissions, calendar, status) {
 					return permissions.MANAGE_BOOKINGS;
 				},
 
-				_hasSaveButton: function(permissions, calendar, status) {
+				_hasSaveButton(permissions, calendar, status) {
 					return permissions.MANAGE_BOOKINGS;
 				},
 
-				_hasWorkflowStatusPermission: function(
-					schedulerEvent,
-					newStatus
-				) {
+				_hasWorkflowStatusPermission(schedulerEvent, newStatus) {
 					var instance = this;
 
 					var hasPermission = false;
@@ -589,7 +586,7 @@ AUI.add(
 					return hasPermission;
 				},
 
-				_renderPopOver: function() {
+				_renderPopOver() {
 					var instance = this;
 
 					var popoverBB = instance.popover.get('boundingBox');
@@ -631,7 +628,7 @@ AUI.add(
 					);
 				},
 
-				_showResources: function() {
+				_showResources() {
 					var instance = this;
 
 					var schedulerEvent = instance.get('event');
@@ -685,7 +682,7 @@ AUI.add(
 					instance._syncInvitees();
 				},
 
-				_syncInvitees: function() {
+				_syncInvitees() {
 					var instance = this;
 
 					var schedulerEvent = instance.get('event');
@@ -747,7 +744,7 @@ AUI.add(
 					}
 				},
 
-				_syncInviteesContent: function(contentNode, calendarResources) {
+				_syncInviteesContent(contentNode, calendarResources) {
 					var instance = this;
 
 					var values = calendarResources.map(function(item) {

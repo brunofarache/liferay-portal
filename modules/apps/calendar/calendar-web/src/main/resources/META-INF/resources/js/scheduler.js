@@ -57,7 +57,7 @@ AUI.add(
 		var Time = Liferay.Time;
 
 		A.mix(A.DataType.DateMath, {
-			getWeeksInMonth: function(date, firstDayOfWeek) {
+			getWeeksInMonth(date, firstDayOfWeek) {
 				var daysInMonth = DateMath.getDaysInMonth(
 					date.getFullYear(),
 					date.getMonth()
@@ -104,13 +104,13 @@ AUI.add(
 				},
 
 				iconAddEventNode: {
-					valueFn: function() {
+					valueFn() {
 						return A.Node.create(TPL_ICON_ADD_EVENT_NODE);
 					}
 				},
 
 				iconNextNode: {
-					valueFn: function() {
+					valueFn() {
 						var instance = this;
 
 						return A.Node.create(
@@ -122,7 +122,7 @@ AUI.add(
 				},
 
 				iconPrevNode: {
-					valueFn: function() {
+					valueFn() {
 						var instance = this;
 
 						return A.Node.create(
@@ -169,7 +169,7 @@ AUI.add(
 				eventsModel: Liferay.SchedulerEvents,
 				queue: null,
 
-				renderUI: function() {
+				renderUI() {
 					var instance = this;
 
 					Scheduler.superclass.renderUI.apply(this, arguments);
@@ -196,7 +196,7 @@ AUI.add(
 					}
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					instance.after({
@@ -222,7 +222,7 @@ AUI.add(
 					Scheduler.superclass.bindUI.apply(this, arguments);
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					clearInterval(instance._currentTimeInterval);
@@ -234,7 +234,7 @@ AUI.add(
 					Scheduler.superclass.destructor.apply(instance, arguments);
 				},
 
-				getEventsByCalendarBookingId: function(calendarBookingId) {
+				getEventsByCalendarBookingId(calendarBookingId) {
 					var instance = this;
 
 					return instance.getEvents(function(schedulerEvent) {
@@ -245,7 +245,7 @@ AUI.add(
 					});
 				},
 
-				load: function() {
+				load() {
 					var instance = this;
 
 					var events = instance._events;
@@ -253,7 +253,7 @@ AUI.add(
 					return events.load.apply(events, arguments);
 				},
 
-				plotCalendarBookings: function(calendarBookings) {
+				plotCalendarBookings(calendarBookings) {
 					var instance = this;
 
 					var calendarEvents = {};
@@ -296,7 +296,7 @@ AUI.add(
 					}
 				},
 
-				sync: function() {
+				sync() {
 					var instance = this;
 
 					var events = instance._events;
@@ -304,7 +304,7 @@ AUI.add(
 					return events.sync.apply(events, arguments);
 				},
 
-				_afterActiveViewChange: function(event) {
+				_afterActiveViewChange(event) {
 					var instance = this;
 
 					instance.resetEvents();
@@ -322,13 +322,13 @@ AUI.add(
 					instance.load();
 				},
 
-				_afterDateChange: function(event) {
+				_afterDateChange(event) {
 					var instance = this;
 
 					instance.load();
 				},
 
-				_afterSchedulerEventChange: function(event) {
+				_afterSchedulerEventChange(event) {
 					var instance = this;
 
 					if (!instance.get('preventPersistence')) {
@@ -361,7 +361,7 @@ AUI.add(
 					}
 				},
 
-				_bindCurrentTimeInterval: function() {
+				_bindCurrentTimeInterval() {
 					var instance = this;
 
 					instance._currentTimeInterval = setInterval(
@@ -370,7 +370,7 @@ AUI.add(
 					);
 				},
 
-				_createViewTriggerNode: function(view, tpl) {
+				_createViewTriggerNode(view, tpl) {
 					var instance = this;
 
 					var node = Scheduler.superclass._createViewTriggerNode.apply(
@@ -399,7 +399,7 @@ AUI.add(
 					return node;
 				},
 
-				_getCalendarBookingDuration: function(schedulerEvent) {
+				_getCalendarBookingDuration(schedulerEvent) {
 					var instance = this;
 
 					var duration =
@@ -408,10 +408,7 @@ AUI.add(
 					return duration;
 				},
 
-				_getCalendarBookingOffset: function(
-					schedulerEvent,
-					changedAttributes
-				) {
+				_getCalendarBookingOffset(schedulerEvent, changedAttributes) {
 					var instance = this;
 
 					var offset = 0;
@@ -425,7 +422,7 @@ AUI.add(
 					return offset;
 				},
 
-				_getNewRecurrence: function(schedulerEvent, changedAttributes) {
+				_getNewRecurrence(schedulerEvent, changedAttributes) {
 					var instance = this;
 
 					var recurrence = instance.parseRecurrence(
@@ -491,7 +488,7 @@ AUI.add(
 					return recurrence;
 				},
 
-				_onClickAddEvent: function(event) {
+				_onClickAddEvent(event) {
 					var instance = this;
 
 					var recorder = instance.get('eventRecorder');
@@ -514,7 +511,7 @@ AUI.add(
 
 					var data = {
 						activeView: activeViewName,
-						calendarId: calendarId,
+						calendarId,
 						startTimeDay: startTimeDate.getDate(),
 						startTimeMonth: startTimeDate.getMonth(),
 						startTimeYear: startTimeDate.getFullYear(),
@@ -524,7 +521,7 @@ AUI.add(
 					Liferay.Util.openWindow({
 						dialog: {
 							after: {
-								destroy: function(event) {
+								destroy(event) {
 									instance.load();
 								}
 							},
@@ -539,7 +536,7 @@ AUI.add(
 					});
 				},
 
-				_onDeleteEvent: function(event) {
+				_onDeleteEvent(event) {
 					var instance = this;
 
 					var schedulerEvent = event.schedulerEvent;
@@ -596,13 +593,13 @@ AUI.add(
 					event.preventDefault();
 				},
 
-				_onLoadSchedulerEvents: function(event) {
+				_onLoadSchedulerEvents(event) {
 					var instance = this;
 
 					instance.plotCalendarBookings(event.parsed);
 				},
 
-				_onSaveEvent: function(event) {
+				_onSaveEvent(event) {
 					var instance = this;
 
 					var remoteServices = instance.get('remoteServices');
@@ -618,7 +615,7 @@ AUI.add(
 					);
 				},
 
-				_queueableQuestionResolver: function(data) {
+				_queueableQuestionResolver(data) {
 					var instance = this;
 
 					var answers = data.answers;
@@ -651,7 +648,7 @@ AUI.add(
 					}
 				},
 
-				_updateCurrentTime: function() {
+				_updateCurrentTime() {
 					var instance = this;
 
 					var currentTimeFn = instance.get('currentTimeFn');
@@ -661,7 +658,7 @@ AUI.add(
 					});
 				},
 
-				_updatePastEvents: function(event) {
+				_updatePastEvents(event) {
 					var instance = this;
 
 					var currentTime = event.newVal;
@@ -680,10 +677,7 @@ AUI.add(
 					});
 				},
 
-				_updateSchedulerEvent: function(
-					schedulerEvent,
-					changedAttributes
-				) {
+				_updateSchedulerEvent(schedulerEvent, changedAttributes) {
 					var instance = this;
 
 					var calendarContainer = instance.get('calendarContainer');
@@ -714,7 +708,7 @@ AUI.add(
 							instance._queueableQuestionResolver,
 							instance
 						),
-						schedulerEvent: schedulerEvent
+						schedulerEvent
 					});
 				}
 			}
@@ -730,7 +724,7 @@ AUI.add(
 			ATTRS: {
 				navigationDateFormatter: {
 					validator: isFunction,
-					value: function(date) {
+					value(date) {
 						var instance = this;
 
 						var scheduler = instance.get('scheduler');
@@ -742,7 +736,7 @@ AUI.add(
 					}
 				},
 
-				syncCurrentTimeUI: function() {
+				syncCurrentTimeUI() {
 					var instance = this;
 
 					var scheduler = instance.get('scheduler');
@@ -764,7 +758,7 @@ AUI.add(
 			ATTRS: {
 				navigationDateFormatter: {
 					validator: isFunction,
-					value: function(date) {
+					value(date) {
 						var instance = this;
 
 						var scheduler = instance.get('scheduler');
@@ -791,12 +785,12 @@ AUI.add(
 
 						var startDateLabel = A.DataType.Date.format(startDate, {
 							format: startDateFormat,
-							locale: locale
+							locale
 						});
 
 						var endDateLabel = A.DataType.Date.format(endDate, {
 							format: endDateFormat,
-							locale: locale
+							locale
 						});
 
 						return [startDateLabel, '&mdash;', endDateLabel].join(
@@ -815,7 +809,7 @@ AUI.add(
 			ATTRS: {
 				navigationDateFormatter: {
 					validator: isFunction,
-					value: function(date) {
+					value(date) {
 						var instance = this;
 
 						var scheduler = instance.get('scheduler');
@@ -829,7 +823,7 @@ AUI.add(
 			},
 
 			prototype: {
-				_syncCellDimensions: function() {
+				_syncCellDimensions() {
 					var instance = this;
 
 					var scheduler = instance.get('scheduler');
@@ -852,7 +846,7 @@ AUI.add(
 						instance.rowsContainerNode.get('offsetHeight') / weeks;
 				},
 
-				_uiSetDate: function(date) {
+				_uiSetDate(date) {
 					var instance = this;
 
 					var scheduler = instance.get('scheduler');
@@ -883,7 +877,7 @@ AUI.add(
 			ATTRS: {
 				eventsDateFormatter: {
 					validator: isFunction,
-					value: function(startDate, endDate) {
+					value(startDate, endDate) {
 						var instance = this;
 
 						var scheduler = instance.get('scheduler');
@@ -941,7 +935,7 @@ AUI.add(
 
 				headerDayDateFormatter: {
 					validator: isFunction,
-					value: function(date) {
+					value(date) {
 						var instance = this;
 
 						var todayDate = instance
@@ -966,7 +960,7 @@ AUI.add(
 
 				headerExtraDateFormatter: {
 					validator: isFunction,
-					valueFn: function() {
+					valueFn() {
 						var instance = this;
 
 						return instance._getFormatter(
@@ -977,7 +971,7 @@ AUI.add(
 
 				infoDayDateFormatter: {
 					validator: isFunction,
-					valueFn: function() {
+					valueFn() {
 						var instance = this;
 
 						return instance._getFormatter(
@@ -988,7 +982,7 @@ AUI.add(
 
 				infoLabelBigDateFormatter: {
 					validator: isFunction,
-					valueFn: function() {
+					valueFn() {
 						var instance = this;
 
 						return instance._getFormatter(
@@ -999,7 +993,7 @@ AUI.add(
 
 				infoLabelSmallDateFormatter: {
 					validator: isFunction,
-					valueFn: function() {
+					valueFn() {
 						var instance = this;
 
 						return instance._getFormatter(
@@ -1014,7 +1008,7 @@ AUI.add(
 			NAME: 'scheduler-view-agenda',
 
 			prototype: {
-				plotEvents: function() {
+				plotEvents() {
 					var instance = this;
 
 					var scheduler = instance.get('scheduler');
@@ -1033,7 +1027,7 @@ AUI.add(
 					}
 				},
 
-				_getFormatter: function(mask) {
+				_getFormatter(mask) {
 					return function(date) {
 						var instance = this;
 

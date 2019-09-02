@@ -50,7 +50,7 @@ AUI.add(
 		};
 
 		A.mix(SearchBar.prototype, {
-			getKeywords: function() {
+			getKeywords() {
 				var instance = this;
 
 				var keywords = instance.keywordsInput.val();
@@ -58,7 +58,7 @@ AUI.add(
 				return keywords.replace(/^\s+|\s+$/, '');
 			},
 
-			isSubmitEnabled: function() {
+			isSubmitEnabled() {
 				var instance = this;
 
 				return (
@@ -66,7 +66,7 @@ AUI.add(
 				);
 			},
 
-			search: function() {
+			search() {
 				var instance = this;
 
 				if (instance.isSubmitEnabled()) {
@@ -80,7 +80,7 @@ AUI.add(
 				}
 			},
 
-			updateQueryString: function(queryString) {
+			updateQueryString(queryString) {
 				var instance = this;
 
 				var searchParams = new URLSearchParams(queryString);
@@ -112,13 +112,13 @@ AUI.add(
 				return '?' + searchParams.toString();
 			},
 
-			_onClick: function(event) {
+			_onClick(event) {
 				var instance = this;
 
 				instance.search();
 			},
 
-			_onSubmit: function(event) {
+			_onSubmit(event) {
 				var instance = this;
 
 				event.stopPropagation();

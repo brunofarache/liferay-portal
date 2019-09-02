@@ -104,7 +104,7 @@
 	SideNavigation.TRANSITION_DURATION = 500;
 
 	SideNavigation.prototype = {
-		init: function(toggler, options) {
+		init(toggler, options) {
 			var instance = this;
 
 			var useDataAttribute = toggler.data('toggle') === 'sidenav';
@@ -154,7 +154,7 @@
 			instance._renderUI();
 		},
 
-		clearStyle: function(attribute) {
+		clearStyle(attribute) {
 			var instance = this;
 
 			var options = instance.options;
@@ -176,7 +176,7 @@
 			}
 		},
 
-		destroy: function() {
+		destroy() {
 			var instance = this;
 
 			var options = instance.options;
@@ -205,7 +205,7 @@
 			container.data('lexicon.sidenav', null);
 		},
 
-		hide: function() {
+		hide() {
 			var instance = this;
 
 			if (instance.useDataAttribute) {
@@ -215,7 +215,7 @@
 			}
 		},
 
-		hideSidenav: function() {
+		hideSidenav() {
 			var instance = this;
 			var options = instance.options;
 
@@ -243,7 +243,7 @@
 			}
 		},
 
-		hideSimpleSidenav: function() {
+		hideSimpleSidenav() {
 			var instance = this;
 
 			var options = instance.options;
@@ -298,7 +298,7 @@
 			}
 		},
 
-		setEqualHeight: function() {
+		setEqualHeight() {
 			var instance = this;
 
 			var options = instance.options;
@@ -333,7 +333,7 @@
 			}
 		},
 
-		setFullHeight: function() {
+		setFullHeight() {
 			var instance = this;
 
 			var options = instance.options;
@@ -368,7 +368,7 @@
 			}
 		},
 
-		setHeight: function() {
+		setHeight() {
 			var instance = this;
 
 			var options = instance.options;
@@ -380,7 +380,7 @@
 			}
 		},
 
-		show: function() {
+		show() {
 			var instance = this;
 
 			if (instance.useDataAttribute) {
@@ -390,7 +390,7 @@
 			}
 		},
 
-		showSidenav: function() {
+		showSidenav() {
 			var instance = this;
 			var mobile = instance.mobile;
 			var options = instance.options;
@@ -468,7 +468,7 @@
 			}
 		},
 
-		showSimpleSidenav: function() {
+		showSimpleSidenav() {
 			var instance = this;
 
 			var options = instance.options;
@@ -517,7 +517,7 @@
 			}
 		},
 
-		toggle: function() {
+		toggle() {
 			var instance = this;
 
 			if (instance.useDataAttribute) {
@@ -527,7 +527,7 @@
 			}
 		},
 
-		toggleNavigation: function(force) {
+		toggleNavigation(force) {
 			var instance = this;
 			var options = instance.options;
 
@@ -547,12 +547,12 @@
 
 			if (closed) {
 				container.trigger({
-					toggler: toggler,
+					toggler,
 					type: 'openStart.lexicon.sidenav'
 				});
 			} else {
 				container.trigger({
-					toggler: toggler,
+					toggler,
 					type: 'closedStart.lexicon.sidenav'
 				});
 			}
@@ -568,14 +568,14 @@
 						.removeClass('sidenav-transition');
 
 					container.trigger({
-						toggler: toggler,
+						toggler,
 						type: 'closed.lexicon.sidenav'
 					});
 				} else {
 					toggler.addClass('open').removeClass('sidenav-transition');
 
 					container.trigger({
-						toggler: toggler,
+						toggler,
 						type: 'open.lexicon.sidenav'
 					});
 				}
@@ -608,7 +608,7 @@
 			toggler.toggleClass('active', closed).toggleClass('open', closed);
 		},
 
-		toggleSimpleSidenav: function() {
+		toggleSimpleSidenav() {
 			var instance = this;
 
 			var simpleSidenavClosed = instance._isSimpleSidenavClosed();
@@ -620,7 +620,7 @@
 			}
 		},
 
-		visible: function() {
+		visible() {
 			var instance = this;
 
 			var closed;
@@ -638,7 +638,7 @@
 			return !closed;
 		},
 
-		_bindUI: function() {
+		_bindUI() {
 			var instance = this;
 
 			if (!instance.useDataAttribute) {
@@ -655,13 +655,13 @@
 			instance._onClickSidenavClose();
 		},
 
-		_focusElement: function(el) {
+		_focusElement(el) {
 			// ios 8 fixed element disappears when trying to scroll
 
 			el.focus();
 		},
 
-		_getSidenavWidth: function() {
+		_getSidenavWidth() {
 			var instance = this;
 
 			var options = instance.options;
@@ -678,7 +678,7 @@
 			return width;
 		},
 
-		_getSimpleSidenavType: function() {
+		_getSimpleSidenavType() {
 			var instance = this;
 
 			var options = instance.options;
@@ -696,11 +696,11 @@
 			return 'fixed';
 		},
 
-		_isDesktop: function() {
+		_isDesktop() {
 			return window.innerWidth >= this.options.breakpoint;
 		},
 
-		_isSidenavRight: function() {
+		_isSidenavRight() {
 			var instance = this;
 			var options = instance.options;
 
@@ -710,7 +710,7 @@
 			return isSidenavRight;
 		},
 
-		_isSimpleSidenavClosed: function() {
+		_isSimpleSidenavClosed() {
 			var instance = this;
 			var options = instance.options;
 
@@ -721,7 +721,7 @@
 			return !container.hasClass(openClass);
 		},
 
-		_loadUrl: function(sidenav, url, eventTarget) {
+		_loadUrl(sidenav, url, eventTarget) {
 			var instance = this;
 
 			var urlLoaded = sidenav.data('url-loaded');
@@ -757,7 +757,7 @@
 			return urlLoaded;
 		},
 
-		_onClickSidenavClose: function() {
+		_onClickSidenavClose() {
 			var instance = this;
 
 			var options = instance.options;
@@ -790,7 +790,7 @@
 			instance.dataCloseButtonSelector = dataCloseButtonSelector;
 		},
 
-		_onClickTrigger: function() {
+		_onClickTrigger() {
 			var instance = this;
 
 			var el = instance.toggler;
@@ -800,7 +800,7 @@
 			});
 		},
 
-		_onDelegateClickTrigger: function() {
+		_onDelegateClickTrigger() {
 			var instance = this;
 
 			var toggler = instance.toggler;
@@ -826,7 +826,7 @@
 			instance.dataTogglerSelector = dataTogglerSelector;
 		},
 
-		_onScreenChange: function() {
+		_onScreenChange() {
 			var instance = this;
 			var options = instance.options;
 
@@ -907,7 +907,7 @@
 			});
 		},
 
-		_onSidenavTransitionEnd: function(el, fn) {
+		_onSidenavTransitionEnd(el, fn) {
 			var instance = this;
 
 			var transitionEnd = 'bsTransitionEnd';
@@ -929,7 +929,7 @@
 			}
 		},
 
-		_renderNav: function() {
+		_renderNav() {
 			var instance = this;
 			var options = instance.options;
 
@@ -957,7 +957,7 @@
 			container.removeClass('sidenav-js-fouc');
 		},
 
-		_renderUI: function() {
+		_renderUI() {
 			var instance = this;
 			var options = instance.options;
 
@@ -987,7 +987,7 @@
 			container.css('display', ''); // Force Reflow for IE11 Browser Bug
 		},
 
-		_setScreenSize: function() {
+		_setScreenSize() {
 			var instance = this;
 
 			var screenSize = getBreakpointRegion();

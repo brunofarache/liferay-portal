@@ -96,7 +96,7 @@ AUI.add(
 		};
 
 		LayoutsTreeBase.prototype = {
-			initializer: function() {
+			initializer() {
 				var instance = this;
 
 				var boundingBox = instance.get(STR_BOUNDING_BOX);
@@ -115,7 +115,7 @@ AUI.add(
 				instance._bindUILTBase();
 			},
 
-			renderUI: function() {
+			renderUI() {
 				var instance = this;
 
 				instance._parseLayouts(instance.get('layouts'));
@@ -123,31 +123,31 @@ AUI.add(
 				instance.constructor.superclass.renderUI.apply(this, arguments);
 			},
 
-			destructor: function() {
+			destructor() {
 				var instance = this;
 
 				new A.EventHandle(instance._eventHandles).detach();
 			},
 
-			extractGroupId: function(node) {
+			extractGroupId(node) {
 				var match = node.get(STR_ID).match(/groupId_(\d+)/);
 
 				return match && match[1];
 			},
 
-			extractLayoutId: function(node) {
+			extractLayoutId(node) {
 				var match = node.get(STR_ID).match(/layout_(\d+)/);
 
 				return match && match[1];
 			},
 
-			extractPlid: function(node) {
+			extractPlid(node) {
 				var match = node.get(STR_ID).match(/plid_(\d+)/);
 
 				return match && match[1];
 			},
 
-			restoreSelectedNode: function() {
+			restoreSelectedNode() {
 				var instance = this;
 
 				var pendingSelectedNodeId = instance._pendingSelectedNodeId;
@@ -159,7 +159,7 @@ AUI.add(
 				}
 			},
 
-			_afterRenderTree: function(event) {
+			_afterRenderTree(event) {
 				var instance = this;
 
 				instance._treeLoadingElement.hide();
@@ -167,7 +167,7 @@ AUI.add(
 				instance.restoreSelectedNode();
 			},
 
-			_bindUILTBase: function() {
+			_bindUILTBase() {
 				var instance = this;
 
 				instance._eventHandles = instance._eventHandles || [];
@@ -183,18 +183,18 @@ AUI.add(
 				);
 			},
 
-			_createNodeId: function(groupId, layoutId, plid) {
+			_createNodeId(groupId, layoutId, plid) {
 				var instance = this;
 
 				return A.Lang.sub(NODE_ID_TPL, {
-					groupId: groupId,
-					layoutId: layoutId,
-					plid: plid,
+					groupId,
+					layoutId,
+					plid,
 					treeId: instance._treeId
 				});
 			},
 
-			_createNodeLink: function(data, template) {
+			_createNodeLink(data, template) {
 				var instance = this;
 
 				var className = 'layout-tree ';
@@ -230,7 +230,7 @@ AUI.add(
 				return A.Lang.sub(template, data);
 			},
 
-			_displayNotice: function(message, type, timeout, useAnimation) {
+			_displayNotice(message, type, timeout, useAnimation) {
 				new Liferay.Notice({
 					closeText: false,
 					content:
@@ -248,7 +248,7 @@ AUI.add(
 				}).show();
 			},
 
-			_formatJSONResults: function(json) {
+			_formatJSONResults(json) {
 				var instance = this;
 
 				var output = json.layouts.map(function(node) {
@@ -258,7 +258,7 @@ AUI.add(
 				return output;
 			},
 
-			_formatNode: function(node) {
+			_formatNode(node) {
 				var instance = this;
 
 				var childLayouts = [];
@@ -303,15 +303,15 @@ AUI.add(
 						pages: A.merge(TREE_CSS_CLASSES, cssIcons)
 					},
 					draggable: node.sortable,
-					expanded: expanded,
-					id: id,
+					expanded,
+					id,
 					io: instance._getNodeIOConfig(),
 					leaf: false,
 					paginator: {
 						limit: maxChildren,
 						offsetParam: 'start',
 						start: Math.max(childLayouts.length - maxChildren, 0),
-						total: total
+						total
 					},
 					type: total > 0 ? 'io' : 'node'
 				};
@@ -371,15 +371,15 @@ AUI.add(
 				return newNode;
 			},
 
-			_formatNodeLabel: function(node, cssClass, name, title) {
+			_formatNodeLabel(node, cssClass, name, title) {
 				var instance = this;
 
 				var data = A.merge(
 					{
-						cssClass: cssClass,
+						cssClass,
 						label: name,
 						plid: node.plid,
-						title: title,
+						title,
 						url: node.friendlyURL,
 						uuid: node.uuid
 					},
@@ -394,7 +394,7 @@ AUI.add(
 				return label;
 			},
 
-			_formatRootNode: function(rootConfig, children) {
+			_formatRootNode(rootConfig, children) {
 				var instance = this;
 
 				var rootLabel = instance._createNodeLink(
@@ -414,7 +414,7 @@ AUI.add(
 
 				var rootNode = {
 					alwaysShowHitArea: true,
-					children: children,
+					children,
 					cssClasses: {
 						pages: TREE_CSS_CLASSES
 					},
@@ -442,12 +442,12 @@ AUI.add(
 				return rootNode;
 			},
 
-			_getNodeIOConfig: function() {
+			_getNodeIOConfig() {
 				var instance = this;
 
 				var ioCfg = {
 					cfg: {
-						data: function(node) {
+						data(node) {
 							return {
 								cmd: 'get',
 								doAsGroupId: themeDisplay.getScopeGroupId(),
@@ -465,7 +465,7 @@ AUI.add(
 						},
 						method: A.config.io.method,
 						on: {
-							success: function(event, id, xhr) {
+							success(event, id, xhr) {
 								var response;
 
 								try {
@@ -488,7 +488,7 @@ AUI.add(
 				return ioCfg;
 			},
 
-			_onDropAppend: function(event) {
+			_onDropAppend(event) {
 				var instance = this;
 
 				var tree = event.tree;
@@ -503,7 +503,7 @@ AUI.add(
 				);
 			},
 
-			_onDropInsert: function(event) {
+			_onDropInsert(event) {
 				var instance = this;
 
 				var tree = event.tree;
@@ -519,7 +519,7 @@ AUI.add(
 				);
 			},
 
-			_parseLayouts: function(value) {
+			_parseLayouts(value) {
 				var instance = this;
 
 				var children = instance._formatJSONResults(value);
@@ -542,7 +542,7 @@ AUI.add(
 				return value;
 			},
 
-			_restoreNodePosition: function(response) {
+			_restoreNodePosition(response) {
 				var instance = this;
 
 				instance._displayNotice(
@@ -598,7 +598,7 @@ AUI.add(
 				}
 			},
 
-			_setRootConfig: function(val) {
+			_setRootConfig(val) {
 				var defaultRootConfig = {
 					linkTemplate: NODE_LINK_TPL
 				};
@@ -606,7 +606,7 @@ AUI.add(
 				return A.merge(defaultRootConfig, val);
 			},
 
-			_updateLayout: function(data) {
+			_updateLayout(data) {
 				var instance = this;
 
 				Liferay.Util.fetch(
@@ -634,7 +634,7 @@ AUI.add(
 					.catch(error => {});
 			},
 
-			_updateLayoutParent: function(dragPlid, dropPlid, index) {
+			_updateLayoutParent(dragPlid, dropPlid, index) {
 				var instance = this;
 
 				instance._updateLayout({

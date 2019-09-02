@@ -66,7 +66,7 @@ AUI.add(
 			NAME: 'admin',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					instance._eventHandles = [];
@@ -80,7 +80,7 @@ AUI.add(
 					);
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					instance._eventHandles.push(
@@ -94,7 +94,7 @@ AUI.add(
 					);
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					A.Array.invoke(instance._eventHandles, 'detach');
@@ -104,7 +104,7 @@ AUI.add(
 					A.clearTimeout(instance._laterTimeout);
 				},
 
-				_addInputsFromData: function(data) {
+				_addInputsFromData(data) {
 					var instance = this;
 
 					var form = instance.get(STR_FORM);
@@ -128,7 +128,7 @@ AUI.add(
 					form.append(inputsArray.join(''));
 				},
 
-				_isBackgroundTaskInProgress: function() {
+				_isBackgroundTaskInProgress() {
 					var instance = this;
 
 					var indexActionsNode = A.one(
@@ -143,7 +143,7 @@ AUI.add(
 					);
 				},
 
-				_onSubmit: function(event) {
+				_onSubmit(event) {
 					var instance = this;
 
 					var data = event.currentTarget.getData();
@@ -160,7 +160,7 @@ AUI.add(
 					submitForm(form, instance.get(STR_URL));
 				},
 
-				_updateIndexActions: function() {
+				_updateIndexActions() {
 					var instance = this;
 
 					var renderInterval = INTERVAL_RENDER_IDLE;
@@ -176,7 +176,7 @@ AUI.add(
 					if (currentAdminIndexPanel) {
 						A.io.request(instance.get(STR_URL), {
 							on: {
-								success: function(event, id, obj) {
+								success(event, id, obj) {
 									var responseDataNode = A.Node.create(
 										this.get('responseData')
 									);

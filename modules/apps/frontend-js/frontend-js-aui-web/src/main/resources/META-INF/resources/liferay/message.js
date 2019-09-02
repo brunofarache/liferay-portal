@@ -34,7 +34,7 @@ AUI.add(
 		var Message = A.Component.create({
 			ATTRS: {
 				closeButton: {
-					valueFn: function() {
+					valueFn() {
 						return A.Node.create(TPL_HIDE_NOTICES);
 					}
 				},
@@ -44,7 +44,7 @@ AUI.add(
 				},
 
 				hideAllNotices: {
-					valueFn: function() {
+					valueFn() {
 						var instance = this;
 
 						return A.Node.create(
@@ -81,12 +81,12 @@ AUI.add(
 				hideAllNotices: '.btn-link'
 			},
 
-			NAME: NAME,
+			NAME,
 
 			UI_ATTRS: ['dismissible', 'persistent', 'type'],
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					instance._boundingBox = instance.get('boundingBox');
@@ -100,7 +100,7 @@ AUI.add(
 					);
 				},
 
-				renderUI: function() {
+				renderUI() {
 					var instance = this;
 
 					var dismissible = instance.get('dismissible');
@@ -130,7 +130,7 @@ AUI.add(
 					instance._dismissible = dismissible;
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					if (instance._dismissible) {
@@ -171,7 +171,7 @@ AUI.add(
 					}
 				},
 
-				_afterVisibleChange: function(event) {
+				_afterVisibleChange(event) {
 					var instance = this;
 
 					var messageVisible = event.newVal;
@@ -201,25 +201,25 @@ AUI.add(
 					}
 				},
 
-				_onCloseButtonClick: function(event) {
+				_onCloseButtonClick(event) {
 					var instance = this;
 
 					instance.hide();
 				},
 
-				_onHideAllClick: function(event) {
+				_onHideAllClick(event) {
 					var instance = this;
 
 					instance.set('visible', false, EVENT_DATA_DISMISS_ALL);
 				},
 
-				_onTriggerClick: function(event) {
+				_onTriggerClick(event) {
 					var instance = this;
 
 					instance.show();
 				},
 
-				_uiSetDismissible: function(value) {
+				_uiSetDismissible(value) {
 					var instance = this;
 
 					instance._boundingBox.toggleClass(
@@ -228,7 +228,7 @@ AUI.add(
 					);
 				},
 
-				_uiSetPersistent: function(value) {
+				_uiSetPersistent(value) {
 					var instance = this;
 
 					instance._boundingBox.toggleClass(
@@ -237,7 +237,7 @@ AUI.add(
 					);
 				},
 
-				_uiSetType: function(value) {
+				_uiSetType(value) {
 					var instance = this;
 
 					var contentBox = instance._contentBox;

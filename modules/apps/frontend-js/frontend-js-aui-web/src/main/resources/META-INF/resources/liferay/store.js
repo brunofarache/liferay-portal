@@ -46,19 +46,19 @@ AUI.add(
 		};
 
 		A.mix(Store, {
-			get: function(key, callback) {
+			get(key, callback) {
 				var instance = this;
 
 				instance._getValues('get', key, callback);
 			},
 
-			getAll: function(keys, callback) {
+			getAll(keys, callback) {
 				var instance = this;
 
 				instance._getValues('getAll', keys, callback);
 			},
 
-			set: function(key, value) {
+			set(key, value) {
 				var instance = this;
 
 				var obj = {};
@@ -72,13 +72,13 @@ AUI.add(
 				instance._setValues(obj);
 			},
 
-			setAll: function(obj) {
+			setAll(obj) {
 				var instance = this;
 
 				instance._setValues(obj);
 			},
 
-			_getValues: function(cmd, key, callback) {
+			_getValues(cmd, key, callback) {
 				var instance = this;
 
 				var config = {
@@ -96,7 +96,7 @@ AUI.add(
 				instance._ioRequest(config);
 			},
 
-			_ioRequest: function(config) {
+			_ioRequest(config) {
 				var instance = this;
 
 				config.data.p_auth = Liferay.authToken;
@@ -153,11 +153,11 @@ AUI.add(
 					});
 			},
 
-			_setValues: function(data) {
+			_setValues(data) {
 				var instance = this;
 
 				instance._ioRequest({
-					data: data
+					data
 				});
 			}
 		});

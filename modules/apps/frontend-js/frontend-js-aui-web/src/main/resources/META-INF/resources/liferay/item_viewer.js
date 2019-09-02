@@ -249,7 +249,7 @@ AUI.add(
 					'</div>' +
 					'</div>',
 
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					instance.TPL_CLOSE = Lang.sub(TPL_CLOSE, [
@@ -297,7 +297,7 @@ AUI.add(
 					];
 				},
 
-				renderUI: function() {
+				renderUI() {
 					var instance = this;
 
 					LiferayItemViewer.superclass.renderUI.apply(
@@ -313,7 +313,7 @@ AUI.add(
 					}
 				},
 
-				appendNewLink: function(imageData) {
+				appendNewLink(imageData) {
 					var instance = this;
 
 					var links = instance.get('links');
@@ -360,7 +360,7 @@ AUI.add(
 					instance.set('currentIndex', links.size() - 1);
 				},
 
-				updateCurrentImage: function(itemData, link) {
+				updateCurrentImage(itemData, link) {
 					var instance = this;
 
 					link =
@@ -401,7 +401,7 @@ AUI.add(
 					}
 				},
 
-				_afterBindUI: function() {
+				_afterBindUI() {
 					var instance = this;
 
 					instance._eventHandles = instance._eventHandles.concat(
@@ -411,7 +411,7 @@ AUI.add(
 					instance._bindSidebarEvents();
 				},
 
-				_afterGetCurrentImage: function(event) {
+				_afterGetCurrentImage(event) {
 					var instance = this;
 
 					var retVal;
@@ -428,7 +428,7 @@ AUI.add(
 					return retVal;
 				},
 
-				_afterShow: function() {
+				_afterShow() {
 					var instance = this;
 
 					instance._showPreviewError = false;
@@ -440,7 +440,7 @@ AUI.add(
 					);
 				},
 
-				_afterShowCurrentImage: function() {
+				_afterShowCurrentImage() {
 					var instance = this;
 
 					var link = instance
@@ -456,11 +456,11 @@ AUI.add(
 					}
 				},
 
-				_beforeOnClickControl: function(event) {
+				_beforeOnClickControl(event) {
 					event.stopImmediatePropagation();
 				},
 
-				_beforeSyncInfoUI: function() {
+				_beforeSyncInfoUI() {
 					var instance = this;
 
 					var retVal;
@@ -472,7 +472,7 @@ AUI.add(
 					return retVal;
 				},
 
-				_bindSidebarEvents: function() {
+				_bindSidebarEvents() {
 					var instance = this;
 
 					if (
@@ -489,7 +489,7 @@ AUI.add(
 					}
 				},
 
-				_destroyPreviewTimer: function() {
+				_destroyPreviewTimer() {
 					var instance = this;
 
 					if (instance._timer) {
@@ -498,7 +498,7 @@ AUI.add(
 					}
 				},
 
-				_getImageInfoNodes: function() {
+				_getImageInfoNodes() {
 					var instance = this;
 
 					if (!instance._imageInfoNodes) {
@@ -510,7 +510,7 @@ AUI.add(
 					return instance._imageInfoNodes;
 				},
 
-				_getUploadFileMetadata: function(file) {
+				_getUploadFileMetadata(file) {
 					var instance = this;
 
 					return {
@@ -532,7 +532,7 @@ AUI.add(
 					};
 				},
 
-				_onClickEditIcon: function(event) {
+				_onClickEditIcon(event) {
 					var instance = this;
 
 					event.preventDefault();
@@ -583,13 +583,13 @@ AUI.add(
 					);
 				},
 
-				_onClickInfoIcon: function(event) {
+				_onClickInfoIcon(event) {
 					var instance = this;
 
 					instance._getImageInfoNodes().toggle();
 				},
 
-				_onSaveEditSuccess: function(event) {
+				_onSaveEditSuccess(event) {
 					var instance = this;
 
 					var touchEnabled = A.UA.touchEnabled;
@@ -619,7 +619,7 @@ AUI.add(
 					}
 				},
 
-				_populateImageMetadata: function(image, metadata) {
+				_populateImageMetadata(image, metadata) {
 					var instance = this;
 
 					var imageViewer = image.ancestor('.image-viewer');
@@ -677,7 +677,7 @@ AUI.add(
 					});
 				},
 
-				_renderControls: function() {
+				_renderControls() {
 					var instance = this;
 
 					var boundingBox = instance.get('boundingBox');
@@ -693,7 +693,7 @@ AUI.add(
 					}
 				},
 
-				_renderFooter: function() {
+				_renderFooter() {
 					var instance = this;
 
 					var container = A.Node.create(instance.TPL_FOOTER_CONTENT);
@@ -755,7 +755,7 @@ AUI.add(
 					}
 				},
 
-				_renderSidenav: function() {
+				_renderSidenav() {
 					var instance = this;
 
 					var imageViewerSidenav = A.Node.create(
@@ -765,7 +765,7 @@ AUI.add(
 					instance.get('contentBox').prepend(imageViewerSidenav);
 				},
 
-				_setLinks: function(val) {
+				_setLinks(val) {
 					var instance = this;
 
 					var links;
@@ -793,7 +793,7 @@ AUI.add(
 					return links;
 				},
 
-				_showPreviewErrorMessage: function() {
+				_showPreviewErrorMessage() {
 					var instance = this;
 
 					var loadingIcon = instance
@@ -809,7 +809,7 @@ AUI.add(
 					instance.fire('animate');
 				},
 
-				_syncCaptionUI: function() {
+				_syncCaptionUI() {
 					var instance = this;
 
 					var links = instance.get('links');

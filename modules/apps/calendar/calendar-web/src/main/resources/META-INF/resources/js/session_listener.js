@@ -29,7 +29,7 @@ AUI.add(
 			NAME: 'calendar-session-listener',
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					Liferay.on(
@@ -38,7 +38,7 @@ AUI.add(
 					);
 				},
 
-				_disableCalendars: function() {
+				_disableCalendars() {
 					var instance = this;
 
 					var calendars = instance.get('calendars');
@@ -53,7 +53,7 @@ AUI.add(
 					});
 				},
 
-				_disableEvents: function() {
+				_disableEvents() {
 					var instance = this;
 
 					var scheduler = instance.get('scheduler');
@@ -63,7 +63,7 @@ AUI.add(
 					});
 				},
 
-				_disableScheduler: function() {
+				_disableScheduler() {
 					var instance = this;
 
 					var addEventButtons = A.all('.calendar-add-event-btn');
@@ -75,7 +75,7 @@ AUI.add(
 					scheduler.set('eventRecorder', null);
 				},
 
-				_onSessionExpired: function() {
+				_onSessionExpired() {
 					var instance = this;
 
 					instance._disableCalendars();

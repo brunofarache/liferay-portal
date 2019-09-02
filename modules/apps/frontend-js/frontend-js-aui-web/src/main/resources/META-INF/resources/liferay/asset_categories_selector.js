@@ -78,7 +78,7 @@ AUI.add(
 		var AssetCategoriesSelector = A.Component.create({
 			ATTRS: {
 				curEntries: {
-					setter: function(value) {
+					setter(value) {
 						var instance = this;
 
 						if (Lang.isString(value)) {
@@ -91,7 +91,7 @@ AUI.add(
 				},
 
 				curEntryIds: {
-					setter: function(value) {
+					setter(value) {
 						var instance = this;
 
 						if (Lang.isString(value)) {
@@ -109,7 +109,7 @@ AUI.add(
 				},
 
 				labelNode: {
-					setter: function(value) {
+					setter(value) {
 						return A.one(value) || A.Attribute.INVALID_VALUE;
 					},
 					value: null
@@ -136,7 +136,7 @@ AUI.add(
 				},
 
 				vocabularyGroupIds: {
-					setter: function(value) {
+					setter(value) {
 						var instance = this;
 
 						if (Lang.isString(value) && value) {
@@ -149,7 +149,7 @@ AUI.add(
 				},
 
 				vocabularyIds: {
-					setter: function(value) {
+					setter(value) {
 						var instance = this;
 
 						if (Lang.isString(value) && value) {
@@ -164,13 +164,13 @@ AUI.add(
 
 			EXTENDS: Liferay.AssetTagsSelector,
 
-			NAME: NAME,
+			NAME,
 
 			prototype: {
 				TREEVIEWS: {},
 				UI_EVENTS: {},
 
-				renderUI: function() {
+				renderUI() {
 					var instance = this;
 
 					AssetCategoriesSelector.superclass.constructor.superclass.renderUI.apply(
@@ -185,7 +185,7 @@ AUI.add(
 					instance._applyARIARoles();
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					AssetCategoriesSelector.superclass.bindUI.apply(
@@ -194,7 +194,7 @@ AUI.add(
 					);
 				},
 
-				syncUI: function() {
+				syncUI() {
 					var instance = this;
 
 					AssetCategoriesSelector.superclass.constructor.superclass.syncUI.apply(
@@ -226,7 +226,7 @@ AUI.add(
 
 				_afterTBLFocusedChange: EMPTY_FN,
 
-				_applyARIARoles: function() {
+				_applyARIARoles() {
 					var instance = this;
 
 					var boundingBox = instance.get(BOUNDING_BOX);
@@ -241,7 +241,7 @@ AUI.add(
 
 				_bindTagsSelector: EMPTY_FN,
 
-				_clearEntries: function() {
+				_clearEntries() {
 					var instance = this;
 
 					var entries = instance.entries;
@@ -249,7 +249,7 @@ AUI.add(
 					entries.each(A.fn('removeAt', entries, 0));
 				},
 
-				_formatJSONResult: function(json) {
+				_formatJSONResult(json) {
 					var instance = this;
 
 					var output = [];
@@ -280,12 +280,12 @@ AUI.add(
 									instance
 								)
 							},
-							checked: checked,
+							checked,
 							id: treeId,
 							label: LString.escapeHTML(item.titleCurrentValue),
 							leaf: !item.hasChildren,
 							paginator: instance._getPaginatorConfig(item),
-							type: type
+							type
 						};
 
 						output.push(newTreeNode);
@@ -294,11 +294,7 @@ AUI.add(
 					return output;
 				},
 
-				_formatRequestData: function(
-					groupId,
-					parentVocabularyId,
-					treeNode
-				) {
+				_formatRequestData(groupId, parentVocabularyId, treeNode) {
 					var instance = this;
 
 					var data = {};
@@ -324,7 +320,7 @@ AUI.add(
 					return data;
 				},
 
-				_getEntries: function(className, callback) {
+				_getEntries(className, callback) {
 					var instance = this;
 
 					var portalModelResource = instance.get(
@@ -339,7 +335,7 @@ AUI.add(
 						Liferay.Service(
 							{
 								'$vocabularies = /assetvocabulary/get-vocabularies': {
-									vocabularyIds: vocabularyIds,
+									vocabularyIds,
 									'$childrenCount = /assetcategory/get-vocabulary-root-categories-count': {
 										'@groupId': '$vocabularies.groupId',
 										'@vocabularyId':
@@ -367,8 +363,8 @@ AUI.add(
 						Liferay.Service(
 							{
 								'$vocabularies = /assetvocabulary/get-groups-vocabularies': {
-									className: className,
-									groupIds: groupIds,
+									className,
+									groupIds,
 									'$childrenCount = /assetcategory/get-vocabulary-root-categories-count': {
 										groupId: '$vocabularies.groupId',
 										'@vocabularyId':
@@ -385,7 +381,7 @@ AUI.add(
 					}
 				},
 
-				_getPaginatorConfig: function(item) {
+				_getPaginatorConfig(item) {
 					var instance = this;
 
 					var paginatorConfig = {
@@ -408,7 +404,7 @@ AUI.add(
 					return paginatorConfig;
 				},
 
-				_getTreeNodeAssetId: function(treeNode) {
+				_getTreeNodeAssetId(treeNode) {
 					var treeId = treeNode.get(ID);
 
 					var match = treeId.match(/(\d+)$/);
@@ -416,7 +412,7 @@ AUI.add(
 					return match ? match[1] : null;
 				},
 
-				_getTreeNodeAssetType: function(treeNode) {
+				_getTreeNodeAssetType(treeNode) {
 					var treeId = treeNode.get(ID);
 
 					var match = treeId.match(/^(vocabulary|category)/);
@@ -426,7 +422,7 @@ AUI.add(
 
 				_initSearch: EMPTY_FN,
 
-				_initSearchFocus: function() {
+				_initSearchFocus() {
 					var instance = this;
 
 					var popup = instance._popup;
@@ -484,7 +480,7 @@ AUI.add(
 					instance._searchBuffer = [];
 				},
 
-				_isValidString: function(value) {
+				_isValidString(value) {
 					var instance = this;
 
 					return Lang.isString(value) && value.length;
@@ -492,7 +488,7 @@ AUI.add(
 
 				_onBoundingBoxClick: EMPTY_FN,
 
-				_onCheckboxCheck: function(event) {
+				_onCheckboxCheck(event) {
 					var instance = this;
 
 					var currentTarget = event.currentTarget;
@@ -523,7 +519,7 @@ AUI.add(
 					instance.entries.add(entry);
 				},
 
-				_onCheckboxClick: function(event) {
+				_onCheckboxClick(event) {
 					var instance = this;
 
 					var method = '_onCheckboxUncheck';
@@ -535,7 +531,7 @@ AUI.add(
 					instance[method](event);
 				},
 
-				_onCheckboxUncheck: function(event) {
+				_onCheckboxUncheck(event) {
 					var instance = this;
 
 					var currentTarget = event.currentTarget;
@@ -551,7 +547,7 @@ AUI.add(
 					instance.entries.removeKey(assetId);
 				},
 
-				_onCheckedChange: function(event) {
+				_onCheckedChange(event) {
 					var instance = this;
 
 					if (event.newVal) {
@@ -565,7 +561,7 @@ AUI.add(
 					}
 				},
 
-				_onSelectChange: function(event) {
+				_onSelectChange(event) {
 					var instance = this;
 
 					instance._clearEntries();
@@ -573,7 +569,7 @@ AUI.add(
 					instance._onCheckboxCheck(event);
 				},
 
-				_processSearchResults: function(searchResults, results) {
+				_processSearchResults(searchResults, results) {
 					var instance = this;
 
 					var buffer = instance._searchBuffer;
@@ -618,7 +614,7 @@ AUI.add(
 					searchResults.html(buffer.join(''));
 				},
 
-				_renderIcons: function() {
+				_renderIcons() {
 					var instance = this;
 
 					var contentBox = instance.get('contentBox');
@@ -640,7 +636,7 @@ AUI.add(
 					instance.entryHolder.placeAfter(iconsBoundingBox);
 				},
 
-				_searchCategories: function(
+				_searchCategories(
 					event,
 					searchResults,
 					vocabularyIds,
@@ -665,7 +661,7 @@ AUI.add(
 									groupIds: vocabularyGroupIds,
 									start: -1,
 									title: searchValue,
-									vocabularyIds: vocabularyIds,
+									vocabularyIds,
 									'categories.$path = /assetcategory/get-category-path': {
 										'@categoryId':
 											'$display.categories.categoryId'
@@ -685,7 +681,7 @@ AUI.add(
 					});
 				},
 
-				_showPopup: function(event) {
+				_showPopup(event) {
 					var instance = this;
 
 					Liferay.Util.getTop()
@@ -698,7 +694,7 @@ AUI.add(
 					);
 				},
 
-				_showSelectPopup: function(event) {
+				_showSelectPopup(event) {
 					var instance = this;
 
 					instance._showPopup(event);
@@ -748,7 +744,7 @@ AUI.add(
 					);
 				},
 
-				_vocabulariesIterator: function(item, index) {
+				_vocabulariesIterator(item, index) {
 					var instance = this;
 
 					var popup = instance._popup;
@@ -787,7 +783,7 @@ AUI.add(
 									vocabularyId
 								),
 								on: {
-									success: function(event) {
+									success(event) {
 										var treeViews = instance.TREEVIEWS;
 
 										var tree = treeViews[vocabularyId];

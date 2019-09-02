@@ -336,7 +336,7 @@ AUI.add(
 			NAME: 'liferayupload',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					var strings = instance.get(STRINGS);
@@ -408,14 +408,14 @@ AUI.add(
 					instance._fallback = fallback;
 				},
 
-				renderUI: function() {
+				renderUI() {
 					var instance = this;
 
 					instance._renderControls();
 					instance._renderUploader();
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					if (instance._allRowIdsCheckbox) {
@@ -537,14 +537,14 @@ AUI.add(
 					});
 				},
 
-				_afterFilesSaved: function(event) {
+				_afterFilesSaved(event) {
 					var instance = this;
 
 					instance._updateMetadataContainer();
 					instance._updateManageUploadDisplay();
 				},
 
-				_cancelAllFiles: function() {
+				_cancelAllFiles() {
 					var instance = this;
 
 					var strings = instance.get(STRINGS);
@@ -580,7 +580,7 @@ AUI.add(
 					instance._updateList(0, cancelText);
 				},
 
-				_clearUploads: function() {
+				_clearUploads() {
 					var instance = this;
 
 					instance._fileListContent
@@ -590,7 +590,7 @@ AUI.add(
 					instance._updateManageUploadDisplay();
 				},
 
-				_formatTempFiles: function(fileNames) {
+				_formatTempFiles(fileNames) {
 					var instance = this;
 
 					if (Array.isArray(fileNames) && fileNames.length) {
@@ -649,7 +649,7 @@ AUI.add(
 					}
 				},
 
-				_getValidFiles: function(data) {
+				_getValidFiles(data) {
 					var instance = this;
 
 					var strings = instance.get(STRINGS);
@@ -696,7 +696,7 @@ AUI.add(
 					});
 				},
 
-				_handleDeleteResponse: function(json, li) {
+				_handleDeleteResponse(json, li) {
 					var instance = this;
 
 					if (!json.deleted) {
@@ -723,7 +723,7 @@ AUI.add(
 					instance.fire('tempFileRemoved');
 				},
 
-				_handleDrop: function(event) {
+				_handleDrop(event) {
 					var instance = this;
 
 					event.halt();
@@ -755,7 +755,7 @@ AUI.add(
 					}
 				},
 
-				_handleFileClick: function(event) {
+				_handleFileClick(event) {
 					var instance = this;
 
 					var currentTarget = event.currentTarget;
@@ -769,7 +769,7 @@ AUI.add(
 					}
 				},
 
-				_isUploading: function() {
+				_isUploading() {
 					var instance = this;
 
 					var queue = instance._uploader.queue;
@@ -783,7 +783,7 @@ AUI.add(
 					);
 				},
 
-				_markSelected: function(node) {
+				_markSelected(node) {
 					var instance = this;
 
 					var fileItem = node.ancestor('.upload-file.selectable');
@@ -791,7 +791,7 @@ AUI.add(
 					fileItem.toggleClass('selected');
 				},
 
-				_onAllRowIdsClick: function(event) {
+				_onAllRowIdsClick(event) {
 					var instance = this;
 
 					Liferay.Util.checkAll(
@@ -812,7 +812,7 @@ AUI.add(
 					instance._updateMetadataContainer();
 				},
 
-				_onAllUploadsComplete: function(event) {
+				_onAllUploadsComplete(event) {
 					var instance = this;
 
 					var strings = instance.get(STRINGS);
@@ -859,7 +859,7 @@ AUI.add(
 					Liferay.fire('allUploadsComplete');
 				},
 
-				_onBeforeUnload: function(event) {
+				_onBeforeUnload(event) {
 					var instance = this;
 
 					if (instance._isUploading()) {
@@ -867,7 +867,7 @@ AUI.add(
 					}
 				},
 
-				_onCancelFileClick: function(currentTarget) {
+				_onCancelFileClick(currentTarget) {
 					var instance = this;
 
 					var strings = instance.get(STRINGS);
@@ -913,7 +913,7 @@ AUI.add(
 					}
 				},
 
-				_onDeleteFileClick: function(currentTarget) {
+				_onDeleteFileClick(currentTarget) {
 					var instance = this;
 
 					var strings = instance.get(STRINGS);
@@ -956,7 +956,7 @@ AUI.add(
 					}
 				},
 
-				_onFileSelect: function(event) {
+				_onFileSelect(event) {
 					var instance = this;
 
 					var fileList = event.fileList;
@@ -989,7 +989,7 @@ AUI.add(
 					instance._pendingFileInfo.hide();
 				},
 
-				_onSelectFileClick: function(currentTarget) {
+				_onSelectFileClick(currentTarget) {
 					var instance = this;
 
 					if (instance.get('multipleFiles')) {
@@ -1005,7 +1005,7 @@ AUI.add(
 					instance._updateMetadataContainer();
 				},
 
-				_onUploadComplete: function(event) {
+				_onUploadComplete(event) {
 					var instance = this;
 
 					var strings = instance.get(STRINGS);
@@ -1110,7 +1110,7 @@ AUI.add(
 					instance.fire('uploadComplete', file);
 				},
 
-				_onUploadProgress: function(event) {
+				_onUploadProgress(event) {
 					var instance = this;
 
 					var progress = A.one('#' + event.file.id + 'progress');
@@ -1125,7 +1125,7 @@ AUI.add(
 					}
 				},
 
-				_onUploadStart: function(event) {
+				_onUploadStart(event) {
 					var instance = this;
 
 					var strings = instance.get(STRINGS);
@@ -1170,7 +1170,7 @@ AUI.add(
 					instance._updateList(0, currentListText);
 				},
 
-				_queueFile: function(file) {
+				_queueFile(file) {
 					var instance = this;
 
 					instance._fileListBuffer.push(file);
@@ -1178,7 +1178,7 @@ AUI.add(
 					instance._renderFileListTask();
 				},
 
-				_renderControls: function() {
+				_renderControls() {
 					var instance = this;
 
 					var multipleFiles = instance.get('multipleFiles');
@@ -1192,11 +1192,11 @@ AUI.add(
 						dropFileText: multipleFiles
 							? strings.dropFilesText
 							: strings.dropFileText,
-						multipleFiles: multipleFiles,
+						multipleFiles,
 						selectFilesText: multipleFiles
 							? strings.selectFilesText
 							: strings.selectFileText,
-						strings: strings,
+						strings,
 						uploaderType: UPLOADER_TYPE
 					};
 
@@ -1218,7 +1218,7 @@ AUI.add(
 						TPL_UPLOAD,
 						templateConfig
 					).render({
-						multipleFiles: multipleFiles
+						multipleFiles
 					});
 
 					instance._allRowIdsCheckbox = uploadFragment.one(
@@ -1275,7 +1275,7 @@ AUI.add(
 					instance._cancelButton.hide();
 				},
 
-				_renderFileList: function() {
+				_renderFileList() {
 					var instance = this;
 
 					var fileListBuffer = instance._fileListBuffer;
@@ -1296,7 +1296,7 @@ AUI.add(
 					fileListBuffer.length = 0;
 				},
 
-				_renderUploader: function() {
+				_renderUploader() {
 					var instance = this;
 
 					var timestampParam = '_LFR_UPLOADER_TS=' + Date.now();
@@ -1307,7 +1307,7 @@ AUI.add(
 						fileFieldName: 'file',
 						multipleFiles: instance.get('multipleFiles'),
 						on: {
-							render: function(event) {
+							render(event) {
 								instance
 									.get('boundingBox')
 									.setContent(instance._uploadFragment);
@@ -1330,7 +1330,7 @@ AUI.add(
 					instance._uploader = uploader;
 				},
 
-				_updateList: function(listLength, message) {
+				_updateList(listLength, message) {
 					var instance = this;
 
 					var strings = instance.get(STRINGS);
@@ -1348,7 +1348,7 @@ AUI.add(
 					}
 				},
 
-				_updateManageUploadDisplay: function() {
+				_updateManageUploadDisplay() {
 					var instance = this;
 
 					var fileListContent = instance._fileListContent;
@@ -1373,7 +1373,7 @@ AUI.add(
 					instance._listInfo.toggle(!!fileListContent.one('li'));
 				},
 
-				_updateMetadataContainer: function() {
+				_updateMetadataContainer() {
 					var instance = this;
 
 					var strings = instance.get(STRINGS);
@@ -1450,7 +1450,7 @@ AUI.add(
 					}
 				},
 
-				_updatePendingInfoContainer: function() {
+				_updatePendingInfoContainer() {
 					var instance = this;
 
 					var totalFiles = instance._fileList.all(
@@ -1464,7 +1464,7 @@ AUI.add(
 					}
 				},
 
-				_updateWarningContainer: function() {
+				_updateWarningContainer() {
 					var instance = this;
 
 					var totalFiles = instance._fileList.all(

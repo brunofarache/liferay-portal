@@ -41,7 +41,7 @@ AUI.add(
 			{
 				PROTECTED_HASH_KEYS: [/^liferay$/, /^tab$/, /^_\d+_tab$/],
 
-				add: function(state, options) {
+				add(state, options) {
 					var instance = this;
 
 					options = options || {};
@@ -57,7 +57,7 @@ AUI.add(
 					);
 				},
 
-				_init: function(config) {
+				_init(config) {
 					var instance = this;
 
 					var hash = LOCATION.hash;
@@ -82,7 +82,7 @@ AUI.add(
 					}
 				},
 
-				_updateURI: function(state) {
+				_updateURI(state) {
 					var instance = this;
 
 					var uriData = [

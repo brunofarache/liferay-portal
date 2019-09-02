@@ -59,12 +59,12 @@ AUI.add(
 
 			EXTENDS: A.Plugin.Base,
 
-			NAME: NAME,
+			NAME,
 
 			NS: NAME,
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -96,7 +96,7 @@ AUI.add(
 					];
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					if (instance._uploader) {
@@ -115,7 +115,7 @@ AUI.add(
 					new A.EventHandle(instance._eventHandles).detach();
 				},
 
-				_createProgressBar: function(image) {
+				_createProgressBar(image) {
 					var instance = this;
 
 					var imageContainerNode = A.Node.create(TPL_IMAGE_CONTAINER);
@@ -132,7 +132,7 @@ AUI.add(
 					return progressbar;
 				},
 
-				_getAlert: function() {
+				_getAlert() {
 					var instance = this;
 
 					if (!instance._alert) {
@@ -148,7 +148,7 @@ AUI.add(
 					return instance._alert;
 				},
 
-				_getUploader: function() {
+				_getUploader() {
 					var instance = this;
 
 					var uploader = instance._uploader;
@@ -165,7 +165,7 @@ AUI.add(
 					return uploader;
 				},
 
-				_onImageAdd: function(event) {
+				_onImageAdd(event) {
 					var instance = this;
 
 					var eventData = event.data;
@@ -208,7 +208,7 @@ AUI.add(
 					file.progressbar = instance._createProgressBar(image);
 				},
 
-				_onUploadComplete: function(event) {
+				_onUploadComplete(event) {
 					var instance = this;
 
 					var target = event.details[0].target;
@@ -263,7 +263,7 @@ AUI.add(
 					}
 				},
 
-				_onUploadError: function(event) {
+				_onUploadError(event) {
 					var instance = this;
 
 					event.target.cancelUpload();
@@ -271,7 +271,7 @@ AUI.add(
 					instance._removeTempImage(event);
 				},
 
-				_onUploadProgress: function(event) {
+				_onUploadProgress(event) {
 					var instance = this;
 
 					var percentLoaded = Math.round(event.percentLoaded);
@@ -287,7 +287,7 @@ AUI.add(
 					}
 				},
 
-				_removeTempImage: function(imageData) {
+				_removeTempImage(imageData) {
 					var instance = this;
 
 					if (imageData && imageData.randomId) {
@@ -307,13 +307,13 @@ AUI.add(
 					alert.set('bodyContent', strings.uploadingFileError).show();
 				},
 
-				_uploadImage: function(file, randomId) {
+				_uploadImage(file, randomId) {
 					var instance = this;
 
 					var uploader = instance._getUploader();
 
 					uploader.set('postVarsPerFile', {
-						randomId: randomId
+						randomId
 					});
 
 					uploader.upload(file);

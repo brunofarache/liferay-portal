@@ -43,7 +43,7 @@ let instance;
 
 const getItem = key => {
 	let data;
-	let item = localStorage.getItem(key);
+	const item = localStorage.getItem(key);
 	try {
 		data = JSON.parse(item);
 	} catch (e) {

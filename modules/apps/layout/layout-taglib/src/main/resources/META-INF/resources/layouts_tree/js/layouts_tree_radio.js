@@ -36,7 +36,7 @@ AUI.add(
 			NS: 'radio',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -67,13 +67,13 @@ AUI.add(
 					host.get('boundingBox').addClass('lfr-tree-radio');
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					new A.EventHandle(instance._eventHandles).detach();
 				},
 
-				_formatNode: function(node) {
+				_formatNode(node) {
 					var instance = this;
 
 					var currentRetVal = A.Do.currentRetVal;
@@ -86,18 +86,18 @@ AUI.add(
 					);
 				},
 
-				_formatNodeLabel: function(node, cssClass, label, title) {
+				_formatNodeLabel(node, cssClass, label, title) {
 					return new A.Do.AlterReturn(
 						'Modified node label',
 						Lang.sub(LABEL_TPL, {
-							cssClass: cssClass,
-							label: label,
-							title: title
+							cssClass,
+							label,
+							title
 						})
 					);
 				},
 
-				_formatRootNode: function(rootConfig, children) {
+				_formatRootNode(rootConfig, children) {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -115,13 +115,13 @@ AUI.add(
 					return new A.Do.AlterReturn(
 						'Modified cssClass, label and type attributes',
 						A.merge(A.Do.currentRetVal, {
-							labelEl: labelEl,
+							labelEl,
 							type: 'liferay-radio'
 						})
 					);
 				},
 
-				_onNodeCheckedChange: function(event) {
+				_onNodeCheckedChange(event) {
 					var instance = this;
 
 					if (event.newVal) {

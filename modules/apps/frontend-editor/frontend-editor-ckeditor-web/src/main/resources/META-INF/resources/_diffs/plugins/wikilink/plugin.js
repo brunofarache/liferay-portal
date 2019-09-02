@@ -13,7 +13,7 @@
  */
 
 CKEDITOR.plugins.add('wikilink', {
-	init: function(editor) {
+	init(editor) {
 		var instance = this;
 
 		editor.addCommand('link', new CKEDITOR.dialogCommand('link'));
@@ -105,7 +105,7 @@ CKEDITOR.plugins.add('wikilink', {
 });
 
 CKEDITOR.plugins.link = {
-	getSelectedLink: function(editor) {
+	getSelectedLink(editor) {
 		var selectedLink = null;
 
 		try {
@@ -137,7 +137,7 @@ CKEDITOR.unlinkCommand = function() {};
 CKEDITOR.unlinkCommand.prototype = {
 	startDisabled: true,
 
-	exec: function(editor) {
+	exec(editor) {
 		var selection = editor.getSelection();
 
 		var bookmarks = selection.createBookmarks();

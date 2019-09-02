@@ -25,7 +25,7 @@ AUI.add(
 				},
 
 				closeableNode: {
-					valueFn: function() {
+					valueFn() {
 						return A.Node.create(
 							'<button aria-label="' +
 								Liferay.Language.get('close') +
@@ -71,7 +71,7 @@ AUI.add(
 				TPL_CONTENT:
 					'<strong class="lead"><svg class="lexicon-icon" focusable="false"><use data-href="{pathThemeImages}/lexicon/icons.svg#{icon}" /><title>{title}</title></svg> {title}</strong>{message}',
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					var boundingBox = instance.get('boundingBox');
@@ -104,7 +104,7 @@ AUI.add(
 					Alert.superclass.bindUI.call(this);
 				},
 
-				render: function(parentNode) {
+				render(parentNode) {
 					var instance = this;
 
 					instance._updateBodyContent();
@@ -118,13 +118,13 @@ AUI.add(
 					);
 				},
 
-				_afterTypeChange: function(event) {
+				_afterTypeChange(event) {
 					var instance = this;
 
 					instance._updateCssClass();
 				},
 
-				_cancelHide: function() {
+				_cancelHide() {
 					var instance = this;
 
 					instance._clearHideTimer();
@@ -132,7 +132,7 @@ AUI.add(
 					instance._set('visible', true);
 				},
 
-				_getAlertsContainer: function(targetNode) {
+				_getAlertsContainer(targetNode) {
 					var instance = this;
 
 					var alertsContainer = instance._alertsContainer;
@@ -178,7 +178,7 @@ AUI.add(
 					return alertsContainer;
 				},
 
-				_getParentNode: function(targetNode) {
+				_getParentNode(targetNode) {
 					var instance = this;
 
 					var parentNode = instance._parentNode;
@@ -198,7 +198,7 @@ AUI.add(
 					return parentNode;
 				},
 
-				_maybeHide: function() {
+				_maybeHide() {
 					var instance = this;
 
 					if (instance._ignoreHideDelay) {
@@ -209,7 +209,7 @@ AUI.add(
 					}
 				},
 
-				_onClickBoundingBox: function(event) {
+				_onClickBoundingBox(event) {
 					if (
 						event.target.ancestor('.close', true, '.liferayalert')
 					) {
@@ -219,7 +219,7 @@ AUI.add(
 					}
 				},
 
-				_onMouseLeave: function(event) {
+				_onMouseLeave(event) {
 					var instance = this;
 
 					var delay = instance.get('delay');
@@ -229,7 +229,7 @@ AUI.add(
 					}
 				},
 
-				_prepareTransition: function(visible) {
+				_prepareTransition(visible) {
 					var instance = this;
 
 					var parentNode = instance._getParentNode();
@@ -243,7 +243,7 @@ AUI.add(
 					}
 				},
 
-				_transition: function(visible) {
+				_transition(visible) {
 					var instance = this;
 
 					var parentNode = instance._getParentNode();
@@ -278,7 +278,7 @@ AUI.add(
 					}
 				},
 
-				_updateBodyContent: function() {
+				_updateBodyContent() {
 					var instance = this;
 
 					var bodyContent = Lang.sub(instance.TPL_CONTENT, {
@@ -291,7 +291,7 @@ AUI.add(
 					instance.set('bodyContent', bodyContent);
 				},
 
-				_updateCssClass: function() {
+				_updateCssClass() {
 					var instance = this;
 
 					instance.set('cssClass', 'alert-' + instance.get('type'));

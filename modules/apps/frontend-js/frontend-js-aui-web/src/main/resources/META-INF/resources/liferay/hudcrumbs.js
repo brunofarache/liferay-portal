@@ -47,12 +47,12 @@ AUI.add(
 
 			EXTENDS: A.Plugin.Base,
 
-			NAME: NAME,
+			NAME,
 
 			NS: NAME,
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					var breadcrumbs = instance.get('host');
@@ -96,7 +96,7 @@ AUI.add(
 					);
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					Liferay.detach('startNavigate', instance._onStartNavigate);
@@ -107,7 +107,7 @@ AUI.add(
 					win.detach('windowresize', instance._calculateDimensions);
 				},
 
-				_calculateDimensions: function(event) {
+				_calculateDimensions(event) {
 					var instance = this;
 
 					var region = instance.get('host').get('region');
@@ -123,7 +123,7 @@ AUI.add(
 					);
 				},
 
-				_onScroll: function(event) {
+				_onScroll(event) {
 					var instance = this;
 
 					var scrollTop = event.currentTarget.get('scrollTop');
@@ -143,7 +143,7 @@ AUI.add(
 					instance.lastAction = action;
 				},
 
-				_onStartNavigate: function(event) {
+				_onStartNavigate(event) {
 					var instance = this;
 
 					instance.get('clone').hide();

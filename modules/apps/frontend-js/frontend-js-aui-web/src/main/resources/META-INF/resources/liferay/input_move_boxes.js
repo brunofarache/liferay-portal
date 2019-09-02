@@ -40,26 +40,26 @@ AUI.add(
 			},
 
 			HTML_PARSER: {
-				leftReorder: function(contentBox) {
+				leftReorder(contentBox) {
 					return contentBox.hasClass(CSS_LEFT_REORDER);
 				},
 
-				rightReorder: function(contentBox) {
+				rightReorder(contentBox) {
 					return contentBox.hasClass(CSS_RIGHT_REORDER);
 				}
 			},
 
-			NAME: NAME,
+			NAME,
 
 			prototype: {
-				renderUI: function() {
+				renderUI() {
 					var instance = this;
 
 					instance._renderBoxes();
 					instance._renderButtons();
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					var leftReorderToolbar = instance._leftReorderToolbar;
@@ -113,7 +113,7 @@ AUI.add(
 					);
 				},
 
-				sortBox: function(box) {
+				sortBox(box) {
 					var newBox = [];
 
 					var options = box.all('option');
@@ -142,7 +142,7 @@ AUI.add(
 					});
 				},
 
-				_afterMoveClick: function(event) {
+				_afterMoveClick(event) {
 					var instance = this;
 
 					var target = event.domEvent.target;
@@ -168,7 +168,7 @@ AUI.add(
 					}
 				},
 
-				_afterOrderClick: function(event, box) {
+				_afterOrderClick(event, box) {
 					var instance = this;
 
 					var target = event.domEvent.target;
@@ -187,7 +187,7 @@ AUI.add(
 					}
 				},
 
-				_moveItem: function(from, to, sort) {
+				_moveItem(from, to, sort) {
 					var instance = this;
 
 					from = A.one(from);
@@ -223,7 +223,7 @@ AUI.add(
 					});
 				},
 
-				_onSelectFocus: function(event, box) {
+				_onSelectFocus(event, box) {
 					var instance = this;
 
 					instance._toggleBtnMove(event);
@@ -231,16 +231,16 @@ AUI.add(
 					box.attr('selectedIndex', '-1');
 				},
 
-				_orderItem: function(box, direction) {
+				_orderItem(box, direction) {
 					Util.reorder(box, direction);
 
 					Liferay.fire(NAME + ':orderItem', {
-						box: box,
-						direction: direction
+						box,
+						direction
 					});
 				},
 
-				_renderBoxes: function() {
+				_renderBoxes() {
 					var instance = this;
 
 					var contentBox = instance.get('contentBox');
@@ -249,7 +249,7 @@ AUI.add(
 					instance._rightBox = contentBox.one('.right-selector');
 				},
 
-				_renderButtons: function() {
+				_renderButtons() {
 					var instance = this;
 
 					var contentBox = instance.get('contentBox');
@@ -269,7 +269,7 @@ AUI.add(
 										cssClass: 'move-right',
 										icon: 'icon-circle-arrow-right',
 										on: {
-											click: function(event) {
+											click(event) {
 												event.domEvent.preventDefault();
 											}
 										},
@@ -279,7 +279,7 @@ AUI.add(
 										cssClass: 'move-left',
 										icon: 'icon-circle-arrow-left',
 										on: {
-											click: function(event) {
+											click(event) {
 												event.domEvent.preventDefault();
 											}
 										},
@@ -297,7 +297,7 @@ AUI.add(
 									cssClass: 'reorder-up',
 									icon: 'icon-circle-arrow-up',
 									on: {
-										click: function(event) {
+										click(event) {
 											event.domEvent.preventDefault();
 										}
 									}
@@ -306,7 +306,7 @@ AUI.add(
 									cssClass: 'reorder-down',
 									icon: 'icon-circle-arrow-down',
 									on: {
-										click: function(event) {
+										click(event) {
 											event.domEvent.preventDefault();
 										}
 									}
@@ -348,7 +348,7 @@ AUI.add(
 					instance._toggleReorderToolbars();
 				},
 
-				_toggleBtnMove: function(event) {
+				_toggleBtnMove(event) {
 					var instance = this;
 
 					var contentBox = instance.get('contentBox');
@@ -378,7 +378,7 @@ AUI.add(
 					}
 				},
 
-				_toggleBtnSort: function(event) {
+				_toggleBtnSort(event) {
 					var instance = this;
 
 					var contentBox = instance.get('contentBox');
@@ -409,21 +409,18 @@ AUI.add(
 					}
 				},
 
-				_toggleBtnState: function(btn, state) {
+				_toggleBtnState(btn, state) {
 					Util.toggleDisabled(btn, state);
 				},
 
-				_toggleReorderToolbar: function(
-					sideReorderToolbar,
-					sideColumn
-				) {
+				_toggleReorderToolbar(sideReorderToolbar, sideColumn) {
 					var showReorderToolbar =
 						sideColumn.all('option').size() > 1;
 
 					sideReorderToolbar.toggle(showReorderToolbar);
 				},
 
-				_toggleReorderToolbars: function() {
+				_toggleReorderToolbars() {
 					var instance = this;
 
 					var contentBox = instance.get('contentBox');

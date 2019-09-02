@@ -58,7 +58,7 @@ AUI.add(
 			NS: 'state',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					instance._eventHandles = [
@@ -105,13 +105,13 @@ AUI.add(
 					];
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					new A.EventHandle(instance._eventHandles).detach();
 				},
 
-				_invokeSessionClick: function(data, callback) {
+				_invokeSessionClick(data, callback) {
 					A.mix(data, {
 						p_auth: Liferay.authToken,
 						useHttpSession: true
@@ -133,7 +133,7 @@ AUI.add(
 						.catch(error => {});
 				},
 
-				_matchParentNode: function(node) {
+				_matchParentNode(node) {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -156,14 +156,14 @@ AUI.add(
 
 					if (!Lang.isUndefined(checked)) {
 						instance._updateCheckedNodes({
-							checked: checked,
+							checked,
 							forceChildrenState: true,
-							node: node
+							node
 						});
 					}
 				},
 
-				_onCheckContentDisplayTreeAppend: function(event) {
+				_onCheckContentDisplayTreeAppend(event) {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -171,7 +171,7 @@ AUI.add(
 					host.restoreSelectedNode();
 				},
 
-				_onNodeChildrenChange: function(event) {
+				_onNodeChildrenChange(event) {
 					var instance = this;
 
 					var target = event.target;
@@ -179,7 +179,7 @@ AUI.add(
 					target.set('alwaysShowHitArea', event.newVal.length > 0);
 				},
 
-				_onNodeExpandedChange: function(event) {
+				_onNodeExpandedChange(event) {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -207,7 +207,7 @@ AUI.add(
 					}
 				},
 
-				_onNodeIOSuccess: function(event) {
+				_onNodeIOSuccess(event) {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -247,7 +247,7 @@ AUI.add(
 					instance._invokeSessionClick(
 						{
 							cmd: 'get',
-							key: key
+							key
 						},
 						function(responseData) {
 							try {
@@ -273,7 +273,7 @@ AUI.add(
 					host.restoreSelectedNode();
 				},
 
-				_onSelectableNodeCheckedChange: function(event) {
+				_onSelectableNodeCheckedChange(event) {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -297,7 +297,7 @@ AUI.add(
 					});
 				},
 
-				_onSelectableNodeChildrenChange: function(event) {
+				_onSelectableNodeChildrenChange(event) {
 					var instance = this;
 
 					var node = event.node;
@@ -306,20 +306,20 @@ AUI.add(
 						instance._updateCheckedNodes({
 							checked: true,
 							forceChildrenState: true,
-							node: node
+							node
 						});
 					}
 
 					instance._restoreCheckedNode(node);
 				},
 
-				_onSelectableTreeAppend: function(event) {
+				_onSelectableTreeAppend(event) {
 					var instance = this;
 
 					instance._restoreCheckedNode(event.node);
 				},
 
-				_onSelectableTreeRender: function(event) {
+				_onSelectableTreeRender(event) {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -332,7 +332,7 @@ AUI.add(
 					instance._restoreCheckedNode(rootNode);
 				},
 
-				_restoreCheckedNode: function(node) {
+				_restoreCheckedNode(node) {
 					var instance = this;
 
 					var plid = instance.get(STR_HOST).extractPlid(node);
@@ -352,7 +352,7 @@ AUI.add(
 					);
 				},
 
-				_updateCheckedNodes: function(nodeConfig) {
+				_updateCheckedNodes(nodeConfig) {
 					var instance = this;
 
 					var checked = nodeConfig.checked;
@@ -414,18 +414,14 @@ AUI.add(
 						A.each(children, function(child) {
 							instance._updateCheckedNodes({
 								checked: childrenChecked,
-								forceChildrenState: forceChildrenState,
+								forceChildrenState,
 								node: child
 							});
 						});
 					}
 				},
 
-				_updateSessionTreeCheckedState: function(
-					treeId,
-					nodeId,
-					state
-				) {
+				_updateSessionTreeCheckedState(treeId, nodeId, state) {
 					var instance = this;
 
 					var data = {
@@ -436,7 +432,7 @@ AUI.add(
 					instance._updateSessionTreeClick(treeId, data);
 				},
 
-				_updateSessionTreeClick: function(treeId, data) {
+				_updateSessionTreeClick(treeId, data) {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -448,7 +444,7 @@ AUI.add(
 							groupId: root.groupId,
 							privateLayout: root.privateLayout,
 							recursive: true,
-							treeId: treeId
+							treeId
 						},
 						data
 					);
@@ -470,11 +466,11 @@ AUI.add(
 						.catch(error => {});
 				},
 
-				_updateSessionTreeOpenedState: function(treeId, nodeId, state) {
+				_updateSessionTreeOpenedState(treeId, nodeId, state) {
 					var instance = this;
 
 					var data = {
-						nodeId: nodeId,
+						nodeId,
 						openNode: state
 					};
 

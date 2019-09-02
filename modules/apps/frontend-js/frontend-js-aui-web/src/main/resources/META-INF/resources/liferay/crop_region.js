@@ -20,7 +20,7 @@ AUI.add(
 		var CropRegion = function() {};
 
 		CropRegion.prototype = {
-			_getCropRegion: function(imagePreview, region) {
+			_getCropRegion(imagePreview, region) {
 				var instance = this;
 				var cropRegion;
 
@@ -56,7 +56,7 @@ AUI.add(
 				return cropRegion;
 			},
 
-			_getImgNaturalSize: function(img) {
+			_getImgNaturalSize(img) {
 				var instance = this;
 
 				var imageHeight = img.get('naturalHeight');

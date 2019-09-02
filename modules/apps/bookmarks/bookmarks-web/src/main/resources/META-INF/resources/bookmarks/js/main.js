@@ -43,7 +43,7 @@ AUI.add(
 			NAME: 'bookmarks',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					var namespace = instance.NS;
@@ -64,7 +64,7 @@ AUI.add(
 					instance._searchContainer = searchContainer;
 				},
 
-				_moveToFolder: function(obj) {
+				_moveToFolder(obj) {
 					var instance = this;
 
 					var namespace = instance.NS;
@@ -94,7 +94,7 @@ AUI.add(
 					}
 				},
 
-				_moveToTrash: function() {
+				_moveToTrash() {
 					var instance = this;
 
 					instance._processAction(
@@ -103,7 +103,7 @@ AUI.add(
 					);
 				},
 
-				_processAction: function(action, url, redirectUrl) {
+				_processAction(action, url, redirectUrl) {
 					var instance = this;
 
 					var namespace = instance.NS;

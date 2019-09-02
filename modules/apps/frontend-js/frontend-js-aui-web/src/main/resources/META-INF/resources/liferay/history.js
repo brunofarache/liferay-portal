@@ -37,7 +37,7 @@ AUI.add(
 			NAME: 'liferayhistory',
 
 			prototype: {
-				get: function(key) {
+				get(key) {
 					var instance = this;
 
 					var value = History.superclass.get.apply(this, arguments);

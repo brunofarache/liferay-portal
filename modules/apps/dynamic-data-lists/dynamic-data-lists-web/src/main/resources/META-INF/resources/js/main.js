@@ -85,7 +85,7 @@ AUI.add(
 			},
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					instance._setDataStableSort(instance.get('data'));
@@ -96,7 +96,7 @@ AUI.add(
 					instance.on('model:change', instance._onRecordUpdate);
 				},
 
-				addEmptyRows: function(num) {
+				addEmptyRows(num) {
 					var instance = this;
 
 					var columns = instance.get('columns');
@@ -109,7 +109,7 @@ AUI.add(
 					data.add(SpreadSheet.buildEmptyRecords(num, keys));
 				},
 
-				updateMinDisplayRows: function(minDisplayRows, callback) {
+				updateMinDisplayRows(minDisplayRows, callback) {
 					var instance = this;
 
 					callback =
@@ -120,7 +120,7 @@ AUI.add(
 					Liferay.Service(
 						'/ddl.ddlrecordset/update-min-display-rows',
 						{
-							minDisplayRows: minDisplayRows,
+							minDisplayRows,
 							recordSetId: recordsetId,
 							serviceContext: JSON.stringify({
 								scopeGroupId: themeDisplay.getScopeGroupId(),
@@ -131,7 +131,7 @@ AUI.add(
 					);
 				},
 
-				_afterActiveCellIndexChange: function(event) {
+				_afterActiveCellIndexChange(event) {
 					var instance = this;
 
 					var activeCell = instance.get('activeCell');
@@ -166,7 +166,7 @@ AUI.add(
 					scrollableElement.set('scrollLeft', scrollTo);
 				},
 
-				_afterSelectionKey: function(event) {
+				_afterSelectionKey(event) {
 					var instance = this;
 
 					var activeCell = instance.get('activeCell');
@@ -184,7 +184,7 @@ AUI.add(
 					}
 				},
 
-				_normalizeFieldData: function(
+				_normalizeFieldData(
 					item,
 					record,
 					fieldsDisplayValues,
@@ -236,7 +236,7 @@ AUI.add(
 					}
 				},
 
-				_normalizeRecordData: function(record) {
+				_normalizeRecordData(record) {
 					var instance = this;
 
 					var structure = instance.get('structure');
@@ -263,19 +263,19 @@ AUI.add(
 					return normalized;
 				},
 
-				_normalizeValue: function(value) {
+				_normalizeValue(value) {
 					var instance = this;
 
 					return String(value);
 				},
 
-				_onDataChange: function(event) {
+				_onDataChange(event) {
 					var instance = this;
 
 					instance._setDataStableSort(event.newVal);
 				},
 
-				_onEditCell: function(event) {
+				_onEditCell(event) {
 					var instance = this;
 
 					SpreadSheet.superclass._onEditCell.apply(
@@ -299,17 +299,17 @@ AUI.add(
 
 					if (editor) {
 						editor.setAttrs({
-							data: data,
-							portletNamespace: portletNamespace,
-							record: record,
-							recordsetId: recordsetId,
-							structure: structure,
+							data,
+							portletNamespace,
+							record,
+							recordsetId,
+							structure,
 							zIndex: Liferay.zIndex.OVERLAY
 						});
 					}
 				},
 
-				_onRecordUpdate: function(event) {
+				_onRecordUpdate(event) {
 					var instance = this;
 
 					if (!event.changed.hasOwnProperty('recordId')) {
@@ -348,7 +348,7 @@ AUI.add(
 					}
 				},
 
-				_randomString: function(length) {
+				_randomString(length) {
 					var random = Math.random();
 
 					var randomString = random.toString(36);
@@ -356,7 +356,7 @@ AUI.add(
 					return randomString.substring(length);
 				},
 
-				_setDataStableSort: function(data) {
+				_setDataStableSort(data) {
 					var instance = this;
 
 					data.sort = function(options) {
@@ -371,7 +371,7 @@ AUI.add(
 							);
 
 							var facade = A.merge(options, {
-								models: models,
+								models,
 								src: 'sort'
 							});
 
@@ -387,12 +387,7 @@ AUI.add(
 				}
 			},
 
-			addRecord: function(
-				recordsetId,
-				displayIndex,
-				fieldsMap,
-				callback
-			) {
+			addRecord(recordsetId, displayIndex, fieldsMap, callback) {
 				var instance = this;
 
 				callback = (callback && A.bind(callback, instance)) || EMPTY_FN;
@@ -400,7 +395,7 @@ AUI.add(
 				Liferay.Service(
 					'/ddl.ddlrecord/add-record',
 					{
-						displayIndex: displayIndex,
+						displayIndex,
 						fieldsMap: JSON.stringify(fieldsMap),
 						groupId: themeDisplay.getScopeGroupId(),
 						recordSetId: recordsetId,
@@ -414,12 +409,7 @@ AUI.add(
 				);
 			},
 
-			buildDataTableColumns: function(
-				columns,
-				locale,
-				structure,
-				editable
-			) {
+			buildDataTableColumns(columns, locale, structure, editable) {
 				var instance = this;
 
 				columns.forEach(function(item, index) {
@@ -661,7 +651,7 @@ AUI.add(
 
 					validatorRules[name] = A.mix(
 						{
-							required: required
+							required
 						},
 						validatorRules[name]
 					);
@@ -678,7 +668,7 @@ AUI.add(
 				return columns;
 			},
 
-			buildEmptyRecords: function(num, keys) {
+			buildEmptyRecords(num, keys) {
 				var instance = this;
 
 				var emptyRows = [];
@@ -690,7 +680,7 @@ AUI.add(
 				return emptyRows;
 			},
 
-			findStructureFieldByAttribute: function(
+			findStructureFieldByAttribute(
 				fieldsArray,
 				attributeName,
 				attributeValue
@@ -718,7 +708,7 @@ AUI.add(
 				return structureField;
 			},
 
-			getCellEditorOptions: function(options, locale) {
+			getCellEditorOptions(options, locale) {
 				var normalized = {};
 
 				options.forEach(function(item, index) {
@@ -734,7 +724,7 @@ AUI.add(
 				return normalized;
 			},
 
-			getRecordModel: function(keys) {
+			getRecordModel(keys) {
 				var instance = this;
 
 				var recordModel = {};
@@ -746,13 +736,7 @@ AUI.add(
 				return recordModel;
 			},
 
-			updateRecord: function(
-				recordId,
-				displayIndex,
-				fieldsMap,
-				merge,
-				callback
-			) {
+			updateRecord(recordId, displayIndex, fieldsMap, merge, callback) {
 				var instance = this;
 
 				callback = (callback && A.bind(callback, instance)) || EMPTY_FN;
@@ -760,10 +744,10 @@ AUI.add(
 				Liferay.Service(
 					'/ddl.ddlrecord/update-record',
 					{
-						displayIndex: displayIndex,
+						displayIndex,
 						fieldsMap: JSON.stringify(fieldsMap),
 						mergeFields: merge,
-						recordId: recordId,
+						recordId,
 						serviceContext: JSON.stringify({
 							scopeGroupId: themeDisplay.getScopeGroupId(),
 							userId: themeDisplay.getUserId(),
@@ -780,7 +764,7 @@ AUI.add(
 		var DDLUtil = {
 			previewDialog: null,
 
-			openPreviewDialog: function(content) {
+			openPreviewDialog(content) {
 				var instance = this;
 
 				var previewDialog = instance.previewDialog;

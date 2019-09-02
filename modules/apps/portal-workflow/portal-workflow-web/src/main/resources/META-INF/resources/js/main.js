@@ -16,7 +16,7 @@ AUI.add(
 	'liferay-workflow-web',
 	function(A) {
 		var WorkflowWeb = {
-			confirmBeforeDuplicateDialog: function(
+			confirmBeforeDuplicateDialog(
 				event,
 				actionUrl,
 				title,
@@ -55,7 +55,7 @@ AUI.add(
 									discardDefaultButtonCssClasses: true,
 									label: Liferay.Language.get('cancel'),
 									on: {
-										click: function() {
+										click() {
 											if (form) {
 												form.reset();
 											}
@@ -69,7 +69,7 @@ AUI.add(
 									discardDefaultButtonCssClasses: true,
 									label: Liferay.Language.get('duplicate'),
 									on: {
-										click: function() {
+										click() {
 											if (form) {
 												submitForm(form);
 											}
@@ -90,7 +90,7 @@ AUI.add(
 										Liferay.Language.get('close') +
 										'</title></svg>',
 									on: {
-										click: function(event) {
+										click(event) {
 											if (form) {
 												form.reset();
 											}
@@ -103,13 +103,13 @@ AUI.add(
 						},
 						width: 500
 					},
-					title: title
+					title
 				});
 
 				instance._duplicationDialog = dialog;
 			},
 
-			openConfirmDeleteDialog: function(title, message, actionUrl) {
+			openConfirmDeleteDialog(title, message, actionUrl) {
 				var instance = this;
 
 				var dialog = Liferay.Util.Window.getWindow({
@@ -125,7 +125,7 @@ AUI.add(
 									discardDefaultButtonCssClasses: true,
 									label: Liferay.Language.get('delete'),
 									on: {
-										click: function() {
+										click() {
 											window.location.assign(actionUrl);
 										}
 									}
@@ -135,7 +135,7 @@ AUI.add(
 									discardDefaultButtonCssClasses: true,
 									label: Liferay.Language.get('cancel'),
 									on: {
-										click: function() {
+										click() {
 											dialog.destroy();
 										}
 									}
@@ -152,7 +152,7 @@ AUI.add(
 										Liferay.Language.get('close') +
 										'</title></svg>',
 									on: {
-										click: function(event) {
+										click(event) {
 											dialog.destroy();
 
 											event.domEvent.stopPropagation();
@@ -163,16 +163,11 @@ AUI.add(
 						},
 						width: 600
 					},
-					title: title
+					title
 				});
 			},
 
-			previewBeforeRevertDialog: function(
-				event,
-				renderUrl,
-				actionUrl,
-				title
-			) {
+			previewBeforeRevertDialog(event, renderUrl, actionUrl, title) {
 				var instance = this;
 
 				var dialog = Liferay.Util.Window.getWindow({
@@ -186,7 +181,7 @@ AUI.add(
 									discardDefaultButtonCssClasses: true,
 									label: Liferay.Language.get('cancel'),
 									on: {
-										click: function() {
+										click() {
 											dialog.destroy();
 										}
 									}
@@ -196,7 +191,7 @@ AUI.add(
 									discardDefaultButtonCssClasses: true,
 									label: Liferay.Language.get('restore'),
 									on: {
-										click: function() {
+										click() {
 											window.location.assign(actionUrl);
 										}
 									}
@@ -213,7 +208,7 @@ AUI.add(
 										Liferay.Language.get('close') +
 										'</title></svg>',
 									on: {
-										click: function(event) {
+										click(event) {
 											dialog.destroy();
 
 											event.domEvent.stopPropagation();
@@ -223,12 +218,12 @@ AUI.add(
 							]
 						}
 					},
-					title: title,
+					title,
 					uri: renderUrl
 				});
 			},
 
-			saveWorkflowDefinitionLink: function(event, namespace) {
+			saveWorkflowDefinitionLink(event, namespace) {
 				var instance = this;
 
 				var formContainer = document.getElementById(
@@ -240,7 +235,7 @@ AUI.add(
 				submitForm(form);
 			},
 
-			showActionUndoneSuccessMessage: function(namespace) {
+			showActionUndoneSuccessMessage(namespace) {
 				var instance = this;
 
 				var successMessage = Liferay.Language.get('action-undone');
@@ -270,7 +265,7 @@ AUI.add(
 				instance._alert = alert;
 			},
 
-			showDefinitionImportSuccessMessage: function(namespace) {
+			showDefinitionImportSuccessMessage(namespace) {
 				var instance = this;
 
 				var undo = Liferay.Language.get('undo');
@@ -315,7 +310,7 @@ AUI.add(
 				instance._alert = alert;
 			},
 
-			toggleDefinitionLinkEditionMode: function(event, namespace) {
+			toggleDefinitionLinkEditionMode(event, namespace) {
 				var instance = this;
 
 				var buttonName = instance._getClickedButtonName(
@@ -368,7 +363,7 @@ AUI.add(
 				}
 			},
 
-			_doToggleDefinitionLinkEditionMode: function(namespace) {
+			_doToggleDefinitionLinkEditionMode(namespace) {
 				var instance = this;
 
 				instance._toggleElementVisibility(namespace);
@@ -378,7 +373,7 @@ AUI.add(
 				instance._removeFormGroupClass(namespace);
 			},
 
-			_getClickedButtonName: function(event, namespace) {
+			_getClickedButtonName(event, namespace) {
 				var button = event.target;
 
 				var buttonId = button.get('id');
@@ -388,7 +383,7 @@ AUI.add(
 				return buttonType;
 			},
 
-			_getDefinitionLinkNodeNamespace: function(definitionLinkNode) {
+			_getDefinitionLinkNodeNamespace(definitionLinkNode) {
 				var definitionLinkNodeInput = definitionLinkNode.one(
 					'input[name$=namespace]'
 				);
@@ -398,7 +393,7 @@ AUI.add(
 				return definitionLinkNamespace;
 			},
 
-			_getElementsByIds: function() {
+			_getElementsByIds() {
 				var elements = [];
 
 				var element;
@@ -414,7 +409,7 @@ AUI.add(
 				return elements;
 			},
 
-			_getOpenDefinitionLinkNode: function() {
+			_getOpenDefinitionLinkNode() {
 				var listEditMode = A.all('input[name$=editMode][value=true]');
 
 				var definitionLink;
@@ -428,7 +423,7 @@ AUI.add(
 				return definitionLink;
 			},
 
-			_hasDefinitionLinkChanged: function(definitionLinkNode) {
+			_hasDefinitionLinkChanged(definitionLinkNode) {
 				var select = definitionLinkNode.one('select');
 
 				var currentValue = select.val();
@@ -448,7 +443,7 @@ AUI.add(
 				return changed;
 			},
 
-			_removeFormGroupClass: function(namespace) {
+			_removeFormGroupClass(namespace) {
 				var formContainer = document.getElementById(
 					namespace + 'formContainer'
 				);
@@ -460,7 +455,7 @@ AUI.add(
 				}
 			},
 
-			_resetLastValue: function(namespace) {
+			_resetLastValue(namespace) {
 				var formContainerNode = A.one(
 					'#' + namespace + 'formContainer'
 				);
@@ -474,7 +469,7 @@ AUI.add(
 				selectNode.val(workflowAssignedValueNode.val());
 			},
 
-			_switchEditMode: function(namespace) {
+			_switchEditMode(namespace) {
 				var formContainerNode = A.one(
 					'#' + namespace + 'formContainer'
 				);
@@ -490,7 +485,7 @@ AUI.add(
 				inputEditModeNode.val(!boolEditMode);
 			},
 
-			_toggleElementVisibility: function(namespace) {
+			_toggleElementVisibility(namespace) {
 				var instance = this;
 
 				var saveCancelGroupId = namespace + 'saveCancelGroup';

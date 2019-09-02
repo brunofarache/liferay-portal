@@ -70,13 +70,13 @@ AUI.add(
 			NAME: 'autofields',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					instance.config = config;
 				},
 
-				addRow: function(node) {
+				addRow(node) {
 					var instance = this;
 
 					var clone = instance._createClone(node);
@@ -106,7 +106,7 @@ AUI.add(
 					}
 				},
 
-				deleteRow: function(node) {
+				deleteRow(node) {
 					var instance = this;
 
 					var contentBox = instance._contentBox;
@@ -213,7 +213,7 @@ AUI.add(
 					instance._updateContentButtons();
 				},
 
-				render: function() {
+				render() {
 					var instance = this;
 
 					var baseContainer = A.Node.create(
@@ -320,7 +320,7 @@ AUI.add(
 					return instance;
 				},
 
-				reset: function() {
+				reset() {
 					var instance = this;
 
 					var contentBox = instance._contentBox;
@@ -332,7 +332,7 @@ AUI.add(
 					instance._undoManager.clear();
 				},
 
-				save: function(form) {
+				save(form) {
 					var instance = this;
 
 					var contentBox = form || instance._contentBox;
@@ -346,7 +346,7 @@ AUI.add(
 					instance._fieldIndexes.val(fieldOrder);
 				},
 
-				serialize: function(filter) {
+				serialize(filter) {
 					var instance = this;
 
 					var visibleRows = instance._contentBox
@@ -379,7 +379,7 @@ AUI.add(
 					return serializedData.join();
 				},
 
-				_addHandleClass: function(node) {
+				_addHandleClass(node) {
 					var instance = this;
 
 					var sortableHandle = instance.config.sortableHandle;
@@ -391,7 +391,7 @@ AUI.add(
 					}
 				},
 
-				_attachSubmitListener: function() {
+				_attachSubmitListener() {
 					var instance = this;
 
 					Liferay.on(
@@ -402,7 +402,7 @@ AUI.add(
 					AutoFields.prototype._attachSubmitListener = Lang.emptyFn;
 				},
 
-				_clearForm: function(node) {
+				_clearForm(node) {
 					node.all('input, select, textarea').each(function(
 						item,
 						index
@@ -438,7 +438,7 @@ AUI.add(
 					});
 				},
 
-				_clearHiddenRows: function(item, index) {
+				_clearHiddenRows(item, index) {
 					var instance = this;
 
 					if (instance._isHiddenRow(item)) {
@@ -446,7 +446,7 @@ AUI.add(
 					}
 				},
 
-				_clearInputsLocalized: function(node) {
+				_clearInputsLocalized(node) {
 					node.all('.language-value').attr('placeholder', '');
 					node.all('.lfr-input-localized-state').removeClass(
 						'lfr-input-localized-state-error'
@@ -459,7 +459,7 @@ AUI.add(
 					);
 				},
 
-				_createClone: function(node) {
+				_createClone(node) {
 					var instance = this;
 
 					var currentRow = node;
@@ -488,7 +488,7 @@ AUI.add(
 					return clonedRow;
 				},
 
-				_createCloneFromMarkup: function(
+				_createCloneFromMarkup(
 					node,
 					guid,
 					formValidator,
@@ -591,7 +591,7 @@ AUI.add(
 					return node;
 				},
 
-				_createCloneFromURL: function(node, guid) {
+				_createCloneFromURL(node, guid) {
 					var instance = this;
 
 					var contentBox = node.one('> div');
@@ -620,7 +620,7 @@ AUI.add(
 					return node;
 				},
 
-				_getFormValidator: function(node) {
+				_getFormValidator(node) {
 					var instance = this;
 
 					var formValidator;
@@ -636,13 +636,13 @@ AUI.add(
 					return formValidator;
 				},
 
-				_isHiddenRow: function(row) {
+				_isHiddenRow(row) {
 					var instance = this;
 
 					return row.hasClass(row._hideClass || 'hide');
 				},
 
-				_makeSortable: function(sortableHandle) {
+				_makeSortable(sortableHandle) {
 					var instance = this;
 
 					var rows = instance._contentBox.all('.lfr-form-row');
@@ -665,7 +665,7 @@ AUI.add(
 					});
 				},
 
-				_registerInputLocalized: function(inputLocalized, guid) {
+				_registerInputLocalized(inputLocalized, guid) {
 					var inputLocalizedId = inputLocalized
 						.get('id')
 						.replace(/([0-9]+)$/, guid);
@@ -700,7 +700,7 @@ AUI.add(
 					});
 				},
 
-				_updateContentButtons: function() {
+				_updateContentButtons() {
 					var instance = this;
 
 					var minimumRows = instance.minimumRows;

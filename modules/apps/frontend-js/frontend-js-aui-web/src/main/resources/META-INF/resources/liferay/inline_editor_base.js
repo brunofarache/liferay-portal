@@ -98,7 +98,7 @@ AUI.add(
 		};
 
 		InlineEditorBase.prototype = {
-			destructor: function() {
+			destructor() {
 				var instance = this;
 
 				instance.getEditNotice().destroy();
@@ -112,7 +112,7 @@ AUI.add(
 				}
 			},
 
-			closeNotice: function(delay) {
+			closeNotice(delay) {
 				var instance = this;
 
 				var closeNoticeTask = instance._closeNoticeTask;
@@ -134,7 +134,7 @@ AUI.add(
 				}
 			},
 
-			getEditNotice: function() {
+			getEditNotice() {
 				var instance = this;
 
 				var editNotice = instance._editNotice;
@@ -162,7 +162,7 @@ AUI.add(
 				return editNotice;
 			},
 
-			save: function(autosaved) {
+			save(autosaved) {
 				var instance = this;
 
 				var data = {
@@ -189,7 +189,7 @@ AUI.add(
 					.catch(() => instance.fire('saveFailure'));
 			},
 
-			startSaveTask: function() {
+			startSaveTask() {
 				var instance = this;
 
 				var saveTask = instance._saveTask;
@@ -211,7 +211,7 @@ AUI.add(
 				return saveTask;
 			},
 
-			stopSaveTask: function() {
+			stopSaveTask() {
 				var instance = this;
 
 				var saveTask = instance._saveTask;
@@ -223,7 +223,7 @@ AUI.add(
 				return saveTask;
 			},
 
-			_attachCloseListener: function() {
+			_attachCloseListener() {
 				var instance = this;
 
 				var notice = instance.getEditNotice();
@@ -231,13 +231,13 @@ AUI.add(
 				notice.footerNode.on('click', A.bind('hide', notice));
 			},
 
-			_closeNoticeFn: function() {
+			_closeNoticeFn() {
 				var instance = this;
 
 				instance.getEditNotice().hide();
 			},
 
-			_defSaveFailureFn: function() {
+			_defSaveFailureFn() {
 				var instance = this;
 
 				instance.resetDirty();
@@ -256,7 +256,7 @@ AUI.add(
 				instance.closeNotice();
 			},
 
-			_defSaveSuccessFn: function(autosaved) {
+			_defSaveSuccessFn(autosaved) {
 				var instance = this;
 
 				instance.resetDirty();
@@ -284,7 +284,7 @@ AUI.add(
 				instance.closeNotice();
 			},
 
-			_saveFn: function(autosaved) {
+			_saveFn(autosaved) {
 				var instance = this;
 
 				if (instance.isContentDirty()) {

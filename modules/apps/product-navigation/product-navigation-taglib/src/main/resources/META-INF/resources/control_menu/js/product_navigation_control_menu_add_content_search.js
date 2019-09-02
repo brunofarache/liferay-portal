@@ -18,7 +18,7 @@ AUI.add(
 		var AddContentSearch = function() {};
 
 		AddContentSearch.prototype = {
-			initializer: function(config) {
+			initializer(config) {
 				var instance = this;
 
 				var contentSearch = new Liferay.SearchFilter({
@@ -30,7 +30,7 @@ AUI.add(
 				instance._bindUISearch();
 			},
 
-			_bindUISearch: function() {
+			_bindUISearch() {
 				var instance = this;
 
 				instance._eventHandles = instance._eventHandles || [];
@@ -47,7 +47,7 @@ AUI.add(
 				);
 			},
 
-			_onSearchInputKeyDown: function(event) {
+			_onSearchInputKeyDown(event) {
 				if (event.isKey('ENTER')) {
 					event.halt();
 				}

@@ -71,13 +71,13 @@ AUI.add(
 			UI_ATTRS: ['values'],
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					instance.tplReminder = new A.Template(TPL_REMINDER_SECTION);
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					var boundingBox = instance.get('boundingBox');
@@ -90,7 +90,7 @@ AUI.add(
 					);
 				},
 
-				_onChangeCheckbox: function(event) {
+				_onChangeCheckbox(event) {
 					var instance = this;
 
 					var target = event.target;
@@ -105,7 +105,7 @@ AUI.add(
 					}
 				},
 
-				_uiSetValues: function(val) {
+				_uiSetValues(val) {
 					var instance = this;
 
 					var boundingBox = instance.get('boundingBox');
@@ -123,8 +123,8 @@ AUI.add(
 							tplReminder.parse(
 								A.merge(strings, {
 									disabled: !value.interval,
-									i: i,
-									portletNamespace: portletNamespace,
+									i,
+									portletNamespace,
 									time: Liferay.Time.getDescription(
 										value.interval
 									)

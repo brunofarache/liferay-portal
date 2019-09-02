@@ -56,7 +56,7 @@ AUI.add(
 			NAME: 'admin',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					instance._eventHandles = [];
@@ -64,7 +64,7 @@ AUI.add(
 					instance.bindUI();
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					instance._eventHandles.push(
@@ -78,7 +78,7 @@ AUI.add(
 					);
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					A.Array.invoke(instance._eventHandles, 'detach');
@@ -88,7 +88,7 @@ AUI.add(
 					A.clearTimeout(instance._laterTimeout);
 				},
 
-				_addInputsFromData: function(data) {
+				_addInputsFromData(data) {
 					var instance = this;
 
 					var form = instance.get(STR_FORM);
@@ -112,7 +112,7 @@ AUI.add(
 					form.append(inputsArray.join(''));
 				},
 
-				_installXuggler: function(event) {
+				_installXuggler(event) {
 					var instance = this;
 
 					var form = instance.get(STR_FORM);
@@ -134,7 +134,7 @@ AUI.add(
 					);
 
 					A.one('#adminXugglerPanelContent').load(url, {
-						data: data,
+						data,
 						loadingMask: {
 							'strings.loading': Liferay.Language.get(
 								'xuggler-library-is-installing'
@@ -145,7 +145,7 @@ AUI.add(
 					});
 				},
 
-				_onSubmit: function(event) {
+				_onSubmit(event) {
 					var instance = this;
 
 					var data = event.currentTarget.getData();

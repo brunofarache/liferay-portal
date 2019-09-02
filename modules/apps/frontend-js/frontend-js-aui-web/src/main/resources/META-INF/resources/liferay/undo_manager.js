@@ -63,13 +63,13 @@ AUI.add(
 			NAME: 'undomanager',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					instance._undoCache = new A.DataSet();
 				},
 
-				renderUI: function() {
+				renderUI() {
 					var instance = this;
 
 					var clearText = Liferay.Language.get('clear-history');
@@ -103,7 +103,7 @@ AUI.add(
 					instance._actionUndo = actionUndo;
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					instance._actionClear.on(
@@ -120,19 +120,19 @@ AUI.add(
 					instance.after('render', instance._afterUndoManagerRender);
 				},
 
-				add: function(handler, stateData) {
+				add(handler, stateData) {
 					var instance = this;
 
 					if (Lang.isFunction(handler)) {
 						var undo = {
-							handler: handler,
-							stateData: stateData
+							handler,
+							stateData
 						};
 
 						instance._undoCache.insert(0, undo);
 
 						var eventData = {
-							undo: undo
+							undo
 						};
 
 						instance.fire('update', eventData);
@@ -140,7 +140,7 @@ AUI.add(
 					}
 				},
 
-				clear: function(event) {
+				clear(event) {
 					var instance = this;
 
 					instance._undoCache.clear();
@@ -149,7 +149,7 @@ AUI.add(
 					instance.fire('clearList');
 				},
 
-				undo: function(limit) {
+				undo(limit) {
 					var instance = this;
 
 					limit = limit || 1;
@@ -168,7 +168,7 @@ AUI.add(
 					instance.fire('undo');
 				},
 
-				_afterUndoManagerRender: function(event) {
+				_afterUndoManagerRender(event) {
 					var instance = this;
 
 					var location = instance.get('location');
@@ -187,19 +187,19 @@ AUI.add(
 					}
 				},
 
-				_onActionClear: function(event) {
+				_onActionClear(event) {
 					var instance = this;
 
 					instance.clear();
 				},
 
-				_onActionUndo: function(event) {
+				_onActionUndo(event) {
 					var instance = this;
 
 					instance.undo(1);
 				},
 
-				_updateList: function() {
+				_updateList() {
 					var instance = this;
 
 					var itemsLeft = instance._undoCache.size();

@@ -39,19 +39,19 @@ AUI.add(
 			NAME: 'segmentsSimulation',
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					instance._bindUI();
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					new A.EventHandle(instance._eventHandles).detach();
 				},
 
-				_bindUI: function() {
+				_bindUI() {
 					var instance = this;
 
 					instance._eventHandles = [];
@@ -80,7 +80,7 @@ AUI.add(
 					);
 				},
 
-				_deactivateSimulation: function() {
+				_deactivateSimulation() {
 					var instance = this;
 
 					var form = instance.get('form');
@@ -105,7 +105,7 @@ AUI.add(
 						});
 				},
 
-				_simulateSegmentsEntries: function() {
+				_simulateSegmentsEntries() {
 					var instance = this;
 
 					const body = new URLSearchParams(

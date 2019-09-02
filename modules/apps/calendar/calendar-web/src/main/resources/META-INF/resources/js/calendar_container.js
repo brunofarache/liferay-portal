@@ -60,11 +60,7 @@ AUI.add(
 			NAME: 'calendar-container',
 
 			prototype: {
-				createCalendarsAutoComplete: function(
-					resourceURL,
-					input,
-					afterSelectFn
-				) {
+				createCalendarsAutoComplete(resourceURL, input, afterSelectFn) {
 					var instance = this;
 
 					input.plug(A.Plugin.AutoComplete, {
@@ -77,14 +73,14 @@ AUI.add(
 							'&' +
 							instance.get('namespace') +
 							'keywords={query}',
-						resultFilters: function(query, results) {
+						resultFilters(query, results) {
 							return results.filter(function(item, index) {
 								return !instance.getCalendar(
 									item.raw.calendarId
 								);
 							});
 						},
-						resultFormatter: function(query, results) {
+						resultFormatter(query, results) {
 							return results.map(function(result) {
 								var calendar = result.raw;
 								var calendarResourceName =
@@ -113,7 +109,7 @@ AUI.add(
 						.setStyle('min-width', input.outerWidth());
 				},
 
-				getCalendar: function(calendarId) {
+				getCalendar(calendarId) {
 					var instance = this;
 
 					var availableCalendars = instance.get('availableCalendars');
@@ -121,14 +117,14 @@ AUI.add(
 					return availableCalendars[calendarId];
 				},
 
-				getCalendarsMenu: function(config) {
+				getCalendarsMenu(config) {
 					var instance = this;
 
 					var availableCalendars = instance.get('availableCalendars');
 
 					var toggler = new A.Toggler({
 						after: {
-							expandedChange: function(event) {
+							expandedChange(event) {
 								if (event.newVal) {
 									var activeView = config.scheduler.get(
 										'activeView'
@@ -147,7 +143,7 @@ AUI.add(
 					var items = [
 						{
 							caption: Liferay.Language.get('check-availability'),
-							fn: function(event) {
+							fn(event) {
 								var instance = this;
 
 								A.each(availableCalendars, function(
@@ -171,13 +167,13 @@ AUI.add(
 					];
 
 					var calendarsMenu = {
-						items: items
+						items
 					};
 
 					if (config.invitable) {
 						items.push({
 							caption: Liferay.Language.get('remove'),
-							fn: function(event) {
+							fn(event) {
 								var instance = this;
 
 								var calendarList = instance.get('host');
@@ -190,7 +186,7 @@ AUI.add(
 						});
 
 						calendarsMenu.on = {
-							visibleChange: function(event) {
+							visibleChange(event) {
 								var instance = this;
 
 								if (event.newVal) {
@@ -216,7 +212,7 @@ AUI.add(
 					return calendarsMenu;
 				},
 
-				syncCalendarsMap: function(calendarLists) {
+				syncCalendarsMap(calendarLists) {
 					var instance = this;
 
 					var defaultCalendar = instance.get('defaultCalendar');

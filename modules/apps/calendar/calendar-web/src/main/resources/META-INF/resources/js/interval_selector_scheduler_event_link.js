@@ -29,7 +29,7 @@ AUI.add(
 			NAME: 'interval-selector-scheduler-event-link',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					instance._intervalSelectorUpdated = false;
@@ -37,7 +37,7 @@ AUI.add(
 					instance.bindUI();
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					var intervalSelector = instance.get('intervalSelector');
@@ -84,7 +84,7 @@ AUI.add(
 					];
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					instance.unlink();
@@ -92,13 +92,13 @@ AUI.add(
 					instance.eventHandlers = null;
 				},
 
-				unlink: function() {
+				unlink() {
 					var instance = this;
 
 					AArray.invoke(instance.eventHandlers, 'detach');
 				},
 
-				_updateEndDate: function() {
+				_updateEndDate() {
 					var instance = this;
 
 					var intervalSelector = instance.get('intervalSelector');
@@ -118,7 +118,7 @@ AUI.add(
 					instance._updateSchedulerEvent('endDate', endDate);
 				},
 
-				_updateIntervalSelector: function(event) {
+				_updateIntervalSelector(event) {
 					var instance = this;
 
 					var prevDate = event.prevVal;
@@ -157,7 +157,7 @@ AUI.add(
 					}
 				},
 
-				_updateSchedulerEvent: function(eventDateType, eventDate) {
+				_updateSchedulerEvent(eventDateType, eventDate) {
 					var instance = this;
 
 					var schedulerEvent = instance.get('schedulerEvent');
@@ -173,7 +173,7 @@ AUI.add(
 					scheduler.syncEventsUI();
 				},
 
-				_updateStartDate: function() {
+				_updateStartDate() {
 					var instance = this;
 
 					var intervalSelector = instance.get('intervalSelector');

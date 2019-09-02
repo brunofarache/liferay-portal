@@ -54,7 +54,7 @@ AUI.add(
 			TPL_INPUT_MIRROR:
 				'<div class="liferay-autocomplete-input-mirror"></div>',
 
-			_applyMirrorContent: function() {
+			_applyMirrorContent() {
 				var instance = this;
 
 				var input = instance.get(STR_INPUT_NODE);
@@ -83,7 +83,7 @@ AUI.add(
 				return value;
 			},
 
-			_applyMirrorStyles: function() {
+			_applyMirrorStyles() {
 				var instance = this;
 
 				var inputNode = instance.get(STR_INPUT_NODE);
@@ -95,7 +95,7 @@ AUI.add(
 				});
 			},
 
-			_createInputMirror: function() {
+			_createInputMirror() {
 				var instance = this;
 
 				if (!instance._inputMirror) {
@@ -107,7 +107,7 @@ AUI.add(
 				}
 			},
 
-			_getCaretOffset: function(node) {
+			_getCaretOffset(node) {
 				var instance = this;
 
 				instance._createInputMirror();

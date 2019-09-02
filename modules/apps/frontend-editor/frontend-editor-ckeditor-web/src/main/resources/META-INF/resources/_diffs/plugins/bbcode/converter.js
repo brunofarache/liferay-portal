@@ -182,7 +182,7 @@
 	Converter.prototype = {
 		constructor: Converter,
 
-		init: function(config) {
+		init(config) {
 			var instance = this;
 
 			instance._parser = new Parser(config.parser);
@@ -193,7 +193,7 @@
 			instance._stack = [];
 		},
 
-		convert: function(data) {
+		convert(data) {
 			var instance = this;
 
 			var parsedData = instance._parser.parse(data);
@@ -231,7 +231,7 @@
 
 		_escapeHTML: A.Lang.String.escapeHTML,
 
-		_extractData: function(toTagName, consume) {
+		_extractData(toTagName, consume) {
 			var instance = this;
 
 			var result = [];
@@ -259,11 +259,11 @@
 			return result.join(STR_BLANK);
 		},
 
-		_getFontSize: function(fontSize) {
+		_getFontSize(fontSize) {
 			return MAP_FONT_SIZE[fontSize] || MAP_FONT_SIZE.defaultSize;
 		},
 
-		_handleCode: function(token) {
+		_handleCode(token) {
 			var instance = this;
 
 			instance._noParse = true;
@@ -273,7 +273,7 @@
 			instance._result.push(STR_NEW_LINE);
 		},
 
-		_handleColor: function(token) {
+		_handleColor(token) {
 			var instance = this;
 
 			var colorName = token.attribute;
@@ -292,7 +292,7 @@
 			instance._stack.push(STR_TAG_SPAN_CLOSE);
 		},
 
-		_handleData: function(token) {
+		_handleData(token) {
 			var instance = this;
 
 			var emoticonImages = instance._config.emoticonImages;
@@ -326,13 +326,13 @@
 			instance._result.push(value);
 		},
 
-		_handleEm: function(token) {
+		_handleEm(token) {
 			var instance = this;
 
 			instance._handleSimpleTag('em');
 		},
 
-		_handleEmail: function(token) {
+		_handleEmail(token) {
 			var instance = this;
 
 			var href = STR_BLANK;
@@ -355,7 +355,7 @@
 			instance._stack.push(STR_TAG_A_CLOSE);
 		},
 
-		_handleFont: function(token) {
+		_handleFont(token) {
 			var instance = this;
 
 			var fontName = token.attribute;
@@ -372,7 +372,7 @@
 			instance._stack.push(STR_TAG_SPAN_CLOSE);
 		},
 
-		_handleImage: function(token) {
+		_handleImage(token) {
 			var instance = this;
 
 			var imageSrc = STR_BLANK;
@@ -385,13 +385,13 @@
 
 			var result = tplImage.output({
 				attributes: instance._handleImageAttributes(token, token.value),
-				imageSrc: imageSrc
+				imageSrc
 			});
 
 			instance._result.push(result);
 		},
 
-		_handleImageAttributes: function(token) {
+		_handleImageAttributes(token) {
 			var instance = this;
 
 			var attrs = STR_BLANK;
@@ -420,7 +420,7 @@
 			return attrs;
 		},
 
-		_handleList: function(token) {
+		_handleList(token) {
 			var instance = this;
 
 			var listAttributes = STR_BLANK;
@@ -463,13 +463,13 @@
 			instance._stack.push(STR_TAG_END_OPEN + tag + STR_TAG_END_CLOSE);
 		},
 
-		_handleListItem: function(token) {
+		_handleListItem(token) {
 			var instance = this;
 
 			instance._handleSimpleTag('li');
 		},
 
-		_handleNewLine: function(value) {
+		_handleNewLine(value) {
 			var instance = this;
 
 			var nextToken;
@@ -511,7 +511,7 @@
 			return value;
 		},
 
-		_handleQuote: function(token) {
+		_handleQuote(token) {
 			var instance = this;
 
 			var cite = token.attribute;
@@ -529,7 +529,7 @@
 			instance._stack.push('</p></blockquote>');
 		},
 
-		_handleSimpleTag: function(tagName) {
+		_handleSimpleTag(tagName) {
 			var instance = this;
 
 			instance._result.push(STR_TAG_OPEN, tagName, STR_TAG_END_CLOSE);
@@ -539,13 +539,13 @@
 			);
 		},
 
-		_handleSimpleTags: function(token) {
+		_handleSimpleTags(token) {
 			var instance = this;
 
 			instance._handleSimpleTag(token.value);
 		},
 
-		_handleSize: function(token) {
+		_handleSize(token) {
 			var instance = this;
 
 			var size = token.attribute;
@@ -565,43 +565,43 @@
 			instance._stack.push(STR_TAG_SPAN_CLOSE);
 		},
 
-		_handleStrikeThrough: function(token) {
+		_handleStrikeThrough(token) {
 			var instance = this;
 
 			instance._handleSimpleTag('strike');
 		},
 
-		_handleStrong: function(token) {
+		_handleStrong(token) {
 			var instance = this;
 
 			instance._handleSimpleTag('strong');
 		},
 
-		_handleTable: function(token) {
+		_handleTable(token) {
 			var instance = this;
 
 			instance._handleSimpleTag('table');
 		},
 
-		_handleTableCell: function(token) {
+		_handleTableCell(token) {
 			var instance = this;
 
 			instance._handleSimpleTag('td');
 		},
 
-		_handleTableHeader: function(token) {
+		_handleTableHeader(token) {
 			var instance = this;
 
 			instance._handleSimpleTag('th');
 		},
 
-		_handleTableRow: function(token) {
+		_handleTableRow(token) {
 			var instance = this;
 
 			instance._handleSimpleTag('tr');
 		},
 
-		_handleTagEnd: function(token) {
+		_handleTagEnd(token) {
 			var instance = this;
 
 			var tagName = token.value;
@@ -613,7 +613,7 @@
 			}
 		},
 
-		_handleTagStart: function(token) {
+		_handleTagStart(token) {
 			var instance = this;
 
 			var tagName = token.value;
@@ -623,7 +623,7 @@
 			instance[handlerName](token);
 		},
 
-		_handleTextAlign: function(token) {
+		_handleTextAlign(token) {
 			var instance = this;
 
 			instance._result.push(
@@ -635,7 +635,7 @@
 			instance._stack.push(STR_TAG_P_CLOSE);
 		},
 
-		_handleURL: function(token) {
+		_handleURL(token) {
 			var instance = this;
 
 			var href = STR_BLANK;
@@ -654,7 +654,7 @@
 			instance._stack.push(STR_TAG_A_CLOSE);
 		},
 
-		_reset: function() {
+		_reset() {
 			var instance = this;
 
 			instance._result.length = 0;

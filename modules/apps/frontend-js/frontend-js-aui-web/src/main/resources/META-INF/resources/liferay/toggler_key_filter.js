@@ -36,12 +36,12 @@ AUI.add(
 
 			EXTENDS: A.Plugin.Base,
 
-			NAME: NAME,
+			NAME,
 
 			NS: NAME,
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					instance._toggleEvent = instance
@@ -55,7 +55,7 @@ AUI.add(
 					);
 				},
 
-				_headerEventHandler: function(event) {
+				_headerEventHandler(event) {
 					var instance = this;
 
 					var validAction = event.type === instance._toggleEvent;

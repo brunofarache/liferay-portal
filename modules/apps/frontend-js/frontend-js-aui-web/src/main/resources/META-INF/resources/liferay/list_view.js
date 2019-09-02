@@ -94,10 +94,10 @@ AUI.add(
 				}
 			},
 
-			NAME: NAME,
+			NAME,
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					instance._transitionCompleteProxy = A.fn(
@@ -107,7 +107,7 @@ AUI.add(
 					);
 				},
 
-				renderUI: function() {
+				renderUI() {
 					var instance = this;
 
 					var boundingBox = instance.get('boundingBox');
@@ -119,7 +119,7 @@ AUI.add(
 					instance._dataContainer = dataContainer;
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					var contentBox = instance.get(CONTENT_BOX);
@@ -141,7 +141,7 @@ AUI.add(
 					});
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					if (instance._itemChosenHandle) {
@@ -153,7 +153,7 @@ AUI.add(
 					}
 				},
 
-				_afterDataChange: function(event) {
+				_afterDataChange(event) {
 					var instance = this;
 
 					var useTransition = instance.get('useTransition');
@@ -177,7 +177,7 @@ AUI.add(
 					}
 				},
 
-				_defTransitionCompletedFn: function(event) {
+				_defTransitionCompletedFn(event) {
 					var instance = this;
 
 					var dataContainer = instance._dataContainer;
@@ -190,7 +190,7 @@ AUI.add(
 					dataContainer.empty();
 				},
 
-				_moveContainer: function() {
+				_moveContainer() {
 					var instance = this;
 
 					var contentBox = instance.get(CONTENT_BOX);
@@ -211,7 +211,7 @@ AUI.add(
 					);
 				},
 
-				_onItemChosen: function(event) {
+				_onItemChosen(event) {
 					var instance = this;
 
 					event.preventDefault();
@@ -221,7 +221,7 @@ AUI.add(
 					});
 				},
 
-				_setData: function(value) {
+				_setData(value) {
 					if (isString(value)) {
 						value = A.Node.create(value);
 					}
@@ -229,7 +229,7 @@ AUI.add(
 					return value;
 				},
 
-				_setDataContainerPosition: function(targetRegion) {
+				_setDataContainerPosition(targetRegion) {
 					var instance = this;
 
 					targetRegion =
@@ -258,11 +258,11 @@ AUI.add(
 					dataContainer.setStyles(styles);
 				},
 
-				_validateData: function(value) {
+				_validateData(value) {
 					return isString(value) || A.instanceOf(value, A.Node);
 				},
 
-				_validateDirection: function(value) {
+				_validateDirection(value) {
 					return (
 						value === STR_BOTTOM ||
 						value === STR_LEFT ||

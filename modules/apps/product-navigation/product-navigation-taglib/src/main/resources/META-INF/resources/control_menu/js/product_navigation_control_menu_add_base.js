@@ -77,7 +77,7 @@ AUI.add(
 			NAME: 'addbase',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					instance._focusItem = instance.get('focusItem');
@@ -97,7 +97,7 @@ AUI.add(
 					instance._bindUIDABase();
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					new A.EventHandle(instance._eventHandles).detach();
@@ -109,7 +109,7 @@ AUI.add(
 					);
 				},
 
-				addPortlet: function(portlet, options) {
+				addPortlet(portlet, options) {
 					var instance = this;
 
 					var portletMetaData = instance._getPortletMetaData(portlet);
@@ -159,17 +159,17 @@ AUI.add(
 						}
 
 						Portlet.add({
-							beforePortletLoaded: beforePortletLoaded,
-							placeHolder: placeHolder,
+							beforePortletLoaded,
+							placeHolder,
 							plid: portletMetaData.plid,
 							portletData: portletMetaData.portletData,
-							portletId: portletId,
+							portletId,
 							portletItemId: portletMetaData.portletItemId
 						});
 					}
 				},
 
-				_bindUIDABase: function() {
+				_bindUIDABase() {
 					var instance = this;
 
 					var panelBody = $(Util.getDOM(instance._panelBody));
@@ -190,7 +190,7 @@ AUI.add(
 					);
 				},
 
-				_disablePortletEntry: function(portletId) {
+				_disablePortletEntry(portletId) {
 					var instance = this;
 
 					instance._eachPortletEntry(portletId, function(
@@ -201,7 +201,7 @@ AUI.add(
 					});
 				},
 
-				_eachPortletEntry: function(portletId, callback) {
+				_eachPortletEntry(portletId, callback) {
 					var instance = this;
 
 					var portlets = A.all('[data-portlet-id=' + portletId + ']');
@@ -209,7 +209,7 @@ AUI.add(
 					portlets.each(callback);
 				},
 
-				_enablePortletEntry: function(portletId) {
+				_enablePortletEntry(portletId) {
 					var instance = this;
 
 					instance._eachPortletEntry(portletId, function(
@@ -220,7 +220,7 @@ AUI.add(
 					});
 				},
 
-				_focusOnItem: function(event) {
+				_focusOnItem(event) {
 					var instance = this;
 
 					var focusItem = instance._focusItem;
@@ -230,7 +230,7 @@ AUI.add(
 					}
 				},
 
-				_getPortletMetaData: function(portlet) {
+				_getPortletMetaData(portlet) {
 					var instance = this;
 
 					var portletMetaData = portlet._LFR_portletMetaData;
@@ -258,12 +258,12 @@ AUI.add(
 						);
 
 						portletMetaData = {
-							instanceable: instanceable,
-							plid: plid,
-							portletData: portletData,
-							portletId: portletId,
-							portletItemId: portletItemId,
-							portletUsed: portletUsed
+							instanceable,
+							plid,
+							portletData,
+							portletId,
+							portletItemId,
+							portletUsed
 						};
 
 						portlet._LFR_portletMetaData = portletMetaData;
@@ -272,13 +272,13 @@ AUI.add(
 					return portletMetaData;
 				},
 
-				_isSelected: function() {
+				_isSelected() {
 					var instance = this;
 
 					return instance._panelBody.hasClass('in');
 				},
 
-				_portletFeedback: function(portletId, portlet) {
+				_portletFeedback(portletId, portlet) {
 					var instance = this;
 
 					new Liferay.Notification({
@@ -315,7 +315,7 @@ AUI.add(
 			prototype: {
 				PROXY_TITLE: PROXY_NODE_ITEM.one('.portlet-title'),
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					PortletItem.superclass.bindUI.apply(this, arguments);
@@ -326,7 +326,7 @@ AUI.add(
 					);
 				},
 
-				_getAppendNode: function() {
+				_getAppendNode() {
 					var instance = this;
 
 					instance.appendNode = DDM.activeDrag.get(STR_NODE).clone();
@@ -334,7 +334,7 @@ AUI.add(
 					return instance.appendNode;
 				},
 
-				_onDragStart: function() {
+				_onDragStart() {
 					var instance = this;
 
 					PortletItem.superclass._onDragStart.apply(this, arguments);
@@ -344,7 +344,7 @@ AUI.add(
 					instance.lazyEvents = false;
 				},
 
-				_onPlaceholderAlign: function(event) {
+				_onPlaceholderAlign(event) {
 					var instance = this;
 
 					var drop = event.drop;
@@ -361,7 +361,7 @@ AUI.add(
 					}
 				},
 
-				_positionNode: function(event) {
+				_positionNode(event) {
 					var instance = this;
 
 					var portalLayout = event.currentTarget;
@@ -404,7 +404,7 @@ AUI.add(
 					}
 				},
 
-				_syncProxyTitle: function() {
+				_syncProxyTitle() {
 					var instance = this;
 
 					var node = DDM.activeDrag.get(STR_NODE);

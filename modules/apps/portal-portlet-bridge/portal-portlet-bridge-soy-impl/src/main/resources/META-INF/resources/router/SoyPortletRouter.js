@@ -154,7 +154,7 @@ class SoyPortletRouter extends State {
 						loadedState.javaScriptLoaderModule,
 						module => {
 							super.maybeRedirectRouter();
-							let component = module.default;
+							const component = module.default;
 
 							component.RENDERER.setInjectedData(
 								loadedState._INJECTED_DATA_
@@ -510,7 +510,7 @@ class SoyPortletRouter extends State {
 			openToast({
 				message,
 				title,
-				type: type
+				type
 			});
 		}
 	}

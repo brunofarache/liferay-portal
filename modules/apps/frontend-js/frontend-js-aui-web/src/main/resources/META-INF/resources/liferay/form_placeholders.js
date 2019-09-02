@@ -58,7 +58,7 @@ AUI.add(
 			NS: STR_PLACEHOLDER,
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					var host = instance.get('host');
@@ -97,7 +97,7 @@ AUI.add(
 					}
 				},
 
-				_initializePasswordNode: function(field) {
+				_initializePasswordNode(field) {
 					var placeholder = ANode.create(
 						'<input name="' +
 							field.attr('name') +
@@ -131,7 +131,7 @@ AUI.add(
 					field.hide();
 				},
 
-				_removePlaceholders: function() {
+				_removePlaceholders() {
 					var instance = this;
 
 					var formNode = instance.host.formNode;
@@ -147,7 +147,7 @@ AUI.add(
 					});
 				},
 
-				_toggleLocalizedPlaceholders: function(event, currentTarget) {
+				_toggleLocalizedPlaceholders(event, currentTarget) {
 					var placeholder = currentTarget.attr(STR_PLACEHOLDER);
 
 					if (placeholder) {
@@ -165,7 +165,7 @@ AUI.add(
 					}
 				},
 
-				_togglePasswordPlaceholders: function(event, currentTarget) {
+				_togglePasswordPlaceholders(event, currentTarget) {
 					var placeholder = currentTarget.attr(STR_PLACEHOLDER);
 
 					if (placeholder) {
@@ -199,7 +199,7 @@ AUI.add(
 					}
 				},
 
-				_togglePlaceholders: function(event) {
+				_togglePlaceholders(event) {
 					var instance = this;
 
 					var currentTarget = event.currentTarget;

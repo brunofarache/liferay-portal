@@ -21,7 +21,7 @@ AUI.add(
 			NAME: 'layoutstreenodetask',
 
 			prototype: {
-				renderUI: function() {
+				renderUI() {
 					var instance = this;
 
 					LayoutsTreeNodeTask.superclass.renderUI.apply(
@@ -36,7 +36,7 @@ AUI.add(
 					}
 				},
 
-				toggleCheck: function() {
+				toggleCheck() {
 					var instance = this;
 
 					var checked = instance.get('checked');
@@ -48,7 +48,7 @@ AUI.add(
 					}
 				},
 
-				_uiSetChecked: function(val) {
+				_uiSetChecked(val) {
 					var instance = this;
 
 					instance._syncIconCheckUI();

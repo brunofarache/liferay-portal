@@ -35,7 +35,7 @@ AUI.add(
 			NAME: 'date-picker-sanitizer',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					instance.eventHandlers = [];
@@ -43,7 +43,7 @@ AUI.add(
 					instance.bindUI();
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					var datePickers = instance.get('datePickers');
@@ -59,7 +59,7 @@ AUI.add(
 					});
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					instance.unlink();
@@ -67,7 +67,7 @@ AUI.add(
 					instance.eventHandlers = null;
 				},
 
-				unlink: function() {
+				unlink() {
 					var instance = this;
 
 					AArray.invoke(instance.eventHandlers, 'detach');

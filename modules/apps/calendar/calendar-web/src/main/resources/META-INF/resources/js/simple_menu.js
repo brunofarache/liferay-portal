@@ -108,7 +108,7 @@ AUI.add(
 			prototype: {
 				CONTENT_TEMPLATE: '<ul></ul>',
 
-				renderUI: function() {
+				renderUI() {
 					var instance = this;
 
 					instance.get('boundingBox').unselectable();
@@ -116,7 +116,7 @@ AUI.add(
 					instance._renderItems(instance.get('items'));
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					A.Event.defineOutside('touchend');
@@ -142,13 +142,13 @@ AUI.add(
 					];
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					new A.EventHandle(instance._eventHandlers).detach();
 				},
 
-				_closeMenu: function() {
+				_closeMenu() {
 					var instance = this;
 
 					instance.hide();
@@ -158,7 +158,7 @@ AUI.add(
 					instance._outsideHandler = null;
 				},
 
-				_onClickItems: function(event) {
+				_onClickItems(event) {
 					var instance = this;
 
 					var items = instance.get('items');
@@ -174,7 +174,7 @@ AUI.add(
 					}
 				},
 
-				_onClickOutside: function(event) {
+				_onClickOutside(event) {
 					var instance = this;
 
 					var toggler = instance.get('toggler');
@@ -184,7 +184,7 @@ AUI.add(
 					}
 				},
 
-				_onVisibleChange: function(event) {
+				_onVisibleChange(event) {
 					var instance = this;
 
 					if (event.newVal) {
@@ -200,7 +200,7 @@ AUI.add(
 					}
 				},
 
-				_positionMenu: function() {
+				_positionMenu() {
 					var instance = this;
 
 					if (instance.items.size()) {
@@ -223,15 +223,15 @@ AUI.add(
 						}
 
 						instance.setAttrs({
-							align: align,
-							centered: centered,
-							modal: modal,
-							width: width
+							align,
+							centered,
+							modal,
+							width
 						});
 					}
 				},
 
-				_renderItems: function(items) {
+				_renderItems(items) {
 					var instance = this;
 
 					var contentBox = instance.get('contentBox');
@@ -274,9 +274,9 @@ AUI.add(
 
 						var li = A.Node.create(
 							Lang.sub(TPL_SIMPLE_MENU_ITEM, {
-								cssClass: cssClass,
-								icon: icon,
-								id: id
+								cssClass,
+								icon,
+								id
 							})
 						);
 
@@ -288,7 +288,7 @@ AUI.add(
 					contentBox.setContent(instance.items);
 				},
 
-				_uiSetHiddenItems: function(val) {
+				_uiSetHiddenItems(val) {
 					var instance = this;
 
 					if (instance.get('rendered')) {
@@ -303,7 +303,7 @@ AUI.add(
 					}
 				},
 
-				_uiSetItems: function(val) {
+				_uiSetItems(val) {
 					var instance = this;
 
 					if (instance.get('rendered')) {

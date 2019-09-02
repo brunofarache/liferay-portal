@@ -60,10 +60,10 @@ AUI.add(
 		A.mix(
 			DEFAULTS_FORM_VALIDATOR.RULES,
 			{
-				acceptFiles: acceptFiles,
-				maxFileSize: maxFileSize,
-				number: number,
-				url: url
+				acceptFiles,
+				maxFileSize,
+				number,
+				url
 			},
 			true
 		);
@@ -120,7 +120,7 @@ AUI.add(
 		var Form = A.Component.create({
 			ATTRS: {
 				fieldRules: {
-					setter: function(val) {
+					setter(val) {
 						var instance = this;
 
 						instance._processFieldRules(val);
@@ -131,7 +131,7 @@ AUI.add(
 				id: {},
 				namespace: {},
 				onSubmit: {
-					valueFn: function() {
+					valueFn() {
 						var instance = this;
 
 						return instance._onSubmit;
@@ -146,7 +146,7 @@ AUI.add(
 			EXTENDS: A.Base,
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					var id = instance.get('id');
@@ -185,13 +185,7 @@ AUI.add(
 					}
 				},
 
-				addRule: function(
-					fieldName,
-					validatorName,
-					errorMessage,
-					body,
-					custom
-				) {
+				addRule(fieldName, validatorName, errorMessage, body, custom) {
 					var instance = this;
 
 					var fieldRules = instance.get('fieldRules');
@@ -207,15 +201,15 @@ AUI.add(
 							body: body || '',
 							custom: custom || false,
 							errorMessage: errorMessage || '',
-							fieldName: fieldName,
-							validatorName: validatorName
+							fieldName,
+							validatorName
 						});
 
 						instance._processFieldRules(fieldRules);
 					}
 				},
 
-				removeRule: function(fieldName, validatorName) {
+				removeRule(fieldName, validatorName) {
 					var instance = this;
 
 					var fieldRules = instance.get('fieldRules');
@@ -237,7 +231,7 @@ AUI.add(
 					}
 				},
 
-				_afterGetFieldsByName: function(fieldName) {
+				_afterGetFieldsByName(fieldName) {
 					var instance = this;
 
 					var editorString = 'Editor';
@@ -255,7 +249,7 @@ AUI.add(
 					}
 				},
 
-				_bindForm: function() {
+				_bindForm() {
 					var instance = this;
 
 					var formNode = instance.formNode;
@@ -289,7 +283,7 @@ AUI.add(
 					);
 				},
 
-				_defaultSubmitFn: function(event) {
+				_defaultSubmitFn(event) {
 					var instance = this;
 
 					if (!event.stopped) {
@@ -297,7 +291,7 @@ AUI.add(
 					}
 				},
 
-				_findRuleIndex: function(fieldRules, fieldName, validatorName) {
+				_findRuleIndex(fieldRules, fieldName, validatorName) {
 					var ruleIndex = -1;
 
 					AArray.some(fieldRules, function(element, index) {
@@ -314,7 +308,7 @@ AUI.add(
 					return ruleIndex;
 				},
 
-				_focusInvalidFieldTab: function() {
+				_focusInvalidFieldTab() {
 					var instance = this;
 
 					var formNode = instance.formNode;
@@ -363,7 +357,7 @@ AUI.add(
 					}
 				},
 
-				_onEditorBlur: function(event) {
+				_onEditorBlur(event) {
 					var instance = this;
 
 					var formValidator = instance.formValidator;
@@ -371,7 +365,7 @@ AUI.add(
 					formValidator.validateField(event.target);
 				},
 
-				_onFieldFocusChange: function(event) {
+				_onFieldFocusChange(event) {
 					var instance = this;
 
 					var row = event.currentTarget.ancestor('.field');
@@ -384,7 +378,7 @@ AUI.add(
 					}
 				},
 
-				_onSubmit: function(event) {
+				_onSubmit(event) {
 					var instance = this;
 
 					event.preventDefault();
@@ -394,7 +388,7 @@ AUI.add(
 					}, 0);
 				},
 
-				_onSubmitError: function(event) {
+				_onSubmitError(event) {
 					var instance = this;
 
 					var collapsiblePanels = instance.formNode.all(
@@ -414,7 +408,7 @@ AUI.add(
 					});
 				},
 
-				_onValidatorSubmit: function(event) {
+				_onValidatorSubmit(event) {
 					var instance = this;
 
 					var onSubmit = instance.get('onSubmit');
@@ -422,7 +416,7 @@ AUI.add(
 					onSubmit.call(instance, event.validator.formEvent);
 				},
 
-				_processFieldRule: function(rules, strings, rule) {
+				_processFieldRule(rules, strings, rule) {
 					var instance = this;
 
 					var value = true;
@@ -486,7 +480,7 @@ AUI.add(
 					}
 				},
 
-				_processFieldRules: function(fieldRules) {
+				_processFieldRules(fieldRules) {
 					var instance = this;
 
 					if (!fieldRules) {
@@ -512,7 +506,7 @@ AUI.add(
 					}
 				},
 
-				_removeFieldAttribute: function(name, fieldName) {
+				_removeFieldAttribute(name, fieldName) {
 					var instance = this;
 
 					if (name === 'disabled') {
@@ -520,7 +514,7 @@ AUI.add(
 					}
 				},
 
-				_setFieldAttribute: function(name, value, fieldName) {
+				_setFieldAttribute(name, value, fieldName) {
 					var instance = this;
 
 					if (name === 'disabled') {
@@ -528,7 +522,7 @@ AUI.add(
 					}
 				},
 
-				_validatable: function(field) {
+				_validatable(field) {
 					var result;
 
 					if (field.test(':disabled')) {
@@ -539,7 +533,7 @@ AUI.add(
 				}
 			},
 
-			get: function(id) {
+			get(id) {
 				var instance = this;
 
 				return instance._INSTANCES[id];
@@ -548,7 +542,7 @@ AUI.add(
 			/*
 			 * @deprecated since 7.2, unused
 			 */
-			register: function(config) {
+			register(config) {
 				var instance = this;
 
 				formConfig = config;
@@ -560,8 +554,8 @@ AUI.add(
 				instance._INSTANCES[formName] = form;
 
 				Liferay.fire('form:registered', {
-					form: form,
-					formName: formName
+					form,
+					formName
 				});
 
 				return form;

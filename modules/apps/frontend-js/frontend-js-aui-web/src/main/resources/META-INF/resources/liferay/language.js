@@ -46,10 +46,10 @@
 			var value = '';
 
 			A.io(url, {
-				headers: headers,
+				headers,
 				method: 'GET',
 				on: {
-					complete: function(i, o) {
+					complete(i, o) {
 						value = o.responseText;
 					}
 				},

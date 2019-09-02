@@ -99,7 +99,7 @@ AUI.add(
 				},
 
 				selected: {
-					valueFn: function() {
+					valueFn() {
 						var instance = this;
 
 						var itemsError = instance.get(STR_ITEMS_ERROR);
@@ -115,7 +115,7 @@ AUI.add(
 				},
 
 				translatedLanguages: {
-					setter: function(val) {
+					setter(val) {
 						var instance = this;
 
 						var set = new A.Set();
@@ -144,7 +144,7 @@ AUI.add(
 				TRIGGER_TEMPLATE:
 					'<span class="inline-item">{flag}</span><span class="btn-section">{languageId}</span>',
 
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					var inputPlaceholder = instance.get(STR_INPUT_PLACEHOLDER);
@@ -202,7 +202,7 @@ AUI.add(
 					instance._flags = boundingBox.one('.palette-container');
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					InputLocalized.unregister(instance.get('instanceId'));
@@ -210,7 +210,7 @@ AUI.add(
 					new A.EventHandle(instance._eventHandles).detach();
 				},
 
-				getSelectedLanguageId: function() {
+				getSelectedLanguageId() {
 					var instance = this;
 
 					var items = instance.get(STR_ITEMS);
@@ -219,7 +219,7 @@ AUI.add(
 					return items[selected];
 				},
 
-				getValue: function(languageId) {
+				getValue(languageId) {
 					var instance = this;
 
 					if (!Lang.isValue(languageId)) {
@@ -229,7 +229,7 @@ AUI.add(
 					return instance._getInputLanguage(languageId).val();
 				},
 
-				removeInputLanguage: function(languageId) {
+				removeInputLanguage(languageId) {
 					var instance = this;
 
 					var inputBox = instance.get('inputBox');
@@ -243,7 +243,7 @@ AUI.add(
 					}
 				},
 
-				selectFlag: function(languageId, shouldFocus) {
+				selectFlag(languageId, shouldFocus) {
 					var instance = this;
 
 					if (!Lang.isValue(languageId)) {
@@ -276,7 +276,7 @@ AUI.add(
 					instance._updateSelectedItem(languageId);
 				},
 
-				updateInput: function(value) {
+				updateInput(value) {
 					var instance = this;
 
 					var inputPlaceholder = instance.get(STR_INPUT_PLACEHOLDER);
@@ -297,7 +297,7 @@ AUI.add(
 					}
 				},
 
-				updateInputLanguage: function(value, languageId) {
+				updateInputLanguage(value, languageId) {
 					var instance = this;
 
 					var selectedLanguageId =
@@ -337,7 +337,7 @@ AUI.add(
 					instance._updateTranslationStatus(selectedLanguageId);
 				},
 
-				_animate: function(input, shouldFocus) {
+				_animate(input, shouldFocus) {
 					var instance = this;
 
 					var animateClass = instance.get('animateClass');
@@ -363,7 +363,7 @@ AUI.add(
 					}
 				},
 
-				_clearFormValidator: function(input) {
+				_clearFormValidator(input) {
 					var instance = this;
 
 					var form = input.get('form');
@@ -379,7 +379,7 @@ AUI.add(
 					}
 				},
 
-				_getInputLanguage: function(languageId) {
+				_getInputLanguage(languageId) {
 					var instance = this;
 
 					var fieldPrefix = instance.get('fieldPrefix');
@@ -406,11 +406,11 @@ AUI.add(
 					if (!inputLanguage) {
 						inputLanguage = A.Node.create(
 							A.Lang.sub(instance.INPUT_HIDDEN_TEMPLATE, {
-								fieldNamePrefix: fieldNamePrefix,
-								fieldNameSuffix: fieldNameSuffix,
-								id: id,
+								fieldNamePrefix,
+								fieldNameSuffix,
+								id,
 								name: A.Lang.String.escapeHTML(name),
-								namespace: namespace,
+								namespace,
 								value: languageId
 							})
 						);
@@ -421,7 +421,7 @@ AUI.add(
 					return inputLanguage;
 				},
 
-				_getInputLanguageId: function(languageId) {
+				_getInputLanguageId(languageId) {
 					var instance = this;
 
 					var id = instance.get('id');
@@ -430,7 +430,7 @@ AUI.add(
 					return '#' + namespace + id + '_' + languageId;
 				},
 
-				_onDefaultLocaleChanged: function(event) {
+				_onDefaultLocaleChanged(event) {
 					var instance = this;
 
 					var prevDefaultLanguageId = instance.get(
@@ -463,7 +463,7 @@ AUI.add(
 					});
 				},
 
-				_onInputValueChange: function(event, input) {
+				_onInputValueChange(event, input) {
 					var instance = this;
 
 					var editor = instance.get('editor');
@@ -481,7 +481,7 @@ AUI.add(
 					instance.updateInputLanguage(value);
 				},
 
-				_onLocaleChanged: function(event) {
+				_onLocaleChanged(event) {
 					var instance = this;
 
 					var languageId = event.item.getAttribute('data-value');
@@ -489,7 +489,7 @@ AUI.add(
 					instance.selectFlag(languageId, event.source === instance);
 				},
 
-				_onSelectFlag: function(event) {
+				_onSelectFlag(event) {
 					var instance = this;
 
 					if (!event.domEvent) {
@@ -500,7 +500,7 @@ AUI.add(
 					}
 				},
 
-				_onSubmit: function(event, input) {
+				_onSubmit(event, input) {
 					var instance = this;
 
 					if (event.form === input.get('form')) {
@@ -510,7 +510,7 @@ AUI.add(
 					}
 				},
 
-				_updateHelpMessage: function(languageId) {
+				_updateHelpMessage(languageId) {
 					var instance = this;
 
 					var helpMessage = instance.get('helpMessage');
@@ -533,7 +533,7 @@ AUI.add(
 						.setHTML(helpMessage);
 				},
 
-				_updateInputPlaceholderDescription: function(languageId) {
+				_updateInputPlaceholderDescription(languageId) {
 					var instance = this;
 
 					if (instance._inputPlaceholderDescription) {
@@ -551,7 +551,7 @@ AUI.add(
 					}
 				},
 
-				_updateSelectedItem: function(languageId) {
+				_updateSelectedItem(languageId) {
 					var instance = this;
 
 					instance._flags.all('.active').toggleClass('active');
@@ -568,7 +568,7 @@ AUI.add(
 					}
 				},
 
-				_updateTranslationStatus: function(languageId) {
+				_updateTranslationStatus(languageId) {
 					var instance = this;
 
 					var translatedLanguages = instance.get(
@@ -599,15 +599,15 @@ AUI.add(
 					if (languageStatusNode) {
 						languageStatusNode.setHTML(
 							A.Lang.sub(instance.TRANSLATION_STATUS_TEMPLATE, {
-								languageId: languageId,
-								translationStatus: translationStatus,
-								translationStatusCssClass: translationStatusCssClass
+								languageId,
+								translationStatus,
+								translationStatusCssClass
 							})
 						);
 					}
 				},
 
-				_updateTrigger: function(languageId) {
+				_updateTrigger(languageId) {
 					var instance = this;
 
 					languageId = languageId.replace('_', '-');
@@ -616,7 +616,7 @@ AUI.add(
 						flag: Liferay.Util.getLexiconIconTpl(
 							languageId.toLowerCase()
 						),
-						languageId: languageId
+						languageId
 					});
 
 					instance
@@ -629,7 +629,7 @@ AUI.add(
 				_flags: null
 			},
 
-			register: function(id, config) {
+			register(id, config) {
 				var instance = this;
 
 				config.instanceId = id;
@@ -659,7 +659,7 @@ AUI.add(
 				Liferay.component(id, inputLocalizedInstance);
 			},
 
-			unregister: function(id) {
+			unregister(id) {
 				var instance = this;
 
 				delete InputLocalized._instances[id];

@@ -29,7 +29,7 @@ AUI.add(
 		};
 
 		A.mix(StagingBar, {
-			addBranch: function(dialogTitle) {
+			addBranch(dialogTitle) {
 				var instance = this;
 
 				var branchDialog = instance._getBranchDialog();
@@ -41,7 +41,7 @@ AUI.add(
 				branchDialog.show();
 			},
 
-			_getBranchDialog: function() {
+			_getBranchDialog() {
 				var instance = this;
 
 				var branchDialog = instance._branchDialog;

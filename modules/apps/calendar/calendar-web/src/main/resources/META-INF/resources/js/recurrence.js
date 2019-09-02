@@ -208,7 +208,7 @@ AUI.add(
 			NAME: 'recurrence-dialog',
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					instance._namespace = config.namespace;
@@ -216,7 +216,7 @@ AUI.add(
 					instance.bindUI();
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					var container = instance.get('container');
@@ -250,7 +250,7 @@ AUI.add(
 					);
 				},
 
-				saveState: function() {
+				saveState() {
 					var instance = this;
 
 					var currentSavedState = instance.get('recurrence');
@@ -262,7 +262,7 @@ AUI.add(
 					instance.set('currentSavedState', currentSavedState);
 				},
 
-				_afterVisibilityChange: function(event) {
+				_afterVisibilityChange(event) {
 					var instance = this;
 
 					var recurrenceDialog =
@@ -293,7 +293,7 @@ AUI.add(
 					recurrenceDialog.fillHeight(recurrenceDialog.bodyNode);
 				},
 
-				_calculatePosition: function() {
+				_calculatePosition() {
 					var instance = this;
 
 					var lastPositionCheckbox = instance.get(
@@ -314,7 +314,7 @@ AUI.add(
 					return position;
 				},
 
-				_canChooseLastDayOfWeek: function() {
+				_canChooseLastDayOfWeek() {
 					var instance = this;
 
 					var mandatoryLastDay =
@@ -325,7 +325,7 @@ AUI.add(
 					);
 				},
 
-				_getDaysOfWeek: function() {
+				_getDaysOfWeek() {
 					var instance = this;
 
 					var dayOfWeekNodes = instance
@@ -335,7 +335,7 @@ AUI.add(
 					return dayOfWeekNodes.val();
 				},
 
-				_getDaysOfWeekCheckboxes: function() {
+				_getDaysOfWeekCheckboxes() {
 					var instance = this;
 
 					var weeklyRecurrenceOptions = instance.get(
@@ -345,7 +345,7 @@ AUI.add(
 					return weeklyRecurrenceOptions.all(':checkbox');
 				},
 
-				_getFrequency: function() {
+				_getFrequency() {
 					var instance = this;
 
 					var frequencySelect = instance.get('frequencySelect');
@@ -353,7 +353,7 @@ AUI.add(
 					return frequencySelect.val();
 				},
 
-				_getInterval: function() {
+				_getInterval() {
 					var instance = this;
 
 					var intervalSelect = instance.get('intervalSelect');
@@ -361,7 +361,7 @@ AUI.add(
 					return intervalSelect.val();
 				},
 
-				_getLimitCount: function() {
+				_getLimitCount() {
 					var instance = this;
 
 					var limitCountInput = instance.get('limitCountInput');
@@ -369,7 +369,7 @@ AUI.add(
 					return parseInt(limitCountInput.val(), 10);
 				},
 
-				_getLimitDate: function() {
+				_getLimitDate() {
 					var instance = this;
 
 					var limitDateDatePicker = instance.get(
@@ -379,7 +379,7 @@ AUI.add(
 					return limitDateDatePicker.getDate();
 				},
 
-				_getLimitRadioButtons: function() {
+				_getLimitRadioButtons() {
 					var instance = this;
 
 					return [
@@ -389,7 +389,7 @@ AUI.add(
 					];
 				},
 
-				_getLimitType: function() {
+				_getLimitType() {
 					var instance = this;
 
 					var checkedLimitRadioButton = A.Array.find(
@@ -404,7 +404,7 @@ AUI.add(
 					);
 				},
 
-				_getPosition: function() {
+				_getPosition() {
 					var instance = this;
 
 					var positionInput = instance.get('positionInput');
@@ -412,7 +412,7 @@ AUI.add(
 					return positionInput.val();
 				},
 
-				_getPositionalDayOfWeek: function() {
+				_getPositionalDayOfWeek() {
 					var instance = this;
 
 					var dayOfWeekInput = instance.get('dayOfWeekInput');
@@ -439,7 +439,7 @@ AUI.add(
 					return positionalDayOfWeek;
 				},
 
-				_getRecurrence: function() {
+				_getRecurrence() {
 					var instance = this;
 
 					return {
@@ -453,7 +453,7 @@ AUI.add(
 					};
 				},
 
-				_getStartDate: function() {
+				_getStartDate() {
 					var instance = this;
 
 					var startDateDatePicker = instance.get(
@@ -463,7 +463,7 @@ AUI.add(
 					return startDateDatePicker.getDate();
 				},
 
-				_getStartDatePosition: function() {
+				_getStartDatePosition() {
 					var instance = this;
 
 					var startDateDatePicker = instance.get(
@@ -475,7 +475,7 @@ AUI.add(
 					return Math.ceil(startDate.getDate() / WEEK_LENGTH);
 				},
 
-				_getStartTimeDayOfWeekInput: function() {
+				_getStartTimeDayOfWeekInput() {
 					var instance = this;
 
 					var weeklyRecurrenceOptions = instance.get(
@@ -485,7 +485,7 @@ AUI.add(
 					return weeklyRecurrenceOptions.one('input[type=hidden]');
 				},
 
-				_getSummary: function() {
+				_getSummary() {
 					var instance = this;
 
 					var recurrence = instance.get('recurrence');
@@ -493,7 +493,7 @@ AUI.add(
 					return Liferay.RecurrenceUtil.getSummary(recurrence);
 				},
 
-				_hideModal: function(event, confirmed) {
+				_hideModal(event, confirmed) {
 					var instance = this;
 
 					if (confirmed) {
@@ -503,7 +503,7 @@ AUI.add(
 					window[instance._namespace + 'recurrenceDialog'].hide();
 				},
 
-				_isLastDayOfWeekInMonth: function() {
+				_isLastDayOfWeekInMonth() {
 					var instance = this;
 
 					var startDate = instance.get('startDate');
@@ -515,7 +515,7 @@ AUI.add(
 					);
 				},
 
-				_isPositionalFrequency: function() {
+				_isPositionalFrequency() {
 					var instance = this;
 
 					var frequency = instance.get('frequency');
@@ -526,7 +526,7 @@ AUI.add(
 					);
 				},
 
-				_onInputChange: function(event) {
+				_onInputChange(event) {
 					var instance = this;
 
 					var currentTarget = event.currentTarget;
@@ -556,7 +556,7 @@ AUI.add(
 					instance.fire('recurrenceChange');
 				},
 
-				_onStartDateDatePickerChange: function(event) {
+				_onStartDateDatePickerChange(event) {
 					var instance = this;
 
 					var date = event.newSelection[0];
@@ -612,7 +612,7 @@ AUI.add(
 					}
 				},
 
-				_setDatePicker: function(datePicker) {
+				_setDatePicker(datePicker) {
 					var popover = datePicker.get('popover');
 
 					if (popover) {
@@ -622,7 +622,7 @@ AUI.add(
 					return datePicker;
 				},
 
-				_setDaysOfWeek: function(value) {
+				_setDaysOfWeek(value) {
 					var instance = this;
 
 					var dayOfWeekNodes = instance
@@ -638,7 +638,7 @@ AUI.add(
 					return value;
 				},
 
-				_setFrequency: function(value) {
+				_setFrequency(value) {
 					var instance = this;
 
 					var frequencySelect = instance.get('frequencySelect');
@@ -648,7 +648,7 @@ AUI.add(
 					return value;
 				},
 
-				_setInterval: function(value) {
+				_setInterval(value) {
 					var instance = this;
 
 					var intervalSelect = instance.get('intervalSelect');
@@ -658,7 +658,7 @@ AUI.add(
 					return value;
 				},
 
-				_setLimitCount: function(value) {
+				_setLimitCount(value) {
 					var instance = this;
 
 					instance.get('limitCountInput').set('value', value || '');
@@ -666,7 +666,7 @@ AUI.add(
 					return value;
 				},
 
-				_setLimitDate: function(value) {
+				_setLimitDate(value) {
 					var instance = this;
 
 					var limitDateDatePicker = instance.get(
@@ -681,7 +681,7 @@ AUI.add(
 					return value;
 				},
 
-				_setLimitType: function(value) {
+				_setLimitType(value) {
 					var instance = this;
 
 					A.each(instance.get('limitRadioButtons'), function(
@@ -696,7 +696,7 @@ AUI.add(
 					return value;
 				},
 
-				_setPositionalDayOfWeek: function(value) {
+				_setPositionalDayOfWeek(value) {
 					var instance = this;
 
 					var lastPositionCheckbox = instance.get(
@@ -719,7 +719,7 @@ AUI.add(
 					return value;
 				},
 
-				_setPositionInputValue: function() {
+				_setPositionInputValue() {
 					var instance = this;
 
 					var positionInput = instance.get('positionInput');
@@ -727,7 +727,7 @@ AUI.add(
 					positionInput.val(instance._calculatePosition());
 				},
 
-				_setRecurrence: function(data) {
+				_setRecurrence(data) {
 					var instance = this;
 
 					if (data) {
@@ -746,7 +746,7 @@ AUI.add(
 					}
 				},
 
-				_toggleDisabledLimitCountInput: function() {
+				_toggleDisabledLimitCountInput() {
 					var instance = this;
 
 					var limitCountInput = instance.get('limitCountInput');
@@ -765,7 +765,7 @@ AUI.add(
 					limitCountInput.selectText();
 				},
 
-				_toggleDisabledLimitDateDatePicker: function() {
+				_toggleDisabledLimitDateDatePicker() {
 					var instance = this;
 
 					var limitType = instance.get('limitType');
@@ -779,7 +779,7 @@ AUI.add(
 						.set('disabled', disableLimitDateDatePicker);
 				},
 
-				_toggleView: function(viewName, show) {
+				_toggleView(viewName, show) {
 					var instance = this;
 
 					var viewNode = instance.get(viewName);
@@ -789,7 +789,7 @@ AUI.add(
 					}
 				},
 
-				_toggleViewPositionalDayOfWeek: function() {
+				_toggleViewPositionalDayOfWeek() {
 					var instance = this;
 
 					var repeatOnDayOfWeek = instance
@@ -802,7 +802,7 @@ AUI.add(
 					);
 				},
 
-				_toggleViewWeeklyRecurrence: function() {
+				_toggleViewWeeklyRecurrence() {
 					var instance = this;
 
 					instance._toggleView(
@@ -815,7 +815,7 @@ AUI.add(
 					);
 				},
 
-				_updateUI: function() {
+				_updateUI() {
 					var instance = this;
 
 					instance._setPositionInputValue();

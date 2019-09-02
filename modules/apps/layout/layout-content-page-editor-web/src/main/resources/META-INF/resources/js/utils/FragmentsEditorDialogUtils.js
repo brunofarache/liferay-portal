@@ -55,7 +55,7 @@ function openAssetBrowser({
 				destroyOnHide: true,
 				modal: true
 			},
-			eventName: eventName,
+			eventName,
 			title: modalTitle,
 			uri: assetBrowserURL
 		},

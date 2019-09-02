@@ -47,12 +47,12 @@ AUI.add(
 
 			EXTENDS: A.Plugin.Base,
 
-			NAME: NAME,
+			NAME,
 
 			NS: NAME,
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -86,7 +86,7 @@ AUI.add(
 					instance._eventHandles = eventHandles;
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					instance.get(STR_HOST).removeAttr(STR_SIZE);
@@ -94,7 +94,7 @@ AUI.add(
 					new A.EventHandle(instance._eventHandles).detach();
 				},
 
-				_alignWidget: function() {
+				_alignWidget() {
 					var instance = this;
 
 					if (instance.get('align')) {
@@ -102,7 +102,7 @@ AUI.add(
 					}
 				},
 
-				_animWidgetSize: function(size) {
+				_animWidgetSize(size) {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);

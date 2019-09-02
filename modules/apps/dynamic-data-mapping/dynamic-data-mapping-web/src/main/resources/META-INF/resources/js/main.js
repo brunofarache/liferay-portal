@@ -109,7 +109,7 @@ AUI.add(
 		};
 
 		A.mix(ReadOnlyFormBuilderSupport.prototype, {
-			initializer: function() {
+			initializer() {
 				var instance = this;
 
 				if (instance.get('readOnly')) {
@@ -132,7 +132,7 @@ AUI.add(
 				}
 			},
 
-			_afterFieldRender: function(event) {
+			_afterFieldRender(event) {
 				var field = event.target;
 
 				if (instanceOf(field, A.FormBuilderField)) {
@@ -147,7 +147,7 @@ AUI.add(
 				}
 			},
 
-			_afterRenderReadOnlyFormBuilder: function() {
+			_afterRenderReadOnlyFormBuilder() {
 				var instance = this;
 
 				instance.tabView.enableTab(1);
@@ -158,7 +158,7 @@ AUI.add(
 					.hide();
 			},
 
-			_onMouseOverFieldReadOnlyFormBuilder: function(event) {
+			_onMouseOverFieldReadOnlyFormBuilder(event) {
 				var field = A.Widget.getByNode(event.currentTarget);
 
 				field.controlsToolbar.hide();
@@ -175,7 +175,7 @@ AUI.add(
 			ATTRS: {
 				availableFields: {
 					validator: isObject,
-					valueFn: function() {
+					valueFn() {
 						return LiferayFormBuilder.AVAILABLE_FIELDS.DEFAULT;
 					}
 				},
@@ -255,7 +255,7 @@ AUI.add(
 				},
 
 				validator: {
-					setter: function(val) {
+					setter(val) {
 						var instance = this;
 
 						var config = A.merge(
@@ -314,7 +314,7 @@ AUI.add(
 			],
 
 			prototype: {
-				initializer: function() {
+				initializer() {
 					var instance = this;
 
 					instance.MAP_HIDDEN_FIELD_ATTRS = A.clone(
@@ -340,7 +340,7 @@ AUI.add(
 					);
 				},
 
-				bindUI: function() {
+				bindUI() {
 					var instance = this;
 
 					LiferayFormBuilder.superclass.bindUI.apply(
@@ -375,7 +375,7 @@ AUI.add(
 					);
 				},
 
-				createField: function() {
+				createField() {
 					var instance = this;
 
 					var field = LiferayFormBuilder.superclass.createField.apply(
@@ -447,7 +447,7 @@ AUI.add(
 					return field;
 				},
 
-				deserializeDefinitionFields: function(content) {
+				deserializeDefinitionFields(content) {
 					var instance = this;
 
 					var availableLanguageIds = content.availableLanguageIds;
@@ -464,7 +464,7 @@ AUI.add(
 					return fields;
 				},
 
-				eachParentField: function(field, fn) {
+				eachParentField(field, fn) {
 					var instance = this;
 
 					var parent = field.get('parent');
@@ -476,7 +476,7 @@ AUI.add(
 					}
 				},
 
-				getContent: function() {
+				getContent() {
 					var instance = this;
 
 					var definition = {};
@@ -495,7 +495,7 @@ AUI.add(
 					return JSON.stringify(definition, null, 4);
 				},
 
-				getContentValue: function() {
+				getContentValue() {
 					var instance = this;
 
 					return window[
@@ -504,7 +504,7 @@ AUI.add(
 					]();
 				},
 
-				plotField: function(field, container) {
+				plotField(field, container) {
 					var instance = this;
 
 					LiferayFormBuilder.UNIQUE_FIELD_NAMES_MAP.put(
@@ -518,13 +518,13 @@ AUI.add(
 					);
 				},
 
-				_afterEditingLocaleChange: function(event) {
+				_afterEditingLocaleChange(event) {
 					var instance = this;
 
 					instance._toggleInputDirection(event.newVal);
 				},
 
-				_afterFieldsChange: function(event) {
+				_afterFieldsChange(event) {
 					var instance = this;
 
 					var tabs = instance.tabView.getTabs();
@@ -538,7 +538,7 @@ AUI.add(
 					}
 				},
 
-				_beforeGetEditor: function(record, column) {
+				_beforeGetEditor(record, column) {
 					if (column.key === 'name') {
 						return;
 					}
@@ -572,7 +572,7 @@ AUI.add(
 					});
 				},
 
-				_deserializeField: function(fieldJSON, availableLanguageIds) {
+				_deserializeField(fieldJSON, availableLanguageIds) {
 					var instance = this;
 
 					var fields = fieldJSON.fields;
@@ -593,7 +593,7 @@ AUI.add(
 					instance._deserializeFieldLocalizableAttributes(fieldJSON);
 				},
 
-				_deserializeFieldLocalizableAttributes: function(fieldJSON) {
+				_deserializeFieldLocalizableAttributes(fieldJSON) {
 					var instance = this;
 
 					var defaultLocale = instance.translationManager.get(
@@ -617,7 +617,7 @@ AUI.add(
 					});
 				},
 
-				_deserializeFieldLocalizationMap: function(
+				_deserializeFieldLocalizationMap(
 					fieldJSON,
 					availableLanguageIds
 				) {
@@ -649,7 +649,7 @@ AUI.add(
 					}
 				},
 
-				_deserializeFieldOptionsLocalizationMap: function(
+				_deserializeFieldOptionsLocalizationMap(
 					fieldJSON,
 					availableLanguageIds
 				) {
@@ -680,7 +680,7 @@ AUI.add(
 					});
 				},
 
-				_getGeneratedFieldName: function(label) {
+				_getGeneratedFieldName(label) {
 					var instance = this;
 
 					var normalizedLabel = LiferayFormBuilder.Util.normalizeKey(
@@ -706,7 +706,7 @@ AUI.add(
 					return generatedName;
 				},
 
-				_getSerializedFields: function() {
+				_getSerializedFields() {
 					var instance = this;
 
 					var fields = [];
@@ -718,7 +718,7 @@ AUI.add(
 					return fields;
 				},
 
-				_onDataTableRender: function(event) {
+				_onDataTableRender(event) {
 					var instance = this;
 
 					A.on(
@@ -729,7 +729,7 @@ AUI.add(
 					);
 				},
 
-				_onDefaultLocaleChange: function(event) {
+				_onDefaultLocaleChange(event) {
 					var instance = this;
 
 					var fields = instance.get('fields');
@@ -744,8 +744,8 @@ AUI.add(
 
 					if (availableLanguageIds.indexOf(newVal) < 0) {
 						var config = {
-							fields: fields,
-							newVal: newVal,
+							fields,
+							newVal,
 							prevVal: event.prevVal
 						};
 
@@ -755,7 +755,7 @@ AUI.add(
 					}
 				},
 
-				_onMouseOutField: function(event) {
+				_onMouseOutField(event) {
 					var instance = this;
 
 					var field = A.Widget.getByNode(event.currentTarget);
@@ -768,7 +768,7 @@ AUI.add(
 					);
 				},
 
-				_onMouseOverField: function(event) {
+				_onMouseOverField(event) {
 					var instance = this;
 
 					var field = A.Widget.getByNode(event.currentTarget);
@@ -781,7 +781,7 @@ AUI.add(
 					);
 				},
 
-				_onPropertyModelChange: function(event) {
+				_onPropertyModelChange(event) {
 					var instance = this;
 
 					var fieldNameEditionDisabled = instance.get(
@@ -861,7 +861,7 @@ AUI.add(
 					}
 				},
 
-				_renderSettings: function() {
+				_renderSettings() {
 					var instance = this;
 
 					instance._renderPropertyList();
@@ -906,7 +906,7 @@ AUI.add(
 					};
 				},
 
-				_setAvailableFields: function(val) {
+				_setAvailableFields(val) {
 					var instance = this;
 
 					var fields = val.map(function(item, index) {
@@ -925,7 +925,7 @@ AUI.add(
 					return fields;
 				},
 
-				_setFields: function() {
+				_setFields() {
 					var instance = this;
 
 					LiferayFormBuilder.UNIQUE_FIELD_NAMES_MAP.clear();
@@ -936,7 +936,7 @@ AUI.add(
 					);
 				},
 
-				_setFieldsSortableListConfig: function() {
+				_setFieldsSortableListConfig() {
 					var instance = this;
 
 					var config = LiferayFormBuilder.superclass._setFieldsSortableListConfig.apply(
@@ -963,7 +963,7 @@ AUI.add(
 					return config;
 				},
 
-				_setInvalidDDHandles: function(field, type) {
+				_setInvalidDDHandles(field, type) {
 					var instance = this;
 
 					var methodName = type + 'Invalid';
@@ -975,14 +975,14 @@ AUI.add(
 					});
 				},
 
-				_toggleInputDirection: function(locale) {
+				_toggleInputDirection(locale) {
 					var rtl = Liferay.Language.direction[locale] === 'rtl';
 
 					BODY.toggleClass('form-builder-ltr-inputs', !rtl);
 					BODY.toggleClass('form-builder-rtl-inputs', rtl);
 				},
 
-				_toggleOptionsEditorInputs: function(editor) {
+				_toggleOptionsEditorInputs(editor) {
 					var instance = this;
 
 					var boundingBox = editor.get('boundingBox');
@@ -1006,7 +1006,7 @@ AUI.add(
 					}
 				},
 
-				_updateLocalizationMaps: function(config) {
+				_updateLocalizationMaps(config) {
 					var instance = this;
 
 					var fields = config.fields;
@@ -1019,8 +1019,8 @@ AUI.add(
 
 						var config = {
 							fields: childFields,
-							newVal: newVal,
-							prevVal: prevVal
+							newVal,
+							prevVal
 						};
 
 						localizationMap[newVal] = localizationMap[prevVal];
@@ -1032,7 +1032,7 @@ AUI.add(
 		});
 
 		LiferayFormBuilder.Util = {
-			getFileEntry: function(fileJSON, callback) {
+			getFileEntry(fileJSON, callback) {
 				var instance = this;
 
 				fileJSON = instance.parseJSON(fileJSON);
@@ -1047,7 +1047,7 @@ AUI.add(
 				);
 			},
 
-			getFileEntryURL: function(fileEntry) {
+			getFileEntryURL(fileEntry) {
 				var instance = this;
 
 				var buffer = [
@@ -1061,7 +1061,7 @@ AUI.add(
 				return buffer.join('/');
 			},
 
-			normalizeKey: function(key) {
+			normalizeKey(key) {
 				var instance = this;
 
 				key = key.trim();
@@ -1084,7 +1084,7 @@ AUI.add(
 				return key.replace(/\s+/gi, '');
 			},
 
-			normalizeValue: function(value) {
+			normalizeValue(value) {
 				var instance = this;
 
 				if (isUndefined(value)) {
@@ -1094,7 +1094,7 @@ AUI.add(
 				return value;
 			},
 
-			parseJSON: function(value) {
+			parseJSON(value) {
 				var instance = this;
 
 				var data = {};
@@ -1106,7 +1106,7 @@ AUI.add(
 				return data;
 			},
 
-			validateFieldName: function(fieldName) {
+			validateFieldName(fieldName) {
 				var valid = true;
 
 				if (REGEX_HYPHEN.test(fieldName)) {

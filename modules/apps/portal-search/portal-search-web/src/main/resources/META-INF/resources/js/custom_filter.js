@@ -34,7 +34,7 @@ AUI.add(
 		};
 
 		A.mix(CustomFilter.prototype, {
-			getFilterValue: function() {
+			getFilterValue() {
 				var instance = this;
 
 				var filterValue = instance.filterValueInput.val();
@@ -42,7 +42,7 @@ AUI.add(
 				return filterValue;
 			},
 
-			search: function() {
+			search() {
 				var instance = this;
 
 				var searchURL = instance.form.get('action');
@@ -54,7 +54,7 @@ AUI.add(
 				document.location.href = searchURL + queryString;
 			},
 
-			updateQueryString: function(queryString) {
+			updateQueryString(queryString) {
 				var instance = this;
 
 				var hasQuestionMark = false;
@@ -76,13 +76,13 @@ AUI.add(
 				return queryString;
 			},
 
-			_onClick: function(event) {
+			_onClick(event) {
 				var instance = this;
 
 				instance.search();
 			},
 
-			_onSubmit: function(event) {
+			_onSubmit(event) {
 				var instance = this;
 
 				event.stopPropagation();

@@ -79,7 +79,7 @@ AUI.add(
 			NAME: 'soinvitemembers',
 
 			prototype: {
-				initializer: function(params) {
+				initializer(params) {
 					var instance = this;
 
 					if (!instance.rootNode) {
@@ -102,14 +102,14 @@ AUI.add(
 						inputNode: instance._inviteUserSearch,
 						listNode: instance._membersList,
 						minQueryLength: 0,
-						requestTemplate: function(query) {
+						requestTemplate(query) {
 							return {
 								end: instance.get('pageDelta'),
 								keywords: query,
 								start: 0
 							};
 						},
-						resultTextLocator: function(response) {
+						resultTextLocator(response) {
 							var result = STR_BLANK;
 
 							if (typeof response.toString != 'undefined') {
@@ -132,13 +132,13 @@ AUI.add(
 					instance._bindUI();
 				},
 
-				destructor: function() {
+				destructor() {
 					var instance = this;
 
 					new A.EventHandle(instance._eventHandles).detach();
 				},
 
-				_addMemberEmail: function(event) {
+				_addMemberEmail(event) {
 					var instance = this;
 
 					var emailInput = instance.one('#emailAddress');
@@ -147,7 +147,7 @@ AUI.add(
 
 					if (emailAddress) {
 						var emailRow = Lang.sub(TPL_EMAIL_ROW, {
-							emailAddress: emailAddress
+							emailAddress
 						});
 
 						var invitedEmailList = instance.one(
@@ -162,7 +162,7 @@ AUI.add(
 					Util.focusFormField(emailInput.getDOM());
 				},
 
-				_addMemberInvite: function(user) {
+				_addMemberInvite(user) {
 					var instance = this;
 
 					user.addClass(CSS_INVITED)
@@ -170,7 +170,7 @@ AUI.add(
 						.appendTo(instance._invitedMembersList);
 				},
 
-				_bindUI: function() {
+				_bindUI() {
 					var instance = this;
 
 					instance._eventHandles = [
@@ -207,7 +207,7 @@ AUI.add(
 					];
 				},
 
-				_createDataSource: function(url) {
+				_createDataSource(url) {
 					var instance = this;
 
 					return new A.DataSource.IO({
@@ -215,7 +215,7 @@ AUI.add(
 							method: 'post'
 						},
 						on: {
-							request: function(event) {
+							request(event) {
 								var data = event.request;
 
 								event.cfg.data = instance.ns({
@@ -229,7 +229,7 @@ AUI.add(
 					});
 				},
 
-				_getByName: function(form, name) {
+				_getByName(form, name) {
 					var instance = this;
 
 					return instance.one(
@@ -238,7 +238,7 @@ AUI.add(
 					);
 				},
 
-				_handleInvite: function(event) {
+				_handleInvite(event) {
 					var instance = this;
 
 					var user = event.currentTarget;
@@ -256,7 +256,7 @@ AUI.add(
 					}
 				},
 
-				_onEmailKeypress: function(event) {
+				_onEmailKeypress(event) {
 					var instance = this;
 
 					if (event.keyCode == KEY_ENTER) {
@@ -266,7 +266,7 @@ AUI.add(
 					}
 				},
 
-				_onInviteMembersListResults: function(event) {
+				_onInviteMembersListResults(event) {
 					var instance = this;
 
 					var responseData = A.JSON.parse(event.data.responseText);
@@ -276,7 +276,7 @@ AUI.add(
 					);
 				},
 
-				_onMemberListClick: function(event) {
+				_onMemberListClick(event) {
 					var instance = this;
 
 					var node = event.currentTarget;
@@ -289,9 +289,9 @@ AUI.add(
 
 					const body = new URLSearchParams(
 						instance.ns({
-							end: end,
+							end,
 							keywords: instance._inviteUserSearch.get('value'),
-							start: start
+							start
 						})
 					);
 
@@ -317,11 +317,11 @@ AUI.add(
 						});
 				},
 
-				_removeEmailInvite: function(user) {
+				_removeEmailInvite(user) {
 					user.remove();
 				},
 
-				_removeMemberInvite: function(user, userId) {
+				_removeMemberInvite(user, userId) {
 					var instance = this;
 
 					userId = userId || user.getAttribute('data-userId');
@@ -343,7 +343,7 @@ AUI.add(
 					invitedUser.remove();
 				},
 
-				_renderResults: function(responseData) {
+				_renderResults(responseData) {
 					var instance = this;
 
 					var count = responseData.count;
@@ -384,7 +384,7 @@ AUI.add(
 								}
 
 								return Lang.sub(TPL_USER, {
-									cssClass: cssClass,
+									cssClass,
 									userEmailAddress: LString.escapeHTML(
 										result.userEmailAddress
 									),
@@ -409,7 +409,7 @@ AUI.add(
 					return buffer;
 				},
 
-				_syncFields: function(form) {
+				_syncFields(form) {
 					var instance = this;
 
 					instance._syncInvitedRoleIdField(form);
@@ -421,7 +421,7 @@ AUI.add(
 					instance._syncReceiverEmailAddressesField(form);
 				},
 
-				_syncInvitedRoleIdField: function() {
+				_syncInvitedRoleIdField() {
 					var instance = this;
 
 					var form = instance._form;
@@ -436,7 +436,7 @@ AUI.add(
 					invitedRoleId.val(roleId ? roleId.val() : 0);
 				},
 
-				_syncInvitedTeamIdField: function(form) {
+				_syncInvitedTeamIdField(form) {
 					var instance = this;
 
 					var invitedTeamId = instance._getByName(
@@ -449,7 +449,7 @@ AUI.add(
 					invitedTeamId.val(teamId ? teamId.val() : 0);
 				},
 
-				_syncReceiverEmailAddressesField: function(form) {
+				_syncReceiverEmailAddressesField(form) {
 					var instance = this;
 
 					var receiverEmailAddresses = instance._getByName(
@@ -468,7 +468,7 @@ AUI.add(
 					receiverEmailAddresses.val(emailAddresses.join());
 				},
 
-				_syncReceiverUserIdsField: function(form) {
+				_syncReceiverUserIdsField(form) {
 					var instance = this;
 
 					var receiverUserIds = instance._getByName(
@@ -495,7 +495,7 @@ AUI.add(
 			AUGMENTS: [A.AutoCompleteBase],
 
 			prototype: {
-				initializer: function(config) {
+				initializer(config) {
 					var instance = this;
 
 					instance._listNode = A.one(config.listNode);

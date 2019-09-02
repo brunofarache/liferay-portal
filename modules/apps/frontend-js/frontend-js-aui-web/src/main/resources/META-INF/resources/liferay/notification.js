@@ -26,7 +26,7 @@ AUI.add(
 				TPL_ALERTS_CONTAINER:
 					'<div class="lfr-notification-container"></div>',
 
-				_getAlertsContainer: function(targetNode) {
+				_getAlertsContainer(targetNode) {
 					var instance = this;
 
 					targetNode = targetNode || A.one('body');
