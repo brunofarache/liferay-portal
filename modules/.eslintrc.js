@@ -28,8 +28,13 @@ try {
 
 config = {
 	...config,
+	globals: {
+		...config.globals,
+		MODULE_PATH: true
+	},
 	rules: {
-		'liferay-portal/no-global-fetch': 'off'
+		'liferay-portal/no-global-fetch': 'off',
+		'no-empty': ['error', {allowEmptyCatch: true}]
 	}
 };
 
