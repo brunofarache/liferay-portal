@@ -77,7 +77,7 @@ public class StandaloneAppDeployer implements AppDeployer {
 						AppBuilderPortletKeys.STANDALONE_APP + "_" + appId);
 				}
 				catch (PortalException pe) {
-					throw new RuntimeException(pe);
+					throw new IllegalStateException(pe);
 				}
 			});
 
