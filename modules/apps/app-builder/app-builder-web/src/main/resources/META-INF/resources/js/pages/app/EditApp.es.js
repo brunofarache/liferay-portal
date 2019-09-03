@@ -116,51 +116,41 @@ export default ({
 		<>
 			<ControlMenu backURL="../" title={title} />
 
-			<div className="container-fluid container-fluid-max-lg">
-				<div className="sheet sheet-lg mt-4">
-					<div className="sheet-section">
+			<div className="container-fluid container-fluid-max-lg mt-4">
+				<div className="card card-root">
+					<div className="card-header align-items-center d-flex justify-content-between bg-transparent">
+						<div className="input-group">
+							<div className="input-group-item">
+								<input
+									aria-label="Untitled App"
+									className="form-control form-control-inline"
+									onChange={handleAppNameChange}
+									placeholder="Untitled App"
+									type="text"
+								/>
+							</div>
+						</div>
+					</div>
+
+					<h4 className="card-divider"></h4>
+
+					<div className="card-footer bg-transparent">
 						<div className="autofit-row">
-							<div className="input-group">
-								<div className="input-group-item">
-									<input
-										aria-label="Untitled App"
-										className="form-control form-control-inline"
-										onChange={handleAppNameChange}
-										placeholder="Untitled App"
-										type="text"
-									/>
-								</div>
+							<div className="col-md-4">
+								<button
+									className="btn btn-secondary"
+									onClick={() => history.goBack()}
+								>
+									{Liferay.Language.get('cancel')}
+								</button>
 							</div>
-						</div>
-
-						<h4 className="card-divider mb-4"></h4>
-
-						<div className="autofit-row mb-4">
-							<div className="col-md-12">
-								<h3>
-									{Liferay.Language.get('select-a-form-view')}
-								</h3>
-							</div>
-						</div>
-
-						<div className="sheet-footer">
-							<div className="autofit-row">
-								<div className="col-md-4">
-									<button
-										className="btn btn-secondary"
-										onClick={() => history.goBack()}
-									>
-										{Liferay.Language.get('cancel')}
-									</button>
-								</div>
-								<div className="col-md-4 offset-md-4 text-right">
-									<button
-										className="btn btn-primary"
-										onClick={handleSubmit}
-									>
-										{Liferay.Language.get('save')}
-									</button>
-								</div>
+							<div className="col-md-4 offset-md-4 text-right">
+								<button
+									className="btn btn-primary"
+									onClick={handleSubmit}
+								>
+									{Liferay.Language.get('save')}
+								</button>
 							</div>
 						</div>
 					</div>
