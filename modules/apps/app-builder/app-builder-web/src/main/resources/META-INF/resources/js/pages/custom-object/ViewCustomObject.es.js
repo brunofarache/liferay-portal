@@ -15,6 +15,7 @@
 import React, {useEffect, useState} from 'react';
 import {Route, Switch} from 'react-router-dom';
 import CustomObjectNavigationBar from './CustomObjectNavigationBar.es';
+import EditApp from '../app/EditApp.es';
 import ListApps from '../app/ListApps.es';
 import EditFormView from '../form-view/EditFormView.es';
 import ListFormViews from '../form-view/ListFormViews.es';
@@ -52,6 +53,14 @@ export default ({
 				path={[
 					`${path}/table-views/add`,
 					`${path}/table-views/:dataListViewId(\\d+)`
+				]}
+			/>
+
+			<Route
+				component={EditApp}
+				path={[
+					`${path}/deployments/add`,
+					`${path}/deployments/:appId(\\d+)`
 				]}
 			/>
 
