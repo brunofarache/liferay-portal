@@ -22,8 +22,6 @@ import com.liferay.app.builder.web.internal.constants.AppBuilderPortletKeys;
 import com.liferay.app.builder.web.internal.layout.type.AppPortletLayoutTypeController;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
@@ -38,10 +36,9 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletContext;
@@ -73,10 +70,16 @@ public class StandaloneAppDeployer implements AppDeployer {
 
 		_serviceRegistrationsMap.computeIfAbsent(
 			appId,
-			key -> Optional.ofNullable(
-				_deployAppPortlet(
-					"App" + appId, appBuilderApp.getCompanyId(),
-					AppBuilderPortletKeys.STANDALONE_APP + "_" + appId)));
+			key -> {
+				try {
+					return _deployAppPortlet(
+						appBuilderApp.getCompanyId(), appId,
+						AppBuilderPortletKeys.STANDALONE_APP + "_" + appId);
+				}
+				catch (PortalException pe) {
+					throw new RuntimeException(pe);
+				}
+			});
 
 		appBuilderApp.setStatus(
 			AppBuilderAppConstants.Status.DEPLOYED.getValue());
@@ -86,20 +89,20 @@ public class StandaloneAppDeployer implements AppDeployer {
 
 	@Override
 	public void undeploy(long appId) throws Exception {
-		Optional<ServiceRegistration<?>> serviceRegistration =
+		ServiceRegistration<?> serviceRegistration =
 			_serviceRegistrationsMap.remove(appId);
 
 		if (serviceRegistration == null) {
 			return;
 		}
 
-		serviceRegistration.ifPresent(s -> s.unregister());
+		serviceRegistration.unregister();
 
 		AppBuilderApp appBuilderApp =
 			_appBuilderAppLocalService.getAppBuilderApp(appId);
 
 		Group group = _groupLocalService.getGroup(
-			appBuilderApp.getCompanyId(), "App" + appId);
+			appBuilderApp.getCompanyId(), _getGroupName(appId));
 
 		group.setActive(false);
 
@@ -109,23 +112,6 @@ public class StandaloneAppDeployer implements AppDeployer {
 			AppBuilderAppConstants.Status.UNDEPLOYED.getValue());
 
 		_appBuilderAppLocalService.updateAppBuilderApp(appBuilderApp);
-	}
-
-	protected Group addFormsGroup(long companyId, String appGroupName)
-		throws PortalException {
-
-		Map<Locale, String> nameMap = new HashMap<>();
-
-		nameMap.put(LocaleUtil.getDefault(), appGroupName);
-
-		return _groupLocalService.addGroup(
-			_userLocalService.getDefaultUserId(companyId),
-			GroupConstants.DEFAULT_PARENT_GROUP_ID, null, 0,
-			GroupConstants.DEFAULT_LIVE_GROUP_ID, nameMap, null,
-			GroupConstants.TYPE_SITE_PRIVATE, true,
-			GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION,
-			"/" + StringUtil.toLowerCase(appGroupName), false, false, true,
-			null);
 	}
 
 	protected Layout addPublicLayout(
@@ -180,21 +166,30 @@ public class StandaloneAppDeployer implements AppDeployer {
 
 	protected ServletContext servletContext;
 
+	private Group _addAppGroup(long companyId, long appId)
+		throws PortalException {
+
+		Map<Locale, String> nameMap = Collections.singletonMap(
+			LocaleUtil.getDefault(), _getGroupName(appId));
+
+		return _groupLocalService.addGroup(
+			_userLocalService.getDefaultUserId(companyId),
+			GroupConstants.DEFAULT_PARENT_GROUP_ID, null, 0,
+			GroupConstants.DEFAULT_LIVE_GROUP_ID, nameMap, null,
+			GroupConstants.TYPE_SITE_PRIVATE, true,
+			GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION,
+			_getGroupFriendlyURL(appId), false, false, true, null);
+	}
+
 	private ServiceRegistration<?> _deployAppPortlet(
-		String appGroupName, long companyId, String portletName) {
+			long companyId, long appId, String portletName)
+		throws PortalException {
 
 		Group group = _groupLocalService.fetchFriendlyURLGroup(
-			companyId, "/" + StringUtil.toLowerCase(appGroupName));
+			companyId, _getGroupFriendlyURL(appId));
 
 		if (group == null) {
-			try {
-				group = addFormsGroup(companyId, appGroupName);
-			}
-			catch (PortalException pe) {
-				_log.error(pe, pe);
-
-				return null;
-			}
+			group = _addAppGroup(companyId, appId);
 		}
 		else {
 			group.setActive(true);
@@ -206,14 +201,7 @@ public class StandaloneAppDeployer implements AppDeployer {
 				_layoutLocalService.fetchDefaultLayout(
 					group.getGroupId(), false))) {
 
-			try {
-				addPublicLayout(companyId, group.getGroupId(), portletName);
-			}
-			catch (PortalException pe) {
-				_log.error(pe, pe);
-
-				return null;
-			}
+			addPublicLayout(companyId, group.getGroupId(), portletName);
 		}
 
 		return _bundleContext.registerService(
@@ -226,8 +214,13 @@ public class StandaloneAppDeployer implements AppDeployer {
 			});
 	}
 
-	private static final Log _log = LogFactoryUtil.getLog(
-		StandaloneAppDeployer.class);
+	private String _getGroupFriendlyURL(long appId) {
+		return "/" + StringUtil.toLowerCase(_getGroupName(appId));
+	}
+
+	private String _getGroupName(long appId) {
+		return GroupConstants.APP + appId;
+	}
 
 	@Reference
 	private AppBuilderAppLocalService _appBuilderAppLocalService;
@@ -235,7 +228,7 @@ public class StandaloneAppDeployer implements AppDeployer {
 	private BundleContext _bundleContext;
 	private GroupLocalService _groupLocalService;
 	private LayoutLocalService _layoutLocalService;
-	private final ConcurrentHashMap<Long, Optional<ServiceRegistration<?>>>
+	private final ConcurrentHashMap<Long, ServiceRegistration<?>>
 		_serviceRegistrationsMap = new ConcurrentHashMap<>();
 	private UserLocalService _userLocalService;
 
