@@ -14,6 +14,8 @@
 
 import {render} from 'frontend-js-react-web';
 import React from 'react';
+import {DragDropContext as dragDropContext} from 'react-dnd';
+import HTML5Backend from 'react-dnd-html5-backend';
 import {AppContextProvider} from '../../AppContext.es';
 import EditFormView from './EditFormView.es';
 
@@ -26,5 +28,9 @@ function renderComponent({basePortletURL, ...props}) {
 }
 
 export default function(containerId, data) {
-	render(renderComponent, data, document.getElementById(containerId));
+	render(
+		dragDropContext(HTML5Backend)(renderComponent),
+		data,
+		document.getElementById(containerId)
+	);
 }
