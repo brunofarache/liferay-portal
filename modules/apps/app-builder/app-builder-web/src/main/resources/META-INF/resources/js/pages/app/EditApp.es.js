@@ -15,6 +15,7 @@
 import React, {useState, useEffect} from 'react';
 import ControlMenu from '../../components/control-menu/ControlMenu.es';
 import {getItem, addItem, updateItem} from '../../utils/client.es';
+import { UpperToolbarInput } from '../../components/upper-toolbar/UpperToolbar.es';
 
 export default ({
 	history,
@@ -23,8 +24,10 @@ export default ({
 	}
 }) => {
 	const [state, setState] = useState({
-		app: null,
-		dataDefinition: null
+		app: {name: {
+			en_US: ''
+		}},
+		dataDefinition: {}
 	});
 
 	let title = Liferay.Language.get('new-app');
@@ -51,38 +54,18 @@ export default ({
 			);
 		} else {
 			getDataDefinition.then(dataDefinition => {
-				setState({
+				setState(prevState => ({
+					...prevState,
 					dataDefinition
-				});
+				}));
 			});
 		}
 	}, [dataDefinitionId, appId]);
 
-	const validate = () => {
+	const handleSubmit = () => {
 		const {app} = state;
 
-		if (!app) {
-			return null;
-		}
-
-		const name = app.name.en_US.trim();
-
-		if (name === '') {
-			return null;
-		}
-
-		return {
-			...app,
-			name: {
-				en_US: name
-			}
-		};
-	};
-
-	const handleSubmit = () => {
-		const app = validate();
-
-		if (app == null) {
+		if (app.name.en_US === '') {
 			return;
 		}
 
@@ -119,17 +102,13 @@ export default ({
 			<div className="container-fluid container-fluid-max-lg mt-4">
 				<div className="card card-root">
 					<div className="card-header align-items-center d-flex justify-content-between bg-transparent">
-						<div className="input-group">
-							<div className="input-group-item">
-								<input
-									aria-label="Untitled App"
-									className="form-control form-control-inline"
-									onChange={handleAppNameChange}
-									placeholder="Untitled App"
-									type="text"
-								/>
-							</div>
-						</div>
+						<UpperToolbarInput
+							onInput={handleAppNameChange}
+							placeholder={Liferay.Language.get(
+								'untitled-app'
+							)}
+							value={state.app.en_US}
+						/>
 					</div>
 
 					<h4 className="card-divider"></h4>
