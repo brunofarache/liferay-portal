@@ -141,7 +141,11 @@ const SidebarTab = ({tabs}) => {
 						<li className="nav-item" key={index}>
 							<a
 								className="active nav-link"
-								href="javascript:;"
+								data-senna-off
+								href=""
+								onClick={event => {
+									event.preventDefault();
+								}}
 								role="tab"
 							>
 								{tab}
