@@ -12,6 +12,7 @@
 		"@clayui/pagination": "3.0.0-milestone.3",
 		"@clayui/sticker": "3.0.0-milestone.3",
 		"@clayui/table": "3.0.0-milestone.3",
+		"@clayui/multi-step-nav": "3.0.0-milestone.3",
 		"classnames": "2.2.6",
 		"dynamic-data-mapping-form-renderer": "*",
 		"frontend-js-react-web": "*",
