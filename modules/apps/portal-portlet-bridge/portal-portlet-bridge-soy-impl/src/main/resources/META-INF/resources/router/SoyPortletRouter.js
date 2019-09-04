@@ -15,7 +15,6 @@
 import {openToast} from 'frontend-js-web';
 import {RequestScreen, utils} from 'senna';
 import {toRegex} from 'metal-path-parser';
-import Component from 'metal-component';
 import dom from 'metal-dom';
 import Router from 'metal-router';
 import State from 'metal-state';
@@ -580,13 +579,6 @@ SoyPortletRouter.STATE = {
 	/**
 	 * @instance
 	 * @memberof SoyPortletRouter
-	 * @type {Array<string>}
-	 */
-	friendlyURLRoutes: {},
-
-	/**
-	 * @instance
-	 * @memberof SoyPortletRouter
 	 * @type {string}
 	 */
 	friendlyURLMapping: {},
@@ -597,6 +589,13 @@ SoyPortletRouter.STATE = {
 	 * @type {string}
 	 */
 	friendlyURLPrefix: {},
+
+	/**
+	 * @instance
+	 * @memberof SoyPortletRouter
+	 * @type {Array<string>}
+	 */
+	friendlyURLRoutes: {},
 
 	/**
 	 * @instance
