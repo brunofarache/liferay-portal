@@ -32,12 +32,6 @@ AUI.add(
 		};
 
 		A.mix(StagingBar, {
-			destructor() {
-				var instance = this;
-
-				instance._cleanup();
-			},
-
 			_cleanup() {
 				var instance = this;
 
@@ -70,7 +64,7 @@ AUI.add(
 				return notification;
 			},
 
-			_onInit(event) {
+			_onInit() {
 				var instance = this;
 
 				instance._cleanup();
@@ -111,7 +105,7 @@ AUI.add(
 
 				if (layoutRevisionDetails) {
 					eventHandles.push(
-						Liferay.after('updatedLayout', function(event) {
+						Liferay.after('updatedLayout', function() {
 							Liferay.Util.fetch(
 								instance.markAsReadyForPublicationURL
 							)
@@ -137,7 +131,7 @@ AUI.add(
 				}
 
 				if (layoutRevisionStatus) {
-					Liferay.after('updatedStatus', function(event) {
+					Liferay.after('updatedStatus', function() {
 						Liferay.Util.fetch(instance.layoutRevisionStatusURL)
 							.then(response => {
 								return response.text();
@@ -218,11 +212,11 @@ AUI.add(
 					});
 			},
 
-			_onViewHistory(event) {
+			_onViewHistory() {
 				Liferay.Util.openWindow({
 					dialog: {
 						after: {
-							destroy(event) {
+							destroy() {
 								window.location.reload();
 							}
 						},
@@ -259,6 +253,12 @@ AUI.add(
 					.catch(() => {
 						instance._getNotification().show();
 					});
+			},
+
+			destructor() {
+				var instance = this;
+
+				instance._cleanup();
 			}
 		});
 
