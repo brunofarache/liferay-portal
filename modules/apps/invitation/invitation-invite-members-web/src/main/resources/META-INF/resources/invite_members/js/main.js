@@ -79,66 +79,7 @@ AUI.add(
 			NAME: 'soinvitemembers',
 
 			prototype: {
-				initializer(params) {
-					var instance = this;
-
-					if (!instance.rootNode) {
-						return;
-					}
-
-					var form = instance.get('form');
-
-					instance._form = instance.one(form.node);
-
-					instance._invitedMembersList = instance.one(
-						'#invitedMembersList'
-					);
-					instance._inviteUserSearch = instance.one(
-						'#inviteUserSearch'
-					);
-					instance._membersList = instance.one('#membersList');
-
-					instance._inviteMembersList = new InviteMembersList({
-						inputNode: instance._inviteUserSearch,
-						listNode: instance._membersList,
-						minQueryLength: 0,
-						requestTemplate(query) {
-							return {
-								end: instance.get('pageDelta'),
-								keywords: query,
-								start: 0
-							};
-						},
-						resultTextLocator(response) {
-							var result = STR_BLANK;
-
-							if (typeof response.toString != 'undefined') {
-								result = response.toString();
-							} else if (
-								typeof response.responseText != 'undefined'
-							) {
-								result = response.responseText;
-							}
-
-							return result;
-						},
-						source: instance._createDataSource(
-							instance.get(STR_AVAILABLE_USERS_URL)
-						)
-					});
-
-					instance._inviteMembersList.sendRequest();
-
-					instance._bindUI();
-				},
-
-				destructor() {
-					var instance = this;
-
-					new A.EventHandle(instance._eventHandles).detach();
-				},
-
-				_addMemberEmail(event) {
+				_addMemberEmail() {
 					var instance = this;
 
 					var emailInput = instance.one('#emailAddress');
@@ -461,7 +402,7 @@ AUI.add(
 
 					var invitedEmailList = instance.one('#invitedEmailList');
 
-					invitedEmailList.all('.user').each(function(item, index) {
+					invitedEmailList.all('.user').each(function(item) {
 						emailAddresses.push(item.attr('data-emailAddress'));
 					});
 
@@ -480,19 +421,78 @@ AUI.add(
 
 					instance._invitedMembersList
 						.all('.user')
-						.each(function(item, index) {
+						.each(function(item) {
 							userIds.push(item.attr('data-userId'));
 						});
 
 					receiverUserIds.val(userIds.join());
+				},
+
+				destructor() {
+					var instance = this;
+
+					new A.EventHandle(instance._eventHandles).detach();
+				},
+
+				initializer() {
+					var instance = this;
+
+					if (!instance.rootNode) {
+						return;
+					}
+
+					var form = instance.get('form');
+
+					instance._form = instance.one(form.node);
+
+					instance._invitedMembersList = instance.one(
+						'#invitedMembersList'
+					);
+					instance._inviteUserSearch = instance.one(
+						'#inviteUserSearch'
+					);
+					instance._membersList = instance.one('#membersList');
+
+					instance._inviteMembersList = new InviteMembersList({
+						inputNode: instance._inviteUserSearch,
+						listNode: instance._membersList,
+						minQueryLength: 0,
+						requestTemplate(query) {
+							return {
+								end: instance.get('pageDelta'),
+								keywords: query,
+								start: 0
+							};
+						},
+						resultTextLocator(response) {
+							var result = STR_BLANK;
+
+							if (typeof response.toString != 'undefined') {
+								result = response.toString();
+							} else if (
+								typeof response.responseText != 'undefined'
+							) {
+								result = response.responseText;
+							}
+
+							return result;
+						},
+						source: instance._createDataSource(
+							instance.get(STR_AVAILABLE_USERS_URL)
+						)
+					});
+
+					instance._inviteMembersList.sendRequest();
+
+					instance._bindUI();
 				}
 			}
 		});
 
 		var InviteMembersList = A.Component.create({
-			EXTENDS: A.Base,
-
 			AUGMENTS: [A.AutoCompleteBase],
+
+			EXTENDS: A.Base,
 
 			prototype: {
 				initializer(config) {
