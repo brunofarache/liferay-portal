@@ -66,44 +66,6 @@ AUI.add(
 			NAME: 'admin',
 
 			prototype: {
-				initializer(config) {
-					var instance = this;
-
-					instance._eventHandles = [];
-
-					instance.bindUI();
-
-					instance._laterTimeout = A.later(
-						INTERVAL_RENDER_IN_PROGRESS,
-						instance,
-						'_updateIndexActions'
-					);
-				},
-
-				bindUI() {
-					var instance = this;
-
-					instance._eventHandles.push(
-						instance
-							.get(STR_FORM)
-							.delegate(
-								STR_CLICK,
-								A.bind('_onSubmit', instance),
-								instance.get('submitButton')
-							)
-					);
-				},
-
-				destructor() {
-					var instance = this;
-
-					A.Array.invoke(instance._eventHandles, 'detach');
-
-					instance._eventHandles = null;
-
-					A.clearTimeout(instance._laterTimeout);
-				},
-
 				_addInputsFromData(data) {
 					var instance = this;
 
@@ -176,7 +138,7 @@ AUI.add(
 					if (currentAdminIndexPanel) {
 						A.io.request(instance.get(STR_URL), {
 							on: {
-								success(event, id, obj) {
+								success() {
 									var responseDataNode = A.Node.create(
 										this.get('responseData')
 									);
@@ -242,6 +204,44 @@ AUI.add(
 
 					instance._laterTimeout = A.later(
 						renderInterval,
+						instance,
+						'_updateIndexActions'
+					);
+				},
+
+				bindUI() {
+					var instance = this;
+
+					instance._eventHandles.push(
+						instance
+							.get(STR_FORM)
+							.delegate(
+								STR_CLICK,
+								A.bind('_onSubmit', instance),
+								instance.get('submitButton')
+							)
+					);
+				},
+
+				destructor() {
+					var instance = this;
+
+					A.Array.invoke(instance._eventHandles, 'detach');
+
+					instance._eventHandles = null;
+
+					A.clearTimeout(instance._laterTimeout);
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._eventHandles = [];
+
+					instance.bindUI();
+
+					instance._laterTimeout = A.later(
+						INTERVAL_RENDER_IN_PROGRESS,
 						instance,
 						'_updateIndexActions'
 					);
