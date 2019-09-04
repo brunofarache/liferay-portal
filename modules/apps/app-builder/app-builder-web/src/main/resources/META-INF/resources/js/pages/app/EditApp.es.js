@@ -13,9 +13,10 @@
  */
 
 import React, {useState, useEffect} from 'react';
+import Button from '../../components/button/Button.es';
 import ControlMenu from '../../components/control-menu/ControlMenu.es';
+import {UpperToolbarInput} from '../../components/upper-toolbar/UpperToolbar.es';
 import {getItem, addItem, updateItem} from '../../utils/client.es';
-import { UpperToolbarInput } from '../../components/upper-toolbar/UpperToolbar.es';
 
 export default ({
 	history,
@@ -24,9 +25,11 @@ export default ({
 	}
 }) => {
 	const [state, setState] = useState({
-		app: {name: {
-			en_US: ''
-		}},
+		app: {
+			name: {
+				en_US: ''
+			}
+		},
 		dataDefinition: {}
 	});
 
@@ -44,8 +47,8 @@ export default ({
 		if (appId) {
 			const getApp = getItem(`/apps/${appId}`);
 
-			Promise.all([getDataDefinition, getApp]).then(
-				([dataDefinition, app]) => {
+			Promise.all([getApp, getDataDefinition]).then(
+				([app, dataDefinition]) => {
 					setState({
 						app,
 						dataDefinition
@@ -60,7 +63,11 @@ export default ({
 				}));
 			});
 		}
-	}, [dataDefinitionId, appId]);
+	}, [appId, dataDefinitionId]);
+
+	const handleBack = () => {
+		history.push(`/custom-object/${dataDefinitionId}/apps`);
+	};
 
 	const handleSubmit = () => {
 		const {app} = state;
@@ -70,14 +77,14 @@ export default ({
 		}
 
 		if (appId) {
-			updateItem(`/o/app-builder/v1.0/apps/${appId}`, app).then(() =>
-				history.goBack()
+			updateItem(`/o/app-builder/v1.0/apps/${appId}`, app).then(
+				handleBack
 			);
 		} else {
 			addItem(
 				`/o/app-builder/v1.0/data-definitions/${dataDefinitionId}/apps`,
 				app
-			).then(() => history.goBack());
+			).then(handleBack);
 		}
 	};
 
@@ -104,9 +111,7 @@ export default ({
 					<div className="card-header align-items-center d-flex justify-content-between bg-transparent">
 						<UpperToolbarInput
 							onInput={handleAppNameChange}
-							placeholder={Liferay.Language.get(
-								'untitled-app'
-							)}
+							placeholder={Liferay.Language.get('untitled-app')}
 							value={state.app.en_US}
 						/>
 					</div>
@@ -116,20 +121,20 @@ export default ({
 					<div className="card-footer bg-transparent">
 						<div className="autofit-row">
 							<div className="col-md-4">
-								<button
-									className="btn btn-secondary"
-									onClick={() => history.goBack()}
+								<Button
+									displayType="secondary"
+									onClick={handleBack}
 								>
 									{Liferay.Language.get('cancel')}
-								</button>
+								</Button>
 							</div>
 							<div className="col-md-4 offset-md-4 text-right">
-								<button
-									className="btn btn-primary"
+								<Button
+									displayType="secondary"
 									onClick={handleSubmit}
 								>
 									{Liferay.Language.get('save')}
-								</button>
+								</Button>
 							</div>
 						</div>
 					</div>

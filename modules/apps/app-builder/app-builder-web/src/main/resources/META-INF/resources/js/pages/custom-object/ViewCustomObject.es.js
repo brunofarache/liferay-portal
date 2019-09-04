@@ -58,10 +58,7 @@ export default ({
 
 			<Route
 				component={EditApp}
-				path={[
-					`${path}/apps/add`,
-					`${path}/apps/:appId(\\d+)`
-				]}
+				path={[`${path}/apps/add`, `${path}/apps/:appId(\\d+)`]}
 			/>
 
 			<Route
@@ -82,10 +79,7 @@ export default ({
 								path={`${path}/table-views`}
 							/>
 
-							<Route
-								component={ListApps}
-								path={`${path}/apps`}
-							/>
+							<Route component={ListApps} path={`${path}/apps`} />
 						</Switch>
 					</>
 				)}
