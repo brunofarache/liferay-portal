@@ -23,6 +23,7 @@ import EditTableView from '../table-view/EditTableView.es';
 import ListTableViews from '../table-view/ListTableViews.es';
 import ControlMenu from '../../components/control-menu/ControlMenu.es';
 import {getItem} from '../../utils/client.es';
+import {AppProvider} from '../app/AppContext.es';
 
 export default ({
 	match: {
@@ -57,8 +58,15 @@ export default ({
 			/>
 
 			<Route
-				component={EditApp}
-				path={[`${path}/apps/add`, `${path}/apps/:appId(\\d+)`]}
+				path={[
+					`${path}/deployments/add`,
+					`${path}/deployments/:appId(\\d+)`
+				]}
+				render={routeProps => (
+					<AppProvider>
+						<EditApp {...routeProps}></EditApp>
+					</AppProvider>
+				)}
 			/>
 
 			<Route

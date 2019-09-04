@@ -15,7 +15,7 @@
 import React, {useState} from 'react';
 import ClayMultiStepNav from '@clayui/multi-step-nav';
 
-export default ({dataDefinitionId}) => {
+export default () => {
 	const [value, setValue] = useState(0);
 
 	const steps = [
@@ -40,28 +40,20 @@ export default ({dataDefinitionId}) => {
 		<div className="autofit-row">
 			<div className="col-md-12">
 				<ClayMultiStepNav>
-					{steps.map(
-						({active, complete, onClick, subTitle, title}, i) => (
-							<ClayMultiStepNav.Item
-								active={active}
+					{steps.map(({active, complete}, i) => (
+						<ClayMultiStepNav.Item
+							active={active}
+							complete={complete}
+							expand={i + 1 !== steps.length}
+							key={i}
+						>
+							<ClayMultiStepNav.Divider />
+							<ClayMultiStepNav.Indicator
 								complete={complete}
-								expand={i + 1 !== steps.length}
-								key={i}
-							>
-								                                                
-								<ClayMultiStepNav.Title>
-									{title}
-								</ClayMultiStepNav.Title>
-								<ClayMultiStepNav.Divider />
-								<ClayMultiStepNav.Indicator
-									complete={complete}
-									label={1 + i}
-									onClick={onClick}
-									subTitle={subTitle}
-								/>
-							</ClayMultiStepNav.Item>
-						)
-					)}
+								label={1 + i}
+							/>
+						</ClayMultiStepNav.Item>
+					))}
 				</ClayMultiStepNav>
 			</div>
 		</div>

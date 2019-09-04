@@ -12,28 +12,24 @@
  * details.
  */
 
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useContext} from 'react';
+import {Route, Switch} from 'react-router-dom';
 import Button from '../../components/button/Button.es';
 import ControlMenu from '../../components/control-menu/ControlMenu.es';
 import {UpperToolbarInput} from '../../components/upper-toolbar/UpperToolbar.es';
 import {getItem, addItem, updateItem} from '../../utils/client.es';
-import TestFormViewTable from './TestFormViewTable.es';
+import FormViewSelection from './FormViewSelection.es';
 import TestMultiStep from './TestMultiStep.es';
+import {AppContext} from './AppContext.es';
 
 export default ({
 	history,
 	match: {
-		params: {dataDefinitionId, appId}
+		params: {dataDefinitionId, appId},
+		path
 	}
 }) => {
-	const [state, setState] = useState({
-		app: {
-			name: {
-				en_US: ''
-			}
-		},
-		dataDefinition: {}
-	});
+	const {app, setApp} = useContext(AppContext);
 
 	let title = Liferay.Language.get('new-app');
 
@@ -42,38 +38,19 @@ export default ({
 	}
 
 	useEffect(() => {
-		const getDataDefinition = getItem(
-			`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}`
-		);
-
 		if (appId) {
 			const getApp = getItem(`/apps/${appId}`);
-
-			Promise.all([getApp, getDataDefinition]).then(
-				([app, dataDefinition]) => {
-					setState({
-						app,
-						dataDefinition
-					});
-				}
-			);
-		} else {
-			getDataDefinition.then(dataDefinition => {
-				setState(prevState => ({
-					...prevState,
-					dataDefinition
-				}));
+			getApp.then(app => {
+				setApp(app);
 			});
 		}
-	}, [appId, dataDefinitionId]);
+	}, [appId, setApp]);
 
 	const handleBack = () => {
 		history.push(`/custom-object/${dataDefinitionId}/apps`);
 	};
 
 	const handleSubmit = () => {
-		const {app} = state;
-
 		if (app.name.en_US === '') {
 			return;
 		}
@@ -93,15 +70,12 @@ export default ({
 	const handleAppNameChange = event => {
 		const name = event.target.value;
 
-		setState(prevState => ({
-			...prevState,
-			app: {
-				...prevState.app,
-				name: {
-					en_US: name
-				}
+		setApp({
+			...app,
+			name: {
+				en_US: name
 			}
-		}));
+		});
 	};
 
 	return (
@@ -114,29 +88,20 @@ export default ({
 						<UpperToolbarInput
 							onInput={handleAppNameChange}
 							placeholder={Liferay.Language.get('untitled-app')}
-							value={state.app.en_US}
+							value={app.name.en_US}
 						/>
 					</div>
 
 					<h4 className="card-divider mb-4"></h4>
 
-					<div className="autofit-row mb-2">
-						<TestMultiStep/>
-					</div>
+					<TestMultiStep />
 
-					<div className="autofit-row mb-4 pl-4">
-						<div className="col-md-12">
-							<h2>
-								{Liferay.Language.get('select-a-form-view')}
-							</h2>
-						</div>
-					</div>
-
-					<div className="autofit-row">
-						<TestFormViewTable
-							dataDefinitionId={dataDefinitionId}
+					<Switch>
+						<Route
+							component={FormViewSelection}
+							path={[`${path}/first-step`]}
 						/>
-					</div>
+					</Switch>
 
 					<h4 className="card-divider"></h4>
 
@@ -155,7 +120,7 @@ export default ({
 									displayType="secondary"
 									onClick={handleSubmit}
 								>
-									{Liferay.Language.get('save')}
+									{Liferay.Language.get('next')}
 								</Button>
 							</div>
 						</div>
