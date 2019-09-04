@@ -93,7 +93,7 @@ const Editor = props => {
 					});
 				}
 			} catch (err) {
-				console.log(err);
+				console.error(err);
 			}
 		};
 	}, [autoFocus, editorConfig]);
