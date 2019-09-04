@@ -21,6 +21,19 @@ AUI.add(
 			NAME: 'layoutstreenodetask',
 
 			prototype: {
+				_uiSetChecked(val) {
+					var instance = this;
+
+					instance._syncIconCheckUI();
+
+					instance
+						.get('contentBox')
+						.toggleClass(
+							A.getClassName('tree', 'node', 'checked'),
+							val
+						);
+				},
+
 				renderUI() {
 					var instance = this;
 
@@ -46,19 +59,6 @@ AUI.add(
 					} else {
 						instance.check();
 					}
-				},
-
-				_uiSetChecked(val) {
-					var instance = this;
-
-					instance._syncIconCheckUI();
-
-					instance
-						.get('contentBox')
-						.toggleClass(
-							A.getClassName('tree', 'node', 'checked'),
-							val
-						);
 				}
 			}
 		});

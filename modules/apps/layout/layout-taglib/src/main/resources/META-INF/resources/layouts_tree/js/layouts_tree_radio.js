@@ -36,46 +36,7 @@ AUI.add(
 			NS: 'radio',
 
 			prototype: {
-				initializer(config) {
-					var instance = this;
-
-					var host = instance.get(STR_HOST);
-
-					instance._eventHandles = [
-						instance.afterHostEvent(
-							'*:checkedChange',
-							instance._onNodeCheckedChange,
-							instance
-						),
-						instance.doAfter(
-							'_formatNode',
-							instance._formatNode,
-							instance
-						),
-						instance.doAfter(
-							'_formatNodeLabel',
-							instance._formatNodeLabel,
-							instance
-						),
-						instance.doAfter(
-							'_formatRootNode',
-							instance._formatRootNode,
-							instance
-						)
-					];
-
-					host.get('boundingBox').addClass('lfr-tree-radio');
-				},
-
-				destructor() {
-					var instance = this;
-
-					new A.EventHandle(instance._eventHandles).detach();
-				},
-
-				_formatNode(node) {
-					var instance = this;
-
+				_formatNode() {
 					var currentRetVal = A.Do.currentRetVal;
 
 					return new A.Do.AlterReturn(
@@ -97,7 +58,7 @@ AUI.add(
 					);
 				},
 
-				_formatRootNode(rootConfig, children) {
+				_formatRootNode(rootConfig) {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
@@ -129,6 +90,43 @@ AUI.add(
 							node: event.target
 						});
 					}
+				},
+
+				destructor() {
+					var instance = this;
+
+					new A.EventHandle(instance._eventHandles).detach();
+				},
+
+				initializer() {
+					var instance = this;
+
+					var host = instance.get(STR_HOST);
+
+					instance._eventHandles = [
+						instance.afterHostEvent(
+							'*:checkedChange',
+							instance._onNodeCheckedChange,
+							instance
+						),
+						instance.doAfter(
+							'_formatNode',
+							instance._formatNode,
+							instance
+						),
+						instance.doAfter(
+							'_formatNodeLabel',
+							instance._formatNodeLabel,
+							instance
+						),
+						instance.doAfter(
+							'_formatRootNode',
+							instance._formatRootNode,
+							instance
+						)
+					];
+
+					host.get('boundingBox').addClass('lfr-tree-radio');
 				}
 			}
 		});

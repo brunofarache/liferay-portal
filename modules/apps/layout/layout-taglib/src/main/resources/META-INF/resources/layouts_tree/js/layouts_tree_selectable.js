@@ -39,55 +39,7 @@ AUI.add(
 			NS: 'selectable',
 
 			prototype: {
-				initializer(config) {
-					var instance = this;
-
-					instance._eventHandles = [
-						instance.afterHostEvent(
-							'*:checkedChange',
-							instance._onNodeCheckedChange,
-							instance
-						),
-						instance.afterHostEvent(
-							'*:childrenChange',
-							instance._onNodeChildrenChange,
-							instance
-						),
-						instance.afterHostEvent(
-							'append',
-							instance._onTreeAppend,
-							instance
-						),
-						instance.afterHostEvent(
-							'render',
-							instance._onTreeRender,
-							instance
-						),
-						instance.doAfter(
-							'_formatNode',
-							instance._formatNode,
-							instance
-						),
-						instance.doAfter(
-							'_formatNodeLabel',
-							instance._formatNodeLabel,
-							instance
-						),
-						instance.doAfter(
-							'_formatRootNode',
-							instance._formatRootNode,
-							instance
-						)
-					];
-				},
-
-				destructor() {
-					var instance = this;
-
-					new A.EventHandle(instance._eventHandles).detach();
-				},
-
-				_formatNode(node) {
+				_formatNode() {
 					var instance = this;
 
 					var currentRetVal = A.Do.currentRetVal;
@@ -112,7 +64,7 @@ AUI.add(
 					);
 				},
 
-				_formatRootNode(rootConfig, children) {
+				_formatRootNode(rootConfig) {
 					var instance = this;
 
 					return new A.Do.AlterReturn(
@@ -160,12 +112,60 @@ AUI.add(
 					});
 				},
 
-				_onTreeRender(event) {
+				_onTreeRender() {
 					var instance = this;
 
 					var host = instance.get(STR_HOST);
 
 					host.fire('selectableTreeRender');
+				},
+
+				destructor() {
+					var instance = this;
+
+					new A.EventHandle(instance._eventHandles).detach();
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._eventHandles = [
+						instance.afterHostEvent(
+							'*:checkedChange',
+							instance._onNodeCheckedChange,
+							instance
+						),
+						instance.afterHostEvent(
+							'*:childrenChange',
+							instance._onNodeChildrenChange,
+							instance
+						),
+						instance.afterHostEvent(
+							'append',
+							instance._onTreeAppend,
+							instance
+						),
+						instance.afterHostEvent(
+							'render',
+							instance._onTreeRender,
+							instance
+						),
+						instance.doAfter(
+							'_formatNode',
+							instance._formatNode,
+							instance
+						),
+						instance.doAfter(
+							'_formatNodeLabel',
+							instance._formatNodeLabel,
+							instance
+						),
+						instance.doAfter(
+							'_formatRootNode',
+							instance._formatRootNode,
+							instance
+						)
+					];
 				}
 			}
 		});

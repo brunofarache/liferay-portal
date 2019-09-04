@@ -96,70 +96,7 @@ AUI.add(
 		};
 
 		LayoutsTreeBase.prototype = {
-			initializer() {
-				var instance = this;
-
-				var boundingBox = instance.get(STR_BOUNDING_BOX);
-
-				instance._treeLoadingElement = boundingBox
-					.ancestor()
-					.insertBefore(
-						A.Node.create(TREE_LOADING_EL_TPL),
-						boundingBox
-					);
-
-				instance._treeId = instance
-					.get(STR_BOUNDING_BOX)
-					.attr('data-treeid');
-
-				instance._bindUILTBase();
-			},
-
-			renderUI() {
-				var instance = this;
-
-				instance._parseLayouts(instance.get('layouts'));
-
-				instance.constructor.superclass.renderUI.apply(this, arguments);
-			},
-
-			destructor() {
-				var instance = this;
-
-				new A.EventHandle(instance._eventHandles).detach();
-			},
-
-			extractGroupId(node) {
-				var match = node.get(STR_ID).match(/groupId_(\d+)/);
-
-				return match && match[1];
-			},
-
-			extractLayoutId(node) {
-				var match = node.get(STR_ID).match(/layout_(\d+)/);
-
-				return match && match[1];
-			},
-
-			extractPlid(node) {
-				var match = node.get(STR_ID).match(/plid_(\d+)/);
-
-				return match && match[1];
-			},
-
-			restoreSelectedNode() {
-				var instance = this;
-
-				var pendingSelectedNodeId = instance._pendingSelectedNodeId;
-
-				if (pendingSelectedNodeId) {
-					instance.getNodeById(pendingSelectedNodeId).select();
-
-					instance._pendingSelectedNodeId = null;
-				}
-			},
-
-			_afterRenderTree(event) {
+			_afterRenderTree() {
 				var instance = this;
 
 				instance._treeLoadingElement.hide();
@@ -205,7 +142,7 @@ AUI.add(
 
 				var urls = instance.get('urls');
 
-				urls.forEach(function(item, index) {
+				urls.forEach(function(item) {
 					data[item.name] = A.Lang.sub(item.value, {
 						selPlid: data.plid
 					});
@@ -631,7 +568,7 @@ AUI.add(
 							instance._restoreNodePosition(response);
 						}
 					})
-					.catch(error => {});
+					.catch(() => {});
 			},
 
 			_updateLayoutParent(dragPlid, dropPlid, index) {
@@ -643,6 +580,69 @@ AUI.add(
 					plid: dragPlid,
 					priority: index
 				});
+			},
+
+			destructor() {
+				var instance = this;
+
+				new A.EventHandle(instance._eventHandles).detach();
+			},
+
+			extractGroupId(node) {
+				var match = node.get(STR_ID).match(/groupId_(\d+)/);
+
+				return match && match[1];
+			},
+
+			extractLayoutId(node) {
+				var match = node.get(STR_ID).match(/layout_(\d+)/);
+
+				return match && match[1];
+			},
+
+			extractPlid(node) {
+				var match = node.get(STR_ID).match(/plid_(\d+)/);
+
+				return match && match[1];
+			},
+
+			initializer() {
+				var instance = this;
+
+				var boundingBox = instance.get(STR_BOUNDING_BOX);
+
+				instance._treeLoadingElement = boundingBox
+					.ancestor()
+					.insertBefore(
+						A.Node.create(TREE_LOADING_EL_TPL),
+						boundingBox
+					);
+
+				instance._treeId = instance
+					.get(STR_BOUNDING_BOX)
+					.attr('data-treeid');
+
+				instance._bindUILTBase();
+			},
+
+			renderUI() {
+				var instance = this;
+
+				instance._parseLayouts(instance.get('layouts'));
+
+				instance.constructor.superclass.renderUI.apply(this, arguments);
+			},
+
+			restoreSelectedNode() {
+				var instance = this;
+
+				var pendingSelectedNodeId = instance._pendingSelectedNodeId;
+
+				if (pendingSelectedNodeId) {
+					instance.getNodeById(pendingSelectedNodeId).select();
+
+					instance._pendingSelectedNodeId = null;
+				}
 			}
 		};
 
