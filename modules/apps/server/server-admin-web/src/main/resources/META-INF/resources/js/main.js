@@ -56,38 +56,6 @@ AUI.add(
 			NAME: 'admin',
 
 			prototype: {
-				initializer(config) {
-					var instance = this;
-
-					instance._eventHandles = [];
-
-					instance.bindUI();
-				},
-
-				bindUI() {
-					var instance = this;
-
-					instance._eventHandles.push(
-						instance
-							.get(STR_FORM)
-							.delegate(
-								STR_CLICK,
-								A.bind('_onSubmit', instance),
-								instance.get('submitButton')
-							)
-					);
-				},
-
-				destructor() {
-					var instance = this;
-
-					A.Array.invoke(instance._eventHandles, 'detach');
-
-					instance._eventHandles = null;
-
-					A.clearTimeout(instance._laterTimeout);
-				},
-
 				_addInputsFromData(data) {
 					var instance = this;
 
@@ -112,7 +80,7 @@ AUI.add(
 					form.append(inputsArray.join(''));
 				},
 
-				_installXuggler(event) {
+				_installXuggler() {
 					var instance = this;
 
 					var form = instance.get(STR_FORM);
@@ -173,6 +141,38 @@ AUI.add(
 					} else {
 						submitForm(form, instance.get(STR_URL));
 					}
+				},
+
+				bindUI() {
+					var instance = this;
+
+					instance._eventHandles.push(
+						instance
+							.get(STR_FORM)
+							.delegate(
+								STR_CLICK,
+								A.bind('_onSubmit', instance),
+								instance.get('submitButton')
+							)
+					);
+				},
+
+				destructor() {
+					var instance = this;
+
+					A.Array.invoke(instance._eventHandles, 'detach');
+
+					instance._eventHandles = null;
+
+					A.clearTimeout(instance._laterTimeout);
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._eventHandles = [];
+
+					instance.bindUI();
 				}
 			}
 		});
