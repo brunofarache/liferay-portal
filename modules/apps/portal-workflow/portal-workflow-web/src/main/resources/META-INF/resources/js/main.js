@@ -16,352 +16,7 @@ AUI.add(
 	'liferay-workflow-web',
 	function(A) {
 		var WorkflowWeb = {
-			confirmBeforeDuplicateDialog(
-				event,
-				actionUrl,
-				title,
-				randomId,
-				portletNamespace
-			) {
-				var instance = this;
-
-				var form = A.one('#' + portletNamespace + randomId + 'form');
-
-				if (form && !instance._forms[randomId]) {
-					instance._forms[randomId] = form;
-				} else if (!form && instance._forms[randomId]) {
-					form = instance._forms[randomId];
-				}
-
-				if (form) {
-					form.setAttribute('action', actionUrl);
-					form.setAttribute('method', 'POST');
-				}
-
-				var duplicationDialog = instance._duplicationDialog;
-
-				if (duplicationDialog) {
-					duplicationDialog.destroy();
-				}
-
-				var dialog = Liferay.Util.Window.getWindow({
-					dialog: {
-						bodyContent: form,
-						height: 325,
-						toolbars: {
-							footer: [
-								{
-									cssClass: 'btn btn-secondary',
-									discardDefaultButtonCssClasses: true,
-									label: Liferay.Language.get('cancel'),
-									on: {
-										click() {
-											if (form) {
-												form.reset();
-											}
-
-											dialog.destroy();
-										}
-									}
-								},
-								{
-									cssClass: 'btn btn-primary',
-									discardDefaultButtonCssClasses: true,
-									label: Liferay.Language.get('duplicate'),
-									on: {
-										click() {
-											if (form) {
-												submitForm(form);
-											}
-
-											dialog.hide();
-										}
-									}
-								}
-							],
-							header: [
-								{
-									cssClass: 'close',
-									discardDefaultButtonCssClasses: true,
-									labelHTML:
-										'<svg class="lexicon-icon" focusable="false"><use data-href="' +
-										Liferay.ThemeDisplay.getPathThemeImages() +
-										'/lexicon/icons.svg#times" /><title>' +
-										Liferay.Language.get('close') +
-										'</title></svg>',
-									on: {
-										click(event) {
-											if (form) {
-												form.reset();
-											}
-
-											dialog.destroy();
-										}
-									}
-								}
-							]
-						},
-						width: 500
-					},
-					title
-				});
-
-				instance._duplicationDialog = dialog;
-			},
-
-			openConfirmDeleteDialog(title, message, actionUrl) {
-				var instance = this;
-
-				var dialog = Liferay.Util.Window.getWindow({
-					dialog: {
-						bodyContent: message,
-						destroyOnHide: true,
-						height: 200,
-						resizable: false,
-						toolbars: {
-							footer: [
-								{
-									cssClass: 'btn btn-primary',
-									discardDefaultButtonCssClasses: true,
-									label: Liferay.Language.get('delete'),
-									on: {
-										click() {
-											window.location.assign(actionUrl);
-										}
-									}
-								},
-								{
-									cssClass: 'btn btn-secondary',
-									discardDefaultButtonCssClasses: true,
-									label: Liferay.Language.get('cancel'),
-									on: {
-										click() {
-											dialog.destroy();
-										}
-									}
-								}
-							],
-							header: [
-								{
-									cssClass: 'close',
-									discardDefaultButtonCssClasses: true,
-									labelHTML:
-										'<svg class="lexicon-icon" focusable="false"><use data-href="' +
-										Liferay.ThemeDisplay.getPathThemeImages() +
-										'/lexicon/icons.svg#times" /><title>' +
-										Liferay.Language.get('close') +
-										'</title></svg>',
-									on: {
-										click(event) {
-											dialog.destroy();
-
-											event.domEvent.stopPropagation();
-										}
-									}
-								}
-							]
-						},
-						width: 600
-					},
-					title
-				});
-			},
-
-			previewBeforeRevertDialog(event, renderUrl, actionUrl, title) {
-				var instance = this;
-
-				var dialog = Liferay.Util.Window.getWindow({
-					dialog: {
-						destroyOnHide: true,
-						modal: true,
-						toolbars: {
-							footer: [
-								{
-									cssClass: 'btn btn-secondary',
-									discardDefaultButtonCssClasses: true,
-									label: Liferay.Language.get('cancel'),
-									on: {
-										click() {
-											dialog.destroy();
-										}
-									}
-								},
-								{
-									cssClass: 'btn btn-primary',
-									discardDefaultButtonCssClasses: true,
-									label: Liferay.Language.get('restore'),
-									on: {
-										click() {
-											window.location.assign(actionUrl);
-										}
-									}
-								}
-							],
-							header: [
-								{
-									cssClass: 'close',
-									discardDefaultButtonCssClasses: true,
-									labelHTML:
-										'<svg class="lexicon-icon" focusable="false"><use data-href="' +
-										Liferay.ThemeDisplay.getPathThemeImages() +
-										'/lexicon/icons.svg#times" /><title>' +
-										Liferay.Language.get('close') +
-										'</title></svg>',
-									on: {
-										click(event) {
-											dialog.destroy();
-
-											event.domEvent.stopPropagation();
-										}
-									}
-								}
-							]
-						}
-					},
-					title,
-					uri: renderUrl
-				});
-			},
-
-			saveWorkflowDefinitionLink(event, namespace) {
-				var instance = this;
-
-				var formContainer = document.getElementById(
-					namespace + 'formContainer'
-				);
-
-				var form = formContainer.querySelector('.form');
-
-				submitForm(form);
-			},
-
-			showActionUndoneSuccessMessage(namespace) {
-				var instance = this;
-
-				var successMessage = Liferay.Language.get('action-undone');
-
-				var alert = instance._alert;
-
-				if (alert) {
-					alert.destroy();
-				}
-
-				alert = new Liferay.Alert({
-					closeable: true,
-					delay: {
-						hide: 5000,
-						show: 0
-					},
-					message: successMessage,
-					type: 'success'
-				});
-
-				if (!alert.get('rendered')) {
-					alert.render('.portlet-column');
-				}
-
-				alert.show();
-
-				instance._alert = alert;
-			},
-
-			showDefinitionImportSuccessMessage(namespace) {
-				var instance = this;
-
-				var undo = Liferay.Language.get('undo');
-
-				var undoEvent = "'" + namespace + "undoDefinition'";
-
-				var undoLink =
-					'<a href="javascript:;" onclick=Liferay.fire(' +
-					undoEvent +
-					'); class="alert-link">' +
-					undo +
-					'</a>';
-
-				var successMessage =
-					Liferay.Language.get('definition-imported-sucessfully') +
-					'&nbsp;';
-
-				successMessage += undoLink;
-
-				var alert = instance._alert;
-
-				if (alert) {
-					alert.destroy();
-				}
-
-				alert = new Liferay.Alert({
-					closeable: true,
-					delay: {
-						hide: 10000,
-						show: 0
-					},
-					message: successMessage,
-					type: 'success'
-				});
-
-				if (!alert.get('rendered')) {
-					alert.render('.portlet-column');
-				}
-
-				alert.show();
-
-				instance._alert = alert;
-			},
-
-			toggleDefinitionLinkEditionMode(event, namespace) {
-				var instance = this;
-
-				var buttonName = instance._getClickedButtonName(
-					event,
-					namespace
-				);
-
-				var openDefinitionLinkNode = instance._getOpenDefinitionLinkNode();
-
-				var openDefinitionLinkNamespace;
-
-				if (buttonName === 'cancelButton') {
-					instance._doToggleDefinitionLinkEditionMode(namespace);
-
-					instance._resetLastValue(namespace);
-				} else if (!openDefinitionLinkNode) {
-					instance._doToggleDefinitionLinkEditionMode(namespace);
-				} else if (
-					!instance._hasDefinitionLinkChanged(openDefinitionLinkNode)
-				) {
-					openDefinitionLinkNamespace = instance._getDefinitionLinkNodeNamespace(
-						openDefinitionLinkNode
-					);
-
-					instance._doToggleDefinitionLinkEditionMode(
-						openDefinitionLinkNamespace
-					);
-
-					instance._doToggleDefinitionLinkEditionMode(namespace);
-				} else {
-					openDefinitionLinkNamespace = instance._getDefinitionLinkNodeNamespace(
-						openDefinitionLinkNode
-					);
-
-					if (
-						confirm(
-							Liferay.Language.get(
-								'you-have-unsaved-changes-do-you-want-to-proceed-without-saving'
-							)
-						)
-					) {
-						instance._doToggleDefinitionLinkEditionMode(
-							openDefinitionLinkNamespace
-						);
-
-						instance._resetLastValue(openDefinitionLinkNamespace);
-
-						instance._doToggleDefinitionLinkEditionMode(namespace);
-					}
-				}
-			},
+			_alert: null,
 
 			_doToggleDefinitionLinkEditionMode(namespace) {
 				var instance = this;
@@ -372,6 +27,10 @@ AUI.add(
 
 				instance._removeFormGroupClass(namespace);
 			},
+
+			_duplicationDialog: null,
+
+			_forms: {},
 
 			_getClickedButtonName(event, namespace) {
 				var button = event.target;
@@ -516,9 +175,346 @@ AUI.add(
 				}
 			},
 
-			_alert: null,
-			_duplicationDialog: null,
-			_forms: {}
+			confirmBeforeDuplicateDialog(
+				_event,
+				actionUrl,
+				title,
+				randomId,
+				portletNamespace
+			) {
+				var instance = this;
+
+				var form = A.one('#' + portletNamespace + randomId + 'form');
+
+				if (form && !instance._forms[randomId]) {
+					instance._forms[randomId] = form;
+				} else if (!form && instance._forms[randomId]) {
+					form = instance._forms[randomId];
+				}
+
+				if (form) {
+					form.setAttribute('action', actionUrl);
+					form.setAttribute('method', 'POST');
+				}
+
+				var duplicationDialog = instance._duplicationDialog;
+
+				if (duplicationDialog) {
+					duplicationDialog.destroy();
+				}
+
+				var dialog = Liferay.Util.Window.getWindow({
+					dialog: {
+						bodyContent: form,
+						height: 325,
+						toolbars: {
+							footer: [
+								{
+									cssClass: 'btn btn-secondary',
+									discardDefaultButtonCssClasses: true,
+									label: Liferay.Language.get('cancel'),
+									on: {
+										click() {
+											if (form) {
+												form.reset();
+											}
+
+											dialog.destroy();
+										}
+									}
+								},
+								{
+									cssClass: 'btn btn-primary',
+									discardDefaultButtonCssClasses: true,
+									label: Liferay.Language.get('duplicate'),
+									on: {
+										click() {
+											if (form) {
+												submitForm(form);
+											}
+
+											dialog.hide();
+										}
+									}
+								}
+							],
+							header: [
+								{
+									cssClass: 'close',
+									discardDefaultButtonCssClasses: true,
+									labelHTML:
+										'<svg class="lexicon-icon" focusable="false"><use data-href="' +
+										Liferay.ThemeDisplay.getPathThemeImages() +
+										'/lexicon/icons.svg#times" /><title>' +
+										Liferay.Language.get('close') +
+										'</title></svg>',
+									on: {
+										click() {
+											if (form) {
+												form.reset();
+											}
+
+											dialog.destroy();
+										}
+									}
+								}
+							]
+						},
+						width: 500
+					},
+					title
+				});
+
+				instance._duplicationDialog = dialog;
+			},
+
+			openConfirmDeleteDialog(title, message, actionUrl) {
+				var dialog = Liferay.Util.Window.getWindow({
+					dialog: {
+						bodyContent: message,
+						destroyOnHide: true,
+						height: 200,
+						resizable: false,
+						toolbars: {
+							footer: [
+								{
+									cssClass: 'btn btn-primary',
+									discardDefaultButtonCssClasses: true,
+									label: Liferay.Language.get('delete'),
+									on: {
+										click() {
+											window.location.assign(actionUrl);
+										}
+									}
+								},
+								{
+									cssClass: 'btn btn-secondary',
+									discardDefaultButtonCssClasses: true,
+									label: Liferay.Language.get('cancel'),
+									on: {
+										click() {
+											dialog.destroy();
+										}
+									}
+								}
+							],
+							header: [
+								{
+									cssClass: 'close',
+									discardDefaultButtonCssClasses: true,
+									labelHTML:
+										'<svg class="lexicon-icon" focusable="false"><use data-href="' +
+										Liferay.ThemeDisplay.getPathThemeImages() +
+										'/lexicon/icons.svg#times" /><title>' +
+										Liferay.Language.get('close') +
+										'</title></svg>',
+									on: {
+										click(event) {
+											dialog.destroy();
+
+											event.domEvent.stopPropagation();
+										}
+									}
+								}
+							]
+						},
+						width: 600
+					},
+					title
+				});
+			},
+
+			previewBeforeRevertDialog(event, renderUrl, actionUrl, title) {
+				var dialog = Liferay.Util.Window.getWindow({
+					dialog: {
+						destroyOnHide: true,
+						modal: true,
+						toolbars: {
+							footer: [
+								{
+									cssClass: 'btn btn-secondary',
+									discardDefaultButtonCssClasses: true,
+									label: Liferay.Language.get('cancel'),
+									on: {
+										click() {
+											dialog.destroy();
+										}
+									}
+								},
+								{
+									cssClass: 'btn btn-primary',
+									discardDefaultButtonCssClasses: true,
+									label: Liferay.Language.get('restore'),
+									on: {
+										click() {
+											window.location.assign(actionUrl);
+										}
+									}
+								}
+							],
+							header: [
+								{
+									cssClass: 'close',
+									discardDefaultButtonCssClasses: true,
+									labelHTML:
+										'<svg class="lexicon-icon" focusable="false"><use data-href="' +
+										Liferay.ThemeDisplay.getPathThemeImages() +
+										'/lexicon/icons.svg#times" /><title>' +
+										Liferay.Language.get('close') +
+										'</title></svg>',
+									on: {
+										click(event) {
+											dialog.destroy();
+
+											event.domEvent.stopPropagation();
+										}
+									}
+								}
+							]
+						}
+					},
+					title,
+					uri: renderUrl
+				});
+			},
+
+			saveWorkflowDefinitionLink(event, namespace) {
+				var formContainer = document.getElementById(
+					namespace + 'formContainer'
+				);
+
+				var form = formContainer.querySelector('.form');
+
+				submitForm(form);
+			},
+
+			showActionUndoneSuccessMessage() {
+				var instance = this;
+
+				var successMessage = Liferay.Language.get('action-undone');
+
+				var alert = instance._alert;
+
+				if (alert) {
+					alert.destroy();
+				}
+
+				alert = new Liferay.Alert({
+					closeable: true,
+					delay: {
+						hide: 5000,
+						show: 0
+					},
+					message: successMessage,
+					type: 'success'
+				});
+
+				if (!alert.get('rendered')) {
+					alert.render('.portlet-column');
+				}
+
+				alert.show();
+
+				instance._alert = alert;
+			},
+
+			showDefinitionImportSuccessMessage(namespace) {
+				var instance = this;
+
+				var undo = Liferay.Language.get('undo');
+
+				var undoEvent = "'" + namespace + "undoDefinition'";
+
+				var undoLink =
+					'<a href="javascript:;" onclick=Liferay.fire(' +
+					undoEvent +
+					'); class="alert-link">' +
+					undo +
+					'</a>';
+
+				var successMessage =
+					Liferay.Language.get('definition-imported-sucessfully') +
+					'&nbsp;';
+
+				successMessage += undoLink;
+
+				var alert = instance._alert;
+
+				if (alert) {
+					alert.destroy();
+				}
+
+				alert = new Liferay.Alert({
+					closeable: true,
+					delay: {
+						hide: 10000,
+						show: 0
+					},
+					message: successMessage,
+					type: 'success'
+				});
+
+				if (!alert.get('rendered')) {
+					alert.render('.portlet-column');
+				}
+
+				alert.show();
+
+				instance._alert = alert;
+			},
+
+			toggleDefinitionLinkEditionMode(event, namespace) {
+				var instance = this;
+
+				var buttonName = instance._getClickedButtonName(
+					event,
+					namespace
+				);
+
+				var openDefinitionLinkNode = instance._getOpenDefinitionLinkNode();
+
+				var openDefinitionLinkNamespace;
+
+				if (buttonName === 'cancelButton') {
+					instance._doToggleDefinitionLinkEditionMode(namespace);
+
+					instance._resetLastValue(namespace);
+				} else if (!openDefinitionLinkNode) {
+					instance._doToggleDefinitionLinkEditionMode(namespace);
+				} else if (
+					!instance._hasDefinitionLinkChanged(openDefinitionLinkNode)
+				) {
+					openDefinitionLinkNamespace = instance._getDefinitionLinkNodeNamespace(
+						openDefinitionLinkNode
+					);
+
+					instance._doToggleDefinitionLinkEditionMode(
+						openDefinitionLinkNamespace
+					);
+
+					instance._doToggleDefinitionLinkEditionMode(namespace);
+				} else {
+					openDefinitionLinkNamespace = instance._getDefinitionLinkNodeNamespace(
+						openDefinitionLinkNode
+					);
+
+					if (
+						confirm(
+							Liferay.Language.get(
+								'you-have-unsaved-changes-do-you-want-to-proceed-without-saving'
+							)
+						)
+					) {
+						instance._doToggleDefinitionLinkEditionMode(
+							openDefinitionLinkNamespace
+						);
+
+						instance._resetLastValue(openDefinitionLinkNamespace);
+
+						instance._doToggleDefinitionLinkEditionMode(namespace);
+					}
+				}
+			}
 		};
 
 		Liferay.WorkflowWeb = WorkflowWeb;
