@@ -29,12 +29,6 @@
 	var TPL_SOURCE_TAG = '<source srcset="{srcset}" media="{media}">';
 
 	CKEDITOR.plugins.add('adaptivemedia', {
-		init(editor) {
-			var instance = this;
-
-			instance._bindEvent(editor);
-		},
-
 		_bindEvent(editor) {
 			var instance = this;
 
@@ -195,6 +189,12 @@
 					editor.execCommand('enter');
 				}
 			}
+		},
+
+		init(editor) {
+			var instance = this;
+
+			instance._bindEvent(editor);
 		}
 	});
 })();
