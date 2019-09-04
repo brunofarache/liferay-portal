@@ -96,8 +96,6 @@ CKEDITOR.dialog.add('link', function(editor) {
 							{
 								id: 'linkBrowse',
 								label: LANG_COMMON.browseServer,
-								required: true,
-								type: 'button',
 								onClick(event) {
 									var dialog = event.data.dialog;
 
@@ -125,7 +123,9 @@ CKEDITOR.dialog.add('link', function(editor) {
 											);
 										}
 									});
-								}
+								},
+								required: true,
+								type: 'button'
 							}
 						],
 						id: 'linkOptions',
@@ -138,9 +138,9 @@ CKEDITOR.dialog.add('link', function(editor) {
 				title: LANG_LINK.info
 			}
 		],
+
 		minHeight: 100,
 		minWidth: 250,
-		title: LANG_LINK.title,
 
 		onFocus() {
 			var instance = this;
@@ -220,6 +220,8 @@ CKEDITOR.dialog.add('link', function(editor) {
 			}
 
 			instance.setupContent(parseLink.apply(instance, [editor, element]));
-		}
+		},
+
+		title: LANG_LINK.title
 	};
 });

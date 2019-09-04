@@ -43,12 +43,6 @@
 	};
 
 	AutoCompleteCKEditor.prototype = {
-		initializer() {
-			var instance = this;
-
-			instance._bindUIACCKEditor();
-		},
-
 		_bindUIACCKEditor() {
 			var instance = this;
 
@@ -112,7 +106,7 @@
 			return instance._getCaretRange().startContainer;
 		},
 
-		_getCaretIndex(node) {
+		_getCaretIndex() {
 			var instance = this;
 
 			var range = instance._getCaretRange();
@@ -160,7 +154,7 @@
 			return container.getAscendant(ascendant, true);
 		},
 
-		_getInputElement(value) {
+		_getInputElement() {
 			var instance = this;
 
 			return A.one(instance.get(STR_EDITOR).element.$);
@@ -182,7 +176,7 @@
 
 			var triggers = instance._getTriggers();
 
-			AArray.each(triggers, function(item, index, collection) {
+			AArray.each(triggers, function(item) {
 				var triggerPosition = query.lastIndexOf(item);
 
 				if (triggerPosition !== -1 && triggerPosition > triggerIndex) {
@@ -203,11 +197,7 @@
 					) {
 						var nodeText = node.getText();
 
-						AArray.each(triggers, function(
-							item,
-							index,
-							collection
-						) {
+						AArray.each(triggers, function(item) {
 							var triggerPosition = nodeText.lastIndexOf(item);
 
 							if (
@@ -460,6 +450,12 @@
 			var editor = instance.get('editor');
 
 			editor.fire('saveSnapshot');
+		},
+
+		initializer() {
+			var instance = this;
+
+			instance._bindUIACCKEditor();
 		}
 	};
 

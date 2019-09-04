@@ -14,6 +14,8 @@
 
 (function() {
 	var commandObject = {
+		context: 'pre',
+
 		exec(editor) {
 			editor.focus();
 			editor.fire('saveSnapshot');
@@ -59,9 +61,7 @@
 			}
 
 			this.setState(buttonState);
-		},
-
-		context: 'pre'
+		}
 	};
 
 	CKEDITOR.plugins.add('bbcode', {

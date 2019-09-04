@@ -67,73 +67,6 @@
 	};
 
 	Parser.prototype = {
-		constructor: Parser,
-
-		init() {
-			var instance = this;
-
-			var stack = [];
-
-			stack.last =
-				stack.last ||
-				function() {
-					var instance = this;
-
-					return instance[instance.length - 1];
-				};
-
-			instance._result = [];
-
-			instance._stack = stack;
-
-			instance._dataPointer = 0;
-		},
-
-		parse(data) {
-			var instance = this;
-
-			var lexer = new Liferay.BBCodeLexer(data);
-
-			instance._lexer = lexer;
-
-			var token;
-
-			while ((token = lexer.getNextToken())) {
-				instance._handleData(token, data);
-
-				if (token[1]) {
-					instance._handleTagStart(token);
-
-					if (token[1].toLowerCase() == STR_TAG_CODE) {
-						while (
-							(token = lexer.getNextToken()) &&
-							token[3] != STR_TAG_CODE
-						);
-
-						instance._handleData(token, data);
-
-						if (token) {
-							instance._handleTagEnd(token);
-						} else {
-							break;
-						}
-					}
-				} else {
-					instance._handleTagEnd(token);
-				}
-			}
-
-			instance._handleData(null, data);
-
-			instance._handleTagEnd();
-
-			var result = instance._result.slice(0);
-
-			instance._reset();
-
-			return result;
-		},
-
 		_handleData(token, data) {
 			var instance = this;
 
@@ -255,6 +188,73 @@
 			instance._result.length = 0;
 
 			instance._dataPointer = 0;
+		},
+
+		constructor: Parser,
+
+		init() {
+			var instance = this;
+
+			var stack = [];
+
+			stack.last =
+				stack.last ||
+				function() {
+					var instance = this;
+
+					return instance[instance.length - 1];
+				};
+
+			instance._result = [];
+
+			instance._stack = stack;
+
+			instance._dataPointer = 0;
+		},
+
+		parse(data) {
+			var instance = this;
+
+			var lexer = new Liferay.BBCodeLexer(data);
+
+			instance._lexer = lexer;
+
+			var token;
+
+			while ((token = lexer.getNextToken())) {
+				instance._handleData(token, data);
+
+				if (token[1]) {
+					instance._handleTagStart(token);
+
+					if (token[1].toLowerCase() == STR_TAG_CODE) {
+						while (
+							(token = lexer.getNextToken()) &&
+							token[3] != STR_TAG_CODE
+						);
+
+						instance._handleData(token, data);
+
+						if (token) {
+							instance._handleTagEnd(token);
+						} else {
+							break;
+						}
+					}
+				} else {
+					instance._handleTagEnd(token);
+				}
+			}
+
+			instance._handleData(null, data);
+
+			instance._handleTagEnd();
+
+			var result = instance._result.slice(0);
+
+			instance._reset();
+
+			return result;
 		}
 	};
 

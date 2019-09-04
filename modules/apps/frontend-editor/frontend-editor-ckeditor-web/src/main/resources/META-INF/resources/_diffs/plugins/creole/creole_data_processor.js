@@ -80,46 +80,6 @@
 	};
 
 	CreoleDataProcessor.prototype = {
-		constructor: CreoleDataProcessor,
-
-		toDataFormat(html, config) {
-			var instance = this;
-
-			var data = instance._convert(html);
-
-			return data;
-		},
-
-		toHtml(data, config) {
-			var instance = this;
-
-			if (config) {
-				var fragment = CKEDITOR.htmlParser.fragment.fromHtml(data);
-
-				var writer = new CKEDITOR.htmlParser.basicWriter();
-
-				config.filter.applyTo(fragment);
-
-				fragment.writeHtml(writer);
-
-				data = writer.getHtml();
-			} else {
-				var div = document.createElement('div');
-
-				if (!instance._creoleParser) {
-					instance._creoleParser = new CKEDITOR.CreoleParser({
-						imagePrefix: attachmentURLPrefix
-					});
-				}
-
-				instance._creoleParser.parse(div, data);
-
-				data = div.innerHTML;
-			}
-
-			return data || enterModeEmptyValue[instance._editor.enterMode];
-		},
-
 		_appendNewLines(total) {
 			var instance = this;
 
@@ -157,6 +117,8 @@
 
 			return endResult;
 		},
+
+		_endResult: null,
 
 		_handle(node) {
 			var instance = this;
@@ -202,7 +164,7 @@
 			instance._handleData(node.data, node);
 		},
 
-		_handleBreak(element, listTagsIn, listTagsOut) {
+		_handleBreak(element, listTagsIn, _listTagsOut) {
 			var instance = this;
 
 			var newLineCharacter = STR_LIST_ITEM_ESCAPE_CHARACTERS;
@@ -222,7 +184,7 @@
 			}
 		},
 
-		_handleData(data, element) {
+		_handleData(data, _element) {
 			var instance = this;
 
 			if (data) {
@@ -234,7 +196,7 @@
 					if (!instance._verbatim) {
 						data = data.replace(
 							REGEX_CREOLE_RESERVED_CHARACTERS,
-							function(match, p1, offset, string) {
+							function(_match, p1, _offset, _string) {
 								var res = '';
 
 								if (!instance._endResult.length) {
@@ -270,7 +232,7 @@
 			}
 		},
 
-		_handleElementEnd(element, listTagsIn, listTagsOut) {
+		_handleElementEnd(element, _listTagsIn, listTagsOut) {
 			var instance = this;
 
 			var tagName = element.tagName;
@@ -380,12 +342,12 @@
 			}
 		},
 
-		_handleEm(element, listTagsIn, listTagsOut) {
+		_handleEm(_element, listTagsIn, listTagsOut) {
 			listTagsIn.push(TAG_EMPHASIZE);
 			listTagsOut.push(TAG_EMPHASIZE);
 		},
 
-		_handleHeader(element, listTagsIn, listTagsOut, params) {
+		_handleHeader(_element, listTagsIn, listTagsOut, params) {
 			var instance = this;
 
 			var res = new Array(parseInt(params[1], 10) + 1);
@@ -402,7 +364,7 @@
 			instance._verbatim = true;
 		},
 
-		_handleHr(element, listTagsIn, listTagsOut) {
+		_handleHr(element, listTagsIn, _listTagsOut) {
 			var instance = this;
 
 			if (instance._isDataAvailable() && !instance._isLastItemNewLine()) {
@@ -451,7 +413,7 @@
 			}
 		},
 
-		_handleListItem(element, listTagsIn, listTagsOut) {
+		_handleListItem(element, listTagsIn, _listTagsOut) {
 			var instance = this;
 
 			if (instance._isDataAvailable() && !instance._isLastItemNewLine()) {
@@ -469,13 +431,13 @@
 			);
 		},
 
-		_handleOrderedList(element, listTagsIn, listTagsOut) {
+		_handleOrderedList(_element, _listTagsIn) {
 			var instance = this;
 
 			instance._listsStack.push(TAG_ORDERED_LIST_ITEM);
 		},
 
-		_handleParagraph(element, listTagsIn, listTagsOut) {
+		_handleParagraph(_element, _listTagsIn, listTagsOut) {
 			var instance = this;
 
 			if (instance._isDataAvailable()) {
@@ -485,7 +447,7 @@
 			listTagsOut.push(NEW_LINE);
 		},
 
-		_handlePre(element, listTagsIn, listTagsOut) {
+		_handlePre(_element, listTagsIn, listTagsOut) {
 			var instance = this;
 
 			instance._skipParse = true;
@@ -530,11 +492,20 @@
 			}
 		},
 
-		_handleTableCell(element, listTagsIn, listTagsOut) {
+		_handleTT(_element, listTagsIn, listTagsOut) {
+			var instance = this;
+
+			instance._skipParse = true;
+
+			listTagsIn.push('{{{');
+			listTagsOut.push('}}}');
+		},
+
+		_handleTableCell(_element, listTagsIn, _listTagsOut) {
 			listTagsIn.push(STR_PIPE);
 		},
 
-		_handleTableHeader(element, listTagsIn, listTagsOut) {
+		_handleTableHeader(_element, listTagsIn, _listTagsOut) {
 			listTagsIn.push(STR_PIPE, STR_EQUALS);
 		},
 
@@ -548,16 +519,7 @@
 			listTagsOut.push(STR_PIPE);
 		},
 
-		_handleTT(element, listTagsIn, listTagsOut) {
-			var instance = this;
-
-			instance._skipParse = true;
-
-			listTagsIn.push('{{{');
-			listTagsOut.push('}}}');
-		},
-
-		_handleUnorderedList(element, listTagsIn, listTagsOut) {
+		_handleUnorderedList(_element, _listTagsIn, _listTagsOut) {
 			var instance = this;
 
 			instance._listsStack.push(TAG_UNORDERED_LIST_ITEM);
@@ -626,7 +588,7 @@
 			);
 		},
 
-		_isLastItemNewLine(node) {
+		_isLastItemNewLine() {
 			var instance = this;
 
 			var endResult = instance._endResult;
@@ -649,6 +611,8 @@
 			);
 		},
 
+		_listsStack: [],
+
 		_pushTagList(tagsList) {
 			var instance = this;
 
@@ -667,6 +631,8 @@
 			}
 		},
 
+		_skipParse: false,
+
 		_tagNameMatch(tagSrc, tagDest) {
 			return (
 				(tagDest instanceof RegExp && tagDest.test(tagSrc)) ||
@@ -674,24 +640,58 @@
 			);
 		},
 
-		_endResult: null,
+		_verbatim: true,
 
-		_listsStack: [],
+		constructor: CreoleDataProcessor,
 
-		_skipParse: false,
+		toDataFormat(html) {
+			var instance = this;
 
-		_verbatim: true
+			var data = instance._convert(html);
+
+			return data;
+		},
+
+		toHtml(data, config) {
+			var instance = this;
+
+			if (config) {
+				var fragment = CKEDITOR.htmlParser.fragment.fromHtml(data);
+
+				var writer = new CKEDITOR.htmlParser.basicWriter();
+
+				config.filter.applyTo(fragment);
+
+				fragment.writeHtml(writer);
+
+				data = writer.getHtml();
+			} else {
+				var div = document.createElement('div');
+
+				if (!instance._creoleParser) {
+					instance._creoleParser = new CKEDITOR.CreoleParser({
+						imagePrefix: attachmentURLPrefix
+					});
+				}
+
+				instance._creoleParser.parse(div, data);
+
+				data = div.innerHTML;
+			}
+
+			return data || enterModeEmptyValue[instance._editor.enterMode];
+		}
 	};
 
 	CKEDITOR.plugins.add('creole_data_processor', {
-		requires: ['htmlwriter'],
-
 		init(editor) {
 			attachmentURLPrefix = editor.config.attachmentURLPrefix;
 
 			editor.dataProcessor = new CreoleDataProcessor(editor);
 
 			editor.fire('customDataProcessorLoaded');
-		}
+		},
+
+		requires: ['htmlwriter']
 	});
 })();

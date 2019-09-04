@@ -84,7 +84,7 @@ CKEDITOR.plugins.add('wikilink', {
 		}
 
 		if (editor.contextMenu) {
-			editor.contextMenu.addListener(function(element, selection) {
+			editor.contextMenu.addListener(function(element) {
 				var selectionObj = null;
 
 				if (element && !element.isReadOnly()) {
@@ -135,8 +135,6 @@ CKEDITOR.plugins.link = {
 CKEDITOR.unlinkCommand = function() {};
 
 CKEDITOR.unlinkCommand.prototype = {
-	startDisabled: true,
-
 	exec(editor) {
 		var selection = editor.getSelection();
 
@@ -160,5 +158,7 @@ CKEDITOR.unlinkCommand.prototype = {
 		selection.selectRanges(ranges);
 		editor.document.$.execCommand('unlink', false, null);
 		selection.selectBookmarks(bookmarks);
-	}
+	},
+
+	startDisabled: true
 };

@@ -25,32 +25,28 @@
 
 	var MAP_HANDLERS = {
 		a: '_handleLink',
+		b: '_handleStrong',
 		blockquote: '_handleQuote',
 		br: '_handleBreak',
 		caption: '_handleTableCaption',
 		cite: '_handleCite',
+		code: '_handlePre',
+		em: '_handleEm',
 		font: '_handleFont',
+		i: '_handleEm',
 		img: '_handleImage',
 		li: '_handleListItem',
 		ol: '_handleOrderedList',
+		pre: '_handlePre',
+		s: '_handleLineThrough',
+		strike: '_handleLineThrough',
+		strong: '_handleStrong',
 		table: '_handleTable',
 		td: '_handleTableCell',
 		th: '_handleTableHeader',
 		tr: '_handleTableRow',
 		u: '_handleUnderline',
-		ul: '_handleUnorderedList',
-
-		em: '_handleEm',
-		i: '_handleEm',
-
-		s: '_handleLineThrough',
-		strike: '_handleLineThrough',
-
-		code: '_handlePre',
-		pre: '_handlePre',
-
-		b: '_handleStrong',
-		strong: '_handleStrong'
+		ul: '_handleUnorderedList'
 	};
 
 	var MAP_IMAGE_ATTRIBUTES = [
@@ -73,7 +69,7 @@
 
 	var NEW_LINE = '\n';
 
-	var REGEX_COLOR_RGB = /^rgb\s*\(\s*([01]?\d\d?|2[0-4]\d|25[0-5])\,\s*([01]?\d\d?|2[0-4]\d|25[0-5])\,\s*([01]?\d\d?|2[0-4]\d|25[0-5])\s*\)$/;
+	var REGEX_COLOR_RGB = /^rgb\s*\(\s*([01]?\d\d?|2[0-4]\d|25[0-5]),\s*([01]?\d\d?|2[0-4]\d|25[0-5]),\s*([01]?\d\d?|2[0-4]\d|25[0-5])\s*\)$/;
 
 	var REGEX_EM = /em$/i;
 
@@ -132,52 +128,6 @@
 	};
 
 	BBCodeDataProcessor.prototype = {
-		constructor: BBCodeDataProcessor,
-
-		toDataFormat(html, fixForBody) {
-			var instance = this;
-
-			html = html.replace(REGEX_PRE, '$&\n');
-
-			var data = instance._convert(html);
-
-			return data;
-		},
-
-		toHtml(data, config) {
-			var instance = this;
-
-			if (!instance._bbcodeConverter) {
-				var editorConfig = this._editor.config;
-
-				var converterConfig = {
-					emoticonImages: editorConfig.smiley_images,
-					emoticonPath: editorConfig.smiley_path,
-					emoticonSymbols: editorConfig.smiley_symbols
-				};
-
-				instance._bbcodeConverter = new CKEDITOR.BBCode2HTML(
-					converterConfig
-				);
-			}
-
-			if (config) {
-				var fragment = CKEDITOR.htmlParser.fragment.fromHtml(data);
-
-				var writer = new CKEDITOR.htmlParser.basicWriter();
-
-				config.filter.applyTo(fragment);
-
-				fragment.writeHtml(writer);
-
-				data = writer.getHtml();
-			} else {
-				data = instance._bbcodeConverter.convert(data);
-			}
-
-			return data;
-		},
-
 		_allowNewLine(element) {
 			var instance = this;
 
@@ -238,12 +188,10 @@
 
 		_convertRGBToHex(color) {
 			color = color.replace(REGEX_COLOR_RGB, function(
-				match,
+				_match,
 				red,
 				green,
-				blue,
-				offset,
-				string
+				blue
 			) {
 				var b = toHex(blue);
 				var g = toHex(green);
@@ -256,6 +204,8 @@
 
 			return color;
 		},
+
+		_endResult: null,
 
 		_getBodySize() {
 			var body = document.body;
@@ -406,7 +356,7 @@
 			instance._handleData(node.data, node);
 		},
 
-		_handleBreak(element, listTagsIn, listTagsOut) {
+		_handleBreak(element, listTagsIn) {
 			var instance = this;
 
 			if (instance._inPRE) {
@@ -416,7 +366,7 @@
 			}
 		},
 
-		_handleCite(element, listTagsIn, listTagsOut) {
+		_handleCite(element, _listTagsIn, listTagsOut) {
 			var instance = this;
 
 			var parentNode = element.parentNode;
@@ -460,7 +410,7 @@
 			}
 		},
 
-		_handleElementEnd(element, listTagsIn, listTagsOut) {
+		_handleElementEnd(element) {
 			var instance = this;
 
 			var tagName = element.tagName;
@@ -494,13 +444,13 @@
 			}
 		},
 
-		_handleEm(element, listTagsIn, listTagsOut) {
+		_handleEm(_element, listTagsIn, listTagsOut) {
 			listTagsIn.push('[i]');
 
 			listTagsOut.push('[/i]');
 		},
 
-		_handleFont(element, listTagsIn, listTagsOut) {
+		_handleFont(element, listTagsIn) {
 			var instance = this;
 
 			var size = element.size;
@@ -564,7 +514,7 @@
 			return attrs;
 		},
 
-		_handleLineThrough(element, listTagsIn, listTagsOut) {
+		_handleLineThrough(_element, listTagsIn, listTagsOut) {
 			listTagsIn.push('[s]');
 
 			listTagsOut.push('[/s]');
@@ -590,7 +540,7 @@
 			}
 		},
 
-		_handleListItem(element, listTagsIn, listTagsOut) {
+		_handleListItem(_element, listTagsIn) {
 			var instance = this;
 
 			if (!instance._isLastItemNewLine()) {
@@ -628,7 +578,7 @@
 			listTagsOut.push('[/list]');
 		},
 
-		_handlePre(element, listTagsIn, listTagsOut) {
+		_handlePre(_element, listTagsIn, listTagsOut) {
 			var instance = this;
 
 			instance._inPRE = true;
@@ -652,7 +602,7 @@
 			listTagsOut.push('[/quote]');
 		},
 
-		_handleStrong(element, listTagsIn, listTagsOut) {
+		_handleStrong(_element, listTagsIn, listTagsOut) {
 			listTagsIn.push('[b]');
 
 			listTagsOut.push('[/b]');
@@ -778,6 +728,22 @@
 			}
 		},
 
+		_handleStyleTextDecoration(element, stylesTagsIn, stylesTagsOut) {
+			var style = element.style;
+
+			var textDecoration = style.textDecoration.toLowerCase();
+
+			if (textDecoration === 'line-through') {
+				stylesTagsIn.push('[s]');
+
+				stylesTagsOut.push('[/s]');
+			} else if (textDecoration === 'underline') {
+				stylesTagsIn.push('[u]');
+
+				stylesTagsOut.push('[/u]');
+			}
+		},
+
 		_handleStyles(element, stylesTagsIn, stylesTagsOut) {
 			var instance = this;
 
@@ -836,23 +802,7 @@
 			}
 		},
 
-		_handleStyleTextDecoration(element, stylesTagsIn, stylesTagsOut) {
-			var style = element.style;
-
-			var textDecoration = style.textDecoration.toLowerCase();
-
-			if (textDecoration === 'line-through') {
-				stylesTagsIn.push('[s]');
-
-				stylesTagsOut.push('[/s]');
-			} else if (textDecoration === 'underline') {
-				stylesTagsIn.push('[u]');
-
-				stylesTagsOut.push('[/u]');
-			}
-		},
-
-		_handleTable(element, listTagsIn, listTagsOut) {
+		_handleTable(_element, listTagsIn, listTagsOut) {
 			listTagsIn.push('[table]', NEW_LINE);
 
 			listTagsOut.push('[/table]');
@@ -868,25 +818,25 @@
 			}
 		},
 
-		_handleTableCell(element, listTagsIn, listTagsOut) {
+		_handleTableCell(_element, listTagsIn, listTagsOut) {
 			listTagsIn.push('[td]');
 
 			listTagsOut.push('[/td]', NEW_LINE);
 		},
 
-		_handleTableHeader(element, listTagsIn, listTagsOut) {
+		_handleTableHeader(_element, listTagsIn, listTagsOut) {
 			listTagsIn.push('[th]');
 
 			listTagsOut.push('[/th]', NEW_LINE);
 		},
 
-		_handleTableRow(element, listTagsIn, listTagsOut) {
+		_handleTableRow(_element, listTagsIn, listTagsOut) {
 			listTagsIn.push('[tr]', NEW_LINE);
 
 			listTagsOut.push('[/tr]', NEW_LINE);
 		},
 
-		_handleUnderline(element, listTagsIn, listTagsOut) {
+		_handleUnderline(_element, listTagsIn, listTagsOut) {
 			listTagsIn.push('[u]');
 
 			listTagsOut.push('[/u]');
@@ -907,6 +857,8 @@
 
 			listTagsOut.push('[/list]');
 		},
+
+		_inPRE: false,
 
 		_isLastItemNewLine() {
 			var instance = this;
@@ -933,18 +885,60 @@
 			}
 		},
 
-		_endResult: null,
+		constructor: BBCodeDataProcessor,
 
-		_inPRE: false
+		toDataFormat(html) {
+			var instance = this;
+
+			html = html.replace(REGEX_PRE, '$&\n');
+
+			var data = instance._convert(html);
+
+			return data;
+		},
+
+		toHtml(data, config) {
+			var instance = this;
+
+			if (!instance._bbcodeConverter) {
+				var editorConfig = this._editor.config;
+
+				var converterConfig = {
+					emoticonImages: editorConfig.smiley_images,
+					emoticonPath: editorConfig.smiley_path,
+					emoticonSymbols: editorConfig.smiley_symbols
+				};
+
+				instance._bbcodeConverter = new CKEDITOR.BBCode2HTML(
+					converterConfig
+				);
+			}
+
+			if (config) {
+				var fragment = CKEDITOR.htmlParser.fragment.fromHtml(data);
+
+				var writer = new CKEDITOR.htmlParser.basicWriter();
+
+				config.filter.applyTo(fragment);
+
+				fragment.writeHtml(writer);
+
+				data = writer.getHtml();
+			} else {
+				data = instance._bbcodeConverter.convert(data);
+			}
+
+			return data;
+		}
 	};
 
 	CKEDITOR.plugins.add('bbcode_data_processor', {
-		requires: ['htmlwriter'],
-
 		init(editor) {
 			editor.dataProcessor = new BBCodeDataProcessor(editor);
 
 			editor.fire('customDataProcessorLoaded');
-		}
+		},
+
+		requires: ['htmlwriter']
 	});
 })();

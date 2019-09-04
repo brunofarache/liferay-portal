@@ -48,61 +48,8 @@ AUI.add(
 			NAME: 'inline-editor-ckeditor',
 
 			prototype: {
-				initializer(config) {
-					var instance = this;
-
-					var editor = instance.get(EDITOR);
-
-					instance._eventHandles = [
-						editor.on('blur', instance._onEditorBlur, instance),
-						editor.on('focus', instance._onEditorFocus, instance),
-						editor.on(
-							'restoreContent',
-							instance._restoreContent,
-							instance
-						),
-						editor.on('saveContent', A.fn(0, 'save', instance))
-					];
-
-					instance.after('destroy', instance._destructor, instance);
-
-					instance.after(
-						['saveFailure', 'saveSuccess'],
-						instance._updateNoticePosition,
-						instance
-					);
-
-					A.one('#' + instance.get(EDITOR_NAME)).delegate(
-						'click',
-						function(event) {
-							if (event.shiftKey) {
-								var clone = event.currentTarget.clone();
-
-								A.getBody().append(clone);
-
-								clone.simulate('click');
-							}
-						},
-						'a'
-					);
-				},
-
-				isContentDirty() {
-					var instance = this;
-
-					return instance.get(EDITOR).checkDirty();
-				},
-
-				resetDirty() {
-					var instance = this;
-
-					instance.get(EDITOR).resetDirty();
-				},
-
 				_attachScrollListener() {
 					var instance = this;
-
-					var notice = instance.getEditNotice();
 
 					if (!instance._scrollHandle) {
 						instance._scrollHandle = A.getWin().on(
@@ -240,6 +187,57 @@ AUI.add(
 
 						notice.set(ALIGN, align);
 					}
+				},
+
+				initializer() {
+					var instance = this;
+
+					var editor = instance.get(EDITOR);
+
+					instance._eventHandles = [
+						editor.on('blur', instance._onEditorBlur, instance),
+						editor.on('focus', instance._onEditorFocus, instance),
+						editor.on(
+							'restoreContent',
+							instance._restoreContent,
+							instance
+						),
+						editor.on('saveContent', A.fn(0, 'save', instance))
+					];
+
+					instance.after('destroy', instance._destructor, instance);
+
+					instance.after(
+						['saveFailure', 'saveSuccess'],
+						instance._updateNoticePosition,
+						instance
+					);
+
+					A.one('#' + instance.get(EDITOR_NAME)).delegate(
+						'click',
+						function(event) {
+							if (event.shiftKey) {
+								var clone = event.currentTarget.clone();
+
+								A.getBody().append(clone);
+
+								clone.simulate('click');
+							}
+						},
+						'a'
+					);
+				},
+
+				isContentDirty() {
+					var instance = this;
+
+					return instance.get(EDITOR).checkDirty();
+				},
+
+				resetDirty() {
+					var instance = this;
+
+					instance.get(EDITOR).resetDirty();
 				}
 			}
 		});

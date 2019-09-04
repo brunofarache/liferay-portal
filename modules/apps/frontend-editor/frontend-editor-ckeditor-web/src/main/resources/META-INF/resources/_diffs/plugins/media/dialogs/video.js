@@ -130,9 +130,6 @@ CKEDITOR.dialog.add('video', function(editor) {
 	}
 
 	return {
-		minHeight: 200,
-		minWidth: 400,
-
 		contents: [
 			{
 				elements: [
@@ -198,7 +195,8 @@ CKEDITOR.dialog.add('video', function(editor) {
 			}
 		],
 
-		title: Liferay.Language.get('video-properties'),
+		minHeight: 200,
+		minWidth: 400,
 
 		onOk() {
 			var instance = this;
@@ -210,6 +208,8 @@ CKEDITOR.dialog.add('video', function(editor) {
 			var instance = this;
 
 			editor.plugins.media.onShowCallback(instance, editor, 'video');
-		}
+		},
+
+		title: Liferay.Language.get('video-properties')
 	};
 });

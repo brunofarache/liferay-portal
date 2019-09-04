@@ -33,183 +33,6 @@
 	var defaultVideoWidth = 400;
 
 	CKEDITOR.plugins.add('itemselector', {
-		init(editor) {
-			var instance = this;
-
-			instance._audioTPL = new CKEDITOR.template(TPL_AUDIO_SCRIPT);
-			instance._videoTPL = new CKEDITOR.template(TPL_VIDEO_SCRIPT);
-
-			editor.addCommand('audioselector', {
-				canUndo: false,
-				exec(editor, callback) {
-					var onSelectedAudioChangeFn = AUI().bind(
-						'_onSelectedAudioChange',
-						instance,
-						editor,
-						callback
-					);
-
-					instance._getItemSelectorDialog(
-						editor,
-						editor.config.filebrowserAudioBrowseUrl,
-						function(itemSelectorDialog) {
-							itemSelectorDialog.once(
-								'selectedItemChange',
-								onSelectedAudioChangeFn
-							);
-							itemSelectorDialog.open();
-						}
-					);
-				}
-			});
-
-			editor.addCommand('imageselector', {
-				canUndo: false,
-				exec(editor, callback) {
-					var onSelectedImageChangeFn = AUI().bind(
-						'_onSelectedImageChange',
-						instance,
-						editor,
-						callback
-					);
-
-					instance._getItemSelectorDialog(
-						editor,
-						editor.config.filebrowserImageBrowseUrl,
-						function(itemSelectorDialog) {
-							itemSelectorDialog.once(
-								'selectedItemChange',
-								onSelectedImageChangeFn
-							);
-							itemSelectorDialog.open();
-						}
-					);
-				}
-			});
-
-			editor.addCommand('linkselector', {
-				canUndo: false,
-				exec(editor, callback) {
-					var onSelectedLinkChangeFn = AUI().bind(
-						'_onSelectedLinkChange',
-						instance,
-						editor,
-						callback
-					);
-
-					instance._getItemSelectorDialog(
-						editor,
-						editor.config.filebrowserBrowseUrl,
-						function(itemSelectorDialog) {
-							itemSelectorDialog.once(
-								'selectedItemChange',
-								onSelectedLinkChangeFn
-							);
-							itemSelectorDialog.open();
-						}
-					);
-				}
-			});
-
-			editor.addCommand('videoselector', {
-				canUndo: false,
-				exec(editor, callback) {
-					var onSelectedVideoChangeFn = AUI().bind(
-						'_onSelectedVideoChange',
-						instance,
-						editor,
-						callback
-					);
-
-					instance._getItemSelectorDialog(
-						editor,
-						editor.config.filebrowserVideoBrowseUrl,
-						function(itemSelectorDialog) {
-							itemSelectorDialog.once(
-								'selectedItemChange',
-								onSelectedVideoChangeFn
-							);
-							itemSelectorDialog.open();
-						}
-					);
-				}
-			});
-
-			if (editor.ui.addButton) {
-				editor.ui.addButton('ImageSelector', {
-					command: 'imageselector',
-					icon: instance.path + 'assets/image.png',
-					label: editor.lang.common.image
-				});
-
-				editor.ui.addButton('AudioSelector', {
-					command: 'audioselector',
-					icon: instance.path + 'assets/audio.png',
-					label: Liferay.Language.get('audio')
-				});
-
-				editor.ui.addButton('VideoSelector', {
-					command: 'videoselector',
-					icon: instance.path + 'assets/video.png',
-					label: Liferay.Language.get('video')
-				});
-			}
-
-			CKEDITOR.on('dialogDefinition', function(event) {
-				var dialogName = event.data.name;
-
-				var dialogDefinition = event.data.definition;
-
-				if (dialogName === 'audio') {
-					instance._bindBrowseButton(
-						event.editor,
-						dialogDefinition,
-						'info',
-						'audioselector',
-						'url'
-					);
-				} else if (dialogName === 'image') {
-					instance._bindBrowseButton(
-						event.editor,
-						dialogDefinition,
-						'Link',
-						'linkselector',
-						'txtUrl'
-					);
-
-					dialogDefinition.getContents('info').remove('browse');
-
-					dialogDefinition.onLoad = function() {
-						this.getContentElement('info', 'txtUrl')
-							.getInputElement()
-							.setAttribute('readOnly', true);
-					};
-				} else if (dialogName === 'video') {
-					instance._bindBrowseButton(
-						event.editor,
-						dialogDefinition,
-						'info',
-						'videoselector',
-						'poster'
-					);
-				} else if (dialogName === 'link') {
-					instance._bindBrowseButton(
-						event.editor,
-						dialogDefinition,
-						'info',
-						'linkselector',
-						'url'
-					);
-				}
-			});
-
-			editor.once('destroy', function() {
-				if (instance._itemSelectorDialog) {
-					instance._itemSelectorDialog.destroy();
-				}
-			});
-		},
-
 		_bindBrowseButton(
 			editor,
 			dialogDefinition,
@@ -236,7 +59,7 @@
 			}
 		},
 
-		_commitAudioValue(value, node, extraStyles) {
+		_commitAudioValue(value, node) {
 			var instance = this;
 
 			node.setAttribute('data-document-url', value);
@@ -503,8 +326,6 @@
 		},
 
 		_onSelectedLinkChange(editor, callback, event) {
-			var instance = this;
-
 			var selectedItem = event.newVal;
 
 			if (selectedItem) {
@@ -539,6 +360,183 @@
 					}
 				}
 			}
+		},
+
+		init(editor) {
+			var instance = this;
+
+			instance._audioTPL = new CKEDITOR.template(TPL_AUDIO_SCRIPT);
+			instance._videoTPL = new CKEDITOR.template(TPL_VIDEO_SCRIPT);
+
+			editor.addCommand('audioselector', {
+				canUndo: false,
+				exec(editor, callback) {
+					var onSelectedAudioChangeFn = AUI().bind(
+						'_onSelectedAudioChange',
+						instance,
+						editor,
+						callback
+					);
+
+					instance._getItemSelectorDialog(
+						editor,
+						editor.config.filebrowserAudioBrowseUrl,
+						function(itemSelectorDialog) {
+							itemSelectorDialog.once(
+								'selectedItemChange',
+								onSelectedAudioChangeFn
+							);
+							itemSelectorDialog.open();
+						}
+					);
+				}
+			});
+
+			editor.addCommand('imageselector', {
+				canUndo: false,
+				exec(editor, callback) {
+					var onSelectedImageChangeFn = AUI().bind(
+						'_onSelectedImageChange',
+						instance,
+						editor,
+						callback
+					);
+
+					instance._getItemSelectorDialog(
+						editor,
+						editor.config.filebrowserImageBrowseUrl,
+						function(itemSelectorDialog) {
+							itemSelectorDialog.once(
+								'selectedItemChange',
+								onSelectedImageChangeFn
+							);
+							itemSelectorDialog.open();
+						}
+					);
+				}
+			});
+
+			editor.addCommand('linkselector', {
+				canUndo: false,
+				exec(editor, callback) {
+					var onSelectedLinkChangeFn = AUI().bind(
+						'_onSelectedLinkChange',
+						instance,
+						editor,
+						callback
+					);
+
+					instance._getItemSelectorDialog(
+						editor,
+						editor.config.filebrowserBrowseUrl,
+						function(itemSelectorDialog) {
+							itemSelectorDialog.once(
+								'selectedItemChange',
+								onSelectedLinkChangeFn
+							);
+							itemSelectorDialog.open();
+						}
+					);
+				}
+			});
+
+			editor.addCommand('videoselector', {
+				canUndo: false,
+				exec(editor, callback) {
+					var onSelectedVideoChangeFn = AUI().bind(
+						'_onSelectedVideoChange',
+						instance,
+						editor,
+						callback
+					);
+
+					instance._getItemSelectorDialog(
+						editor,
+						editor.config.filebrowserVideoBrowseUrl,
+						function(itemSelectorDialog) {
+							itemSelectorDialog.once(
+								'selectedItemChange',
+								onSelectedVideoChangeFn
+							);
+							itemSelectorDialog.open();
+						}
+					);
+				}
+			});
+
+			if (editor.ui.addButton) {
+				editor.ui.addButton('ImageSelector', {
+					command: 'imageselector',
+					icon: instance.path + 'assets/image.png',
+					label: editor.lang.common.image
+				});
+
+				editor.ui.addButton('AudioSelector', {
+					command: 'audioselector',
+					icon: instance.path + 'assets/audio.png',
+					label: Liferay.Language.get('audio')
+				});
+
+				editor.ui.addButton('VideoSelector', {
+					command: 'videoselector',
+					icon: instance.path + 'assets/video.png',
+					label: Liferay.Language.get('video')
+				});
+			}
+
+			CKEDITOR.on('dialogDefinition', function(event) {
+				var dialogName = event.data.name;
+
+				var dialogDefinition = event.data.definition;
+
+				if (dialogName === 'audio') {
+					instance._bindBrowseButton(
+						event.editor,
+						dialogDefinition,
+						'info',
+						'audioselector',
+						'url'
+					);
+				} else if (dialogName === 'image') {
+					instance._bindBrowseButton(
+						event.editor,
+						dialogDefinition,
+						'Link',
+						'linkselector',
+						'txtUrl'
+					);
+
+					dialogDefinition.getContents('info').remove('browse');
+
+					dialogDefinition.onLoad = function() {
+						this.getContentElement('info', 'txtUrl')
+							.getInputElement()
+							.setAttribute('readOnly', true);
+					};
+				} else if (dialogName === 'video') {
+					instance._bindBrowseButton(
+						event.editor,
+						dialogDefinition,
+						'info',
+						'videoselector',
+						'poster'
+					);
+				} else if (dialogName === 'link') {
+					instance._bindBrowseButton(
+						event.editor,
+						dialogDefinition,
+						'info',
+						'linkselector',
+						'url'
+					);
+				}
+			});
+
+			editor.once('destroy', function() {
+				if (instance._itemSelectorDialog) {
+					instance._itemSelectorDialog.destroy();
+				}
+			});
 		}
 	});
 })();

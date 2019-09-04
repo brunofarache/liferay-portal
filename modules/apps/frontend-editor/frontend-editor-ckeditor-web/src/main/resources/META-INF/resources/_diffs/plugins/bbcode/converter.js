@@ -35,34 +35,30 @@
 	};
 
 	var MAP_HANDLERS = {
+		'*': '_handleListItem',
 		b: '_handleStrong',
+		center: '_handleTextAlign',
 		code: '_handleCode',
+		color: '_handleColor',
+		colour: '_handleColor',
 		email: '_handleEmail',
 		font: '_handleFont',
 		i: '_handleEm',
 		img: '_handleImage',
+		justify: '_handleTextAlign',
+		left: '_handleTextAlign',
+		li: '_handleListItem',
 		list: '_handleList',
+		q: '_handleQuote',
+		quote: '_handleQuote',
+		right: '_handleTextAlign',
 		s: '_handleStrikeThrough',
 		size: '_handleSize',
 		table: '_handleTable',
 		td: '_handleTableCell',
 		th: '_handleTableHeader',
 		tr: '_handleTableRow',
-		url: '_handleURL',
-
-		color: '_handleColor',
-		colour: '_handleColor',
-
-		'*': '_handleListItem',
-		li: '_handleListItem',
-
-		q: '_handleQuote',
-		quote: '_handleQuote',
-
-		center: '_handleTextAlign',
-		justify: '_handleTextAlign',
-		left: '_handleTextAlign',
-		right: '_handleTextAlign'
+		url: '_handleURL'
 	};
 
 	var MAP_IMAGE_ATTRIBUTES = {
@@ -80,10 +76,10 @@
 
 	var MAP_ORDERED_LIST_STYLES = {
 		1: 'list-style-type: decimal;',
-		a: 'list-style-type: lower-alpha;',
-		i: 'list-style-type: lower-roman;',
 		A: 'list-style-type: upper-alpha;',
-		I: 'list-style-type: upper-roman;'
+		I: 'list-style-type: upper-roman;',
+		a: 'list-style-type: lower-alpha;',
+		i: 'list-style-type: lower-roman;'
 	};
 
 	var MAP_TOKENS_EXCLUDE_NEW_LINE = {
@@ -107,7 +103,7 @@
 
 	var REGEX_ESCAPE_REGEX = /[-[\]{}()*+?.,\\^$|#\s]/g;
 
-	var REGEX_IMAGE_SRC = /^(?:https?:\/\/|\/)[-;\/\?:@&=\+\$,_\.!~\*'\(\)%0-9a-z]{1,2048}$/i;
+	var REGEX_IMAGE_SRC = /^(?:https?:\/\/|\/)[-;/?:@&=+$,_.!~*'()%0-9a-z]{1,2048}$/i;
 
 	var REGEX_LASTCHAR_NEWLINE = /\r?\n$/;
 
@@ -117,7 +113,7 @@
 
 	var REGEX_STRING_IS_NEW_LINE = /^\r?\n$/;
 
-	var REGEX_URI = /^[-;\/\?:@&=\+\$,_\.!~\*'\(\)%0-9a-zÀ-ÿ#]{1,2048}$|\${\S+}/i;
+	var REGEX_URI = /^[-;/?:@&=+$,_.!~*'()%0-9a-zÀ-ÿ#]{1,2048}$|\${\S+}/i;
 
 	var STR_BLANK = '';
 
@@ -180,55 +176,6 @@
 	};
 
 	Converter.prototype = {
-		constructor: Converter,
-
-		init(config) {
-			var instance = this;
-
-			instance._parser = new Parser(config.parser);
-
-			instance._config = config;
-
-			instance._result = [];
-			instance._stack = [];
-		},
-
-		convert(data) {
-			var instance = this;
-
-			var parsedData = instance._parser.parse(data);
-
-			instance._parsedData = parsedData;
-
-			var length = parsedData.length;
-
-			for (
-				instance._tokenPointer = 0;
-				instance._tokenPointer < length;
-				instance._tokenPointer++
-			) {
-				var token = parsedData[instance._tokenPointer];
-
-				var type = token.type;
-
-				if (type === TOKEN_TAG_START) {
-					instance._handleTagStart(token);
-				} else if (type === TOKEN_TAG_END) {
-					instance._handleTagEnd(token);
-				} else if (type === TOKEN_DATA) {
-					instance._handleData(token);
-				} else {
-					throw 'Internal error. Invalid token type';
-				}
-			}
-
-			var result = instance._result.join(STR_BLANK);
-
-			instance._reset();
-
-			return result;
-		},
-
 		_escapeHTML: A.Lang.String.escapeHTML,
 
 		_extractData(toTagName, consume) {
@@ -263,7 +210,7 @@
 			return MAP_FONT_SIZE[fontSize] || MAP_FONT_SIZE.defaultSize;
 		},
 
-		_handleCode(token) {
+		_handleCode() {
 			var instance = this;
 
 			instance._noParse = true;
@@ -326,7 +273,7 @@
 			instance._result.push(value);
 		},
 
-		_handleEm(token) {
+		_handleEm() {
 			var instance = this;
 
 			instance._handleSimpleTag('em');
@@ -463,7 +410,7 @@
 			instance._stack.push(STR_TAG_END_OPEN + tag + STR_TAG_END_CLOSE);
 		},
 
-		_handleListItem(token) {
+		_handleListItem() {
 			var instance = this;
 
 			instance._handleSimpleTag('li');
@@ -565,37 +512,37 @@
 			instance._stack.push(STR_TAG_SPAN_CLOSE);
 		},
 
-		_handleStrikeThrough(token) {
+		_handleStrikeThrough() {
 			var instance = this;
 
 			instance._handleSimpleTag('strike');
 		},
 
-		_handleStrong(token) {
+		_handleStrong() {
 			var instance = this;
 
 			instance._handleSimpleTag('strong');
 		},
 
-		_handleTable(token) {
+		_handleTable() {
 			var instance = this;
 
 			instance._handleSimpleTag('table');
 		},
 
-		_handleTableCell(token) {
+		_handleTableCell() {
 			var instance = this;
 
 			instance._handleSimpleTag('td');
 		},
 
-		_handleTableHeader(token) {
+		_handleTableHeader() {
 			var instance = this;
 
 			instance._handleSimpleTag('th');
 		},
 
-		_handleTableRow(token) {
+		_handleTableRow() {
 			var instance = this;
 
 			instance._handleSimpleTag('tr');
@@ -663,6 +610,55 @@
 			instance._parsedData = null;
 
 			instance._noParse = false;
+		},
+
+		constructor: Converter,
+
+		convert(data) {
+			var instance = this;
+
+			var parsedData = instance._parser.parse(data);
+
+			instance._parsedData = parsedData;
+
+			var length = parsedData.length;
+
+			for (
+				instance._tokenPointer = 0;
+				instance._tokenPointer < length;
+				instance._tokenPointer++
+			) {
+				var token = parsedData[instance._tokenPointer];
+
+				var type = token.type;
+
+				if (type === TOKEN_TAG_START) {
+					instance._handleTagStart(token);
+				} else if (type === TOKEN_TAG_END) {
+					instance._handleTagEnd(token);
+				} else if (type === TOKEN_DATA) {
+					instance._handleData(token);
+				} else {
+					throw 'Internal error. Invalid token type';
+				}
+			}
+
+			var result = instance._result.join(STR_BLANK);
+
+			instance._reset();
+
+			return result;
+		},
+
+		init(config) {
+			var instance = this;
+
+			instance._parser = new Parser(config.parser);
+
+			instance._config = config;
+
+			instance._result = [];
+			instance._stack = [];
 		}
 	};
 
