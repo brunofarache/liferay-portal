@@ -59,8 +59,8 @@ export default ({
 			<Route
 				component={EditApp}
 				path={[
-					`${path}/deployments/add`,
-					`${path}/deployments/:appId(\\d+)`
+					`${path}/apps/add`,
+					`${path}/apps/:appId(\\d+)`
 				]}
 			/>
 
@@ -84,7 +84,7 @@ export default ({
 
 							<Route
 								component={ListApps}
-								path={`${path}/deployments`}
+								path={`${path}/apps`}
 							/>
 						</Switch>
 					</>
