@@ -47,26 +47,6 @@ AUI.add(
 			NAME: 'exportImportManagementBarButton',
 
 			prototype: {
-				initializer(config) {
-					var instance = this;
-
-					var namespace = instance.NS;
-
-					var searchContainer = Liferay.SearchContainer.get(
-						namespace + instance.get('searchContainerId')
-					);
-
-					instance._searchContainer = searchContainer;
-
-					instance._bindUI();
-				},
-
-				destructor() {
-					var instance = this;
-
-					new A.EventHandle(instance._eventHandles).detach();
-				},
-
 				_bindUI() {
 					var instance = this;
 
@@ -104,28 +84,47 @@ AUI.add(
 								'div[data-rowpk=' + selectedElement.value + ']'
 							);
 
-							var input = $('<input>')
-								.attr('type', 'hidden')
-								.attr(
-									'name',
-									instance.get('actionNamespace') +
-										'exportingEntities'
-								)
-								.val(
-									node.attr('data-classNameId') +
-										'#' +
-										node.attr('data-groupId') +
-										'#' +
-										node.attr('data-uuid')
-								);
+							var input = document.createElement('input');
+							input.setAttribute('type', 'hidden');
+							input.setAttribute(
+								'name',
+								instance.get('actionNamespace') +
+									'exportingEntities'
+							);
+							input.value =
+								node.attr('data-classNameId') +
+								'#' +
+								node.attr('data-groupId') +
+								'#' +
+								node.attr('data-uuid');
 
-							form.append(input);
+							form.appendChild(input);
 						});
 
 						form.setAttribute('method', 'POST');
 
 						submitForm(form, instance.get('exportImportEntityUrl'));
 					}
+				},
+
+				destructor() {
+					var instance = this;
+
+					new A.EventHandle(instance._eventHandles).detach();
+				},
+
+				initializer() {
+					var instance = this;
+
+					var namespace = instance.NS;
+
+					var searchContainer = Liferay.SearchContainer.get(
+						namespace + instance.get('searchContainerId')
+					);
+
+					instance._searchContainer = searchContainer;
+
+					instance._bindUI();
 				}
 			}
 		});
