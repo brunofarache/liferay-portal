@@ -41,29 +41,6 @@ AUI.add(
 			NAME: 'uadexport',
 
 			prototype: {
-				initializer() {
-					var instance = this;
-
-					instance._renderTimer = A.later(
-						RENDER_INTERVAL_IN_PROGRESS,
-						instance,
-						instance._renderExportProcesses
-					);
-
-					Liferay.once(
-						'beforeNavigate',
-						instance.destroy.bind(instance)
-					);
-				},
-
-				destructor() {
-					var instance = this;
-
-					if (instance._renderTimer) {
-						instance._renderTimer.cancel();
-					}
-				},
-
 				_isBackgroundTaskInProgress() {
 					var instance = this;
 
@@ -129,6 +106,29 @@ AUI.add(
 					}
 
 					return val;
+				},
+
+				destructor() {
+					var instance = this;
+
+					if (instance._renderTimer) {
+						instance._renderTimer.cancel();
+					}
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._renderTimer = A.later(
+						RENDER_INTERVAL_IN_PROGRESS,
+						instance,
+						instance._renderExportProcesses
+					);
+
+					Liferay.once(
+						'beforeNavigate',
+						instance.destroy.bind(instance)
+					);
 				}
 			}
 		});
