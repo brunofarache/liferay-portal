@@ -24,7 +24,7 @@
 		if (!listenerAdded) {
 			$(window).on(
 				'resize',
-				debounce(function(event) {
+				debounce(function() {
 					doc.trigger('screenChange.lexicon.sidenav');
 				}, 150)
 			);
@@ -104,54 +104,367 @@
 	SideNavigation.TRANSITION_DURATION = 500;
 
 	SideNavigation.prototype = {
-		init(toggler, options) {
+		_bindUI() {
 			var instance = this;
 
-			var useDataAttribute = toggler.data('toggle') === 'sidenav';
-
-			options = $.extend({}, $.fn.sideNavigation.defaults, options);
-
-			options.breakpoint = toInt(options.breakpoint);
-			options.container =
-				options.container ||
-				toggler.data('target') ||
-				toggler.attr('href');
-			options.gutter = toInt(options.gutter);
-			options.heightType =
-				options.heightType ||
-				(options.equalHeight ? 'equalHeight' : false);
-			options.rtl = doc.attr('dir') === 'rtl';
-			options.width = toInt(options.width);
-			options.widthOriginal = options.width;
-
-			// instantiate using data attribute
-
-			if (useDataAttribute) {
-				options.closedClass = toggler.data('closed-class') || 'closed';
-				options.content = toggler.data('content');
-				options.equalHeight = false; // equalHeight option is deprecated
-				options.loadingIndicatorTPL =
-					toggler.data('loading-indicator-tpl') ||
-					options.loadingIndicatorTPL;
-				options.openClass = toggler.data('open-class') || 'open';
-				options.toggler = toggler;
-				options.type = toggler.data('type');
-				options.typeMobile = toggler.data('type-mobile');
-				options.url = toggler.data('url');
-				options.useDelegate = toggler.data('use-delegate');
-				options.width = '';
-
-				if (options.useDelegate === undefined) {
-					options.useDelegate = true;
-				}
+			if (!instance.useDataAttribute) {
+				addResizeListener();
+				instance._onScreenChange();
 			}
 
-			instance.toggler = toggler;
-			instance.options = options;
-			instance.useDataAttribute = useDataAttribute;
+			if (instance.options.useDelegate) {
+				instance._onDelegateClickTrigger();
+			} else {
+				instance._onClickTrigger();
+			}
 
-			instance._bindUI();
-			instance._renderUI();
+			instance._onClickSidenavClose();
+		},
+
+		_focusElement(el) {
+			// ios 8 fixed element disappears when trying to scroll
+
+			el.focus();
+		},
+
+		_getSidenavWidth() {
+			var instance = this;
+
+			var options = instance.options;
+
+			var widthOriginal = options.widthOriginal;
+
+			var width = widthOriginal;
+			var winWidth = window.innerWidth;
+
+			if (winWidth < widthOriginal + 40) {
+				width = winWidth - 40;
+			}
+
+			return width;
+		},
+
+		_getSimpleSidenavType() {
+			var instance = this;
+
+			var options = instance.options;
+
+			var desktop = instance._isDesktop();
+			var type = options.type;
+			var typeMobile = options.typeMobile;
+
+			if (desktop && type === 'fixed-push') {
+				return 'desktop-fixed-push';
+			} else if (!desktop && typeMobile === 'fixed-push') {
+				return 'mobile-fixed-push';
+			}
+
+			return 'fixed';
+		},
+
+		_isDesktop() {
+			return window.innerWidth >= this.options.breakpoint;
+		},
+
+		_isSidenavRight() {
+			var instance = this;
+			var options = instance.options;
+
+			var container = $(options.container);
+			var isSidenavRight = container.hasClass('sidenav-right');
+
+			return isSidenavRight;
+		},
+
+		_isSimpleSidenavClosed() {
+			var instance = this;
+			var options = instance.options;
+
+			var openClass = options.openClass;
+
+			var container = $(options.container);
+
+			return !container.hasClass(openClass);
+		},
+
+		_loadUrl(sidenav, url, eventTarget) {
+			var instance = this;
+
+			var urlLoaded = sidenav.data('url-loaded');
+
+			var readyState = urlLoaded ? urlLoaded.readyState : 0;
+
+			eventTarget = eventTarget || sidenav;
+
+			var sidebarBody = sidenav.find('.sidebar-body').first();
+
+			if (
+				!readyState &&
+				sidebarBody.length &&
+				(typeof url === 'string' || $.isPlainObject(url))
+			) {
+				sidebarBody.append(
+					'<div class="sidenav-loading">' +
+						instance.options.loadingIndicatorTPL +
+						'</div>'
+				);
+
+				urlLoaded = $.ajax(url).done(function(response) {
+					sidebarBody.append(response);
+
+					eventTarget.trigger('urlLoaded.lexicon.sidenav');
+
+					sidebarBody.find('.sidenav-loading').remove();
+				});
+
+				sidenav.data('url-loaded', urlLoaded);
+			}
+
+			return urlLoaded;
+		},
+
+		_onClickSidenavClose() {
+			var instance = this;
+
+			var options = instance.options;
+
+			var containerSelector = options.container;
+
+			var closeButton = $(containerSelector)
+				.find('.sidenav-close')
+				.first();
+			var closeButtonSelector =
+				'#' + guid(closeButton, 'generatedLexiconSidenavCloseId');
+			var dataCloseButtonSelector = 'lexicon.' + closeButtonSelector;
+
+			if (!doc.data(dataCloseButtonSelector)) {
+				doc.data(dataCloseButtonSelector, 'true');
+
+				doc.on(
+					'click.close.lexicon.sidenav',
+					closeButtonSelector,
+					function(event) {
+						event.preventDefault();
+
+						instance.toggle();
+					}
+				);
+			}
+
+			instance.closeButtonSelector = closeButtonSelector;
+			instance.dataCloseButtonSelector = dataCloseButtonSelector;
+		},
+
+		_onClickTrigger() {
+			var instance = this;
+
+			var el = instance.toggler;
+
+			el.on('click.lexicon.sidenav', function() {
+				instance.toggle();
+			});
+		},
+
+		_onDelegateClickTrigger() {
+			var instance = this;
+
+			var toggler = instance.toggler;
+
+			var togglerSelector =
+				'#' + guid(toggler, 'generatedLexiconSidenavTogglerId');
+
+			var dataTogglerSelector = 'lexicon.' + togglerSelector;
+
+			if (!doc.data(dataTogglerSelector)) {
+				doc.data(dataTogglerSelector, 'true');
+
+				doc.on('click.lexicon.sidenav', togglerSelector, function(
+					event
+				) {
+					instance.toggle();
+
+					event.preventDefault();
+				});
+			}
+
+			instance.togglerSelector = togglerSelector;
+			instance.dataTogglerSelector = dataTogglerSelector;
+		},
+
+		_onScreenChange() {
+			var instance = this;
+			var options = instance.options;
+
+			var container = $(options.container);
+			var toggler = instance.toggler;
+
+			var screenStartDesktop = instance._setScreenSize();
+
+			doc.on('screenChange.lexicon.sidenav', function() {
+				var desktop = instance._setScreenSize();
+				var sidenavRight = instance._isSidenavRight();
+				var type = desktop ? options.type : options.typeMobile;
+
+				var fixedMenu = type === 'fixed' || type === 'fixed-push';
+
+				var menu = container.find('.sidenav-menu').first();
+
+				var menuWidth;
+
+				var originalMenuWidth = options.widthOriginal;
+
+				var positionDirection = options.rtl ? 'left' : 'right';
+
+				container.toggleClass('sidenav-fixed', fixedMenu);
+
+				if (
+					(!desktop && screenStartDesktop) ||
+					(desktop && !screenStartDesktop)
+				) {
+					instance.hideSidenav();
+
+					instance.clearStyle(['min-height', 'height']);
+
+					container.addClass('closed').removeClass('open');
+					toggler.removeClass('active').removeClass('open');
+
+					screenStartDesktop = false;
+
+					if (desktop) {
+						if (sidenavRight) {
+							menu.css(positionDirection, originalMenuWidth).css(
+								'width',
+								originalMenuWidth
+							);
+						}
+
+						screenStartDesktop = true;
+					}
+				}
+
+				var closed = container.hasClass('closed');
+
+				if (!desktop) {
+					menuWidth = originalMenuWidth;
+
+					if (window.innerWidth <= originalMenuWidth) {
+						menuWidth = window.innerWidth - options.gutter - 25;
+					}
+
+					if (sidenavRight) {
+						if (closed) {
+							menu.css(positionDirection, menuWidth);
+						}
+
+						menu.css('width', menuWidth);
+					}
+
+					screenStartDesktop = false;
+				}
+
+				if (!closed) {
+					instance.clearStyle(['min-height', 'height']);
+
+					instance.showSidenav();
+					instance.setHeight();
+				}
+			});
+		},
+
+		_onSidenavTransitionEnd(el, fn) {
+			var instance = this;
+
+			var transitionEnd = 'bsTransitionEnd';
+
+			var complete = function() {
+				el.removeClass('sidenav-transition');
+
+				if (fn) {
+					fn();
+				}
+			};
+
+			if (!bootstrap.Util.supportsTransitionEnd()) {
+				complete.call(instance);
+			} else {
+				el.one(transitionEnd, function() {
+					complete();
+				}).emulateTransitionEnd(SideNavigation.TRANSITION_DURATION);
+			}
+		},
+
+		_renderNav() {
+			var instance = this;
+			var options = instance.options;
+
+			var container = $(options.container);
+			var slider = container.find(options.navigation).first();
+			var menu = slider.find('.sidenav-menu').first();
+
+			var closed = container.hasClass('closed');
+			var sidenavRight = instance._isSidenavRight();
+			var width = instance._getSidenavWidth();
+
+			if (closed) {
+				menu.css('width', width);
+
+				if (sidenavRight) {
+					var positionDirection = options.rtl ? 'left' : 'right';
+
+					menu.css(positionDirection, width);
+				}
+			} else {
+				instance.showSidenav();
+				instance.setHeight();
+			}
+
+			container.removeClass('sidenav-js-fouc');
+		},
+
+		_renderUI() {
+			var instance = this;
+			var options = instance.options;
+
+			var container = $(options.container);
+			var toggler = instance.toggler;
+
+			var mobile = instance.mobile;
+			var type = mobile ? options.typeMobile : options.type;
+
+			if (!instance.useDataAttribute) {
+				if (mobile) {
+					container.addClass('closed').removeClass('open');
+					toggler.removeClass('active').removeClass('open');
+				}
+
+				if (options.position === 'right') {
+					container.addClass('sidenav-right');
+				}
+
+				if (type !== 'relative') {
+					container.addClass('sidenav-fixed');
+				}
+
+				instance._renderNav();
+			}
+
+			container.css('display', ''); // Force Reflow for IE11 Browser Bug
+		},
+
+		_setScreenSize() {
+			var instance = this;
+
+			var screenSize = getBreakpointRegion();
+
+			var desktop =
+				screenSize === 'sm' ||
+				screenSize === 'md' ||
+				screenSize === 'lg';
+
+			instance.mobile = !desktop;
+			instance.desktop = desktop;
+
+			return desktop;
 		},
 
 		clearStyle(attribute) {
@@ -298,6 +611,56 @@
 			}
 		},
 
+		init(toggler, options) {
+			var instance = this;
+
+			var useDataAttribute = toggler.data('toggle') === 'sidenav';
+
+			options = $.extend({}, $.fn.sideNavigation.defaults, options);
+
+			options.breakpoint = toInt(options.breakpoint);
+			options.container =
+				options.container ||
+				toggler.data('target') ||
+				toggler.attr('href');
+			options.gutter = toInt(options.gutter);
+			options.heightType =
+				options.heightType ||
+				(options.equalHeight ? 'equalHeight' : false);
+			options.rtl = doc.attr('dir') === 'rtl';
+			options.width = toInt(options.width);
+			options.widthOriginal = options.width;
+
+			// instantiate using data attribute
+
+			if (useDataAttribute) {
+				options.closedClass = toggler.data('closed-class') || 'closed';
+				options.content = toggler.data('content');
+				options.equalHeight = false; // equalHeight option is deprecated
+				options.loadingIndicatorTPL =
+					toggler.data('loading-indicator-tpl') ||
+					options.loadingIndicatorTPL;
+				options.openClass = toggler.data('open-class') || 'open';
+				options.toggler = toggler;
+				options.type = toggler.data('type');
+				options.typeMobile = toggler.data('type-mobile');
+				options.url = toggler.data('url');
+				options.useDelegate = toggler.data('use-delegate');
+				options.width = '';
+
+				if (options.useDelegate === undefined) {
+					options.useDelegate = true;
+				}
+			}
+
+			instance.toggler = toggler;
+			instance.options = options;
+			instance.useDataAttribute = useDataAttribute;
+
+			instance._bindUI();
+			instance._renderUI();
+		},
+
 		setEqualHeight() {
 			var instance = this;
 
@@ -322,13 +685,13 @@
 				contentNode.css('min-height', tallest);
 
 				navNode.css({
-					'min-height': tallest,
-					height: '100%'
+					height: '100%',
+					'min-height': tallest
 				});
 
 				sideNavMenuNode.css({
-					'min-height': tallest,
-					height: '100%'
+					height: '100%',
+					'min-height': tallest
 				});
 			}
 		},
@@ -357,13 +720,13 @@
 				}
 
 				navNode.css({
-					'min-height': minHeight,
-					height: '100%'
+					height: '100%',
+					'min-height': minHeight
 				});
 
 				sidenavMenuNode.css({
-					'min-height': minHeight,
-					height: '100%'
+					height: '100%',
+					'min-height': minHeight
 				});
 			}
 		},
@@ -408,7 +771,7 @@
 			var url = options.url;
 
 			if (url) {
-				container.one('urlLoaded.lexicon.sidenav', function(event) {
+				container.one('urlLoaded.lexicon.sidenav', function() {
 					instance.setHeight();
 				});
 
@@ -636,371 +999,6 @@
 			}
 
 			return !closed;
-		},
-
-		_bindUI() {
-			var instance = this;
-
-			if (!instance.useDataAttribute) {
-				addResizeListener();
-				instance._onScreenChange();
-			}
-
-			if (instance.options.useDelegate) {
-				instance._onDelegateClickTrigger();
-			} else {
-				instance._onClickTrigger();
-			}
-
-			instance._onClickSidenavClose();
-		},
-
-		_focusElement(el) {
-			// ios 8 fixed element disappears when trying to scroll
-
-			el.focus();
-		},
-
-		_getSidenavWidth() {
-			var instance = this;
-
-			var options = instance.options;
-
-			var widthOriginal = options.widthOriginal;
-
-			var width = widthOriginal;
-			var winWidth = window.innerWidth;
-
-			if (winWidth < widthOriginal + 40) {
-				width = winWidth - 40;
-			}
-
-			return width;
-		},
-
-		_getSimpleSidenavType() {
-			var instance = this;
-
-			var options = instance.options;
-
-			var desktop = instance._isDesktop();
-			var type = options.type;
-			var typeMobile = options.typeMobile;
-
-			if (desktop && type === 'fixed-push') {
-				return 'desktop-fixed-push';
-			} else if (!desktop && typeMobile === 'fixed-push') {
-				return 'mobile-fixed-push';
-			}
-
-			return 'fixed';
-		},
-
-		_isDesktop() {
-			return window.innerWidth >= this.options.breakpoint;
-		},
-
-		_isSidenavRight() {
-			var instance = this;
-			var options = instance.options;
-
-			var container = $(options.container);
-			var isSidenavRight = container.hasClass('sidenav-right');
-
-			return isSidenavRight;
-		},
-
-		_isSimpleSidenavClosed() {
-			var instance = this;
-			var options = instance.options;
-
-			var openClass = options.openClass;
-
-			var container = $(options.container);
-
-			return !container.hasClass(openClass);
-		},
-
-		_loadUrl(sidenav, url, eventTarget) {
-			var instance = this;
-
-			var urlLoaded = sidenav.data('url-loaded');
-
-			var readyState = urlLoaded ? urlLoaded.readyState : 0;
-
-			eventTarget = eventTarget || sidenav;
-
-			var sidebarBody = sidenav.find('.sidebar-body').first();
-
-			if (
-				!readyState &&
-				sidebarBody.length &&
-				(typeof url === 'string' || $.isPlainObject(url))
-			) {
-				sidebarBody.append(
-					'<div class="sidenav-loading">' +
-						instance.options.loadingIndicatorTPL +
-						'</div>'
-				);
-
-				urlLoaded = $.ajax(url).done(function(response) {
-					sidebarBody.append(response);
-
-					eventTarget.trigger('urlLoaded.lexicon.sidenav');
-
-					sidebarBody.find('.sidenav-loading').remove();
-				});
-
-				sidenav.data('url-loaded', urlLoaded);
-			}
-
-			return urlLoaded;
-		},
-
-		_onClickSidenavClose() {
-			var instance = this;
-
-			var options = instance.options;
-
-			var container = $(options.container);
-			var containerSelector = options.container;
-
-			var closeButton = $(containerSelector)
-				.find('.sidenav-close')
-				.first();
-			var closeButtonSelector =
-				'#' + guid(closeButton, 'generatedLexiconSidenavCloseId');
-			var dataCloseButtonSelector = 'lexicon.' + closeButtonSelector;
-
-			if (!doc.data(dataCloseButtonSelector)) {
-				doc.data(dataCloseButtonSelector, 'true');
-
-				doc.on(
-					'click.close.lexicon.sidenav',
-					closeButtonSelector,
-					function(event) {
-						event.preventDefault();
-
-						instance.toggle();
-					}
-				);
-			}
-
-			instance.closeButtonSelector = closeButtonSelector;
-			instance.dataCloseButtonSelector = dataCloseButtonSelector;
-		},
-
-		_onClickTrigger() {
-			var instance = this;
-
-			var el = instance.toggler;
-
-			el.on('click.lexicon.sidenav', function(event) {
-				instance.toggle();
-			});
-		},
-
-		_onDelegateClickTrigger() {
-			var instance = this;
-
-			var toggler = instance.toggler;
-
-			var togglerSelector =
-				'#' + guid(toggler, 'generatedLexiconSidenavTogglerId');
-
-			var dataTogglerSelector = 'lexicon.' + togglerSelector;
-
-			if (!doc.data(dataTogglerSelector)) {
-				doc.data(dataTogglerSelector, 'true');
-
-				doc.on('click.lexicon.sidenav', togglerSelector, function(
-					event
-				) {
-					instance.toggle();
-
-					event.preventDefault();
-				});
-			}
-
-			instance.togglerSelector = togglerSelector;
-			instance.dataTogglerSelector = dataTogglerSelector;
-		},
-
-		_onScreenChange() {
-			var instance = this;
-			var options = instance.options;
-
-			var container = $(options.container);
-			var toggler = instance.toggler;
-
-			var screenStartDesktop = instance._setScreenSize();
-
-			doc.on('screenChange.lexicon.sidenav', function(event) {
-				var desktop = instance._setScreenSize();
-				var sidenavRight = instance._isSidenavRight();
-				var type = desktop ? options.type : options.typeMobile;
-
-				var fixedMenu = type === 'fixed' || type === 'fixed-push';
-
-				var menu = container.find('.sidenav-menu').first();
-				var navigation = container.find(options.navigation).first();
-
-				var menuWidth;
-
-				var originalMenuWidth = options.widthOriginal;
-
-				var positionDirection = options.rtl ? 'left' : 'right';
-
-				container.toggleClass('sidenav-fixed', fixedMenu);
-
-				if (
-					(!desktop && screenStartDesktop) ||
-					(desktop && !screenStartDesktop)
-				) {
-					instance.hideSidenav();
-
-					instance.clearStyle(['min-height', 'height']);
-
-					container.addClass('closed').removeClass('open');
-					toggler.removeClass('active').removeClass('open');
-
-					screenStartDesktop = false;
-
-					if (desktop) {
-						if (sidenavRight) {
-							menu.css(positionDirection, originalMenuWidth).css(
-								'width',
-								originalMenuWidth
-							);
-						}
-
-						screenStartDesktop = true;
-					}
-				}
-
-				var closed = container.hasClass('closed');
-
-				if (!desktop) {
-					menuWidth = originalMenuWidth;
-
-					if (window.innerWidth <= originalMenuWidth) {
-						menuWidth = window.innerWidth - options.gutter - 25;
-					}
-
-					if (sidenavRight) {
-						if (closed) {
-							menu.css(positionDirection, menuWidth);
-						}
-
-						menu.css('width', menuWidth);
-					}
-
-					screenStartDesktop = false;
-				}
-
-				if (!closed) {
-					instance.clearStyle(['min-height', 'height']);
-
-					instance.showSidenav();
-					instance.setHeight();
-				}
-			});
-		},
-
-		_onSidenavTransitionEnd(el, fn) {
-			var instance = this;
-
-			var transitionEnd = 'bsTransitionEnd';
-
-			var complete = function() {
-				el.removeClass('sidenav-transition');
-
-				if (fn) {
-					fn();
-				}
-			};
-
-			if (!bootstrap.Util.supportsTransitionEnd()) {
-				complete.call(instance);
-			} else {
-				el.one(transitionEnd, function(event) {
-					complete();
-				}).emulateTransitionEnd(SideNavigation.TRANSITION_DURATION);
-			}
-		},
-
-		_renderNav() {
-			var instance = this;
-			var options = instance.options;
-
-			var container = $(options.container);
-			var slider = container.find(options.navigation).first();
-			var menu = slider.find('.sidenav-menu').first();
-
-			var closed = container.hasClass('closed');
-			var sidenavRight = instance._isSidenavRight();
-			var width = instance._getSidenavWidth();
-
-			if (closed) {
-				menu.css('width', width);
-
-				if (sidenavRight) {
-					var positionDirection = options.rtl ? 'left' : 'right';
-
-					menu.css(positionDirection, width);
-				}
-			} else {
-				instance.showSidenav();
-				instance.setHeight();
-			}
-
-			container.removeClass('sidenav-js-fouc');
-		},
-
-		_renderUI() {
-			var instance = this;
-			var options = instance.options;
-
-			var container = $(options.container);
-			var toggler = instance.toggler;
-
-			var mobile = instance.mobile;
-			var type = mobile ? options.typeMobile : options.type;
-
-			if (!instance.useDataAttribute) {
-				if (mobile) {
-					container.addClass('closed').removeClass('open');
-					toggler.removeClass('active').removeClass('open');
-				}
-
-				if (options.position === 'right') {
-					container.addClass('sidenav-right');
-				}
-
-				if (type !== 'relative') {
-					container.addClass('sidenav-fixed');
-				}
-
-				instance._renderNav();
-			}
-
-			container.css('display', ''); // Force Reflow for IE11 Browser Bug
-		},
-
-		_setScreenSize() {
-			var instance = this;
-
-			var screenSize = getBreakpointRegion();
-
-			var desktop =
-				screenSize === 'sm' ||
-				screenSize === 'md' ||
-				screenSize === 'lg';
-
-			instance.mobile = !desktop;
-			instance.desktop = desktop;
-
-			return desktop;
 		}
 	};
 
