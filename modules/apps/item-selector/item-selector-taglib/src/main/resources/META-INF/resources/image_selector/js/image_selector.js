@@ -108,38 +108,6 @@ AUI.add(
 			NAME: 'imageselector',
 
 			prototype: {
-				initializer() {
-					var instance = this;
-
-					instance._fileEntryImageNode = instance.one('#image');
-
-					var rootNode = instance.rootNode;
-
-					instance._fileNameNode = rootNode.one(
-						instance.get('fileNameNode')
-					);
-					instance._progressDataNode = rootNode.one(
-						instance.get('progressDataNode')
-					);
-
-					var errorNode = rootNode.one(instance.get('errorNode'));
-
-					instance._errorNodeAlert = A.Widget.getByNode(errorNode);
-
-					instance.set('addSpaceBeforeSuffix', true);
-
-					instance._bindUI();
-					instance._renderUploader();
-				},
-
-				destructor() {
-					var instance = this;
-
-					instance._uploader.destroy();
-
-					new A.EventHandle(instance._eventHandles).detach();
-				},
-
 				_bindUI() {
 					var instance = this;
 
@@ -639,6 +607,38 @@ AUI.add(
 							url: imageData.url || ''
 						}
 					});
+				},
+
+				destructor() {
+					var instance = this;
+
+					instance._uploader.destroy();
+
+					new A.EventHandle(instance._eventHandles).detach();
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._fileEntryImageNode = instance.one('#image');
+
+					var rootNode = instance.rootNode;
+
+					instance._fileNameNode = rootNode.one(
+						instance.get('fileNameNode')
+					);
+					instance._progressDataNode = rootNode.one(
+						instance.get('progressDataNode')
+					);
+
+					var errorNode = rootNode.one(instance.get('errorNode'));
+
+					instance._errorNodeAlert = A.Widget.getByNode(errorNode);
+
+					instance.set('addSpaceBeforeSuffix', true);
+
+					instance._bindUI();
+					instance._renderUploader();
 				}
 			}
 		});
