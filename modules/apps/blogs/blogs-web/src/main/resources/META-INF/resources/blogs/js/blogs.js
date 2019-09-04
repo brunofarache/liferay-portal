@@ -56,16 +56,16 @@ AUI.add(
 						confirmDiscardImages: Liferay.Language.get(
 							'uploads-are-in-progress-confirmation'
 						),
+						saveDraftError: Liferay.Language.get(
+							'could-not-save-draft-to-the-server'
+						),
+						saveDraftMessage: Liferay.Language.get('saving-draft'),
 						savedAtMessage: Liferay.Language.get(
 							'entry-saved-at-x'
 						),
 						savedDraftAtMessage: Liferay.Language.get(
 							'draft-saved-at-x'
 						),
-						saveDraftError: Liferay.Language.get(
-							'could-not-save-draft-to-the-server'
-						),
-						saveDraftMessage: Liferay.Language.get('saving-draft'),
 						titleRequiredAtPublish: Liferay.Language.get(
 							'this-field-is-required-to-publish-the-entry'
 						)
@@ -82,102 +82,6 @@ AUI.add(
 			NS: 'liferay-blogs',
 
 			prototype: {
-				initializer(config) {
-					var instance = this;
-
-					instance._bindUI();
-
-					var entry = instance.get('entry');
-
-					var draftEntry =
-						entry &&
-						entry.status === instance.get('constants').STATUS_DRAFT;
-
-					var userEntry =
-						entry && entry.userId === themeDisplay.getUserId();
-
-					if (!entry || (userEntry && draftEntry)) {
-						instance._initDraftSaveInterval();
-					}
-
-					var customDescriptionEnabled =
-						entry && entry.customDescription;
-
-					instance._customDescription = customDescriptionEnabled
-						? entry.description
-						: STR_BLANK;
-					instance._shortenDescription = !customDescriptionEnabled;
-
-					instance.setDescription(
-						window[instance.ns('contentEditor')].getText()
-					);
-				},
-
-				destructor() {
-					var instance = this;
-
-					if (instance._saveDraftTimer) {
-						instance._saveDraftTimer.cancel();
-					}
-
-					new A.EventHandle(instance._eventHandles).detach();
-				},
-
-				setDescription(text) {
-					var instance = this;
-
-					var description = instance._customDescription;
-
-					if (instance._shortenDescription) {
-						description = instance._shorten(text);
-					}
-
-					var descriptionNode = instance.one('#description');
-
-					descriptionNode.val(description);
-
-					descriptionNode.attr(
-						'disabled',
-						instance._shortenDescription
-					);
-
-					var descriptionLabelNode = instance.one(
-						'[for="' + instance.ns('description') + '"]'
-					);
-
-					var form = Liferay.Form.get(instance.ns('fm'));
-
-					if (!instance._shortenDescription) {
-						descriptionLabelNode.removeClass('disabled');
-
-						form.addRule(instance.ns('description'), 'required');
-					} else {
-						descriptionLabelNode.addClass('disabled');
-
-						form.removeRule(instance.ns('description'), 'required');
-					}
-				},
-
-				updateFriendlyURL(title) {
-					var instance = this;
-
-					var urlTitleInput = instance.one('#urlTitle');
-
-					var friendlyURLEmpty = !urlTitleInput.val();
-
-					if (
-						instance._automaticURL() &&
-						(friendlyURLEmpty ||
-							instance._originalFriendlyURLChanged)
-					) {
-						urlTitleInput.val(
-							Liferay.Util.normalizeFriendlyURL(title)
-						);
-					}
-
-					instance._originalFriendlyURLChanged = true;
-				},
-
 				_automaticURL() {
 					return (
 						this.one('#urlOptions')
@@ -186,7 +90,7 @@ AUI.add(
 					);
 				},
 
-				_beforePublishBtnClick(event) {
+				_beforePublishBtnClick() {
 					var instance = this;
 
 					var form = Liferay.Form.get(instance.ns('fm'));
@@ -541,11 +445,7 @@ AUI.add(
 								'[name^=' + instance.NS + 'ExpandoAttribute]'
 							);
 
-							customAttributes.each(function(
-								item,
-								index,
-								collection
-							) {
+							customAttributes.each(function(item) {
 								data[item.attr('name')] = item.val();
 							});
 
@@ -612,7 +512,7 @@ AUI.add(
 										false
 									);
 								})
-								.catch(err => {
+								.catch(() => {
 									instance._updateStatus(
 										strings.saveDraftError
 									);
@@ -749,6 +649,102 @@ AUI.add(
 					if (saveStatus) {
 						saveStatus.html(text);
 					}
+				},
+
+				destructor() {
+					var instance = this;
+
+					if (instance._saveDraftTimer) {
+						instance._saveDraftTimer.cancel();
+					}
+
+					new A.EventHandle(instance._eventHandles).detach();
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._bindUI();
+
+					var entry = instance.get('entry');
+
+					var draftEntry =
+						entry &&
+						entry.status === instance.get('constants').STATUS_DRAFT;
+
+					var userEntry =
+						entry && entry.userId === themeDisplay.getUserId();
+
+					if (!entry || (userEntry && draftEntry)) {
+						instance._initDraftSaveInterval();
+					}
+
+					var customDescriptionEnabled =
+						entry && entry.customDescription;
+
+					instance._customDescription = customDescriptionEnabled
+						? entry.description
+						: STR_BLANK;
+					instance._shortenDescription = !customDescriptionEnabled;
+
+					instance.setDescription(
+						window[instance.ns('contentEditor')].getText()
+					);
+				},
+
+				setDescription(text) {
+					var instance = this;
+
+					var description = instance._customDescription;
+
+					if (instance._shortenDescription) {
+						description = instance._shorten(text);
+					}
+
+					var descriptionNode = instance.one('#description');
+
+					descriptionNode.val(description);
+
+					descriptionNode.attr(
+						'disabled',
+						instance._shortenDescription
+					);
+
+					var descriptionLabelNode = instance.one(
+						'[for="' + instance.ns('description') + '"]'
+					);
+
+					var form = Liferay.Form.get(instance.ns('fm'));
+
+					if (!instance._shortenDescription) {
+						descriptionLabelNode.removeClass('disabled');
+
+						form.addRule(instance.ns('description'), 'required');
+					} else {
+						descriptionLabelNode.addClass('disabled');
+
+						form.removeRule(instance.ns('description'), 'required');
+					}
+				},
+
+				updateFriendlyURL(title) {
+					var instance = this;
+
+					var urlTitleInput = instance.one('#urlTitle');
+
+					var friendlyURLEmpty = !urlTitleInput.val();
+
+					if (
+						instance._automaticURL() &&
+						(friendlyURLEmpty ||
+							instance._originalFriendlyURLChanged)
+					) {
+						urlTitleInput.val(
+							Liferay.Util.normalizeFriendlyURL(title)
+						);
+					}
+
+					instance._originalFriendlyURLChanged = true;
 				}
 			}
 		});
