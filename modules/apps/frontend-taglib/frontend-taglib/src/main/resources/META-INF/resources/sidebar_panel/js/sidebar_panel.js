@@ -39,24 +39,6 @@ AUI.add(
 			NAME: 'liferaysidebarpanel',
 
 			prototype: {
-				initializer(config) {
-					var instance = this;
-
-					instance._searchContainerRegisterHandle = Liferay.on(
-						'search-container:registered',
-						instance._onSearchContainerRegistered,
-						instance
-					);
-				},
-
-				destructor() {
-					var instance = this;
-
-					instance._detachSearchContainerRegisterHandle();
-
-					new A.EventHandle(instance._eventHandles).detach();
-				},
-
 				_bindUI() {
 					var instance = this;
 
@@ -91,7 +73,7 @@ AUI.add(
 					}
 				},
 
-				_getSidebarContent(event) {
+				_getSidebarContent() {
 					var instance = this;
 
 					Liferay.Util.fetch(instance.get('resourceUrl'), {
@@ -123,6 +105,24 @@ AUI.add(
 
 						instance._bindUI();
 					}
+				},
+
+				destructor() {
+					var instance = this;
+
+					instance._detachSearchContainerRegisterHandle();
+
+					new A.EventHandle(instance._eventHandles).detach();
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._searchContainerRegisterHandle = Liferay.on(
+						'search-container:registered',
+						instance._onSearchContainerRegistered,
+						instance
+					);
 				}
 			}
 		});

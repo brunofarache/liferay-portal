@@ -60,24 +60,6 @@ AUI.add(
 			NAME: 'liferay-management-bar',
 
 			prototype: {
-				initializer() {
-					var instance = this;
-
-					instance._searchContainerRegisterHandle = Liferay.on(
-						'search-container:registered',
-						instance._onSearchContainerRegistered,
-						instance
-					);
-				},
-
-				destructor() {
-					var instance = this;
-
-					instance._detachSearchContainerRegisterHandle();
-
-					new A.EventHandle(instance._eventHandles).detach();
-				},
-
 				_bindUI() {
 					var instance = this;
 
@@ -181,7 +163,7 @@ AUI.add(
 					instance._toggleSecondaryBar(numberAllSelectedElements > 0);
 				},
 
-				_onSurfaceStartNavigate(event) {
+				_onSurfaceStartNavigate() {
 					var instance = this;
 
 					Liferay.DOMTaskRunner.addTask({
@@ -258,6 +240,24 @@ AUI.add(
 					var instance = this;
 
 					instance.get('itemsCountContainer').html(itemsCount);
+				},
+
+				destructor() {
+					var instance = this;
+
+					instance._detachSearchContainerRegisterHandle();
+
+					new A.EventHandle(instance._eventHandles).detach();
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._searchContainerRegisterHandle = Liferay.on(
+						'search-container:registered',
+						instance._onSearchContainerRegistered,
+						instance
+					);
 				}
 			},
 
