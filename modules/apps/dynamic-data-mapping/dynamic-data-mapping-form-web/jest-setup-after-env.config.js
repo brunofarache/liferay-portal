@@ -19,5 +19,5 @@ Liferay.DDM = {
 };
 
 Liferay.Session = {
-	get: arg => 'active'
+	get: () => 'active'
 };
