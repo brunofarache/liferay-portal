@@ -18,6 +18,10 @@ AUI.add(
 		var NATIVE_MSG = !!window.postMessage;
 
 		var MarketplaceMessenger = {
+			_messages: [],
+			_targetFrame: null,
+			_targetURI: null,
+
 			init(options, initMessage) {
 				var instance = this;
 
@@ -102,11 +106,7 @@ AUI.add(
 
 			setTargetURI(targetURI) {
 				this._targetURI = targetURI;
-			},
-
-			_messages: [],
-			_targetFrame: null,
-			_targetURI: null
+			}
 		};
 
 		Liferay.MarketplaceMessenger = MarketplaceMessenger;
