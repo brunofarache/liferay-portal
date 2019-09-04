@@ -84,54 +84,355 @@ AUI.add(
 				textarea: A.TextAreaCellEditor
 			},
 
-			prototype: {
-				initializer() {
-					var instance = this;
+			addRecord(recordsetId, displayIndex, fieldsMap, callback) {
+				var instance = this;
 
-					instance._setDataStableSort(instance.get('data'));
+				callback = (callback && A.bind(callback, instance)) || EMPTY_FN;
 
-					instance.set('scrollable', true);
+				Liferay.Service(
+					'/ddl.ddlrecord/add-record',
+					{
+						displayIndex,
+						fieldsMap: JSON.stringify(fieldsMap),
+						groupId: themeDisplay.getScopeGroupId(),
+						recordSetId: recordsetId,
+						serviceContext: JSON.stringify({
+							scopeGroupId: themeDisplay.getScopeGroupId(),
+							userId: themeDisplay.getUserId(),
+							workflowAction: Liferay.Workflow.ACTION_PUBLISH
+						})
+					},
+					callback
+				);
+			},
 
-					instance.on('dataChange', instance._onDataChange);
-					instance.on('model:change', instance._onRecordUpdate);
-				},
+			buildDataTableColumns(columns, locale, structure, editable) {
+				var instance = this;
 
-				addEmptyRows(num) {
-					var instance = this;
+				columns.forEach(function(item) {
+					var dataType = item.dataType;
+					var label = item.label;
+					var name = item.name;
+					var type = item.type;
 
-					var columns = instance.get('columns');
-					var data = instance.get('data');
+					item.key = name;
 
-					var keys = columns.map(function(item, index) {
-						return item.key;
-					});
+					var EditorClass =
+						instance.TYPE_EDITOR[type] || A.TextCellEditor;
 
-					data.add(SpreadSheet.buildEmptyRecords(num, keys));
-				},
-
-				updateMinDisplayRows(minDisplayRows, callback) {
-					var instance = this;
-
-					callback =
-						(callback && A.bind(callback, instance)) || EMPTY_FN;
-
-					var recordsetId = instance.get('recordsetId');
-
-					Liferay.Service(
-						'/ddl.ddlrecordset/update-min-display-rows',
-						{
-							minDisplayRows,
-							recordSetId: recordsetId,
-							serviceContext: JSON.stringify({
-								scopeGroupId: themeDisplay.getScopeGroupId(),
-								userId: themeDisplay.getUserId()
-							})
+					var config = {
+						elementName: name,
+						strings: {
+							cancel: Liferay.Language.get('cancel'),
+							edit: Liferay.Language.get('edit'),
+							save: Liferay.Language.get('save')
 						},
-						callback
-					);
-				},
+						validator: {
+							rules: {}
+						}
+					};
 
-				_afterActiveCellIndexChange(event) {
+					var required = item.required;
+
+					var structureField;
+
+					if (required) {
+						label += ' (' + Liferay.Language.get('required') + ')';
+					}
+
+					label = A.Escape.html(label);
+
+					item.label = label;
+
+					if (type === 'checkbox') {
+						config.options = {
+							true: Liferay.Language.get('true')
+						};
+
+						config.inputFormatter = function(value) {
+							if (Array.isArray(value) && value.length > 0) {
+								value = value[0];
+							}
+
+							var checkedValue = 'false';
+
+							if (value === 'true') {
+								checkedValue = value;
+							}
+
+							return checkedValue;
+						};
+
+						item.formatter = function(obj) {
+							var data = obj.data;
+
+							var value = data[name];
+
+							if (value === 'true') {
+								value = Liferay.Language.get('true');
+							} else if (value === 'false') {
+								value = Liferay.Language.get('false');
+							}
+
+							return value;
+						};
+					} else if (type === 'ddm-date') {
+						config.inputFormatter = function(val) {
+							return val.map(function(item) {
+								return A.DataType.Date.format(item);
+							});
+						};
+
+						config.outputFormatter = function(val) {
+							return val.map(function(item) {
+								var date;
+
+								if (item !== STR_EMPTY) {
+									date = A.DataType.Date.parse(item);
+								} else {
+									date = new Date();
+								}
+
+								date = DateMath.add(
+									date,
+									DateMath.MINUTES,
+									date.getTimezoneOffset()
+								);
+
+								return date;
+							});
+						};
+
+						item.formatter = function(obj) {
+							var data = obj.data;
+
+							var value = data[name];
+
+							if (isArray(value)) {
+								value = value[0];
+							}
+
+							return value;
+						};
+					} else if (
+						type === 'ddm-decimal' ||
+						type === 'ddm-integer' ||
+						type === 'ddm-number'
+					) {
+						config.outputFormatter = function(value) {
+							var number = A.DataType.Number.parse(value);
+
+							var numberValue = STR_EMPTY;
+
+							if (isNumber(number)) {
+								numberValue = number;
+							}
+
+							return numberValue;
+						};
+
+						item.formatter = function(obj) {
+							var data = obj.data;
+
+							var value = A.DataType.Number.parse(data[name]);
+
+							if (!isNumber(value)) {
+								value = STR_EMPTY;
+							}
+
+							return value;
+						};
+					} else if (type === 'ddm-documentlibrary') {
+						item.formatter = function(obj) {
+							var data = obj.data;
+
+							var label = STR_EMPTY;
+							var value = data[name];
+
+							if (value !== STR_EMPTY) {
+								var fileData = FormBuilder.Util.parseJSON(
+									value
+								);
+
+								if (fileData.title) {
+									label = fileData.title;
+								}
+							}
+
+							return label;
+						};
+					} else if (type === 'ddm-link-to-page') {
+						item.formatter = function(obj) {
+							var data = obj.data;
+
+							var label = STR_EMPTY;
+							var value = data[name];
+
+							if (value !== STR_EMPTY) {
+								var linkToPageData = FormBuilder.Util.parseJSON(
+									value
+								);
+
+								if (linkToPageData.name) {
+									label = linkToPageData.name;
+								}
+							}
+
+							return label;
+						};
+					} else if (type === 'radio') {
+						structureField = instance.findStructureFieldByAttribute(
+							structure,
+							'name',
+							name
+						);
+
+						config.multiple = false;
+						config.options = instance.getCellEditorOptions(
+							structureField.options,
+							locale
+						);
+					} else if (type === 'select') {
+						structureField = instance.findStructureFieldByAttribute(
+							structure,
+							'name',
+							name
+						);
+
+						var multiple = A.DataType.Boolean.parse(
+							structureField.multiple
+						);
+						var options = instance.getCellEditorOptions(
+							structureField.options,
+							locale
+						);
+
+						item.formatter = function(obj) {
+							var data = obj.data;
+
+							var label = [];
+							var value = data[name];
+
+							if (isArray(value)) {
+								value.forEach(function(item1) {
+									label.push(options[item1]);
+								});
+							}
+
+							return label.join(', ');
+						};
+
+						config.inputFormatter = AArray;
+						config.multiple = multiple;
+						config.options = options;
+					} else if (type === 'textarea') {
+						item.allowHTML = true;
+
+						item.formatter = function(obj) {
+							var data = obj.data;
+
+							var value = data[name];
+
+							if (!value) {
+								return value;
+							}
+
+							return value.split('\n').join('<br>');
+						};
+					}
+
+					var validatorRuleName =
+						instance.DATATYPE_VALIDATOR[dataType];
+
+					var validatorRules = config.validator.rules;
+
+					validatorRules[name] = A.mix(
+						{
+							required
+						},
+						validatorRules[name]
+					);
+
+					if (validatorRuleName) {
+						validatorRules[name][validatorRuleName] = true;
+					}
+
+					if (editable && item.editable) {
+						item.editor = new EditorClass(config);
+					}
+				});
+
+				return columns;
+			},
+
+			buildEmptyRecords(num, keys) {
+				var instance = this;
+
+				var emptyRows = [];
+
+				for (var i = 0; i < num; i++) {
+					emptyRows.push(instance.getRecordModel(keys));
+				}
+
+				return emptyRows;
+			},
+
+			findStructureFieldByAttribute(
+				fieldsArray,
+				attributeName,
+				attributeValue
+			) {
+				var instance = this;
+
+				var structureField;
+
+				AArray.some(fieldsArray, function(item) {
+					var nestedFieldsArray = item.fields;
+
+					if (item[attributeName] === attributeValue) {
+						structureField = item;
+					} else if (nestedFieldsArray) {
+						structureField = instance.findStructureFieldByAttribute(
+							nestedFieldsArray,
+							attributeName,
+							attributeValue
+						);
+					}
+
+					return structureField !== undefined;
+				});
+
+				return structureField;
+			},
+
+			getCellEditorOptions(options, locale) {
+				var normalized = {};
+
+				options.forEach(function(item) {
+					normalized[item.value] = item.label;
+
+					var localizationMap = item.localizationMap;
+
+					if (localizationMap[locale]) {
+						normalized[item.value] = localizationMap[locale].label;
+					}
+				});
+
+				return normalized;
+			},
+
+			getRecordModel(keys) {
+				var recordModel = {};
+
+				keys.forEach(function(item) {
+					recordModel[item] = STR_EMPTY;
+				});
+
+				return recordModel;
+			},
+
+			prototype: {
+				_afterActiveCellIndexChange() {
 					var instance = this;
 
 					var activeCell = instance.get('activeCell');
@@ -264,8 +565,6 @@ AUI.add(
 				},
 
 				_normalizeValue(value) {
-					var instance = this;
-
 					return String(value);
 				},
 
@@ -312,7 +611,12 @@ AUI.add(
 				_onRecordUpdate(event) {
 					var instance = this;
 
-					if (!event.changed.hasOwnProperty('recordId')) {
+					if (
+						!Object.prototype.hasOwnProperty.call(
+							event.changed,
+							'recordId'
+						)
+					) {
 						var data = instance.get('data');
 						var recordsetId = instance.get('recordsetId');
 
@@ -357,8 +661,6 @@ AUI.add(
 				},
 
 				_setDataStableSort(data) {
-					var instance = this;
-
 					data.sort = function(options) {
 						if (this.comparator) {
 							options = options || {};
@@ -384,356 +686,53 @@ AUI.add(
 
 						return this;
 					};
-				}
-			},
+				},
 
-			addRecord(recordsetId, displayIndex, fieldsMap, callback) {
-				var instance = this;
+				addEmptyRows(num) {
+					var instance = this;
 
-				callback = (callback && A.bind(callback, instance)) || EMPTY_FN;
+					var columns = instance.get('columns');
+					var data = instance.get('data');
 
-				Liferay.Service(
-					'/ddl.ddlrecord/add-record',
-					{
-						displayIndex,
-						fieldsMap: JSON.stringify(fieldsMap),
-						groupId: themeDisplay.getScopeGroupId(),
-						recordSetId: recordsetId,
-						serviceContext: JSON.stringify({
-							scopeGroupId: themeDisplay.getScopeGroupId(),
-							userId: themeDisplay.getUserId(),
-							workflowAction: Liferay.Workflow.ACTION_PUBLISH
-						})
-					},
-					callback
-				);
-			},
+					var keys = columns.map(function(item) {
+						return item.key;
+					});
 
-			buildDataTableColumns(columns, locale, structure, editable) {
-				var instance = this;
+					data.add(SpreadSheet.buildEmptyRecords(num, keys));
+				},
 
-				columns.forEach(function(item, index) {
-					var dataType = item.dataType;
-					var label = item.label;
-					var name = item.name;
-					var type = item.type;
+				initializer() {
+					var instance = this;
 
-					item.key = name;
+					instance._setDataStableSort(instance.get('data'));
 
-					var EditorClass =
-						instance.TYPE_EDITOR[type] || A.TextCellEditor;
+					instance.set('scrollable', true);
 
-					var config = {
-						elementName: name,
-						strings: {
-							cancel: Liferay.Language.get('cancel'),
-							edit: Liferay.Language.get('edit'),
-							save: Liferay.Language.get('save')
-						},
-						validator: {
-							rules: {}
-						}
-					};
+					instance.on('dataChange', instance._onDataChange);
+					instance.on('model:change', instance._onRecordUpdate);
+				},
 
-					var required = item.required;
+				updateMinDisplayRows(minDisplayRows, callback) {
+					var instance = this;
 
-					var structureField;
+					callback =
+						(callback && A.bind(callback, instance)) || EMPTY_FN;
 
-					if (required) {
-						label += ' (' + Liferay.Language.get('required') + ')';
-					}
+					var recordsetId = instance.get('recordsetId');
 
-					label = A.Escape.html(label);
-
-					item.label = label;
-
-					if (type === 'checkbox') {
-						config.options = {
-							true: Liferay.Language.get('true')
-						};
-
-						config.inputFormatter = function(value) {
-							if (Array.isArray(value) && value.length > 0) {
-								value = value[0];
-							}
-
-							var checkedValue = 'false';
-
-							if (value === 'true') {
-								checkedValue = value;
-							}
-
-							return checkedValue;
-						};
-
-						item.formatter = function(obj) {
-							var data = obj.data;
-
-							var value = data[name];
-
-							if (value === 'true') {
-								value = Liferay.Language.get('true');
-							} else if (value === 'false') {
-								value = Liferay.Language.get('false');
-							}
-
-							return value;
-						};
-					} else if (type === 'ddm-date') {
-						config.inputFormatter = function(val) {
-							return val.map(function(item, index) {
-								return A.DataType.Date.format(item);
-							});
-						};
-
-						config.outputFormatter = function(val) {
-							return val.map(function(item, index) {
-								var date;
-
-								if (item !== STR_EMPTY) {
-									date = A.DataType.Date.parse(item);
-								} else {
-									date = new Date();
-								}
-
-								date = DateMath.add(
-									date,
-									DateMath.MINUTES,
-									date.getTimezoneOffset()
-								);
-
-								return date;
-							});
-						};
-
-						item.formatter = function(obj) {
-							var data = obj.data;
-
-							var value = data[name];
-
-							if (isArray(value)) {
-								value = value[0];
-							}
-
-							return value;
-						};
-					} else if (
-						type === 'ddm-decimal' ||
-						type === 'ddm-integer' ||
-						type === 'ddm-number'
-					) {
-						config.outputFormatter = function(value) {
-							var number = A.DataType.Number.parse(value);
-
-							var numberValue = STR_EMPTY;
-
-							if (isNumber(number)) {
-								numberValue = number;
-							}
-
-							return numberValue;
-						};
-
-						item.formatter = function(obj) {
-							var data = obj.data;
-
-							var value = A.DataType.Number.parse(data[name]);
-
-							if (!isNumber(value)) {
-								value = STR_EMPTY;
-							}
-
-							return value;
-						};
-					} else if (type === 'ddm-documentlibrary') {
-						item.formatter = function(obj) {
-							var data = obj.data;
-
-							var label = STR_EMPTY;
-							var value = data[name];
-
-							if (value !== STR_EMPTY) {
-								var fileData = FormBuilder.Util.parseJSON(
-									value
-								);
-
-								if (fileData.title) {
-									label = fileData.title;
-								}
-							}
-
-							return label;
-						};
-					} else if (type === 'ddm-link-to-page') {
-						item.formatter = function(obj) {
-							var data = obj.data;
-
-							var label = STR_EMPTY;
-							var value = data[name];
-
-							if (value !== STR_EMPTY) {
-								var linkToPageData = FormBuilder.Util.parseJSON(
-									value
-								);
-
-								if (linkToPageData.name) {
-									label = linkToPageData.name;
-								}
-							}
-
-							return label;
-						};
-					} else if (type === 'radio') {
-						structureField = instance.findStructureFieldByAttribute(
-							structure,
-							'name',
-							name
-						);
-
-						config.multiple = false;
-						config.options = instance.getCellEditorOptions(
-							structureField.options,
-							locale
-						);
-					} else if (type === 'select') {
-						structureField = instance.findStructureFieldByAttribute(
-							structure,
-							'name',
-							name
-						);
-
-						var multiple = A.DataType.Boolean.parse(
-							structureField.multiple
-						);
-						var options = instance.getCellEditorOptions(
-							structureField.options,
-							locale
-						);
-
-						item.formatter = function(obj) {
-							var data = obj.data;
-
-							var label = [];
-							var value = data[name];
-
-							if (isArray(value)) {
-								value.forEach(function(item1, index1) {
-									label.push(options[item1]);
-								});
-							}
-
-							return label.join(', ');
-						};
-
-						config.inputFormatter = AArray;
-						config.multiple = multiple;
-						config.options = options;
-					} else if (type === 'textarea') {
-						item.allowHTML = true;
-
-						item.formatter = function(obj) {
-							var data = obj.data;
-
-							var value = data[name];
-
-							if (!value) {
-								return value;
-							}
-
-							return value.split('\n').join('<br>');
-						};
-					}
-
-					var validatorRuleName =
-						instance.DATATYPE_VALIDATOR[dataType];
-
-					var validatorRules = config.validator.rules;
-
-					validatorRules[name] = A.mix(
+					Liferay.Service(
+						'/ddl.ddlrecordset/update-min-display-rows',
 						{
-							required
+							minDisplayRows,
+							recordSetId: recordsetId,
+							serviceContext: JSON.stringify({
+								scopeGroupId: themeDisplay.getScopeGroupId(),
+								userId: themeDisplay.getUserId()
+							})
 						},
-						validatorRules[name]
+						callback
 					);
-
-					if (validatorRuleName) {
-						validatorRules[name][validatorRuleName] = true;
-					}
-
-					if (editable && item.editable) {
-						item.editor = new EditorClass(config);
-					}
-				});
-
-				return columns;
-			},
-
-			buildEmptyRecords(num, keys) {
-				var instance = this;
-
-				var emptyRows = [];
-
-				for (var i = 0; i < num; i++) {
-					emptyRows.push(instance.getRecordModel(keys));
 				}
-
-				return emptyRows;
-			},
-
-			findStructureFieldByAttribute(
-				fieldsArray,
-				attributeName,
-				attributeValue
-			) {
-				var instance = this;
-
-				var structureField;
-
-				AArray.some(fieldsArray, function(item) {
-					var nestedFieldsArray = item.fields;
-
-					if (item[attributeName] === attributeValue) {
-						structureField = item;
-					} else if (nestedFieldsArray) {
-						structureField = instance.findStructureFieldByAttribute(
-							nestedFieldsArray,
-							attributeName,
-							attributeValue
-						);
-					}
-
-					return structureField !== undefined;
-				});
-
-				return structureField;
-			},
-
-			getCellEditorOptions(options, locale) {
-				var normalized = {};
-
-				options.forEach(function(item, index) {
-					normalized[item.value] = item.label;
-
-					var localizationMap = item.localizationMap;
-
-					if (localizationMap[locale]) {
-						normalized[item.value] = localizationMap[locale].label;
-					}
-				});
-
-				return normalized;
-			},
-
-			getRecordModel(keys) {
-				var instance = this;
-
-				var recordModel = {};
-
-				keys.forEach(function(item, index) {
-					recordModel[item] = STR_EMPTY;
-				});
-
-				return recordModel;
 			},
 
 			updateRecord(recordId, displayIndex, fieldsMap, merge, callback) {
@@ -762,8 +761,6 @@ AUI.add(
 		Liferay.SpreadSheet = SpreadSheet;
 
 		var DDLUtil = {
-			previewDialog: null,
-
 			openPreviewDialog(content) {
 				var instance = this;
 
@@ -783,7 +780,9 @@ AUI.add(
 
 					previewDialog.set('bodyContent', content);
 				}
-			}
+			},
+
+			previewDialog: null
 		};
 
 		Liferay.DDLUtil = DDLUtil;
