@@ -65,10 +65,6 @@ AUI.add(
 
 		var STR_BLANK = '';
 
-		var STR_DASH = '-';
-
-		var STR_SPACE = ' ';
-
 		var TPL_COLOR =
 			'<input class="field form-control" type="text" value="' +
 			A.Escape.html(Liferay.Language.get('color')) +
@@ -188,7 +184,7 @@ AUI.add(
 
 			node.setStyle(STR_BLANK);
 
-			styles.forEach(function(item, index) {
+			styles.forEach(function(item) {
 				var rule = item.split(':');
 
 				if (rule.length == 2) {
@@ -206,7 +202,53 @@ AUI.add(
 			NAME: 'color-cell-editor',
 
 			prototype: {
+				_defSaveFn() {
+					var instance = this;
+
+					var colorPicker = instance.get('colorPicker');
+
+					var input = instance.get('boundingBox').one('input');
+
+					if (/#[A-F\d]{6}/.test(input.val())) {
+						ColorCellEditor.superclass._defSaveFn.apply(
+							instance,
+							arguments
+						);
+					} else {
+						colorPicker.show();
+					}
+				},
+
+				_uiSetValue(val) {
+					var instance = this;
+
+					var input = instance.get('boundingBox').one('input');
+
+					input.setStyle('color', val);
+					input.val(val);
+
+					instance.elements.val(val);
+				},
+
 				ELEMENT_TEMPLATE: '<input type="text" />',
+
+				getElementsValue() {
+					var instance = this;
+
+					var retVal;
+
+					var input = instance.get('boundingBox').one('input');
+
+					if (input) {
+						var val = input.val();
+
+						if (/#[A-F\d]{6}/.test(val)) {
+							retVal = val;
+						}
+					}
+
+					return retVal;
+				},
 
 				renderUI() {
 					var instance = this;
@@ -234,52 +276,6 @@ AUI.add(
 					});
 
 					instance.set('colorPicker', colorPicker);
-				},
-
-				getElementsValue() {
-					var instance = this;
-
-					var retVal;
-
-					var input = instance.get('boundingBox').one('input');
-
-					if (input) {
-						var val = input.val();
-
-						if (/\#[A-F\d]{6}/.test(val)) {
-							retVal = val;
-						}
-					}
-
-					return retVal;
-				},
-
-				_defSaveFn() {
-					var instance = this;
-
-					var colorPicker = instance.get('colorPicker');
-
-					var input = instance.get('boundingBox').one('input');
-
-					if (/\#[A-F\d]{6}/.test(input.val())) {
-						ColorCellEditor.superclass._defSaveFn.apply(
-							instance,
-							arguments
-						);
-					} else {
-						colorPicker.show();
-					}
-				},
-
-				_uiSetValue(val) {
-					var instance = this;
-
-					var input = instance.get('boundingBox').one('input');
-
-					input.setStyle('color', val);
-					input.val(val);
-
-					instance.elements.val(val);
 				}
 			}
 		});
@@ -290,14 +286,6 @@ AUI.add(
 			NAME: 'document-library-file-entry-cell-editor',
 
 			prototype: {
-				ELEMENT_TEMPLATE: '<input type="hidden" />',
-
-				getElementsValue() {
-					var instance = this;
-
-					return instance.get('value');
-				},
-
 				_defInitToolbarFn() {
 					var instance = this;
 
@@ -338,19 +326,19 @@ AUI.add(
 					};
 
 					var uploadCriterionJSON = {
+						URL: instance._getUploadURL(),
 						desiredItemSelectorReturnTypes:
-							'com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType',
-						URL: instance._getUploadURL()
+							'com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType'
 					};
 
 					var documentLibrarySelectorParameters = {
+						'0_json': JSON.stringify(criterionJSON),
+						'1_json': JSON.stringify(criterionJSON),
+						'2_json': JSON.stringify(uploadCriterionJSON),
 						criteria:
 							'com.liferay.item.selector.criteria.file.criterion.FileItemSelectorCriterion',
 						itemSelectedEventName:
 							portletNamespace + 'selectDocumentLibrary',
-						'0_json': JSON.stringify(criterionJSON),
-						'1_json': JSON.stringify(criterionJSON),
-						'2_json': JSON.stringify(uploadCriterionJSON),
 						p_p_id: Liferay.PortletKeys.ITEM_SELECTOR,
 						p_p_mode: 'view',
 						p_p_state: 'pop_up'
@@ -509,6 +497,14 @@ AUI.add(
 					}
 
 					instance.elements.val(val);
+				},
+
+				ELEMENT_TEMPLATE: '<input type="hidden" />',
+
+				getElementsValue() {
+					var instance = this;
+
+					return instance.get('value');
 				}
 			}
 		});
@@ -519,40 +515,6 @@ AUI.add(
 			NAME: 'journal-article-cell-editor',
 
 			prototype: {
-				ELEMENT_TEMPLATE: '<input type="hidden" />',
-
-				getElementsValue() {
-					var instance = this;
-
-					return instance.get('value');
-				},
-
-				getParsedValue(value) {
-					if (Lang.isString(value)) {
-						if (value !== '') {
-							value = JSON.parse(value);
-						} else {
-							value = {};
-						}
-					}
-
-					return value;
-				},
-
-				setValue(value) {
-					var instance = this;
-
-					var parsedValue = instance.getParsedValue(value);
-
-					if (!parsedValue.className && !parsedValue.classPK) {
-						value = '';
-					} else {
-						value = JSON.stringify(parsedValue);
-					}
-
-					instance.set('value', value);
-				},
-
 				_defInitToolbarFn() {
 					var instance = this;
 
@@ -587,14 +549,14 @@ AUI.add(
 						eventName: 'selectContent',
 						groupId: themeDisplay.getScopeGroupId(),
 						p_auth: Liferay.authToken,
+						p_p_id:
+							'com_liferay_asset_browser_web_portlet_AssetBrowserPortlet',
+						p_p_state: 'pop_up',
 						selectedGroupId: themeDisplay.getScopeGroupId(),
 						showNonindexable: true,
 						showScheduled: true,
 						typeSelection:
-							'com.liferay.journal.model.JournalArticle',
-						p_p_id:
-							'com_liferay_asset_browser_web_portlet_AssetBrowserPortlet',
-						p_p_state: 'pop_up'
+							'com.liferay.journal.model.JournalArticle'
 					};
 
 					var webContentSelectorURL = Liferay.Util.PortletURL.createRenderURL(
@@ -605,13 +567,13 @@ AUI.add(
 					return webContentSelectorURL.toString();
 				},
 
-				_handleCancelEvent(event) {
+				_handleCancelEvent() {
 					var instance = this;
 
 					instance.get('boundingBox').hide();
 				},
 
-				_handleSaveEvent(event) {
+				_handleSaveEvent() {
 					var instance = this;
 
 					JournalArticleCellEditor.superclass._handleSaveEvent.apply(
@@ -622,7 +584,7 @@ AUI.add(
 					instance.get('boundingBox').hide();
 				},
 
-				_onClickChoose(event) {
+				_onClickChoose() {
 					var instance = this;
 
 					Liferay.Util.selectEntity(
@@ -698,6 +660,40 @@ AUI.add(
 					} else {
 						instance._syncJournalArticleLabel(STR_BLANK);
 					}
+				},
+
+				ELEMENT_TEMPLATE: '<input type="hidden" />',
+
+				getElementsValue() {
+					var instance = this;
+
+					return instance.get('value');
+				},
+
+				getParsedValue(value) {
+					if (Lang.isString(value)) {
+						if (value !== '') {
+							value = JSON.parse(value);
+						} else {
+							value = {};
+						}
+					}
+
+					return value;
+				},
+
+				setValue(value) {
+					var instance = this;
+
+					var parsedValue = instance.getParsedValue(value);
+
+					if (!parsedValue.className && !parsedValue.classPK) {
+						value = '';
+					} else {
+						value = JSON.stringify(parsedValue);
+					}
+
+					instance.set('value', value);
 				}
 			}
 		});
@@ -710,7 +706,7 @@ AUI.add(
 			JournalArticleCellEditor
 		];
 
-		customCellEditors.forEach(function(item, index) {
+		customCellEditors.forEach(function(item) {
 			Liferay.FormBuilder.CUSTOM_CELL_EDITORS[item.NAME] = item;
 		});
 
@@ -883,9 +879,7 @@ AUI.add(
 			);
 		};
 
-		LocalizableFieldSupport.prototype._afterLocalizableFieldRender = function(
-			event
-		) {
+		LocalizableFieldSupport.prototype._afterLocalizableFieldRender = function() {
 			var instance = this;
 
 			var builder = instance.get('builder');
@@ -935,7 +929,7 @@ AUI.add(
 				localizationMap[locale] || localizationMap[defaultLocale];
 
 			if (isObject(localeMap)) {
-				LOCALIZABLE_FIELD_ATTRS.forEach(function(item, index) {
+				LOCALIZABLE_FIELD_ATTRS.forEach(function(item) {
 					if (item !== 'options') {
 						var localizedItem = localeMap[item];
 
@@ -967,7 +961,7 @@ AUI.add(
 
 			var options = instance.get('options');
 
-			options.forEach(function(item, index) {
+			options.forEach(function(item) {
 				var localizationMap = item.localizationMap;
 
 				if (isObject(localizationMap)) {
@@ -987,7 +981,7 @@ AUI.add(
 		) {
 			var instance = this;
 
-			LOCALIZABLE_FIELD_ATTRS.forEach(function(item, index) {
+			LOCALIZABLE_FIELD_ATTRS.forEach(function(item) {
 				instance._updateLocalizationMapAttribute(locale, item);
 			});
 		};
@@ -1021,7 +1015,7 @@ AUI.add(
 			var options = instance.get('options');
 
 			if (options) {
-				options.forEach(function(item, index) {
+				options.forEach(function(item) {
 					var localizationMap = item.localizationMap;
 
 					if (!isObject(localizationMap)) {
@@ -1085,7 +1079,7 @@ AUI.add(
 					fieldOption.value = option.value;
 					fieldOption.label = {};
 
-					A.each(localizationMap, function(item, index, collection) {
+					A.each(localizationMap, function(item, index) {
 						fieldOption.label[
 							index
 						] = LiferayFormBuilderUtil.normalizeValue(item.label);
@@ -1223,7 +1217,7 @@ AUI.add(
 				};
 			}
 
-			model.forEach(function(item, index) {
+			model.forEach(function(item) {
 				if (item.attributeName == 'name') {
 					item.editor = new A.TextCellEditor({
 						validator: {
@@ -1348,59 +1342,6 @@ AUI.add(
 			NAME: 'ddm-date',
 
 			prototype: {
-				renderUI() {
-					var instance = this;
-
-					DDMDateField.superclass.renderUI.apply(instance, arguments);
-
-					var trigger = instance.get('templateNode').one('input');
-
-					if (trigger) {
-						instance.datePicker = new A.DatePickerDeprecated({
-							calendar: {
-								locale: Liferay.ThemeDisplay.getLanguageId()
-							},
-							on: {
-								selectionChange(event) {
-									var date = event.newSelection;
-
-									instance.setValue(A.Date.format(date));
-								}
-							},
-							popover: {
-								on: {
-									keydown(event) {
-										var instance = this;
-
-										var domEvent = event.domEvent;
-
-										if (
-											domEvent.keyCode == 9 &&
-											domEvent.target.hasClass(
-												'yui3-calendar-grid'
-											)
-										) {
-											instance.hide();
-
-											Liferay.Util.focusFormField(
-												trigger
-											);
-										}
-									}
-								}
-							},
-							trigger
-						}).render();
-					}
-
-					instance.datePicker.calendar.set('strings', {
-						next: Liferay.Language.get('next'),
-						none: Liferay.Language.get('none'),
-						previous: Liferay.Language.get('previous'),
-						today: Liferay.Language.get('today')
-					});
-				},
-
 				getPropertyModel() {
 					var instance = this;
 
@@ -1453,6 +1394,59 @@ AUI.add(
 					});
 
 					return model;
+				},
+
+				renderUI() {
+					var instance = this;
+
+					DDMDateField.superclass.renderUI.apply(instance, arguments);
+
+					var trigger = instance.get('templateNode').one('input');
+
+					if (trigger) {
+						instance.datePicker = new A.DatePickerDeprecated({
+							calendar: {
+								locale: Liferay.ThemeDisplay.getLanguageId()
+							},
+							on: {
+								selectionChange(event) {
+									var date = event.newSelection;
+
+									instance.setValue(A.Date.format(date));
+								}
+							},
+							popover: {
+								on: {
+									keydown(event) {
+										var instance = this;
+
+										var domEvent = event.domEvent;
+
+										if (
+											domEvent.keyCode == 9 &&
+											domEvent.target.hasClass(
+												'yui3-calendar-grid'
+											)
+										) {
+											instance.hide();
+
+											Liferay.Util.focusFormField(
+												trigger
+											);
+										}
+									}
+								}
+							},
+							trigger
+						}).render();
+					}
+
+					instance.datePicker.calendar.set('strings', {
+						next: Liferay.Language.get('next'),
+						none: Liferay.Language.get('none'),
+						previous: Liferay.Language.get('previous'),
+						today: Liferay.Language.get('today')
+					});
 				}
 			}
 		});
@@ -1489,6 +1483,14 @@ AUI.add(
 			NAME: 'ddm-documentlibrary',
 
 			prototype: {
+				_defaultFormatter() {
+					return 'documents-and-media';
+				},
+
+				_uiSetValue() {
+					return Liferay.Language.get('select');
+				},
+
 				getHTML() {
 					return TPL_INPUT_BUTTON;
 				},
@@ -1501,7 +1503,7 @@ AUI.add(
 						arguments
 					);
 
-					model.forEach(function(item, index) {
+					model.forEach(function(item) {
 						var attributeName = item.attributeName;
 
 						if (attributeName === 'predefinedValue') {
@@ -1531,16 +1533,6 @@ AUI.add(
 					});
 
 					return model;
-				},
-
-				_defaultFormatter() {
-					var instance = this;
-
-					return 'documents-and-media';
-				},
-
-				_uiSetValue() {
-					return Liferay.Language.get('select');
 				}
 			}
 		});
@@ -1575,7 +1567,7 @@ AUI.add(
 
 					return DDMGeolocationField.superclass.getPropertyModel
 						.apply(instance, arguments)
-						.filter(function(item, index) {
+						.filter(function(item) {
 							return item.attributeName !== 'predefinedValue';
 						});
 				}
@@ -1667,13 +1659,25 @@ AUI.add(
 			UI_ATTRS: ['label', 'style'],
 
 			prototype: {
+				_uiSetLabel(val) {
+					var instance = this;
+
+					instance.get('templateNode').setContent(val);
+				},
+
+				_uiSetStyle(val) {
+					var instance = this;
+
+					var templateNode = instance.get('templateNode');
+
+					applyStyles(templateNode, val);
+				},
+
 				getHTML() {
 					return TPL_PARAGRAPH;
 				},
 
 				getPropertyModel() {
-					var instance = this;
-
 					return [
 						{
 							attributeName: 'type',
@@ -1695,20 +1699,6 @@ AUI.add(
 							name: Liferay.Language.get('style')
 						}
 					];
-				},
-
-				_uiSetLabel(val) {
-					var instance = this;
-
-					instance.get('templateNode').setContent(val);
-				},
-
-				_uiSetStyle(val) {
-					var instance = this;
-
-					var templateNode = instance.get('templateNode');
-
-					applyStyles(templateNode, val);
 				}
 			}
 		});
@@ -1810,6 +1800,14 @@ AUI.add(
 			UI_ATTRS: ['style'],
 
 			prototype: {
+				_uiSetStyle(val) {
+					var instance = this;
+
+					var templateNode = instance.get('templateNode');
+
+					applyStyles(templateNode, val);
+				},
+
 				getHTML() {
 					return TPL_SEPARATOR;
 				},
@@ -1831,14 +1829,6 @@ AUI.add(
 					});
 
 					return model;
-				},
-
-				_uiSetStyle(val) {
-					var instance = this;
-
-					var templateNode = instance.get('templateNode');
-
-					applyStyles(templateNode, val);
 				}
 			}
 		});
@@ -1905,7 +1895,7 @@ AUI.add(
 						name: Liferay.Language.get('style')
 					});
 
-					model.forEach(function(item, index, collection) {
+					model.forEach(function(item) {
 						var attributeName = item.attributeName;
 
 						if (attributeName === 'predefinedValue') {
@@ -1991,7 +1981,7 @@ AUI.add(
 			DDMTextAreaField
 		];
 
-		plugins.forEach(function(item, index) {
+		plugins.forEach(function(item) {
 			FormBuilderTypes[item.OVERRIDE_TYPE || item.NAME] = item;
 		});
 	},
