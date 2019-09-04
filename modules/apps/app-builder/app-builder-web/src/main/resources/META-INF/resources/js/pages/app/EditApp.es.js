@@ -15,7 +15,9 @@
 import React, {useState, useEffect} from 'react';
 import ControlMenu from '../../components/control-menu/ControlMenu.es';
 import {getItem, addItem, updateItem} from '../../utils/client.es';
-import { UpperToolbarInput } from '../../components/upper-toolbar/UpperToolbar.es';
+import {UpperToolbarInput} from '../../components/upper-toolbar/UpperToolbar.es';
+import TestFormViewTable from './TestFormViewTable.es';
+import TestMultiStep from './TestMultiStep.es';
 
 export default ({
 	history,
@@ -24,9 +26,11 @@ export default ({
 	}
 }) => {
 	const [state, setState] = useState({
-		app: {name: {
-			en_US: ''
-		}},
+		app: {
+			name: {
+				en_US: ''
+			}
+		},
 		dataDefinition: {}
 	});
 
@@ -104,10 +108,28 @@ export default ({
 					<div className="card-header align-items-center d-flex justify-content-between bg-transparent">
 						<UpperToolbarInput
 							onInput={handleAppNameChange}
-							placeholder={Liferay.Language.get(
-								'untitled-app'
-							)}
+							placeholder={Liferay.Language.get('untitled-app')}
 							value={state.app.en_US}
+						/>
+					</div>
+
+					<h4 className="card-divider mb-4"></h4>
+
+					<div className="autofit-row mb-2">
+						<TestMultiStep/>
+					</div>
+
+					<div className="autofit-row mb-4 pl-4">
+						<div className="col-md-12">
+							<h2>
+								{Liferay.Language.get('select-a-form-view')}
+							</h2>
+						</div>
+					</div>
+
+					<div className="autofit-row">
+						<TestFormViewTable
+							dataDefinitionId={dataDefinitionId}
 						/>
 					</div>
 
