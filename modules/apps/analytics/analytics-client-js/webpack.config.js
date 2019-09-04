@@ -29,8 +29,8 @@ module.exports = {
 	module: {
 		rules: [
 			{
-				test: /\.js$/,
 				exclude: /(node_modules)/,
+				test: /\.js$/,
 				use: {
 					loader: 'babel-loader',
 					options: {
@@ -40,12 +40,12 @@ module.exports = {
 			}
 		]
 	},
-	output: {
-		path: buildFolder,
-		filename: buildName
-	},
 	optimization: {
 		minimize: true
+	},
+	output: {
+		filename: buildName,
+		path: buildFolder
 	},
 	plugins: [new webpack.optimize.ModuleConcatenationPlugin()]
 };

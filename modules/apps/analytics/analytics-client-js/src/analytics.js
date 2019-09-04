@@ -333,7 +333,11 @@ class Analytics {
 					this.reset(events);
 				})
 				.catch()
-				.then(() => (this.isFlushInProgress = false));
+				.then(() => {
+					this.isFlushInProgress = false;
+
+					return this.isFlushInProgress;
+				});
 		} else {
 			result = Promise.resolve();
 		}

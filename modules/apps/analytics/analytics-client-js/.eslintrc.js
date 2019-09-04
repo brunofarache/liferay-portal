@@ -13,30 +13,11 @@
  */
 
 module.exports = {
-	devtool: 'inline-source-map',
-	mode: 'development',
-	module: {
-		rules: [
-			{
-				exclude: /(node_modules)/,
-				test: /\.js$/,
-				use: {
-					loader: 'babel-loader',
-					options: {
-						compact: false
-					}
-				}
-			},
-			{
-				exclude: /(test|node_modules)/,
-				test: /\.js$/,
-				use: {
-					loader: 'istanbul-instrumenter-loader',
-					query: {
-						esModules: true
-					}
-				}
-			}
-		]
+	globals: {
+		__dirname: true,
+		global: true,
+		module: true,
+		require: true,
+		sinon: true
 	}
 };
