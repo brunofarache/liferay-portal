@@ -71,28 +71,7 @@ AUI.add(
 			UI_ATTRS: ['values'],
 
 			prototype: {
-				initializer() {
-					var instance = this;
-
-					instance.tplReminder = new A.Template(TPL_REMINDER_SECTION);
-				},
-
-				bindUI() {
-					var instance = this;
-
-					var boundingBox = instance.get('boundingBox');
-
-					boundingBox.delegate(
-						'change',
-						instance._onChangeCheckbox,
-						'.calendar-portlet-reminder-check',
-						instance
-					);
-				},
-
 				_onChangeCheckbox(event) {
-					var instance = this;
-
 					var target = event.target;
 
 					var checked = target.get('checked');
@@ -134,6 +113,25 @@ AUI.add(
 					}
 
 					boundingBox.setContent(buffer.join(STR_BLANK));
+				},
+
+				bindUI() {
+					var instance = this;
+
+					var boundingBox = instance.get('boundingBox');
+
+					boundingBox.delegate(
+						'change',
+						instance._onChangeCheckbox,
+						'.calendar-portlet-reminder-check',
+						instance
+					);
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance.tplReminder = new A.Template(TPL_REMINDER_SECTION);
 				}
 			}
 		});

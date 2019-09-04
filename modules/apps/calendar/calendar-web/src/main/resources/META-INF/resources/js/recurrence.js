@@ -134,22 +134,22 @@ AUI.add(
 					getter: '_getPosition'
 				},
 
-				positionalDayOfWeek: {
-					getter: '_getPositionalDayOfWeek',
-					setter: '_setPositionalDayOfWeek'
-				},
-
-				positionalDayOfWeekOptions: {
-					setter: A.one,
-					value: null
-				},
-
 				positionInput: {
 					setter: A.one,
 					value: null
 				},
 
 				positionSelect: {
+					setter: A.one,
+					value: null
+				},
+
+				positionalDayOfWeek: {
+					getter: '_getPositionalDayOfWeek',
+					setter: '_setPositionalDayOfWeek'
+				},
+
+				positionalDayOfWeekOptions: {
 					setter: A.one,
 					value: null
 				},
@@ -208,60 +208,6 @@ AUI.add(
 			NAME: 'recurrence-dialog',
 
 			prototype: {
-				initializer(config) {
-					var instance = this;
-
-					instance._namespace = config.namespace;
-
-					instance.bindUI();
-				},
-
-				bindUI() {
-					var instance = this;
-
-					var container = instance.get('container');
-
-					var limitDateDatePicker = instance.get(
-						'limitDateDatePicker'
-					);
-
-					var startDateDatePicker = instance.get(
-						'startDateDatePicker'
-					);
-
-					container.delegate(
-						'change',
-						A.bind(instance._onInputChange, instance),
-						'select,input'
-					);
-					container.delegate(
-						'keypress',
-						A.bind(instance._onInputChange, instance),
-						'select'
-					);
-
-					limitDateDatePicker.after(
-						'selectionChange',
-						A.bind(instance._onInputChange, instance)
-					);
-					startDateDatePicker.after(
-						'selectionChange',
-						A.bind(instance._onStartDateDatePickerChange, instance)
-					);
-				},
-
-				saveState() {
-					var instance = this;
-
-					var currentSavedState = instance.get('recurrence');
-
-					currentSavedState.repeatable = instance
-						.get('repeatCheckbox')
-						.get('checked');
-
-					instance.set('currentSavedState', currentSavedState);
-				},
-
 				_afterVisibilityChange(event) {
 					var instance = this;
 
@@ -394,7 +340,7 @@ AUI.add(
 
 					var checkedLimitRadioButton = A.Array.find(
 						instance.get('limitRadioButtons'),
-						function(item, index) {
+						function(item) {
 							return item.get('checked');
 						}
 					);
@@ -629,7 +575,7 @@ AUI.add(
 						.get('daysOfWeekCheckboxes')
 						.filter(':not([disabled])');
 
-					dayOfWeekNodes.each(function(node, index) {
+					dayOfWeekNodes.each(function(node) {
 						var check = value.indexOf(node.get('value')) > -1;
 
 						node.set('checked', check);
@@ -684,16 +630,21 @@ AUI.add(
 				_setLimitType(value) {
 					var instance = this;
 
-					A.each(instance.get('limitRadioButtons'), function(
-						node,
-						index
-					) {
+					A.each(instance.get('limitRadioButtons'), function(node) {
 						if (node.get('value') === value) {
 							node.set('checked', true);
 						}
 					});
 
 					return value;
+				},
+
+				_setPositionInputValue() {
+					var instance = this;
+
+					var positionInput = instance.get('positionInput');
+
+					positionInput.val(instance._calculatePosition());
 				},
 
 				_setPositionalDayOfWeek(value) {
@@ -717,14 +668,6 @@ AUI.add(
 					repeatOnDayOfWeekRadioButton.set('checked', !!value);
 
 					return value;
-				},
-
-				_setPositionInputValue() {
-					var instance = this;
-
-					var positionInput = instance.get('positionInput');
-
-					positionInput.val(instance._calculatePosition());
 				},
 
 				_setRecurrence(data) {
@@ -825,6 +768,60 @@ AUI.add(
 					instance._toggleViewWeeklyRecurrence();
 
 					instance.fire('recurrenceChange');
+				},
+
+				bindUI() {
+					var instance = this;
+
+					var container = instance.get('container');
+
+					var limitDateDatePicker = instance.get(
+						'limitDateDatePicker'
+					);
+
+					var startDateDatePicker = instance.get(
+						'startDateDatePicker'
+					);
+
+					container.delegate(
+						'change',
+						A.bind(instance._onInputChange, instance),
+						'select,input'
+					);
+					container.delegate(
+						'keypress',
+						A.bind(instance._onInputChange, instance),
+						'select'
+					);
+
+					limitDateDatePicker.after(
+						'selectionChange',
+						A.bind(instance._onInputChange, instance)
+					);
+					startDateDatePicker.after(
+						'selectionChange',
+						A.bind(instance._onStartDateDatePickerChange, instance)
+					);
+				},
+
+				initializer(config) {
+					var instance = this;
+
+					instance._namespace = config.namespace;
+
+					instance.bindUI();
+				},
+
+				saveState() {
+					var instance = this;
+
+					var currentSavedState = instance.get('recurrence');
+
+					currentSavedState.repeatable = instance
+						.get('repeatCheckbox')
+						.get('checked');
+
+					instance.set('currentSavedState', currentSavedState);
 				}
 			}
 		});

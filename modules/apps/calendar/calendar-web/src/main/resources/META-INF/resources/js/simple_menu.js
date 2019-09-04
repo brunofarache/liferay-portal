@@ -55,7 +55,7 @@ AUI.add(
 		var getItemHandler = A.cached(function(id, items) {
 			var found = null;
 
-			items.some(function(item, index) {
+			items.some(function(item) {
 				if (item.id === id) {
 					found = item;
 				}
@@ -106,48 +106,6 @@ AUI.add(
 			UI_ATTRS: ['hiddenItems', 'items'],
 
 			prototype: {
-				CONTENT_TEMPLATE: '<ul></ul>',
-
-				renderUI() {
-					var instance = this;
-
-					instance.get('boundingBox').unselectable();
-
-					instance._renderItems(instance.get('items'));
-				},
-
-				bindUI() {
-					var instance = this;
-
-					A.Event.defineOutside('touchend');
-
-					var contentBox = instance.get('contentBox');
-
-					instance._eventHandlers = [
-						A.getWin().on(
-							'resize',
-							A.debounce(instance._positionMenu, 200, instance)
-						),
-						contentBox.delegate(
-							'click',
-							instance._onClickItems,
-							STR_DOT + CSS_SIMPLE_MENU_ITEM,
-							instance
-						),
-						instance.after(
-							'visibleChange',
-							instance._onVisibleChange,
-							instance
-						)
-					];
-				},
-
-				destructor() {
-					var instance = this;
-
-					new A.EventHandle(instance._eventHandlers).detach();
-				},
-
 				_closeMenu() {
 					var instance = this;
 
@@ -239,10 +197,10 @@ AUI.add(
 
 					instance.items = A.NodeList.create();
 
-					items.forEach(function(item, index) {
+					items.forEach(function(item) {
 						var caption = item.caption;
 
-						if (!item.hasOwnProperty('id')) {
+						if (!Object.prototype.hasOwnProperty.call(item, 'id')) {
 							item.id = A.guid();
 						}
 
@@ -292,7 +250,7 @@ AUI.add(
 					var instance = this;
 
 					if (instance.get('rendered')) {
-						instance.items.each(function(item, index) {
+						instance.items.each(function(item) {
 							var id = item.attr('data-id');
 
 							item.toggleClass(
@@ -309,6 +267,48 @@ AUI.add(
 					if (instance.get('rendered')) {
 						instance._renderItems(val);
 					}
+				},
+
+				CONTENT_TEMPLATE: '<ul></ul>',
+
+				bindUI() {
+					var instance = this;
+
+					A.Event.defineOutside('touchend');
+
+					var contentBox = instance.get('contentBox');
+
+					instance._eventHandlers = [
+						A.getWin().on(
+							'resize',
+							A.debounce(instance._positionMenu, 200, instance)
+						),
+						contentBox.delegate(
+							'click',
+							instance._onClickItems,
+							STR_DOT + CSS_SIMPLE_MENU_ITEM,
+							instance
+						),
+						instance.after(
+							'visibleChange',
+							instance._onVisibleChange,
+							instance
+						)
+					];
+				},
+
+				destructor() {
+					var instance = this;
+
+					new A.EventHandle(instance._eventHandlers).detach();
+				},
+
+				renderUI() {
+					var instance = this;
+
+					instance.get('boundingBox').unselectable();
+
+					instance._renderItems(instance.get('items'));
 				}
 			}
 		});

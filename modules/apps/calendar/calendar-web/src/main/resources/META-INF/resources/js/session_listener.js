@@ -29,15 +29,6 @@ AUI.add(
 			NAME: 'calendar-session-listener',
 
 			prototype: {
-				initializer() {
-					var instance = this;
-
-					Liferay.on(
-						'sessionExpired',
-						A.bind(instance._onSessionExpired, instance)
-					);
-				},
-
 				_disableCalendars() {
 					var instance = this;
 
@@ -83,6 +74,15 @@ AUI.add(
 					instance._disableScheduler();
 
 					instance._disableEvents();
+				},
+
+				initializer() {
+					var instance = this;
+
+					Liferay.on(
+						'sessionExpired',
+						A.bind(instance._onSessionExpired, instance)
+					);
 				}
 			}
 		});

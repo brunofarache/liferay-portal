@@ -29,75 +29,6 @@ AUI.add(
 			NAME: 'interval-selector-scheduler-event-link',
 
 			prototype: {
-				initializer(config) {
-					var instance = this;
-
-					instance._intervalSelectorUpdated = false;
-
-					instance.bindUI();
-				},
-
-				bindUI() {
-					var instance = this;
-
-					var intervalSelector = instance.get('intervalSelector');
-
-					var schedulerEvent = instance.get('schedulerEvent');
-
-					var endDatePicker = intervalSelector.get('endDatePicker');
-
-					var endTimePicker = intervalSelector.get('endTimePicker');
-
-					var startDatePicker = intervalSelector.get(
-						'startDatePicker'
-					);
-
-					var startTimePicker = intervalSelector.get(
-						'startTimePicker'
-					);
-
-					instance.eventHandlers = [
-						endDatePicker.after(
-							'selectionChange',
-							A.bind(instance._updateEndDate, instance)
-						),
-						endTimePicker.after(
-							'selectionChange',
-							A.bind(instance._updateEndDate, instance)
-						),
-						startDatePicker.after(
-							'selectionChange',
-							A.bind(instance._updateStartDate, instance)
-						),
-						startTimePicker.after(
-							'selectionChange',
-							A.bind(instance._updateStartDate, instance)
-						),
-						schedulerEvent.after(
-							'endDateChange',
-							A.bind(instance._updateIntervalSelector, instance)
-						),
-						schedulerEvent.after(
-							'startDateChange',
-							A.bind(instance._updateIntervalSelector, instance)
-						)
-					];
-				},
-
-				destructor() {
-					var instance = this;
-
-					instance.unlink();
-
-					instance.eventHandlers = null;
-				},
-
-				unlink() {
-					var instance = this;
-
-					AArray.invoke(instance.eventHandlers, 'detach');
-				},
-
 				_updateEndDate() {
 					var instance = this;
 
@@ -195,6 +126,75 @@ AUI.add(
 					startDate.setMinutes(startTime.getMinutes());
 
 					instance._updateSchedulerEvent('startDate', startDate);
+				},
+
+				bindUI() {
+					var instance = this;
+
+					var intervalSelector = instance.get('intervalSelector');
+
+					var schedulerEvent = instance.get('schedulerEvent');
+
+					var endDatePicker = intervalSelector.get('endDatePicker');
+
+					var endTimePicker = intervalSelector.get('endTimePicker');
+
+					var startDatePicker = intervalSelector.get(
+						'startDatePicker'
+					);
+
+					var startTimePicker = intervalSelector.get(
+						'startTimePicker'
+					);
+
+					instance.eventHandlers = [
+						endDatePicker.after(
+							'selectionChange',
+							A.bind(instance._updateEndDate, instance)
+						),
+						endTimePicker.after(
+							'selectionChange',
+							A.bind(instance._updateEndDate, instance)
+						),
+						startDatePicker.after(
+							'selectionChange',
+							A.bind(instance._updateStartDate, instance)
+						),
+						startTimePicker.after(
+							'selectionChange',
+							A.bind(instance._updateStartDate, instance)
+						),
+						schedulerEvent.after(
+							'endDateChange',
+							A.bind(instance._updateIntervalSelector, instance)
+						),
+						schedulerEvent.after(
+							'startDateChange',
+							A.bind(instance._updateIntervalSelector, instance)
+						)
+					];
+				},
+
+				destructor() {
+					var instance = this;
+
+					instance.unlink();
+
+					instance.eventHandlers = null;
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._intervalSelectorUpdated = false;
+
+					instance.bindUI();
+				},
+
+				unlink() {
+					var instance = this;
+
+					AArray.invoke(instance.eventHandlers, 'detach');
 				}
 			}
 		});

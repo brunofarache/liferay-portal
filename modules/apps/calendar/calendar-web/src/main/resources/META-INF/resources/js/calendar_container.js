@@ -73,8 +73,8 @@ AUI.add(
 							'&' +
 							instance.get('namespace') +
 							'keywords={query}',
-						resultFilters(query, results) {
-							return results.filter(function(item, index) {
+						resultFilters(_query, results) {
+							return results.filter(function(item) {
 								return !instance.getCalendar(
 									item.raw.calendarId
 								);
@@ -143,13 +143,10 @@ AUI.add(
 					var items = [
 						{
 							caption: Liferay.Language.get('check-availability'),
-							fn(event) {
+							fn() {
 								var instance = this;
 
-								A.each(availableCalendars, function(
-									item,
-									index
-								) {
+								A.each(availableCalendars, function(item) {
 									item.set('visible', false);
 								});
 
@@ -173,7 +170,7 @@ AUI.add(
 					if (config.invitable) {
 						items.push({
 							caption: Liferay.Language.get('remove'),
-							fn(event) {
+							fn() {
 								var instance = this;
 
 								var calendarList = instance.get('host');
@@ -224,7 +221,7 @@ AUI.add(
 					calendarLists.forEach(function(calendarList) {
 						var calendars = calendarList.get('calendars');
 
-						A.each(calendars, function(item, index) {
+						A.each(calendars, function(item) {
 							var calendarId = item.get('calendarId');
 
 							availableCalendars[calendarId] = item;

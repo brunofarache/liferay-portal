@@ -29,6 +29,113 @@ AUI.add(
 			A.Base,
 			[Liferay.PortletBase],
 			{
+				_invokeActionURL(params) {
+					var instance = this;
+
+					var url = Liferay.PortletURL.createActionURL();
+
+					url.setName(params.actionName);
+					url.setParameters(params.queryParameters);
+					url.setPortletId(instance.ID);
+
+					var payload;
+
+					if (params.payload) {
+						payload = Liferay.Util.ns(
+							instance.get('namespace'),
+							params.payload
+						);
+					}
+
+					const data = new URLSearchParams();
+
+					Object.keys(payload).forEach(key => {
+						data.append(key, payload[key]);
+					});
+
+					Liferay.Util.fetch(url.toString(), {
+						body: data,
+						method: 'POST'
+					})
+						.then(response => {
+							return response.json();
+						})
+						.then(data => {
+							params.callback(data);
+						});
+				},
+
+				_invokeResourceURL(params) {
+					var instance = this;
+
+					var url = Liferay.PortletURL.createResourceURL();
+
+					url.setDoAsUserId(
+						Liferay.ThemeDisplay.getDoAsUserIdEncoded()
+					);
+					url.setParameters(params.queryParameters);
+					url.setPortletId(instance.ID);
+					url.setResourceId(params.resourceId);
+
+					var payload;
+
+					if (params.payload) {
+						payload = Liferay.Util.ns(
+							instance.get('namespace'),
+							params.payload
+						);
+					}
+
+					const data = new URLSearchParams();
+
+					if (payload) {
+						Object.keys(payload).forEach(key => {
+							data.append(key, payload[key]);
+						});
+					}
+
+					Liferay.Util.fetch(url.toString(), {
+						body: data,
+						method: 'POST'
+					})
+						.then(response => {
+							return response.text();
+						})
+						.then(data => {
+							if (data.length) {
+								params.callback(JSON.parse(data));
+							}
+						});
+				},
+
+				_invokeService(payload, callback) {
+					var instance = this;
+
+					callback = callback || {};
+
+					const data = new URLSearchParams();
+					data.append('cmd', JSON.stringify(payload));
+					data.append('payload', Liferay.authToken);
+
+					Liferay.Util.fetch(instance.get('invokerURL'), {
+						body: data,
+						method: 'POST'
+					})
+						.then(response => {
+							return response.json();
+						})
+						.then(data => {
+							if (Liferay.Util.isFunction(callback.success)) {
+								callback.success.apply(this, [data]);
+							}
+						})
+						.catch(err => {
+							if (Liferay.Util.isFunction(callback.failure)) {
+								callback.failure(err);
+							}
+						});
+				},
+
 				deleteCalendar(calendarId, callback) {
 					var instance = this;
 
@@ -399,113 +506,6 @@ AUI.add(
 							updateInstance
 						}
 					});
-				},
-
-				_invokeActionURL(params) {
-					var instance = this;
-
-					var url = Liferay.PortletURL.createActionURL();
-
-					url.setName(params.actionName);
-					url.setParameters(params.queryParameters);
-					url.setPortletId(instance.ID);
-
-					var payload;
-
-					if (params.payload) {
-						payload = Liferay.Util.ns(
-							instance.get('namespace'),
-							params.payload
-						);
-					}
-
-					const data = new URLSearchParams();
-
-					Object.keys(payload).forEach(key => {
-						data.append(key, payload[key]);
-					});
-
-					Liferay.Util.fetch(url.toString(), {
-						body: data,
-						method: 'POST'
-					})
-						.then(response => {
-							return response.json();
-						})
-						.then(data => {
-							params.callback(data);
-						});
-				},
-
-				_invokeResourceURL(params) {
-					var instance = this;
-
-					var url = Liferay.PortletURL.createResourceURL();
-
-					url.setDoAsUserId(
-						Liferay.ThemeDisplay.getDoAsUserIdEncoded()
-					);
-					url.setParameters(params.queryParameters);
-					url.setPortletId(instance.ID);
-					url.setResourceId(params.resourceId);
-
-					var payload;
-
-					if (params.payload) {
-						payload = Liferay.Util.ns(
-							instance.get('namespace'),
-							params.payload
-						);
-					}
-
-					const data = new URLSearchParams();
-
-					if (payload) {
-						Object.keys(payload).forEach(key => {
-							data.append(key, payload[key]);
-						});
-					}
-
-					Liferay.Util.fetch(url.toString(), {
-						body: data,
-						method: 'POST'
-					})
-						.then(response => {
-							return response.text();
-						})
-						.then(data => {
-							if (data.length) {
-								params.callback(JSON.parse(data));
-							}
-						});
-				},
-
-				_invokeService(payload, callback) {
-					var instance = this;
-
-					callback = callback || {};
-
-					const data = new URLSearchParams();
-					data.append('cmd', JSON.stringify(payload));
-					data.append('payload', Liferay.authToken);
-
-					Liferay.Util.fetch(instance.get('invokerURL'), {
-						body: data,
-						method: 'POST'
-					})
-						.then(response => {
-							return response.json();
-						})
-						.then(data => {
-							if (Liferay.Util.isFunction(callback.success)) {
-								callback.success.apply(this, [data]);
-							}
-						})
-						.catch(err => {
-							if (Liferay.Util.isFunction(callback.failure)) {
-								callback.failure(err);
-							}
-						});
 				}
 			},
 			{

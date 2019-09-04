@@ -39,11 +39,10 @@ AUI.add(
 			SECOND: 1000,
 			WEEK: 604800000,
 
+			// eslint-disable-next-line
 			TIME_DESC: ['weeks', 'days', 'hours', 'minutes'],
 
 			getDescription(milliseconds) {
-				var instance = this;
-
 				var desc = 'minutes';
 				var value = 0;
 
@@ -76,8 +75,6 @@ AUI.add(
 			NOTIFICATION_DEFAULT_TYPE: 'email',
 
 			createSchedulerEvent(calendarBooking) {
-				var instance = this;
-
 				var endDate = new Date(
 					calendarBooking.endTimeYear,
 					calendarBooking.endTimeMonth,
@@ -123,8 +120,6 @@ AUI.add(
 			},
 
 			destroyEvent(schedulerEvent) {
-				var instance = this;
-
 				var scheduler = schedulerEvent.get('scheduler');
 
 				scheduler.removeEvents(schedulerEvent);
@@ -133,16 +128,12 @@ AUI.add(
 			},
 
 			fillURLParameters(url, data) {
-				var instance = this;
-
 				url = Lang.sub(url, data);
 
 				return url.replace(REGEX_UNFILLED_PARAMETER, '');
 			},
 
 			getCalendarName(name, calendarResourceName) {
-				var instance = this;
-
 				if (name !== calendarResourceName) {
 					name = [calendarResourceName, STR_DASH, name].join(
 						STR_SPACE
@@ -163,8 +154,6 @@ AUI.add(
 			},
 
 			getDatesList(startDate, total) {
-				var instance = this;
-
 				var ADate = A.Date;
 
 				var output = [];
@@ -179,8 +168,6 @@ AUI.add(
 			},
 
 			getLocalizationMap(value) {
-				var instance = this;
-
 				var map = {};
 
 				map[themeDisplay.getLanguageId()] = value;
@@ -189,8 +176,6 @@ AUI.add(
 			},
 
 			setEventAttrs(schedulerEvent, data) {
-				var instance = this;
-
 				var scheduler = schedulerEvent.get('scheduler');
 
 				var newCalendarId = data.calendarId;
@@ -237,8 +222,6 @@ AUI.add(
 			},
 
 			toLocalTime(utc) {
-				var instance = this;
-
 				if (!isDate(utc)) {
 					utc = new Date(utc);
 				}
@@ -251,8 +234,6 @@ AUI.add(
 			},
 
 			toUTC(date) {
-				var instance = this;
-
 				if (!isDate(date)) {
 					date = new Date(date);
 				}

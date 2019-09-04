@@ -40,54 +40,6 @@ AUI.add(
 		var RecurrenceConverter = function() {};
 
 		A.mix(RecurrenceConverter.prototype, {
-			encodeRecurrence(recurrence) {
-				var instance = this;
-
-				var string = null;
-
-				if (recurrence) {
-					var components = [];
-
-					components.push(instance._encodeRRule(recurrence.rrule));
-
-					if (recurrence.exdate) {
-						components.push(
-							instance._encodeExDate(recurrence.exdate)
-						);
-					}
-
-					string = components.join('\n');
-				}
-
-				return string;
-			},
-
-			parseRecurrence(string) {
-				var instance = this;
-
-				var recurrence = null;
-
-				if (string) {
-					var parts = string.split('\n');
-
-					var rrule = instance._parseRRule(parts[0]);
-
-					if (rrule) {
-						recurrence = {
-							rrule
-						};
-
-						var exdate = instance._parseExDate(parts[1]);
-
-						if (exdate) {
-							recurrence.exdate = exdate;
-						}
-					}
-				}
-
-				return recurrence;
-			},
-
 			_encode(value) {
 				var instance = this;
 
@@ -105,8 +57,6 @@ AUI.add(
 			},
 
 			_encodeDate(date) {
-				var instance = this;
-
 				var day = padNumber(date.getDate());
 				var month = padNumber(date.getMonth() + 1);
 
@@ -154,8 +104,6 @@ AUI.add(
 			},
 
 			_parseExDate(string) {
-				var instance = this;
-
 				var exDate = null;
 
 				if (
@@ -223,6 +171,54 @@ AUI.add(
 				}
 
 				return rrule;
+			},
+
+			encodeRecurrence(recurrence) {
+				var instance = this;
+
+				var string = null;
+
+				if (recurrence) {
+					var components = [];
+
+					components.push(instance._encodeRRule(recurrence.rrule));
+
+					if (recurrence.exdate) {
+						components.push(
+							instance._encodeExDate(recurrence.exdate)
+						);
+					}
+
+					string = components.join('\n');
+				}
+
+				return string;
+			},
+
+			parseRecurrence(string) {
+				var instance = this;
+
+				var recurrence = null;
+
+				if (string) {
+					var parts = string.split('\n');
+
+					var rrule = instance._parseRRule(parts[0]);
+
+					if (rrule) {
+						recurrence = {
+							rrule
+						};
+
+						var exdate = instance._parseExDate(parts[1]);
+
+						if (exdate) {
+							recurrence.exdate = exdate;
+						}
+					}
+				}
+
+				return recurrence;
 			}
 		});
 

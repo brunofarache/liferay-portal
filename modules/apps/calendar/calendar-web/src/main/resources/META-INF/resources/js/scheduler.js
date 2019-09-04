@@ -164,146 +164,6 @@ AUI.add(
 			NAME: 'scheduler-base',
 
 			prototype: {
-				calendarModel: Liferay.SchedulerCalendar,
-				eventModel: Liferay.SchedulerEvent,
-				eventsModel: Liferay.SchedulerEvents,
-				queue: null,
-
-				renderUI() {
-					var instance = this;
-
-					Scheduler.superclass.renderUI.apply(this, arguments);
-
-					instance.navDateNode.replaceClass('hidden-xs', 'hidden');
-					instance.viewDateNode.removeClass('visible-xs');
-
-					var showAddEventBtn = instance.get('showAddEventBtn');
-
-					if (showAddEventBtn) {
-						instance[ICON_ADD_EVENT_NODE] = instance.get(
-							ICON_ADD_EVENT_NODE
-						);
-
-						instance[CONTROLS_NODE].prepend(
-							instance[ICON_ADD_EVENT_NODE]
-						);
-
-						instance[ICON_ADD_EVENT_NODE].on(
-							'click',
-							instance._onClickAddEvent,
-							instance
-						);
-					}
-				},
-
-				bindUI() {
-					var instance = this;
-
-					instance.after({
-						'scheduler-base:dateChange': instance._afterDateChange,
-						'scheduler-event:change':
-							instance._afterSchedulerEventChange
-					});
-
-					instance.on({
-						'*:load': instance._onLoadSchedulerEvents,
-						'scheduler-event-recorder:delete':
-							instance._onDeleteEvent,
-						'scheduler-event-recorder:save': instance._onSaveEvent
-					});
-
-					instance._bindCurrentTimeInterval();
-
-					instance.on(
-						'currentTimeChange',
-						instance._updatePastEvents
-					);
-
-					Scheduler.superclass.bindUI.apply(this, arguments);
-				},
-
-				destructor() {
-					var instance = this;
-
-					clearInterval(instance._currentTimeInterval);
-
-					instance.get('views').forEach(function(item) {
-						item.destroy();
-					});
-
-					Scheduler.superclass.destructor.apply(instance, arguments);
-				},
-
-				getEventsByCalendarBookingId(calendarBookingId) {
-					var instance = this;
-
-					return instance.getEvents(function(schedulerEvent) {
-						return (
-							schedulerEvent.get('calendarBookingId') ===
-							calendarBookingId
-						);
-					});
-				},
-
-				load() {
-					var instance = this;
-
-					var events = instance._events;
-
-					return events.load.apply(events, arguments);
-				},
-
-				plotCalendarBookings(calendarBookings) {
-					var instance = this;
-
-					var calendarEvents = {};
-					var events = [];
-
-					calendarBookings.forEach(function(item, index) {
-						var calendarId = item.calendarId;
-
-						if (!calendarEvents[calendarId]) {
-							calendarEvents[calendarId] = [];
-						}
-
-						var schedulerEvent = CalendarUtil.createSchedulerEvent(
-							item
-						);
-
-						schedulerEvent.set('scheduler', instance, {
-							silent: true
-						});
-
-						events.push(schedulerEvent);
-						calendarEvents[calendarId].push(schedulerEvent);
-					});
-
-					instance.resetEvents(events);
-
-					var calendarContainer = instance.get('calendarContainer');
-
-					A.each(
-						calendarContainer.get('availableCalendars'),
-						function(item, index) {
-							item.reset(calendarEvents[index], {
-								skipSyncUI: true
-							});
-						}
-					);
-
-					if (instance.get('rendered')) {
-						instance.syncEventsUI();
-					}
-				},
-
-				sync() {
-					var instance = this;
-
-					var events = instance._events;
-
-					return events.sync.apply(events, arguments);
-				},
-
 				_afterActiveViewChange(event) {
 					var instance = this;
 
@@ -322,7 +182,7 @@ AUI.add(
 					instance.load();
 				},
 
-				_afterDateChange(event) {
+				_afterDateChange() {
 					var instance = this;
 
 					instance.load();
@@ -346,8 +206,11 @@ AUI.add(
 
 						var persist = true;
 
-						A.each(changedAttributes, function(item, index) {
-							persist = persistentAttrMap.hasOwnProperty(index);
+						A.each(changedAttributes, function(_item, index) {
+							persist = Object.prototype.hasOwnProperty.call(
+								persistentAttrMap,
+								index
+							);
 						});
 
 						if (persist) {
@@ -370,9 +233,7 @@ AUI.add(
 					);
 				},
 
-				_createViewTriggerNode(view, tpl) {
-					var instance = this;
-
+				_createViewTriggerNode(view) {
 					var node = Scheduler.superclass._createViewTriggerNode.apply(
 						this,
 						arguments
@@ -400,8 +261,6 @@ AUI.add(
 				},
 
 				_getCalendarBookingDuration(schedulerEvent) {
-					var instance = this;
-
 					var duration =
 						schedulerEvent.getSecondsDuration() * Time.SECOND;
 
@@ -409,8 +268,6 @@ AUI.add(
 				},
 
 				_getCalendarBookingOffset(schedulerEvent, changedAttributes) {
-					var instance = this;
-
 					var offset = 0;
 
 					if (changedAttributes.startDate) {
@@ -488,7 +345,7 @@ AUI.add(
 					return recurrence;
 				},
 
-				_onClickAddEvent(event) {
+				_onClickAddEvent() {
 					var instance = this;
 
 					var recorder = instance.get('eventRecorder');
@@ -521,7 +378,7 @@ AUI.add(
 					Liferay.Util.openWindow({
 						dialog: {
 							after: {
-								destroy(event) {
+								destroy() {
 									instance.load();
 								}
 							},
@@ -710,6 +567,148 @@ AUI.add(
 						),
 						schedulerEvent
 					});
+				},
+
+				bindUI() {
+					var instance = this;
+
+					instance.after({
+						'scheduler-base:dateChange': instance._afterDateChange,
+						'scheduler-event:change':
+							instance._afterSchedulerEventChange
+					});
+
+					instance.on({
+						'*:load': instance._onLoadSchedulerEvents,
+						'scheduler-event-recorder:delete':
+							instance._onDeleteEvent,
+						'scheduler-event-recorder:save': instance._onSaveEvent
+					});
+
+					instance._bindCurrentTimeInterval();
+
+					instance.on(
+						'currentTimeChange',
+						instance._updatePastEvents
+					);
+
+					Scheduler.superclass.bindUI.apply(this, arguments);
+				},
+
+				calendarModel: Liferay.SchedulerCalendar,
+
+				destructor() {
+					var instance = this;
+
+					clearInterval(instance._currentTimeInterval);
+
+					instance.get('views').forEach(function(item) {
+						item.destroy();
+					});
+
+					Scheduler.superclass.destructor.apply(instance, arguments);
+				},
+
+				eventModel: Liferay.SchedulerEvent,
+				eventsModel: Liferay.SchedulerEvents,
+
+				getEventsByCalendarBookingId(calendarBookingId) {
+					var instance = this;
+
+					return instance.getEvents(function(schedulerEvent) {
+						return (
+							schedulerEvent.get('calendarBookingId') ===
+							calendarBookingId
+						);
+					});
+				},
+
+				load() {
+					var instance = this;
+
+					var events = instance._events;
+
+					return events.load.apply(events, arguments);
+				},
+
+				plotCalendarBookings(calendarBookings) {
+					var instance = this;
+
+					var calendarEvents = {};
+					var events = [];
+
+					calendarBookings.forEach(function(item) {
+						var calendarId = item.calendarId;
+
+						if (!calendarEvents[calendarId]) {
+							calendarEvents[calendarId] = [];
+						}
+
+						var schedulerEvent = CalendarUtil.createSchedulerEvent(
+							item
+						);
+
+						schedulerEvent.set('scheduler', instance, {
+							silent: true
+						});
+
+						events.push(schedulerEvent);
+						calendarEvents[calendarId].push(schedulerEvent);
+					});
+
+					instance.resetEvents(events);
+
+					var calendarContainer = instance.get('calendarContainer');
+
+					A.each(
+						calendarContainer.get('availableCalendars'),
+						function(item, index) {
+							item.reset(calendarEvents[index], {
+								skipSyncUI: true
+							});
+						}
+					);
+
+					if (instance.get('rendered')) {
+						instance.syncEventsUI();
+					}
+				},
+
+				queue: null,
+
+				renderUI() {
+					var instance = this;
+
+					Scheduler.superclass.renderUI.apply(this, arguments);
+
+					instance.navDateNode.replaceClass('hidden-xs', 'hidden');
+					instance.viewDateNode.removeClass('visible-xs');
+
+					var showAddEventBtn = instance.get('showAddEventBtn');
+
+					if (showAddEventBtn) {
+						instance[ICON_ADD_EVENT_NODE] = instance.get(
+							ICON_ADD_EVENT_NODE
+						);
+
+						instance[CONTROLS_NODE].prepend(
+							instance[ICON_ADD_EVENT_NODE]
+						);
+
+						instance[ICON_ADD_EVENT_NODE].on(
+							'click',
+							instance._onClickAddEvent,
+							instance
+						);
+					}
+				},
+
+				sync() {
+					var instance = this;
+
+					var events = instance._events;
+
+					return events.sync.apply(events, arguments);
 				}
 			}
 		});
@@ -717,10 +716,6 @@ AUI.add(
 		Liferay.Scheduler = Scheduler;
 
 		var SchedulerDayView = A.Component.create({
-			EXTENDS: A.SchedulerDayView,
-
-			NAME: 'scheduler-day-view',
-
 			ATTRS: {
 				navigationDateFormatter: {
 					validator: isFunction,
@@ -745,16 +740,16 @@ AUI.add(
 
 					instance._moveCurrentTimeNode(currentTime);
 				}
-			}
+			},
+
+			EXTENDS: A.SchedulerDayView,
+
+			NAME: 'scheduler-day-view'
 		});
 
 		Liferay.SchedulerDayView = SchedulerDayView;
 
 		Liferay.SchedulerWeekView = A.Component.create({
-			EXTENDS: A.SchedulerWeekView,
-
-			NAME: 'scheduler-week-view',
-
 			ATTRS: {
 				navigationDateFormatter: {
 					validator: isFunction,
@@ -798,14 +793,14 @@ AUI.add(
 						);
 					}
 				}
-			}
+			},
+
+			EXTENDS: A.SchedulerWeekView,
+
+			NAME: 'scheduler-week-view'
 		});
 
 		var SchedulerMonthView = A.Component.create({
-			EXTENDS: A.SchedulerMonthView,
-
-			NAME: 'scheduler-month-view',
-
 			ATTRS: {
 				navigationDateFormatter: {
 					validator: isFunction,
@@ -821,6 +816,10 @@ AUI.add(
 					}
 				}
 			},
+
+			EXTENDS: A.SchedulerMonthView,
+
+			NAME: 'scheduler-month-view',
 
 			prototype: {
 				_syncCellDimensions() {
@@ -1008,6 +1007,19 @@ AUI.add(
 			NAME: 'scheduler-view-agenda',
 
 			prototype: {
+				_getFormatter(mask) {
+					return function(date) {
+						var instance = this;
+
+						var scheduler = instance.get('scheduler');
+
+						return A.DataType.Date.format(date, {
+							format: mask,
+							locale: scheduler.get('locale')
+						});
+					};
+				},
+
 				plotEvents() {
 					var instance = this;
 
@@ -1025,19 +1037,6 @@ AUI.add(
 					} else {
 						headerContent.hide();
 					}
-				},
-
-				_getFormatter(mask) {
-					return function(date) {
-						var instance = this;
-
-						var scheduler = instance.get('scheduler');
-
-						return A.DataType.Date.format(date, {
-							format: mask,
-							locale: scheduler.get('locale')
-						});
-					};
 				}
 			}
 		});

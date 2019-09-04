@@ -45,99 +45,7 @@ AUI.add(
 			NAME: 'interval-selector',
 
 			prototype: {
-				initializer(config) {
-					var instance = this;
-
-					instance.eventHandlers = [];
-
-					instance._containerNode = instance.byId(config.containerId);
-					instance._submitButtonNode = instance.byId(
-						config.submitButtonId
-					);
-
-					instance._duration = 0;
-					instance._endDate = new Date();
-					instance._startDate = new Date();
-					instance._validDate = true;
-
-					instance._initPicker(instance.get('endDatePicker'));
-					instance._initPicker(instance.get('endTimePicker'));
-					instance._initPicker(instance.get('startDatePicker'));
-					instance._initPicker(instance.get('startTimePicker'));
-
-					instance._setEndDate();
-					instance._setEndTime();
-					instance._setStartDate();
-					instance._setStartTime();
-					instance._setDuration();
-
-					instance.bindUI();
-				},
-
-				bindUI() {
-					var instance = this;
-
-					instance.startDurationPreservation();
-				},
-
-				destructor() {
-					var instance = this;
-
-					instance.stopDurationPreservation();
-
-					instance.eventHandlers = null;
-				},
-
-				setDuration(duration) {
-					var instance = this;
-
-					instance._duration = duration;
-				},
-
-				startDurationPreservation() {
-					var instance = this;
-
-					instance.eventHandlers.push(
-						instance
-							.get('endDatePicker')
-							.after(
-								EVENT_SELECTION_CHANGE,
-								instance._onEndDatePickerSelectionChange,
-								instance
-							),
-						instance
-							.get('endTimePicker')
-							.after(
-								EVENT_SELECTION_CHANGE,
-								instance._onEndTimePickerSelectionChange,
-								instance
-							),
-						instance
-							.get('startDatePicker')
-							.after(
-								EVENT_SELECTION_CHANGE,
-								instance._onStartDatePickerSelectionChange,
-								instance
-							),
-						instance
-							.get('startTimePicker')
-							.after(
-								EVENT_SELECTION_CHANGE,
-								instance._onStartTimePickerSelectionChange,
-								instance
-							)
-					);
-				},
-
-				stopDurationPreservation() {
-					var instance = this;
-
-					AArray.invoke(instance.eventHandlers, 'detach');
-				},
-
 				_initPicker(picker) {
-					var instance = this;
-
 					var attrs = picker.getAttrs();
 
 					var inputNode = A.one(attrs.container._node.children[0]);
@@ -361,6 +269,96 @@ AUI.add(
 							submitButton.attr('disabled', !validDate);
 						}
 					}
+				},
+
+				bindUI() {
+					var instance = this;
+
+					instance.startDurationPreservation();
+				},
+
+				destructor() {
+					var instance = this;
+
+					instance.stopDurationPreservation();
+
+					instance.eventHandlers = null;
+				},
+
+				initializer(config) {
+					var instance = this;
+
+					instance.eventHandlers = [];
+
+					instance._containerNode = instance.byId(config.containerId);
+					instance._submitButtonNode = instance.byId(
+						config.submitButtonId
+					);
+
+					instance._duration = 0;
+					instance._endDate = new Date();
+					instance._startDate = new Date();
+					instance._validDate = true;
+
+					instance._initPicker(instance.get('endDatePicker'));
+					instance._initPicker(instance.get('endTimePicker'));
+					instance._initPicker(instance.get('startDatePicker'));
+					instance._initPicker(instance.get('startTimePicker'));
+
+					instance._setEndDate();
+					instance._setEndTime();
+					instance._setStartDate();
+					instance._setStartTime();
+					instance._setDuration();
+
+					instance.bindUI();
+				},
+
+				setDuration(duration) {
+					var instance = this;
+
+					instance._duration = duration;
+				},
+
+				startDurationPreservation() {
+					var instance = this;
+
+					instance.eventHandlers.push(
+						instance
+							.get('endDatePicker')
+							.after(
+								EVENT_SELECTION_CHANGE,
+								instance._onEndDatePickerSelectionChange,
+								instance
+							),
+						instance
+							.get('endTimePicker')
+							.after(
+								EVENT_SELECTION_CHANGE,
+								instance._onEndTimePickerSelectionChange,
+								instance
+							),
+						instance
+							.get('startDatePicker')
+							.after(
+								EVENT_SELECTION_CHANGE,
+								instance._onStartDatePickerSelectionChange,
+								instance
+							),
+						instance
+							.get('startTimePicker')
+							.after(
+								EVENT_SELECTION_CHANGE,
+								instance._onStartTimePickerSelectionChange,
+								instance
+							)
+					);
+				},
+
+				stopDurationPreservation() {
+					var instance = this;
+
+					AArray.invoke(instance.eventHandlers, 'detach');
 				}
 			}
 		});

@@ -99,25 +99,6 @@ AUI.add(
 			UI_ATTRS: ['color', 'pallete'],
 
 			prototype: {
-				renderUI() {
-					var instance = this;
-
-					instance._renderPallete();
-				},
-
-				bindUI() {
-					var instance = this;
-
-					var contentBox = instance.get('contentBox');
-
-					contentBox.delegate(
-						'click',
-						instance._onClickColor,
-						STR_DOT + CSS_SIMPLE_COLOR_PICKER_ITEM,
-						instance
-					);
-				},
-
 				_onClickColor(event) {
 					var instance = this;
 
@@ -157,12 +138,31 @@ AUI.add(
 					}
 				},
 
-				_uiSetPallete(val) {
+				_uiSetPallete() {
 					var instance = this;
 
 					if (instance.get('rendered')) {
 						instance._renderPallete();
 					}
+				},
+
+				bindUI() {
+					var instance = this;
+
+					var contentBox = instance.get('contentBox');
+
+					contentBox.delegate(
+						'click',
+						instance._onClickColor,
+						STR_DOT + CSS_SIMPLE_COLOR_PICKER_ITEM,
+						instance
+					);
+				},
+
+				renderUI() {
+					var instance = this;
+
+					instance._renderPallete();
 				}
 			}
 		});
