@@ -14,7 +14,7 @@
 
 AUI.add(
 	'liferay-search-sort-util',
-	function(A) {
+	function() {
 		var SortUtil = {
 			addURLParameter(key, value, parameterArray) {
 				key = encodeURIComponent(key);

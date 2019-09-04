@@ -50,6 +50,20 @@ AUI.add(
 		};
 
 		A.mix(SearchBar.prototype, {
+			_onClick() {
+				var instance = this;
+
+				instance.search();
+			},
+
+			_onSubmit(event) {
+				var instance = this;
+
+				event.stopPropagation();
+
+				instance.search();
+			},
+
 			getKeywords() {
 				var instance = this;
 
@@ -110,20 +124,6 @@ AUI.add(
 				}
 
 				return '?' + searchParams.toString();
-			},
-
-			_onClick(event) {
-				var instance = this;
-
-				instance.search();
-			},
-
-			_onSubmit(event) {
-				var instance = this;
-
-				event.stopPropagation();
-
-				instance.search();
 			}
 		});
 

@@ -93,7 +93,7 @@ AUI.add(
 		Liferay.namespace('Search').ModifiedFacetFilter = ModifiedFacetFilter;
 
 		var ModifiedFacetFilterUtil = {
-			clearSelections(event) {
+			clearSelections() {
 				var param = this.getParameterName();
 				var paramFrom = param + 'From';
 				var paramTo = param + 'To';

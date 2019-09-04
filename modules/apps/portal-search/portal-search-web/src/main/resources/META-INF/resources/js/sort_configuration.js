@@ -43,8 +43,8 @@ AUI.add(
 					var field = item.one('.sort-field-input').val();
 
 					fields.push({
-						label,
-						field
+						field,
+						label
 					});
 				});
 

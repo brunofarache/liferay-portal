@@ -34,6 +34,20 @@ AUI.add(
 		};
 
 		A.mix(CustomFilter.prototype, {
+			_onClick() {
+				var instance = this;
+
+				instance.search();
+			},
+
+			_onSubmit(event) {
+				var instance = this;
+
+				event.stopPropagation();
+
+				instance.search();
+			},
+
 			getFilterValue() {
 				var instance = this;
 
@@ -74,20 +88,6 @@ AUI.add(
 				}
 
 				return queryString;
-			},
-
-			_onClick(event) {
-				var instance = this;
-
-				instance.search();
-			},
-
-			_onSubmit(event) {
-				var instance = this;
-
-				event.stopPropagation();
-
-				instance.search();
 			}
 		});
 

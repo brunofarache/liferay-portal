@@ -39,8 +39,7 @@ AUI.add(
 				);
 
 				Array.prototype.forEach.call(formCheckboxes, function(
-					checkbox,
-					index
+					checkbox
 				) {
 					if (checkbox.checked) {
 						selections.push(checkbox.getAttribute('data-term-id'));
