@@ -75,263 +75,6 @@ AUI.add(
 			NAME: 'documentlibrary',
 
 			prototype: {
-				initializer(config) {
-					var instance = this;
-
-					var eventHandles = [];
-
-					var documentLibraryContainer = instance.byId(
-						'documentLibraryContainer'
-					);
-
-					instance._documentLibraryContainer = documentLibraryContainer;
-
-					instance._eventDataRequest = instance.ns('dataRequest');
-					instance._entriesContainer = instance.byId(
-						'entriesContainer'
-					);
-
-					var namespace = instance.NS;
-
-					var searchContainer = Liferay.SearchContainer.get(
-						namespace + instance.get('searchContainerId')
-					);
-
-					searchContainer.registerAction(
-						'move-to-folder',
-						A.bind('_moveToFolder', instance)
-					);
-					searchContainer.registerAction(
-						'move-to-trash',
-						A.bind('_moveToTrash', instance)
-					);
-					eventHandles.push(
-						searchContainer.on(
-							'rowToggled',
-							this._handleSearchContainerRowToggled,
-							this
-						)
-					);
-
-					instance._searchContainer = searchContainer;
-
-					var foldersConfig = config.folders;
-
-					instance._folderId = foldersConfig.defaultParentFolderId;
-
-					instance._config = config;
-
-					if (
-						config.uploadable &&
-						HTML5_UPLOAD &&
-						themeDisplay.isSignedIn() &&
-						instance._entriesContainer.inDoc()
-					) {
-						config.appViewEntryTemplates = instance.byId(
-							'appViewEntryTemplates'
-						);
-
-						eventHandles.push(
-							A.getDoc().once(
-								'dragenter',
-								instance._plugUpload,
-								instance,
-								config
-							)
-						);
-					}
-
-					instance._eventHandles = eventHandles;
-				},
-
-				destructor() {
-					var instance = this;
-
-					A.Array.invoke(instance._eventHandles, 'detach');
-
-					instance._documentLibraryContainer.purge(true);
-				},
-
-				getFolderId() {
-					var instance = this;
-
-					return instance._folderId;
-				},
-
-				handleActionItemClicked(event) {
-					var instance = this;
-
-					var action = event.data.item.data.action;
-
-					var namespace = instance.NS;
-
-					var url = instance.get('editEntryUrl');
-
-					if (action === 'editTags') {
-						instance._openModalTags();
-
-						action = null;
-					} else if (action === 'editCategories') {
-						instance._openModalCategories();
-
-						action = null;
-					} else if (action === 'move' || action === 'moveEntries') {
-						instance._openModalMove();
-
-						action = null;
-					} else if (action === 'download') {
-						url = instance.get('downloadEntryUrl');
-					} else if (action === 'deleteEntries') {
-						if (instance.get('trashEnabled')) {
-							action = 'move_to_trash';
-						} else if (
-							confirm(
-								Liferay.Language.get(
-									'are-you-sure-you-want-to-delete-the-selected-entries'
-								)
-							)
-						) {
-							action = 'delete';
-						} else {
-							action = null;
-						}
-					} else if (action === 'checkin') {
-						Liferay.DocumentLibraryCheckin.showDialog(
-							namespace,
-							function(versionIncrease, changeLog) {
-								var form = instance.get('form').node;
-
-								form.get(namespace + 'changeLog').val(
-									changeLog
-								);
-								form.get(namespace + 'versionIncrease').val(
-									versionIncrease
-								);
-
-								instance._processAction('checkin', url);
-							}
-						);
-						action = null;
-					}
-
-					if (action) {
-						instance._processAction(action, url);
-					}
-				},
-
-				handleCreationMenuMoreButtonClicked(event) {
-					event.preventDefault();
-
-					var instance = this;
-
-					Liferay.Util.openWindow({
-						dialog: {
-							destroyOnHide: true,
-							modal: true
-						},
-						id: instance.ns('selectAddMenuItem'),
-						title: Liferay.Language.get('more'),
-						uri: instance.get('openViewMoreFileEntryTypesURL')
-					});
-				},
-
-				handleFilterItemClicked(event) {
-					var instance = this;
-
-					var itemData = event.data.item.data;
-
-					if (itemData.action === 'openDocumentTypesSelector') {
-						Liferay.Loader.require(
-							'frontend-js-web/liferay/ItemSelectorDialog.es',
-							function(ItemSelectorDialog) {
-								var itemSelectorDialog = new ItemSelectorDialog.default(
-									{
-										buttonAddLabel: Liferay.Language.get(
-											'select'
-										),
-										eventName: instance.ns(
-											'selectFileEntryType'
-										),
-										title: Liferay.Language.get(
-											'select-document-type'
-										),
-										url: instance.get(
-											'selectFileEntryTypeURL'
-										)
-									}
-								);
-
-								itemSelectorDialog.open();
-
-								itemSelectorDialog.on(
-									'selectedItemChange',
-									function(event) {
-										var selectedItem = event.selectedItem;
-
-										if (selectedItem) {
-											var uri = instance.get(
-												'viewFileEntryTypeURL'
-											);
-
-											uri = Liferay.Util.addParams(
-												instance.ns(
-													'fileEntryTypeId='
-												) + selectedItem,
-												uri
-											);
-
-											location.href = uri;
-										}
-									}
-								);
-							}
-						);
-					}
-				},
-
-				showFolderDialog(selectedItems, parameterName, parameterValue) {
-					var instance = this;
-
-					var namespace = instance.NS;
-
-					var dialogTitle = '';
-
-					if (selectedItems == 1) {
-						dialogTitle = Liferay.Language.get(
-							'select-destination-folder-for-x-item'
-						);
-					} else {
-						dialogTitle = Liferay.Language.get(
-							'select-destination-folder-for-x-items'
-						);
-					}
-
-					Liferay.Util.selectEntity(
-						{
-							dialog: {
-								constrain: true,
-								destroyOnHide: true,
-								modal: true,
-								width: 680
-							},
-							id: namespace + 'selectFolder',
-							title: Lang.sub(dialogTitle, [selectedItems]),
-							uri: instance.get('selectFolderURL')
-						},
-						function(event) {
-							if (parameterName && parameterValue) {
-								instance._moveSingleElement(
-									event.folderid,
-									parameterName,
-									parameterValue
-								);
-							} else {
-								instance._moveCurrentSelection(event.folderid);
-							}
-						}
-					);
-				},
-
 				_handleSearchContainerRowToggled(event) {
 					var instance = this;
 
@@ -553,6 +296,263 @@ AUI.add(
 					form.get(namespace + 'selectAll').val(bulkSelection);
 
 					submitForm(form, url, false);
+				},
+
+				destructor() {
+					var instance = this;
+
+					A.Array.invoke(instance._eventHandles, 'detach');
+
+					instance._documentLibraryContainer.purge(true);
+				},
+
+				getFolderId() {
+					var instance = this;
+
+					return instance._folderId;
+				},
+
+				handleActionItemClicked(event) {
+					var instance = this;
+
+					var action = event.data.item.data.action;
+
+					var namespace = instance.NS;
+
+					var url = instance.get('editEntryUrl');
+
+					if (action === 'editTags') {
+						instance._openModalTags();
+
+						action = null;
+					} else if (action === 'editCategories') {
+						instance._openModalCategories();
+
+						action = null;
+					} else if (action === 'move' || action === 'moveEntries') {
+						instance._openModalMove();
+
+						action = null;
+					} else if (action === 'download') {
+						url = instance.get('downloadEntryUrl');
+					} else if (action === 'deleteEntries') {
+						if (instance.get('trashEnabled')) {
+							action = 'move_to_trash';
+						} else if (
+							confirm(
+								Liferay.Language.get(
+									'are-you-sure-you-want-to-delete-the-selected-entries'
+								)
+							)
+						) {
+							action = 'delete';
+						} else {
+							action = null;
+						}
+					} else if (action === 'checkin') {
+						Liferay.DocumentLibraryCheckin.showDialog(
+							namespace,
+							function(versionIncrease, changeLog) {
+								var form = instance.get('form').node;
+
+								form.get(namespace + 'changeLog').val(
+									changeLog
+								);
+								form.get(namespace + 'versionIncrease').val(
+									versionIncrease
+								);
+
+								instance._processAction('checkin', url);
+							}
+						);
+						action = null;
+					}
+
+					if (action) {
+						instance._processAction(action, url);
+					}
+				},
+
+				handleCreationMenuMoreButtonClicked(event) {
+					event.preventDefault();
+
+					var instance = this;
+
+					Liferay.Util.openWindow({
+						dialog: {
+							destroyOnHide: true,
+							modal: true
+						},
+						id: instance.ns('selectAddMenuItem'),
+						title: Liferay.Language.get('more'),
+						uri: instance.get('openViewMoreFileEntryTypesURL')
+					});
+				},
+
+				handleFilterItemClicked(event) {
+					var instance = this;
+
+					var itemData = event.data.item.data;
+
+					if (itemData.action === 'openDocumentTypesSelector') {
+						Liferay.Loader.require(
+							'frontend-js-web/liferay/ItemSelectorDialog.es',
+							function(ItemSelectorDialog) {
+								var itemSelectorDialog = new ItemSelectorDialog.default(
+									{
+										buttonAddLabel: Liferay.Language.get(
+											'select'
+										),
+										eventName: instance.ns(
+											'selectFileEntryType'
+										),
+										title: Liferay.Language.get(
+											'select-document-type'
+										),
+										url: instance.get(
+											'selectFileEntryTypeURL'
+										)
+									}
+								);
+
+								itemSelectorDialog.open();
+
+								itemSelectorDialog.on(
+									'selectedItemChange',
+									function(event) {
+										var selectedItem = event.selectedItem;
+
+										if (selectedItem) {
+											var uri = instance.get(
+												'viewFileEntryTypeURL'
+											);
+
+											uri = Liferay.Util.addParams(
+												instance.ns(
+													'fileEntryTypeId='
+												) + selectedItem,
+												uri
+											);
+
+											location.href = uri;
+										}
+									}
+								);
+							}
+						);
+					}
+				},
+
+				initializer(config) {
+					var instance = this;
+
+					var eventHandles = [];
+
+					var documentLibraryContainer = instance.byId(
+						'documentLibraryContainer'
+					);
+
+					instance._documentLibraryContainer = documentLibraryContainer;
+
+					instance._eventDataRequest = instance.ns('dataRequest');
+					instance._entriesContainer = instance.byId(
+						'entriesContainer'
+					);
+
+					var namespace = instance.NS;
+
+					var searchContainer = Liferay.SearchContainer.get(
+						namespace + instance.get('searchContainerId')
+					);
+
+					searchContainer.registerAction(
+						'move-to-folder',
+						A.bind('_moveToFolder', instance)
+					);
+					searchContainer.registerAction(
+						'move-to-trash',
+						A.bind('_moveToTrash', instance)
+					);
+					eventHandles.push(
+						searchContainer.on(
+							'rowToggled',
+							this._handleSearchContainerRowToggled,
+							this
+						)
+					);
+
+					instance._searchContainer = searchContainer;
+
+					var foldersConfig = config.folders;
+
+					instance._folderId = foldersConfig.defaultParentFolderId;
+
+					instance._config = config;
+
+					if (
+						config.uploadable &&
+						HTML5_UPLOAD &&
+						themeDisplay.isSignedIn() &&
+						instance._entriesContainer.inDoc()
+					) {
+						config.appViewEntryTemplates = instance.byId(
+							'appViewEntryTemplates'
+						);
+
+						eventHandles.push(
+							A.getDoc().once(
+								'dragenter',
+								instance._plugUpload,
+								instance,
+								config
+							)
+						);
+					}
+
+					instance._eventHandles = eventHandles;
+				},
+
+				showFolderDialog(selectedItems, parameterName, parameterValue) {
+					var instance = this;
+
+					var namespace = instance.NS;
+
+					var dialogTitle = '';
+
+					if (selectedItems == 1) {
+						dialogTitle = Liferay.Language.get(
+							'select-destination-folder-for-x-item'
+						);
+					} else {
+						dialogTitle = Liferay.Language.get(
+							'select-destination-folder-for-x-items'
+						);
+					}
+
+					Liferay.Util.selectEntity(
+						{
+							dialog: {
+								constrain: true,
+								destroyOnHide: true,
+								modal: true,
+								width: 680
+							},
+							id: namespace + 'selectFolder',
+							title: Lang.sub(dialogTitle, [selectedItems]),
+							uri: instance.get('selectFolderURL')
+						},
+						function(event) {
+							if (parameterName && parameterValue) {
+								instance._moveSingleElement(
+									event.folderid,
+									parameterName,
+									parameterValue
+								);
+							} else {
+								instance._moveCurrentSelection(event.folderid);
+							}
+						}
+					);
 				}
 			}
 		});
