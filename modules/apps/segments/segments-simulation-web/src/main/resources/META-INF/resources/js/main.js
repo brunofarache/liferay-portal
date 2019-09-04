@@ -39,18 +39,6 @@ AUI.add(
 			NAME: 'segmentsSimulation',
 
 			prototype: {
-				initializer() {
-					var instance = this;
-
-					instance._bindUI();
-				},
-
-				destructor() {
-					var instance = this;
-
-					new A.EventHandle(instance._eventHandles).detach();
-				},
-
 				_bindUI() {
 					var instance = this;
 
@@ -135,6 +123,18 @@ AUI.add(
 								}
 							}
 						});
+				},
+
+				destructor() {
+					var instance = this;
+
+					new A.EventHandle(instance._eventHandles).detach();
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._bindUI();
 				}
 			}
 		});
