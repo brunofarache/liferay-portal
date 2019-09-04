@@ -64,60 +64,7 @@ AUI.add(
 			NS: NAME,
 
 			prototype: {
-				initializer() {
-					var instance = this;
-
-					var host = instance.get(STR_HOST);
-
-					var editor = host.getNativeEditor();
-
-					editor.on('imageAdd', instance._onImageAdd, instance);
-
-					instance._editor = editor;
-
-					var uploader = instance._getUploader();
-
-					instance._eventHandles = [
-						uploader.on(
-							'uploadcomplete',
-							instance._onUploadComplete,
-							instance
-						),
-						uploader.on(
-							'uploaderror',
-							instance._onUploadError,
-							instance
-						),
-						uploader.on(
-							'uploadprogress',
-							instance._onUploadProgress,
-							instance
-						)
-					];
-				},
-
-				destructor() {
-					var instance = this;
-
-					if (instance._uploader) {
-						instance._uploader.destroy();
-					}
-
-					if (instance._alert) {
-						instance._alert.destroy();
-					}
-
-					instance._editor.removeListener(
-						'imageAdd',
-						instance._uploadImage
-					);
-
-					new A.EventHandle(instance._eventHandles).detach();
-				},
-
 				_createProgressBar(image) {
-					var instance = this;
-
 					var imageContainerNode = A.Node.create(TPL_IMAGE_CONTAINER);
 					var progressBarNode = A.Node.create(TPL_PROGRESS_BAR);
 
@@ -272,8 +219,6 @@ AUI.add(
 				},
 
 				_onUploadProgress(event) {
-					var instance = this;
-
 					var percentLoaded = Math.round(event.percentLoaded);
 
 					var target = event.details[0].target;
@@ -317,6 +262,57 @@ AUI.add(
 					});
 
 					uploader.upload(file);
+				},
+
+				destructor() {
+					var instance = this;
+
+					if (instance._uploader) {
+						instance._uploader.destroy();
+					}
+
+					if (instance._alert) {
+						instance._alert.destroy();
+					}
+
+					instance._editor.removeListener(
+						'imageAdd',
+						instance._uploadImage
+					);
+
+					new A.EventHandle(instance._eventHandles).detach();
+				},
+
+				initializer() {
+					var instance = this;
+
+					var host = instance.get(STR_HOST);
+
+					var editor = host.getNativeEditor();
+
+					editor.on('imageAdd', instance._onImageAdd, instance);
+
+					instance._editor = editor;
+
+					var uploader = instance._getUploader();
+
+					instance._eventHandles = [
+						uploader.on(
+							'uploadcomplete',
+							instance._onUploadComplete,
+							instance
+						),
+						uploader.on(
+							'uploaderror',
+							instance._onUploadError,
+							instance
+						),
+						uploader.on(
+							'uploadprogress',
+							instance._onUploadProgress,
+							instance
+						)
+					];
 				}
 			}
 		});

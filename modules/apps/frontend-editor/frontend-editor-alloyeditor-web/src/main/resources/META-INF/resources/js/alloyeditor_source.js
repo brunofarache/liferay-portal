@@ -50,97 +50,6 @@ AUI.add(
 			NS: 'liferayalloyeditorsource',
 
 			prototype: {
-				initializer() {
-					var instance = this;
-
-					var host = instance.get(STR_HOST);
-
-					instance._editorFullscreen = host.one('#Fullscreen');
-					instance._editorSource = host.one('#Source');
-					instance._editorSwitch = host.one('#Switch');
-					instance._editorSwitchTheme = host.one('#SwitchTheme');
-					instance._editorWrapper = host.one('#Wrapper');
-
-					instance._toggleSourceSwitchFn = A.debounce(
-						instance._toggleSourceSwitch,
-						100,
-						instance
-					);
-
-					host.getNativeEditor().on(
-						'editorUpdate',
-						A.bind('_onEditorUpdate', instance)
-					);
-
-					instance._eventHandles = [
-						instance._editorFullscreen.on(
-							'click',
-							instance._onFullScreenBtnClick,
-							instance
-						),
-						instance._editorSwitch.on(
-							'blur',
-							instance._onSwitchBlur,
-							instance
-						),
-						instance._editorSwitch.on(
-							'click',
-							instance._switchMode,
-							instance
-						),
-						instance._editorSwitch.on(
-							'focus',
-							instance._onSwitchFocus,
-							instance
-						),
-						instance._editorSwitch.on(
-							'mousedown',
-							instance._onSwitchMouseDown,
-							instance
-						),
-						instance._editorSwitch.on(
-							'mouseout',
-							instance._onSwitchMouseOut,
-							instance
-						),
-						instance._editorSwitchTheme.on(
-							'click',
-							instance._switchTheme,
-							instance
-						),
-						instance.doAfter(
-							'getHTML',
-							instance._getHTML,
-							instance
-						),
-						instance.doAfter('setHTML', instance._setHTML, instance)
-					];
-				},
-
-				destructor() {
-					var instance = this;
-
-					var sourceEditor = instance._sourceEditor;
-
-					if (sourceEditor) {
-						sourceEditor.destroy();
-					}
-
-					var fullScreenEditor = instance._fullScreenEditor;
-
-					if (fullScreenEditor) {
-						fullScreenEditor.destroy();
-					}
-
-					var fullScreenDialog = instance._fullScreenDialog;
-
-					if (fullScreenDialog) {
-						fullScreenDialog.destroy();
-					}
-
-					new A.EventHandle(instance._eventHandles).detach();
-				},
-
 				_createSourceEditor() {
 					var instance = this;
 
@@ -297,7 +206,7 @@ AUI.add(
 					}
 				},
 
-				_onSwitchBlur(event) {
+				_onSwitchBlur() {
 					var instance = this;
 
 					instance._isFocused = false;
@@ -307,7 +216,7 @@ AUI.add(
 					});
 				},
 
-				_onSwitchFocus(event) {
+				_onSwitchFocus() {
 					var instance = this;
 
 					instance._isFocused = true;
@@ -375,7 +284,7 @@ AUI.add(
 					}
 				},
 
-				_switchTheme(event) {
+				_switchTheme() {
 					var instance = this;
 
 					instance._sourceEditor.switchTheme();
@@ -433,6 +342,97 @@ AUI.add(
 					instance._editorSwitch
 						.ancestor()
 						.toggleClass('hide', !showSourceSwitch);
+				},
+
+				destructor() {
+					var instance = this;
+
+					var sourceEditor = instance._sourceEditor;
+
+					if (sourceEditor) {
+						sourceEditor.destroy();
+					}
+
+					var fullScreenEditor = instance._fullScreenEditor;
+
+					if (fullScreenEditor) {
+						fullScreenEditor.destroy();
+					}
+
+					var fullScreenDialog = instance._fullScreenDialog;
+
+					if (fullScreenDialog) {
+						fullScreenDialog.destroy();
+					}
+
+					new A.EventHandle(instance._eventHandles).detach();
+				},
+
+				initializer() {
+					var instance = this;
+
+					var host = instance.get(STR_HOST);
+
+					instance._editorFullscreen = host.one('#Fullscreen');
+					instance._editorSource = host.one('#Source');
+					instance._editorSwitch = host.one('#Switch');
+					instance._editorSwitchTheme = host.one('#SwitchTheme');
+					instance._editorWrapper = host.one('#Wrapper');
+
+					instance._toggleSourceSwitchFn = A.debounce(
+						instance._toggleSourceSwitch,
+						100,
+						instance
+					);
+
+					host.getNativeEditor().on(
+						'editorUpdate',
+						A.bind('_onEditorUpdate', instance)
+					);
+
+					instance._eventHandles = [
+						instance._editorFullscreen.on(
+							'click',
+							instance._onFullScreenBtnClick,
+							instance
+						),
+						instance._editorSwitch.on(
+							'blur',
+							instance._onSwitchBlur,
+							instance
+						),
+						instance._editorSwitch.on(
+							'click',
+							instance._switchMode,
+							instance
+						),
+						instance._editorSwitch.on(
+							'focus',
+							instance._onSwitchFocus,
+							instance
+						),
+						instance._editorSwitch.on(
+							'mousedown',
+							instance._onSwitchMouseDown,
+							instance
+						),
+						instance._editorSwitch.on(
+							'mouseout',
+							instance._onSwitchMouseOut,
+							instance
+						),
+						instance._editorSwitchTheme.on(
+							'click',
+							instance._switchTheme,
+							instance
+						),
+						instance.doAfter(
+							'getHTML',
+							instance._getHTML,
+							instance
+						),
+						instance.doAfter('setHTML', instance._setHTML, instance)
+					];
 				}
 			}
 		});
