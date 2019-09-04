@@ -17,7 +17,6 @@ AUI.add(
 	function(A) {
 		var AObject = A.Object;
 		var Lang = A.Lang;
-		var Util = Liferay.Util;
 
 		var BODY = A.getBody();
 
@@ -101,68 +100,6 @@ AUI.add(
 			NAME: 'simulationdevice',
 
 			prototype: {
-				initializer(config) {
-					var instance = this;
-
-					instance._eventHandles = [];
-
-					instance._dialogId = A.guid();
-
-					instance._simulationDeviceNode = A.Node.create(
-						Lang.sub(TPL_SIMULATION_DEVICE)
-					);
-
-					BODY.append(instance._simulationDeviceNode);
-
-					var devices = instance.get('devices');
-
-					AObject.some(devices, function(item, index) {
-						var selected = item.selected;
-
-						if (selected) {
-							instance._openDeviceDialog(item);
-						}
-
-						return selected;
-					});
-
-					var simulationDeviceContainer = instance.byId(
-						'simulationDeviceContainer'
-					);
-
-					instance._deviceItems = simulationDeviceContainer.all(
-						SELECTOR_DEVICE_ITEM
-					);
-
-					instance._simulationDeviceContainer = simulationDeviceContainer;
-
-					instance._bindUI();
-				},
-
-				destructor() {
-					var instance = this;
-
-					new A.EventHandle(instance._eventHandles).detach();
-
-					instance._simulationDeviceNode.remove();
-				},
-
-				hideDeviceDialog() {
-					var instance = this;
-
-					var dialog = Liferay.Util.getWindow(instance._dialogId);
-
-					dialog.hide();
-				},
-
-				showDeviceDialog() {
-					var instance = this;
-
-					var dialog = Liferay.Util.getWindow(instance._dialogId);
-
-					dialog.show();
-				},
-
 				_bindUI() {
 					var instance = this;
 
@@ -331,13 +268,13 @@ AUI.add(
 					instance._sizeStatusContent.html(info);
 				},
 
-				_onResizeEnd(event) {
+				_onResizeEnd() {
 					var instance = this;
 
 					instance._sizeStatus.hide();
 				},
 
-				_onResizeStart(event) {
+				_onResizeStart() {
 					var instance = this;
 
 					var sizeStatus = instance._sizeStatus;
@@ -374,7 +311,7 @@ AUI.add(
 					sizeStatus.show();
 				},
 
-				_onSizeInput(event) {
+				_onSizeInput() {
 					var instance = this;
 
 					var inputHeight = instance.get(STR_INPUT_HEIGHT).val();
@@ -445,7 +382,7 @@ AUI.add(
 
 								dialogWindow.plug(A.Plugin.SizeAnim, {
 									after: {
-										end(event) {
+										end() {
 											var selectedDevice =
 												instance._selectedDevice;
 
@@ -461,10 +398,10 @@ AUI.add(
 													false
 											);
 										},
-										start(event) {
+										start() {
 											AObject.each(
 												instance.get(STR_DEVICES),
-												function(item, index) {
+												function(item) {
 													if (item.skin) {
 														dialogBoundingBox.removeClass(
 															item.skin
@@ -522,6 +459,68 @@ AUI.add(
 					}
 
 					instance._selectedDevice = device;
+				},
+
+				destructor() {
+					var instance = this;
+
+					new A.EventHandle(instance._eventHandles).detach();
+
+					instance._simulationDeviceNode.remove();
+				},
+
+				hideDeviceDialog() {
+					var instance = this;
+
+					var dialog = Liferay.Util.getWindow(instance._dialogId);
+
+					dialog.hide();
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._eventHandles = [];
+
+					instance._dialogId = A.guid();
+
+					instance._simulationDeviceNode = A.Node.create(
+						Lang.sub(TPL_SIMULATION_DEVICE)
+					);
+
+					BODY.append(instance._simulationDeviceNode);
+
+					var devices = instance.get('devices');
+
+					AObject.some(devices, function(item) {
+						var selected = item.selected;
+
+						if (selected) {
+							instance._openDeviceDialog(item);
+						}
+
+						return selected;
+					});
+
+					var simulationDeviceContainer = instance.byId(
+						'simulationDeviceContainer'
+					);
+
+					instance._deviceItems = simulationDeviceContainer.all(
+						SELECTOR_DEVICE_ITEM
+					);
+
+					instance._simulationDeviceContainer = simulationDeviceContainer;
+
+					instance._bindUI();
+				},
+
+				showDeviceDialog() {
+					var instance = this;
+
+					var dialog = Liferay.Util.getWindow(instance._dialogId);
+
+					dialog.show();
 				}
 			}
 		});
