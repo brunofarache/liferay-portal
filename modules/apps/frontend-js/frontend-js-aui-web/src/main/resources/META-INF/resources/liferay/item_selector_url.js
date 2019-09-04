@@ -41,32 +41,6 @@ AUI.add(
 			NAME: 'itemselectorurl',
 
 			prototype: {
-				initializer() {
-					var instance = this;
-
-					instance._itemViewer = new A.LiferayItemViewer({
-						btnCloseCaption: instance.get('closeCaption'),
-						caption: '',
-						links: '',
-						renderControls: false,
-						renderSidebar: false
-					});
-
-					instance._inputNode = instance.one('#urlInput');
-					instance._buttonNode = instance.one('#previewBtn');
-
-					instance._bindUI();
-					instance._renderUI();
-				},
-
-				destructor() {
-					var instance = this;
-
-					instance._itemViewer.destroy();
-
-					new A.EventHandle(instance._eventHandles).detach();
-				},
-
 				_afterVisibleChange(event) {
 					var instance = this;
 
@@ -157,6 +131,32 @@ AUI.add(
 					var rootNode = instance.rootNode;
 
 					instance._itemViewer.render(rootNode);
+				},
+
+				destructor() {
+					var instance = this;
+
+					instance._itemViewer.destroy();
+
+					new A.EventHandle(instance._eventHandles).detach();
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._itemViewer = new A.LiferayItemViewer({
+						btnCloseCaption: instance.get('closeCaption'),
+						caption: '',
+						links: '',
+						renderControls: false,
+						renderSidebar: false
+					});
+
+					instance._inputNode = instance.one('#urlInput');
+					instance._buttonNode = instance.one('#previewBtn');
+
+					instance._bindUI();
+					instance._renderUI();
 				}
 			}
 		});

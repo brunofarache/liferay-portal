@@ -106,65 +106,6 @@ AUI.add(
 			NAME: 'liferaypreview',
 
 			prototype: {
-				initializer() {
-					var instance = this;
-
-					instance._actionContent = instance.get('actionContent');
-					instance._baseImageURL = instance.get('baseImageURL');
-					instance._currentPreviewImage = instance.get(
-						'currentPreviewImage'
-					);
-					instance._previewFileIndexNode = instance.get(
-						'previewFileIndexNode'
-					);
-					instance._imageListContent = instance.get(
-						'imageListContent'
-					);
-
-					instance._hideLoadingIndicator = A.debounce(function() {
-						instance._getLoadingIndicator().hide();
-					}, 250);
-				},
-
-				renderUI() {
-					var instance = this;
-
-					instance._renderToolbar();
-					instance._renderImages();
-
-					instance._actionContent.show();
-				},
-
-				bindUI() {
-					var instance = this;
-
-					instance.after(
-						'currentIndexChange',
-						instance._afterCurrentIndexChange
-					);
-
-					var imageListContent = instance._imageListContent;
-
-					imageListContent.delegate(
-						'mouseenter',
-						instance._onImageListMouseEnter,
-						'a',
-						instance
-					);
-					imageListContent.delegate(
-						STR_CLICK,
-						instance._onImageListClick,
-						'a',
-						instance
-					);
-
-					imageListContent.on(
-						'scroll',
-						instance._onImageListScroll,
-						instance
-					);
-				},
-
 				_afterCurrentIndexChange(event) {
 					var instance = this;
 
@@ -225,7 +166,7 @@ AUI.add(
 
 						maxOverlay = new A.Modal({
 							after: {
-								render(event) {
+								render() {
 									maxOverlayMask.render();
 								},
 								visibleChange(event) {
@@ -316,7 +257,7 @@ AUI.add(
 					return maxPreviewImage;
 				},
 
-				_maximizePreview(event) {
+				_maximizePreview() {
 					var instance = this;
 
 					instance
@@ -360,7 +301,7 @@ AUI.add(
 					);
 				},
 
-				_onImageListScroll(event) {
+				_onImageListScroll() {
 					var instance = this;
 
 					var imageListContentEl = instance._imageListContent.getDOM();
@@ -419,6 +360,8 @@ AUI.add(
 							);
 					}
 				},
+
+				_previewFileCountDown: 0,
 
 				_renderImages(maxIndex) {
 					var instance = this;
@@ -575,7 +518,64 @@ AUI.add(
 					instance.set(STR_CURRENT_INDEX, currentIndex);
 				},
 
-				_previewFileCountDown: 0
+				bindUI() {
+					var instance = this;
+
+					instance.after(
+						'currentIndexChange',
+						instance._afterCurrentIndexChange
+					);
+
+					var imageListContent = instance._imageListContent;
+
+					imageListContent.delegate(
+						'mouseenter',
+						instance._onImageListMouseEnter,
+						'a',
+						instance
+					);
+					imageListContent.delegate(
+						STR_CLICK,
+						instance._onImageListClick,
+						'a',
+						instance
+					);
+
+					imageListContent.on(
+						'scroll',
+						instance._onImageListScroll,
+						instance
+					);
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._actionContent = instance.get('actionContent');
+					instance._baseImageURL = instance.get('baseImageURL');
+					instance._currentPreviewImage = instance.get(
+						'currentPreviewImage'
+					);
+					instance._previewFileIndexNode = instance.get(
+						'previewFileIndexNode'
+					);
+					instance._imageListContent = instance.get(
+						'imageListContent'
+					);
+
+					instance._hideLoadingIndicator = A.debounce(function() {
+						instance._getLoadingIndicator().hide();
+					}, 250);
+				},
+
+				renderUI() {
+					var instance = this;
+
+					instance._renderToolbar();
+					instance._renderImages();
+
+					instance._actionContent.show();
+				}
 			}
 		});
 

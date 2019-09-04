@@ -58,45 +58,6 @@ AUI.add(
 			NS: STR_PLACEHOLDER,
 
 			prototype: {
-				initializer(config) {
-					var instance = this;
-
-					var host = instance.get('host');
-
-					var formNode = host.formNode;
-
-					if (formNode) {
-						var placeholderInputs = formNode.all(
-							SELECTOR_PLACEHOLDER_INPUTS
-						);
-
-						placeholderInputs.each(function(item, index) {
-							if (!item.val()) {
-								if (item.attr(STR_TYPE) === STR_PASSWORD) {
-									instance._initializePasswordNode(item);
-								} else {
-									item.addClass(CSS_PLACEHOLDER);
-
-									item.val(item.attr(STR_PLACEHOLDER));
-								}
-							}
-						});
-
-						instance.host = host;
-
-						instance.beforeHostMethod(
-							'_onValidatorSubmit',
-							instance._removePlaceholders,
-							instance
-						);
-						instance.beforeHostMethod(
-							'_onFieldFocusChange',
-							instance._togglePlaceholders,
-							instance
-						);
-					}
-				},
-
 				_initializePasswordNode(field) {
 					var placeholder = ANode.create(
 						'<input name="' +
@@ -104,11 +65,7 @@ AUI.add(
 							'_pass_placeholder" type="text" />'
 					);
 
-					Liferay.Util.getAttributes(field, function(
-						value,
-						name,
-						attrs
-					) {
+					Liferay.Util.getAttributes(field, function(value, name) {
 						var result = false;
 
 						if (!MAP_IGNORE_ATTRS[name]) {
@@ -140,7 +97,7 @@ AUI.add(
 						SELECTOR_PLACEHOLDER_INPUTS
 					);
 
-					placeholderInputs.each(function(item, index) {
+					placeholderInputs.each(function(item) {
 						if (item.val() == item.attr(STR_PLACEHOLDER)) {
 							item.val(STR_BLANK);
 						}
@@ -237,6 +194,45 @@ AUI.add(
 								currentTarget.addClass(CSS_PLACEHOLDER);
 							}
 						}
+					}
+				},
+
+				initializer() {
+					var instance = this;
+
+					var host = instance.get('host');
+
+					var formNode = host.formNode;
+
+					if (formNode) {
+						var placeholderInputs = formNode.all(
+							SELECTOR_PLACEHOLDER_INPUTS
+						);
+
+						placeholderInputs.each(function(item) {
+							if (!item.val()) {
+								if (item.attr(STR_TYPE) === STR_PASSWORD) {
+									instance._initializePasswordNode(item);
+								} else {
+									item.addClass(CSS_PLACEHOLDER);
+
+									item.val(item.attr(STR_PLACEHOLDER));
+								}
+							}
+						});
+
+						instance.host = host;
+
+						instance.beforeHostMethod(
+							'_onValidatorSubmit',
+							instance._removePlaceholders,
+							instance
+						);
+						instance.beforeHostMethod(
+							'_onFieldFocusChange',
+							instance._togglePlaceholders,
+							instance
+						);
 					}
 				}
 			}

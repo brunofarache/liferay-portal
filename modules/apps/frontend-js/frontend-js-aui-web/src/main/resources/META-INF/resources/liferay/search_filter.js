@@ -26,8 +26,6 @@ AUI.add(
 
 			prototype: {
 				initializer() {
-					var instance = this;
-
 					this._bindUIACBase();
 					this._syncUIACBase();
 				}
@@ -74,7 +72,7 @@ AUI.add(
 			NAME: 'searchfilter',
 
 			prototype: {
-				initializer(config) {
+				initializer() {
 					var instance = this;
 
 					var nodeList = instance.get('nodeList');
@@ -90,7 +88,7 @@ AUI.add(
 
 						var searchData = [];
 
-						nodes.each(function(item, index) {
+						nodes.each(function(item) {
 							searchData.push({
 								node: item,
 								search: item.attr(searchDataLocator)

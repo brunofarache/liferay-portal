@@ -111,21 +111,6 @@ AUI.add(
 			NAME,
 
 			prototype: {
-				initializer() {
-					var instance = this;
-
-					instance._dialogId = A.guid();
-					instance._selectDialogContent = instance._getSelectDialogContent();
-
-					instance._bindUI();
-				},
-
-				destructor() {
-					var instance = this;
-
-					new A.EventHandle(instance._eventHandles).detach();
-				},
-
 				_bindUI() {
 					var instance = this;
 
@@ -156,8 +141,8 @@ AUI.add(
 
 					if (!dialog) {
 						var dialogConfig = {
-							'toolbars.footer': instance._getSelectDialogFooterToolbar(),
 							autoHeightRatio: 0.5,
+							'toolbars.footer': instance._getSelectDialogFooterToolbar(),
 							width: 540
 						};
 
@@ -244,7 +229,7 @@ AUI.add(
 					instance._getSelectDialog().hide();
 				},
 
-				_onSelectClick(event) {
+				_onSelectClick() {
 					var instance = this;
 
 					instance._showSelectDialog();
@@ -346,6 +331,21 @@ AUI.add(
 					);
 
 					instance._hideSelectDialog();
+				},
+
+				destructor() {
+					var instance = this;
+
+					new A.EventHandle(instance._eventHandles).detach();
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._dialogId = A.guid();
+					instance._selectDialogContent = instance._getSelectDialogContent();
+
+					instance._bindUI();
 				}
 			}
 		});

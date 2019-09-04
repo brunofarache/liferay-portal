@@ -42,6 +42,8 @@ AUI.add(
 		);
 
 		var InputLocalized = A.Component.create({
+			_instances: {},
+
 			ATTRS: {
 				animateClass: {
 					validator: Lang.isString,
@@ -116,8 +118,6 @@ AUI.add(
 
 				translatedLanguages: {
 					setter(val) {
-						var instance = this;
-
 						var set = new A.Set();
 
 						if (Lang.isString(val)) {
@@ -135,208 +135,6 @@ AUI.add(
 			NAME: 'input-localized',
 
 			prototype: {
-				INPUT_HIDDEN_TEMPLATE:
-					'<input id="{namespace}{id}_{value}" name="{namespace}{fieldNamePrefix}{name}_{value}{fieldNameSuffix}" type="hidden" value="" />',
-
-				TRANSLATION_STATUS_TEMPLATE:
-					'{languageId} <span class="label label-{translationStatusCssClass}">{translationStatus}</span>',
-
-				TRIGGER_TEMPLATE:
-					'<span class="inline-item">{flag}</span><span class="btn-section">{languageId}</span>',
-
-				initializer() {
-					var instance = this;
-
-					var inputPlaceholder = instance.get(STR_INPUT_PLACEHOLDER);
-
-					var eventHandles = [
-						inputPlaceholder
-							.get('form')
-							.on(
-								'submit',
-								A.rbind(STR_SUBMIT, instance, inputPlaceholder)
-							),
-						instance.after(
-							'select',
-							instance._onSelectFlag,
-							instance
-						),
-						Liferay.on(
-							'inputLocalized:defaultLocaleChanged',
-							A.bind('_onDefaultLocaleChanged', instance)
-						),
-						Liferay.on(
-							'inputLocalized:localeChanged',
-							A.bind('_onLocaleChanged', instance)
-						),
-						Liferay.on(
-							'submitForm',
-							A.rbind(STR_SUBMIT, instance, inputPlaceholder)
-						)
-					];
-
-					if (!instance.get('editor')) {
-						eventHandles.push(
-							inputPlaceholder.on(
-								'input',
-								A.debounce('_onInputValueChange', 100, instance)
-							)
-						);
-					}
-
-					instance._eventHandles = eventHandles;
-
-					var boundingBox = instance.get('boundingBox');
-
-					boundingBox.plug(A.Plugin.NodeFocusManager, {
-						descendants: '.palette-item a',
-						keys: {
-							next: 'down:39,40',
-							previous: 'down:37,38'
-						}
-					});
-
-					instance._inputPlaceholderDescription = boundingBox.one(
-						'#' + inputPlaceholder.attr('id') + '_desc'
-					);
-					instance._flags = boundingBox.one('.palette-container');
-				},
-
-				destructor() {
-					var instance = this;
-
-					InputLocalized.unregister(instance.get('instanceId'));
-
-					new A.EventHandle(instance._eventHandles).detach();
-				},
-
-				getSelectedLanguageId() {
-					var instance = this;
-
-					var items = instance.get(STR_ITEMS);
-					var selected = instance.get(STR_SELECTED);
-
-					return items[selected];
-				},
-
-				getValue(languageId) {
-					var instance = this;
-
-					if (!Lang.isValue(languageId)) {
-						languageId = defaultLanguageId;
-					}
-
-					return instance._getInputLanguage(languageId).val();
-				},
-
-				removeInputLanguage(languageId) {
-					var instance = this;
-
-					var inputBox = instance.get('inputBox');
-
-					var inputLanguage = inputBox.one(
-						instance._getInputLanguageId(languageId)
-					);
-
-					if (inputLanguage) {
-						inputLanguage.remove();
-					}
-				},
-
-				selectFlag(languageId, shouldFocus) {
-					var instance = this;
-
-					if (!Lang.isValue(languageId)) {
-						languageId = defaultLanguageId;
-					}
-
-					var inputPlaceholder = instance.get(STR_INPUT_PLACEHOLDER);
-
-					var defaultLanguageValue = instance.getValue(
-						defaultLanguageId
-					);
-
-					var inputLanguageValue = instance.getValue(languageId);
-
-					instance._animate(inputPlaceholder, shouldFocus);
-					instance._clearFormValidator(inputPlaceholder);
-
-					instance._fillDefaultLanguage = !defaultLanguageValue;
-
-					instance.set(
-						'selected',
-						parseInt(instance.get('items').indexOf(languageId), 10)
-					);
-
-					instance.updateInput(inputLanguageValue);
-
-					instance._updateInputPlaceholderDescription(languageId);
-					instance._updateHelpMessage(languageId);
-					instance._updateTrigger(languageId);
-					instance._updateSelectedItem(languageId);
-				},
-
-				updateInput(value) {
-					var instance = this;
-
-					var inputPlaceholder = instance.get(STR_INPUT_PLACEHOLDER);
-
-					var editor = instance.get('editor');
-
-					if (editor) {
-						editor.setHTML(value);
-					} else {
-						inputPlaceholder.val(value);
-
-						inputPlaceholder.attr(
-							'dir',
-							Liferay.Language.direction[
-								instance.getSelectedLanguageId()
-							]
-						);
-					}
-				},
-
-				updateInputLanguage(value, languageId) {
-					var instance = this;
-
-					var selectedLanguageId =
-						languageId || instance.getSelectedLanguageId();
-
-					if (!Lang.isValue(selectedLanguageId)) {
-						selectedLanguageId = defaultLanguageId;
-					}
-
-					var defaultInputLanguage = instance._getInputLanguage(
-						defaultLanguageId
-					);
-					var inputLanguage = instance._getInputLanguage(
-						selectedLanguageId
-					);
-
-					inputLanguage.val(value);
-
-					if (selectedLanguageId === defaultLanguageId) {
-						if (instance._fillDefaultLanguage) {
-							defaultInputLanguage.val(value);
-						}
-					}
-
-					var translatedLanguages = instance.get(
-						'translatedLanguages'
-					);
-
-					var action = 'remove';
-
-					if (value) {
-						action = 'add';
-					}
-
-					translatedLanguages[action](selectedLanguageId);
-
-					instance._updateTranslationStatus(selectedLanguageId);
-				},
-
 				_animate(input, shouldFocus) {
 					var instance = this;
 
@@ -363,9 +161,9 @@ AUI.add(
 					}
 				},
 
-				_clearFormValidator(input) {
-					var instance = this;
+				_animating: null,
 
+				_clearFormValidator(input) {
 					var form = input.get('form');
 
 					var liferayForm = Liferay.Form.get(form.attr('id'));
@@ -378,6 +176,8 @@ AUI.add(
 						}
 					}
 				},
+
+				_flags: null,
 
 				_getInputLanguage(languageId) {
 					var instance = this;
@@ -625,8 +425,207 @@ AUI.add(
 						.setHTML(triggerContent);
 				},
 
-				_animating: null,
-				_flags: null
+				INPUT_HIDDEN_TEMPLATE:
+					'<input id="{namespace}{id}_{value}" name="{namespace}{fieldNamePrefix}{name}_{value}{fieldNameSuffix}" type="hidden" value="" />',
+
+				TRANSLATION_STATUS_TEMPLATE:
+					'{languageId} <span class="label label-{translationStatusCssClass}">{translationStatus}</span>',
+
+				TRIGGER_TEMPLATE:
+					'<span class="inline-item">{flag}</span><span class="btn-section">{languageId}</span>',
+
+				destructor() {
+					var instance = this;
+
+					InputLocalized.unregister(instance.get('instanceId'));
+
+					new A.EventHandle(instance._eventHandles).detach();
+				},
+
+				getSelectedLanguageId() {
+					var instance = this;
+
+					var items = instance.get(STR_ITEMS);
+					var selected = instance.get(STR_SELECTED);
+
+					return items[selected];
+				},
+
+				getValue(languageId) {
+					var instance = this;
+
+					if (!Lang.isValue(languageId)) {
+						languageId = defaultLanguageId;
+					}
+
+					return instance._getInputLanguage(languageId).val();
+				},
+
+				initializer() {
+					var instance = this;
+
+					var inputPlaceholder = instance.get(STR_INPUT_PLACEHOLDER);
+
+					var eventHandles = [
+						inputPlaceholder
+							.get('form')
+							.on(
+								'submit',
+								A.rbind(STR_SUBMIT, instance, inputPlaceholder)
+							),
+						instance.after(
+							'select',
+							instance._onSelectFlag,
+							instance
+						),
+						Liferay.on(
+							'inputLocalized:defaultLocaleChanged',
+							A.bind('_onDefaultLocaleChanged', instance)
+						),
+						Liferay.on(
+							'inputLocalized:localeChanged',
+							A.bind('_onLocaleChanged', instance)
+						),
+						Liferay.on(
+							'submitForm',
+							A.rbind(STR_SUBMIT, instance, inputPlaceholder)
+						)
+					];
+
+					if (!instance.get('editor')) {
+						eventHandles.push(
+							inputPlaceholder.on(
+								'input',
+								A.debounce('_onInputValueChange', 100, instance)
+							)
+						);
+					}
+
+					instance._eventHandles = eventHandles;
+
+					var boundingBox = instance.get('boundingBox');
+
+					boundingBox.plug(A.Plugin.NodeFocusManager, {
+						descendants: '.palette-item a',
+						keys: {
+							next: 'down:39,40',
+							previous: 'down:37,38'
+						}
+					});
+
+					instance._inputPlaceholderDescription = boundingBox.one(
+						'#' + inputPlaceholder.attr('id') + '_desc'
+					);
+					instance._flags = boundingBox.one('.palette-container');
+				},
+
+				removeInputLanguage(languageId) {
+					var instance = this;
+
+					var inputBox = instance.get('inputBox');
+
+					var inputLanguage = inputBox.one(
+						instance._getInputLanguageId(languageId)
+					);
+
+					if (inputLanguage) {
+						inputLanguage.remove();
+					}
+				},
+
+				selectFlag(languageId, shouldFocus) {
+					var instance = this;
+
+					if (!Lang.isValue(languageId)) {
+						languageId = defaultLanguageId;
+					}
+
+					var inputPlaceholder = instance.get(STR_INPUT_PLACEHOLDER);
+
+					var defaultLanguageValue = instance.getValue(
+						defaultLanguageId
+					);
+
+					var inputLanguageValue = instance.getValue(languageId);
+
+					instance._animate(inputPlaceholder, shouldFocus);
+					instance._clearFormValidator(inputPlaceholder);
+
+					instance._fillDefaultLanguage = !defaultLanguageValue;
+
+					instance.set(
+						'selected',
+						parseInt(instance.get('items').indexOf(languageId), 10)
+					);
+
+					instance.updateInput(inputLanguageValue);
+
+					instance._updateInputPlaceholderDescription(languageId);
+					instance._updateHelpMessage(languageId);
+					instance._updateTrigger(languageId);
+					instance._updateSelectedItem(languageId);
+				},
+
+				updateInput(value) {
+					var instance = this;
+
+					var inputPlaceholder = instance.get(STR_INPUT_PLACEHOLDER);
+
+					var editor = instance.get('editor');
+
+					if (editor) {
+						editor.setHTML(value);
+					} else {
+						inputPlaceholder.val(value);
+
+						inputPlaceholder.attr(
+							'dir',
+							Liferay.Language.direction[
+								instance.getSelectedLanguageId()
+							]
+						);
+					}
+				},
+
+				updateInputLanguage(value, languageId) {
+					var instance = this;
+
+					var selectedLanguageId =
+						languageId || instance.getSelectedLanguageId();
+
+					if (!Lang.isValue(selectedLanguageId)) {
+						selectedLanguageId = defaultLanguageId;
+					}
+
+					var defaultInputLanguage = instance._getInputLanguage(
+						defaultLanguageId
+					);
+					var inputLanguage = instance._getInputLanguage(
+						selectedLanguageId
+					);
+
+					inputLanguage.val(value);
+
+					if (selectedLanguageId === defaultLanguageId) {
+						if (instance._fillDefaultLanguage) {
+							defaultInputLanguage.val(value);
+						}
+					}
+
+					var translatedLanguages = instance.get(
+						'translatedLanguages'
+					);
+
+					var action = 'remove';
+
+					if (value) {
+						action = 'add';
+					}
+
+					translatedLanguages[action](selectedLanguageId);
+
+					instance._updateTranslationStatus(selectedLanguageId);
+				}
 			},
 
 			register(id, config) {
@@ -660,12 +659,8 @@ AUI.add(
 			},
 
 			unregister(id) {
-				var instance = this;
-
 				delete InputLocalized._instances[id];
-			},
-
-			_instances: {}
+			}
 		});
 
 		Liferay.InputLocalized = InputLocalized;
@@ -673,10 +668,7 @@ AUI.add(
 		Liferay.on('destroyPortlet', function(event) {
 			var portletNamespace = '_' + event.portletId + '_';
 
-			A.Object.each(Liferay.InputLocalized._instances, function(
-				item,
-				index
-			) {
+			A.Object.each(Liferay.InputLocalized._instances, function(item) {
 				if (item.get('namespace') === portletNamespace) {
 					item.destroy();
 				}

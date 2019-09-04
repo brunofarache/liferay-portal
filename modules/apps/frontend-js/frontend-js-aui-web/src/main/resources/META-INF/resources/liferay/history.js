@@ -36,7 +36,19 @@ AUI.add(
 
 			NAME: 'liferayhistory',
 
+			PAIR_SEPARATOR: '&',
+
+			VALUE_SEPARATOR: '=',
+
 			prototype: {
+				_parse: A.cached(function(str) {
+					return QueryString.parse(
+						str,
+						History.PAIR_SEPARATOR,
+						History.VALUE_SEPARATOR
+					);
+				}),
+
 				get(key) {
 					var instance = this;
 
@@ -47,26 +59,16 @@ AUI.add(
 
 						var queryMap = instance._parse(query.substr(1));
 
-						if (queryMap.hasOwnProperty(key)) {
+						if (
+							Object.prototype.hasOwnProperty.call(queryMap, key)
+						) {
 							value = queryMap[key];
 						}
 					}
 
 					return value;
-				},
-
-				_parse: A.cached(function(str) {
-					return QueryString.parse(
-						str,
-						History.PAIR_SEPARATOR,
-						History.VALUE_SEPARATOR
-					);
-				})
-			},
-
-			PAIR_SEPARATOR: '&',
-
-			VALUE_SEPARATOR: '='
+				}
+			}
 		});
 
 		Liferay.History = History;

@@ -92,160 +92,7 @@ AUI.add(
 			NAME,
 
 			prototype: {
-				TPL_CONTAINER:
-					'<div class="lfr-pagination-controls" id="{id}"></div>',
-
-				TPL_DELTA_SELECTOR:
-					'<div class="lfr-pagination-delta-selector">' +
-					'<div class="btn-group lfr-icon-menu">' +
-					'<a class="btn btn-default direction-down dropdown-toggle max-display-items-15" href="javascript:;" id="{id}" title="{title}">' +
-					'<span class="lfr-pagination-delta-selector-amount">{amount}</span>' +
-					'<span class="lfr-icon-menu-text">{title}</span>' +
-					'<i class="icon-caret-down"></i>' +
-					'</a>' +
-					'</div>' +
-					'</div>',
-
-				TPL_ITEM:
-					'<li id="{idLi}" role="presentation">' +
-					'<a class="lfr-pagination-link taglib-icon" href="javascript:;" id="{idLink}" role="menuitem">' +
-					'<span class="taglib-text-icon" data-index="{index}" data-value="{value}">{value}</span>' +
-					'</a>' +
-					'</li>',
-
-				TPL_ITEM_CONTAINER:
-					'<ul class="direction-down dropdown-menu lfr-menu-list" id="{id}" role="menu" />',
-
-				TPL_RESULTS:
-					'<small class="search-results" id="{id}">{value}</small>',
-
-				renderUI() {
-					var instance = this;
-
-					Pagination.superclass.renderUI.apply(instance, arguments);
-
-					var boundingBox = instance.get(BOUNDING_BOX);
-
-					boundingBox.addClass('lfr-pagination');
-
-					var namespace = instance.get('namespace');
-
-					var deltaSelectorId = namespace + 'dataSelectorId';
-
-					instance._itemsPerPageMessage = Liferay.Language.get(
-						'items-per-page'
-					);
-					instance._resultsMessage = Liferay.Language.get(
-						'showing-x-x-of-x-results'
-					);
-					instance._resultsMessageShort = Liferay.Language.get(
-						'showing-x-results'
-					);
-
-					var selectorLabel = instance._getLabelContent();
-
-					var deltaSelector = ANode.create(
-						Lang.sub(instance.TPL_DELTA_SELECTOR, {
-							amount: selectorLabel.amount,
-							id: deltaSelectorId,
-							title: selectorLabel.title
-						})
-					);
-
-					var itemContainer = ANode.create(
-						Lang.sub(instance.TPL_ITEM_CONTAINER, {
-							id: namespace + 'itemContainerId'
-						})
-					);
-
-					var itemsContainer = ANode.create(
-						Lang.sub(instance.TPL_CONTAINER, {
-							id: namespace + 'itemsContainer'
-						})
-					);
-
-					var searchResults = ANode.create(
-						Lang.sub(instance.TPL_RESULTS, {
-							id: namespace + 'searchResultsId',
-							value: instance._getResultsContent()
-						})
-					);
-
-					var buffer = instance
-						.get(ITEMS_PER_PAGE_LIST)
-						.map(function(item, index) {
-							return Lang.sub(instance.TPL_ITEM, {
-								idLi: namespace + 'itemLiId' + index,
-								idLink: namespace + 'itemLinkId' + index,
-								index,
-								value: item
-							});
-						});
-
-					itemContainer.appendChild(buffer.join(''));
-
-					deltaSelector
-						.one('#' + deltaSelectorId)
-						.ancestor()
-						.appendChild(itemContainer);
-
-					itemsContainer.appendChild(deltaSelector);
-					itemsContainer.appendChild(searchResults);
-
-					boundingBox.appendChild(itemsContainer);
-
-					instance._deltaSelector = deltaSelector;
-					instance._itemContainer = itemContainer;
-					instance._itemsContainer = itemsContainer;
-					instance._paginationContentNode = boundingBox.one(
-						'.pagination-content'
-					);
-					instance._paginationControls = boundingBox.one(
-						'.lfr-pagination-controls'
-					);
-					instance._searchResults = searchResults;
-
-					Liferay.Menu.register(deltaSelectorId);
-				},
-
-				bindUI() {
-					var instance = this;
-
-					Pagination.superclass.bindUI.apply(instance, arguments);
-
-					instance._eventHandles = [
-						instance._itemContainer.delegate(
-							'click',
-							instance._onItemClick,
-							'.lfr-pagination-link',
-							instance
-						)
-					];
-
-					instance.after(
-						'resultsChange',
-						instance._afterResultsChange,
-						instance
-					);
-					instance.on(
-						'changeRequest',
-						instance._onChangeRequest,
-						instance
-					);
-					instance.on(
-						'itemsPerPageChange',
-						instance._onItemsPerPageChange,
-						instance
-					);
-				},
-
-				destructor() {
-					var instance = this;
-
-					new A.EventHandle(instance._eventHandles).detach();
-				},
-
-				_afterResultsChange(event) {
+				_afterResultsChange() {
 					var instance = this;
 
 					instance._syncResults();
@@ -254,7 +101,12 @@ AUI.add(
 				_dispatchRequest(state) {
 					var instance = this;
 
-					if (!state.hasOwnProperty(ITEMS_PER_PAGE)) {
+					if (
+						!Object.prototype.hasOwnProperty.call(
+							state,
+							ITEMS_PER_PAGE
+						)
+					) {
 						state.itemsPerPage = instance.get(ITEMS_PER_PAGE);
 					}
 
@@ -406,6 +258,159 @@ AUI.add(
 						hiddenClass,
 						!val
 					);
+				},
+
+				TPL_CONTAINER:
+					'<div class="lfr-pagination-controls" id="{id}"></div>',
+
+				TPL_DELTA_SELECTOR:
+					'<div class="lfr-pagination-delta-selector">' +
+					'<div class="btn-group lfr-icon-menu">' +
+					'<a class="btn btn-default direction-down dropdown-toggle max-display-items-15" href="javascript:;" id="{id}" title="{title}">' +
+					'<span class="lfr-pagination-delta-selector-amount">{amount}</span>' +
+					'<span class="lfr-icon-menu-text">{title}</span>' +
+					'<i class="icon-caret-down"></i>' +
+					'</a>' +
+					'</div>' +
+					'</div>',
+
+				TPL_ITEM:
+					'<li id="{idLi}" role="presentation">' +
+					'<a class="lfr-pagination-link taglib-icon" href="javascript:;" id="{idLink}" role="menuitem">' +
+					'<span class="taglib-text-icon" data-index="{index}" data-value="{value}">{value}</span>' +
+					'</a>' +
+					'</li>',
+
+				TPL_ITEM_CONTAINER:
+					'<ul class="direction-down dropdown-menu lfr-menu-list" id="{id}" role="menu" />',
+
+				TPL_RESULTS:
+					'<small class="search-results" id="{id}">{value}</small>',
+
+				bindUI() {
+					var instance = this;
+
+					Pagination.superclass.bindUI.apply(instance, arguments);
+
+					instance._eventHandles = [
+						instance._itemContainer.delegate(
+							'click',
+							instance._onItemClick,
+							'.lfr-pagination-link',
+							instance
+						)
+					];
+
+					instance.after(
+						'resultsChange',
+						instance._afterResultsChange,
+						instance
+					);
+					instance.on(
+						'changeRequest',
+						instance._onChangeRequest,
+						instance
+					);
+					instance.on(
+						'itemsPerPageChange',
+						instance._onItemsPerPageChange,
+						instance
+					);
+				},
+
+				destructor() {
+					var instance = this;
+
+					new A.EventHandle(instance._eventHandles).detach();
+				},
+
+				renderUI() {
+					var instance = this;
+
+					Pagination.superclass.renderUI.apply(instance, arguments);
+
+					var boundingBox = instance.get(BOUNDING_BOX);
+
+					boundingBox.addClass('lfr-pagination');
+
+					var namespace = instance.get('namespace');
+
+					var deltaSelectorId = namespace + 'dataSelectorId';
+
+					instance._itemsPerPageMessage = Liferay.Language.get(
+						'items-per-page'
+					);
+					instance._resultsMessage = Liferay.Language.get(
+						'showing-x-x-of-x-results'
+					);
+					instance._resultsMessageShort = Liferay.Language.get(
+						'showing-x-results'
+					);
+
+					var selectorLabel = instance._getLabelContent();
+
+					var deltaSelector = ANode.create(
+						Lang.sub(instance.TPL_DELTA_SELECTOR, {
+							amount: selectorLabel.amount,
+							id: deltaSelectorId,
+							title: selectorLabel.title
+						})
+					);
+
+					var itemContainer = ANode.create(
+						Lang.sub(instance.TPL_ITEM_CONTAINER, {
+							id: namespace + 'itemContainerId'
+						})
+					);
+
+					var itemsContainer = ANode.create(
+						Lang.sub(instance.TPL_CONTAINER, {
+							id: namespace + 'itemsContainer'
+						})
+					);
+
+					var searchResults = ANode.create(
+						Lang.sub(instance.TPL_RESULTS, {
+							id: namespace + 'searchResultsId',
+							value: instance._getResultsContent()
+						})
+					);
+
+					var buffer = instance
+						.get(ITEMS_PER_PAGE_LIST)
+						.map(function(item, index) {
+							return Lang.sub(instance.TPL_ITEM, {
+								idLi: namespace + 'itemLiId' + index,
+								idLink: namespace + 'itemLinkId' + index,
+								index,
+								value: item
+							});
+						});
+
+					itemContainer.appendChild(buffer.join(''));
+
+					deltaSelector
+						.one('#' + deltaSelectorId)
+						.ancestor()
+						.appendChild(itemContainer);
+
+					itemsContainer.appendChild(deltaSelector);
+					itemsContainer.appendChild(searchResults);
+
+					boundingBox.appendChild(itemsContainer);
+
+					instance._deltaSelector = deltaSelector;
+					instance._itemContainer = itemContainer;
+					instance._itemsContainer = itemsContainer;
+					instance._paginationContentNode = boundingBox.one(
+						'.pagination-content'
+					);
+					instance._paginationControls = boundingBox.one(
+						'.lfr-pagination-controls'
+					);
+					instance._searchResults = searchResults;
+
+					Liferay.Menu.register(deltaSelectorId);
 				}
 			}
 		});

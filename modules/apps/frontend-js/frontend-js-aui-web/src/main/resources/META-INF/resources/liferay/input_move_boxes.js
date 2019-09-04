@@ -52,96 +52,6 @@ AUI.add(
 			NAME,
 
 			prototype: {
-				renderUI() {
-					var instance = this;
-
-					instance._renderBoxes();
-					instance._renderButtons();
-				},
-
-				bindUI() {
-					var instance = this;
-
-					var leftReorderToolbar = instance._leftReorderToolbar;
-
-					if (leftReorderToolbar) {
-						leftReorderToolbar.after(
-							'click',
-							A.rbind(
-								'_afterOrderClick',
-								instance,
-								instance._leftBox
-							)
-						);
-					}
-
-					var rightReorderToolbar = instance._rightReorderToolbar;
-
-					if (rightReorderToolbar) {
-						rightReorderToolbar.after(
-							'click',
-							A.rbind(
-								'_afterOrderClick',
-								instance,
-								instance._rightBox
-							)
-						);
-					}
-
-					instance._moveToolbar.on(
-						'click',
-						instance._afterMoveClick,
-						instance
-					);
-
-					instance._leftBox.after(
-						'valuechange',
-						A.bind('_toggleBtnSort', instance)
-					);
-					instance._leftBox.on(
-						'focus',
-						A.rbind('_onSelectFocus', instance, instance._rightBox)
-					);
-
-					instance._rightBox.after(
-						'valuechange',
-						A.bind('_toggleBtnSort', instance)
-					);
-					instance._rightBox.on(
-						'focus',
-						A.rbind('_onSelectFocus', instance, instance._leftBox)
-					);
-				},
-
-				sortBox(box) {
-					var newBox = [];
-
-					var options = box.all('option');
-
-					for (var i = 0; i < options.size(); i++) {
-						newBox[i] = [
-							options.item(i).val(),
-							options.item(i).text()
-						];
-					}
-
-					newBox.sort(Util.sortByAscending);
-
-					var boxObj = A.one(box);
-
-					boxObj.all('option').remove(true);
-
-					newBox.forEach(function(item, index) {
-						boxObj.append(
-							'<option value="' +
-								item[0] +
-								'">' +
-								item[1] +
-								'</option>'
-						);
-					});
-				},
-
 				_afterMoveClick(event) {
 					var instance = this;
 
@@ -202,7 +112,7 @@ AUI.add(
 
 						selectedOption = options.item(selectedIndex);
 
-						options.each(function(item, index) {
+						options.each(function(item) {
 							if (item.get('selected')) {
 								to.append(item);
 							}
@@ -446,6 +356,96 @@ AUI.add(
 							rightColumn
 						);
 					}
+				},
+
+				bindUI() {
+					var instance = this;
+
+					var leftReorderToolbar = instance._leftReorderToolbar;
+
+					if (leftReorderToolbar) {
+						leftReorderToolbar.after(
+							'click',
+							A.rbind(
+								'_afterOrderClick',
+								instance,
+								instance._leftBox
+							)
+						);
+					}
+
+					var rightReorderToolbar = instance._rightReorderToolbar;
+
+					if (rightReorderToolbar) {
+						rightReorderToolbar.after(
+							'click',
+							A.rbind(
+								'_afterOrderClick',
+								instance,
+								instance._rightBox
+							)
+						);
+					}
+
+					instance._moveToolbar.on(
+						'click',
+						instance._afterMoveClick,
+						instance
+					);
+
+					instance._leftBox.after(
+						'valuechange',
+						A.bind('_toggleBtnSort', instance)
+					);
+					instance._leftBox.on(
+						'focus',
+						A.rbind('_onSelectFocus', instance, instance._rightBox)
+					);
+
+					instance._rightBox.after(
+						'valuechange',
+						A.bind('_toggleBtnSort', instance)
+					);
+					instance._rightBox.on(
+						'focus',
+						A.rbind('_onSelectFocus', instance, instance._leftBox)
+					);
+				},
+
+				renderUI() {
+					var instance = this;
+
+					instance._renderBoxes();
+					instance._renderButtons();
+				},
+
+				sortBox(box) {
+					var newBox = [];
+
+					var options = box.all('option');
+
+					for (var i = 0; i < options.size(); i++) {
+						newBox[i] = [
+							options.item(i).val(),
+							options.item(i).text()
+						];
+					}
+
+					newBox.sort(Util.sortByAscending);
+
+					var boxObj = A.one(box);
+
+					boxObj.all('option').remove(true);
+
+					newBox.forEach(function(item) {
+						boxObj.append(
+							'<option value="' +
+								item[0] +
+								'">' +
+								item[1] +
+								'</option>'
+						);
+					});
 				}
 			}
 		});

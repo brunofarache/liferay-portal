@@ -187,220 +187,6 @@ AUI.add(
 			NS: 'lfr-item-viewer',
 
 			prototype: {
-				TPL_CAPTION: '<p class="' + CSS_CAPTION + '"></p>',
-
-				TPL_CONTROL_LEFT:
-					'<a class="' +
-					CSS_FOOTER_CONTROL +
-					' ' +
-					CSS_FOOTER_CONTROL_LEFT_BASE +
-					' ' +
-					CSS_FOOTER_CONTROL_LEFT +
-					'" href="javascript:;">' +
-					'<span class="' +
-					CSS_ICON_MONOSPACED +
-					'">' +
-					Liferay.Util.getLexiconIconTpl('angle-left') +
-					'</span>' +
-					'</a>',
-
-				TPL_CONTROL_RIGHT:
-					'<a class="' +
-					CSS_FOOTER_CONTROL +
-					' ' +
-					CSS_FOOTER_CONTROL_RIGHT_BASE +
-					' ' +
-					CSS_FOOTER_CONTROL_RIGHT +
-					'" href="javascript:;">' +
-					'<span class="' +
-					CSS_ICON_MONOSPACED +
-					'">' +
-					Liferay.Util.getLexiconIconTpl('angle-right') +
-					'</span>' +
-					'</a>',
-
-				TPL_IMAGE_CONTAINER:
-					'<div class="' +
-					CSS_IMAGE_CONTAINER +
-					'">' +
-					'<p class="fade preview-timeout-message text-muted">' +
-					Liferay.Language.get(
-						'preview-image-is-taking-longer-than-expected'
-					) +
-					'</p>' +
-					'</div>',
-
-				TPL_SIDENAV:
-					'<div class="closed image-viewer-sidenav sidenav-fixed sidenav-menu-slider sidenav-right">' +
-					'<div class="image-viewer-sidenav-menu sidebar sidebar-default sidenav-menu">' +
-					'<div class="sidebar-header">' +
-					'<a class="' +
-					CSS_ICON_MONOSPACED +
-					' image-viewer-sidenav-close sidenav-close visible-xs" href="">' +
-					Liferay.Util.getLexiconIconTpl('times') +
-					'</a>' +
-					'<h4 class="image-viewer-sidenav-header">' +
-					'<ul class="nav nav-tabs nav-tabs-default"></ul>' +
-					'</h4>' +
-					'</div>' +
-					'<div class="image-viewer-sidenav-body sidebar-body">' +
-					'<div class="tab-content"></div>' +
-					'</div>' +
-					'</div>' +
-					'</div>',
-
-				initializer() {
-					var instance = this;
-
-					instance.TPL_CLOSE = Lang.sub(TPL_CLOSE, [
-						instance.get('btnCloseCaption')
-					]);
-
-					instance._displacedMethodHandles = [
-						instance.after(
-							'visibleChange',
-							instance._destroyPreviewTimer,
-							instance
-						),
-						Do.after('_afterBindUI', instance, 'bindUI', instance),
-						Do.after(
-							'_afterGetCurrentImage',
-							instance,
-							'_getCurrentImage',
-							instance
-						),
-						Do.after('_afterShow', instance, 'show', instance),
-						Do.after(
-							'_afterShowCurrentImage',
-							instance,
-							'_showCurrentImage',
-							instance
-						),
-						Do.after(
-							'_bindSidebarEvents',
-							instance,
-							'_afterLinksChange',
-							instance
-						),
-						Do.before(
-							'_beforeOnClickControl',
-							instance,
-							'_onClickControl',
-							instance
-						),
-						Do.before(
-							'_beforeSyncInfoUI',
-							instance,
-							'_syncInfoUI',
-							instance
-						)
-					];
-				},
-
-				renderUI() {
-					var instance = this;
-
-					LiferayItemViewer.superclass.renderUI.apply(
-						this,
-						arguments
-					);
-
-					if (
-						instance.get(STR_RENDER_CONTROLS) &&
-						instance.get(STR_RENDER_SIDEBAR)
-					) {
-						instance._renderSidenav();
-					}
-				},
-
-				appendNewLink(imageData) {
-					var instance = this;
-
-					var links = instance.get('links');
-
-					var linkContainer = links.last().ancestor();
-
-					var newLinkContainer = linkContainer.clone();
-
-					var newLink = newLinkContainer.one('.item-preview');
-
-					newLink.setAttribute('data-href', imageData.file.url);
-					newLink.setAttribute('data-title', imageData.file.title);
-					newLink.setAttribute('data-value', imageData.file.url);
-					newLink.setAttribute('data-url', imageData.file.url);
-
-					newLink.all('[style]').each(function(node) {
-						var styleAttr = node.getAttribute('style');
-
-						if (styleAttr) {
-							styleAttr = styleAttr.replace(
-								/\burl\s*\(\s*["']?http:\/\/((?:[^"'\r\n\/,]+)\/?)+["']?\s*\)/i,
-								'url("' + imageData.file.url + '")'
-							);
-
-							node.setAttribute('style', styleAttr);
-						}
-					});
-
-					newLink.setData(
-						'metadata',
-						JSON.stringify(
-							instance._getUploadFileMetadata(imageData.file)
-						)
-					);
-
-					linkContainer.placeAfter(newLinkContainer);
-
-					links.push(newLink);
-
-					instance.updateCurrentImage(imageData, newLink);
-
-					instance.set('links', links);
-
-					instance.set('currentIndex', links.size() - 1);
-				},
-
-				updateCurrentImage(itemData, link) {
-					var instance = this;
-
-					link =
-						link ||
-						instance
-							.get('links')
-							.item(instance.get('currentIndex'));
-
-					var itemFile = itemData.file;
-
-					var itemFileURL = itemFile.url;
-
-					var image = instance._getCurrentImage();
-
-					if (!itemFile.mimeType.match(/image.*/)) {
-						image.attr(
-							'src',
-							Liferay.ThemeDisplay.getPathThemeImages() +
-								'/file_system/large/default.png'
-						);
-					} else {
-						image.attr('src', itemFileURL);
-					}
-
-					if (itemFile.resolvedValue) {
-						link.setData('value', itemFile.resolvedValue);
-					} else {
-						var imageValue = {
-							fileEntryId: itemFile.fileEntryId,
-							groupId: itemFile.groupId,
-							title: itemFile.title,
-							type: itemFile.type,
-							url: itemFileURL,
-							uuid: itemFile.uuid
-						};
-
-						link.setData('value', JSON.stringify(imageValue));
-					}
-				},
-
 				_afterBindUI() {
 					var instance = this;
 
@@ -411,7 +197,7 @@ AUI.add(
 					instance._bindSidebarEvents();
 				},
 
-				_afterGetCurrentImage(event) {
+				_afterGetCurrentImage() {
 					var instance = this;
 
 					var retVal;
@@ -511,8 +297,6 @@ AUI.add(
 				},
 
 				_getUploadFileMetadata(file) {
-					var instance = this;
-
 					return {
 						groups: [
 							{
@@ -583,7 +367,7 @@ AUI.add(
 					);
 				},
 
-				_onClickInfoIcon(event) {
+				_onClickInfoIcon() {
 					var instance = this;
 
 					instance._getImageInfoNodes().toggle();
@@ -620,8 +404,6 @@ AUI.add(
 				},
 
 				_populateImageMetadata(image, metadata) {
-					var instance = this;
-
 					var imageViewer = image.ancestor('.image-viewer');
 
 					var sidenavTabContent = imageViewer.one(
@@ -780,7 +562,7 @@ AUI.add(
 
 					var sources = [];
 
-					links.each(function(item, index) {
+					links.each(function(item) {
 						sources.push(
 							item.attr('href') || item.attr('data-href')
 						);
@@ -819,6 +601,220 @@ AUI.add(
 					var caption = link.attr('title') || link.attr('data-title');
 
 					instance._captionEl.set('text', caption);
+				},
+
+				TPL_CAPTION: '<p class="' + CSS_CAPTION + '"></p>',
+
+				TPL_CONTROL_LEFT:
+					'<a class="' +
+					CSS_FOOTER_CONTROL +
+					' ' +
+					CSS_FOOTER_CONTROL_LEFT_BASE +
+					' ' +
+					CSS_FOOTER_CONTROL_LEFT +
+					'" href="javascript:;">' +
+					'<span class="' +
+					CSS_ICON_MONOSPACED +
+					'">' +
+					Liferay.Util.getLexiconIconTpl('angle-left') +
+					'</span>' +
+					'</a>',
+
+				TPL_CONTROL_RIGHT:
+					'<a class="' +
+					CSS_FOOTER_CONTROL +
+					' ' +
+					CSS_FOOTER_CONTROL_RIGHT_BASE +
+					' ' +
+					CSS_FOOTER_CONTROL_RIGHT +
+					'" href="javascript:;">' +
+					'<span class="' +
+					CSS_ICON_MONOSPACED +
+					'">' +
+					Liferay.Util.getLexiconIconTpl('angle-right') +
+					'</span>' +
+					'</a>',
+
+				TPL_IMAGE_CONTAINER:
+					'<div class="' +
+					CSS_IMAGE_CONTAINER +
+					'">' +
+					'<p class="fade preview-timeout-message text-muted">' +
+					Liferay.Language.get(
+						'preview-image-is-taking-longer-than-expected'
+					) +
+					'</p>' +
+					'</div>',
+
+				TPL_SIDENAV:
+					'<div class="closed image-viewer-sidenav sidenav-fixed sidenav-menu-slider sidenav-right">' +
+					'<div class="image-viewer-sidenav-menu sidebar sidebar-default sidenav-menu">' +
+					'<div class="sidebar-header">' +
+					'<a class="' +
+					CSS_ICON_MONOSPACED +
+					' image-viewer-sidenav-close sidenav-close visible-xs" href="">' +
+					Liferay.Util.getLexiconIconTpl('times') +
+					'</a>' +
+					'<h4 class="image-viewer-sidenav-header">' +
+					'<ul class="nav nav-tabs nav-tabs-default"></ul>' +
+					'</h4>' +
+					'</div>' +
+					'<div class="image-viewer-sidenav-body sidebar-body">' +
+					'<div class="tab-content"></div>' +
+					'</div>' +
+					'</div>' +
+					'</div>',
+
+				appendNewLink(imageData) {
+					var instance = this;
+
+					var links = instance.get('links');
+
+					var linkContainer = links.last().ancestor();
+
+					var newLinkContainer = linkContainer.clone();
+
+					var newLink = newLinkContainer.one('.item-preview');
+
+					newLink.setAttribute('data-href', imageData.file.url);
+					newLink.setAttribute('data-title', imageData.file.title);
+					newLink.setAttribute('data-value', imageData.file.url);
+					newLink.setAttribute('data-url', imageData.file.url);
+
+					newLink.all('[style]').each(function(node) {
+						var styleAttr = node.getAttribute('style');
+
+						if (styleAttr) {
+							styleAttr = styleAttr.replace(
+								/\burl\s*\(\s*["']?http:\/\/((?:[^"'\r\n/,]+)\/?)+["']?\s*\)/i,
+								'url("' + imageData.file.url + '")'
+							);
+
+							node.setAttribute('style', styleAttr);
+						}
+					});
+
+					newLink.setData(
+						'metadata',
+						JSON.stringify(
+							instance._getUploadFileMetadata(imageData.file)
+						)
+					);
+
+					linkContainer.placeAfter(newLinkContainer);
+
+					links.push(newLink);
+
+					instance.updateCurrentImage(imageData, newLink);
+
+					instance.set('links', links);
+
+					instance.set('currentIndex', links.size() - 1);
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance.TPL_CLOSE = Lang.sub(TPL_CLOSE, [
+						instance.get('btnCloseCaption')
+					]);
+
+					instance._displacedMethodHandles = [
+						instance.after(
+							'visibleChange',
+							instance._destroyPreviewTimer,
+							instance
+						),
+						Do.after('_afterBindUI', instance, 'bindUI', instance),
+						Do.after(
+							'_afterGetCurrentImage',
+							instance,
+							'_getCurrentImage',
+							instance
+						),
+						Do.after('_afterShow', instance, 'show', instance),
+						Do.after(
+							'_afterShowCurrentImage',
+							instance,
+							'_showCurrentImage',
+							instance
+						),
+						Do.after(
+							'_bindSidebarEvents',
+							instance,
+							'_afterLinksChange',
+							instance
+						),
+						Do.before(
+							'_beforeOnClickControl',
+							instance,
+							'_onClickControl',
+							instance
+						),
+						Do.before(
+							'_beforeSyncInfoUI',
+							instance,
+							'_syncInfoUI',
+							instance
+						)
+					];
+				},
+
+				renderUI() {
+					var instance = this;
+
+					LiferayItemViewer.superclass.renderUI.apply(
+						this,
+						arguments
+					);
+
+					if (
+						instance.get(STR_RENDER_CONTROLS) &&
+						instance.get(STR_RENDER_SIDEBAR)
+					) {
+						instance._renderSidenav();
+					}
+				},
+
+				updateCurrentImage(itemData, link) {
+					var instance = this;
+
+					link =
+						link ||
+						instance
+							.get('links')
+							.item(instance.get('currentIndex'));
+
+					var itemFile = itemData.file;
+
+					var itemFileURL = itemFile.url;
+
+					var image = instance._getCurrentImage();
+
+					if (!itemFile.mimeType.match(/image.*/)) {
+						image.attr(
+							'src',
+							Liferay.ThemeDisplay.getPathThemeImages() +
+								'/file_system/large/default.png'
+						);
+					} else {
+						image.attr('src', itemFileURL);
+					}
+
+					if (itemFile.resolvedValue) {
+						link.setData('value', itemFile.resolvedValue);
+					} else {
+						var imageValue = {
+							fileEntryId: itemFile.fileEntryId,
+							groupId: itemFile.groupId,
+							title: itemFile.title,
+							type: itemFile.type,
+							url: itemFileURL,
+							uuid: itemFile.uuid
+						};
+
+						link.setData('value', JSON.stringify(imageValue));
+					}
 				}
 			}
 		});

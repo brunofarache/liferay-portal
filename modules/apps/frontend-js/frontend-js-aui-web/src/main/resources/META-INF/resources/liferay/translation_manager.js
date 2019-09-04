@@ -171,13 +171,13 @@ AUI.add(
 					valueFn: '_valueAvailableTranslationsNode'
 				},
 
+				changeDefaultLocaleNode: {
+					valueFn: '_valueChangeDefaultLocaleNode'
+				},
+
 				changeableDefaultLanguage: {
 					validator: Lang.isBoolean,
 					value: true
-				},
-
-				changeDefaultLocaleNode: {
-					valueFn: '_valueChangeDefaultLocaleNode'
 				},
 
 				defaultLocale: {
@@ -247,181 +247,6 @@ AUI.add(
 			],
 
 			prototype: {
-				renderUI() {
-					var instance = this;
-
-					var availableTranslationsLinksNode = instance.get(
-						'availableTranslationsLinksNode'
-					);
-					var availableTranslationsNode = instance.get(
-						'availableTranslationsNode'
-					);
-					var changeableDefaultLanguage = instance.get(
-						'changeableDefaultLanguage'
-					);
-					var defaultLocaleLabelNode = instance.get(
-						'defaultLocaleLabelNode'
-					);
-					var defaultLocaleNode = instance.get('defaultLocaleNode');
-					var defaultLocaleTextNode = instance.get(
-						'defaultLocaleTextNode'
-					);
-					var iconMenuNode = instance.get('iconMenuNode');
-
-					var contentBox = instance.get('contentBox');
-
-					availableTranslationsNode.append(
-						availableTranslationsLinksNode
-					);
-
-					var nodes = [
-						defaultLocaleLabelNode,
-						defaultLocaleTextNode,
-						defaultLocaleNode
-					];
-
-					if (changeableDefaultLanguage) {
-						var changeDefaultLocaleNode = instance.get(
-							'changeDefaultLocaleNode'
-						);
-
-						instance._changeDefaultLocaleNode = changeDefaultLocaleNode;
-
-						nodes.push(changeDefaultLocaleNode);
-					}
-
-					nodes = nodes.concat([
-						iconMenuNode,
-						availableTranslationsNode
-					]);
-
-					var nodeList = new A.NodeList(nodes);
-
-					contentBox.append(nodeList);
-
-					instance._availableTranslationsNode = availableTranslationsNode;
-					instance._availableTranslationsLinksNode = availableTranslationsLinksNode;
-					instance._changeableDefaultLanguage = changeableDefaultLanguage;
-					instance._defaultLocaleNode = defaultLocaleNode;
-					instance._defaultLocaleTextNode = defaultLocaleTextNode;
-					instance._iconMenuNode = iconMenuNode;
-
-					instance._menuOverlayNode = iconMenuNode.one('ul');
-				},
-
-				bindUI() {
-					var instance = this;
-
-					instance.on(
-						'defaultLocaleChange',
-						instance._onDefaultLocaleChange,
-						instance
-					);
-					instance.after(
-						'defaultLocaleChange',
-						instance._afterDefaultLocaleChange,
-						instance
-					);
-
-					if (instance._changeableDefaultLanguage) {
-						instance._changeDefaultLocaleNode.on(
-							'click',
-							instance.toggleDefaultLocales,
-							instance
-						);
-					}
-
-					instance._defaultLocaleNode.on(
-						'change',
-						instance._onDefaultLocaleNodeChange,
-						instance
-					);
-					instance._defaultLocaleTextNode.on(
-						'click',
-						instance._onClickDefaultLocaleTextNode,
-						instance
-					);
-
-					instance._availableTranslationsLinksNode.delegate(
-						'click',
-						instance._onClickTranslation,
-						STR_DOT + CSS_TRANSLATION,
-						instance
-					);
-
-					instance._menuOverlayNode.delegate(
-						'click',
-						instance._onClickTranslationItem,
-						STR_DOT + CSS_TRANSLATION_ITEM,
-						instance
-					);
-
-					Liferay.Menu.handleFocus(instance._iconMenuNode);
-				},
-
-				addAvailableLocale(locale) {
-					var instance = this;
-
-					var availableLocales = instance.get('availableLocales');
-
-					if (availableLocales.indexOf(locale) === -1) {
-						availableLocales.push(locale);
-
-						instance.set('availableLocales', availableLocales);
-					}
-
-					instance.fire('addAvailableLocale', {
-						locale
-					});
-				},
-
-				deleteAvailableLocale(locale) {
-					var instance = this;
-
-					var availableLocales = instance.get('availableLocales');
-
-					AArray.removeItem(availableLocales, locale);
-
-					instance.set('availableLocales', availableLocales);
-
-					instance.fire('deleteAvailableLocale', {
-						locale
-					});
-				},
-
-				syncAvailableLocales(locales) {
-					var instance = this;
-
-					var availableLocales = instance.get('availableLocales');
-
-					instance.set(
-						'availableLocales',
-						AArray.filter(availableLocales, function(item) {
-							return AArray.indexOf(locales, item) > -1;
-						})
-					);
-				},
-
-				toggleDefaultLocales() {
-					var instance = this;
-
-					var defaultLocaleNode = instance._defaultLocaleNode;
-					var defaultLocaleTextNode = instance._defaultLocaleTextNode;
-
-					defaultLocaleNode.toggle();
-					defaultLocaleTextNode.toggle();
-
-					var text;
-
-					if (defaultLocaleNode.test(':hidden')) {
-						text = Liferay.Language.get('change');
-					} else {
-						text = Liferay.Language.get('cancel');
-					}
-
-					instance._changeDefaultLocaleNode.text(text);
-				},
-
 				_afterDefaultLocaleChange(event) {
 					var instance = this;
 
@@ -438,7 +263,7 @@ AUI.add(
 
 					var html;
 
-					instance._locales.forEach(function(item, index) {
+					instance._locales.forEach(function(item) {
 						tplBuffer[0] = item;
 						tplBuffer[1] = localesMap[item];
 
@@ -456,7 +281,7 @@ AUI.add(
 					return A.Widget.getByNode(instance._menuOverlayNode);
 				},
 
-				_onClickDefaultLocaleTextNode(event) {
+				_onClickDefaultLocaleTextNode() {
 					var instance = this;
 
 					instance._resetEditingLocale();
@@ -553,7 +378,7 @@ AUI.add(
 						locale: STR_BLANK
 					};
 
-					val.forEach(function(item, index) {
+					val.forEach(function(item) {
 						if (defaultLocale !== item) {
 							tplBuffer.cssClass =
 								editingLocale === item
@@ -648,26 +473,18 @@ AUI.add(
 				},
 
 				_valueAvailableTranslationsLinksNode() {
-					var instance = this;
-
 					return Node.create(TPL_AVAILABLE_TRANSLATIONS_LINKS_NODE);
 				},
 
 				_valueAvailableTranslationsNode() {
-					var instance = this;
-
 					return Node.create(TPL_AVAILABLE_TRANSLATIONS_NODE);
 				},
 
 				_valueChangeDefaultLocaleNode() {
-					var instance = this;
-
 					return Node.create(TPL_CHANGE_DEFAULT_LOCALE);
 				},
 
 				_valueDefaultLocaleLabelNode() {
-					var instance = this;
-
 					return Node.create(TPL_DEFAULT_LOCALE_LABEL_NODE);
 				},
 
@@ -713,6 +530,181 @@ AUI.add(
 					});
 
 					return Node.create(html);
+				},
+
+				addAvailableLocale(locale) {
+					var instance = this;
+
+					var availableLocales = instance.get('availableLocales');
+
+					if (availableLocales.indexOf(locale) === -1) {
+						availableLocales.push(locale);
+
+						instance.set('availableLocales', availableLocales);
+					}
+
+					instance.fire('addAvailableLocale', {
+						locale
+					});
+				},
+
+				bindUI() {
+					var instance = this;
+
+					instance.on(
+						'defaultLocaleChange',
+						instance._onDefaultLocaleChange,
+						instance
+					);
+					instance.after(
+						'defaultLocaleChange',
+						instance._afterDefaultLocaleChange,
+						instance
+					);
+
+					if (instance._changeableDefaultLanguage) {
+						instance._changeDefaultLocaleNode.on(
+							'click',
+							instance.toggleDefaultLocales,
+							instance
+						);
+					}
+
+					instance._defaultLocaleNode.on(
+						'change',
+						instance._onDefaultLocaleNodeChange,
+						instance
+					);
+					instance._defaultLocaleTextNode.on(
+						'click',
+						instance._onClickDefaultLocaleTextNode,
+						instance
+					);
+
+					instance._availableTranslationsLinksNode.delegate(
+						'click',
+						instance._onClickTranslation,
+						STR_DOT + CSS_TRANSLATION,
+						instance
+					);
+
+					instance._menuOverlayNode.delegate(
+						'click',
+						instance._onClickTranslationItem,
+						STR_DOT + CSS_TRANSLATION_ITEM,
+						instance
+					);
+
+					Liferay.Menu.handleFocus(instance._iconMenuNode);
+				},
+
+				deleteAvailableLocale(locale) {
+					var instance = this;
+
+					var availableLocales = instance.get('availableLocales');
+
+					AArray.removeItem(availableLocales, locale);
+
+					instance.set('availableLocales', availableLocales);
+
+					instance.fire('deleteAvailableLocale', {
+						locale
+					});
+				},
+
+				renderUI() {
+					var instance = this;
+
+					var availableTranslationsLinksNode = instance.get(
+						'availableTranslationsLinksNode'
+					);
+					var availableTranslationsNode = instance.get(
+						'availableTranslationsNode'
+					);
+					var changeableDefaultLanguage = instance.get(
+						'changeableDefaultLanguage'
+					);
+					var defaultLocaleLabelNode = instance.get(
+						'defaultLocaleLabelNode'
+					);
+					var defaultLocaleNode = instance.get('defaultLocaleNode');
+					var defaultLocaleTextNode = instance.get(
+						'defaultLocaleTextNode'
+					);
+					var iconMenuNode = instance.get('iconMenuNode');
+
+					var contentBox = instance.get('contentBox');
+
+					availableTranslationsNode.append(
+						availableTranslationsLinksNode
+					);
+
+					var nodes = [
+						defaultLocaleLabelNode,
+						defaultLocaleTextNode,
+						defaultLocaleNode
+					];
+
+					if (changeableDefaultLanguage) {
+						var changeDefaultLocaleNode = instance.get(
+							'changeDefaultLocaleNode'
+						);
+
+						instance._changeDefaultLocaleNode = changeDefaultLocaleNode;
+
+						nodes.push(changeDefaultLocaleNode);
+					}
+
+					nodes = nodes.concat([
+						iconMenuNode,
+						availableTranslationsNode
+					]);
+
+					var nodeList = new A.NodeList(nodes);
+
+					contentBox.append(nodeList);
+
+					instance._availableTranslationsNode = availableTranslationsNode;
+					instance._availableTranslationsLinksNode = availableTranslationsLinksNode;
+					instance._changeableDefaultLanguage = changeableDefaultLanguage;
+					instance._defaultLocaleNode = defaultLocaleNode;
+					instance._defaultLocaleTextNode = defaultLocaleTextNode;
+					instance._iconMenuNode = iconMenuNode;
+
+					instance._menuOverlayNode = iconMenuNode.one('ul');
+				},
+
+				syncAvailableLocales(locales) {
+					var instance = this;
+
+					var availableLocales = instance.get('availableLocales');
+
+					instance.set(
+						'availableLocales',
+						AArray.filter(availableLocales, function(item) {
+							return AArray.indexOf(locales, item) > -1;
+						})
+					);
+				},
+
+				toggleDefaultLocales() {
+					var instance = this;
+
+					var defaultLocaleNode = instance._defaultLocaleNode;
+					var defaultLocaleTextNode = instance._defaultLocaleTextNode;
+
+					defaultLocaleNode.toggle();
+					defaultLocaleTextNode.toggle();
+
+					var text;
+
+					if (defaultLocaleNode.test(':hidden')) {
+						text = Liferay.Language.get('change');
+					} else {
+						text = Liferay.Language.get('cancel');
+					}
+
+					instance._changeDefaultLocaleNode.text(text);
 				}
 			}
 		});

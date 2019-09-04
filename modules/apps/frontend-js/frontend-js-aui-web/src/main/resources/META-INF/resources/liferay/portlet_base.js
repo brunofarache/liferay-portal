@@ -51,6 +51,35 @@ AUI.add(
 		};
 
 		PortletBase.prototype = {
+			_formatSelectorNS(ns, selector) {
+				return selector.replace(
+					A.DOM._getRegExp('(#|\\[id=(\\"|\\\'))(?!' + ns + ')', 'g'),
+					'$1' + ns
+				);
+			},
+
+			_getNS() {
+				var instance = this;
+
+				return instance.NS;
+			},
+
+			_getRootNode() {
+				var instance = this;
+
+				return instance.rootNode;
+			},
+
+			_setRootNode(value) {
+				var instance = this;
+
+				var rootNode = A.one(value);
+
+				instance.rootNode = rootNode;
+
+				return rootNode;
+			},
+
 			all(selector, root) {
 				var instance = this;
 
@@ -81,35 +110,6 @@ AUI.add(
 				return root.one(
 					instance._formatSelectorNS(instance.NS, selector)
 				);
-			},
-
-			_formatSelectorNS(ns, selector) {
-				return selector.replace(
-					A.DOM._getRegExp('(#|\\[id=(\\"|\\\'))(?!' + ns + ')', 'g'),
-					'$1' + ns
-				);
-			},
-
-			_getNS(value) {
-				var instance = this;
-
-				return instance.NS;
-			},
-
-			_getRootNode(value) {
-				var instance = this;
-
-				return instance.rootNode;
-			},
-
-			_setRootNode(value) {
-				var instance = this;
-
-				var rootNode = A.one(value);
-
-				instance.rootNode = rootNode;
-
-				return rootNode;
 			}
 		};
 

@@ -52,48 +52,6 @@ AUI.add(
 			NS: NAME,
 
 			prototype: {
-				initializer(config) {
-					var instance = this;
-
-					var host = instance.get(STR_HOST);
-
-					host.addAttr(STR_SIZE, {
-						setter: A.bind('_animWidgetSize', instance)
-					});
-
-					instance._anim = new A.Anim({
-						duration: instance.get('duration'),
-						easing: instance.get('easing'),
-						node: host
-					});
-
-					var eventHandles = [
-						instance._anim.after(
-							STR_END,
-							A.bind('fire', instance, STR_END)
-						),
-						instance._anim.after(
-							STR_START,
-							A.bind('fire', instance, STR_START)
-						),
-						instance._anim.after(
-							'tween',
-							instance._alignWidget,
-							instance
-						)
-					];
-
-					instance._eventHandles = eventHandles;
-				},
-
-				destructor() {
-					var instance = this;
-
-					instance.get(STR_HOST).removeAttr(STR_SIZE);
-
-					new A.EventHandle(instance._eventHandles).detach();
-				},
-
 				_alignWidget() {
 					var instance = this;
 
@@ -127,6 +85,48 @@ AUI.add(
 
 						instance.fire(STR_END);
 					}
+				},
+
+				destructor() {
+					var instance = this;
+
+					instance.get(STR_HOST).removeAttr(STR_SIZE);
+
+					new A.EventHandle(instance._eventHandles).detach();
+				},
+
+				initializer() {
+					var instance = this;
+
+					var host = instance.get(STR_HOST);
+
+					host.addAttr(STR_SIZE, {
+						setter: A.bind('_animWidgetSize', instance)
+					});
+
+					instance._anim = new A.Anim({
+						duration: instance.get('duration'),
+						easing: instance.get('easing'),
+						node: host
+					});
+
+					var eventHandles = [
+						instance._anim.after(
+							STR_END,
+							A.bind('fire', instance, STR_END)
+						),
+						instance._anim.after(
+							STR_START,
+							A.bind('fire', instance, STR_START)
+						),
+						instance._anim.after(
+							'tween',
+							instance._alignWidget,
+							instance
+						)
+					];
+
+					instance._eventHandles = eventHandles;
 				}
 			}
 		});

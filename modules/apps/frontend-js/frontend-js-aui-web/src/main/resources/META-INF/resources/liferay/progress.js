@@ -53,18 +53,36 @@ AUI.add(
 			NAME: 'progress',
 
 			prototype: {
-				renderUI() {
+				_afterComplete() {
 					var instance = this;
 
-					Progress.superclass.renderUI.call(instance, arguments);
+					instance
+						.get('boundingBox')
+						.removeClass('lfr-progress-active');
 
-					var tplFrame = Lang.sub(TPL_FRAME, [instance.get('id')]);
+					instance.set('label', instance.get('strings.complete'));
 
-					var frame = A.Node.create(tplFrame);
+					instance._iframeLoadHandle.detach();
+				},
 
-					instance.get('boundingBox').placeBefore(frame);
+				_afterValueChange(event) {
+					var instance = this;
 
-					instance._frame = frame;
+					var label = instance.get('message');
+
+					if (!label) {
+						label = event.newVal + '%';
+					}
+
+					instance.set('label', label);
+				},
+
+				_onIframeLoad() {
+					var instance = this;
+
+					setTimeout(function() {
+						instance._frame.get('contentWindow.location').reload();
+					}, instance.get(STR_UPDATE_PERIOD));
 				},
 
 				bindUI() {
@@ -80,6 +98,20 @@ AUI.add(
 						instance._onIframeLoad,
 						instance
 					);
+				},
+
+				renderUI() {
+					var instance = this;
+
+					Progress.superclass.renderUI.call(instance, arguments);
+
+					var tplFrame = Lang.sub(TPL_FRAME, [instance.get('id')]);
+
+					var frame = A.Node.create(tplFrame);
+
+					instance.get('boundingBox').placeBefore(frame);
+
+					instance._frame = frame;
 				},
 
 				startProgress() {
@@ -108,38 +140,6 @@ AUI.add(
 					]);
 
 					instance._frame.attr('src', url);
-				},
-
-				_afterComplete(event) {
-					var instance = this;
-
-					instance
-						.get('boundingBox')
-						.removeClass('lfr-progress-active');
-
-					instance.set('label', instance.get('strings.complete'));
-
-					instance._iframeLoadHandle.detach();
-				},
-
-				_afterValueChange(event) {
-					var instance = this;
-
-					var label = instance.get('message');
-
-					if (!label) {
-						label = event.newVal + '%';
-					}
-
-					instance.set('label', label);
-				},
-
-				_onIframeLoad(event) {
-					var instance = this;
-
-					setTimeout(function() {
-						instance._frame.get('contentWindow.location').reload();
-					}, instance.get(STR_UPDATE_PERIOD));
 				}
 			}
 		});

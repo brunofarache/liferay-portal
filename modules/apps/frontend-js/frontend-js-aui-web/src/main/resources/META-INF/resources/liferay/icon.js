@@ -25,40 +25,7 @@ AUI.add(
 		var _ICON_REGISTRY = {};
 
 		var Icon = {
-			register(config) {
-				var instance = this;
-
-				var doc = A.one(A.config.doc);
-
-				_ICON_REGISTRY[config.id] = config;
-
-				if (!instance._docClickHandler) {
-					instance._docClickHandler = doc.delegate(
-						'click',
-						instance._handleDocClick,
-						'.lfr-icon-item',
-						instance
-					);
-				}
-
-				if (!instance._docHoverHandler) {
-					instance._docHoverHandler = doc.delegate(
-						'hover',
-						instance._handleDocMouseOver,
-						instance._handleDocMouseOut,
-						'.lfr-icon-item',
-						instance
-					);
-				}
-
-				Liferay.once('screenLoad', function() {
-					delete _ICON_REGISTRY[config.id];
-				});
-			},
-
 			_forcePost(event) {
-				var instance = this;
-
 				if (!Liferay.SPA || !Liferay.SPA.app) {
 					Liferay.Util.forcePost(event.currentTarget);
 
@@ -67,8 +34,6 @@ AUI.add(
 			},
 
 			_getConfig(event) {
-				var instance = this;
-
 				return _ICON_REGISTRY[event.currentTarget.attr('id')];
 			},
 
@@ -109,8 +74,6 @@ AUI.add(
 			},
 
 			_onMouseHover(event, src) {
-				var instance = this;
-
 				var img = event.currentTarget.one('img');
 
 				if (img) {
@@ -126,6 +89,37 @@ AUI.add(
 					dialogIframe: {
 						bodyCssClass: 'dialog-with-footer'
 					}
+				});
+			},
+
+			register(config) {
+				var instance = this;
+
+				var doc = A.one(A.config.doc);
+
+				_ICON_REGISTRY[config.id] = config;
+
+				if (!instance._docClickHandler) {
+					instance._docClickHandler = doc.delegate(
+						'click',
+						instance._handleDocClick,
+						'.lfr-icon-item',
+						instance
+					);
+				}
+
+				if (!instance._docHoverHandler) {
+					instance._docHoverHandler = doc.delegate(
+						'hover',
+						instance._handleDocMouseOver,
+						instance._handleDocMouseOut,
+						'.lfr-icon-item',
+						instance
+					);
+				}
+
+				Liferay.once('screenLoad', function() {
+					delete _ICON_REGISTRY[config.id];
 				});
 			}
 		};

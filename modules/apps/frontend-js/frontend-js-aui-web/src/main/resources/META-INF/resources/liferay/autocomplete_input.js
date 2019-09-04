@@ -74,44 +74,6 @@ AUI.add(
 		};
 
 		AutoCompleteInputBase.prototype = {
-			initializer() {
-				var instance = this;
-
-				instance
-					.get('boundingBox')
-					.addClass('lfr-autocomplete-input-list');
-
-				instance.set(
-					'resultFormatter',
-					A.bind('_acResultFormatter', instance)
-				);
-
-				instance._bindUIACIBase();
-
-				var autocompleteAttrs = A.Object.keys(
-					A.AutoComplete.ATTRS
-				).filter(function(item) {
-					return item !== 'value';
-				});
-
-				instance._triggerConfigDefaults = A.merge(
-					TRIGGER_CONFIG_DEFAULTS
-				);
-
-				A.mix(
-					instance._triggerConfigDefaults,
-					instance.getAttrs(),
-					false,
-					autocompleteAttrs
-				);
-			},
-
-			destructor() {
-				var instance = this;
-
-				new A.EventHandle(instance._eventHandles).detach();
-			},
-
 			_acResultFormatter(query, results) {
 				var instance = this;
 
@@ -216,13 +178,9 @@ AUI.add(
 				if (!instance._triggers) {
 					var triggers = [];
 
-					instance
-						.get(STR_TRIGGER)
-						.forEach(function(item, index, collection) {
-							triggers.push(
-								Lang.isString(item) ? item : item.term
-							);
-						});
+					instance.get(STR_TRIGGER).forEach(function(item) {
+						triggers.push(Lang.isString(item) ? item : item.term);
+					});
 
 					instance._triggers = triggers;
 				}
@@ -292,6 +250,44 @@ AUI.add(
 
 			_validateOffset(value) {
 				return Array.isArray(value) || Lang.isNumber(value);
+			},
+
+			destructor() {
+				var instance = this;
+
+				new A.EventHandle(instance._eventHandles).detach();
+			},
+
+			initializer() {
+				var instance = this;
+
+				instance
+					.get('boundingBox')
+					.addClass('lfr-autocomplete-input-list');
+
+				instance.set(
+					'resultFormatter',
+					A.bind('_acResultFormatter', instance)
+				);
+
+				instance._bindUIACIBase();
+
+				var autocompleteAttrs = A.Object.keys(
+					A.AutoComplete.ATTRS
+				).filter(function(item) {
+					return item !== 'value';
+				});
+
+				instance._triggerConfigDefaults = A.merge(
+					TRIGGER_CONFIG_DEFAULTS
+				);
+
+				A.mix(
+					instance._triggerConfigDefaults,
+					instance.getAttrs(),
+					false,
+					autocompleteAttrs
+				);
 			}
 		};
 

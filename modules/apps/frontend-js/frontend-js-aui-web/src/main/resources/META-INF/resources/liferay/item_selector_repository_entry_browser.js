@@ -77,42 +77,6 @@ AUI.add(
 			NAME: 'itemselectorrepositoryentrybrowser',
 
 			prototype: {
-				initializer() {
-					var instance = this;
-
-					instance._itemViewer = new A.LiferayItemViewer({
-						btnCloseCaption: instance.get('closeCaption'),
-						editItemURL: instance.get('editItemURL'),
-						links: instance.all('.item-preview'),
-						uploadItemURL: instance.get('uploadItemURL')
-					});
-
-					instance._uploadItemViewer = new A.LiferayItemViewer({
-						btnCloseCaption: instance.get('closeCaption'),
-						links: '',
-						uploadItemURL: instance.get('uploadItemURL')
-					});
-
-					instance._itemSelectorUploader = new A.LiferayItemSelectorUploader(
-						{
-							rootNode: instance.rootNode
-						}
-					);
-
-					instance._bindUI();
-					instance._renderUI();
-				},
-
-				destructor() {
-					var instance = this;
-
-					instance._itemViewer.destroy();
-					instance._uploadItemViewer.destroy();
-					instance._itemSelectorUploader.destroy();
-
-					new A.EventHandle(instance._eventHandles).detach();
-				},
-
 				_afterVisibleChange(event) {
 					var instance = this;
 
@@ -320,8 +284,6 @@ AUI.add(
 				},
 
 				_getUploadFileMetadata(file) {
-					var instance = this;
-
 					return {
 						groups: [
 							{
@@ -370,7 +332,7 @@ AUI.add(
 					});
 				},
 
-				_onItemUploadCancel(event) {
+				_onItemUploadCancel() {
 					var instance = this;
 
 					instance._uploadItemViewer.hide();
@@ -524,6 +486,42 @@ AUI.add(
 
 						instance._showError(errorMessage);
 					}
+				},
+
+				destructor() {
+					var instance = this;
+
+					instance._itemViewer.destroy();
+					instance._uploadItemViewer.destroy();
+					instance._itemSelectorUploader.destroy();
+
+					new A.EventHandle(instance._eventHandles).detach();
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._itemViewer = new A.LiferayItemViewer({
+						btnCloseCaption: instance.get('closeCaption'),
+						editItemURL: instance.get('editItemURL'),
+						links: instance.all('.item-preview'),
+						uploadItemURL: instance.get('uploadItemURL')
+					});
+
+					instance._uploadItemViewer = new A.LiferayItemViewer({
+						btnCloseCaption: instance.get('closeCaption'),
+						links: '',
+						uploadItemURL: instance.get('uploadItemURL')
+					});
+
+					instance._itemSelectorUploader = new A.LiferayItemSelectorUploader(
+						{
+							rootNode: instance.rootNode
+						}
+					);
+
+					instance._bindUI();
+					instance._renderUI();
 				}
 			}
 		});

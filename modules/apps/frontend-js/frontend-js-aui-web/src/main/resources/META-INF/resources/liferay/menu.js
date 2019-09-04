@@ -142,8 +142,6 @@ AUI.add(
 			},
 
 			_getAlignPoints: A.cached(function(cssClass) {
-				var instance = this;
-
 				var alignPoints = DEFAULT_ALIGN_POINTS;
 
 				var defaultOverlayHorizontalAlign = STR_RIGHT;
@@ -429,7 +427,7 @@ AUI.add(
 				}
 			},
 
-			_setARIARoles(trigger, menu, listContainer) {
+			_setARIARoles(trigger, menu) {
 				var links = menu.all(SELECTOR_ANCHOR);
 
 				var searchContainer = menu.one(SELECTOR_SEARCH_CONTAINER);
@@ -530,7 +528,7 @@ AUI.add(
 
 					bodyNode.on(
 						'key',
-						function(event) {
+						function() {
 							var activeTrigger = menuInstance._activeTrigger;
 
 							if (activeTrigger) {
@@ -587,9 +585,7 @@ AUI.add(
 		Liferay.provide(
 			Menu,
 			'_getLiveSearch',
-			function(trigger, menu) {
-				var instance = this;
-
+			function(_trigger, menu) {
 				var id = menu.guid();
 
 				var liveSearch = MAP_LIVE_SEARCH[id];

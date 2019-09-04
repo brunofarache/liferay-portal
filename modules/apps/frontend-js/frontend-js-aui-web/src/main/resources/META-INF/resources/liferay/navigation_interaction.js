@@ -31,54 +31,7 @@ AUI.add(
 			NS: NAME,
 
 			prototype: {
-				MAP_HOVER: {},
-
-				initializer(config) {
-					var instance = this;
-
-					var host = instance.get('host');
-
-					var navInteractionSelector =
-						Liferay.Data.NAV_INTERACTION_LIST_SELECTOR || 'ul';
-
-					var navigation = host.one(navInteractionSelector);
-
-					var hostULId = '#' + navigation.guid();
-
-					instance._directChildLi =
-						Liferay.Data.NAV_INTERACTION_ITEM_SELECTOR ||
-						hostULId + '> li';
-
-					instance._hostULId = hostULId;
-
-					instance._triggerNode = A.one('.nav-navigation-btn');
-
-					Liferay.on(
-						['hideNavigationMenu', 'showNavigationMenu'],
-						function(event) {
-							var showMenu = event.type == 'showNavigationMenu';
-
-							var menu = event.menu;
-
-							if (menu) {
-								instance._lastShownMenu = null;
-
-								if (showMenu) {
-									instance._lastShownMenu = menu;
-								}
-
-								menu.toggleClass('hover', showMenu);
-								menu.toggleClass('open', showMenu);
-							}
-						}
-					);
-
-					instance._initChildMenuHandlers(navigation);
-
-					instance._initNodeFocusManager();
-				},
-
-				_handleExit(event) {
+				_handleExit() {
 					var instance = this;
 
 					var focusManager = instance._focusManager;
@@ -353,6 +306,53 @@ AUI.add(
 
 						instance.MAP_HOVER = {};
 					}
+				},
+
+				MAP_HOVER: {},
+
+				initializer() {
+					var instance = this;
+
+					var host = instance.get('host');
+
+					var navInteractionSelector =
+						Liferay.Data.NAV_INTERACTION_LIST_SELECTOR || 'ul';
+
+					var navigation = host.one(navInteractionSelector);
+
+					var hostULId = '#' + navigation.guid();
+
+					instance._directChildLi =
+						Liferay.Data.NAV_INTERACTION_ITEM_SELECTOR ||
+						hostULId + '> li';
+
+					instance._hostULId = hostULId;
+
+					instance._triggerNode = A.one('.nav-navigation-btn');
+
+					Liferay.on(
+						['hideNavigationMenu', 'showNavigationMenu'],
+						function(event) {
+							var showMenu = event.type == 'showNavigationMenu';
+
+							var menu = event.menu;
+
+							if (menu) {
+								instance._lastShownMenu = null;
+
+								if (showMenu) {
+									instance._lastShownMenu = menu;
+								}
+
+								menu.toggleClass('hover', showMenu);
+								menu.toggleClass('open', showMenu);
+							}
+						}
+					);
+
+					instance._initChildMenuHandlers(navigation);
+
+					instance._initNodeFocusManager();
 				}
 			}
 		});

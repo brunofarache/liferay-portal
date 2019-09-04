@@ -53,13 +53,13 @@ AUI.add(
 					validator: Lang.isString
 				},
 
-				zIndex: {
-					validator: Lang.isNumber
-				},
-
 				visible: {
 					validator: Lang.isBoolean,
 					value: false
+				},
+
+				zIndex: {
+					validator: Lang.isNumber
 				}
 			},
 
@@ -68,6 +68,23 @@ AUI.add(
 			NS: 'item-selector-dialog',
 
 			prototype: {
+				_onItemSelected(event) {
+					var instance = this;
+
+					var currentItem = event.data;
+
+					var dialog = Util.getWindow(instance.get(STR_EVENT_NAME));
+
+					var addButton = dialog
+						.getToolbar('footer')
+						.get('boundingBox')
+						.one('#addButton');
+
+					Util.toggleDisabled(addButton, !currentItem);
+
+					instance._currentItem = currentItem;
+				},
+
 				/*
 				 * @deprecated since 7.2, unused
 				 */
@@ -94,8 +111,8 @@ AUI.add(
 					Util.selectEntity(
 						{
 							dialog: {
-								cssClass: instance.get('dialogClasses'),
 								constrain: true,
+								cssClass: instance.get('dialogClasses'),
 								destroyOnHide: true,
 								modal: true,
 								on: {
@@ -145,23 +162,6 @@ AUI.add(
 						},
 						A.bind(instance._onItemSelected, instance)
 					);
-				},
-
-				_onItemSelected(event) {
-					var instance = this;
-
-					var currentItem = event.data;
-
-					var dialog = Util.getWindow(instance.get(STR_EVENT_NAME));
-
-					var addButton = dialog
-						.getToolbar('footer')
-						.get('boundingBox')
-						.one('#addButton');
-
-					Util.toggleDisabled(addButton, !currentItem);
-
-					instance._currentItem = currentItem;
 				}
 			}
 		});

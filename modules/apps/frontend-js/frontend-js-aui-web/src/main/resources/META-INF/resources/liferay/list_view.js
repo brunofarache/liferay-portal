@@ -97,62 +97,6 @@ AUI.add(
 			NAME,
 
 			prototype: {
-				initializer() {
-					var instance = this;
-
-					instance._transitionCompleteProxy = A.fn(
-						instance.fire,
-						instance,
-						'transitionComplete'
-					);
-				},
-
-				renderUI() {
-					var instance = this;
-
-					var boundingBox = instance.get('boundingBox');
-
-					var dataContainer = A.Node.create(TPL_DATA_CONTAINER);
-
-					boundingBox.append(dataContainer);
-
-					instance._dataContainer = dataContainer;
-				},
-
-				bindUI() {
-					var instance = this;
-
-					var contentBox = instance.get(CONTENT_BOX);
-
-					var itemChosenEvent = instance.get('itemChosenEvent');
-					var itemSelector = instance.get('itemSelector');
-
-					instance._itemChosenHandle = contentBox.delegate(
-						itemChosenEvent,
-						instance._onItemChosen,
-						itemSelector,
-						instance
-					);
-
-					instance.after('dataChange', instance._afterDataChange);
-
-					instance.publish('transitionComplete', {
-						defaultFn: instance._defTransitionCompletedFn
-					});
-				},
-
-				destructor() {
-					var instance = this;
-
-					if (instance._itemChosenHandle) {
-						instance._itemChosenHandle.detach();
-					}
-
-					if (instance._dataContainer) {
-						instance._dataContainer.destroy(true);
-					}
-				},
-
 				_afterDataChange(event) {
 					var instance = this;
 
@@ -177,7 +121,7 @@ AUI.add(
 					}
 				},
 
-				_defTransitionCompletedFn(event) {
+				_defTransitionCompletedFn() {
 					var instance = this;
 
 					var dataContainer = instance._dataContainer;
@@ -269,6 +213,62 @@ AUI.add(
 						value === STR_RIGHT ||
 						value === STR_TOP
 					);
+				},
+
+				bindUI() {
+					var instance = this;
+
+					var contentBox = instance.get(CONTENT_BOX);
+
+					var itemChosenEvent = instance.get('itemChosenEvent');
+					var itemSelector = instance.get('itemSelector');
+
+					instance._itemChosenHandle = contentBox.delegate(
+						itemChosenEvent,
+						instance._onItemChosen,
+						itemSelector,
+						instance
+					);
+
+					instance.after('dataChange', instance._afterDataChange);
+
+					instance.publish('transitionComplete', {
+						defaultFn: instance._defTransitionCompletedFn
+					});
+				},
+
+				destructor() {
+					var instance = this;
+
+					if (instance._itemChosenHandle) {
+						instance._itemChosenHandle.detach();
+					}
+
+					if (instance._dataContainer) {
+						instance._dataContainer.destroy(true);
+					}
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._transitionCompleteProxy = A.fn(
+						instance.fire,
+						instance,
+						'transitionComplete'
+					);
+				},
+
+				renderUI() {
+					var instance = this;
+
+					var boundingBox = instance.get('boundingBox');
+
+					var dataContainer = A.Node.create(TPL_DATA_CONTAINER);
+
+					boundingBox.append(dataContainer);
+
+					instance._dataContainer = dataContainer;
 				}
 			}
 		});

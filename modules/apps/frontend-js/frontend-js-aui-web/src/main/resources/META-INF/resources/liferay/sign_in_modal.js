@@ -38,59 +38,12 @@ AUI.add(
 			NS: NAME,
 
 			prototype: {
-				initializer(config) {
-					var instance = this;
-
-					var signInPortlet = instance.get('signInPortlet');
-
-					if (signInPortlet) {
-						instance._signInPortletBody = signInPortlet.one(
-							'.portlet-body'
-						);
-					}
-
-					var host = instance.get('host');
-
-					instance._host = host;
-					instance._signInPortlet = signInPortlet;
-
-					instance._signInURL = host.attr('href');
-
-					if (signInPortlet) {
-						var formNode = signInPortlet.one('form');
-
-						if (formNode) {
-							var form = Liferay.Form.get(formNode.attr('id'));
-
-							instance._formValidator = '';
-
-							if (form) {
-								instance._formValidator = form.formValidator;
-							}
-
-							instance._hasSignInForm = formNode.hasClass(
-								'sign-in-form'
-							);
-						}
-					}
-
-					instance._bindUI();
-				},
-
-				destructor() {
-					var dialog = Liferay.Util.getWindow(NAME);
-
-					if (dialog) {
-						dialog.destroy();
-					}
-				},
-
 				_bindUI() {
 					var instance = this;
 
 					instance._host.on('click', A.bind('_load', instance));
 
-					var destroyModal = function(event) {
+					var destroyModal = function() {
 						instance.destroy();
 
 						Liferay.detach('screenLoad', destroyModal);
@@ -216,6 +169,53 @@ AUI.add(
 
 						dialog.show();
 					}
+				},
+
+				destructor() {
+					var dialog = Liferay.Util.getWindow(NAME);
+
+					if (dialog) {
+						dialog.destroy();
+					}
+				},
+
+				initializer() {
+					var instance = this;
+
+					var signInPortlet = instance.get('signInPortlet');
+
+					if (signInPortlet) {
+						instance._signInPortletBody = signInPortlet.one(
+							'.portlet-body'
+						);
+					}
+
+					var host = instance.get('host');
+
+					instance._host = host;
+					instance._signInPortlet = signInPortlet;
+
+					instance._signInURL = host.attr('href');
+
+					if (signInPortlet) {
+						var formNode = signInPortlet.one('form');
+
+						if (formNode) {
+							var form = Liferay.Form.get(formNode.attr('id'));
+
+							instance._formValidator = '';
+
+							if (form) {
+								instance._formValidator = form.formValidator;
+							}
+
+							instance._hasSignInForm = formNode.hasClass(
+								'sign-in-form'
+							);
+						}
+					}
+
+					instance._bindUI();
 				}
 			}
 		});

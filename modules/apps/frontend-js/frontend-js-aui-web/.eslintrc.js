@@ -12,36 +12,8 @@
  * details.
  */
 
-AUI.add(
-	'liferay-address',
-	function() {
-		if (!Liferay.Address) {
-			Liferay.Address = {
-				getCountries(callback) {
-					Liferay.Service(
-						'/country/get-countries',
-						{
-							active: true
-						},
-						callback
-					);
-				},
-
-				getRegions(callback, selectKey) {
-					Liferay.Service(
-						'/region/get-regions',
-						{
-							active: true,
-							countryId: Number(selectKey)
-						},
-						callback
-					);
-				}
-			};
-		}
-	},
-	'',
-	{
-		requires: []
+module.exports = {
+	globals: {
+		YUI: true
 	}
-);
+};

@@ -105,24 +105,59 @@ AUI.add(
 			NS: 'liferaysourceeditor',
 
 			prototype: {
-				CONTENT_TEMPLATE: null,
-
-				initializer() {
+				_highlightActiveGutterLine(line) {
 					var instance = this;
 
-					var aceEditor = instance.getEditor();
+					var session = instance.getSession();
 
-					aceEditor.setOptions(instance.get('aceOptions'));
+					if (instance._currentLine !== null) {
+						session.removeGutterDecoration(
+							instance._currentLine,
+							CSS_ACTIVE_CELL
+						);
+					}
 
-					instance._initializeThemes();
-					instance._highlightActiveGutterLine(0);
+					session.addGutterDecoration(line, CSS_ACTIVE_CELL);
 
-					// LPS-67768
+					instance._currentLine = line;
+				},
 
-					if (UA.linux && UA.chrome) {
-						aceEditor.renderer.$computeLayerConfig();
+				_initializeThemes() {
+					var instance = this;
+
+					var themes = instance.get(STR_THEMES);
+
+					if (themes.length) {
+						instance
+							.get(STR_BOUNDING_BOX)
+							.addClass(themes[0].cssClass);
 					}
 				},
+
+				_notifyEditorChange(data) {
+					var instance = this;
+
+					instance.fire('change', {
+						change: data,
+						newVal: instance.get('value')
+					});
+				},
+
+				_updateActiveLine() {
+					var instance = this;
+
+					var line = instance.getEditor().getCursorPosition().row;
+
+					var session = instance.getSession();
+
+					if (session.isRowFolded(line)) {
+						line = session.getRowFoldStart(line);
+					}
+
+					instance._highlightActiveGutterLine(line);
+				},
+
+				CONTENT_TEMPLATE: null,
 
 				bindUI() {
 					var instance = this;
@@ -183,6 +218,23 @@ AUI.add(
 					return instance.editor;
 				},
 
+				initializer() {
+					var instance = this;
+
+					var aceEditor = instance.getEditor();
+
+					aceEditor.setOptions(instance.get('aceOptions'));
+
+					instance._initializeThemes();
+					instance._highlightActiveGutterLine(0);
+
+					// LPS-67768
+
+					if (UA.linux && UA.chrome) {
+						aceEditor.renderer.$computeLayerConfig();
+					}
+				},
+
 				switchTheme(themeToSwitch) {
 					var instance = this;
 
@@ -217,58 +269,6 @@ AUI.add(
 						prevThemeIndex,
 						themes
 					});
-				},
-
-				_highlightActiveGutterLine(line) {
-					var instance = this;
-
-					var session = instance.getSession();
-
-					if (instance._currentLine !== null) {
-						session.removeGutterDecoration(
-							instance._currentLine,
-							CSS_ACTIVE_CELL
-						);
-					}
-
-					session.addGutterDecoration(line, CSS_ACTIVE_CELL);
-
-					instance._currentLine = line;
-				},
-
-				_initializeThemes() {
-					var instance = this;
-
-					var themes = instance.get(STR_THEMES);
-
-					if (themes.length) {
-						instance
-							.get(STR_BOUNDING_BOX)
-							.addClass(themes[0].cssClass);
-					}
-				},
-
-				_notifyEditorChange(data) {
-					var instance = this;
-
-					instance.fire('change', {
-						change: data,
-						newVal: instance.get('value')
-					});
-				},
-
-				_updateActiveLine() {
-					var instance = this;
-
-					var line = instance.getEditor().getCursorPosition().row;
-
-					var session = instance.getSession();
-
-					if (session.isRowFolded(line)) {
-						line = session.getRowFoldStart(line);
-					}
-
-					instance._highlightActiveGutterLine(line);
 				}
 			}
 		});

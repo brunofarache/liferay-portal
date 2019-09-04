@@ -48,69 +48,6 @@ AUI.add(
 			NS: NAME,
 
 			prototype: {
-				initializer() {
-					var instance = this;
-
-					var uploader = instance._getUploader();
-
-					instance._createProgressBar();
-
-					var cancelBtn = instance._progressBarNode.one(
-						'#' + instance.NS + 'cancel'
-					);
-
-					instance._eventHandles = [
-						uploader.on(
-							'uploadcomplete',
-							instance._onUploadComplete,
-							instance
-						),
-						uploader.on(
-							'uploaderror',
-							instance._onUploadError,
-							instance
-						),
-						uploader.on(
-							'uploadprogress',
-							instance._onUploadProgress,
-							instance
-						),
-						cancelBtn.on('click', instance._onCancel, instance)
-					];
-				},
-
-				destructor() {
-					var instance = this;
-
-					if (instance._uploader) {
-						instance._uploader.destroy();
-					}
-
-					if (instance._progressBar) {
-						instance._progressBar.destroy();
-					}
-
-					new A.EventHandle(instance._eventHandles).detach();
-				},
-
-				startUpload(file, url) {
-					var instance = this;
-
-					file = new A.FileHTML5(file);
-
-					var uploader = instance._getUploader();
-
-					uploader.upload(file, url);
-
-					instance._currentFile = file;
-
-					instance._progressBarNode
-						.one('#' + instance.NS + 'itemName')
-						.html(file.get('name'));
-
-					instance.rootNode.addClass(CSS_UPLOADING);
-				},
-
 				_createProgressBar() {
 					var instance = this;
 
@@ -199,6 +136,69 @@ AUI.add(
 					instance._progressBar.set(STR_VALUE, 0);
 
 					instance.rootNode.removeClass(CSS_UPLOADING);
+				},
+
+				destructor() {
+					var instance = this;
+
+					if (instance._uploader) {
+						instance._uploader.destroy();
+					}
+
+					if (instance._progressBar) {
+						instance._progressBar.destroy();
+					}
+
+					new A.EventHandle(instance._eventHandles).detach();
+				},
+
+				initializer() {
+					var instance = this;
+
+					var uploader = instance._getUploader();
+
+					instance._createProgressBar();
+
+					var cancelBtn = instance._progressBarNode.one(
+						'#' + instance.NS + 'cancel'
+					);
+
+					instance._eventHandles = [
+						uploader.on(
+							'uploadcomplete',
+							instance._onUploadComplete,
+							instance
+						),
+						uploader.on(
+							'uploaderror',
+							instance._onUploadError,
+							instance
+						),
+						uploader.on(
+							'uploadprogress',
+							instance._onUploadProgress,
+							instance
+						),
+						cancelBtn.on('click', instance._onCancel, instance)
+					];
+				},
+
+				startUpload(file, url) {
+					var instance = this;
+
+					file = new A.FileHTML5(file);
+
+					var uploader = instance._getUploader();
+
+					uploader.upload(file, url);
+
+					instance._currentFile = file;
+
+					instance._progressBarNode
+						.one('#' + instance.NS + 'itemName')
+						.html(file.get('name'));
+
+					instance.rootNode.addClass(CSS_UPLOADING);
 				}
 			}
 		});

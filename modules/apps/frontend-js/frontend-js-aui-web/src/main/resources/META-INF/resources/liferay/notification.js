@@ -21,11 +21,6 @@ AUI.add(
 			NAME: 'liferaynotification',
 
 			prototype: {
-				TPL_ALERT_NODE: '<div class="lfr-notification-wrapper"></div>',
-
-				TPL_ALERTS_CONTAINER:
-					'<div class="lfr-notification-container"></div>',
-
 				_getAlertsContainer(targetNode) {
 					var instance = this;
 
@@ -56,7 +51,12 @@ AUI.add(
 					}
 
 					return alertsContainer;
-				}
+				},
+
+				TPL_ALERT_NODE: '<div class="lfr-notification-wrapper"></div>',
+
+				TPL_ALERTS_CONTAINER:
+					'<div class="lfr-notification-container"></div>'
 			}
 		});
 

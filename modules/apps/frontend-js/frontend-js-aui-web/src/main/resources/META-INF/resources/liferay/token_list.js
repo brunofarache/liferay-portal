@@ -57,37 +57,25 @@ AUI().add(
 			NAME: 'liferaytokenlist',
 
 			prototype: {
-				initializer() {
+				_addToken() {
 					var instance = this;
 
-					instance._buffer = [];
+					var buffer = instance._buffer;
 
-					instance._addTokenTask = A.debounce(
-						instance._addToken,
-						100
-					);
+					instance.get('contentBox').append(TPL_TOKEN.parse(buffer));
+
+					buffer.length = 0;
 				},
 
-				renderUI() {
-					var instance = this;
-
-					instance.add(instance.get('children'));
+				_defCloseFn(event) {
+					event.item.remove();
 				},
 
-				bindUI() {
+				_onClick(event) {
 					var instance = this;
 
-					var boundingBox = instance.get('boundingBox');
-
-					boundingBox.delegate(
-						'click',
-						instance._onClick,
-						'.lfr-token-close',
-						instance
-					);
-
-					instance.publish('close', {
-						defaultFn: A.bind('_defCloseFn', instance)
+					instance.fire('close', {
+						item: event.currentTarget.ancestor('.lfr-token')
 					});
 				},
 
@@ -107,28 +95,38 @@ AUI().add(
 					}
 				},
 
-				_addToken() {
+				bindUI() {
 					var instance = this;
 
-					var buffer = instance._buffer;
+					var boundingBox = instance.get('boundingBox');
 
-					instance.get('contentBox').append(TPL_TOKEN.parse(buffer));
+					boundingBox.delegate(
+						'click',
+						instance._onClick,
+						'.lfr-token-close',
+						instance
+					);
 
-					buffer.length = 0;
-				},
-
-				_defCloseFn(event) {
-					var instance = this;
-
-					event.item.remove();
-				},
-
-				_onClick(event) {
-					var instance = this;
-
-					instance.fire('close', {
-						item: event.currentTarget.ancestor('.lfr-token')
+					instance.publish('close', {
+						defaultFn: A.bind('_defCloseFn', instance)
 					});
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._buffer = [];
+
+					instance._addTokenTask = A.debounce(
+						instance._addToken,
+						100
+					);
+				},
+
+				renderUI() {
+					var instance = this;
+
+					instance.add(instance.get('children'));
 				}
 			}
 		});

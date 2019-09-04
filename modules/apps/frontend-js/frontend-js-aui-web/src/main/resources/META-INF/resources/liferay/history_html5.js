@@ -39,24 +39,6 @@ AUI.add(
 		A.mix(
 			History.prototype,
 			{
-				PROTECTED_HASH_KEYS: [/^liferay$/, /^tab$/, /^_\d+_tab$/],
-
-				add(state, options) {
-					var instance = this;
-
-					options = options || {};
-
-					options.url = options.url || instance._updateURI(state);
-
-					state.liferay = true;
-
-					return History.superclass.add.call(
-						instance,
-						state,
-						options
-					);
-				},
-
 				_init(config) {
 					var instance = this;
 
@@ -71,7 +53,12 @@ AUI.add(
 
 					config = config || {};
 
-					if (!config.hasOwnProperty('initialState')) {
+					if (
+						!Object.prototype.hasOwnProperty.call(
+							config,
+							'initialState'
+						)
+					) {
 						if (locationHashValid) {
 							config.initialState = instance._parse(
 								hash.substr(1)
@@ -109,8 +96,7 @@ AUI.add(
 
 							A.each(state, function(value1, key1) {
 								instance.PROTECTED_HASH_KEYS.forEach(function(
-									value2,
-									key2
+									value2
 								) {
 									if (value2.test(key1)) {
 										delete state[key1];
@@ -150,6 +136,24 @@ AUI.add(
 					);
 
 					return uriData.join('');
+				},
+
+				PROTECTED_HASH_KEYS: [/^liferay$/, /^tab$/, /^_\d+_tab$/],
+
+				add(state, options) {
+					var instance = this;
+
+					options = options || {};
+
+					options.url = options.url || instance._updateURI(state);
+
+					state.liferay = true;
+
+					return History.superclass.add.call(
+						instance,
+						state,
+						options
+					);
 				}
 			},
 			true

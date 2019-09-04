@@ -25,6 +25,14 @@ AUI.add(
 			NS: 'zindex',
 
 			prototype: {
+				_setHostZIndex() {
+					var instance = this;
+
+					instance
+						.get(STR_HOST)
+						.set('zIndex', ++Liferay.zIndex.WINDOW);
+				},
+
 				initializer() {
 					var instance = this;
 
@@ -39,14 +47,6 @@ AUI.add(
 							instance._setHostZIndex();
 						}
 					});
-				},
-
-				_setHostZIndex() {
-					var instance = this;
-
-					instance
-						.get(STR_HOST)
-						.set('zIndex', ++Liferay.zIndex.WINDOW);
 				}
 			}
 		});

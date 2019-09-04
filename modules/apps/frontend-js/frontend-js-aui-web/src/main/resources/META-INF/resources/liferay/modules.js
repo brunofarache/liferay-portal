@@ -209,7 +209,7 @@
 					'liferay-form-placeholders': {
 						condition: {
 							name: 'liferay-form-placeholders',
-							test(A) {
+							test() {
 								return !('placeholder' in INPUT_EL);
 							},
 							trigger: 'liferay-form'
@@ -461,7 +461,7 @@
 					},
 					'liferay-resize-rtl': {
 						condition: {
-							test(A) {
+							test() {
 								return document.documentElement.dir === 'rtl';
 							},
 							trigger: 'resize-base'

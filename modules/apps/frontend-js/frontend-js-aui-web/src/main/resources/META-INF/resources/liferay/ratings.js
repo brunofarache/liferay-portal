@@ -31,8 +31,6 @@ AUI.add(
 
 		var STR_NAMESPACE = 'namespace';
 
-		var STR_RESPONSE_DATA = 'responseData';
-
 		var STR_SIZE = 'size';
 
 		var STR_URI = 'uri';
@@ -45,6 +43,62 @@ AUI.add(
 		var buffer = [];
 
 		var Ratings = A.Component.create({
+			_INSTANCES: {},
+
+			_registerRating(config) {
+				var instance = this;
+
+				var ratings = null;
+
+				if (config.type === 'like') {
+					ratings = Liferay.Ratings.LikeRating;
+				} else if (
+					config.type === 'stars' ||
+					config.type === 'stacked-stars'
+				) {
+					ratings = Liferay.Ratings.StarRating;
+				} else if (config.type === 'thumbs') {
+					ratings = Liferay.Ratings.ThumbRating;
+				}
+
+				var ratingInstance = null;
+
+				if (ratings && document.getElementById(config.containerId)) {
+					ratingInstance = new ratings(config);
+
+					instance._INSTANCES[
+						config.id || config.namespace
+					] = ratingInstance;
+				}
+
+				return ratingInstance;
+			},
+
+			_registerTask: A.debounce(function() {
+				buffer.forEach(function(item) {
+					var handle = item.container.on(
+						EVENT_INTERACTIONS_RENDER,
+						function(event) {
+							handle.detach();
+
+							var config = item.config;
+
+							config.initialFocus = event.type === 'focus';
+
+							Ratings._registerRating(config);
+						}
+					);
+				});
+
+				buffer.length = 0;
+			}, 100),
+
+			_thumbScoreMap: {
+				'-1': -1,
+				down: 0,
+				up: 1
+			},
+
 			ATTRS: {
 				averageScore: {},
 
@@ -88,12 +142,6 @@ AUI.add(
 			EXTENDS: A.Base,
 
 			prototype: {
-				initializer() {
-					var instance = this;
-
-					instance._renderRatings();
-				},
-
 				_bindRatings() {
 					var instance = this;
 
@@ -271,6 +319,12 @@ AUI.add(
 							])
 						);
 					});
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._renderRatings();
 				}
 			},
 
@@ -292,62 +346,6 @@ AUI.add(
 				} else {
 					instance._registerRating(config);
 				}
-			},
-
-			_registerRating(config) {
-				var instance = this;
-
-				var ratings = null;
-
-				if (config.type === 'like') {
-					ratings = Liferay.Ratings.LikeRating;
-				} else if (
-					config.type === 'stars' ||
-					config.type === 'stacked-stars'
-				) {
-					ratings = Liferay.Ratings.StarRating;
-				} else if (config.type === 'thumbs') {
-					ratings = Liferay.Ratings.ThumbRating;
-				}
-
-				var ratingInstance = null;
-
-				if (ratings && document.getElementById(config.containerId)) {
-					ratingInstance = new ratings(config);
-
-					instance._INSTANCES[
-						config.id || config.namespace
-					] = ratingInstance;
-				}
-
-				return ratingInstance;
-			},
-
-			_registerTask: A.debounce(function() {
-				buffer.forEach(function(item, index) {
-					var handle = item.container.on(
-						EVENT_INTERACTIONS_RENDER,
-						function(event) {
-							handle.detach();
-
-							var config = item.config;
-
-							config.initialFocus = event.type === 'focus';
-
-							Ratings._registerRating(config);
-						}
-					);
-				});
-
-				buffer.length = 0;
-			}, 100),
-
-			_INSTANCES: {},
-
-			_thumbScoreMap: {
-				'-1': -1,
-				down: 0,
-				up: 1
 			}
 		});
 
@@ -361,7 +359,7 @@ AUI.add(
 			EXTENDS: Ratings,
 
 			prototype: {
-				_itemSelect(event) {
+				_itemSelect() {
 					var instance = this;
 
 					var score =
@@ -508,7 +506,7 @@ AUI.add(
 					};
 				},
 
-				_itemSelect(event) {
+				_itemSelect() {
 					var instance = this;
 
 					var uri = instance.get(STR_URI);
@@ -716,7 +714,7 @@ AUI.add(
 					}).render();
 				},
 
-				_getThumbScores(entries, score) {
+				_getThumbScores(entries) {
 					return {
 						positiveVotes: entries
 					};

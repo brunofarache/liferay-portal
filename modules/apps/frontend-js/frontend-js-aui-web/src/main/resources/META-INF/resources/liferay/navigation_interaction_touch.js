@@ -24,7 +24,7 @@ AUI.add(
 		A.mix(
 			Liferay.NavigationInteraction.prototype,
 			{
-				_handleShowNavigationMenu(menuNew, menuOld, event) {
+				_handleShowNavigationMenu(menuNew) {
 					var instance = this;
 
 					var mapHover = instance.MAP_HOVER;

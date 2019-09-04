@@ -57,8 +57,6 @@ AUI.add(
 			},
 
 			_getImgNaturalSize(img) {
-				var instance = this;
-
 				var imageHeight = img.get('naturalHeight');
 				var imageWidth = img.get('naturalWidth');
 

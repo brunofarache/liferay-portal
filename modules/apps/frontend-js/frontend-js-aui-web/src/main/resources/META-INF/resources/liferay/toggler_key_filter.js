@@ -41,20 +41,6 @@ AUI.add(
 			NS: NAME,
 
 			prototype: {
-				initializer() {
-					var instance = this;
-
-					instance._toggleEvent = instance
-						.get('host')
-						.get('toggleEvent');
-
-					instance.beforeHostMethod(
-						'headerEventHandler',
-						instance._headerEventHandler,
-						instance
-					);
-				},
-
 				_headerEventHandler(event) {
 					var instance = this;
 
@@ -72,6 +58,20 @@ AUI.add(
 					}
 
 					return retVal;
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._toggleEvent = instance
+						.get('host')
+						.get('toggleEvent');
+
+					instance.beforeHostMethod(
+						'headerEventHandler',
+						instance._headerEventHandler,
+						instance
+					);
 				}
 			}
 		});

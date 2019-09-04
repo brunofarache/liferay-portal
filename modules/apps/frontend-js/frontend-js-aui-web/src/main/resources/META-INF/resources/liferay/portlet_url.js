@@ -83,6 +83,20 @@ AUI.add(
 		};
 
 		PortletURL.prototype = {
+			_isReservedParam(paramName) {
+				var instance = this;
+
+				var result = false;
+
+				A.each(instance.reservedParams, function(item, index) {
+					if (index === paramName) {
+						result = true;
+					}
+				});
+
+				return result;
+			},
+
 			/*
 			 * @deprecated
 			 */
@@ -272,20 +286,6 @@ AUI.add(
 				}
 
 				return portletURL.toString();
-			},
-
-			_isReservedParam(paramName) {
-				var instance = this;
-
-				var result = false;
-
-				A.each(instance.reservedParams, function(item, index) {
-					if (index === paramName) {
-						result = true;
-					}
-				});
-
-				return result;
 			}
 		};
 

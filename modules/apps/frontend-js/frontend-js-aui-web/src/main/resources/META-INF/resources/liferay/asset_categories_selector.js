@@ -79,8 +79,6 @@ AUI.add(
 			ATTRS: {
 				curEntries: {
 					setter(value) {
-						var instance = this;
-
 						if (Lang.isString(value)) {
 							value = value.split('_CATEGORY_');
 						}
@@ -92,8 +90,6 @@ AUI.add(
 
 				curEntryIds: {
 					setter(value) {
-						var instance = this;
-
 						if (Lang.isString(value)) {
 							value = value.split(',');
 						}
@@ -137,8 +133,6 @@ AUI.add(
 
 				vocabularyGroupIds: {
 					setter(value) {
-						var instance = this;
-
 						if (Lang.isString(value) && value) {
 							value = value.split(',');
 						}
@@ -150,8 +144,6 @@ AUI.add(
 
 				vocabularyIds: {
 					setter(value) {
-						var instance = this;
-
 						if (Lang.isString(value) && value) {
 							value = value.split(',');
 						}
@@ -167,63 +159,6 @@ AUI.add(
 			NAME,
 
 			prototype: {
-				TREEVIEWS: {},
-				UI_EVENTS: {},
-
-				renderUI() {
-					var instance = this;
-
-					AssetCategoriesSelector.superclass.constructor.superclass.renderUI.apply(
-						instance,
-						arguments
-					);
-
-					instance._renderIcons();
-
-					instance.inputContainer.addClass('hide-accessible');
-
-					instance._applyARIARoles();
-				},
-
-				bindUI() {
-					var instance = this;
-
-					AssetCategoriesSelector.superclass.bindUI.apply(
-						instance,
-						arguments
-					);
-				},
-
-				syncUI() {
-					var instance = this;
-
-					AssetCategoriesSelector.superclass.constructor.superclass.syncUI.apply(
-						instance,
-						arguments
-					);
-
-					var matchKey = instance.get('matchKey');
-
-					instance.entries.getKey = function(obj) {
-						return obj.categoryId;
-					};
-
-					var curEntries = instance.get('curEntries');
-					var curEntryIds = instance.get('curEntryIds');
-
-					curEntryIds.forEach(function(item, index) {
-						var entry = {
-							categoryId: item
-						};
-
-						entry[matchKey] = curEntries[index];
-
-						entry.value = LString.unescapeHTML(entry.value);
-
-						instance.entries.add(entry);
-					});
-				},
-
 				_afterTBLFocusedChange: EMPTY_FN,
 
 				_applyARIARoles() {
@@ -260,7 +195,7 @@ AUI.add(
 						type = 'radio';
 					}
 
-					json.forEach(function(item, index) {
+					json.forEach(function(item) {
 						var checked = false;
 						var treeId = 'category' + item.categoryId;
 
@@ -335,16 +270,15 @@ AUI.add(
 						Liferay.Service(
 							{
 								'$vocabularies = /assetvocabulary/get-vocabularies': {
-									vocabularyIds,
 									'$childrenCount = /assetcategory/get-vocabulary-root-categories-count': {
 										'@groupId': '$vocabularies.groupId',
 										'@vocabularyId':
 											'$vocabularies.vocabularyId'
 									},
-
 									'$group[descriptiveName] = /group/get-group': {
 										'@groupId': '$vocabularies.groupId'
-									}
+									},
+									vocabularyIds
 								}
 							},
 							callback
@@ -363,17 +297,16 @@ AUI.add(
 						Liferay.Service(
 							{
 								'$vocabularies = /assetvocabulary/get-groups-vocabularies': {
-									className,
-									groupIds,
 									'$childrenCount = /assetcategory/get-vocabulary-root-categories-count': {
-										groupId: '$vocabularies.groupId',
 										'@vocabularyId':
-											'$vocabularies.vocabularyId'
+											'$vocabularies.vocabularyId',
+										groupId: '$vocabularies.groupId'
 									},
-
 									'$group[descriptiveName] = /group/get-group': {
 										'@groupId': '$vocabularies.groupId'
-									}
+									},
+									className,
+									groupIds
 								}
 							},
 							callback
@@ -481,8 +414,6 @@ AUI.add(
 				},
 
 				_isValidString(value) {
-					var instance = this;
-
 					return Lang.isString(value) && value.length;
 				},
 
@@ -587,7 +518,7 @@ AUI.add(
 
 						var inputName = A.guid();
 
-						categories.forEach(function(item, index) {
+						categories.forEach(function(item) {
 							item.checked =
 								instance.entries.findIndexBy(
 									'categoryId',
@@ -657,15 +588,15 @@ AUI.add(
 						Liferay.Service(
 							{
 								'$display = /assetcategory/search-categories-display': {
+									'categories.$path = /assetcategory/get-category-path': {
+										'@categoryId':
+											'$display.categories.categoryId'
+									},
 									end: -1,
 									groupIds: vocabularyGroupIds,
 									start: -1,
 									title: searchValue,
-									vocabularyIds,
-									'categories.$path = /assetcategory/get-category-path': {
-										'@categoryId':
-											'$display.categories.categoryId'
-									}
+									vocabularyIds
 								}
 							},
 							callback
@@ -676,12 +607,12 @@ AUI.add(
 
 					var treeViews = instance.TREEVIEWS;
 
-					AObject.each(treeViews, function(item, index) {
+					AObject.each(treeViews, function(item) {
 						item.toggle(!searchValue);
 					});
 				},
 
-				_showPopup(event) {
+				_showPopup() {
 					var instance = this;
 
 					Liferay.Util.getTop()
@@ -726,7 +657,7 @@ AUI.add(
 							instance
 						);
 
-						A.each(instance.TREEVIEWS, function(item, index) {
+						A.each(instance.TREEVIEWS, function(item) {
 							item.toggle(!searchValue);
 
 							item.expandAll();
@@ -744,7 +675,7 @@ AUI.add(
 					);
 				},
 
-				_vocabulariesIterator(item, index) {
+				_vocabulariesIterator(item) {
 					var instance = this;
 
 					var popup = instance._popup;
@@ -783,7 +714,7 @@ AUI.add(
 									vocabularyId
 								),
 								on: {
-									success(event) {
+									success() {
 										var treeViews = instance.TREEVIEWS;
 
 										var tree = treeViews[vocabularyId];
@@ -808,6 +739,63 @@ AUI.add(
 								'/asset/get_categories'
 						}
 					}).render(popup.entriesNode);
+				},
+
+				TREEVIEWS: {},
+				UI_EVENTS: {},
+
+				bindUI() {
+					var instance = this;
+
+					AssetCategoriesSelector.superclass.bindUI.apply(
+						instance,
+						arguments
+					);
+				},
+
+				renderUI() {
+					var instance = this;
+
+					AssetCategoriesSelector.superclass.constructor.superclass.renderUI.apply(
+						instance,
+						arguments
+					);
+
+					instance._renderIcons();
+
+					instance.inputContainer.addClass('hide-accessible');
+
+					instance._applyARIARoles();
+				},
+
+				syncUI() {
+					var instance = this;
+
+					AssetCategoriesSelector.superclass.constructor.superclass.syncUI.apply(
+						instance,
+						arguments
+					);
+
+					var matchKey = instance.get('matchKey');
+
+					instance.entries.getKey = function(obj) {
+						return obj.categoryId;
+					};
+
+					var curEntries = instance.get('curEntries');
+					var curEntryIds = instance.get('curEntryIds');
+
+					curEntryIds.forEach(function(item, index) {
+						var entry = {
+							categoryId: item
+						};
+
+						entry[matchKey] = curEntries[index];
+
+						entry.value = LString.unescapeHTML(entry.value);
+
+						instance.entries.add(entry);
+					});
 				}
 			}
 		});

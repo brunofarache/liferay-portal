@@ -71,83 +71,6 @@ AUI.add(
 			EXTENDS: A.Base,
 			NAME: 'liferaysession',
 			prototype: {
-				initializer(config) {
-					var instance = this;
-
-					instance._cookieOptions = {
-						path: '/',
-						secure: A.UA.secure
-					};
-
-					instance._registered = {};
-
-					instance.set('timestamp');
-
-					instance._initEvents();
-
-					instance._startTimer();
-				},
-
-				destructor() {
-					var instance = this;
-
-					new A.EventHandle(instance._eventHandlers).detach();
-
-					instance._stopTimer();
-				},
-
-				expire() {
-					var instance = this;
-
-					instance.set('sessionState', 'expired', SRC_EVENT_OBJ);
-				},
-
-				extend() {
-					var instance = this;
-
-					instance.set('sessionState', 'active', SRC_EVENT_OBJ);
-				},
-
-				registerInterval(fn) {
-					var instance = this;
-
-					var fnId;
-					var registered = instance._registered;
-
-					if (Lang.isFunction(fn)) {
-						fnId = A.stamp(fn);
-
-						registered[fnId] = fn;
-					}
-
-					return fnId;
-				},
-
-				resetInterval() {
-					var instance = this;
-
-					instance._stopTimer();
-					instance._startTimer();
-				},
-
-				unregisterInterval(fnId) {
-					var instance = this;
-
-					var registered = instance._registered;
-
-					if (registered.hasOwnProperty(fnId)) {
-						delete registered[fnId];
-					}
-
-					return fnId;
-				},
-
-				warn() {
-					var instance = this;
-
-					instance.set('sessionState', 'warned', SRC_EVENT_OBJ);
-				},
-
 				_afterSessionStateChange(event) {
 					var instance = this;
 
@@ -165,6 +88,8 @@ AUI.add(
 						src
 					);
 				},
+
+				_cookieKey: 'LFR_SESSION_STATE_' + themeDisplay.getUserId(),
 
 				_defActivatedFn(event) {
 					var instance = this;
@@ -209,12 +134,10 @@ AUI.add(
 				},
 
 				_getLengthInMillis(value) {
-					var instance = this;
-
 					return value * 1000;
 				},
 
-				_getTimestamp(value) {
+				_getTimestamp() {
 					var instance = this;
 
 					return (
@@ -409,7 +332,84 @@ AUI.add(
 					A.clearInterval(instance._intervalId);
 				},
 
-				_cookieKey: 'LFR_SESSION_STATE_' + themeDisplay.getUserId()
+				destructor() {
+					var instance = this;
+
+					new A.EventHandle(instance._eventHandlers).detach();
+
+					instance._stopTimer();
+				},
+
+				expire() {
+					var instance = this;
+
+					instance.set('sessionState', 'expired', SRC_EVENT_OBJ);
+				},
+
+				extend() {
+					var instance = this;
+
+					instance.set('sessionState', 'active', SRC_EVENT_OBJ);
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._cookieOptions = {
+						path: '/',
+						secure: A.UA.secure
+					};
+
+					instance._registered = {};
+
+					instance.set('timestamp');
+
+					instance._initEvents();
+
+					instance._startTimer();
+				},
+
+				registerInterval(fn) {
+					var instance = this;
+
+					var fnId;
+					var registered = instance._registered;
+
+					if (Lang.isFunction(fn)) {
+						fnId = A.stamp(fn);
+
+						registered[fnId] = fn;
+					}
+
+					return fnId;
+				},
+
+				resetInterval() {
+					var instance = this;
+
+					instance._stopTimer();
+					instance._startTimer();
+				},
+
+				unregisterInterval(fnId) {
+					var instance = this;
+
+					var registered = instance._registered;
+
+					if (
+						Object.prototype.hasOwnProperty.call(registered, fnId)
+					) {
+						delete registered[fnId];
+					}
+
+					return fnId;
+				},
+
+				warn() {
+					var instance = this;
+
+					instance.set('sessionState', 'warned', SRC_EVENT_OBJ);
+				}
 			}
 		});
 
@@ -425,71 +425,13 @@ AUI.add(
 			NAME: 'liferaysessiondisplay',
 			NS: 'display',
 			prototype: {
-				initializer(config) {
-					var instance = this;
-
-					var host = instance.get('host');
-
-					if (Liferay.Util.getTop() == CONFIG.win) {
-						instance._host = host;
-
-						instance._toggleText = {
-							hide: Liferay.Language.get('hide'),
-							show: Liferay.Language.get('show')
-						};
-
-						instance._expiredText = Liferay.Language.get(
-							'due-to-inactivity-your-session-has-expired'
-						);
-
-						instance._warningText = Liferay.Language.get(
-							'due-to-inactivity-your-session-will-expire'
-						);
-						instance._warningText = Lang.sub(
-							instance._warningText,
-							[
-								'<span class="countdown-timer">{0}</span>',
-								host.get('sessionLength') / 60000,
-								'<a class="alert-link" href="#">' +
-									Liferay.Language.get('extend') +
-									'</a>'
-							]
-						);
-
-						host.on(
-							'sessionStateChange',
-							instance._onHostSessionStateChange,
-							instance
-						);
-
-						instance.afterHostMethod(
-							'_defActivatedFn',
-							instance._afterDefActivatedFn
-						);
-						instance.afterHostMethod(
-							'_defExpiredFn',
-							instance._afterDefExpiredFn
-						);
-					} else {
-						host.unplug(instance);
-					}
-				},
-
-				destructor() {
-					var instance = this;
-
-					if (instance._banner) {
-						instance._destroyBanner();
-					}
-				},
-
-				_afterDefActivatedFn(event) {
+				_afterDefActivatedFn() {
 					var instance = this;
 
 					instance._uiSetActivated();
 				},
 
-				_afterDefExpiredFn(event) {
+				_afterDefExpiredFn() {
 					var instance = this;
 
 					instance._host.unregisterInterval(instance._intervalId);
@@ -497,7 +439,7 @@ AUI.add(
 					instance._uiSetExpired();
 				},
 
-				_beforeHostWarned(event) {
+				_beforeHostWarned() {
 					var instance = this;
 
 					var host = instance._host;
@@ -535,8 +477,7 @@ AUI.add(
 						interval,
 						hasWarned,
 						hasExpired,
-						warningMoment,
-						expirationMoment
+						warningMoment
 					) {
 						if (!hasWarned) {
 							instance._uiSetActivated();
@@ -580,8 +521,6 @@ AUI.add(
 				},
 
 				_formatNumber(value) {
-					var instance = this;
-
 					return Lang.String.padNumber(Math.floor(value), 2);
 				},
 
@@ -708,6 +647,64 @@ AUI.add(
 						]) +
 						' | ' +
 						instance.get('pageTitle');
+				},
+
+				destructor() {
+					var instance = this;
+
+					if (instance._banner) {
+						instance._destroyBanner();
+					}
+				},
+
+				initializer() {
+					var instance = this;
+
+					var host = instance.get('host');
+
+					if (Liferay.Util.getTop() == CONFIG.win) {
+						instance._host = host;
+
+						instance._toggleText = {
+							hide: Liferay.Language.get('hide'),
+							show: Liferay.Language.get('show')
+						};
+
+						instance._expiredText = Liferay.Language.get(
+							'due-to-inactivity-your-session-has-expired'
+						);
+
+						instance._warningText = Liferay.Language.get(
+							'due-to-inactivity-your-session-will-expire'
+						);
+						instance._warningText = Lang.sub(
+							instance._warningText,
+							[
+								'<span class="countdown-timer">{0}</span>',
+								host.get('sessionLength') / 60000,
+								'<a class="alert-link" href="#">' +
+									Liferay.Language.get('extend') +
+									'</a>'
+							]
+						);
+
+						host.on(
+							'sessionStateChange',
+							instance._onHostSessionStateChange,
+							instance
+						);
+
+						instance.afterHostMethod(
+							'_defActivatedFn',
+							instance._afterDefActivatedFn
+						);
+						instance.afterHostMethod(
+							'_defExpiredFn',
+							instance._afterDefExpiredFn
+						);
+					} else {
+						host.unplug(instance);
+					}
 				}
 			}
 		});

@@ -36,20 +36,6 @@ AUI.add(
 		var AutoCompleteTextarea = function() {};
 
 		AutoCompleteTextarea.prototype = {
-			initializer() {
-				var instance = this;
-
-				instance._bindUIACTextarea();
-			},
-
-			destructor() {
-				var instance = this;
-
-				if (instance._inputMirror) {
-					instance._inputMirror.remove();
-				}
-			},
-
 			_bindUIACTextarea() {
 				var instance = this;
 
@@ -120,28 +106,26 @@ AUI.add(
 				if (caretIndex) {
 					val = val.substring(0, caretIndex.start);
 
-					instance
-						._getTriggers()
-						.forEach(function(item, index, collection) {
-							var lastTriggerIndex = val.lastIndexOf(item);
+					instance._getTriggers().forEach(function(item) {
+						var lastTriggerIndex = val.lastIndexOf(item);
 
-							if (lastTriggerIndex >= 0) {
-								val = val.substring(lastTriggerIndex);
+						if (lastTriggerIndex >= 0) {
+							val = val.substring(lastTriggerIndex);
 
-								var regExp = instance._getRegExp();
+							var regExp = instance._getRegExp();
 
-								var res = regExp.exec(val);
+							var res = regExp.exec(val);
 
-								if (
-									res &&
-									res.index + res[1].length + item.length ===
-										val.length &&
-									(!result || val.length < result.length)
-								) {
-									result = val;
-								}
+							if (
+								res &&
+								res.index + res[1].length + item.length ===
+									val.length &&
+								(!result || val.length < result.length)
+							) {
+								result = val;
 							}
-						});
+						}
+					});
 				}
 
 				return result;
@@ -224,6 +208,20 @@ AUI.add(
 						}
 					}
 				}
+			},
+
+			destructor() {
+				var instance = this;
+
+				if (instance._inputMirror) {
+					instance._inputMirror.remove();
+				}
+			},
+
+			initializer() {
+				var instance = this;
+
+				instance._bindUIACTextarea();
 			}
 		};
 

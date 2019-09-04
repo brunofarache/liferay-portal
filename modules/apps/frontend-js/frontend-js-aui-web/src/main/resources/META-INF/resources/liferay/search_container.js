@@ -24,6 +24,8 @@ AUI.add(
 		var STR_BOUNDING_BOX = 'boundingBox';
 
 		var SearchContainer = A.Component.create({
+			_cache: {},
+
 			ATTRS: {
 				id: {
 					value: STR_BLANK
@@ -59,79 +61,30 @@ AUI.add(
 			},
 
 			prototype: {
-				initializer() {
+				_addRow() {
 					var instance = this;
 
-					instance._ids = [];
+					instance._parentContainer.show();
 
-					instance._actions = {};
-
-					SearchContainer.register(instance);
+					if (instance._emptyResultsMessage) {
+						instance._emptyResultsMessage.hide();
+					}
 				},
 
-				renderUI() {
+				_deleteRow() {
 					var instance = this;
 
-					var id = instance.get('id');
+					var action = 'show';
 
-					var boundingBox = instance.get(STR_BOUNDING_BOX);
+					if (instance._ids.length == 0) {
+						action = 'hide';
 
-					instance._dataStore = A.one('#' + id + 'PrimaryKeys');
-					instance._emptyResultsMessage = A.one(
-						'#' + id + 'EmptyResultsMessage'
-					);
-
-					if (instance._dataStore) {
-						var dataStoreForm = instance._dataStore.attr('form');
-
-						if (dataStoreForm) {
-							var method = dataStoreForm
-								.attr('method')
-								.toLowerCase();
-
-							if (method && method == 'get') {
-								instance._dataStore = null;
-							}
+						if (instance._emptyResultsMessage) {
+							instance._emptyResultsMessage.show();
 						}
 					}
 
-					instance._table = boundingBox.one('table');
-					instance._parentContainer = boundingBox.ancestor(
-						'.lfr-search-container-wrapper'
-					);
-
-					if (instance._table) {
-						instance._table.setAttribute(
-							'data-searchContainerId',
-							id
-						);
-					}
-				},
-
-				bindUI() {
-					var instance = this;
-
-					instance.publish('addRow', {
-						defaultFn: instance._addRow
-					});
-
-					instance.publish('deleteRow', {
-						defaultFn: instance._deleteRow
-					});
-				},
-
-				syncUI() {
-					var instance = this;
-
-					var dataStore = instance._dataStore;
-
-					var initialIds = dataStore && dataStore.val();
-
-					if (initialIds) {
-						initialIds = initialIds.split(',');
-
-						instance.updateDataStore(initialIds);
-					}
+					instance._parentContainer[action]();
 				},
 
 				addRow(arr, id) {
@@ -175,6 +128,18 @@ AUI.add(
 					}
 
 					return row;
+				},
+
+				bindUI() {
+					var instance = this;
+
+					instance.publish('addRow', {
+						defaultFn: instance._addRow
+					});
+
+					instance.publish('deleteRow', {
+						defaultFn: instance._deleteRow
+					});
 				},
 
 				deleteRow(obj, id) {
@@ -257,10 +222,73 @@ AUI.add(
 					return instance._ids.length;
 				},
 
+				initializer() {
+					var instance = this;
+
+					instance._ids = [];
+
+					instance._actions = {};
+
+					SearchContainer.register(instance);
+				},
+
 				registerAction(name, fn) {
 					var instance = this;
 
 					instance._actions[name] = fn;
+				},
+
+				renderUI() {
+					var instance = this;
+
+					var id = instance.get('id');
+
+					var boundingBox = instance.get(STR_BOUNDING_BOX);
+
+					instance._dataStore = A.one('#' + id + 'PrimaryKeys');
+					instance._emptyResultsMessage = A.one(
+						'#' + id + 'EmptyResultsMessage'
+					);
+
+					if (instance._dataStore) {
+						var dataStoreForm = instance._dataStore.attr('form');
+
+						if (dataStoreForm) {
+							var method = dataStoreForm
+								.attr('method')
+								.toLowerCase();
+
+							if (method && method == 'get') {
+								instance._dataStore = null;
+							}
+						}
+					}
+
+					instance._table = boundingBox.one('table');
+					instance._parentContainer = boundingBox.ancestor(
+						'.lfr-search-container-wrapper'
+					);
+
+					if (instance._table) {
+						instance._table.setAttribute(
+							'data-searchContainerId',
+							id
+						);
+					}
+				},
+
+				syncUI() {
+					var instance = this;
+
+					var dataStore = instance._dataStore;
+
+					var initialIds = dataStore && dataStore.val();
+
+					if (initialIds) {
+						initialIds = initialIds.split(',');
+
+						instance.updateDataStore(initialIds);
+					}
 				},
 
 				updateDataStore(ids) {
@@ -279,32 +307,6 @@ AUI.add(
 					if (dataStore) {
 						dataStore.val(instance._ids.join(','));
 					}
-				},
-
-				_addRow(event) {
-					var instance = this;
-
-					instance._parentContainer.show();
-
-					if (instance._emptyResultsMessage) {
-						instance._emptyResultsMessage.hide();
-					}
-				},
-
-				_deleteRow(event) {
-					var instance = this;
-
-					var action = 'show';
-
-					if (instance._ids.length == 0) {
-						action = 'hide';
-
-						if (instance._emptyResultsMessage) {
-							instance._emptyResultsMessage.show();
-						}
-					}
-
-					instance._parentContainer[action]();
 				}
 			},
 
@@ -322,9 +324,7 @@ AUI.add(
 				Liferay.fire('search-container:registered', {
 					searchContainer: obj
 				});
-			},
-
-			_cache: {}
+			}
 		});
 
 		Liferay.SearchContainer = SearchContainer;

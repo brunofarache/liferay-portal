@@ -20,6 +20,7 @@ AUI.add(
 
 		var REGEX_MATCH_EVERYTHING = /.*/;
 
+		// eslint-disable-next-line no-empty-character-class
 		var REGEX_MATCH_NOTHING = /^[]/;
 
 		var STR_ACTIONS_WILDCARD = '*';
@@ -91,124 +92,6 @@ AUI.add(
 			NS: 'select',
 
 			prototype: {
-				initializer() {
-					var instance = this;
-
-					var host = instance.get(STR_HOST);
-
-					var hostContentBox = host.get(STR_CONTENT_BOX);
-
-					instance.set(
-						'bulkSelection',
-						hostContentBox.getData('bulkSelection')
-					);
-
-					var toggleRowFn = A.bind('_onClickRowSelector', instance, {
-						toggleCheckbox: true
-					});
-
-					var toggleRowCSSFn = A.bind(
-						'_onClickRowSelector',
-						instance,
-						{}
-					);
-
-					instance._eventHandles = [
-						host
-							.get(STR_CONTENT_BOX)
-							.delegate(
-								STR_CLICK,
-								toggleRowCSSFn,
-								instance.get(STR_ROW_SELECTOR) +
-									' ' +
-									STR_CHECKBOX_SELECTOR,
-								instance
-							),
-						host
-							.get(STR_CONTENT_BOX)
-							.delegate(
-								STR_CLICK,
-								toggleRowFn,
-								instance.get(STR_ROW_SELECTOR) +
-									' ' +
-									instance.get('rowCheckerSelector'),
-								instance
-							),
-						Liferay.on(
-							'startNavigate',
-							instance._onStartNavigate,
-							instance
-						)
-					];
-				},
-
-				destructor() {
-					var instance = this;
-
-					new A.EventHandle(instance._eventHandles).detach();
-				},
-
-				getAllSelectedElements() {
-					var instance = this;
-
-					return instance._getAllElements(true);
-				},
-
-				getCurrentPageElements() {
-					var instance = this;
-
-					return instance._getCurrentPageElements();
-				},
-
-				getCurrentPageSelectedElements() {
-					var instance = this;
-
-					return instance._getCurrentPageElements(true);
-				},
-
-				isSelected(element) {
-					return element.one(STR_CHECKBOX_SELECTOR).attr(STR_CHECKED);
-				},
-
-				toggleAllRows(selected, bulkSelection) {
-					var instance = this;
-
-					var elements = bulkSelection
-						? instance._getAllElements()
-						: instance._getCurrentPageElements();
-
-					elements.attr(STR_CHECKED, selected);
-
-					instance
-						.get(STR_HOST)
-						.get(STR_CONTENT_BOX)
-						.all(instance.get(STR_ROW_SELECTOR))
-						.toggleClass(
-							instance.get(STR_ROW_CLASS_NAME_ACTIVE),
-							selected
-						);
-
-					instance.set('bulkSelection', selected && bulkSelection);
-
-					instance._notifyRowToggle();
-				},
-
-				toggleRow(config, row) {
-					var instance = this;
-
-					if (config && config.toggleCheckbox) {
-						var checkbox = row.one(STR_CHECKBOX_SELECTOR);
-
-						checkbox.attr(STR_CHECKED, !checkbox.attr(STR_CHECKED));
-					}
-
-					instance.set('bulkSelection', false);
-
-					row.toggleClass(instance.get(STR_ROW_CLASS_NAME_ACTIVE));
-
-					instance._notifyRowToggle();
-				},
-
 				_addRestoreTask() {
 					var instance = this;
 
@@ -238,7 +121,7 @@ AUI.add(
 
 					var selectedElements = instance.getAllSelectedElements();
 
-					selectedElements.each(function(item, index) {
+					selectedElements.each(function(item) {
 						elements.push({
 							name: item.attr('name'),
 							value: item.val()
@@ -369,6 +252,124 @@ AUI.add(
 						instance._addRestoreTask();
 						instance._addRestoreTaskState();
 					}
+				},
+
+				destructor() {
+					var instance = this;
+
+					new A.EventHandle(instance._eventHandles).detach();
+				},
+
+				getAllSelectedElements() {
+					var instance = this;
+
+					return instance._getAllElements(true);
+				},
+
+				getCurrentPageElements() {
+					var instance = this;
+
+					return instance._getCurrentPageElements();
+				},
+
+				getCurrentPageSelectedElements() {
+					var instance = this;
+
+					return instance._getCurrentPageElements(true);
+				},
+
+				initializer() {
+					var instance = this;
+
+					var host = instance.get(STR_HOST);
+
+					var hostContentBox = host.get(STR_CONTENT_BOX);
+
+					instance.set(
+						'bulkSelection',
+						hostContentBox.getData('bulkSelection')
+					);
+
+					var toggleRowFn = A.bind('_onClickRowSelector', instance, {
+						toggleCheckbox: true
+					});
+
+					var toggleRowCSSFn = A.bind(
+						'_onClickRowSelector',
+						instance,
+						{}
+					);
+
+					instance._eventHandles = [
+						host
+							.get(STR_CONTENT_BOX)
+							.delegate(
+								STR_CLICK,
+								toggleRowCSSFn,
+								instance.get(STR_ROW_SELECTOR) +
+									' ' +
+									STR_CHECKBOX_SELECTOR,
+								instance
+							),
+						host
+							.get(STR_CONTENT_BOX)
+							.delegate(
+								STR_CLICK,
+								toggleRowFn,
+								instance.get(STR_ROW_SELECTOR) +
+									' ' +
+									instance.get('rowCheckerSelector'),
+								instance
+							),
+						Liferay.on(
+							'startNavigate',
+							instance._onStartNavigate,
+							instance
+						)
+					];
+				},
+
+				isSelected(element) {
+					return element.one(STR_CHECKBOX_SELECTOR).attr(STR_CHECKED);
+				},
+
+				toggleAllRows(selected, bulkSelection) {
+					var instance = this;
+
+					var elements = bulkSelection
+						? instance._getAllElements()
+						: instance._getCurrentPageElements();
+
+					elements.attr(STR_CHECKED, selected);
+
+					instance
+						.get(STR_HOST)
+						.get(STR_CONTENT_BOX)
+						.all(instance.get(STR_ROW_SELECTOR))
+						.toggleClass(
+							instance.get(STR_ROW_CLASS_NAME_ACTIVE),
+							selected
+						);
+
+					instance.set('bulkSelection', selected && bulkSelection);
+
+					instance._notifyRowToggle();
+				},
+
+				toggleRow(config, row) {
+					var instance = this;
+
+					if (config && config.toggleCheckbox) {
+						var checkbox = row.one(STR_CHECKBOX_SELECTOR);
+
+						checkbox.attr(STR_CHECKED, !checkbox.attr(STR_CHECKED));
+					}
+
+					instance.set('bulkSelection', false);
+
+					row.toggleClass(instance.get(STR_ROW_CLASS_NAME_ACTIVE));
+
+					instance._notifyRowToggle();
 				}
 			},
 

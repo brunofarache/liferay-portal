@@ -63,62 +63,7 @@ AUI.add(
 			NAME: 'liferayalert',
 
 			prototype: {
-				TPL_ALERT_NODE:
-					'<div class="container-fluid-1280 lfr-alert-wrapper"></div>',
-
-				TPL_ALERTS_CONTAINER: '<div class="lfr-alert-container"></div>',
-
-				TPL_CONTENT:
-					'<strong class="lead"><svg class="lexicon-icon" focusable="false"><use data-href="{pathThemeImages}/lexicon/icons.svg#{icon}" /><title>{title}</title></svg> {title}</strong>{message}',
-
-				bindUI() {
-					var instance = this;
-
-					var boundingBox = instance.get('boundingBox');
-
-					instance._eventHandles = [
-						instance.after(
-							['iconChange', 'messageChange', 'titleChange'],
-							instance._updateBodyContent,
-							instance
-						),
-						instance.after(
-							'typeChange',
-							instance._afterTypeChange,
-							instance
-						),
-						boundingBox.on(
-							'mouseenter',
-							instance._cancelHide,
-							instance
-						),
-						boundingBox.on(
-							'mouseleave',
-							instance._onMouseLeave,
-							instance
-						)
-					];
-
-					boundingBox.attr('role', 'alert');
-
-					Alert.superclass.bindUI.call(this);
-				},
-
-				render(parentNode) {
-					var instance = this;
-
-					instance._updateBodyContent();
-					instance._updateCssClass();
-
-					parentNode = A.one(parentNode);
-
-					return Alert.superclass.render.call(
-						this,
-						this._getParentNode(parentNode)
-					);
-				},
-
-				_afterTypeChange(event) {
+				_afterTypeChange() {
 					var instance = this;
 
 					instance._updateCssClass();
@@ -219,7 +164,7 @@ AUI.add(
 					}
 				},
 
-				_onMouseLeave(event) {
+				_onMouseLeave() {
 					var instance = this;
 
 					var delay = instance.get('delay');
@@ -295,6 +240,61 @@ AUI.add(
 					var instance = this;
 
 					instance.set('cssClass', 'alert-' + instance.get('type'));
+				},
+
+				TPL_ALERT_NODE:
+					'<div class="container-fluid-1280 lfr-alert-wrapper"></div>',
+
+				TPL_ALERTS_CONTAINER: '<div class="lfr-alert-container"></div>',
+
+				TPL_CONTENT:
+					'<strong class="lead"><svg class="lexicon-icon" focusable="false"><use data-href="{pathThemeImages}/lexicon/icons.svg#{icon}" /><title>{title}</title></svg> {title}</strong>{message}',
+
+				bindUI() {
+					var instance = this;
+
+					var boundingBox = instance.get('boundingBox');
+
+					instance._eventHandles = [
+						instance.after(
+							['iconChange', 'messageChange', 'titleChange'],
+							instance._updateBodyContent,
+							instance
+						),
+						instance.after(
+							'typeChange',
+							instance._afterTypeChange,
+							instance
+						),
+						boundingBox.on(
+							'mouseenter',
+							instance._cancelHide,
+							instance
+						),
+						boundingBox.on(
+							'mouseleave',
+							instance._onMouseLeave,
+							instance
+						)
+					];
+
+					boundingBox.attr('role', 'alert');
+
+					Alert.superclass.bindUI.call(this);
+				},
+
+				render(parentNode) {
+					var instance = this;
+
+					instance._updateBodyContent();
+					instance._updateCssClass();
+
+					parentNode = A.one(parentNode);
+
+					return Alert.superclass.render.call(
+						this,
+						this._getParentNode(parentNode)
+					);
 				}
 			}
 		});

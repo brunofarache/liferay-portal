@@ -49,11 +49,6 @@ AUI.add(
 		var AutcompleteInputCaretOffset = function() {};
 
 		AutcompleteInputCaretOffset.prototype = {
-			TPL_CARET: '<span class="input-caret">&nbsp</span>',
-
-			TPL_INPUT_MIRROR:
-				'<div class="liferay-autocomplete-input-mirror"></div>',
-
 			_applyMirrorContent() {
 				var instance = this;
 
@@ -90,7 +85,7 @@ AUI.add(
 
 				var inputMirror = instance._inputMirror;
 
-				MIRROR_STYLES.forEach(function(item, index) {
+				MIRROR_STYLES.forEach(function(item) {
 					inputMirror.setStyle(item, inputNode.getStyle(item));
 				});
 			},
@@ -130,7 +125,12 @@ AUI.add(
 					x: inputCaretEl.offsetLeft + scrollLeft,
 					y: inputCaretEl.offsetTop - scrollTop
 				};
-			}
+			},
+
+			TPL_CARET: '<span class="input-caret">&nbsp</span>',
+
+			TPL_INPUT_MIRROR:
+				'<div class="liferay-autocomplete-input-mirror"></div>'
 		};
 
 		A.Base.mix(Liferay.AutoCompleteTextarea, [AutcompleteInputCaretOffset]);

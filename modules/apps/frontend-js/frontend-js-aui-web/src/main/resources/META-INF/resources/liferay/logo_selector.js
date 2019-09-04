@@ -69,64 +69,6 @@ AUI.add(
 			NAME: 'logoselector',
 
 			prototype: {
-				initializer() {
-					var instance = this;
-
-					instance._portletNamespace = instance.get(
-						'portletNamespace'
-					);
-					instance._randomNamespace = instance.get('randomNamespace');
-
-					window[instance._randomNamespace + 'changeLogo'] = A.bind(
-						'_changeLogo',
-						instance
-					);
-				},
-
-				renderUI() {
-					var instance = this;
-
-					var portletNamespace = instance._portletNamespace;
-					var randomNamespace = instance._randomNamespace;
-
-					var contentBox = instance.get('contentBox');
-
-					instance._avatar = contentBox.one(
-						'#' + randomNamespace + 'avatar'
-					);
-					instance._deleteLogoButton = contentBox.one('.delete-logo');
-					instance._deleteLogoInput = contentBox.one(
-						'#' + portletNamespace + 'deleteLogo'
-					);
-					instance._emptyResultMessage = contentBox.one(
-						'#' + randomNamespace + 'emptyResultMessage'
-					);
-					instance._fileEntryIdInput = contentBox.one(
-						'#' + portletNamespace + 'fileEntryId'
-					);
-				},
-
-				bindUI() {
-					var instance = this;
-
-					instance
-						.get('contentBox')
-						.delegate(
-							'click',
-							instance._openEditLogoWindow,
-							'.edit-logo',
-							instance
-						);
-					instance
-						.get('contentBox')
-						.delegate(
-							'click',
-							instance._onDeleteLogoClick,
-							'.delete-logo',
-							instance
-						);
-				},
-
 				_changeLogo(url, fileEntryId) {
 					var instance = this;
 
@@ -137,7 +79,7 @@ AUI.add(
 					}
 				},
 
-				_onDeleteLogoClick(event) {
+				_onDeleteLogoClick() {
 					var instance = this;
 
 					instance.set(
@@ -210,6 +152,64 @@ AUI.add(
 					if (instance._emptyResultMessage) {
 						instance._emptyResultMessage.hide();
 					}
+				},
+
+				bindUI() {
+					var instance = this;
+
+					instance
+						.get('contentBox')
+						.delegate(
+							'click',
+							instance._openEditLogoWindow,
+							'.edit-logo',
+							instance
+						);
+					instance
+						.get('contentBox')
+						.delegate(
+							'click',
+							instance._onDeleteLogoClick,
+							'.delete-logo',
+							instance
+						);
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._portletNamespace = instance.get(
+						'portletNamespace'
+					);
+					instance._randomNamespace = instance.get('randomNamespace');
+
+					window[instance._randomNamespace + 'changeLogo'] = A.bind(
+						'_changeLogo',
+						instance
+					);
+				},
+
+				renderUI() {
+					var instance = this;
+
+					var portletNamespace = instance._portletNamespace;
+					var randomNamespace = instance._randomNamespace;
+
+					var contentBox = instance.get('contentBox');
+
+					instance._avatar = contentBox.one(
+						'#' + randomNamespace + 'avatar'
+					);
+					instance._deleteLogoButton = contentBox.one('.delete-logo');
+					instance._deleteLogoInput = contentBox.one(
+						'#' + portletNamespace + 'deleteLogo'
+					);
+					instance._emptyResultMessage = contentBox.one(
+						'#' + randomNamespace + 'emptyResultMessage'
+					);
+					instance._fileEntryIdInput = contentBox.one(
+						'#' + portletNamespace + 'fileEntryId'
+					);
 				}
 			}
 		});

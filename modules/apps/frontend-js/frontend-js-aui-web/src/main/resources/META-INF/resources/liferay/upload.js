@@ -255,11 +255,11 @@ AUI.add(
 							'clear-documents-already-saved'
 						),
 						deleteFileText: Liferay.Language.get('delete-file'),
-						dropFilesText: Liferay.Language.get(
-							'drop-files-here-to-upload'
-						),
 						dropFileText: Liferay.Language.get(
 							'drop-file-here-to-upload'
+						),
+						dropFilesText: Liferay.Language.get(
+							'drop-files-here-to-upload'
 						),
 						fileCannotBeSavedText: Liferay.Language.get(
 							'the-file-x-cannot-be-saved'
@@ -283,8 +283,8 @@ AUI.add(
 						pendingFileText: Liferay.Language.get(
 							'these-files-have-been-previously-uploaded-but-not-actually-saved.-please-save-or-delete-them-before-they-are-removed'
 						),
-						selectFilesText: Liferay.Language.get('select-files'),
 						selectFileText: Liferay.Language.get('select-file'),
+						selectFilesText: Liferay.Language.get('select-files'),
 						unexpectedErrorOnDeleteText: Liferay.Language.get(
 							'an-unexpected-error-occurred-while-deleting-the-file'
 						),
@@ -336,208 +336,7 @@ AUI.add(
 			NAME: 'liferayupload',
 
 			prototype: {
-				initializer(config) {
-					var instance = this;
-
-					var strings = instance.get(STRINGS);
-
-					var fallback = instance.get('fallback');
-
-					var useFallback =
-						location.hash.indexOf(STR_PARAM_FALLBACK) > -1 &&
-						fallback;
-
-					if (
-						useFallback ||
-						UPLOADER_TYPE == 'none' ||
-						(UPLOADER_TYPE == 'flash' &&
-							!A.SWFDetect.isFlashVersionAtLeast(10, 1))
-					) {
-						if (fallback) {
-							fallback.show();
-						} else {
-							instance
-								.one('#fileUpload')
-								.append(
-									Lang.sub(TPL_ERROR_MESSAGE, [
-										strings.notAvailableText
-									])
-								);
-						}
-
-						instance._preventRenderHandle = instance.on(
-							'render',
-							function(event) {
-								event.preventDefault();
-							}
-						);
-					} else {
-						var maxFileSize = Liferay.Util.formatStorage(
-							instance.get('maxFileSize')
-						);
-
-						var maxUploadRequestSize = Liferay.Util.formatStorage(
-							Liferay.PropsValues
-								.UPLOAD_SERVLET_REQUEST_IMPL_MAX_SIZE
-						);
-
-						instance._invalidFileSizeText = Lang.sub(
-							strings.invalidFileSizeText,
-							[maxFileSize]
-						);
-						instance._invalidUploadRequestSize = Lang.sub(
-							strings.invalidUploadRequestSizeText,
-							[maxUploadRequestSize]
-						);
-
-						instance._metadataContainer = instance.get(
-							'metadataContainer'
-						);
-						instance._metadataExplanationContainer = instance.get(
-							'metadataExplanationContainer'
-						);
-
-						instance._fileListBuffer = [];
-						instance._renderFileListTask = A.debounce(
-							instance._renderFileList,
-							10,
-							instance
-						);
-					}
-
-					instance._fallback = fallback;
-				},
-
-				renderUI() {
-					var instance = this;
-
-					instance._renderControls();
-					instance._renderUploader();
-				},
-
-				bindUI() {
-					var instance = this;
-
-					if (instance._allRowIdsCheckbox) {
-						instance._allRowIdsCheckbox.on(
-							'click',
-							instance._onAllRowIdsClick,
-							instance
-						);
-					}
-
-					instance._cancelButton.on(
-						'click',
-						instance._cancelAllFiles,
-						instance
-					);
-					instance._clearUploadsButton.on(
-						'click',
-						instance._clearUploads,
-						instance
-					);
-
-					A.getWin().on(
-						'beforeunload',
-						instance._onBeforeUnload,
-						instance
-					);
-
-					instance._fileList.delegate(
-						'click',
-						instance._handleFileClick,
-						'.select-file, li .delete-button, li .cancel-button',
-						instance
-					);
-
-					Liferay.after(
-						'filesSaved',
-						instance._afterFilesSaved,
-						instance
-					);
-
-					var uploader = instance._uploader;
-
-					uploader.after(
-						'fileselect',
-						instance._onFileSelect,
-						instance
-					);
-
-					uploader.on(
-						'alluploadscomplete',
-						instance._onAllUploadsComplete,
-						instance
-					);
-					uploader.on(
-						'fileuploadstart',
-						instance._onUploadStart,
-						instance
-					);
-					uploader.on(
-						'uploadcomplete',
-						instance._onUploadComplete,
-						instance
-					);
-					uploader.on(
-						'uploadprogress',
-						instance._onUploadProgress,
-						instance
-					);
-
-					var rootElement = instance.get('rootElement');
-
-					var docElement = rootElement
-						? rootElement
-						: A.getDoc().get('documentElement');
-
-					docElement.on('drop', instance._handleDrop, instance);
-
-					var uploaderBoundingBox = instance._uploaderBoundingBox;
-
-					var removeCssClassTask = A.debounce(function() {
-						docElement.removeClass('upload-drop-intent');
-						docElement.removeClass('upload-drop-active');
-					}, 500);
-
-					docElement.on('dragover', function(event) {
-						var originalEvent = event._event;
-
-						var dataTransfer = originalEvent.dataTransfer;
-
-						if (
-							dataTransfer &&
-							AArray.indexOf(dataTransfer.types, 'Files') > -1
-						) {
-							event.halt();
-
-							docElement.addClass('upload-drop-intent');
-
-							var target = event.target;
-
-							var inDropArea =
-								target.compareTo(uploaderBoundingBox) ||
-								uploaderBoundingBox.contains(target);
-
-							var dropEffect = 'none';
-
-							if (inDropArea) {
-								dropEffect = 'copy';
-							}
-
-							docElement.toggleClass(
-								'upload-drop-active',
-								inDropArea
-							);
-
-							dataTransfer.dropEffect = dropEffect;
-						}
-
-						removeCssClassTask();
-					});
-				},
-
-				_afterFilesSaved(event) {
+				_afterFilesSaved() {
 					var instance = this;
 
 					instance._updateMetadataContainer();
@@ -555,7 +354,7 @@ AUI.add(
 
 					queue.pauseUpload();
 
-					queue.queuedFiles.forEach(function(item, index) {
+					queue.queuedFiles.forEach(function(item) {
 						var li = A.one('#' + item.id);
 
 						if (li && !li.hasClass('upload-complete')) {
@@ -590,6 +389,8 @@ AUI.add(
 					instance._updateManageUploadDisplay();
 				},
 
+				_filesTotal: 0,
+
 				_formatTempFiles(fileNames) {
 					var instance = this;
 
@@ -606,7 +407,7 @@ AUI.add(
 							metadataExplanationContainer.show();
 						}
 
-						var files = fileNames.map(function(item, index) {
+						var files = fileNames.map(function(item) {
 							var title = item;
 
 							var tempTitle = title;
@@ -659,7 +460,7 @@ AUI.add(
 						Liferay.PropsValues
 							.UPLOAD_SERVLET_REQUEST_IMPL_MAX_SIZE;
 
-					return data.filter(function(item, index) {
+					return data.filter(function(item) {
 						var id = item.get('id') || A.guid();
 						var name = item.get('name');
 						var size = item.get('size') || 0;
@@ -744,10 +545,7 @@ AUI.add(
 						(target === uploaderBoundingBox ||
 							uploaderBoundingBox.contains(target))
 					) {
-						event.fileList = dragDropFiles.map(function(
-							item,
-							index
-						) {
+						event.fileList = dragDropFiles.map(function(item) {
 							return new A.FileHTML5(item);
 						});
 
@@ -784,14 +582,12 @@ AUI.add(
 				},
 
 				_markSelected(node) {
-					var instance = this;
-
 					var fileItem = node.ancestor('.upload-file.selectable');
 
 					fileItem.toggleClass('selected');
 				},
 
-				_onAllRowIdsClick(event) {
+				_onAllRowIdsClick() {
 					var instance = this;
 
 					Liferay.Util.checkAll(
@@ -812,7 +608,7 @@ AUI.add(
 					instance._updateMetadataContainer();
 				},
 
-				_onAllUploadsComplete(event) {
+				_onAllUploadsComplete() {
 					var instance = this;
 
 					var strings = instance.get(STRINGS);
@@ -884,10 +680,7 @@ AUI.add(
 
 							var file =
 								queue.currentFiles[fileId] ||
-								AArray.find(queue.queuedFiles, function(
-									item,
-									index
-								) {
+								AArray.find(queue.queuedFiles, function(item) {
 									return item.id === fileId;
 								});
 
@@ -1111,8 +904,6 @@ AUI.add(
 				},
 
 				_onUploadProgress(event) {
-					var instance = this;
-
 					var progress = A.one('#' + event.file.id + 'progress');
 
 					if (progress) {
@@ -1307,7 +1098,7 @@ AUI.add(
 						fileFieldName: 'file',
 						multipleFiles: instance.get('multipleFiles'),
 						on: {
-							render(event) {
+							render() {
 								instance
 									.get('boundingBox')
 									.setContent(instance._uploadFragment);
@@ -1482,7 +1273,206 @@ AUI.add(
 					}
 				},
 
-				_filesTotal: 0
+				bindUI() {
+					var instance = this;
+
+					if (instance._allRowIdsCheckbox) {
+						instance._allRowIdsCheckbox.on(
+							'click',
+							instance._onAllRowIdsClick,
+							instance
+						);
+					}
+
+					instance._cancelButton.on(
+						'click',
+						instance._cancelAllFiles,
+						instance
+					);
+					instance._clearUploadsButton.on(
+						'click',
+						instance._clearUploads,
+						instance
+					);
+
+					A.getWin().on(
+						'beforeunload',
+						instance._onBeforeUnload,
+						instance
+					);
+
+					instance._fileList.delegate(
+						'click',
+						instance._handleFileClick,
+						'.select-file, li .delete-button, li .cancel-button',
+						instance
+					);
+
+					Liferay.after(
+						'filesSaved',
+						instance._afterFilesSaved,
+						instance
+					);
+
+					var uploader = instance._uploader;
+
+					uploader.after(
+						'fileselect',
+						instance._onFileSelect,
+						instance
+					);
+
+					uploader.on(
+						'alluploadscomplete',
+						instance._onAllUploadsComplete,
+						instance
+					);
+					uploader.on(
+						'fileuploadstart',
+						instance._onUploadStart,
+						instance
+					);
+					uploader.on(
+						'uploadcomplete',
+						instance._onUploadComplete,
+						instance
+					);
+					uploader.on(
+						'uploadprogress',
+						instance._onUploadProgress,
+						instance
+					);
+
+					var rootElement = instance.get('rootElement');
+
+					var docElement = rootElement
+						? rootElement
+						: A.getDoc().get('documentElement');
+
+					docElement.on('drop', instance._handleDrop, instance);
+
+					var uploaderBoundingBox = instance._uploaderBoundingBox;
+
+					var removeCssClassTask = A.debounce(function() {
+						docElement.removeClass('upload-drop-intent');
+						docElement.removeClass('upload-drop-active');
+					}, 500);
+
+					docElement.on('dragover', function(event) {
+						var originalEvent = event._event;
+
+						var dataTransfer = originalEvent.dataTransfer;
+
+						if (
+							dataTransfer &&
+							AArray.indexOf(dataTransfer.types, 'Files') > -1
+						) {
+							event.halt();
+
+							docElement.addClass('upload-drop-intent');
+
+							var target = event.target;
+
+							var inDropArea =
+								target.compareTo(uploaderBoundingBox) ||
+								uploaderBoundingBox.contains(target);
+
+							var dropEffect = 'none';
+
+							if (inDropArea) {
+								dropEffect = 'copy';
+							}
+
+							docElement.toggleClass(
+								'upload-drop-active',
+								inDropArea
+							);
+
+							dataTransfer.dropEffect = dropEffect;
+						}
+
+						removeCssClassTask();
+					});
+				},
+
+				initializer() {
+					var instance = this;
+
+					var strings = instance.get(STRINGS);
+
+					var fallback = instance.get('fallback');
+
+					var useFallback =
+						location.hash.indexOf(STR_PARAM_FALLBACK) > -1 &&
+						fallback;
+
+					if (
+						useFallback ||
+						UPLOADER_TYPE == 'none' ||
+						(UPLOADER_TYPE == 'flash' &&
+							!A.SWFDetect.isFlashVersionAtLeast(10, 1))
+					) {
+						if (fallback) {
+							fallback.show();
+						} else {
+							instance
+								.one('#fileUpload')
+								.append(
+									Lang.sub(TPL_ERROR_MESSAGE, [
+										strings.notAvailableText
+									])
+								);
+						}
+
+						instance._preventRenderHandle = instance.on(
+							'render',
+							function(event) {
+								event.preventDefault();
+							}
+						);
+					} else {
+						var maxFileSize = Liferay.Util.formatStorage(
+							instance.get('maxFileSize')
+						);
+
+						var maxUploadRequestSize = Liferay.Util.formatStorage(
+							Liferay.PropsValues
+								.UPLOAD_SERVLET_REQUEST_IMPL_MAX_SIZE
+						);
+
+						instance._invalidFileSizeText = Lang.sub(
+							strings.invalidFileSizeText,
+							[maxFileSize]
+						);
+						instance._invalidUploadRequestSize = Lang.sub(
+							strings.invalidUploadRequestSizeText,
+							[maxUploadRequestSize]
+						);
+
+						instance._metadataContainer = instance.get(
+							'metadataContainer'
+						);
+						instance._metadataExplanationContainer = instance.get(
+							'metadataExplanationContainer'
+						);
+
+						instance._fileListBuffer = [];
+						instance._renderFileListTask = A.debounce(
+							instance._renderFileList,
+							10,
+							instance
+						);
+					}
+
+					instance._fallback = fallback;
+				},
+
+				renderUI() {
+					var instance = this;
+
+					instance._renderControls();
+					instance._renderUploader();
+				}
 			}
 		});
 

@@ -230,13 +230,6 @@ AUI.add(
 		};
 
 		var Poller = {
-			init(options) {
-				var instance = this;
-
-				instance.setEncryptedUserId(options.encryptedUserId);
-				instance.setSupportsComet(options.supportsComet);
-			},
-
 			addListener(key, listener, scope) {
 				_portlets[key] = {
 					initialRequest: true,
@@ -274,6 +267,13 @@ AUI.add(
 			getReceiveUrl: _getReceiveUrl,
 			getSendUrl: _getSendUrl,
 
+			init(options) {
+				var instance = this;
+
+				instance.setEncryptedUserId(options.encryptedUserId);
+				instance.setSupportsComet(options.supportsComet);
+			},
+
 			isSupportsComet() {
 				return _supportsComet;
 			},
@@ -281,8 +281,6 @@ AUI.add(
 			processResponse: _processResponse,
 
 			removeListener(key) {
-				var instance = this;
-
 				if (key in _portlets) {
 					delete _portlets[key];
 				}
@@ -327,7 +325,7 @@ AUI.add(
 			submitRequest(key, data, chunkId) {
 				if (!_frozen && key in _portlets) {
 					for (var i in data) {
-						if (data.hasOwnProperty(i)) {
+						if (Object.prototype.hasOwnProperty.call(data, i)) {
 							var content = data[i];
 
 							if (content.replace) {
@@ -369,7 +367,7 @@ AUI.add(
 			url: _url
 		};
 
-		A.getWin().on('focus', function(event) {
+		A.getWin().on('focus', function() {
 			_metaData.startPolling = true;
 
 			_thawConnection();

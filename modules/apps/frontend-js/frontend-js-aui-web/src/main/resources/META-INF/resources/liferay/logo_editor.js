@@ -52,79 +52,6 @@ AUI.add(
 			NAME: 'logoeditor',
 
 			prototype: {
-				initializer() {
-					var instance = this;
-
-					instance.renderUI();
-					instance.bindUI();
-				},
-
-				renderUI() {
-					var instance = this;
-
-					instance._cropRegionNode = instance.one('#cropRegion');
-					instance._emptyResultMessage = instance.one(
-						'#emptyResultMessage'
-					);
-					instance._fileNameNode = instance.one('#fileName');
-					instance._formNode = instance.one('#fm');
-					instance._portraitPreviewImg = instance.one(
-						'#portraitPreviewImg'
-					);
-					instance._submitButton = instance.one('#submitButton');
-				},
-
-				bindUI() {
-					var instance = this;
-
-					instance.publish('uploadComplete', {
-						defaultFn: A.rbind('_defUploadCompleteFn', instance)
-					});
-
-					instance.publish('uploadStart', {
-						defaultFn: A.rbind('_defUploadStartFn', instance)
-					});
-
-					instance._fileNameNode.on(
-						'change',
-						instance._onFileNameChange,
-						instance
-					);
-					instance._formNode.on(
-						'submit',
-						instance._onSubmit,
-						instance
-					);
-					instance._portraitPreviewImg.on(
-						'load',
-						instance._onImageLoad,
-						instance
-					);
-				},
-
-				destructor() {
-					var instance = this;
-
-					var imageCropper = instance._imageCropper;
-
-					if (imageCropper) {
-						imageCropper.destroy();
-					}
-				},
-
-				resize() {
-					var instance = this;
-
-					var portraitPreviewImg = instance._portraitPreviewImg;
-
-					if (portraitPreviewImg) {
-						instance._setCropBackgroundSize(
-							portraitPreviewImg.width(),
-							portraitPreviewImg.height()
-						);
-					}
-				},
-
 				_defUploadCompleteFn(event) {
 					var instance = this;
 
@@ -173,7 +100,7 @@ AUI.add(
 					}
 				},
 
-				_defUploadStartFn(event, id, obj) {
+				_defUploadStartFn() {
 					var instance = this;
 
 					instance._getMessageNode().remove();
@@ -207,7 +134,7 @@ AUI.add(
 					return messageNode;
 				},
 
-				_onFileNameChange(event) {
+				_onFileNameChange() {
 					var instance = this;
 
 					var formValidator = Liferay.Form.get(
@@ -251,7 +178,7 @@ AUI.add(
 					}
 				},
 
-				_onImageLoad(event) {
+				_onImageLoad() {
 					var instance = this;
 
 					var imageCropper = instance._imageCropper;
@@ -318,7 +245,7 @@ AUI.add(
 					}
 				},
 
-				_onSubmit(event) {
+				_onSubmit() {
 					var instance = this;
 
 					var imageCropper = instance._imageCropper;
@@ -362,6 +289,79 @@ AUI.add(
 						message,
 						type: 'danger'
 					}).render();
+				},
+
+				bindUI() {
+					var instance = this;
+
+					instance.publish('uploadComplete', {
+						defaultFn: A.rbind('_defUploadCompleteFn', instance)
+					});
+
+					instance.publish('uploadStart', {
+						defaultFn: A.rbind('_defUploadStartFn', instance)
+					});
+
+					instance._fileNameNode.on(
+						'change',
+						instance._onFileNameChange,
+						instance
+					);
+					instance._formNode.on(
+						'submit',
+						instance._onSubmit,
+						instance
+					);
+					instance._portraitPreviewImg.on(
+						'load',
+						instance._onImageLoad,
+						instance
+					);
+				},
+
+				destructor() {
+					var instance = this;
+
+					var imageCropper = instance._imageCropper;
+
+					if (imageCropper) {
+						imageCropper.destroy();
+					}
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance.renderUI();
+					instance.bindUI();
+				},
+
+				renderUI() {
+					var instance = this;
+
+					instance._cropRegionNode = instance.one('#cropRegion');
+					instance._emptyResultMessage = instance.one(
+						'#emptyResultMessage'
+					);
+					instance._fileNameNode = instance.one('#fileName');
+					instance._formNode = instance.one('#fm');
+					instance._portraitPreviewImg = instance.one(
+						'#portraitPreviewImg'
+					);
+					instance._submitButton = instance.one('#submitButton');
+				},
+
+				resize() {
+					var instance = this;
+
+					var portraitPreviewImg = instance._portraitPreviewImg;
+
+					if (portraitPreviewImg) {
+						instance._setCropBackgroundSize(
+							portraitPreviewImg.width(),
+							portraitPreviewImg.height()
+						);
+					}
 				}
 			}
 		});

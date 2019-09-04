@@ -32,15 +32,13 @@ AUI.add(
 
 		var EDITOR_PREFIX = 'editorPrefix';
 
-		var RESPONSE_DATA = 'responseData';
-
 		var TPL_NOTICE =
 			'<div class="alert alert-success lfr-editable-notice">' +
 			'<span class="lfr-editable-notice-text yui3-widget-bd"></span>' +
 			'<a class="lfr-editable-notice-close yui3-widget-ft" href="javascript:;" tabindex="0"></a>' +
 			'</div>';
 
-		function InlineEditorBase(config) {
+		function InlineEditorBase() {
 			var instance = this;
 
 			instance.publish('saveFailure', {
@@ -98,17 +96,72 @@ AUI.add(
 		};
 
 		InlineEditorBase.prototype = {
-			destructor() {
+			_attachCloseListener() {
 				var instance = this;
 
-				instance.getEditNotice().destroy();
+				var notice = instance.getEditNotice();
 
-				if (instance._closeNoticeTask) {
-					instance._closeNoticeTask.cancel();
+				notice.footerNode.on('click', A.bind('hide', notice));
+			},
+
+			_closeNoticeFn() {
+				var instance = this;
+
+				instance.getEditNotice().hide();
+			},
+
+			_defSaveFailureFn() {
+				var instance = this;
+
+				instance.resetDirty();
+
+				var notice = instance.getEditNotice();
+
+				instance._editNoticeNode.replaceClass(CSS_SUCCESS, CSS_ERROR);
+
+				notice.set(
+					BODY_CONTENT,
+					Liferay.Language.get('the-draft-was-not-saved-successfully')
+				);
+
+				notice.show();
+
+				instance.closeNotice();
+			},
+
+			_defSaveSuccessFn(autosaved) {
+				var instance = this;
+
+				instance.resetDirty();
+
+				var notice = instance.getEditNotice();
+
+				instance._editNoticeNode.replaceClass(CSS_ERROR, CSS_SUCCESS);
+
+				var message = Liferay.Language.get(
+					'the-draft-was-saved-successfully-at-x'
+				);
+
+				if (autosaved) {
+					message = Liferay.Language.get(
+						'the-draft-was-autosaved-successfully-at-x'
+					);
 				}
 
-				if (instance._saveTask) {
-					instance._saveTask.cancel();
+				message = Lang.sub(message, [new Date().toLocaleTimeString()]);
+
+				notice.set(BODY_CONTENT, message);
+
+				notice.show();
+
+				instance.closeNotice();
+			},
+
+			_saveFn(autosaved) {
+				var instance = this;
+
+				if (instance.isContentDirty()) {
+					instance.save(autosaved);
 				}
 			},
 
@@ -131,6 +184,20 @@ AUI.add(
 					closeNoticeTask.delay(delay);
 				} else {
 					closeNoticeTask();
+				}
+			},
+
+			destructor() {
+				var instance = this;
+
+				instance.getEditNotice().destroy();
+
+				if (instance._closeNoticeTask) {
+					instance._closeNoticeTask.cancel();
+				}
+
+				if (instance._saveTask) {
+					instance._saveTask.cancel();
 				}
 			},
 
@@ -221,75 +288,6 @@ AUI.add(
 				}
 
 				return saveTask;
-			},
-
-			_attachCloseListener() {
-				var instance = this;
-
-				var notice = instance.getEditNotice();
-
-				notice.footerNode.on('click', A.bind('hide', notice));
-			},
-
-			_closeNoticeFn() {
-				var instance = this;
-
-				instance.getEditNotice().hide();
-			},
-
-			_defSaveFailureFn() {
-				var instance = this;
-
-				instance.resetDirty();
-
-				var notice = instance.getEditNotice();
-
-				instance._editNoticeNode.replaceClass(CSS_SUCCESS, CSS_ERROR);
-
-				notice.set(
-					BODY_CONTENT,
-					Liferay.Language.get('the-draft-was-not-saved-successfully')
-				);
-
-				notice.show();
-
-				instance.closeNotice();
-			},
-
-			_defSaveSuccessFn(autosaved) {
-				var instance = this;
-
-				instance.resetDirty();
-
-				var notice = instance.getEditNotice();
-
-				instance._editNoticeNode.replaceClass(CSS_ERROR, CSS_SUCCESS);
-
-				var message = Liferay.Language.get(
-					'the-draft-was-saved-successfully-at-x'
-				);
-
-				if (autosaved) {
-					message = Liferay.Language.get(
-						'the-draft-was-autosaved-successfully-at-x'
-					);
-				}
-
-				message = Lang.sub(message, [new Date().toLocaleTimeString()]);
-
-				notice.set(BODY_CONTENT, message);
-
-				notice.show();
-
-				instance.closeNotice();
-			},
-
-			_saveFn(autosaved) {
-				var instance = this;
-
-				if (instance.isContentDirty()) {
-					instance.save(autosaved);
-				}
 			}
 		};
 

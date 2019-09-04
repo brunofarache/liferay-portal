@@ -95,59 +95,6 @@ AUI.add(
 		});
 
 		A.mix(Window, {
-			DEFAULTS: {
-				centered: true,
-				modal: true,
-				visible: true,
-				zIndex: Liferay.zIndex.WINDOW
-			},
-
-			IFRAME_SUFFIX: '_iframe_',
-
-			TITLE_TEMPLATE: '<h3 class="modal-title" />',
-
-			getByChild(child) {
-				var instance = this;
-
-				var node = A.one(child).ancestor('.modal', true);
-
-				return A.Widget.getByNode(node);
-			},
-
-			getWindow(config) {
-				var instance = this;
-
-				instance._ensureDefaultId(config);
-
-				var modal = instance._getWindow(config);
-
-				instance._bindDOMWinResizeIfNeeded();
-
-				modal.render();
-
-				instance._setWindowDefaultSizeIfNeeded(modal);
-
-				modal.align();
-
-				return modal;
-			},
-
-			hideByChild(child) {
-				var instance = this;
-
-				return instance.getByChild(child).hide();
-			},
-
-			refreshByChild(child) {
-				var instance = this;
-
-				var dialog = instance.getByChild(child);
-
-				if (dialog && dialog.io) {
-					dialog.io.start();
-				}
-			},
-
 			_bindDOMWinResizeIfNeeded() {
 				var instance = this;
 
@@ -172,7 +119,7 @@ AUI.add(
 				modal._opener = openingWindow;
 				modal._refreshWindow = refreshWindow;
 
-				modal.after('destroy', function(event) {
+				modal.after('destroy', function() {
 					if (modal._opener) {
 						var openerInFrame = !!modal._opener.frameElement;
 
@@ -241,8 +188,6 @@ AUI.add(
 			},
 
 			_getDialogIframeConfig(config) {
-				var instance = this;
-
 				var dialogIframeConfig;
 
 				var iframeId = config.iframeId;
@@ -303,7 +248,7 @@ AUI.add(
 								);
 
 								liferayHandles.push(
-									instance.node.on('load', function(event) {
+									instance.node.on('load', function() {
 										if (!popupReady) {
 											Liferay.fire('popupReady', {
 												windowName: iframeId
@@ -463,8 +408,6 @@ AUI.add(
 			},
 
 			_setWindowDefaultSizeIfNeeded(modal) {
-				var instance = this;
-
 				var autoSizeNode = modal.get('autoSizeNode');
 
 				if (modal.get('autoHeight')) {
@@ -535,7 +478,58 @@ AUI.add(
 				A.Array.invoke(modal._liferayHandles, 'detach');
 			},
 
-			_winResizeHandler: null
+			_winResizeHandler: null,
+
+			DEFAULTS: {
+				centered: true,
+				modal: true,
+				visible: true,
+				zIndex: Liferay.zIndex.WINDOW
+			},
+
+			IFRAME_SUFFIX: '_iframe_',
+
+			TITLE_TEMPLATE: '<h3 class="modal-title" />',
+
+			getByChild(child) {
+				var node = A.one(child).ancestor('.modal', true);
+
+				return A.Widget.getByNode(node);
+			},
+
+			getWindow(config) {
+				var instance = this;
+
+				instance._ensureDefaultId(config);
+
+				var modal = instance._getWindow(config);
+
+				instance._bindDOMWinResizeIfNeeded();
+
+				modal.render();
+
+				instance._setWindowDefaultSizeIfNeeded(modal);
+
+				modal.align();
+
+				return modal;
+			},
+
+			hideByChild(child) {
+				var instance = this;
+
+				return instance.getByChild(child).hide();
+			},
+
+			refreshByChild(child) {
+				var instance = this;
+
+				var dialog = instance.getByChild(child);
+
+				if (dialog && dialog.io) {
+					dialog.io.start();
+				}
+			}
 		});
 	},
 	'',

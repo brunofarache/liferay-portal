@@ -119,8 +119,6 @@ AUI.add(
 
 				curEntries: {
 					setter(value) {
-						var instance = this;
-
 						if (Lang.isString(value)) {
 							value = value.split(',');
 						}
@@ -179,60 +177,6 @@ AUI.add(
 			NAME,
 
 			prototype: {
-				renderUI() {
-					var instance = this;
-
-					AssetTagsSelector.superclass.renderUI.apply(
-						instance,
-						arguments
-					);
-
-					instance._renderIcons();
-
-					instance.inputNode.addClass(CSS_INPUT_NODE);
-
-					instance._overlayAlign.node = instance.entryHolder;
-				},
-
-				bindUI() {
-					var instance = this;
-
-					AssetTagsSelector.superclass.bindUI.apply(
-						instance,
-						arguments
-					);
-
-					instance._bindTagsSelector();
-
-					var entries = instance.entries;
-
-					entries.after('add', instance._updateHiddenInput, instance);
-					entries.after(
-						'remove',
-						instance._updateHiddenInput,
-						instance
-					);
-				},
-
-				syncUI() {
-					var instance = this;
-
-					AssetTagsSelector.superclass.syncUI.apply(
-						instance,
-						arguments
-					);
-
-					var curEntries = instance.get('curEntries');
-
-					curEntries.forEach(instance.add, instance);
-				},
-
-				addEntries() {
-					var instance = this;
-
-					instance._addEntries();
-				},
-
 				_addEntries() {
 					var instance = this;
 
@@ -242,7 +186,7 @@ AUI.add(
 						if (text.indexOf(',') > -1) {
 							var items = text.split(',');
 
-							items.forEach(function(item, index) {
+							items.forEach(function(item) {
 								instance.entries.add(item, {});
 							});
 						} else {
@@ -395,7 +339,7 @@ AUI.add(
 									'fieldset'
 								);
 
-								fieldsets.each(function(item, index) {
+								fieldsets.each(function(item) {
 									var visibleEntries = item.one(
 										'label:not(.hide)'
 									);
@@ -599,6 +543,60 @@ AUI.add(
 					}
 
 					instance._renderTemplate(data);
+				},
+
+				addEntries() {
+					var instance = this;
+
+					instance._addEntries();
+				},
+
+				bindUI() {
+					var instance = this;
+
+					AssetTagsSelector.superclass.bindUI.apply(
+						instance,
+						arguments
+					);
+
+					instance._bindTagsSelector();
+
+					var entries = instance.entries;
+
+					entries.after('add', instance._updateHiddenInput, instance);
+					entries.after(
+						'remove',
+						instance._updateHiddenInput,
+						instance
+					);
+				},
+
+				renderUI() {
+					var instance = this;
+
+					AssetTagsSelector.superclass.renderUI.apply(
+						instance,
+						arguments
+					);
+
+					instance._renderIcons();
+
+					instance.inputNode.addClass(CSS_INPUT_NODE);
+
+					instance._overlayAlign.node = instance.entryHolder;
+				},
+
+				syncUI() {
+					var instance = this;
+
+					AssetTagsSelector.superclass.syncUI.apply(
+						instance,
+						arguments
+					);
+
+					var curEntries = instance.get('curEntries');
+
+					curEntries.forEach(instance.add, instance);
 				}
 			}
 		});

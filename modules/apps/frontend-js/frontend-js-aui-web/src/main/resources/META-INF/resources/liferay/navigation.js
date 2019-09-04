@@ -37,8 +37,6 @@ AUI.add(
 				navBlock: {
 					lazyAdd: false,
 					setter(value) {
-						var instance = this;
-
 						value = A.one(value);
 
 						if (!value) {
@@ -56,6 +54,19 @@ AUI.add(
 			NAME: 'navigation',
 
 			prototype: {
+				_createTempTab(tpl) {
+					var tempLink = Lang.sub(tpl, {
+						pageTitle: STR_EMPTY,
+						url: '#'
+					});
+
+					var tempTab = ANode.create('<li>');
+
+					tempTab.append(tempLink);
+
+					return tempTab;
+				},
+
 				initializer() {
 					var instance = this;
 
@@ -88,21 +99,6 @@ AUI.add(
 							TPL_LINK
 						);
 					}
-				},
-
-				_createTempTab(tpl) {
-					var instance = this;
-
-					var tempLink = Lang.sub(tpl, {
-						pageTitle: STR_EMPTY,
-						url: '#'
-					});
-
-					var tempTab = ANode.create('<li>');
-
-					tempTab.append(tempLink);
-
-					return tempTab;
 				}
 			}
 		});

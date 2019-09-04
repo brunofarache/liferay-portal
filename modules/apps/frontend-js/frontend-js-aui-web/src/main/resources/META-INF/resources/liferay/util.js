@@ -54,17 +54,159 @@
 		'</svg>';
 
 	var Window = {
+		_map: {},
+
 		getById(id) {
 			var instance = this;
 
 			return instance._map[id];
-		},
-
-		_map: {}
+		}
 	};
 
 	var Util = {
-		submitCountdown: 0,
+		_defaultSubmitFormFn(event) {
+			var form = event.form;
+
+			var hasErrors = false;
+
+			if (event.validate) {
+				var liferayForm = Liferay.Form.get(form.attr('id'));
+
+				if (liferayForm) {
+					var validator = liferayForm.formValidator;
+
+					if (A.instanceOf(validator, A.FormValidator)) {
+						validator.validate();
+
+						hasErrors = validator.hasErrors();
+
+						if (hasErrors) {
+							validator.focusInvalidField();
+						}
+					}
+				}
+			}
+
+			if (!hasErrors) {
+				var action = event.action || form.attr('action');
+
+				var singleSubmit = event.singleSubmit;
+
+				var inputs = form.all(
+					'button[type=submit], input[type=button], input[type=image], input[type=reset], input[type=submit]'
+				);
+
+				Util.disableFormButtons(inputs, form);
+
+				if (singleSubmit === false) {
+					Util._submitLocked = A.later(
+						1000,
+						Util,
+						Util.enableFormButtons,
+						[inputs, form]
+					);
+				} else {
+					Util._submitLocked = true;
+				}
+
+				var baseURL;
+				var queryString;
+				var searchParamsIndex = action.indexOf('?');
+
+				if (searchParamsIndex === -1) {
+					baseURL = action;
+					queryString = '';
+				} else {
+					baseURL = action.slice(0, searchParamsIndex);
+					queryString = action.slice(searchParamsIndex + 1);
+				}
+
+				var searchParams = new URLSearchParams(queryString);
+
+				var authToken = searchParams.get('p_auth') || '';
+
+				form.append(
+					'<input name="p_auth" type="hidden" value="' +
+						authToken +
+						'" />'
+				);
+
+				if (authToken) {
+					searchParams.delete('p_auth');
+
+					action = baseURL + '?' + searchParams.toString();
+				}
+
+				form.attr('action', action);
+
+				Util.submitForm(form);
+
+				form.attr('target', '');
+
+				Util._submitLocked = null;
+			}
+		},
+
+		_getEditableInstance(title) {
+			var editable = Util._EDITABLE;
+
+			if (!editable) {
+				editable = new A.Editable({
+					after: {
+						contentTextChange(event) {
+							var instance = this;
+
+							if (!event.initial) {
+								var title = instance.get('node');
+
+								var portletTitleEditOptions = title.getData(
+									'portletTitleEditOptions'
+								);
+
+								Util.savePortletTitle({
+									doAsUserId:
+										portletTitleEditOptions.doAsUserId,
+									plid: portletTitleEditOptions.plid,
+									portletId:
+										portletTitleEditOptions.portletId,
+									title: event.newVal
+								});
+							}
+						},
+						startEditing() {
+							var instance = this;
+
+							var Layout = Liferay.Layout;
+
+							if (Layout) {
+								instance._dragListener = Layout.getLayoutHandler().on(
+									'drag:start',
+									function() {
+										instance.fire('save');
+									}
+								);
+							}
+						},
+						stopEditing() {
+							var instance = this;
+
+							if (instance._dragListener) {
+								instance._dragListener.detach();
+							}
+						}
+					},
+					cssClass: 'lfr-portlet-title-editable',
+					node: title
+				});
+
+				editable.get('cancelButton').icon = 'times';
+				editable.get('saveButton').icon = 'check';
+
+				Util._EDITABLE = editable;
+			}
+
+			return editable;
+		},
 
 		addInputCancel() {
 			A.use('aui-button-search-cancel', function(A) {
@@ -262,12 +404,12 @@
 			inputs.setStyle('opacity', 0.5);
 
 			if (A.UA.gecko) {
-				A.getWin().on('unload', function(event) {
+				A.getWin().on('unload', function() {
 					inputs.attr('disabled', false);
 				});
 			} else if (A.UA.safari) {
 				A.use('node-event-html5', function(A) {
-					A.getWin().on('pagehide', function(event) {
+					A.getWin().on('pagehide', function() {
 						Util.enableFormButtons(inputs, form);
 					});
 				});
@@ -317,7 +459,7 @@
 
 			el = $(el);
 
-			doc.on('click.focusFormField', function(event) {
+			doc.on('click.focusFormField', function() {
 				interacting = true;
 
 				doc.off('click.focusFormField');
@@ -380,8 +522,6 @@
 		},
 
 		getAttributes(el, attributeGetter) {
-			var instance = this;
-
 			var result = null;
 
 			if (el) {
@@ -464,8 +604,6 @@
 		},
 
 		getLexiconIconTpl(icon, cssClass) {
-			var instance = this;
-
 			return Liferay.Util.sub(TPL_LEXICON_ICON, icon, cssClass || '');
 		},
 
@@ -681,7 +819,7 @@
 			return $(form)
 				.find(selector)
 				.toArray()
-				.reduce(function(prev, item, index) {
+				.reduce(function(prev, item) {
 					item = $(item);
 
 					var val = item.val();
@@ -710,7 +848,7 @@
 			return $(select)
 				.find('option')
 				.toArray()
-				.reduce(function(prev, item, index) {
+				.reduce(function(prev, item) {
 					var val = $(item).val();
 
 					if (val) {
@@ -807,7 +945,7 @@
 					selectedItems
 						.get()
 						.reverse()
-						.forEach(function(item, index) {
+						.forEach(function(item) {
 							item = $(item);
 
 							var itemIndex = item.prop('index');
@@ -821,7 +959,7 @@
 							}
 						});
 				} else {
-					selectedItems.get().forEach(function(item, index) {
+					selectedItems.get().forEach(function(item) {
 						item = $(item);
 
 						var itemIndex = item.prop('index');
@@ -910,7 +1048,7 @@
 				}
 			});
 
-			openingLiferay.on('entitySelectionRemoved', function(event) {
+			openingLiferay.on('entitySelectionRemoved', function() {
 				selectorButtons.prop('disabled', false);
 			});
 		},
@@ -934,8 +1072,6 @@
 		},
 
 		setSelectionRange(el, selectionStart, selectionEnd) {
-			var instance = this;
-
 			el = Util.getDOM(el);
 
 			if (el.jquery) {
@@ -1007,8 +1143,14 @@
 				: string;
 		},
 
+		submitCountdown: 0,
+
 		submitForm(form) {
 			form.submit();
+		},
+
+		toNumber(value) {
+			return parseInt(value, 10) || 0;
 		},
 
 		toggleBoxes(
@@ -1127,152 +1269,6 @@
 			toggle();
 
 			selectBox.on('change', toggle);
-		},
-
-		toNumber(value) {
-			return parseInt(value, 10) || 0;
-		},
-
-		_defaultSubmitFormFn(event) {
-			var form = event.form;
-
-			var hasErrors = false;
-
-			if (event.validate) {
-				var liferayForm = Liferay.Form.get(form.attr('id'));
-
-				if (liferayForm) {
-					var validator = liferayForm.formValidator;
-
-					if (A.instanceOf(validator, A.FormValidator)) {
-						validator.validate();
-
-						hasErrors = validator.hasErrors();
-
-						if (hasErrors) {
-							validator.focusInvalidField();
-						}
-					}
-				}
-			}
-
-			if (!hasErrors) {
-				var action = event.action || form.attr('action');
-
-				var singleSubmit = event.singleSubmit;
-
-				var inputs = form.all(
-					'button[type=submit], input[type=button], input[type=image], input[type=reset], input[type=submit]'
-				);
-
-				Util.disableFormButtons(inputs, form);
-
-				if (singleSubmit === false) {
-					Util._submitLocked = A.later(
-						1000,
-						Util,
-						Util.enableFormButtons,
-						[inputs, form]
-					);
-				} else {
-					Util._submitLocked = true;
-				}
-
-				var searchParamsIndex = action.indexOf('?');
-
-				if (searchParamsIndex === -1) {
-					var baseURL = action;
-					var queryString = '';
-				} else {
-					var baseURL = action.slice(0, searchParamsIndex);
-					var queryString = action.slice(searchParamsIndex + 1);
-				}
-
-				var searchParams = new URLSearchParams(queryString);
-
-				var authToken = searchParams.get('p_auth') || '';
-
-				form.append(
-					'<input name="p_auth" type="hidden" value="' +
-						authToken +
-						'" />'
-				);
-
-				if (authToken) {
-					searchParams.delete('p_auth');
-
-					action = baseURL + '?' + searchParams.toString();
-				}
-
-				form.attr('action', action);
-
-				Util.submitForm(form);
-
-				form.attr('target', '');
-
-				Util._submitLocked = null;
-			}
-		},
-
-		_getEditableInstance(title) {
-			var editable = Util._EDITABLE;
-
-			if (!editable) {
-				editable = new A.Editable({
-					after: {
-						contentTextChange(event) {
-							var instance = this;
-
-							if (!event.initial) {
-								var title = instance.get('node');
-
-								var portletTitleEditOptions = title.getData(
-									'portletTitleEditOptions'
-								);
-
-								Util.savePortletTitle({
-									doAsUserId:
-										portletTitleEditOptions.doAsUserId,
-									plid: portletTitleEditOptions.plid,
-									portletId:
-										portletTitleEditOptions.portletId,
-									title: event.newVal
-								});
-							}
-						},
-						startEditing(event) {
-							var instance = this;
-
-							var Layout = Liferay.Layout;
-
-							if (Layout) {
-								instance._dragListener = Layout.getLayoutHandler().on(
-									'drag:start',
-									function(event) {
-										instance.fire('save');
-									}
-								);
-							}
-						},
-						stopEditing(event) {
-							var instance = this;
-
-							if (instance._dragListener) {
-								instance._dragListener.detach();
-							}
-						}
-					},
-					cssClass: 'lfr-portlet-title-editable',
-					node: title
-				});
-
-				editable.get('cancelButton').icon = 'times';
-				editable.get('saveButton').icon = 'check';
-
-				Util._EDITABLE = editable;
-			}
-
-			return editable;
 		}
 	};
 
@@ -1354,8 +1350,6 @@
 		Util,
 		'openDDMPortlet',
 		function(config, callback) {
-			var instance = this;
-
 			var defaultValues = {
 				eventName: 'selectStructure'
 			};
@@ -1690,7 +1684,7 @@
 						'.lfr-search-container-wrapper .selector-button'
 					);
 
-					A.some(selectorButtons, function(item, index) {
+					A.some(selectorButtons, function(item) {
 						var assetEntryId =
 							item.attr('data-entityid') ||
 							item.attr('data-entityname');
@@ -1782,7 +1776,7 @@
 					enabled: controlsVisible
 				});
 
-				trigger.on('tap', function(event) {
+				trigger.on('tap', function() {
 					controlsVisible = !controlsVisible;
 
 					var prevState = currentState;

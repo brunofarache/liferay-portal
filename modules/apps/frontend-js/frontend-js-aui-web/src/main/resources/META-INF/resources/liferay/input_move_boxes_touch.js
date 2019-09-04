@@ -76,60 +76,7 @@ AUI.add(
 		A.mix(
 			Liferay.InputMoveBoxes.prototype,
 			{
-				renderUI() {
-					var instance = this;
-
-					instance._contentBox = instance.get('contentBox');
-
-					instance._sortableContainer = A.Node.create(
-						TPL_SORTABLE_CONTAINER
-					);
-
-					instance._contentBox.append(instance._sortableContainer);
-
-					instance._renderBoxes();
-					instance._renderButtons();
-					instance._renderSortList();
-
-					instance._afterDropHitTask = A.debounce(
-						'_afterDropHitFn',
-						50,
-						instance
-					);
-				},
-
-				bindUI() {
-					var instance = this;
-
-					var dd = instance._sortable.delegate.dd;
-
-					instance._editSelection.on(
-						STR_CLICK,
-						A.bind('_onEditSelectionClick', instance)
-					);
-
-					dd.after('drag:drophit', A.bind('_afterDropHit', instance));
-
-					dd.after('drag:start', A.bind('_afterDragStart', instance));
-
-					instance._contentBox.delegate(
-						STR_CLICK,
-						function(event) {
-							event.preventDefault();
-						},
-						SELECTOR_SORT_LIST_ACTIVE + ' ' + SELECTOR_TITLE
-					);
-
-					instance._sortableContainer.delegate(
-						'change',
-						A.bind('_onCheckBoxChange', instance),
-						'.checkbox'
-					);
-				},
-
 				_afterDragStart(event) {
-					var instance = this;
-
 					var dragNode = event.target.get('dragNode');
 
 					dragNode.addClass('move-option-dragging');
@@ -255,7 +202,7 @@ AUI.add(
 
 					var data = [];
 
-					options.each(function(item, index) {
+					options.each(function(item) {
 						data.push({
 							name: item.html(),
 							selected: item.attr('data-selected') === STR_TRUE,
@@ -322,6 +269,57 @@ AUI.add(
 
 						instance._sortLeftBox(option, index);
 					}
+				},
+
+				bindUI() {
+					var instance = this;
+
+					var dd = instance._sortable.delegate.dd;
+
+					instance._editSelection.on(
+						STR_CLICK,
+						A.bind('_onEditSelectionClick', instance)
+					);
+
+					dd.after('drag:drophit', A.bind('_afterDropHit', instance));
+
+					dd.after('drag:start', A.bind('_afterDragStart', instance));
+
+					instance._contentBox.delegate(
+						STR_CLICK,
+						function(event) {
+							event.preventDefault();
+						},
+						SELECTOR_SORT_LIST_ACTIVE + ' ' + SELECTOR_TITLE
+					);
+
+					instance._sortableContainer.delegate(
+						'change',
+						A.bind('_onCheckBoxChange', instance),
+						'.checkbox'
+					);
+				},
+
+				renderUI() {
+					var instance = this;
+
+					instance._contentBox = instance.get('contentBox');
+
+					instance._sortableContainer = A.Node.create(
+						TPL_SORTABLE_CONTAINER
+					);
+
+					instance._contentBox.append(instance._sortableContainer);
+
+					instance._renderBoxes();
+					instance._renderButtons();
+					instance._renderSortList();
+
+					instance._afterDropHitTask = A.debounce(
+						'_afterDropHitFn',
+						50,
+						instance
+					);
 				}
 			},
 			true

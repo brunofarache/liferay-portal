@@ -61,20 +61,6 @@ AUI.add(
 			NS: 'move',
 
 			prototype: {
-				initializer() {
-					var instance = this;
-
-					instance._initDragAndDrop();
-
-					instance._initDropTargets();
-				},
-
-				destructor() {
-					var instance = this;
-
-					new A.EventHandle(instance._eventHandles).detach();
-				},
-
 				_getMoveText(selectedItemsCount, targetAvailable) {
 					var moveText = STR_BLANK;
 
@@ -153,15 +139,15 @@ AUI.add(
 
 							var targetNodes = container.all(target.selector);
 
-							targetNodes.each(function(item, index) {
+							targetNodes.each(function(item) {
 								item.plug(A.Plugin.Drop, {
 									groups: [host.get('id')]
 								}).drop.on({
-									'drop:enter'(event) {
+									'drop:enter'() {
 										item.addClass(target.activeCssClass);
 									},
 
-									'drop:exit'(event) {
+									'drop:exit'() {
 										item.removeClass(target.activeCssClass);
 									},
 
@@ -317,6 +303,20 @@ AUI.add(
 						groups: [host.get('id')],
 						offsetNode: false
 					};
+				},
+
+				destructor() {
+					var instance = this;
+
+					new A.EventHandle(instance._eventHandles).detach();
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._initDragAndDrop();
+
+					instance._initDropTargets();
 				}
 			}
 		});

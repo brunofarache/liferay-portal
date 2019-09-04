@@ -24,6 +24,66 @@ AUI.add(
 		var LAYOUT_CONFIG = Liferay.Data.layoutConfig;
 
 		var Layout = {
+			_afterPortletClose(event) {
+				var column = event.column;
+
+				if (column) {
+					Layout.syncEmptyColumnClassUI(column);
+				}
+			},
+
+			_getPortletTitle: A.cached(function(id) {
+				var portletBoundary = A.one('#' + id);
+
+				var portletTitle = portletBoundary.one('.portlet-title');
+
+				if (!portletTitle) {
+					portletTitle = Layout.PROXY_NODE_ITEM.one('.portlet-title');
+
+					var title = portletBoundary.one('.portlet-title-default');
+
+					var titleText = '';
+
+					if (title) {
+						titleText = title.html();
+					}
+
+					portletTitle.html(titleText);
+				}
+
+				return portletTitle.outerHTML();
+			}),
+
+			_onPortletClose(event) {
+				var portlet = event.portlet;
+
+				var column = portlet.ancestor(Layout.options.dropContainer);
+
+				Layout.updateCurrentPortletInfo(portlet);
+
+				if (portlet.test('.portlet-nested-portlets')) {
+					Layout.closeNestedPortlets(portlet);
+				}
+
+				event.column = column;
+			},
+
+			_onPortletDragEnd(event) {
+				var dragNode = event.target.get('node');
+
+				var columnNode = dragNode.get('parentNode');
+
+				Layout.saveIndex(dragNode, columnNode);
+
+				Layout.syncEmptyColumnClassUI(columnNode);
+			},
+
+			_onPortletDragStart(event) {
+				var dragNode = event.target.get('node');
+
+				Layout.updateCurrentPortletInfo(dragNode);
+			},
+
 			EMPTY_COLUMNS: {},
 
 			INITIALIZED: false,
@@ -43,8 +103,6 @@ AUI.add(
 					'</div>' +
 					'</div>'
 			),
-
-			options: LAYOUT_CONFIG,
 
 			bindDragDropListeners() {
 				var layoutHandler = Layout.getLayoutHandler();
@@ -213,6 +271,8 @@ AUI.add(
 				return retVal;
 			},
 
+			options: LAYOUT_CONFIG,
+
 			refresh(portlet) {
 				var layoutHandler = Layout.getLayoutHandler();
 
@@ -335,66 +395,6 @@ AUI.add(
 				portletDropNodes.each(function(item) {
 					layoutHandler.addDropNode(item);
 				});
-			},
-
-			_afterPortletClose(event) {
-				var column = event.column;
-
-				if (column) {
-					Layout.syncEmptyColumnClassUI(column);
-				}
-			},
-
-			_getPortletTitle: A.cached(function(id) {
-				var portletBoundary = A.one('#' + id);
-
-				var portletTitle = portletBoundary.one('.portlet-title');
-
-				if (!portletTitle) {
-					portletTitle = Layout.PROXY_NODE_ITEM.one('.portlet-title');
-
-					var title = portletBoundary.one('.portlet-title-default');
-
-					var titleText = '';
-
-					if (title) {
-						titleText = title.html();
-					}
-
-					portletTitle.html(titleText);
-				}
-
-				return portletTitle.outerHTML();
-			}),
-
-			_onPortletClose(event) {
-				var portlet = event.portlet;
-
-				var column = portlet.ancestor(Layout.options.dropContainer);
-
-				Layout.updateCurrentPortletInfo(portlet);
-
-				if (portlet.test('.portlet-nested-portlets')) {
-					Layout.closeNestedPortlets(portlet);
-				}
-
-				event.column = column;
-			},
-
-			_onPortletDragEnd(event) {
-				var dragNode = event.target.get('node');
-
-				var columnNode = dragNode.get('parentNode');
-
-				Layout.saveIndex(dragNode, columnNode);
-
-				Layout.syncEmptyColumnClassUI(columnNode);
-			},
-
-			_onPortletDragStart(event) {
-				var dragNode = event.target.get('node');
-
-				Layout.updateCurrentPortletInfo(dragNode);
 			}
 		};
 

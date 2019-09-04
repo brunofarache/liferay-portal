@@ -122,7 +122,7 @@ AUI.add(
 					selectOptions.push('<option selected value="0"></option>');
 				}
 
-				list.forEach(function(item, index) {
+				list.forEach(function(item) {
 					var key = item[selectId];
 					var value = item[selectDesc];
 

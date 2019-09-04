@@ -63,25 +63,6 @@ AUI.add(
 			NS: NAME,
 
 			prototype: {
-				initializer(config) {
-					var instance = this;
-
-					var trigger = instance.get('trigger');
-
-					var triggerId = trigger.guid();
-
-					instance._handleId = triggerId + 'Handle';
-
-					instance._triggerNode = trigger;
-
-					instance._content = A.all(instance.get('content'));
-
-					AEvent.defineOutside('touchend');
-					AEvent.defineOutside('touchstart');
-
-					instance._bindUI();
-				},
-
 				_addMenuFilter() {
 					var instance = this;
 
@@ -178,7 +159,7 @@ AUI.add(
 				_isContent(target) {
 					var instance = this;
 
-					return instance._content.some(function(item, index) {
+					return instance._content.some(function(item) {
 						return item.contains(target);
 					});
 				},
@@ -267,13 +248,30 @@ AUI.add(
 				},
 
 				_validateContent(value) {
-					var instance = this;
-
 					return (
 						Lang.isString(value) ||
 						Array.isArray(value) ||
 						A.instanceOf(value, A.Node)
 					);
+				},
+
+				initializer() {
+					var instance = this;
+
+					var trigger = instance.get('trigger');
+
+					var triggerId = trigger.guid();
+
+					instance._handleId = triggerId + 'Handle';
+
+					instance._triggerNode = trigger;
+
+					instance._content = A.all(instance.get('content'));
+
+					AEvent.defineOutside('touchend');
+					AEvent.defineOutside('touchstart');
+
+					instance._bindUI();
 				}
 			}
 		});

@@ -21,8 +21,6 @@
 
 	A.use('io-base', function(A) {
 		Language.get = A.cached(function(key, extraParams) {
-			var instance = this;
-
 			var url =
 				themeDisplay.getPathContext() +
 				'/language/' +

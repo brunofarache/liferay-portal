@@ -64,42 +64,6 @@ AUI.add(
 			NS: NAME,
 
 			prototype: {
-				initializer() {
-					var instance = this;
-
-					var host = instance.get(STR_HOST);
-
-					var container = host.get(STR_CONTAINER);
-
-					container.plug(A.Plugin.NodeFocusManager, {
-						descendants: instance.get(STR_DESCENDANTS),
-						keys: instance.get(STR_KEYS)
-					});
-
-					instance._eventHandles = [
-						container.delegate(
-							'key',
-							instance._childrenEventHandler,
-							instance.get(STR_KEYS).collapse,
-							instance.get(STR_CHILDREN),
-							instance
-						),
-						host.on(
-							'toggler:expandedChange',
-							instance._onExpandedChange,
-							instance
-						)
-					];
-
-					instance._focusManager = container.focusManager;
-				},
-
-				destructor() {
-					var instance = this;
-
-					new A.EventHandle(instance._eventHandles).detach();
-				},
-
 				_childrenEventHandler(event) {
 					var instance = this;
 
@@ -169,6 +133,42 @@ AUI.add(
 							container.one(headerCssClass)
 						);
 					}
+				},
+
+				destructor() {
+					var instance = this;
+
+					new A.EventHandle(instance._eventHandles).detach();
+				},
+
+				initializer() {
+					var instance = this;
+
+					var host = instance.get(STR_HOST);
+
+					var container = host.get(STR_CONTAINER);
+
+					container.plug(A.Plugin.NodeFocusManager, {
+						descendants: instance.get(STR_DESCENDANTS),
+						keys: instance.get(STR_KEYS)
+					});
+
+					instance._eventHandles = [
+						container.delegate(
+							'key',
+							instance._childrenEventHandler,
+							instance.get(STR_KEYS).collapse,
+							instance.get(STR_CHILDREN),
+							instance
+						),
+						host.on(
+							'toggler:expandedChange',
+							instance._onExpandedChange,
+							instance
+						)
+					];
+
+					instance._focusManager = container.focusManager;
 				}
 			}
 		});
