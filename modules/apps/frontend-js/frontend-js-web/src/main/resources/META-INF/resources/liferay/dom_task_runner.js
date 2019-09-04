@@ -14,6 +14,10 @@
 
 (function(Liferay) {
 	var DOMTaskRunner = {
+		_scheduledTasks: [],
+
+		_taskStates: [],
+
 		addTask(task) {
 			var instance = this;
 
@@ -55,10 +59,7 @@
 					}
 				}
 			}
-		},
-
-		_scheduledTasks: [],
-		_taskStates: []
+		}
 	};
 
 	Liferay.DOMTaskRunner = DOMTaskRunner;

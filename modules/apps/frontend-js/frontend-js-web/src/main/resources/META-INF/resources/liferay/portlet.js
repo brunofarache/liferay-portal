@@ -22,37 +22,7 @@
 	var TPL_NOT_AJAXABLE = '<div class="alert alert-info">{0}</div>';
 
 	var Portlet = {
-		list: [],
-
-		readyCounter: 0,
-
-		destroyComponents(portletId) {
-			Liferay.destroyComponents(function(component, componentConfig) {
-				return portletId === componentConfig.portletId;
-			});
-		},
-
-		isStatic(portletId) {
-			var instance = this;
-
-			var id = Util.getPortletId(portletId.id || portletId);
-
-			return id in instance._staticPortlets;
-		},
-
-		refreshLayout(portletBoundary) {},
-
-		register(portletId) {
-			var instance = this;
-
-			if (instance.list.indexOf(portletId) < 0) {
-				instance.list.push(portletId);
-			}
-		},
-
 		_defCloseFn(event) {
-			var instance = this;
-
 			event.portlet.remove(true);
 
 			if (!event.nestedPortlet) {
@@ -79,7 +49,7 @@
 			}
 		},
 
-		_loadMarkupHeadElements(response, loadHTML) {
+		_loadMarkupHeadElements(response) {
 			var markupHeadElements = response.markupHeadElements;
 
 			if (markupHeadElements && markupHeadElements.length) {
@@ -127,7 +97,7 @@
 
 			if (javascriptPaths.length) {
 				A.Get.script(javascriptPaths, {
-					onEnd(obj) {
+					onEnd() {
 						loadHTML(responseHTML);
 					}
 				});
@@ -148,7 +118,35 @@
 			return options;
 		},
 
-		_staticPortlets: {}
+		_staticPortlets: {},
+
+		destroyComponents(portletId) {
+			Liferay.destroyComponents(function(_component, componentConfig) {
+				return portletId === componentConfig.portletId;
+			});
+		},
+
+		isStatic(portletId) {
+			var instance = this;
+
+			var id = Util.getPortletId(portletId.id || portletId);
+
+			return id in instance._staticPortlets;
+		},
+
+		list: [],
+
+		readyCounter: 0,
+
+		refreshLayout(_portletBoundary) {},
+
+		register(portletId) {
+			var instance = this;
+
+			if (instance.list.indexOf(portletId) < 0) {
+				instance.list.push(portletId);
+			}
+		}
 	};
 
 	Liferay.provide(
@@ -476,8 +474,6 @@
 		Portlet,
 		'minimize',
 		function(portlet, el, options) {
-			var instance = this;
-
 			options = options || {};
 
 			var doAsUserId =
@@ -604,7 +600,7 @@
 						events = ['focus', 'mousemove'];
 					}
 
-					var handle = portlet.on(events, function(event) {
+					var handle = portlet.on(events, function() {
 						Util.portletTitleEdit({
 							doAsUserId: themeDisplay.getDoAsUserIdEncoded(),
 							obj: portlet,
@@ -644,7 +640,12 @@
 			if (portlet) {
 				data = data || portlet.refreshURLData || {};
 
-				if (!data.hasOwnProperty('portletAjaxable')) {
+				if (
+					!Object.prototype.hasOwnProperty.call(
+						data,
+						'portletAjaxable'
+					)
+				) {
 					data.portletAjaxable = true;
 				}
 
@@ -740,8 +741,6 @@
 		Portlet,
 		'openWindow',
 		function(options) {
-			var instance = this;
-
 			var bodyCssClass = options.bodyCssClass;
 			var destroyOnHide = options.destroyOnHide;
 			var namespace = options.namespace;
