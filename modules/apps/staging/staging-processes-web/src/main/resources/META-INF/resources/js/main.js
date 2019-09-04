@@ -66,121 +66,6 @@ AUI.add(
 			NAME: 'exportimport',
 
 			prototype: {
-				initializer(config) {
-					var instance = this;
-
-					instance._bindUI();
-
-					instance._exportLAR = config.exportLAR;
-					instance._layoutsExportTreeOutput = instance.byId(
-						config.pageTreeId + 'Output'
-					);
-
-					instance._nodeInputStates = [];
-
-					instance._initLabels();
-
-					instance._processesResourceURL =
-						config.processesResourceURL;
-
-					var eventHandles = [
-						Liferay.on(
-							instance.ns('viewBackgroundTaskDetails'),
-							instance._onViewBackgroundTaskDetails,
-							instance
-						)
-					];
-
-					instance._eventHandles = eventHandles;
-
-					instance._renderTimer = A.later(
-						RENDER_INTERVAL_IN_PROGRESS,
-						instance,
-						instance._renderProcesses
-					);
-				},
-
-				destructor() {
-					var instance = this;
-
-					if (instance._contentOptionsDialog) {
-						instance._contentOptionsDialog.destroy();
-					}
-
-					if (instance._globalConfigurationDialog) {
-						instance._globalConfigurationDialog.destroy();
-					}
-
-					if (instance._renderTimer) {
-						instance._renderTimer.cancel();
-					}
-
-					if (instance._scheduledPublishingEventsDialog) {
-						instance._scheduledPublishingEventsDialog.destroy();
-					}
-				},
-
-				getDateRangeChecker() {
-					var instance = this;
-
-					var today = new Date();
-
-					var todayMS = +today;
-
-					var clientTZOffset = today.getTimezoneOffset();
-
-					var serverTZOffset = this.get('timeZoneOffset');
-
-					var adjustedDate = new Date(
-						todayMS + serverTZOffset + clientTZOffset * 60 * 1000
-					);
-
-					var dateRangeChecker = {
-						todayUsed: adjustedDate,
-						validRange: true
-					};
-
-					if (instance._isChecked('rangeDateRangeNode')) {
-						dateRangeChecker.validRange =
-							instance._rangeEndsLater() &&
-							instance._rangeEndsInPast(adjustedDate) &&
-							instance._rangeStartsInPast(adjustedDate);
-					}
-
-					return dateRangeChecker;
-				},
-
-				showNotification(dateChecker) {
-					var instance = this;
-
-					if (instance._notice) {
-						instance._notice.remove();
-					}
-
-					var message = instance._getNotificationMessage(dateChecker);
-
-					instance._notice = new Liferay.Notice({
-						animationConfig: {
-							duration: 2,
-							left: '0px',
-							top: '0px'
-						},
-						closeText: false,
-						content:
-							message +
-							'<button aria-label="' +
-							Liferay.Language.get('close') +
-							'" type="button" class="close">&times;</button>',
-						noticeClass: 'hide',
-						timeout: 10000,
-						toggleText: false,
-						type: 'warning',
-						useAnimation: true
-					});
-
-					instance._notice.show();
-				},
-
 				_bindUI() {
 					var instance = this;
 
@@ -261,9 +146,7 @@ AUI.add(
 					);
 
 					if (changeToPublicLayoutsButton) {
-						changeToPublicLayoutsButton.on(STR_CLICK, function(
-							event
-						) {
+						changeToPublicLayoutsButton.on(STR_CLICK, function() {
 							instance._changeLayouts(false);
 						});
 					}
@@ -273,9 +156,7 @@ AUI.add(
 					);
 
 					if (changeToPrivateLayoutsButton) {
-						changeToPrivateLayoutsButton.on(STR_CLICK, function(
-							event
-						) {
+						changeToPrivateLayoutsButton.on(STR_CLICK, function() {
 							instance._changeLayouts(true);
 						});
 					}
@@ -285,7 +166,7 @@ AUI.add(
 					);
 
 					if (contentOptionsLink) {
-						contentOptionsLink.on(STR_CLICK, function(event) {
+						contentOptionsLink.on(STR_CLICK, function() {
 							var contentOptionsDialog = instance._getContentOptionsDialog();
 
 							contentOptionsDialog.show();
@@ -305,7 +186,7 @@ AUI.add(
 					);
 
 					if (globalConfigurationLink) {
-						globalConfigurationLink.on(STR_CLICK, function(event) {
+						globalConfigurationLink.on(STR_CLICK, function() {
 							var globalConfigurationDialog = instance._getGlobalConfigurationDialog();
 
 							globalConfigurationDialog.show();
@@ -315,7 +196,7 @@ AUI.add(
 					var rangeLink = instance.byId('rangeLink');
 
 					if (rangeLink) {
-						rangeLink.on(STR_CLICK, function(event) {
+						rangeLink.on(STR_CLICK, function() {
 							instance._preventNameRequiredChecking();
 
 							instance._updateDateRange();
@@ -327,9 +208,7 @@ AUI.add(
 					);
 
 					if (scheduledPublishingEventsLink) {
-						scheduledPublishingEventsLink.on(STR_CLICK, function(
-							event
-						) {
+						scheduledPublishingEventsLink.on(STR_CLICK, function() {
 							var scheduledPublishingEventsDialog = instance._getScheduledPublishingEventsDialog();
 
 							scheduledPublishingEventsDialog.show();
@@ -676,13 +555,9 @@ AUI.add(
 				_initLabels() {
 					var instance = this;
 
-					instance
-						.all('.content-link')
-						.each(function(item, index, collection) {
-							instance._setContentLabels(
-								item.attr('data-portletid')
-							);
-						});
+					instance.all('.content-link').each(function(item) {
+						instance._setContentLabels(item.attr('data-portletid'));
+					});
 
 					instance._refreshDeletions();
 					instance._setContentOptionsLabels();
@@ -778,17 +653,13 @@ AUI.add(
 					var instance = this;
 
 					if (instance._isChecked('deletionsNode')) {
-						instance
-							.all('.deletions')
-							.each(function(item, index, collection) {
-								item.show();
-							});
+						instance.all('.deletions').each(function(item) {
+							item.show();
+						});
 					} else {
-						instance
-							.all('.deletions')
-							.each(function(item, index, collection) {
-								item.hide();
-							});
+						instance.all('.deletions').each(function(item) {
+							item.hide();
+						});
 					}
 				},
 
@@ -993,7 +864,7 @@ AUI.add(
 
 					var selectedContent = [];
 
-					inputs.each(function(item, index, collection) {
+					inputs.each(function(item) {
 						var checked = item.attr(STR_CHECKED);
 
 						if (checked) {
@@ -1138,7 +1009,7 @@ AUI.add(
 					});
 				},
 
-				_updateDateRange(event) {
+				_updateDateRange() {
 					var instance = this;
 
 					var dateChecker = instance.getDateRangeChecker();
@@ -1179,6 +1050,121 @@ AUI.add(
 							}
 						}
 					}
+				},
+
+				destructor() {
+					var instance = this;
+
+					if (instance._contentOptionsDialog) {
+						instance._contentOptionsDialog.destroy();
+					}
+
+					if (instance._globalConfigurationDialog) {
+						instance._globalConfigurationDialog.destroy();
+					}
+
+					if (instance._renderTimer) {
+						instance._renderTimer.cancel();
+					}
+
+					if (instance._scheduledPublishingEventsDialog) {
+						instance._scheduledPublishingEventsDialog.destroy();
+					}
+				},
+
+				getDateRangeChecker() {
+					var instance = this;
+
+					var today = new Date();
+
+					var todayMS = +today;
+
+					var clientTZOffset = today.getTimezoneOffset();
+
+					var serverTZOffset = this.get('timeZoneOffset');
+
+					var adjustedDate = new Date(
+						todayMS + serverTZOffset + clientTZOffset * 60 * 1000
+					);
+
+					var dateRangeChecker = {
+						todayUsed: adjustedDate,
+						validRange: true
+					};
+
+					if (instance._isChecked('rangeDateRangeNode')) {
+						dateRangeChecker.validRange =
+							instance._rangeEndsLater() &&
+							instance._rangeEndsInPast(adjustedDate) &&
+							instance._rangeStartsInPast(adjustedDate);
+					}
+
+					return dateRangeChecker;
+				},
+
+				initializer(config) {
+					var instance = this;
+
+					instance._bindUI();
+
+					instance._exportLAR = config.exportLAR;
+					instance._layoutsExportTreeOutput = instance.byId(
+						config.pageTreeId + 'Output'
+					);
+
+					instance._nodeInputStates = [];
+
+					instance._initLabels();
+
+					instance._processesResourceURL =
+						config.processesResourceURL;
+
+					var eventHandles = [
+						Liferay.on(
+							instance.ns('viewBackgroundTaskDetails'),
+							instance._onViewBackgroundTaskDetails,
+							instance
+						)
+					];
+
+					instance._eventHandles = eventHandles;
+
+					instance._renderTimer = A.later(
+						RENDER_INTERVAL_IN_PROGRESS,
+						instance,
+						instance._renderProcesses
+					);
+				},
+
+				showNotification(dateChecker) {
+					var instance = this;
+
+					if (instance._notice) {
+						instance._notice.remove();
+					}
+
+					var message = instance._getNotificationMessage(dateChecker);
+
+					instance._notice = new Liferay.Notice({
+						animationConfig: {
+							duration: 2,
+							left: '0px',
+							top: '0px'
+						},
+						closeText: false,
+						content:
+							message +
+							'<button aria-label="' +
+							Liferay.Language.get('close') +
+							'" type="button" class="close">&times;</button>',
+						noticeClass: 'hide',
+						timeout: 10000,
+						toggleText: false,
+						type: 'warning',
+						useAnimation: true
+					});
+
+					instance._notice.show();
 				}
 			}
 		});
