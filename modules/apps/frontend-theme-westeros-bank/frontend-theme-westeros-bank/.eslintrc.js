@@ -12,12 +12,8 @@
  * details.
  */
 
-'use strict';
-
-const gulp = require('gulp');
-
-const liferayThemeTasks = require('liferay-theme-tasks');
-
-liferayThemeTasks.registerTasks({
-	gulp
-});
+module.exports = {
+	globals: {
+		require: true
+	}
+};
