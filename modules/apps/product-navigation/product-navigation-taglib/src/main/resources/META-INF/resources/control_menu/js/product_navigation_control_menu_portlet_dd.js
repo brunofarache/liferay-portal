@@ -38,12 +38,6 @@ AUI.add(
 			NS: NAME,
 
 			prototype: {
-				initializer() {
-					var instance = this;
-
-					instance._bindUIDragDrop();
-				},
-
 				_bindUIDragDrop() {
 					var instance = this;
 
@@ -102,6 +96,12 @@ AUI.add(
 							portletNode
 						});
 					}
+				},
+
+				initializer() {
+					var instance = this;
+
+					instance._bindUIDragDrop();
 				}
 			}
 		});

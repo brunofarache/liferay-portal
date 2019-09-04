@@ -14,22 +14,10 @@
 
 AUI.add(
 	'liferay-product-navigation-control-menu-add-content-search',
-	function(A) {
+	function() {
 		var AddContentSearch = function() {};
 
 		AddContentSearch.prototype = {
-			initializer(config) {
-				var instance = this;
-
-				var contentSearch = new Liferay.SearchFilter({
-					inputNode: instance.get('inputNode')
-				});
-
-				instance._search = contentSearch;
-
-				instance._bindUISearch();
-			},
-
 			_bindUISearch() {
 				var instance = this;
 
@@ -51,6 +39,18 @@ AUI.add(
 				if (event.isKey('ENTER')) {
 					event.halt();
 				}
+			},
+
+			initializer() {
+				var instance = this;
+
+				var contentSearch = new Liferay.SearchFilter({
+					inputNode: instance.get('inputNode')
+				});
+
+				instance._search = contentSearch;
+
+				instance._bindUISearch();
 			}
 		};
 

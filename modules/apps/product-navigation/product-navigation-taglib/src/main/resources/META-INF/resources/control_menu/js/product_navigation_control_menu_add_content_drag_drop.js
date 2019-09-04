@@ -27,12 +27,6 @@ AUI.add(
 		var AddContentDragDrop = function() {};
 
 		AddContentDragDrop.prototype = {
-			initializer() {
-				var instance = this;
-
-				instance._bindUIDragDrop();
-			},
-
 			_bindUIDragDrop() {
 				var instance = this;
 
@@ -83,6 +77,12 @@ AUI.add(
 						item: appendNode
 					});
 				}
+			},
+
+			initializer() {
+				var instance = this;
+
+				instance._bindUIDragDrop();
 			}
 		};
 
@@ -102,19 +102,6 @@ AUI.add(
 			NAME: 'PortletItem',
 
 			prototype: {
-				PROXY_TITLE: PROXY_NODE_ITEM.one('.portlet-title'),
-
-				bindUI() {
-					var instance = this;
-
-					PortletItem.superclass.bindUI.apply(this, arguments);
-
-					instance.on(
-						'placeholderAlign',
-						instance._onPlaceholderAlign
-					);
-				},
-
 				_getAppendNode() {
 					var instance = this;
 
@@ -134,8 +121,6 @@ AUI.add(
 				},
 
 				_onPlaceholderAlign(event) {
-					var instance = this;
-
 					var drop = event.drop;
 					var portletItem = event.currentTarget;
 
@@ -151,8 +136,6 @@ AUI.add(
 				},
 
 				_positionNode(event) {
-					var instance = this;
-
 					var portalLayout = event.currentTarget;
 
 					var activeDrop =
@@ -200,6 +183,19 @@ AUI.add(
 					var title = node.attr('data-title');
 
 					instance.PROXY_TITLE.html(title);
+				},
+
+				PROXY_TITLE: PROXY_NODE_ITEM.one('.portlet-title'),
+
+				bindUI() {
+					var instance = this;
+
+					PortletItem.superclass.bindUI.apply(this, arguments);
+
+					instance.on(
+						'placeholderAlign',
+						instance._onPlaceholderAlign
+					);
 				}
 			}
 		});

@@ -23,11 +23,7 @@ AUI.add(
 
 		var SELECTOR_ADD_CONTENT_ITEM = '.add-content-item';
 
-		var SELECTOR_CONTENT_ITEM = '.lfr-content-item';
-
 		var STR_CLICK = 'click';
-
-		var STR_ENTER_DOWN = 'down:ENTER';
 
 		var STR_KEY = 'key';
 
@@ -39,49 +35,6 @@ AUI.add(
 			NAME: 'addapplication',
 
 			prototype: {
-				initializer(config) {
-					var instance = this;
-
-					instance._config = config;
-
-					instance._addApplicationForm = instance.byId(
-						'addApplicationForm'
-					);
-					instance._entriesPanel = instance.byId('applicationList');
-
-					var togglerSelector = instance.ns(
-						'addApplicationPanelContainer'
-					);
-
-					var togglerDelegate = Liferay.component(togglerSelector);
-
-					if (togglerDelegate) {
-						togglerDelegate.plug(Liferay.TogglerInteraction, {
-							children: '.lfr-content-item',
-							parents: '.lfr-content-category'
-						});
-					}
-
-					instance._panelSearch = new Liferay.PanelSearch({
-						categorySelector: '.panel-page-category',
-						inputNode: instance.get('inputNode'),
-						nodeContainerSelector: '.lfr-content-item',
-						nodeList: config.nodeList,
-						nodeSelector: '.drag-content-item',
-						togglerId: togglerSelector
-					});
-
-					instance._bindUI();
-				},
-
-				destructor() {
-					var instance = this;
-
-					instance._panelSearch.destroy();
-
-					new A.EventHandle(instance._eventHandles).detach();
-				},
-
 				_addApplication(event) {
 					var instance = this;
 
@@ -128,6 +81,49 @@ AUI.add(
 
 						instance._enablePortletEntry(portletId);
 					}
+				},
+
+				destructor() {
+					var instance = this;
+
+					instance._panelSearch.destroy();
+
+					new A.EventHandle(instance._eventHandles).detach();
+				},
+
+				initializer(config) {
+					var instance = this;
+
+					instance._config = config;
+
+					instance._addApplicationForm = instance.byId(
+						'addApplicationForm'
+					);
+					instance._entriesPanel = instance.byId('applicationList');
+
+					var togglerSelector = instance.ns(
+						'addApplicationPanelContainer'
+					);
+
+					var togglerDelegate = Liferay.component(togglerSelector);
+
+					if (togglerDelegate) {
+						togglerDelegate.plug(Liferay.TogglerInteraction, {
+							children: '.lfr-content-item',
+							parents: '.lfr-content-category'
+						});
+					}
+
+					instance._panelSearch = new Liferay.PanelSearch({
+						categorySelector: '.panel-page-category',
+						inputNode: instance.get('inputNode'),
+						nodeContainerSelector: '.lfr-content-item',
+						nodeList: config.nodeList,
+						nodeSelector: '.drag-content-item',
+						togglerId: togglerSelector
+					});
+
+					instance._bindUI();
 				}
 			}
 		});

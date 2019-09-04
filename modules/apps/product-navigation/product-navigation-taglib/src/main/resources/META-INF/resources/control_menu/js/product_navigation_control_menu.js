@@ -30,7 +30,7 @@ AUI.add(
 
 					var eventHandle = controlMenu.on(
 						['focus', 'mousemove', 'touchstart'],
-						function(event) {
+						function() {
 							Liferay.fire('initLayout');
 
 							eventHandle.detach();
