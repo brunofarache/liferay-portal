@@ -12,6 +12,7 @@
  * details.
  */
 
+import classNames from 'classnames';
 import moment from 'moment';
 import React, {useState, useEffect, useContext} from 'react';
 import {withRouter} from 'react-router-dom';
@@ -20,6 +21,8 @@ import ClayTable from '@clayui/table';
 import {getItem} from '../../utils/client.es';
 import {AppContext} from './AppContext.es';
 import Button from '../../components/button/Button.es';
+
+const {Body, Cell, Head, Row} = ClayTable;
 
 export default withRouter(({match: {params: {dataDefinitionId}}}) => {
 	const {app, setApp} = useContext(AppContext);
@@ -52,7 +55,7 @@ export default withRouter(({match: {params: {dataDefinitionId}}}) => {
 				</div>
 			</div>
 
-			<adiv className="autofit-row pl-4 pr-4 mb-4">
+			<div className="autofit-row pl-4 pr-4 mb-4">
 				<div className="autofit-col-expand">
 					<div className="input-group">
 						<div className="input-group-item">
@@ -74,48 +77,60 @@ export default withRouter(({match: {params: {dataDefinitionId}}}) => {
 						</div>
 					</div>
 				</div>
-			</adiv>
+			</div>
 
-			<div className="autofit-row pl-4 pr-4">
+			<div className="autofit-row pl-4 pr-4 scrollable-container">
 				<div className="autofit-col-expand">
 					<table
 						className={
 							'table table-responsive table-autofit table-hover table-heading-nowrap table-nowrap'
 						}
 					>
-						<ClayTable.Head>
-							<ClayTable.Row>
-								<ClayTable.Cell expanded={true} headingCell>
+						<Head>
+							<Row>
+								<Cell expanded={true} headingCell>
 									{Liferay.Language.get('name')}
-								</ClayTable.Cell>
-								<ClayTable.Cell headingCell>
+								</Cell>
+								<Cell headingCell>
 									{Liferay.Language.get('create-date')}
-								</ClayTable.Cell>
-								<ClayTable.Cell headingCell>
+								</Cell>
+								<Cell headingCell>
 									{Liferay.Language.get('modified-date')}
-								</ClayTable.Cell>
-								<ClayTable.Cell headingCell></ClayTable.Cell>
-							</ClayTable.Row>
-						</ClayTable.Head>
+								</Cell>
+								<Cell headingCell></Cell>
+							</Row>
+						</Head>
 
-						<ClayTable.Body>
+						<Body>
 							{formViews.map((formView, index) => {
 								return (
-									<ClayTable.Row key={index}>
-										<ClayTable.Cell align="left">
+									<Row
+										className={classNames(
+											'selectable-row',
+											{
+												'selectable-active':
+													index === selectedIndex
+											}
+										)}
+										key={index}
+										onClick={() =>
+											handleSelectedFormViewChange(index)
+										}
+									>
+										<Cell align="left">
 											{formView.name.en_US}
-										</ClayTable.Cell>
-										<ClayTable.Cell>
+										</Cell>
+										<Cell>
 											{moment(
 												formView.dateCreated
 											).fromNow()}
-										</ClayTable.Cell>
-										<ClayTable.Cell>
+										</Cell>
+										<Cell>
 											{moment(
 												formView.dateModified
 											).fromNow()}
-										</ClayTable.Cell>
-										<ClayTable.Cell align={'right'}>
+										</Cell>
+										<Cell align={'right'}>
 											<ClayRadioGroup
 												inline
 												onSelectedValueChange={
@@ -127,11 +142,11 @@ export default withRouter(({match: {params: {dataDefinitionId}}}) => {
 													value={index}
 												></ClayRadio>
 											</ClayRadioGroup>
-										</ClayTable.Cell>
-									</ClayTable.Row>
+										</Cell>
+									</Row>
 								);
 							})}
-						</ClayTable.Body>
+						</Body>
 					</table>
 				</div>
 			</div>
