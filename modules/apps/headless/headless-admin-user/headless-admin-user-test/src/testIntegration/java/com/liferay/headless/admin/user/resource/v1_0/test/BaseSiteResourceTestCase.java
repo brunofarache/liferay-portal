@@ -226,7 +226,7 @@ public abstract class BaseSiteResourceTestCase {
 				"byFriendlyUrlPath",
 				new HashMap<String, Object>() {
 					{
-						put("siteId", site.getId());
+						put("friendlyUrlPath", site.getFriendlyUrlPath());
 					}
 				},
 				graphQLFields.toArray(new GraphQLField[0])));
@@ -268,7 +268,7 @@ public abstract class BaseSiteResourceTestCase {
 				"byKey",
 				new HashMap<String, Object>() {
 					{
-						put("siteId", site.getId());
+						put("key", site.getKey());
 					}
 				},
 				graphQLFields.toArray(new GraphQLField[0])));
@@ -499,8 +499,6 @@ public abstract class BaseSiteResourceTestCase {
 	protected List<GraphQLField> getGraphQLFields() {
 		List<GraphQLField> graphQLFields = new ArrayList<>();
 
-		graphQLFields.add(new GraphQLField("id"));
-
 		for (String additionalAssertFieldName :
 				getAdditionalAssertFieldNames()) {
 
@@ -619,9 +617,9 @@ public abstract class BaseSiteResourceTestCase {
 	protected boolean equalsJSONObject(Site site, JSONObject jsonObject) {
 		for (String fieldName : getAdditionalAssertFieldNames()) {
 			if (Objects.equals("description", fieldName)) {
-				if (!Objects.equals(
+				if (!Objects.deepEquals(
 						site.getDescription(),
-						(String)jsonObject.getString("description"))) {
+						jsonObject.getString("description"))) {
 
 					return false;
 				}
@@ -630,9 +628,9 @@ public abstract class BaseSiteResourceTestCase {
 			}
 
 			if (Objects.equals("friendlyUrlPath", fieldName)) {
-				if (!Objects.equals(
+				if (!Objects.deepEquals(
 						site.getFriendlyUrlPath(),
-						(String)jsonObject.getString("friendlyUrlPath"))) {
+						jsonObject.getString("friendlyUrlPath"))) {
 
 					return false;
 				}
@@ -641,8 +639,8 @@ public abstract class BaseSiteResourceTestCase {
 			}
 
 			if (Objects.equals("id", fieldName)) {
-				if (!Objects.equals(
-						site.getId(), (Long)jsonObject.getLong("id"))) {
+				if (!Objects.deepEquals(
+						site.getId(), jsonObject.getLong("id"))) {
 
 					return false;
 				}
@@ -651,8 +649,8 @@ public abstract class BaseSiteResourceTestCase {
 			}
 
 			if (Objects.equals("key", fieldName)) {
-				if (!Objects.equals(
-						site.getKey(), (String)jsonObject.getString("key"))) {
+				if (!Objects.deepEquals(
+						site.getKey(), jsonObject.getString("key"))) {
 
 					return false;
 				}
@@ -661,9 +659,9 @@ public abstract class BaseSiteResourceTestCase {
 			}
 
 			if (Objects.equals("membershipType", fieldName)) {
-				if (!Objects.equals(
+				if (!Objects.deepEquals(
 						site.getMembershipType(),
-						(String)jsonObject.getString("membershipType"))) {
+						jsonObject.getString("membershipType"))) {
 
 					return false;
 				}
@@ -672,8 +670,8 @@ public abstract class BaseSiteResourceTestCase {
 			}
 
 			if (Objects.equals("name", fieldName)) {
-				if (!Objects.equals(
-						site.getName(), (String)jsonObject.getString("name"))) {
+				if (!Objects.deepEquals(
+						site.getName(), jsonObject.getString("name"))) {
 
 					return false;
 				}
@@ -878,6 +876,8 @@ public abstract class BaseSiteResourceTestCase {
 					sb.append(",");
 				}
 
+				sb.setLength(sb.length() - 1);
+
 				sb.append(")");
 			}
 
@@ -888,6 +888,8 @@ public abstract class BaseSiteResourceTestCase {
 					sb.append(graphQLField.toString());
 					sb.append(",");
 				}
+
+				sb.setLength(sb.length() - 1);
 
 				sb.append("}");
 			}
