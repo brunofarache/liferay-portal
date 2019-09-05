@@ -522,7 +522,7 @@ public class SegmentsExperimentLocalServiceImpl
 	private void _validateConfidenceLevel(double confidenceLevel)
 		throws PortalException {
 
-		if ((confidenceLevel > 0.99) || (confidenceLevel < 0.8)) {
+		if ((confidenceLevel < 0.8) || (confidenceLevel > 0.99)) {
 			throw new SegmentsExperimentConfidenceLevelException(
 				"Confidence level " + confidenceLevel +
 					" is not a value between 0.8 and 0.99");
