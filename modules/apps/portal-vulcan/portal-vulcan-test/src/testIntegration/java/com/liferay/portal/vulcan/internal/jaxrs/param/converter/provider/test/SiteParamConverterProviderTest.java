@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.portal.vulcan.internal.jaxrs.container.request.filter.test;
+package com.liferay.portal.vulcan.internal.jaxrs.param.converter.provider.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.portal.kernel.model.Group;
