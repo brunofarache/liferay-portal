@@ -36,7 +36,6 @@ import com.liferay.portal.vulcan.internal.jaxrs.context.provider.CompanyContextP
 import com.liferay.portal.vulcan.internal.jaxrs.context.provider.FieldsQueryParamContextProvider;
 import com.liferay.portal.vulcan.internal.jaxrs.context.provider.FilterContextProvider;
 import com.liferay.portal.vulcan.internal.jaxrs.context.provider.PaginationContextProvider;
-import com.liferay.portal.vulcan.internal.jaxrs.context.provider.SiteParamConverterProvider;
 import com.liferay.portal.vulcan.internal.jaxrs.context.provider.SortContextProvider;
 import com.liferay.portal.vulcan.internal.jaxrs.context.provider.UserContextProvider;
 import com.liferay.portal.vulcan.internal.jaxrs.context.resolver.ObjectMapperContextResolver;
@@ -57,6 +56,7 @@ import com.liferay.portal.vulcan.internal.jaxrs.message.body.JSONMessageBodyWrit
 import com.liferay.portal.vulcan.internal.jaxrs.message.body.MultipartBodyMessageBodyReader;
 import com.liferay.portal.vulcan.internal.jaxrs.message.body.XMLMessageBodyReader;
 import com.liferay.portal.vulcan.internal.jaxrs.message.body.XMLMessageBodyWriter;
+import com.liferay.portal.vulcan.internal.jaxrs.param.converter.provider.SiteParamConverterProvider;
 import com.liferay.portal.vulcan.internal.jaxrs.validation.BeanValidationInterceptor;
 import com.liferay.portal.vulcan.internal.jaxrs.writer.interceptor.NestedFieldsWriterInterceptor;
 import com.liferay.portal.vulcan.internal.param.converter.provider.DateParamConverterProvider;

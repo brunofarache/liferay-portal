@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.portal.vulcan.internal.jaxrs.context.provider;
+package com.liferay.portal.vulcan.internal.jaxrs.param.converter.provider;
 
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
