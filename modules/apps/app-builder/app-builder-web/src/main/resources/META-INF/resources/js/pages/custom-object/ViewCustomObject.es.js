@@ -58,10 +58,7 @@ export default ({
 			/>
 
 			<Route
-				path={[
-					`${path}/deployments/add`,
-					`${path}/deployments/:appId(\\d+)`
-				]}
+				path={[`${path}/apps/add`, `${path}/apps/:appId(\\d+)`]}
 				render={routeProps => (
 					<AppProvider>
 						<EditApp {...routeProps}></EditApp>

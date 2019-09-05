@@ -12,29 +12,24 @@
  * details.
  */
 
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import ClayMultiStepNav from '@clayui/multi-step-nav';
 
-export default () => {
-	const [value, setValue] = useState(0);
+export default ({currentStep, totalSteps}) => {
+	const [steps, setSteps] = useState([]);
 
-	const steps = [
-		{
-			active: value === 0,
-			complete: value > 0,
-			onClick: () => setValue(0)
-		},
-		{
-			active: value === 1,
-			complete: value > 1,
-			onClick: () => setValue(1)
-		},
-		{
-			active: value === 2,
-			complete: value > 2,
-			onClick: () => setValue(2)
+	useEffect(() => {
+		const newSteps = [];
+
+		for (let i = 1; i <= totalSteps; i++) {
+			newSteps.push({
+				active: currentStep === i,
+				complete: currentStep > i
+			});
+
+			setSteps(newSteps);
 		}
-	];
+	}, [currentStep, steps, totalSteps]);
 
 	return (
 		<div className="autofit-row">
@@ -48,6 +43,7 @@ export default () => {
 							key={i}
 						>
 							<ClayMultiStepNav.Divider />
+							
 							<ClayMultiStepNav.Indicator
 								complete={complete}
 								label={1 + i}
