@@ -5,7 +5,6 @@
 		@include hyphens();
 
 		overflow: auto;
-
 		word-wrap: break-word;
 
 		@include media-breakpoint-down(md) {
