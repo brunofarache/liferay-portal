@@ -32,26 +32,22 @@ export default ({currentStep, totalSteps}) => {
 	}, [currentStep, steps, totalSteps]);
 
 	return (
-		<div className="autofit-row">
-			<div className="col-md-12">
-				<ClayMultiStepNav>
-					{steps.map(({active, complete}, i) => (
-						<ClayMultiStepNav.Item
-							active={active}
-							complete={complete}
-							expand={i + 1 !== steps.length}
-							key={i}
-						>
-							<ClayMultiStepNav.Divider />
-							
-							<ClayMultiStepNav.Indicator
-								complete={complete}
-								label={1 + i}
-							/>
-						</ClayMultiStepNav.Item>
-					))}
-				</ClayMultiStepNav>
-			</div>
-		</div>
+		<ClayMultiStepNav>
+			{steps.map(({active, complete}, i) => (
+				<ClayMultiStepNav.Item
+					active={active}
+					complete={complete}
+					expand={i + 1 !== steps.length}
+					key={i}
+				>
+					<ClayMultiStepNav.Divider />
+
+					<ClayMultiStepNav.Indicator
+						complete={complete}
+						label={1 + i}
+					/>
+				</ClayMultiStepNav.Item>
+			))}
+		</ClayMultiStepNav>
 	);
 };

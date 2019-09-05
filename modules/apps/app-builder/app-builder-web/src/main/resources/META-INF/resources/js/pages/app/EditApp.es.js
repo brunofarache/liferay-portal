@@ -22,7 +22,6 @@ import ControlMenu from '../../components/control-menu/ControlMenu.es';
 import {UpperToolbarInput} from '../../components/upper-toolbar/UpperToolbar.es';
 import {getItem, addItem, updateItem} from '../../utils/client.es';
 
-
 export default ({
 	history,
 	match: {
@@ -70,9 +69,11 @@ export default ({
 	};
 
 	const handleNavigation = () => {
-		const nextStep = location.pathname.includes("first") ? 'second-step' : 'third-step';
-		history.push(`/custom-object/${dataDefinitionId}/apps/add/${nextStep}`)
-	}
+		const nextStep = location.pathname.includes('first')
+			? 'second-step'
+			: 'third-step';
+		history.push(`/custom-object/${dataDefinitionId}/apps/add/${nextStep}`);
+	};
 
 	const handleAppNameChange = event => {
 		const name = event.target.value;
@@ -90,7 +91,7 @@ export default ({
 			<ControlMenu backURL="../" title={title} />
 
 			<div className="container-fluid container-fluid-max-lg mt-4">
-				<div className="card card-root">
+				<div className="card card-root shadowless-card">
 					<div className="card-header align-items-center d-flex justify-content-between bg-transparent">
 						<UpperToolbarInput
 							onInput={handleAppNameChange}
@@ -98,94 +99,105 @@ export default ({
 							value={app.name.en_US}
 						/>
 					</div>
+					<div className="card-body pt-0 pr-0 pl-0">
+						<h4 className="card-divider mb-4"></h4>
 
-					<h4 className="card-divider mb-4"></h4>
-
-					<Switch>
-						<Route
-							component={() => (
-								<CreationMultiStep
-									currentStep={1}
-									totalSteps={3}
-								/>
-							)}
-							path={[`${path}/first-step`]}
-						/>
-						<Route
-							component={() => (
-								<CreationMultiStep
-									currentStep={2}
-									totalSteps={3}
-								/>
-							)}
-							path={[`${path}/second-step`]}
-						/>
-						<Route
-							component={() => (
-								<CreationMultiStep
-									currentStep={3}
-									totalSteps={3}
-								/>
-							)}
-							path={[`${path}/third-step`]}
-						/>
-					</Switch>
-
-					<Switch>
-						<Route
-							component={FormViewSelection}
-							path={[`${path}/first-step`]}
-						/>
-					</Switch>
-
-					<h4 className="card-divider"></h4>
-
-					<div className="card-footer bg-transparent">
 						<div className="autofit-row">
-							<div className="col-md-4">
-								<Button
-									displayType="secondary"
-									onClick={handleBack}
-								>
-									{Liferay.Language.get('cancel')}
-								</Button>
-							</div>
-							<div className="col-md-4 offset-md-4 text-right">
+							<div className="col-md-12">
 								<Switch>
 									<Route
 										component={() => (
-											<Button
-												displayType="primary"
-												onClick={handleNavigation}
-											>
-												{Liferay.Language.get('next')}
-											</Button>
+											<CreationMultiStep
+												currentStep={1}
+												totalSteps={3}
+											/>
 										)}
 										path={[`${path}/first-step`]}
 									/>
 									<Route
 										component={() => (
-											<Button
-												displayType="primary"
-												onClick={handleNavigation}
-											>
-												{Liferay.Language.get('next')}
-											</Button>
+											<CreationMultiStep
+												currentStep={2}
+												totalSteps={3}
+											/>
 										)}
 										path={[`${path}/second-step`]}
 									/>
 									<Route
 										component={() => (
-											<Button
-												displayType="primary"
-												onClick={handleSubmit}
-											>
-												{Liferay.Language.get('save')}
-											</Button>
+											<CreationMultiStep
+												currentStep={3}
+												totalSteps={3}
+											/>
 										)}
 										path={[`${path}/third-step`]}
 									/>
 								</Switch>
+							</div>
+						</div>
+
+						<Switch>
+							<Route
+								component={FormViewSelection}
+								path={[`${path}/first-step`]}
+							/>
+						</Switch>
+
+						<h4 className="card-divider"></h4>
+
+						<div className="card-footer bg-transparent">
+							<div className="autofit-row">
+								<div className="col-md-4">
+									<Button
+										displayType="secondary"
+										onClick={handleBack}
+									>
+										{Liferay.Language.get('cancel')}
+									</Button>
+								</div>
+								<div className="col-md-4 offset-md-4 text-right">
+									<Switch>
+										<Route
+											component={() => (
+												<Button
+													displayType="primary"
+													onClick={handleNavigation}
+												>
+													{Liferay.Language.get(
+														'next'
+													)}
+												</Button>
+											)}
+											path={[`${path}/first-step`]}
+										/>
+										<Route
+											component={() => (
+												<Button
+													displayType="primary"
+													onClick={handleNavigation}
+												>
+													{Liferay.Language.get(
+														'next'
+													)}
+												</Button>
+											)}
+											path={[`${path}/second-step`]}
+										/>
+										<Route
+											component={() => (
+												<Button
+													displayType="primary"
+													onClick={handleSubmit}
+												>
+													{Liferay.Language.get(
+														'save'
+													)}
+												</Button>
+											)}
+											path={[`${path}/third-step`]}
+										/>
+									</Switch>
+								</div>
 							</div>
 						</div>
 					</div>
