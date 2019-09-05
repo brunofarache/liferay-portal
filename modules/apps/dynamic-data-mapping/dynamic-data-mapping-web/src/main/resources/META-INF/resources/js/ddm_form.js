@@ -3689,7 +3689,7 @@ AUI.add(
 						if (value !== '') {
 							value = JSON.parse(value);
 						} else {
-							value = [""];
+							value = [''];
 						}
 					}
 
