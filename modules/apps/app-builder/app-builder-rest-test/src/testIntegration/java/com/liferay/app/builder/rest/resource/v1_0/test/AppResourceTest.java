@@ -15,6 +15,7 @@
 package com.liferay.app.builder.rest.resource.v1_0.test;
 
 import com.liferay.app.builder.constants.AppBuilderAppConstants;
+import com.liferay.app.builder.rest.client.constant.v1_0.DeploymentAction;
 import com.liferay.app.builder.rest.client.dto.v1_0.App;
 import com.liferay.app.builder.rest.client.dto.v1_0.AppDeployment;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
@@ -38,6 +39,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Locale;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -85,13 +87,39 @@ public class AppResourceTest extends BaseAppResourceTestCase {
 	}
 
 	@Override
+	public void testPutAppDeployment() throws Exception {
+		App postApp = testPutApp_addApp();
+
+		appResource.putAppDeployment(postApp.getId(), DeploymentAction.DEPLOY);
+
+		App getApp = appResource.getApp(postApp.getId());
+
+		Assert.assertEquals(
+			getApp.getStatus(),
+			AppBuilderAppConstants.Status.DEPLOYED.getLabel());
+	}
+
+	@Override
+	protected String[] getAdditionalAssertFieldNames() {
+		return new String[] {
+			"dataDefinitionId", "dataLayoutId", "dataListViewId"
+		};
+	}
+
+	@Override
 	protected App randomApp() {
 		return new App() {
 			{
 				appDeployments = new AppDeployment[] {
 					new AppDeployment() {
 						{
-							settings = new HashMap<>();
+							settings = new HashMap<String, Object>() {
+								{
+									put(
+										"scope",
+										new String[] {"control_panel"});
+								}
+							};
 							type = "productMenu";
 						}
 					},
@@ -112,7 +140,7 @@ public class AppResourceTest extends BaseAppResourceTestCase {
 				dataLayoutId = _ddmStructureLayout.getStructureLayoutId();
 				dataListViewId = _deDataListView.getDeDataListViewId();
 				siteId = _ddmStructure.getGroupId();
-				status = AppBuilderAppConstants.Status.DEPLOYED.getLabel();
+				status = AppBuilderAppConstants.Status.UNDEPLOYED.getLabel();
 				userId = testGroup.getCreatorUserId();
 			}
 		};
