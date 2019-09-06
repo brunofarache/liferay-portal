@@ -55,7 +55,6 @@ public class BatchEngineTaskItemWriterRegistry {
 	public <T> BatchEngineTaskItemWriter<T> get(
 		String className, String version) {
 
-		@SuppressWarnings("unchecked")
 		BatchEngineTaskItemWriter<T> batchEngineTaskItemWriter =
 			(BatchEngineTaskItemWriter<T>)_serviceTrackerMap.getService(
 				StringBundler.concat(className, StringPool.POUND, version));
@@ -63,14 +62,13 @@ public class BatchEngineTaskItemWriterRegistry {
 		if (batchEngineTaskItemWriter == null) {
 			throw new IllegalStateException(
 				StringBundler.concat(
-					"Unknown class name : ", className, " and version : ",
+					"Unknown class name ", className, " and version ",
 					version));
 		}
 
 		return batchEngineTaskItemWriter;
 	}
 
-	@SuppressWarnings("unchecked")
 	private ServiceTrackerMap<String, BatchEngineTaskItemWriter>
 		_serviceTrackerMap;
 
