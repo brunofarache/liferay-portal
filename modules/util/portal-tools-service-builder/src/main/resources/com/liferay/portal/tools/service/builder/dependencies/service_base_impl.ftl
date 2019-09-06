@@ -150,7 +150,7 @@ import org.osgi.service.component.annotations.Reference;
 
 	{
 
-		/*
+		/**
 		 * NOTE FOR DEVELOPERS:
 		 *
 		 * Never modify or reference this class directly. Use <code>${apiPackagePath}.service.${entity.name}LocalService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>${apiPackagePath}.service.${entity.name}LocalServiceUtil</code>.
@@ -182,7 +182,7 @@ import org.osgi.service.component.annotations.Reference;
 
 		IdentifiableOSGiService {
 
-		/*
+		/**
 		 * NOTE FOR DEVELOPERS:
 		 *
 		 * Never modify or reference this class directly. Use <code>${apiPackagePath}.service.${entity.name}Service</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>${apiPackagePath}.service.${entity.name}ServiceUtil</code>.
