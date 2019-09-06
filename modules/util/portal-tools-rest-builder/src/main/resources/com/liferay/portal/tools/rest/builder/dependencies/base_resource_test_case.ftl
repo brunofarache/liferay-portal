@@ -1169,11 +1169,13 @@ public abstract class Base${schemaName}ResourceTestCase {
 									<#list javaMethodSignature.javaMethodParameters as javaMethodParameter>
 										<#if freeMarkerTool.isPathParameter(javaMethodParameter, javaMethodSignature.operation)>
 											put("${javaMethodParameter.parameterName}", ${schemaVarName}.
+
 											<#if stringUtil.equals(javaMethodParameter.parameterName, schemaVarName + "Id")>
 												getId
 											<#else>
 												get${javaMethodParameter.parameterName?cap_first}
 											</#if>
+
 											());
 										</#if>
 									</#list>
