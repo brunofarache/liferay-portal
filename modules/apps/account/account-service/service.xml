@@ -50,12 +50,16 @@
 
 		<!-- PK fields -->
 
-		<column name="accountEntryId" primary="true" type="long" />
-		<column name="userId" primary="true" type="long" />
+		<column name="accountEntryUserRelId" primary="true" type="long" />
 
 		<!-- Audit fields -->
 
 		<column name="companyId" type="long" />
+		<column name="userId" primary="true" type="long" />
+
+		<!-- Other fields -->
+
+		<column name="accountEntryId" primary="true" type="long" />
 	</entity>
 	<exceptions>
 		<exception>AccountEntryName</exception>
