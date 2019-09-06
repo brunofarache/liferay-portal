@@ -29,7 +29,7 @@ export default ({currentStep, totalSteps}) => {
 
 			setSteps(newSteps);
 		}
-	}, [currentStep, steps, totalSteps]);
+	}, [currentStep, totalSteps]);
 
 	return (
 		<ClayMultiStepNav>
