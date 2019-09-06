@@ -803,7 +803,7 @@ public class LayoutPageTemplateEntryLocalServiceImpl
 
 		if (infoDisplayContributor == null) {
 			throw new NoSuchClassNameException(
-				"No className found with classNameId: " + classNameId);
+				"Class name does not exist for class name ID " + classNameId);
 		}
 
 		List<ClassType> classTypes = infoDisplayContributor.getClassTypes(
@@ -815,9 +815,7 @@ public class LayoutPageTemplateEntryLocalServiceImpl
 				classType -> classTypeId == classType.getClassTypeId())) {
 
 			throw new NoSuchClassTypeException(
-				StringBundler.concat(
-					"No classType with id: ", classTypeId,
-					" found related to classNameId: ", classNameId));
+				"Class type does not exist for class name ID " + classNameId);
 		}
 	}
 
