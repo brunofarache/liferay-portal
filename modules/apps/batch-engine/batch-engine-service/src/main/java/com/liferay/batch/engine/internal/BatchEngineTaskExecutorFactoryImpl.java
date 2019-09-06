@@ -29,10 +29,10 @@ public class BatchEngineTaskExecutorFactoryImpl
 	implements BatchEngineTaskExecutorFactory {
 
 	@Override
-	public BatchEngineTaskExecutor create(Class<?> domainClass) {
+	public BatchEngineTaskExecutor create(Class<?> itemClass) {
 		return new BatchEngineTaskExecutorImpl<>(
 			_batchEngineTaskItemWriterRegistry, _batchEngineTaskLocalService,
-			domainClass);
+			itemClass);
 	}
 
 	@Reference

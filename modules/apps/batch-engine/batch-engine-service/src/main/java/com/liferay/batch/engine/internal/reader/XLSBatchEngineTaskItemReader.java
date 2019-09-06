@@ -40,10 +40,10 @@ public class XLSBatchEngineTaskItemReader<T>
 	implements BatchEngineTaskItemReader<T> {
 
 	public XLSBatchEngineTaskItemReader(
-			Class<? extends T> domainClass, InputStream inputStream)
+			Class<? extends T> itemClass, InputStream inputStream)
 		throws IOException {
 
-		_domainClass = domainClass;
+		_itemClass = itemClass;
 		_inputStream = inputStream;
 
 		_workbook = new XSSFWorkbook(_inputStream);
@@ -116,13 +116,13 @@ public class XLSBatchEngineTaskItemReader<T>
 			}
 		}
 
-		return _objectMapper.convertValue(columnNameValueMap, _domainClass);
+		return _objectMapper.convertValue(columnNameValueMap, _itemClass);
 	}
 
 	private static final ObjectMapper _objectMapper = new ObjectMapper();
 
 	private final String[] _columnNames;
-	private final Class<? extends T> _domainClass;
+	private final Class<? extends T> _itemClass;
 	private final InputStream _inputStream;
 	private final Iterator<Row> _rowIterator;
 	private final Workbook _workbook;

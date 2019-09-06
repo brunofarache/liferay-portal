@@ -33,10 +33,10 @@ public class FlatFileBatchEngineTaskItemReader<T>
 	implements BatchEngineTaskItemReader<T> {
 
 	public FlatFileBatchEngineTaskItemReader(
-			Class<? extends T> domainClass, InputStream inputStream)
+			Class<? extends T> itemClass, InputStream inputStream)
 		throws IOException {
 
-		_domainClass = domainClass;
+		_itemClass = itemClass;
 		_inputStream = inputStream;
 
 		_reader = new UnsyncBufferedReader(new InputStreamReader(_inputStream));
@@ -81,13 +81,13 @@ public class FlatFileBatchEngineTaskItemReader<T>
 			}
 		}
 
-		return _objectMapper.convertValue(columnNameValueMap, _domainClass);
+		return _objectMapper.convertValue(columnNameValueMap, _itemClass);
 	}
 
 	private static final ObjectMapper _objectMapper = new ObjectMapper();
 
 	private final String[] _columnNames;
-	private final Class<? extends T> _domainClass;
+	private final Class<? extends T> _itemClass;
 	private final InputStream _inputStream;
 	private final UnsyncBufferedReader _reader;
 

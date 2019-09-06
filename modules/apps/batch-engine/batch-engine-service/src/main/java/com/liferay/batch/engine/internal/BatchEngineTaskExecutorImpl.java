@@ -43,11 +43,11 @@ public class BatchEngineTaskExecutorImpl<T> implements BatchEngineTaskExecutor {
 	public BatchEngineTaskExecutorImpl(
 		BatchEngineTaskItemWriterRegistry batchEngineTaskItemWriterRegistry,
 		BatchEngineTaskLocalService batchEngineTaskLocalService,
-		Class<T> domainClass) {
+		Class<T> itemClass) {
 
 		_batchEngineTaskItemWriterRegistry = batchEngineTaskItemWriterRegistry;
 		_batchEngineTaskLocalService = batchEngineTaskLocalService;
-		_domainClass = domainClass;
+		_itemClass = itemClass;
 	}
 
 	@Override
@@ -106,7 +106,7 @@ public class BatchEngineTaskExecutorImpl<T> implements BatchEngineTaskExecutor {
 
 		try (BatchEngineTaskItemReader<T> batchEngineTaskItemReader =
 				BatchEngineTaskItemReaderFactory.create(
-					_domainClass,
+					_itemClass,
 					BatchEngineTaskContentType.valueOf(
 						batchEngineTask.getContentType()),
 					content.getBinaryStream())) {
@@ -148,6 +148,6 @@ public class BatchEngineTaskExecutorImpl<T> implements BatchEngineTaskExecutor {
 	private final BatchEngineTaskItemWriterRegistry
 		_batchEngineTaskItemWriterRegistry;
 	private final BatchEngineTaskLocalService _batchEngineTaskLocalService;
-	private final Class<T> _domainClass;
+	private final Class<T> _itemClass;
 
 }

@@ -19,6 +19,6 @@ package com.liferay.batch.engine;
  */
 public interface BatchEngineTaskExecutorFactory {
 
-	public BatchEngineTaskExecutor create(Class<?> domainClass);
+	public BatchEngineTaskExecutor create(Class<?> itemClass);
 
 }
