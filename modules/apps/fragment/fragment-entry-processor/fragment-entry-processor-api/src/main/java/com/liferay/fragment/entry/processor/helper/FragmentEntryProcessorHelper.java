@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.fragment.entry.processor.util;
+package com.liferay.fragment.entry.processor.helper;
 
 import aQute.bnd.annotation.ProviderType;
 
