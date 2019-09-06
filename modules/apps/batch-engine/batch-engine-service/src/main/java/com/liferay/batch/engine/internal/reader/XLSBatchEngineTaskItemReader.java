@@ -96,8 +96,7 @@ public class XLSBatchEngineTaskItemReader<T>
 					columnValues.put(columnName, cell.getDateCellValue());
 				}
 				else {
-					columnValues.put(
-						columnName, cell.getNumericCellValue());
+					columnValues.put(columnName, cell.getNumericCellValue());
 				}
 			}
 			else {
@@ -110,8 +109,7 @@ public class XLSBatchEngineTaskItemReader<T>
 				}
 				else {
 					ColumnUtil.handleLocalizationColumn(
-						columnName, columnValues, lastDelimiterIndex,
-						value);
+						columnName, columnValues, lastDelimiterIndex, value);
 				}
 			}
 		}
