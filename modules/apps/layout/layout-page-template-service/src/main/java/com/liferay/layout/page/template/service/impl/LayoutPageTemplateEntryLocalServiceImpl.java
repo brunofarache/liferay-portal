@@ -25,7 +25,6 @@ import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeCon
 import com.liferay.layout.page.template.exception.LayoutPageTemplateEntryNameException;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.base.LayoutPageTemplateEntryLocalServiceBaseImpl;
-import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.NoSuchClassNameException;
