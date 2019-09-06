@@ -408,7 +408,7 @@ public class FriendlyURLServlet extends HttpServlet {
 				if (_log.isDebugEnabled()) {
 					_log.debug(
 						StringBundler.concat(
-							"Location Moved Permanently from ",
+							"Location moved permanently from ",
 							httpServletRequest.getRequestURI(),
 							" to ",
 							redirect.getPath()));
