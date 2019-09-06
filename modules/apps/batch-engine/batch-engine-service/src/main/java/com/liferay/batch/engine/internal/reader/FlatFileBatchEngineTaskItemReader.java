@@ -81,10 +81,10 @@ public class FlatFileBatchEngineTaskItemReader<T>
 			}
 		}
 
-		return _OBJECT_MAPPER.convertValue(columnNameValueMap, _domainClass);
+		return _objectMapper.convertValue(columnNameValueMap, _domainClass);
 	}
 
-	private static final ObjectMapper _OBJECT_MAPPER = new ObjectMapper();
+	private static final ObjectMapper _objectMapper = new ObjectMapper();
 
 	private final String[] _columnNames;
 	private final Class<? extends T> _domainClass;

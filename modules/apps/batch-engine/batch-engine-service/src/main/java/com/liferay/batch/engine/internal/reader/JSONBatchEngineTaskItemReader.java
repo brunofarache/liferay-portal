@@ -49,7 +49,7 @@ public class JSONBatchEngineTaskItemReader<T>
 	@Override
 	public T read() throws IOException {
 		if (_jsonParser.nextToken() == JsonToken.START_OBJECT) {
-			return _OBJECT_MAPPER.readValue(_jsonParser, _domainClass);
+			return _objectMapper.readValue(_jsonParser, _domainClass);
 		}
 
 		return null;
@@ -57,7 +57,7 @@ public class JSONBatchEngineTaskItemReader<T>
 
 	private static final JsonFactory _JSON_FACTORY = new JsonFactory();
 
-	private static final ObjectMapper _OBJECT_MAPPER = new ObjectMapper();
+	private static final ObjectMapper _objectMapper = new ObjectMapper();
 
 	private final Class<? extends T> _domainClass;
 	private final InputStream _inputStream;

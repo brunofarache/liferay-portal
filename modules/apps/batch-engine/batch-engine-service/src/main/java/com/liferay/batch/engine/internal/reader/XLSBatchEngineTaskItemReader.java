@@ -116,10 +116,10 @@ public class XLSBatchEngineTaskItemReader<T>
 			}
 		}
 
-		return _OBJECT_MAPPER.convertValue(columnNameValueMap, _itemType);
+		return _objectMapper.convertValue(columnNameValueMap, _itemType);
 	}
 
-	private static final ObjectMapper _OBJECT_MAPPER = new ObjectMapper();
+	private static final ObjectMapper _objectMapper = new ObjectMapper();
 
 	private final String[] _columnNames;
 	private final InputStream _inputStream;
