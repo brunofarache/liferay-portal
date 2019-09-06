@@ -17,12 +17,12 @@ package com.liferay.batch.engine;
 /**
  * @author Shuyang Zhou
  */
-public interface BatchEngineTaskClassRegistry {
+public interface BatchEngineTaskItemClassRegistry {
 
-	public Class<?> getClass(String className);
+	public Class<?> get(String itemClassName);
 
-	public void register(Class<?>... classes);
+	public void register(Class<?>... itemClasses);
 
-	public void unregister(Class<?>... classes);
+	public void unregister(Class<?>... itemClasses);
 
 }

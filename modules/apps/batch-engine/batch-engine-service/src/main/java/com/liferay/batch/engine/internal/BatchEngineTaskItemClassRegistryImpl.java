@@ -14,7 +14,7 @@
 
 package com.liferay.batch.engine.internal;
 
-import com.liferay.batch.engine.BatchEngineTaskClassRegistry;
+import com.liferay.batch.engine.BatchEngineTaskItemClassRegistry;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -27,40 +27,42 @@ import org.osgi.service.component.annotations.Component;
 /**
  * @author Shuyang Zhou
  */
-@Component(service = BatchEngineTaskClassRegistry.class)
-public class BatchEngineTaskClassRegistryImpl
-	implements BatchEngineTaskClassRegistry {
+@Component(service = BatchEngineTaskItemClassRegistry.class)
+public class BatchEngineTaskItemClassRegistryImpl
+	implements BatchEngineTaskItemClassRegistry {
 
 	@Override
-	public Class<?> getClass(String className) {
-		return _classMap.get(className);
+	public Class<?> get(String itemClassName) {
+		return _itemClasses.get(itemClassName);
 	}
 
 	@Override
-	public void register(Class<?>... classes) {
-		for (Class<?> clazz : classes) {
-			Class<?> oldClass = _classMap.put(clazz.getName(), clazz);
+	public void register(Class<?>... itemClasses) {
+		for (Class<?> itemClass : itemClasses) {
+			Class<?> oldItemClass = _itemClasses.put(
+				itemClass.getName(), itemClass);
 
-			if ((oldClass != null) && _log.isWarnEnabled()) {
+			if ((oldItemClass != null) && _log.isWarnEnabled()) {
 				_log.warn(
 					StringBundler.concat(
-						oldClass, " from ", oldClass.getClassLoader(),
-						" is overrided by ", clazz, "from ",
-						clazz.getClassLoader()));
+						oldItemClass, " from ", oldItemClass.getClassLoader(),
+						" is replaced with ", itemClass, "from ",
+						itemClass.getClassLoader()));
 			}
 		}
 	}
 
 	@Override
-	public void unregister(Class<?>... classes) {
-		for (Class<?> clazz : classes) {
-			_classMap.remove(clazz.getName(), clazz);
+	public void unregister(Class<?>... itemClasses) {
+		for (Class<?> itemClass : itemClasses) {
+			_itemClasses.remove(itemClass.getName(), itemClass);
 		}
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
-		BatchEngineTaskClassRegistryImpl.class);
+		BatchEngineTaskItemClassRegistryImpl.class);
 
-	private final Map<String, Class<?>> _classMap = new ConcurrentHashMap<>();
+	private final Map<String, Class<?>> _itemClasses =
+		new ConcurrentHashMap<>();
 
 }
