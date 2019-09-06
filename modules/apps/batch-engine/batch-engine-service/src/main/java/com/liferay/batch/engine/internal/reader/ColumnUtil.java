@@ -26,7 +26,7 @@ public class ColumnUtil {
 		String columnName, Map<String, Object> columnNameValueMap,
 		int lastDelimiterIndex, String value) {
 
-		String language = columnName.substring(lastDelimiterIndex + 1);
+		String languageId = columnName.substring(lastDelimiterIndex + 1);
 
 		columnName = columnName.substring(0, lastDelimiterIndex);
 
@@ -39,7 +39,7 @@ public class ColumnUtil {
 			columnNameValueMap.put(columnName, localizationMap);
 		}
 
-		localizationMap.put(language, value);
+		localizationMap.put(languageId, value);
 	}
 
 }
