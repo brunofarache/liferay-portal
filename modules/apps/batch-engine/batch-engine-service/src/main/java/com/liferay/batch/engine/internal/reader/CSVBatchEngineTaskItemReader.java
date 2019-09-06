@@ -29,10 +29,10 @@ import java.util.Map;
 /**
  * @author Ivica Cardic
  */
-public class FlatFileBatchEngineTaskItemReader<T>
+public class CSVBatchEngineTaskItemReader<T>
 	implements BatchEngineTaskItemReader<T> {
 
-	public FlatFileBatchEngineTaskItemReader(
+	public CSVBatchEngineTaskItemReader(
 			InputStream inputStream, Class<? extends T> itemClass)
 		throws IOException {
 

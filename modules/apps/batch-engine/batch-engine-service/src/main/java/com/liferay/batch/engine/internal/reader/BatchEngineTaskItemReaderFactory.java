@@ -30,8 +30,7 @@ public class BatchEngineTaskItemReaderFactory {
 		throws IOException {
 
 		if (batchEngineTaskContentType == BatchEngineTaskContentType.CSV) {
-			return new FlatFileBatchEngineTaskItemReader<>(
-				inputStream, itemClass);
+			return new CSVBatchEngineTaskItemReader<>(inputStream, itemClass);
 		}
 
 		if (batchEngineTaskContentType == BatchEngineTaskContentType.JSON) {
