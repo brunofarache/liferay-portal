@@ -94,12 +94,7 @@ public class VulcanFeature implements Feature {
 
 	@Override
 	public boolean configure(FeatureContext featureContext) {
-		try {
-			_registerConfiguration(featureContext);
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		_registerConfiguration(featureContext);
 
 		featureContext.register(BeanValidationInterceptor.class);
 		featureContext.register(ExceptionMapper.class);
@@ -148,40 +143,43 @@ public class VulcanFeature implements Feature {
 		return false;
 	}
 
-	private void _registerConfiguration(FeatureContext featureContext)
-		throws Exception {
+	private void _registerConfiguration(FeatureContext featureContext) {
+		try {
+			Configuration configuration =
+				_configurationAdmin.createFactoryConfiguration(
+					VulcanConfiguration.class.getName(), StringPool.QUESTION);
 
-		Configuration configuration =
-			_configurationAdmin.createFactoryConfiguration(
-				VulcanConfiguration.class.getName(), StringPool.QUESTION);
+			javax.ws.rs.core.Configuration jaxRSConfiguration =
+				featureContext.getConfiguration();
 
-		javax.ws.rs.core.Configuration jaxRSConfiguration =
-			featureContext.getConfiguration();
+			if (jaxRSConfiguration != null) {
+				Map property = (Map)jaxRSConfiguration.getProperty(
+					"osgi.jaxrs.application.serviceProperties");
 
-		if (jaxRSConfiguration != null) {
-			Map property = (Map)jaxRSConfiguration.getProperty(
-				"osgi.jaxrs.application.serviceProperties");
+				String name = (String)property.get(
+					"osgi.jaxrs.application.base");
 
-			String name = (String)property.get(
-				"osgi.jaxrs.application.base");
+				String filterString = String.format(
+					"(&(service.factoryPid=%s)(name=%s))",
+					VulcanConfiguration.class.getName(), name);
 
-			String filterString = String.format(
-				"(&(service.factoryPid=%s)(name=%s))",
-				VulcanConfiguration.class.getName(), name);
+				Configuration[] configurations =
+					_configurationAdmin.listConfigurations(filterString);
 
-			Configuration[] configurations =
-				_configurationAdmin.listConfigurations(filterString);
+				if (ArrayUtil.isEmpty(configurations)) {
+					Dictionary<String, Object> dictionary =
+						new HashMapDictionary<>();
 
-			if (ArrayUtil.isEmpty(configurations)) {
-				Dictionary<String, Object> dictionary =
-					new HashMapDictionary<>();
+					dictionary.put("path", name);
+					dictionary.put("graphQLEnabled", true);
+					dictionary.put("restEnabled", true);
 
-				dictionary.put("path", name);
-				dictionary.put("graphQLEnabled", true);
-				dictionary.put("restEnabled", true);
-
-				configuration.update(dictionary);
+					configuration.update(dictionary);
+				}
 			}
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 
