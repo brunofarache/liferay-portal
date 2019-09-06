@@ -947,9 +947,9 @@ public class GraphQLServletExtender {
 
 	private boolean _isGraphQLEnabled(String path) throws Exception {
 		String filterString = String.format(
-			"(&(path=%s)(service.factoryPid=%s))",
-			path.substring(0, path.indexOf("-graphql")),
-			VulcanConfiguration.class.getName());
+			"(&(service.factoryPid=%s)(path=%s))",
+			VulcanConfiguration.class.getName(),
+			path.substring(0, path.indexOf("-graphql")));
 
 		Configuration[] configurations = _configurationAdmin.listConfigurations(
 			filterString);
