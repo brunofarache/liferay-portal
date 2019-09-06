@@ -13,8 +13,8 @@
  */
 
 import React, {useContext} from 'react';
-import {UpperToolbarInput} from '../../components/upper-toolbar/UpperToolbar.es';
 import {AppContext} from './AppContext.es';
+import {UpperToolbarInput} from '../../components/upper-toolbar/UpperToolbar.es';
 
 export default () => {
 	const {app, setApp} = useContext(AppContext);

@@ -14,8 +14,8 @@
 
 import React from 'react';
 import CreationMultiStep from './CreationMultiStep.es';
-import EditAppFooter from './EditAppFooter.es';
 import EditAppHeader from './EditAppHeader.es';
+import EditAppFooter from './EditAppFooter.es';
 
 export default ({
 	match: {
@@ -34,7 +34,7 @@ export default ({
 						<div className="autofit-row">
 							<div className="col-md-12">
 								<CreationMultiStep
-									currentStep={2}
+									currentStep={3}
 									totalSteps={3}
 								/>
 							</div>
@@ -43,7 +43,7 @@ export default ({
 						<h4 className="card-divider"></h4>
 
 						<EditAppFooter
-							currentStep={2}
+							currentStep={3}
 							dataDefinitionId={dataDefinitionId}
 						/>
 					</div>

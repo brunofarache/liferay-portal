@@ -16,24 +16,24 @@ import classNames from 'classnames';
 import moment from 'moment';
 import React, {useContext, useEffect, useState} from 'react';
 import {ClayRadio, ClayRadioGroup} from '@clayui/form';
+import ClayTable from '@clayui/table';
 import {AppContext} from './AppContext.es';
 import CreationMultiStep from './CreationMultiStep.es';
-import ClayTable from '@clayui/table';
-import {getItem} from '../../utils/client.es';
-import Button from '../../components/button/Button.es';
+import EditAppFooter from './EditAppFooter.es';
 import EditAppHeader from './EditAppHeader.es';
+import Button from '../../components/button/Button.es';
+import {getItem} from '../../utils/client.es';
 
 const {Body, Cell, Head, Row} = ClayTable;
 
 export default ({
-	history,
 	match: {
 		params: {dataDefinitionId}
 	}
 }) => {
 	const {app, setApp} = useContext(AppContext);
-    const [formViews, setFormViews] = useState([]);
-    const [selectedFormViewId, setSelectedFormViewId] = useState({});
+	const [formViews, setFormViews] = useState([]);
+	const [selectedFormViewId, setSelectedFormViewId] = useState({});
 
 	useEffect(() => {
 		const getFormViews = getItem(
@@ -41,25 +41,17 @@ export default ({
 		);
 
 		getFormViews.then(response => {
-            setFormViews(response.items);
-            setSelectedFormViewId(app.dataLayoutId);
+			setFormViews(response.items);
+			setSelectedFormViewId(app.dataLayoutId);
 		});
 	}, [dataDefinitionId, app.dataLayoutId]);
 
 	const handleSelectedFormViewChange = newFormView => {
-        setSelectedFormViewId(newFormView.id);
-        setApp({
-            ...app,
-            dataLayoutId: newFormView.id
-        });
-	};
-
-	const handleCancel = () => {
-		history.push(`/custom-object/${dataDefinitionId}/apps`);
-	};
-
-	const handleForwardNavigation = () => {
-		history.push(`/custom-object/${dataDefinitionId}/apps/add/table-view`);
+		setSelectedFormViewId(newFormView.id);
+		setApp({
+			...app,
+			dataLayoutId: newFormView.id
+		});
 	};
 
 	return (
@@ -68,9 +60,9 @@ export default ({
 				<div className="card card-root shadowless-card">
 					<EditAppHeader />
 
-					<div className="card-body pt-0 pr-0 pl-0">
-						<h4 className="card-divider mb-4"></h4>
+					<h4 className="card-divider mb-4"></h4>
 
+					<div className="card-body pt-0 pr-0 pl-0">
 						<div className="autofit-row">
 							<div className="col-md-12">
 								<CreationMultiStep
@@ -150,8 +142,8 @@ export default ({
 														'selectable-row',
 														{
 															'selectable-active':
-                                                                formView.id ===
-                                                                selectedFormViewId
+																formView.id ===
+																selectedFormViewId
 														}
 													)}
 													key={index}
@@ -181,11 +173,13 @@ export default ({
 																handleSelectedFormViewChange
 															}
 															selectedValue={
-                                                                selectedFormViewId
+																selectedFormViewId
 															}
 														>
 															<ClayRadio
-																value={formView.id}
+																value={
+																	formView.id
+																}
 															></ClayRadio>
 														</ClayRadioGroup>
 													</Cell>
@@ -199,26 +193,10 @@ export default ({
 
 						<h4 className="card-divider"></h4>
 
-						<div className="card-footer bg-transparent">
-							<div className="autofit-row">
-								<div className="col-md-4">
-									<Button
-										displayType="secondary"
-										onClick={handleCancel}
-									>
-										{Liferay.Language.get('cancel')}
-									</Button>
-								</div>
-								<div className="col-md-4 offset-md-4 text-right">
-									<Button
-										displayType="primary"
-										onClick={handleForwardNavigation}
-									>
-										{Liferay.Language.get('next')}
-									</Button>
-								</div>
-							</div>
-						</div>
+						<EditAppFooter
+							currentStep={1}
+							dataDefinitionId={dataDefinitionId}
+						/>
 					</div>
 				</div>
 			</div>

@@ -12,12 +12,12 @@
  * details.
  */
 
-import ClayLabel from '@clayui/label';
 import moment from 'moment';
 import React from 'react';
+import ClayLabel from '@clayui/label';
+import Button from '../../components/button/Button.es';
 import ListView from '../../components/list-view/ListView.es';
 import {confirmDelete} from '../../utils/client.es';
-import Button from '../../components/button/Button.es';
 
 const DEPLOYMENT_STATUS = {
 	deployed: Liferay.Language.get('deployed'),
