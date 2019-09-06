@@ -76,9 +76,9 @@ public interface BatchEngineTaskLocalService
 	public BatchEngineTask addBatchEngineTask(BatchEngineTask batchEngineTask);
 
 	public BatchEngineTask addBatchEngineTask(
-		String className, String version, byte[] content,
-		BatchEngineTaskContentType batchEngineTaskContentType,
-		BatchEngineTaskOperation batchEngineTaskOperation, long batchSize);
+		long companyId, BatchEngineTaskContentType batchEngineTaskContentType,
+		BatchEngineTaskOperation batchEngineTaskOperation, long batchSize,
+		String className, byte[] content, String version);
 
 	/**
 	 * Creates a new batch engine task with the primary key. Does not add the batch engine task to the database.
