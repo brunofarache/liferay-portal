@@ -195,7 +195,7 @@ public class DisplayPageManagementToolbarDisplayContext
 		return new String[] {"create-date", "name"};
 	}
 
-	private JSONArray _getMappingSubtype(
+	private JSONArray _getMappingSubtypesJSONArray(
 		InfoDisplayContributor<?> infoDisplayContributor) {
 
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
@@ -215,7 +215,7 @@ public class DisplayPageManagementToolbarDisplayContext
 			}
 		}
 		catch (PortalException pe) {
-			_log.error("Error while getting mapping subtypes", pe);
+			_log.error("Unable to get mapping subtypes", pe);
 		}
 
 		return jsonArray;
@@ -236,7 +236,7 @@ public class DisplayPageManagementToolbarDisplayContext
 				"label",
 				infoDisplayContributor.getLabel(_themeDisplay.getLocale())
 			).put(
-				"subtypes", _getMappingSubtype(infoDisplayContributor)
+				"subtypes", _getMappingSubtypesJSONArray(infoDisplayContributor)
 			);
 
 			mappingTypesJSONArray.put(jsonObject);
