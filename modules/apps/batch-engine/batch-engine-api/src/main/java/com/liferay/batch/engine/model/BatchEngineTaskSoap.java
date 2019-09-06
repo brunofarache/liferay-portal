@@ -22,15 +22,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 /**
  * This class is used by SOAP remote services.
  *
  * @author Shuyang Zhou
  * @generated
  */
-@ProviderType
 public class BatchEngineTaskSoap implements Serializable {
 
 	public static BatchEngineTaskSoap toSoapModel(BatchEngineTask model) {

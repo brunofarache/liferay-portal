@@ -16,8 +16,6 @@ package com.liferay.batch.engine.model;
 
 import java.sql.Blob;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 /**
  * The Blob model class for lazy loading the content column in BatchEngineTask.
  *
@@ -25,7 +23,6 @@ import org.osgi.annotation.versioning.ProviderType;
  * @see BatchEngineTask
  * @generated
  */
-@ProviderType
 public class BatchEngineTaskContentBlobModel {
 
 	public BatchEngineTaskContentBlobModel() {

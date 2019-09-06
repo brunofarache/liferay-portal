@@ -27,15 +27,12 @@ import java.io.ObjectOutput;
 
 import java.util.Date;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 /**
  * The cache model class for representing BatchEngineTask in entity cache.
  *
  * @author Shuyang Zhou
  * @generated
  */
-@ProviderType
 public class BatchEngineTaskCacheModel
 	implements CacheModel<BatchEngineTask>, Externalizable, MVCCModel {
 

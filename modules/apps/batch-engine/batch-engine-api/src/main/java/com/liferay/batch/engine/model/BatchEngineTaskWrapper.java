@@ -24,8 +24,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 /**
  * <p>
  * This class is a wrapper for {@link BatchEngineTask}.
@@ -35,7 +33,6 @@ import org.osgi.annotation.versioning.ProviderType;
  * @see BatchEngineTask
  * @generated
  */
-@ProviderType
 public class BatchEngineTaskWrapper
 	extends BaseModelWrapper<BatchEngineTask>
 	implements BatchEngineTask, ModelWrapper<BatchEngineTask> {

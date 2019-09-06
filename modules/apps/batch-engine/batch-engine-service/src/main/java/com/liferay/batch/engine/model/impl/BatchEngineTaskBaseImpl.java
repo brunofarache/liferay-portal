@@ -17,8 +17,6 @@ package com.liferay.batch.engine.model.impl;
 import com.liferay.batch.engine.model.BatchEngineTask;
 import com.liferay.batch.engine.service.BatchEngineTaskLocalServiceUtil;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 /**
  * The extended model base implementation for the BatchEngineTask service. Represents a row in the &quot;BatchEngineTask&quot; database table, with each column mapped to a property of this class.
  *
@@ -31,7 +29,6 @@ import org.osgi.annotation.versioning.ProviderType;
  * @see BatchEngineTask
  * @generated
  */
-@ProviderType
 public abstract class BatchEngineTaskBaseImpl
 	extends BatchEngineTaskModelImpl implements BatchEngineTask {
 

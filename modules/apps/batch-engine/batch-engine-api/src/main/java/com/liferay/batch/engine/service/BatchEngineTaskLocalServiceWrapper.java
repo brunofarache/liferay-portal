@@ -16,8 +16,6 @@ package com.liferay.batch.engine.service;
 
 import com.liferay.portal.kernel.service.ServiceWrapper;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 /**
  * Provides a wrapper for {@link BatchEngineTaskLocalService}.
  *
@@ -25,7 +23,6 @@ import org.osgi.annotation.versioning.ProviderType;
  * @see BatchEngineTaskLocalService
  * @generated
  */
-@ProviderType
 public class BatchEngineTaskLocalServiceWrapper
 	implements BatchEngineTaskLocalService,
 			   ServiceWrapper<BatchEngineTaskLocalService> {
