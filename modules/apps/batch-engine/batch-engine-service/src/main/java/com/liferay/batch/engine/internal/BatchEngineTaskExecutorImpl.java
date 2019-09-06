@@ -68,7 +68,8 @@ public class BatchEngineTaskExecutorImpl<T> implements BatchEngineTaskExecutor {
 			_batchEngineTaskLocalService.updateBatchEngineTask(batchEngineTask);
 		}
 		catch (Throwable t) {
-			_log.error("Batch engine task failed : " + batchEngineTask, t);
+			_log.error(
+				"Unable to update batch engine task " + batchEngineTask, t);
 
 			batchEngineTask.setErrorMessage(t.getMessage());
 
