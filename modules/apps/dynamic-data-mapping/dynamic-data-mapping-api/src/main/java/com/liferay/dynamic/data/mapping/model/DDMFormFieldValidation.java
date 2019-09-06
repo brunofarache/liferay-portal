@@ -145,8 +145,10 @@ public class DDMFormFieldValidation implements Serializable {
 		_expression = expression;
 	}
 
-	public void setParameterLocalizedValue(LocalizedValue localizedValue) {
-		_parameterLocalizedValue = localizedValue;
+	public void setParameterLocalizedValue(
+		LocalizedValue parameterLocalizedValue) {
+
+		_parameterLocalizedValue = parameterLocalizedValue
 	}
 
 	private DDMFormFieldValidationExpression _ddmFormFieldValidationExpression =
