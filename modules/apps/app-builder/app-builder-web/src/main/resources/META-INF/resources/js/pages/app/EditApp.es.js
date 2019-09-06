@@ -15,10 +15,11 @@
 import React, {useContext, useEffect} from 'react';
 import {Route, Switch} from 'react-router-dom';
 import {AppContext, AppProvider} from './AppContext.es';
-import ControlMenu from '../../components/control-menu/ControlMenu.es';
-import {getItem} from '../../utils/client.es';
+import DeployApp from './DeployApp.es';
 import SelectFormView from './SelectFormView.es';
 import SelectTableView from './SelectTableView.es';
+import ControlMenu from '../../components/control-menu/ControlMenu.es';
+import {getItem} from '../../utils/client.es';
 
 export default ({
 	match: {
@@ -58,7 +59,7 @@ export default ({
 						path={[`${path}/table-view`]}
 					></Route>
 					<Route
-						component={SelectFormView}
+						component={DeployApp}
 						path={[`${path}/deployment`]}
 					></Route>
 				</Switch>
