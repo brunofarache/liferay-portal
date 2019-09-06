@@ -122,8 +122,8 @@ public class XLSBatchEngineTaskItemReader<T>
 	private static final ObjectMapper _objectMapper = new ObjectMapper();
 
 	private final String[] _columnNames;
-	private final InputStream _inputStream;
 	private final Class<? extends T> _domainClass;
+	private final InputStream _inputStream;
 	private final Iterator<Row> _rowIterator;
 	private final Workbook _workbook;
 

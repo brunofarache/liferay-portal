@@ -22,8 +22,6 @@ import com.liferay.batch.engine.service.base.BatchEngineTaskLocalServiceBaseImpl
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.jdbc.OutputBlob;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
-import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 
 import org.osgi.service.component.annotations.Component;
 
