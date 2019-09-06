@@ -39,18 +39,14 @@ public class BatchEngineTaskLocalServiceImpl
 
 	@Override
 	public BatchEngineTask addBatchEngineTask(
-		BatchEngineTaskContentType batchEngineTaskContentType,
+		long companyId, BatchEngineTaskContentType batchEngineTaskContentType,
 		BatchEngineTaskOperation batchEngineTaskOperation, long batchSize,
 		String className, byte[] content, String version) {
 
 		BatchEngineTask batchEngineTask = batchEngineTaskPersistence.create(
 			counterLocalService.increment(BatchEngineTask.class.getName()));
 
-		ServiceContext serviceContext =
-			ServiceContextThreadLocal.getServiceContext();
-
-		batchEngineTask.setCompanyId(serviceContext.getCompanyId());
-
+		batchEngineTask.setCompanyId(companyId);
 		batchEngineTask.setBatchSize(batchSize);
 		batchEngineTask.setClassName(className);
 		batchEngineTask.setContent(
