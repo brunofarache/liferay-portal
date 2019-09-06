@@ -47,7 +47,8 @@ public class BatchEngineTaskItemReaderFactory {
 		}
 
 		throw new IllegalArgumentException(
-			"Unknown item type : " + batchEngineTaskContentType);
+			"Unknown batch engine task content type " +
+				batchEngineTaskContentType);
 	}
 
 }
