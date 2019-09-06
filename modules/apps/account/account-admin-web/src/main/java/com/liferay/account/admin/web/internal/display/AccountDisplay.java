@@ -16,6 +16,7 @@ package com.liferay.account.admin.web.internal.display;
 
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.service.AccountEntryLocalServiceUtil;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.webserver.WebServerServletTokenUtil;
@@ -43,7 +44,7 @@ public class AccountDisplay {
 	}
 
 	public String getLogoURL(ThemeDisplay themeDisplay) {
-		StringBuilder sb = new StringBuilder();
+		StringBundler sb = new StringBundler(5);
 
 		sb.append(themeDisplay.getPathImage());
 		sb.append("/account_entry_logo?img_id=");

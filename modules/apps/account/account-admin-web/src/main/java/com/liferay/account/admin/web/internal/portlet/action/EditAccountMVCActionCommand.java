@@ -62,12 +62,9 @@ public class EditAccountMVCActionCommand extends BaseMVCActionCommand {
 		String name = ParamUtil.getString(actionRequest, "name");
 		String description = ParamUtil.getString(actionRequest, "description");
 
-		byte[] logoBytes = _getLogoBytes(actionRequest);
-		int status = _getStatus(actionRequest);
-
 		return _accountEntryLocalService.addAccountEntry(
 			themeDisplay.getUserId(), parentAccountEntryId, name, description,
-			logoBytes, status);
+			_getLogoBytes(actionRequest), _getStatus(actionRequest));
 	}
 
 	@Override
@@ -76,9 +73,10 @@ public class EditAccountMVCActionCommand extends BaseMVCActionCommand {
 		throws Exception {
 
 		String cmd = ParamUtil.getString(actionRequest, Constants.CMD);
-		String redirect = ParamUtil.getString(actionRequest, "redirect");
 
 		try {
+			String redirect = ParamUtil.getString(actionRequest, "redirect");
+
 			if (cmd.equals(Constants.ADD)) {
 				AccountEntry accountEntry = addAccountEntry(actionRequest);
 
@@ -115,18 +113,16 @@ public class EditAccountMVCActionCommand extends BaseMVCActionCommand {
 
 		long accountEntryId = ParamUtil.getLong(
 			actionRequest, "accountEntryId");
+
 		long parentAccountEntryId = ParamUtil.getInteger(
 			actionRequest, "parentAccountEntryId");
 		String name = ParamUtil.getString(actionRequest, "name");
 		String description = ParamUtil.getString(actionRequest, "description");
 		boolean deleteLogo = ParamUtil.getBoolean(actionRequest, "deleteLogo");
 
-		byte[] logoBytes = _getLogoBytes(actionRequest);
-		int status = _getStatus(actionRequest);
-
 		_accountEntryLocalService.updateAccountEntry(
 			accountEntryId, parentAccountEntryId, name, description, deleteLogo,
-			logoBytes, status);
+			_getLogoBytes(actionRequest), _getStatus(actionRequest));
 	}
 
 	private byte[] _getLogoBytes(ActionRequest actionRequest) throws Exception {

@@ -33,8 +33,8 @@ renderResponse.setTitle((accountDisplay == null) ? LanguageUtil.get(request, "ad
 	action="<%= editAccountURL %>"
 >
 	<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= (accountDisplay == null) ? Constants.ADD : Constants.UPDATE %>" />
-	<aui:input name="accountEntryId" type="hidden" value='<%= (accountDisplay == null) ? "0" : String.valueOf(accountDisplay.getAccountId()) %>' />
 	<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
+	<aui:input name="accountEntryId" type="hidden" value='<%= (accountDisplay == null) ? "0" : String.valueOf(accountDisplay.getAccountId()) %>' />
 
 	<liferay-frontend:edit-form-body>
 		<h2 class="sheet-title">

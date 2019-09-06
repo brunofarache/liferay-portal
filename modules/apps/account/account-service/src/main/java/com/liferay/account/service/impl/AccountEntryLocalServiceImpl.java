@@ -84,13 +84,14 @@ public class AccountEntryLocalServiceImpl
 		accountEntry.setParentAccountEntryId(parentAccountEntryId);
 		accountEntry.setName(name);
 		accountEntry.setDescription(description);
-		accountEntry.setStatus(status);
 
 		_portal.updateImageId(
 			accountEntry, true, logoBytes, "logoId",
 			_userFileUploadsSettings.getImageMaxSize(),
 			_userFileUploadsSettings.getImageMaxHeight(),
 			_userFileUploadsSettings.getImageMaxWidth());
+
+		accountEntry.setStatus(status);
 
 		accountEntry = accountEntryPersistence.update(accountEntry);
 
@@ -176,13 +177,14 @@ public class AccountEntryLocalServiceImpl
 		accountEntry.setParentAccountEntryId(parentAccountEntryId);
 		accountEntry.setName(name);
 		accountEntry.setDescription(description);
-		accountEntry.setStatus(status);
 
 		_portal.updateImageId(
 			accountEntry, !deleteLogo, logoBytes, "logoId",
 			_userFileUploadsSettings.getImageMaxSize(),
 			_userFileUploadsSettings.getImageMaxHeight(),
 			_userFileUploadsSettings.getImageMaxWidth());
+
+		accountEntry.setStatus(status);
 
 		accountEntryPersistence.update(accountEntry);
 
