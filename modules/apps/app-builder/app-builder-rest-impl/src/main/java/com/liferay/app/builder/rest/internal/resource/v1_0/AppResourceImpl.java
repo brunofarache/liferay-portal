@@ -56,6 +56,7 @@ import com.liferay.portal.vulcan.util.SearchUtil;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MultivaluedMap;
@@ -223,7 +224,16 @@ public class AppResourceImpl
 			_appBuilderAppLocalService.addAppBuilderApp(
 				ddmStructure.getGroupId(), contextCompany.getCompanyId(),
 				PrincipalThreadLocal.getUserId(), dataDefinitionId,
-				app.getDataLayoutId(), app.getDataListViewId(),
+				Optional.ofNullable(
+					app.getDataLayoutId()
+				).orElse(
+					AppBuilderAppConstants.DEFAULT_DDM_STRUCTURE_LAYOUT_ID
+				),
+				Optional.ofNullable(
+					app.getDataListViewId()
+				).orElse(
+					AppBuilderAppConstants.DEFAULT_DE_DATA_LIST_VIEW_ID
+				),
 				LocalizedValueUtil.toLocaleStringMap(app.getName()),
 				_toJSON(app.getSettings()),
 				appBuilderAppConstantsStatus.getValue()));
@@ -306,42 +316,46 @@ public class AppResourceImpl
 	}
 
 	private void _validate(
-			long ddmStructureLayoutId, long deDataListViewId, String status)
+			Long ddmStructureLayoutId, Long deDataListViewId, String status)
 		throws Exception {
 
-		DDMStructureLayout ddmStructureLayout =
-			_ddmStructureLayoutLocalService.fetchStructureLayout(
-				ddmStructureLayoutId);
+		if (Validator.isNotNull(ddmStructureLayoutId)) {
+			DDMStructureLayout ddmStructureLayout =
+				_ddmStructureLayoutLocalService.fetchStructureLayout(
+					ddmStructureLayoutId);
 
-		if (ddmStructureLayout == null) {
-			throw new NoSuchStructureLayoutException(
-				"Dynamic data mapping structure layout " +
-					ddmStructureLayoutId + " does not exist");
+			if (ddmStructureLayout == null) {
+				throw new NoSuchStructureLayoutException(
+					"Dynamic data mapping structure layout " +
+						ddmStructureLayoutId + " does not exist");
+			}
 		}
 
-		String sessionId = CookieKeys.getCookie(
-			contextHttpServletRequest, CookieKeys.JSESSIONID);
+		if (Validator.isNotNull(deDataListViewId)) {
+			String sessionId = CookieKeys.getCookie(
+				contextHttpServletRequest, CookieKeys.JSESSIONID);
 
-		DataListViewResource dataListViewResource =
-			DataListViewResource.builder(
-			).endpoint(
-				_portal.getHost(contextHttpServletRequest),
-				contextHttpServletRequest.getServerPort(),
-				contextHttpServletRequest.getScheme()
-			).header(
-				"Cookie", "JSESSIONID=" + sessionId
-			).parameter(
-				"p_auth", AuthTokenUtil.getToken(contextHttpServletRequest)
-			).build();
+			DataListViewResource dataListViewResource =
+				DataListViewResource.builder(
+				).endpoint(
+					_portal.getHost(contextHttpServletRequest),
+					contextHttpServletRequest.getServerPort(),
+					contextHttpServletRequest.getScheme()
+				).header(
+					"Cookie", "JSESSIONID=" + sessionId
+				).parameter(
+					"p_auth", AuthTokenUtil.getToken(contextHttpServletRequest)
+				).build();
 
-		try {
-			dataListViewResource.getDataListView(deDataListViewId);
-		}
-		catch (Exception e) {
-			throw new NoSuchDataListViewException(
-				"Data engine data list view " + deDataListViewId +
-					" does not exist",
-				e);
+			try {
+				dataListViewResource.getDataListView(deDataListViewId);
+			}
+			catch (Exception e) {
+				throw new NoSuchDataListViewException(
+					"Data engine data list view " + deDataListViewId +
+						" does not exist",
+					e);
+			}
 		}
 
 		if (Validator.isNull(AppBuilderAppConstants.Status.parse(status))) {
