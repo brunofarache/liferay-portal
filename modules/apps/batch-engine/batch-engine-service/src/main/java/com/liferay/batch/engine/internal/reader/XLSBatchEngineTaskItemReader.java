@@ -50,9 +50,9 @@ public class XLSBatchEngineTaskItemReader<T>
 
 		Sheet sheet = _workbook.getSheetAt(0);
 
-		_rowIterator = sheet.rowIterator();
+		_iterator = sheet.rowIterator();
 
-		Row row = _rowIterator.next();
+		Row row = _iterator.next();
 
 		List<String> columnNames = new ArrayList<>();
 
@@ -71,11 +71,11 @@ public class XLSBatchEngineTaskItemReader<T>
 
 	@Override
 	public T read() {
-		if (!_rowIterator.hasNext()) {
+		if (!_iterator.hasNext()) {
 			return null;
 		}
 
-		Row row = _rowIterator.next();
+		Row row = _iterator.next();
 
 		Map<String, Object> columnValues = new HashMap<>();
 
@@ -122,7 +122,7 @@ public class XLSBatchEngineTaskItemReader<T>
 	private final String[] _columnNames;
 	private final InputStream _inputStream;
 	private final Class<? extends T> _itemClass;
-	private final Iterator<Row> _rowIterator;
+	private final Iterator<Row> _iterator;
 	private final Workbook _workbook;
 
 }
