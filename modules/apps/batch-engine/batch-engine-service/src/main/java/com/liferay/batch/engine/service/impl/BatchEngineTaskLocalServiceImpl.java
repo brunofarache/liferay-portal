@@ -39,9 +39,9 @@ public class BatchEngineTaskLocalServiceImpl
 
 	@Override
 	public BatchEngineTask addBatchEngineTask(
-		String className, String version, byte[] content,
 		BatchEngineTaskContentType batchEngineTaskContentType,
-		BatchEngineTaskOperation batchEngineTaskOperation, long batchSize) {
+		BatchEngineTaskOperation batchEngineTaskOperation, long batchSize,
+		String className, byte[] content, String version) {
 
 		BatchEngineTask batchEngineTask = batchEngineTaskPersistence.create(
 			counterLocalService.increment(BatchEngineTask.class.getName()));
@@ -51,22 +51,16 @@ public class BatchEngineTaskLocalServiceImpl
 
 		batchEngineTask.setCompanyId(serviceContext.getCompanyId());
 
-		batchEngineTask.setClassName(className);
-		batchEngineTask.setVersion(version);
-
-		UnsyncByteArrayInputStream unsyncByteArrayInputStream =
-			new UnsyncByteArrayInputStream(content);
-
-		OutputBlob outputBlob = new OutputBlob(
-			unsyncByteArrayInputStream, content.length);
-
-		batchEngineTask.setContent(outputBlob);
-
 		batchEngineTask.setBatchSize(batchSize);
+		batchEngineTask.setClassName(className);
+		batchEngineTask.setContent(
+			new OutputBlob(
+				new UnsyncByteArrayInputStream(content), content.length));
 		batchEngineTask.setContentType(batchEngineTaskContentType.toString());
 		batchEngineTask.setExecuteStatus(
 			BatchEngineTaskExecuteStatus.INITIAL.toString());
 		batchEngineTask.setOperation(batchEngineTaskOperation.toString());
+		batchEngineTask.setVersion(version);
 
 		return batchEngineTaskPersistence.update(batchEngineTask);
 	}
