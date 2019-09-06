@@ -31,8 +31,8 @@ public class BatchEngineTaskExecutorFactoryImpl
 	@Override
 	public BatchEngineTaskExecutor create(Class<?> domainClass) {
 		return new BatchEngineTaskExecutorImpl<>(
-			domainClass, _batchEngineTaskItemWriterRegistry,
-			_batchEngineTaskLocalService);
+			_batchEngineTaskItemWriterRegistry, _batchEngineTaskLocalService,
+			domainClass);
 	}
 
 	@Reference

@@ -41,13 +41,13 @@ import java.util.List;
 public class BatchEngineTaskExecutorImpl<T> implements BatchEngineTaskExecutor {
 
 	public BatchEngineTaskExecutorImpl(
-		Class<T> domainClass,
 		BatchEngineTaskItemWriterRegistry batchEngineTaskItemWriterRegistry,
-		BatchEngineTaskLocalService batchEngineTaskLocalService) {
+		BatchEngineTaskLocalService batchEngineTaskLocalService,
+		Class<T> domainClass) {
 
-		_domainClass = domainClass;
 		_batchEngineTaskItemWriterRegistry = batchEngineTaskItemWriterRegistry;
 		_batchEngineTaskLocalService = batchEngineTaskLocalService;
+		_domainClass = domainClass;
 	}
 
 	@Override
