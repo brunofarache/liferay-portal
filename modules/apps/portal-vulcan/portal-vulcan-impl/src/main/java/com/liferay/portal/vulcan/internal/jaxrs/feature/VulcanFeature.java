@@ -176,8 +176,8 @@ public class VulcanFeature implements Feature {
 				Dictionary<String, Object> dictionary =
 					new HashMapDictionary<>();
 
-				dictionary.put("graphQLEnabled", true);
 				dictionary.put("path", name);
+				dictionary.put("graphQLEnabled", true);
 				dictionary.put("restEnabled", true);
 
 				configuration.update(dictionary);
