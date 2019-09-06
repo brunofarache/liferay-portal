@@ -43,6 +43,7 @@ public class JSONBatchEngineTaskItemReader<T>
 	@Override
 	public void close() throws IOException {
 		_inputStream.close();
+
 		_jsonParser.close();
 	}
 
