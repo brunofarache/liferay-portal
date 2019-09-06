@@ -47,7 +47,6 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.osgi.annotation.versioning.ProviderType;
 import org.osgi.service.component.annotations.Reference;
 
 /**
@@ -61,7 +60,6 @@ import org.osgi.service.component.annotations.Reference;
  * @see com.liferay.account.service.impl.AccountEntryUserRelLocalServiceImpl
  * @generated
  */
-@ProviderType
 public abstract class AccountEntryUserRelLocalServiceBaseImpl
 	extends BaseLocalServiceImpl
 	implements AccountEntryUserRelLocalService, AopService,
@@ -257,7 +255,7 @@ public abstract class AccountEntryUserRelLocalServiceBaseImpl
 		actionableDynamicQuery.setModelClass(AccountEntryUserRel.class);
 
 		actionableDynamicQuery.setPrimaryKeyPropertyName(
-			"primaryKey.accountEntryId");
+			"primaryKey.accountEntryUserRelId");
 
 		return actionableDynamicQuery;
 	}
@@ -276,7 +274,7 @@ public abstract class AccountEntryUserRelLocalServiceBaseImpl
 			AccountEntryUserRel.class);
 
 		indexableActionableDynamicQuery.setPrimaryKeyPropertyName(
-			"primaryKey.accountEntryId");
+			"primaryKey.accountEntryUserRelId");
 
 		return indexableActionableDynamicQuery;
 	}
@@ -290,7 +288,7 @@ public abstract class AccountEntryUserRelLocalServiceBaseImpl
 		actionableDynamicQuery.setModelClass(AccountEntryUserRel.class);
 
 		actionableDynamicQuery.setPrimaryKeyPropertyName(
-			"primaryKey.accountEntryId");
+			"primaryKey.accountEntryUserRelId");
 	}
 
 	/**

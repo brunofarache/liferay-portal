@@ -17,8 +17,6 @@ package com.liferay.account.model.impl;
 import com.liferay.account.model.AccountEntryUserRel;
 import com.liferay.account.service.AccountEntryUserRelLocalServiceUtil;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 /**
  * The extended model base implementation for the AccountEntryUserRel service. Represents a row in the &quot;AccountEntryUserRel&quot; database table, with each column mapped to a property of this class.
  *
@@ -31,7 +29,6 @@ import org.osgi.annotation.versioning.ProviderType;
  * @see AccountEntryUserRel
  * @generated
  */
-@ProviderType
 public abstract class AccountEntryUserRelBaseImpl
 	extends AccountEntryUserRelModelImpl implements AccountEntryUserRel {
 

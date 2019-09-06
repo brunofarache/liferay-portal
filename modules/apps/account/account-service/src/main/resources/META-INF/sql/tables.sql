@@ -13,8 +13,9 @@ create table AccountEntry (
 );
 
 create table AccountEntryUserRel (
-	accountEntryId LONG not null,
-	userId LONG not null,
+	accountEntryUserRelId LONG not null,
 	companyId LONG,
-	primary key (accountEntryId, userId)
+	userId LONG not null,
+	accountEntryId LONG not null,
+	primary key (accountEntryUserRelId, userId, accountEntryId)
 );

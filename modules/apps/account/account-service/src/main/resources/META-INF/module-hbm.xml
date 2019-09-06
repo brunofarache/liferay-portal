@@ -21,8 +21,9 @@
 	</class>
 	<class name="com.liferay.account.model.impl.AccountEntryUserRelImpl" table="AccountEntryUserRel">
 		<composite-id class="com.liferay.account.service.persistence.AccountEntryUserRelPK" name="primaryKey">
-			<key-property access="com.liferay.portal.dao.orm.hibernate.LiferayPropertyAccessor" name="accountEntryId" type="com.liferay.portal.dao.orm.hibernate.LongType" />
+			<key-property access="com.liferay.portal.dao.orm.hibernate.LiferayPropertyAccessor" name="accountEntryUserRelId" type="com.liferay.portal.dao.orm.hibernate.LongType" />
 			<key-property access="com.liferay.portal.dao.orm.hibernate.LiferayPropertyAccessor" name="userId" type="com.liferay.portal.dao.orm.hibernate.LongType" />
+			<key-property access="com.liferay.portal.dao.orm.hibernate.LiferayPropertyAccessor" name="accountEntryId" type="com.liferay.portal.dao.orm.hibernate.LongType" />
 		</composite-id>
 		<property access="com.liferay.portal.dao.orm.hibernate.LiferayPropertyAccessor" name="companyId" type="com.liferay.portal.dao.orm.hibernate.LongType" />
 	</class>

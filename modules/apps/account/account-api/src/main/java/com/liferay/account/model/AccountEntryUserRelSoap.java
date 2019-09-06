@@ -21,15 +21,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 /**
  * This class is used by SOAP remote services, specifically {@link com.liferay.account.service.http.AccountEntryUserRelServiceSoap}.
  *
  * @author Brian Wing Shun Chan
  * @generated
  */
-@ProviderType
 public class AccountEntryUserRelSoap implements Serializable {
 
 	public static AccountEntryUserRelSoap toSoapModel(
@@ -37,9 +34,10 @@ public class AccountEntryUserRelSoap implements Serializable {
 
 		AccountEntryUserRelSoap soapModel = new AccountEntryUserRelSoap();
 
-		soapModel.setAccountEntryId(model.getAccountEntryId());
-		soapModel.setUserId(model.getUserId());
+		soapModel.setAccountEntryUserRelId(model.getAccountEntryUserRelId());
 		soapModel.setCompanyId(model.getCompanyId());
+		soapModel.setUserId(model.getUserId());
+		soapModel.setAccountEntryId(model.getAccountEntryId());
 
 		return soapModel;
 	}
@@ -95,28 +93,22 @@ public class AccountEntryUserRelSoap implements Serializable {
 	}
 
 	public AccountEntryUserRelPK getPrimaryKey() {
-		return new AccountEntryUserRelPK(_accountEntryId, _userId);
+		return new AccountEntryUserRelPK(
+			_accountEntryUserRelId, _userId, _accountEntryId);
 	}
 
 	public void setPrimaryKey(AccountEntryUserRelPK pk) {
-		setAccountEntryId(pk.accountEntryId);
+		setAccountEntryUserRelId(pk.accountEntryUserRelId);
 		setUserId(pk.userId);
+		setAccountEntryId(pk.accountEntryId);
 	}
 
-	public long getAccountEntryId() {
-		return _accountEntryId;
+	public long getAccountEntryUserRelId() {
+		return _accountEntryUserRelId;
 	}
 
-	public void setAccountEntryId(long accountEntryId) {
-		_accountEntryId = accountEntryId;
-	}
-
-	public long getUserId() {
-		return _userId;
-	}
-
-	public void setUserId(long userId) {
-		_userId = userId;
+	public void setAccountEntryUserRelId(long accountEntryUserRelId) {
+		_accountEntryUserRelId = accountEntryUserRelId;
 	}
 
 	public long getCompanyId() {
@@ -127,8 +119,25 @@ public class AccountEntryUserRelSoap implements Serializable {
 		_companyId = companyId;
 	}
 
-	private long _accountEntryId;
-	private long _userId;
+	public long getUserId() {
+		return _userId;
+	}
+
+	public void setUserId(long userId) {
+		_userId = userId;
+	}
+
+	public long getAccountEntryId() {
+		return _accountEntryId;
+	}
+
+	public void setAccountEntryId(long accountEntryId) {
+		_accountEntryId = accountEntryId;
+	}
+
+	private long _accountEntryUserRelId;
 	private long _companyId;
+	private long _userId;
+	private long _accountEntryId;
 
 }

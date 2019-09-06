@@ -56,18 +56,34 @@ public interface AccountEntryUserRelModel
 	public void setPrimaryKey(AccountEntryUserRelPK primaryKey);
 
 	/**
-	 * Returns the account entry ID of this account entry user rel.
+	 * Returns the account entry user rel ID of this account entry user rel.
 	 *
-	 * @return the account entry ID of this account entry user rel
+	 * @return the account entry user rel ID of this account entry user rel
 	 */
-	public long getAccountEntryId();
+	public long getAccountEntryUserRelId();
 
 	/**
-	 * Sets the account entry ID of this account entry user rel.
+	 * Sets the account entry user rel ID of this account entry user rel.
 	 *
-	 * @param accountEntryId the account entry ID of this account entry user rel
+	 * @param accountEntryUserRelId the account entry user rel ID of this account entry user rel
 	 */
-	public void setAccountEntryId(long accountEntryId);
+	public void setAccountEntryUserRelId(long accountEntryUserRelId);
+
+	/**
+	 * Returns the company ID of this account entry user rel.
+	 *
+	 * @return the company ID of this account entry user rel
+	 */
+	@Override
+	public long getCompanyId();
+
+	/**
+	 * Sets the company ID of this account entry user rel.
+	 *
+	 * @param companyId the company ID of this account entry user rel
+	 */
+	@Override
+	public void setCompanyId(long companyId);
 
 	/**
 	 * Returns the user ID of this account entry user rel.
@@ -98,19 +114,17 @@ public interface AccountEntryUserRelModel
 	public void setUserUuid(String userUuid);
 
 	/**
-	 * Returns the company ID of this account entry user rel.
+	 * Returns the account entry ID of this account entry user rel.
 	 *
-	 * @return the company ID of this account entry user rel
+	 * @return the account entry ID of this account entry user rel
 	 */
-	@Override
-	public long getCompanyId();
+	public long getAccountEntryId();
 
 	/**
-	 * Sets the company ID of this account entry user rel.
+	 * Sets the account entry ID of this account entry user rel.
 	 *
-	 * @param companyId the company ID of this account entry user rel
+	 * @param accountEntryId the account entry ID of this account entry user rel
 	 */
-	@Override
-	public void setCompanyId(long companyId);
+	public void setAccountEntryId(long accountEntryId);
 
 }

@@ -19,24 +19,41 @@ import com.liferay.petra.string.StringBundler;
 
 import java.io.Serializable;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 /**
  * @author Brian Wing Shun Chan
  * @generated
  */
-@ProviderType
 public class AccountEntryUserRelPK
 	implements Comparable<AccountEntryUserRelPK>, Serializable {
 
-	public long accountEntryId;
+	public long accountEntryUserRelId;
 	public long userId;
+	public long accountEntryId;
 
 	public AccountEntryUserRelPK() {
 	}
 
-	public AccountEntryUserRelPK(long accountEntryId, long userId) {
+	public AccountEntryUserRelPK(
+		long accountEntryUserRelId, long userId, long accountEntryId) {
+
+		this.accountEntryUserRelId = accountEntryUserRelId;
+		this.userId = userId;
 		this.accountEntryId = accountEntryId;
+	}
+
+	public long getAccountEntryUserRelId() {
+		return accountEntryUserRelId;
+	}
+
+	public void setAccountEntryUserRelId(long accountEntryUserRelId) {
+		this.accountEntryUserRelId = accountEntryUserRelId;
+	}
+
+	public long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(long userId) {
 		this.userId = userId;
 	}
 
@@ -48,14 +65,6 @@ public class AccountEntryUserRelPK
 		this.accountEntryId = accountEntryId;
 	}
 
-	public long getUserId() {
-		return userId;
-	}
-
-	public void setUserId(long userId) {
-		this.userId = userId;
-	}
-
 	@Override
 	public int compareTo(AccountEntryUserRelPK pk) {
 		if (pk == null) {
@@ -64,10 +73,10 @@ public class AccountEntryUserRelPK
 
 		int value = 0;
 
-		if (accountEntryId < pk.accountEntryId) {
+		if (accountEntryUserRelId < pk.accountEntryUserRelId) {
 			value = -1;
 		}
-		else if (accountEntryId > pk.accountEntryId) {
+		else if (accountEntryUserRelId > pk.accountEntryUserRelId) {
 			value = 1;
 		}
 		else {
@@ -82,6 +91,20 @@ public class AccountEntryUserRelPK
 			value = -1;
 		}
 		else if (userId > pk.userId) {
+			value = 1;
+		}
+		else {
+			value = 0;
+		}
+
+		if (value != 0) {
+			return value;
+		}
+
+		if (accountEntryId < pk.accountEntryId) {
+			value = -1;
+		}
+		else if (accountEntryId > pk.accountEntryId) {
 			value = 1;
 		}
 		else {
@@ -107,7 +130,9 @@ public class AccountEntryUserRelPK
 
 		AccountEntryUserRelPK pk = (AccountEntryUserRelPK)obj;
 
-		if ((accountEntryId == pk.accountEntryId) && (userId == pk.userId)) {
+		if ((accountEntryUserRelId == pk.accountEntryUserRelId) &&
+			(userId == pk.userId) && (accountEntryId == pk.accountEntryId)) {
+
 			return true;
 		}
 		else {
@@ -119,24 +144,28 @@ public class AccountEntryUserRelPK
 	public int hashCode() {
 		int hashCode = 0;
 
-		hashCode = HashUtil.hash(hashCode, accountEntryId);
+		hashCode = HashUtil.hash(hashCode, accountEntryUserRelId);
 		hashCode = HashUtil.hash(hashCode, userId);
+		hashCode = HashUtil.hash(hashCode, accountEntryId);
 
 		return hashCode;
 	}
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(6);
+		StringBundler sb = new StringBundler(8);
 
 		sb.append("{");
 
-		sb.append("accountEntryId=");
+		sb.append("accountEntryUserRelId=");
 
-		sb.append(accountEntryId);
+		sb.append(accountEntryUserRelId);
 		sb.append(", userId=");
 
 		sb.append(userId);
+		sb.append(", accountEntryId=");
+
+		sb.append(accountEntryId);
 
 		sb.append("}");
 

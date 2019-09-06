@@ -14,7 +14,6 @@
 
 package com.liferay.account.service.http;
 
-import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Provides the SOAP utility for the
@@ -55,6 +54,5 @@ import org.osgi.annotation.versioning.ProviderType;
  * @see AccountEntryUserRelServiceHttp
  * @generated
  */
-@ProviderType
 public class AccountEntryUserRelServiceSoap {
 }

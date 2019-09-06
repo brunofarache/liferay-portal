@@ -25,15 +25,12 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 /**
  * The cache model class for representing AccountEntryUserRel in entity cache.
  *
  * @author Brian Wing Shun Chan
  * @generated
  */
-@ProviderType
 public class AccountEntryUserRelCacheModel
 	implements CacheModel<AccountEntryUserRel>, Externalizable {
 
@@ -66,14 +63,16 @@ public class AccountEntryUserRelCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(7);
+		StringBundler sb = new StringBundler(9);
 
-		sb.append("{accountEntryId=");
-		sb.append(accountEntryId);
-		sb.append(", userId=");
-		sb.append(userId);
+		sb.append("{accountEntryUserRelId=");
+		sb.append(accountEntryUserRelId);
 		sb.append(", companyId=");
 		sb.append(companyId);
+		sb.append(", userId=");
+		sb.append(userId);
+		sb.append(", accountEntryId=");
+		sb.append(accountEntryId);
 		sb.append("}");
 
 		return sb.toString();
@@ -84,9 +83,10 @@ public class AccountEntryUserRelCacheModel
 		AccountEntryUserRelImpl accountEntryUserRelImpl =
 			new AccountEntryUserRelImpl();
 
-		accountEntryUserRelImpl.setAccountEntryId(accountEntryId);
-		accountEntryUserRelImpl.setUserId(userId);
+		accountEntryUserRelImpl.setAccountEntryUserRelId(accountEntryUserRelId);
 		accountEntryUserRelImpl.setCompanyId(companyId);
+		accountEntryUserRelImpl.setUserId(userId);
+		accountEntryUserRelImpl.setAccountEntryId(accountEntryId);
 
 		accountEntryUserRelImpl.resetOriginalValues();
 
@@ -95,28 +95,33 @@ public class AccountEntryUserRelCacheModel
 
 	@Override
 	public void readExternal(ObjectInput objectInput) throws IOException {
-		accountEntryId = objectInput.readLong();
-
-		userId = objectInput.readLong();
+		accountEntryUserRelId = objectInput.readLong();
 
 		companyId = objectInput.readLong();
 
+		userId = objectInput.readLong();
+
+		accountEntryId = objectInput.readLong();
+
 		accountEntryUserRelPK = new AccountEntryUserRelPK(
-			accountEntryId, userId);
+			accountEntryUserRelId, userId, accountEntryId);
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
-		objectOutput.writeLong(accountEntryId);
+		objectOutput.writeLong(accountEntryUserRelId);
+
+		objectOutput.writeLong(companyId);
 
 		objectOutput.writeLong(userId);
 
-		objectOutput.writeLong(companyId);
+		objectOutput.writeLong(accountEntryId);
 	}
 
-	public long accountEntryId;
-	public long userId;
+	public long accountEntryUserRelId;
 	public long companyId;
+	public long userId;
+	public long accountEntryId;
 	public transient AccountEntryUserRelPK accountEntryUserRelPK;
 
 }

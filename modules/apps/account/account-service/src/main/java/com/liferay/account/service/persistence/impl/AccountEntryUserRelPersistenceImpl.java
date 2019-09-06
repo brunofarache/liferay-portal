@@ -47,7 +47,6 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-import org.osgi.annotation.versioning.ProviderType;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -64,7 +63,6 @@ import org.osgi.service.component.annotations.Reference;
  * @generated
  */
 @Component(service = AccountEntryUserRelPersistence.class)
-@ProviderType
 public class AccountEntryUserRelPersistenceImpl
 	extends BasePersistenceImpl<AccountEntryUserRel>
 	implements AccountEntryUserRelPersistence {
@@ -698,7 +696,7 @@ public class AccountEntryUserRelPersistenceImpl
 		AccountEntryUserRelPersistenceImpl.class);
 
 	private static final Set<String> _compoundPKColumnNames = SetUtil.fromArray(
-		new String[] {"accountEntryId", "userId"});
+		new String[] {"accountEntryUserRelId", "userId", "accountEntryId"});
 
 	static {
 		try {

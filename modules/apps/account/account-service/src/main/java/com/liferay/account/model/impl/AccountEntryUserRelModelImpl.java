@@ -45,8 +45,6 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 /**
  * The base model implementation for the AccountEntryUserRel service. Represents a row in the &quot;AccountEntryUserRel&quot; database table, with each column mapped to a property of this class.
  *
@@ -59,7 +57,6 @@ import org.osgi.annotation.versioning.ProviderType;
  * @generated
  */
 @JSON(strict = true)
-@ProviderType
 public class AccountEntryUserRelModelImpl
 	extends BaseModelImpl<AccountEntryUserRel>
 	implements AccountEntryUserRelModel {
@@ -72,30 +69,31 @@ public class AccountEntryUserRelModelImpl
 	public static final String TABLE_NAME = "AccountEntryUserRel";
 
 	public static final Object[][] TABLE_COLUMNS = {
-		{"accountEntryId", Types.BIGINT}, {"userId", Types.BIGINT},
-		{"companyId", Types.BIGINT}
+		{"accountEntryUserRelId", Types.BIGINT}, {"companyId", Types.BIGINT},
+		{"userId", Types.BIGINT}, {"accountEntryId", Types.BIGINT}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
 		new HashMap<String, Integer>();
 
 	static {
-		TABLE_COLUMNS_MAP.put("accountEntryId", Types.BIGINT);
-		TABLE_COLUMNS_MAP.put("userId", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("accountEntryUserRelId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("companyId", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("userId", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("accountEntryId", Types.BIGINT);
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table AccountEntryUserRel (accountEntryId LONG not null,userId LONG not null,companyId LONG,primary key (accountEntryId, userId))";
+		"create table AccountEntryUserRel (accountEntryUserRelId LONG not null,companyId LONG,userId LONG not null,accountEntryId LONG not null,primary key (accountEntryUserRelId, userId, accountEntryId))";
 
 	public static final String TABLE_SQL_DROP =
 		"drop table AccountEntryUserRel";
 
 	public static final String ORDER_BY_JPQL =
-		" ORDER BY accountEntryUserRel.id.accountEntryId ASC, accountEntryUserRel.id.userId ASC";
+		" ORDER BY accountEntryUserRel.id.accountEntryUserRelId ASC, accountEntryUserRel.id.userId ASC, accountEntryUserRel.id.accountEntryId ASC";
 
 	public static final String ORDER_BY_SQL =
-		" ORDER BY AccountEntryUserRel.accountEntryId ASC, AccountEntryUserRel.userId ASC";
+		" ORDER BY AccountEntryUserRel.accountEntryUserRelId ASC, AccountEntryUserRel.userId ASC, AccountEntryUserRel.accountEntryId ASC";
 
 	public static final String DATA_SOURCE = "liferayDataSource";
 
@@ -126,9 +124,10 @@ public class AccountEntryUserRelModelImpl
 
 		AccountEntryUserRel model = new AccountEntryUserRelImpl();
 
-		model.setAccountEntryId(soapModel.getAccountEntryId());
-		model.setUserId(soapModel.getUserId());
+		model.setAccountEntryUserRelId(soapModel.getAccountEntryUserRelId());
 		model.setCompanyId(soapModel.getCompanyId());
+		model.setUserId(soapModel.getUserId());
+		model.setAccountEntryId(soapModel.getAccountEntryId());
 
 		return model;
 	}
@@ -161,18 +160,21 @@ public class AccountEntryUserRelModelImpl
 
 	@Override
 	public AccountEntryUserRelPK getPrimaryKey() {
-		return new AccountEntryUserRelPK(_accountEntryId, _userId);
+		return new AccountEntryUserRelPK(
+			_accountEntryUserRelId, _userId, _accountEntryId);
 	}
 
 	@Override
 	public void setPrimaryKey(AccountEntryUserRelPK primaryKey) {
-		setAccountEntryId(primaryKey.accountEntryId);
+		setAccountEntryUserRelId(primaryKey.accountEntryUserRelId);
 		setUserId(primaryKey.userId);
+		setAccountEntryId(primaryKey.accountEntryId);
 	}
 
 	@Override
 	public Serializable getPrimaryKeyObj() {
-		return new AccountEntryUserRelPK(_accountEntryId, _userId);
+		return new AccountEntryUserRelPK(
+			_accountEntryUserRelId, _userId, _accountEntryId);
 	}
 
 	@Override
@@ -286,22 +288,29 @@ public class AccountEntryUserRelModelImpl
 				new LinkedHashMap<String, BiConsumer<AccountEntryUserRel, ?>>();
 
 		attributeGetterFunctions.put(
-			"accountEntryId", AccountEntryUserRel::getAccountEntryId);
+			"accountEntryUserRelId",
+			AccountEntryUserRel::getAccountEntryUserRelId);
 		attributeSetterBiConsumers.put(
-			"accountEntryId",
+			"accountEntryUserRelId",
 			(BiConsumer<AccountEntryUserRel, Long>)
-				AccountEntryUserRel::setAccountEntryId);
-		attributeGetterFunctions.put("userId", AccountEntryUserRel::getUserId);
-		attributeSetterBiConsumers.put(
-			"userId",
-			(BiConsumer<AccountEntryUserRel, Long>)
-				AccountEntryUserRel::setUserId);
+				AccountEntryUserRel::setAccountEntryUserRelId);
 		attributeGetterFunctions.put(
 			"companyId", AccountEntryUserRel::getCompanyId);
 		attributeSetterBiConsumers.put(
 			"companyId",
 			(BiConsumer<AccountEntryUserRel, Long>)
 				AccountEntryUserRel::setCompanyId);
+		attributeGetterFunctions.put("userId", AccountEntryUserRel::getUserId);
+		attributeSetterBiConsumers.put(
+			"userId",
+			(BiConsumer<AccountEntryUserRel, Long>)
+				AccountEntryUserRel::setUserId);
+		attributeGetterFunctions.put(
+			"accountEntryId", AccountEntryUserRel::getAccountEntryId);
+		attributeSetterBiConsumers.put(
+			"accountEntryId",
+			(BiConsumer<AccountEntryUserRel, Long>)
+				AccountEntryUserRel::setAccountEntryId);
 
 		_attributeGetterFunctions = Collections.unmodifiableMap(
 			attributeGetterFunctions);
@@ -311,13 +320,24 @@ public class AccountEntryUserRelModelImpl
 
 	@JSON
 	@Override
-	public long getAccountEntryId() {
-		return _accountEntryId;
+	public long getAccountEntryUserRelId() {
+		return _accountEntryUserRelId;
 	}
 
 	@Override
-	public void setAccountEntryId(long accountEntryId) {
-		_accountEntryId = accountEntryId;
+	public void setAccountEntryUserRelId(long accountEntryUserRelId) {
+		_accountEntryUserRelId = accountEntryUserRelId;
+	}
+
+	@JSON
+	@Override
+	public long getCompanyId() {
+		return _companyId;
+	}
+
+	@Override
+	public void setCompanyId(long companyId) {
+		_companyId = companyId;
 	}
 
 	@JSON
@@ -349,13 +369,13 @@ public class AccountEntryUserRelModelImpl
 
 	@JSON
 	@Override
-	public long getCompanyId() {
-		return _companyId;
+	public long getAccountEntryId() {
+		return _accountEntryId;
 	}
 
 	@Override
-	public void setCompanyId(long companyId) {
-		_companyId = companyId;
+	public void setAccountEntryId(long accountEntryId) {
+		_accountEntryId = accountEntryId;
 	}
 
 	@Override
@@ -378,9 +398,11 @@ public class AccountEntryUserRelModelImpl
 		AccountEntryUserRelImpl accountEntryUserRelImpl =
 			new AccountEntryUserRelImpl();
 
-		accountEntryUserRelImpl.setAccountEntryId(getAccountEntryId());
-		accountEntryUserRelImpl.setUserId(getUserId());
+		accountEntryUserRelImpl.setAccountEntryUserRelId(
+			getAccountEntryUserRelId());
 		accountEntryUserRelImpl.setCompanyId(getCompanyId());
+		accountEntryUserRelImpl.setUserId(getUserId());
+		accountEntryUserRelImpl.setAccountEntryId(getAccountEntryId());
 
 		accountEntryUserRelImpl.resetOriginalValues();
 
@@ -442,11 +464,14 @@ public class AccountEntryUserRelModelImpl
 
 		accountEntryUserRelCacheModel.accountEntryUserRelPK = getPrimaryKey();
 
-		accountEntryUserRelCacheModel.accountEntryId = getAccountEntryId();
+		accountEntryUserRelCacheModel.accountEntryUserRelId =
+			getAccountEntryUserRelId();
+
+		accountEntryUserRelCacheModel.companyId = getCompanyId();
 
 		accountEntryUserRelCacheModel.userId = getUserId();
 
-		accountEntryUserRelCacheModel.companyId = getCompanyId();
+		accountEntryUserRelCacheModel.accountEntryId = getAccountEntryId();
 
 		return accountEntryUserRelCacheModel;
 	}
@@ -524,9 +549,10 @@ public class AccountEntryUserRelModelImpl
 	private static boolean _entityCacheEnabled;
 	private static boolean _finderCacheEnabled;
 
-	private long _accountEntryId;
-	private long _userId;
+	private long _accountEntryUserRelId;
 	private long _companyId;
+	private long _userId;
+	private long _accountEntryId;
 	private AccountEntryUserRel _escapedModel;
 
 }

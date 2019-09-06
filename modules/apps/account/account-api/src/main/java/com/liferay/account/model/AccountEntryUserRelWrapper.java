@@ -20,8 +20,6 @@ import com.liferay.portal.kernel.model.wrapper.BaseModelWrapper;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 /**
  * <p>
  * This class is a wrapper for {@link AccountEntryUserRel}.
@@ -31,7 +29,6 @@ import org.osgi.annotation.versioning.ProviderType;
  * @see AccountEntryUserRel
  * @generated
  */
-@ProviderType
 public class AccountEntryUserRelWrapper
 	extends BaseModelWrapper<AccountEntryUserRel>
 	implements AccountEntryUserRel, ModelWrapper<AccountEntryUserRel> {
@@ -44,19 +41,27 @@ public class AccountEntryUserRelWrapper
 	public Map<String, Object> getModelAttributes() {
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
-		attributes.put("accountEntryId", getAccountEntryId());
-		attributes.put("userId", getUserId());
+		attributes.put("accountEntryUserRelId", getAccountEntryUserRelId());
 		attributes.put("companyId", getCompanyId());
+		attributes.put("userId", getUserId());
+		attributes.put("accountEntryId", getAccountEntryId());
 
 		return attributes;
 	}
 
 	@Override
 	public void setModelAttributes(Map<String, Object> attributes) {
-		Long accountEntryId = (Long)attributes.get("accountEntryId");
+		Long accountEntryUserRelId = (Long)attributes.get(
+			"accountEntryUserRelId");
 
-		if (accountEntryId != null) {
-			setAccountEntryId(accountEntryId);
+		if (accountEntryUserRelId != null) {
+			setAccountEntryUserRelId(accountEntryUserRelId);
+		}
+
+		Long companyId = (Long)attributes.get("companyId");
+
+		if (companyId != null) {
+			setCompanyId(companyId);
 		}
 
 		Long userId = (Long)attributes.get("userId");
@@ -65,10 +70,10 @@ public class AccountEntryUserRelWrapper
 			setUserId(userId);
 		}
 
-		Long companyId = (Long)attributes.get("companyId");
+		Long accountEntryId = (Long)attributes.get("accountEntryId");
 
-		if (companyId != null) {
-			setCompanyId(companyId);
+		if (accountEntryId != null) {
+			setAccountEntryId(accountEntryId);
 		}
 	}
 
@@ -80,6 +85,16 @@ public class AccountEntryUserRelWrapper
 	@Override
 	public long getAccountEntryId() {
 		return model.getAccountEntryId();
+	}
+
+	/**
+	 * Returns the account entry user rel ID of this account entry user rel.
+	 *
+	 * @return the account entry user rel ID of this account entry user rel
+	 */
+	@Override
+	public long getAccountEntryUserRelId() {
+		return model.getAccountEntryUserRelId();
 	}
 
 	/**
@@ -137,6 +152,16 @@ public class AccountEntryUserRelWrapper
 	@Override
 	public void setAccountEntryId(long accountEntryId) {
 		model.setAccountEntryId(accountEntryId);
+	}
+
+	/**
+	 * Sets the account entry user rel ID of this account entry user rel.
+	 *
+	 * @param accountEntryUserRelId the account entry user rel ID of this account entry user rel
+	 */
+	@Override
+	public void setAccountEntryUserRelId(long accountEntryUserRelId) {
+		model.setAccountEntryUserRelId(accountEntryUserRelId);
 	}
 
 	/**
