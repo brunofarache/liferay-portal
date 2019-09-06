@@ -35,7 +35,7 @@ public class JSONBatchEngineTaskItemReader<T>
 		_domainClass = domainClass;
 		_inputStream = inputStream;
 
-		_jsonParser = _JSON_FACTORY.createParser(_inputStream);
+		_jsonParser = _jsonFactory.createParser(_inputStream);
 
 		_jsonParser.nextToken();
 	}
@@ -55,8 +55,7 @@ public class JSONBatchEngineTaskItemReader<T>
 		return null;
 	}
 
-	private static final JsonFactory _JSON_FACTORY = new JsonFactory();
-
+	private static final JsonFactory _jsonFactory = new JsonFactory();
 	private static final ObjectMapper _objectMapper = new ObjectMapper();
 
 	private final Class<? extends T> _domainClass;
