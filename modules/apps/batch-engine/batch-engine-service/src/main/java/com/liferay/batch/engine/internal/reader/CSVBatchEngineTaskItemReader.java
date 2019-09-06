@@ -39,19 +39,20 @@ public class CSVBatchEngineTaskItemReader<T>
 		_inputStream = inputStream;
 		_itemClass = itemClass;
 
-		_reader = new UnsyncBufferedReader(new InputStreamReader(_inputStream));
+		_unsyncBufferedReader = new UnsyncBufferedReader(
+			new InputStreamReader(_inputStream));
 
-		_columnNames = StringUtil.split(_reader.readLine());
+		_columnNames = StringUtil.split(_unsyncBufferedReader.readLine());
 	}
 
 	@Override
 	public void close() throws IOException {
-		_reader.close();
+		_unsyncBufferedReader.close();
 	}
 
 	@Override
 	public T read() throws IOException {
-		String line = _reader.readLine();
+		String line = _unsyncBufferedReader.readLine();
 
 		if (line == null) {
 			return null;
@@ -89,6 +90,6 @@ public class CSVBatchEngineTaskItemReader<T>
 	private final String[] _columnNames;
 	private final InputStream _inputStream;
 	private final Class<? extends T> _itemClass;
-	private final UnsyncBufferedReader _reader;
+	private final UnsyncBufferedReader _unsyncBufferedReader;
 
 }
