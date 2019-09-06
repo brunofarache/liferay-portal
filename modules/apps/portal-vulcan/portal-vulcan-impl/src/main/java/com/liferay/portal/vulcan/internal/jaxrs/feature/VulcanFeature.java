@@ -162,7 +162,8 @@ public class VulcanFeature implements Feature {
 			Map property = (Map)jaxRSConfiguration.getProperty(
 				"osgi.jaxrs.application.serviceProperties");
 
-			String name = (String)property.get("osgi.jaxrs.application.base");
+			String name = (String)property.get(
+				"osgi.jaxrs.application.base");
 
 			String filterString = String.format(
 				"(&(service.factoryPid=%s)(name=%s))",
