@@ -32,6 +32,11 @@ public class ResourcePermissionLocalServiceWrapper
 		_resourcePermissionLocalService = resourcePermissionLocalService;
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this interface directly. Always use {@link ResourcePermissionLocalServiceUtil} to access the resource permission local service. Add custom service methods to <code>com.liferay.portal.service.impl.ResourcePermissionLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 */
 	@Override
 	public void addModelResourcePermissions(
 			com.liferay.portal.kernel.model.AuditedModel auditedModel,

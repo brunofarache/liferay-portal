@@ -64,7 +64,7 @@ public abstract class DLOpenerFileEntryReferenceLocalServiceBaseImpl
 	implements DLOpenerFileEntryReferenceLocalService, AopService,
 			   IdentifiableOSGiService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>DLOpenerFileEntryReferenceLocalService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.document.library.opener.service.DLOpenerFileEntryReferenceLocalServiceUtil</code>.

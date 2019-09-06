@@ -533,6 +533,11 @@ public class AssetCategoryWrapper
 		return model.isRootCategory();
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this class directly. All methods that expect a asset category model instance should use the <code>AssetCategory</code> interface instead.
+	 */
 	@Override
 	public void persist() {
 		model.persist();

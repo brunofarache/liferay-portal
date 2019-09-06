@@ -78,7 +78,7 @@ public abstract class LVEntryLocalServiceBaseImpl
 	implements LVEntryLocalService, IdentifiableOSGiService,
 			   VersionService<LVEntry, LVEntryVersion> {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>LVEntryLocalService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.portal.tools.service.builder.test.service.LVEntryLocalServiceUtil</code>.

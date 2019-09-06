@@ -306,6 +306,11 @@ public class AssetDisplayPageEntryWrapper
 		return model.getUuid();
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this class directly. All methods that expect a asset display page entry model instance should use the <code>AssetDisplayPageEntry</code> interface instead.
+	 */
 	@Override
 	public void persist() {
 		model.persist();

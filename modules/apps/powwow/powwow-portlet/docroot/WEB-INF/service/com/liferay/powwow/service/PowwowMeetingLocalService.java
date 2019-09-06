@@ -50,6 +50,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * @see PowwowMeetingLocalServiceUtil
  * @generated
  */
+@ProviderType
 @Transactional(
 	isolation = Isolation.PORTAL,
 	rollbackFor = {PortalException.class, SystemException.class}
@@ -57,7 +58,7 @@ import org.osgi.annotation.versioning.ProviderType;
 public interface PowwowMeetingLocalService
 	extends BaseLocalService, PersistedModelLocalService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this interface directly. Always use {@link PowwowMeetingLocalServiceUtil} to access the powwow meeting local service. Add custom service methods to <code>com.liferay.powwow.service.impl.PowwowMeetingLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.

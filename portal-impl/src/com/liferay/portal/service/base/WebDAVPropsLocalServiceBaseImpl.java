@@ -62,7 +62,7 @@ public abstract class WebDAVPropsLocalServiceBaseImpl
 	extends BaseLocalServiceImpl
 	implements WebDAVPropsLocalService, IdentifiableOSGiService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>WebDAVPropsLocalService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.portal.kernel.service.WebDAVPropsLocalServiceUtil</code>.

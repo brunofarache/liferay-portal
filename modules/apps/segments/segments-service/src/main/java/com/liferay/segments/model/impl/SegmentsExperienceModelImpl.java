@@ -74,7 +74,7 @@ public class SegmentsExperienceModelImpl
 	extends BaseModelImpl<SegmentsExperience>
 	implements SegmentsExperienceModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. All methods that expect a segments experience model instance should use the <code>SegmentsExperience</code> interface instead.

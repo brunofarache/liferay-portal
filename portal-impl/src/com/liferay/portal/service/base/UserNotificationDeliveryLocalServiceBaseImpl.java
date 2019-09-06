@@ -63,7 +63,7 @@ public abstract class UserNotificationDeliveryLocalServiceBaseImpl
 	extends BaseLocalServiceImpl
 	implements UserNotificationDeliveryLocalService, IdentifiableOSGiService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>UserNotificationDeliveryLocalService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.portal.kernel.service.UserNotificationDeliveryLocalServiceUtil</code>.

@@ -1613,6 +1613,11 @@ public class LayoutWrapper
 		return model.matches(httpServletRequest, friendlyURL);
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this class directly. All methods that expect a layout model instance should use the <code>Layout</code> interface instead.
+	 */
 	@Override
 	public void persist() {
 		model.persist();

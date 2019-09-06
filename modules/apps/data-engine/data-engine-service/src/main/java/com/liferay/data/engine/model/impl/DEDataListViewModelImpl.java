@@ -69,7 +69,7 @@ import java.util.function.Function;
 public class DEDataListViewModelImpl
 	extends BaseModelImpl<DEDataListView> implements DEDataListViewModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. All methods that expect a de data list view model instance should use the <code>DEDataListView</code> interface instead.

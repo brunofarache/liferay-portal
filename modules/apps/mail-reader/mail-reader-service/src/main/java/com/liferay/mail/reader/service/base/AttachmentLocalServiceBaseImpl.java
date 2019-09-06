@@ -66,7 +66,7 @@ public abstract class AttachmentLocalServiceBaseImpl
 	extends BaseLocalServiceImpl
 	implements AttachmentLocalService, AopService, IdentifiableOSGiService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>AttachmentLocalService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.mail.reader.service.AttachmentLocalServiceUtil</code>.

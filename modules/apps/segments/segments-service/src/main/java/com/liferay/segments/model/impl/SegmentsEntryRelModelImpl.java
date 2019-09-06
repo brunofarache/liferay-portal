@@ -65,7 +65,7 @@ import java.util.function.Function;
 public class SegmentsEntryRelModelImpl
 	extends BaseModelImpl<SegmentsEntryRel> implements SegmentsEntryRelModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. All methods that expect a segments entry rel model instance should use the <code>SegmentsEntryRel</code> interface instead.

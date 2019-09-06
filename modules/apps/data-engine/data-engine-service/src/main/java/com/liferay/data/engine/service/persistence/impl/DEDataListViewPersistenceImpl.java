@@ -77,7 +77,7 @@ public class DEDataListViewPersistenceImpl
 	extends BasePersistenceImpl<DEDataListView>
 	implements DEDataListViewPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>DEDataListViewUtil</code> to access the de data list view persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

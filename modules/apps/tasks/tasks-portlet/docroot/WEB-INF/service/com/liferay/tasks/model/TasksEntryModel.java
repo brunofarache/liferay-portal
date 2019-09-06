@@ -34,10 +34,11 @@ import org.osgi.annotation.versioning.ProviderType;
  * @see TasksEntry
  * @generated
  */
+@ProviderType
 public interface TasksEntryModel
 	extends BaseModel<TasksEntry>, GroupedModel, ShardedModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this interface directly. All methods that expect a tasks entry model instance should use the {@link TasksEntry} interface instead.

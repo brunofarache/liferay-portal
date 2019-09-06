@@ -66,7 +66,7 @@ import java.util.function.Function;
 public class AssetListEntryModelImpl
 	extends BaseModelImpl<AssetListEntry> implements AssetListEntryModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. All methods that expect a asset list entry model instance should use the <code>AssetListEntry</code> interface instead.

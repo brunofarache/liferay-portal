@@ -76,7 +76,7 @@ public class AssetEntryUsagePersistenceImpl
 	extends BasePersistenceImpl<AssetEntryUsage>
 	implements AssetEntryUsagePersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>AssetEntryUsageUtil</code> to access the asset entry usage persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

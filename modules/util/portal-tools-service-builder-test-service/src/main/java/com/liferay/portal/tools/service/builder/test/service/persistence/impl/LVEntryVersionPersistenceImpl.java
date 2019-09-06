@@ -70,7 +70,7 @@ public class LVEntryVersionPersistenceImpl
 	extends BasePersistenceImpl<LVEntryVersion>
 	implements LVEntryVersionPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>LVEntryVersionUtil</code> to access the lv entry version persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

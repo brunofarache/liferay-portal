@@ -76,7 +76,7 @@ import org.osgi.service.component.annotations.Reference;
 public class MDRActionPersistenceImpl
 	extends BasePersistenceImpl<MDRAction> implements MDRActionPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>MDRActionUtil</code> to access the mdr action persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

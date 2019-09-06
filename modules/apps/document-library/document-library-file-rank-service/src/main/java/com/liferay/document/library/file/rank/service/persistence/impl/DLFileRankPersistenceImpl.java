@@ -71,7 +71,7 @@ import org.osgi.service.component.annotations.Reference;
 public class DLFileRankPersistenceImpl
 	extends BasePersistenceImpl<DLFileRank> implements DLFileRankPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>DLFileRankUtil</code> to access the document library file rank persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

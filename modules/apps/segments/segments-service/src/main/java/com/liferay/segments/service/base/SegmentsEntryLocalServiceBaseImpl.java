@@ -74,7 +74,7 @@ public abstract class SegmentsEntryLocalServiceBaseImpl
 	extends BaseLocalServiceImpl
 	implements SegmentsEntryLocalService, AopService, IdentifiableOSGiService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>SegmentsEntryLocalService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.segments.service.SegmentsEntryLocalServiceUtil</code>.

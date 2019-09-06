@@ -56,7 +56,7 @@ import java.util.function.Function;
 public class VersionedEntryModelImpl
 	extends BaseModelImpl<VersionedEntry> implements VersionedEntryModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. All methods that expect a versioned entry model instance should use the <code>VersionedEntry</code> interface instead.

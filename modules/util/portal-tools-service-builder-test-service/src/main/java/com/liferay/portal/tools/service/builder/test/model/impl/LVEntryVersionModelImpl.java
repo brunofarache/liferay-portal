@@ -56,7 +56,7 @@ import java.util.function.Function;
 public class LVEntryVersionModelImpl
 	extends BaseModelImpl<LVEntryVersion> implements LVEntryVersionModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. All methods that expect a lv entry version model instance should use the <code>LVEntryVersion</code> interface instead.

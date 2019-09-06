@@ -57,7 +57,7 @@ public class AssetAutoTaggerEntryModelImpl
 	extends BaseModelImpl<AssetAutoTaggerEntry>
 	implements AssetAutoTaggerEntryModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. All methods that expect a asset auto tagger entry model instance should use the <code>AssetAutoTaggerEntry</code> interface instead.

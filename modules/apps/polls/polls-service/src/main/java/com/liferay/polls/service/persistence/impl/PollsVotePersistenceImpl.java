@@ -76,7 +76,7 @@ import org.osgi.service.component.annotations.Reference;
 public class PollsVotePersistenceImpl
 	extends BasePersistenceImpl<PollsVote> implements PollsVotePersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>PollsVoteUtil</code> to access the polls vote persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

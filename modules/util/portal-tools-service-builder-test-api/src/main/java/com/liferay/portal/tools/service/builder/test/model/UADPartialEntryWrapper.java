@@ -190,6 +190,11 @@ public class UADPartialEntryWrapper
 		return _uadPartialEntry.isNew();
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this class directly. All methods that expect a uad partial entry model instance should use the <code>UADPartialEntry</code> interface instead.
+	 */
 	@Override
 	public void persist() {
 		_uadPartialEntry.persist();

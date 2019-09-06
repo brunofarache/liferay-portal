@@ -77,7 +77,7 @@ import org.osgi.service.component.annotations.Reference;
 public class AppPersistenceImpl
 	extends BasePersistenceImpl<App> implements AppPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>AppUtil</code> to access the app persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

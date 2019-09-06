@@ -60,7 +60,7 @@ public class DLOpenerFileEntryReferenceModelImpl
 	extends BaseModelImpl<DLOpenerFileEntryReference>
 	implements DLOpenerFileEntryReferenceModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. All methods that expect a dl opener file entry reference model instance should use the <code>DLOpenerFileEntryReference</code> interface instead.

@@ -62,7 +62,7 @@ public abstract class UADPartialEntryLocalServiceBaseImpl
 	extends BaseLocalServiceImpl
 	implements UADPartialEntryLocalService, IdentifiableOSGiService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>UADPartialEntryLocalService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.portal.tools.service.builder.test.service.UADPartialEntryLocalServiceUtil</code>.

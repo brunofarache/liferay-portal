@@ -543,6 +543,11 @@ public class CalendarResourceWrapper
 		return model.isUser();
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this class directly. All methods that expect a calendar resource model instance should use the <code>CalendarResource</code> interface instead.
+	 */
 	@Override
 	public void persist() {
 		model.persist();

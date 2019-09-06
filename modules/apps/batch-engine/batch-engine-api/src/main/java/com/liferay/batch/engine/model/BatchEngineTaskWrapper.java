@@ -334,6 +334,11 @@ public class BatchEngineTaskWrapper
 		return model.getVersion();
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this class directly. All methods that expect a batch engine task model instance should use the <code>BatchEngineTask</code> interface instead.
+	 */
 	@Override
 	public void persist() {
 		model.persist();

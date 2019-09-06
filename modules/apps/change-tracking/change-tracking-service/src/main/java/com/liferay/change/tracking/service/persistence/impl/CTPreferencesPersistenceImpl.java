@@ -68,7 +68,7 @@ public class CTPreferencesPersistenceImpl
 	extends BasePersistenceImpl<CTPreferences>
 	implements CTPreferencesPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>CTPreferencesUtil</code> to access the ct preferences persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

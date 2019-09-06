@@ -64,7 +64,7 @@ public class SegmentsExperimentRelModelImpl
 	extends BaseModelImpl<SegmentsExperimentRel>
 	implements SegmentsExperimentRelModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. All methods that expect a segments experiment rel model instance should use the <code>SegmentsExperimentRel</code> interface instead.

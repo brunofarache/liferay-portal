@@ -69,7 +69,7 @@ public abstract class LayoutSetLocalServiceBaseImpl
 	extends BaseLocalServiceImpl
 	implements LayoutSetLocalService, IdentifiableOSGiService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>LayoutSetLocalService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.portal.kernel.service.LayoutSetLocalServiceUtil</code>.

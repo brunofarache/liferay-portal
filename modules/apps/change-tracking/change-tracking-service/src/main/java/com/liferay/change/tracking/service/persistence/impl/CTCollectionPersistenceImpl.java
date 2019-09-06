@@ -72,7 +72,7 @@ public class CTCollectionPersistenceImpl
 	extends BasePersistenceImpl<CTCollection>
 	implements CTCollectionPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>CTCollectionUtil</code> to access the ct collection persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

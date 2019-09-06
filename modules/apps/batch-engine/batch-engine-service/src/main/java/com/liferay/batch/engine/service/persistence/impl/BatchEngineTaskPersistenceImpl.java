@@ -77,7 +77,7 @@ public class BatchEngineTaskPersistenceImpl
 	extends BasePersistenceImpl<BatchEngineTask>
 	implements BatchEngineTaskPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>BatchEngineTaskUtil</code> to access the batch engine task persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

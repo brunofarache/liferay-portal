@@ -60,7 +60,7 @@ import java.util.Set;
 public class CompanyPersistenceImpl
 	extends BasePersistenceImpl<Company> implements CompanyPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>CompanyUtil</code> to access the company persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

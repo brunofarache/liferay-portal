@@ -428,6 +428,11 @@ public class KaleoTaskFormWrapper
 		return model.getUserUuid();
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this class directly. All methods that expect a kaleo task form model instance should use the <code>KaleoTaskForm</code> interface instead.
+	 */
 	@Override
 	public void persist() {
 		model.persist();

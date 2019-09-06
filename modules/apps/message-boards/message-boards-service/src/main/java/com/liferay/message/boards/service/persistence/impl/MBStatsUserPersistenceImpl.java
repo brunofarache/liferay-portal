@@ -67,7 +67,7 @@ import org.osgi.service.component.annotations.Reference;
 public class MBStatsUserPersistenceImpl
 	extends BasePersistenceImpl<MBStatsUser> implements MBStatsUserPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>MBStatsUserUtil</code> to access the message boards stats user persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

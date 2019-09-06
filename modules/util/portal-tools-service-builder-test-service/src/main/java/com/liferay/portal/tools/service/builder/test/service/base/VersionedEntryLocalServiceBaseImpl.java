@@ -70,7 +70,7 @@ public abstract class VersionedEntryLocalServiceBaseImpl
 	implements VersionedEntryLocalService, IdentifiableOSGiService,
 			   VersionService<VersionedEntry, VersionedEntryVersion> {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>VersionedEntryLocalService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.portal.tools.service.builder.test.service.VersionedEntryLocalServiceUtil</code>.

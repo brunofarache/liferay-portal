@@ -63,7 +63,7 @@ public abstract class CTPreferencesLocalServiceBaseImpl
 	extends BaseLocalServiceImpl
 	implements CTPreferencesLocalService, AopService, IdentifiableOSGiService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>CTPreferencesLocalService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.change.tracking.service.CTPreferencesLocalServiceUtil</code>.

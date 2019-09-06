@@ -63,7 +63,7 @@ public class AssetListEntryUsageModelImpl
 	extends BaseModelImpl<AssetListEntryUsage>
 	implements AssetListEntryUsageModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. All methods that expect a asset list entry usage model instance should use the <code>AssetListEntryUsage</code> interface instead.

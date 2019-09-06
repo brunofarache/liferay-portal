@@ -56,7 +56,7 @@ public class LocalizedEntryLocalizationModelImpl
 	extends BaseModelImpl<LocalizedEntryLocalization>
 	implements LocalizedEntryLocalizationModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. All methods that expect a localized entry localization model instance should use the <code>LocalizedEntryLocalization</code> interface instead.

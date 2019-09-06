@@ -57,7 +57,7 @@ import java.util.function.Function;
 public class BigDecimalEntryModelImpl
 	extends BaseModelImpl<BigDecimalEntry> implements BigDecimalEntryModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. All methods that expect a big decimal entry model instance should use the <code>BigDecimalEntry</code> interface instead.

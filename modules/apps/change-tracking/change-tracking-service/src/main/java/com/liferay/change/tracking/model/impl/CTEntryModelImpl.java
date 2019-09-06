@@ -58,7 +58,7 @@ import java.util.function.Function;
 public class CTEntryModelImpl
 	extends BaseModelImpl<CTEntry> implements CTEntryModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. All methods that expect a ct entry model instance should use the <code>CTEntry</code> interface instead.

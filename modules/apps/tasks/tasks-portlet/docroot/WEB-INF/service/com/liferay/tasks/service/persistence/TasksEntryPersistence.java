@@ -31,9 +31,10 @@ import org.osgi.annotation.versioning.ProviderType;
  * @see TasksEntryUtil
  * @generated
  */
+@ProviderType
 public interface TasksEntryPersistence extends BasePersistence<TasksEntry> {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this interface directly. Always use {@link TasksEntryUtil} to access the tasks entry persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this interface.

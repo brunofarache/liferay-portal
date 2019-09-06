@@ -257,6 +257,11 @@ public class SiteFriendlyURLWrapper
 		return model.getUuid();
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this class directly. All methods that expect a site friendly url model instance should use the <code>SiteFriendlyURL</code> interface instead.
+	 */
 	@Override
 	public void persist() {
 		model.persist();

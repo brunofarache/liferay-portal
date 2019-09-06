@@ -60,7 +60,7 @@ import org.osgi.annotation.versioning.ProviderType;
 public interface BatchEngineTaskLocalService
 	extends BaseLocalService, PersistedModelLocalService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this interface directly. Always use {@link BatchEngineTaskLocalServiceUtil} to access the batch engine task local service. Add custom service methods to <code>com.liferay.batch.engine.service.impl.BatchEngineTaskLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.

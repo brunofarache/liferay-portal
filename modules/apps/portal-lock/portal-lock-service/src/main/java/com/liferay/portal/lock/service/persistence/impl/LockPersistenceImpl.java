@@ -76,7 +76,7 @@ import org.osgi.service.component.annotations.Reference;
 public class LockPersistenceImpl
 	extends BasePersistenceImpl<Lock> implements LockPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>LockUtil</code> to access the lock persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

@@ -77,7 +77,7 @@ public class AppBuilderAppPersistenceImpl
 	extends BasePersistenceImpl<AppBuilderApp>
 	implements AppBuilderAppPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>AppBuilderAppUtil</code> to access the app builder app persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

@@ -142,6 +142,11 @@ public class VirtualHostWrapper
 		return model.getVirtualHostId();
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this class directly. All methods that expect a virtual host model instance should use the <code>VirtualHost</code> interface instead.
+	 */
 	@Override
 	public void persist() {
 		model.persist();

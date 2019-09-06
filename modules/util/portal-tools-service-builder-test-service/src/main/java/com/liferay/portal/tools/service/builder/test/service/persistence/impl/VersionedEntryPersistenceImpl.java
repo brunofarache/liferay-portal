@@ -60,7 +60,7 @@ public class VersionedEntryPersistenceImpl
 	extends BasePersistenceImpl<VersionedEntry>
 	implements VersionedEntryPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>VersionedEntryUtil</code> to access the versioned entry persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

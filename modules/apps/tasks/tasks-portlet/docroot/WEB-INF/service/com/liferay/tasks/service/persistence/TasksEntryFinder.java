@@ -20,6 +20,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * @author Ryan Park
  * @generated
  */
+@ProviderType
 public interface TasksEntryFinder {
 
 	public int countByG_U_P_A_S_T_N(

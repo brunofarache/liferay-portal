@@ -57,7 +57,7 @@ public class VersionedEntryVersionModelImpl
 	extends BaseModelImpl<VersionedEntryVersion>
 	implements VersionedEntryVersionModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. All methods that expect a versioned entry version model instance should use the <code>VersionedEntryVersion</code> interface instead.

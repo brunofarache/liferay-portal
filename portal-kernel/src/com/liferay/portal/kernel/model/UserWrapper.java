@@ -1401,6 +1401,11 @@ public class UserWrapper
 		return model.isTermsOfUseComplete();
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this class directly. All methods that expect a user model instance should use the <code>User</code> interface instead.
+	 */
 	@Override
 	public void persist() {
 		model.persist();

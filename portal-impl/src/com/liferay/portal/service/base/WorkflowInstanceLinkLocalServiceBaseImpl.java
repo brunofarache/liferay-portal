@@ -64,7 +64,7 @@ public abstract class WorkflowInstanceLinkLocalServiceBaseImpl
 	extends BaseLocalServiceImpl
 	implements WorkflowInstanceLinkLocalService, IdentifiableOSGiService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>WorkflowInstanceLinkLocalService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.portal.kernel.service.WorkflowInstanceLinkLocalServiceUtil</code>.

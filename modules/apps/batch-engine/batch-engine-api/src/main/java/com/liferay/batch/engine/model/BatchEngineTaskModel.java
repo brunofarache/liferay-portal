@@ -41,7 +41,7 @@ import org.osgi.annotation.versioning.ProviderType;
 public interface BatchEngineTaskModel
 	extends BaseModel<BatchEngineTask>, MVCCModel, ShardedModel, StagedModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this interface directly. All methods that expect a batch engine task model instance should use the {@link BatchEngineTask} interface instead.

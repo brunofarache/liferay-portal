@@ -56,7 +56,7 @@ public abstract class StagingLocalServiceBaseImpl
 	extends BaseLocalServiceImpl
 	implements StagingLocalService, IdentifiableOSGiService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>StagingLocalService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.exportimport.kernel.service.StagingLocalServiceUtil</code>.

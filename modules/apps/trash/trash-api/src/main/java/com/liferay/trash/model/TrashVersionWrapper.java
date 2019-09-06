@@ -204,6 +204,11 @@ public class TrashVersionWrapper
 		return model.getVersionId();
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this class directly. All methods that expect a trash version model instance should use the <code>TrashVersion</code> interface instead.
+	 */
 	@Override
 	public void persist() {
 		model.persist();

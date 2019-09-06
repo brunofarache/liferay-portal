@@ -47,6 +47,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * @see OAuthTokenLocalServiceUtil
  * @generated
  */
+@ProviderType
 @Transactional(
 	isolation = Isolation.PORTAL,
 	rollbackFor = {PortalException.class, SystemException.class}
@@ -54,7 +55,7 @@ import org.osgi.annotation.versioning.ProviderType;
 public interface OAuthTokenLocalService
 	extends BaseLocalService, PersistedModelLocalService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this interface directly. Always use {@link OAuthTokenLocalServiceUtil} to access the o auth token local service. Add custom service methods to <code>com.liferay.opensocial.service.impl.OAuthTokenLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.

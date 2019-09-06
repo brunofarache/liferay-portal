@@ -57,7 +57,7 @@ public class LVEntryLocalizationModelImpl
 	extends BaseModelImpl<LVEntryLocalization>
 	implements LVEntryLocalizationModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. All methods that expect a lv entry localization model instance should use the <code>LVEntryLocalization</code> interface instead.

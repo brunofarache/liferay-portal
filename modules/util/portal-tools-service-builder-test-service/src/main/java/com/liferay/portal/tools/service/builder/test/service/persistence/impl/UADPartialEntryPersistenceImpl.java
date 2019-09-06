@@ -56,7 +56,7 @@ public class UADPartialEntryPersistenceImpl
 	extends BasePersistenceImpl<UADPartialEntry>
 	implements UADPartialEntryPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>UADPartialEntryUtil</code> to access the uad partial entry persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

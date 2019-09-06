@@ -66,7 +66,7 @@ public abstract class MessageLocalServiceBaseImpl
 	extends BaseLocalServiceImpl
 	implements MessageLocalService, AopService, IdentifiableOSGiService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>MessageLocalService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.mail.reader.service.MessageLocalServiceUtil</code>.

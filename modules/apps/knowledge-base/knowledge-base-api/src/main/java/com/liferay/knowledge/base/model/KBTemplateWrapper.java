@@ -257,6 +257,11 @@ public class KBTemplateWrapper
 		return model.getUuid();
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this class directly. All methods that expect a kb template model instance should use the <code>KBTemplate</code> interface instead.
+	 */
 	@Override
 	public void persist() {
 		model.persist();

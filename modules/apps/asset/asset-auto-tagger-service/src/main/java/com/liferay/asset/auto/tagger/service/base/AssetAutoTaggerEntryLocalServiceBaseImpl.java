@@ -64,7 +64,7 @@ public abstract class AssetAutoTaggerEntryLocalServiceBaseImpl
 	implements AssetAutoTaggerEntryLocalService, AopService,
 			   IdentifiableOSGiService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>AssetAutoTaggerEntryLocalService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.asset.auto.tagger.service.AssetAutoTaggerEntryLocalServiceUtil</code>.

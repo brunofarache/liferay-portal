@@ -283,6 +283,11 @@ public class PowwowServerWrapper
 		return model.isActive();
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this class directly. All methods that expect a powwow server model instance should use the <code>PowwowServer</code> interface instead.
+	 */
 	@Override
 	public void persist() {
 		model.persist();

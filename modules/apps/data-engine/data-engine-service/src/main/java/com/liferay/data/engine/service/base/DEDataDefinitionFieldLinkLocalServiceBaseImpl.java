@@ -64,7 +64,7 @@ public abstract class DEDataDefinitionFieldLinkLocalServiceBaseImpl
 	implements DEDataDefinitionFieldLinkLocalService, AopService,
 			   IdentifiableOSGiService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>DEDataDefinitionFieldLinkLocalService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.data.engine.service.DEDataDefinitionFieldLinkLocalServiceUtil</code>.

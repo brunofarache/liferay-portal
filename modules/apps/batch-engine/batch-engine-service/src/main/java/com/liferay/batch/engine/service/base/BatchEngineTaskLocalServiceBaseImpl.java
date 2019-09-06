@@ -72,7 +72,7 @@ public abstract class BatchEngineTaskLocalServiceBaseImpl
 	implements BatchEngineTaskLocalService, AopService,
 			   IdentifiableOSGiService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>BatchEngineTaskLocalService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.batch.engine.service.BatchEngineTaskLocalServiceUtil</code>.

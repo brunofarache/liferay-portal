@@ -56,7 +56,7 @@ public class LocalizedEntryPersistenceImpl
 	extends BasePersistenceImpl<LocalizedEntry>
 	implements LocalizedEntryPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>LocalizedEntryUtil</code> to access the localized entry persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

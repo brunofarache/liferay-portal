@@ -33,6 +33,11 @@ public class CTPreferencesLocalServiceWrapper
 		_ctPreferencesLocalService = ctPreferencesLocalService;
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this interface directly. Always use {@link CTPreferencesLocalServiceUtil} to access the ct preferences local service. Add custom service methods to <code>com.liferay.change.tracking.service.impl.CTPreferencesLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 */
 	@Override
 	public com.liferay.change.tracking.model.CTPreferences addCTPreference(
 		long companyId, long userId) {

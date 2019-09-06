@@ -66,7 +66,7 @@ public abstract class FolderLocalServiceBaseImpl
 	extends BaseLocalServiceImpl
 	implements FolderLocalService, AopService, IdentifiableOSGiService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>FolderLocalService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.mail.reader.service.FolderLocalServiceUtil</code>.

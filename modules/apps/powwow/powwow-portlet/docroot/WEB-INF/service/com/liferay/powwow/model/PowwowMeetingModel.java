@@ -34,10 +34,11 @@ import org.osgi.annotation.versioning.ProviderType;
  * @see PowwowMeeting
  * @generated
  */
+@ProviderType
 public interface PowwowMeetingModel
 	extends BaseModel<PowwowMeeting>, GroupedModel, ShardedModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this interface directly. All methods that expect a powwow meeting model instance should use the {@link PowwowMeeting} interface instead.

@@ -82,7 +82,7 @@ public abstract class KaleoTaskFormLocalServiceBaseImpl
 	extends BaseLocalServiceImpl
 	implements KaleoTaskFormLocalService, AopService, IdentifiableOSGiService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>KaleoTaskFormLocalService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.portal.workflow.kaleo.service.KaleoTaskFormLocalServiceUtil</code>.

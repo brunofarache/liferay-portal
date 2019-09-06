@@ -58,7 +58,7 @@ public class DEDataDefinitionFieldLinkModelImpl
 	extends BaseModelImpl<DEDataDefinitionFieldLink>
 	implements DEDataDefinitionFieldLinkModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. All methods that expect a de data definition field link model instance should use the <code>DEDataDefinitionFieldLink</code> interface instead.

@@ -61,7 +61,7 @@ import java.util.function.Function;
 public class CTCollectionModelImpl
 	extends BaseModelImpl<CTCollection> implements CTCollectionModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. All methods that expect a ct collection model instance should use the <code>CTCollection</code> interface instead.

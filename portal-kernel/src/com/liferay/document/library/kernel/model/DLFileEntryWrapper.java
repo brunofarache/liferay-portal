@@ -824,6 +824,11 @@ public class DLFileEntryWrapper
 		return model.isManualCheckInRequired();
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this class directly. All methods that expect a document library file entry model instance should use the <code>DLFileEntry</code> interface instead.
+	 */
 	@Override
 	public void persist() {
 		model.persist();

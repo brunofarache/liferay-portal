@@ -62,7 +62,7 @@ public class LVEntryLocalizationVersionPersistenceImpl
 	extends BasePersistenceImpl<LVEntryLocalizationVersion>
 	implements LVEntryLocalizationVersionPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>LVEntryLocalizationVersionUtil</code> to access the lv entry localization version persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

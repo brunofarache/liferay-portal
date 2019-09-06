@@ -74,7 +74,7 @@ import java.util.Set;
 public class LVEntryPersistenceImpl
 	extends BasePersistenceImpl<LVEntry> implements LVEntryPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>LVEntryUtil</code> to access the lv entry persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

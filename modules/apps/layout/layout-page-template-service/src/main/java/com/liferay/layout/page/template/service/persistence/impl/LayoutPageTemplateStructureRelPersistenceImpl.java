@@ -77,7 +77,7 @@ public class LayoutPageTemplateStructureRelPersistenceImpl
 	extends BasePersistenceImpl<LayoutPageTemplateStructureRel>
 	implements LayoutPageTemplateStructureRelPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>LayoutPageTemplateStructureRelUtil</code> to access the layout page template structure rel persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

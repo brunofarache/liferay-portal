@@ -64,7 +64,7 @@ public class NestedSetsTreeEntryPersistenceImpl
 	extends BasePersistenceImpl<NestedSetsTreeEntry>
 	implements NestedSetsTreeEntryPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>NestedSetsTreeEntryUtil</code> to access the nested sets tree entry persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

@@ -59,7 +59,7 @@ import java.util.Map;
 public class WebDAVPropsPersistenceImpl
 	extends BasePersistenceImpl<WebDAVProps> implements WebDAVPropsPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>WebDAVPropsUtil</code> to access the web dav props persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

@@ -46,7 +46,7 @@ public abstract class AccountEntryUserRelServiceBaseImpl
 	extends BaseServiceImpl
 	implements AccountEntryUserRelService, AopService, IdentifiableOSGiService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>AccountEntryUserRelService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.account.service.AccountEntryUserRelServiceUtil</code>.

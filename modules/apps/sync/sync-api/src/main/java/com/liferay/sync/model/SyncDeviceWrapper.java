@@ -291,6 +291,11 @@ public class SyncDeviceWrapper
 		return model.isSupported();
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this class directly. All methods that expect a sync device model instance should use the <code>SyncDevice</code> interface instead.
+	 */
 	@Override
 	public void persist() {
 		model.persist();

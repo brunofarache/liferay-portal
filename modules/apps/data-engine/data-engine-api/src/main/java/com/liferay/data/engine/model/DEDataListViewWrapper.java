@@ -367,6 +367,11 @@ public class DEDataListViewWrapper
 		return model.getUuid();
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this class directly. All methods that expect a de data list view model instance should use the <code>DEDataListView</code> interface instead.
+	 */
 	@Override
 	public void persist() {
 		model.persist();

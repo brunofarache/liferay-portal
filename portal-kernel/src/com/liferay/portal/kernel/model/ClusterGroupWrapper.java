@@ -159,6 +159,11 @@ public class ClusterGroupWrapper
 		return model.isWholeCluster();
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this class directly. All methods that expect a cluster group model instance should use the <code>ClusterGroup</code> interface instead.
+	 */
 	@Override
 	public void persist() {
 		model.persist();

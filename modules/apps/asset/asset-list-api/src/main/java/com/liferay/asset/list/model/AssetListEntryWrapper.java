@@ -384,6 +384,11 @@ public class AssetListEntryWrapper
 		return model.getUuid();
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this class directly. All methods that expect a asset list entry model instance should use the <code>AssetListEntry</code> interface instead.
+	 */
 	@Override
 	public void persist() {
 		model.persist();

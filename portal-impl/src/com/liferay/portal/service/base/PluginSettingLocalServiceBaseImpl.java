@@ -65,7 +65,7 @@ public abstract class PluginSettingLocalServiceBaseImpl
 	extends BaseLocalServiceImpl
 	implements PluginSettingLocalService, IdentifiableOSGiService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>PluginSettingLocalService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.portal.kernel.service.PluginSettingLocalServiceUtil</code>.

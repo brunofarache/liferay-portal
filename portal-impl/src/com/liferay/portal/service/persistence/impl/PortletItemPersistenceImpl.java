@@ -61,7 +61,7 @@ import java.util.Objects;
 public class PortletItemPersistenceImpl
 	extends BasePersistenceImpl<PortletItem> implements PortletItemPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>PortletItemUtil</code> to access the portlet item persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

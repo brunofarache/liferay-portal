@@ -51,7 +51,7 @@ public abstract class SegmentsExperimentServiceBaseImpl
 	extends BaseServiceImpl
 	implements SegmentsExperimentService, AopService, IdentifiableOSGiService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>SegmentsExperimentService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.segments.service.SegmentsExperimentServiceUtil</code>.

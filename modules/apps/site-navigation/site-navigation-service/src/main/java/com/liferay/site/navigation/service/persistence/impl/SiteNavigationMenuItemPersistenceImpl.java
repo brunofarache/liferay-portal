@@ -78,7 +78,7 @@ public class SiteNavigationMenuItemPersistenceImpl
 	extends BasePersistenceImpl<SiteNavigationMenuItem>
 	implements SiteNavigationMenuItemPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>SiteNavigationMenuItemUtil</code> to access the site navigation menu item persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

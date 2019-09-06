@@ -31,10 +31,11 @@ import org.osgi.annotation.versioning.ProviderType;
  * @see OAuthConsumerUtil
  * @generated
  */
+@ProviderType
 public interface OAuthConsumerPersistence
 	extends BasePersistence<OAuthConsumer> {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this interface directly. Always use {@link OAuthConsumerUtil} to access the o auth consumer persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this interface.

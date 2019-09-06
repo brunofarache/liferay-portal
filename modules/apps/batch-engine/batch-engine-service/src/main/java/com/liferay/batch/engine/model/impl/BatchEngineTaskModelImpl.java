@@ -61,7 +61,7 @@ import java.util.function.Function;
 public class BatchEngineTaskModelImpl
 	extends BaseModelImpl<BatchEngineTask> implements BatchEngineTaskModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. All methods that expect a batch engine task model instance should use the <code>BatchEngineTask</code> interface instead.

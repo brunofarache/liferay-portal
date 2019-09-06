@@ -71,7 +71,7 @@ public class SegmentsExperimentRelPersistenceImpl
 	extends BasePersistenceImpl<SegmentsExperimentRel>
 	implements SegmentsExperimentRelPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>SegmentsExperimentRelUtil</code> to access the segments experiment rel persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

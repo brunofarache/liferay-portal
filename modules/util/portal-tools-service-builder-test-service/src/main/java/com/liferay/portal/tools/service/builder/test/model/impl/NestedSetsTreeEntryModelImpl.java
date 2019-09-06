@@ -56,7 +56,7 @@ public class NestedSetsTreeEntryModelImpl
 	extends BaseModelImpl<NestedSetsTreeEntry>
 	implements NestedSetsTreeEntryModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. All methods that expect a nested sets tree entry model instance should use the <code>NestedSetsTreeEntry</code> interface instead.

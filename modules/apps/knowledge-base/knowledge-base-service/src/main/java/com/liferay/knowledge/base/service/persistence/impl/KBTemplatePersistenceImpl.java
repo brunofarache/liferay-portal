@@ -84,7 +84,7 @@ import org.osgi.service.component.annotations.Reference;
 public class KBTemplatePersistenceImpl
 	extends BasePersistenceImpl<KBTemplate> implements KBTemplatePersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>KBTemplateUtil</code> to access the kb template persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

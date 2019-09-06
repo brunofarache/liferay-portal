@@ -58,7 +58,7 @@ import java.util.function.Function;
 public class CTProcessModelImpl
 	extends BaseModelImpl<CTProcess> implements CTProcessModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. All methods that expect a ct process model instance should use the <code>CTProcess</code> interface instead.

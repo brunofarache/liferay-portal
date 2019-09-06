@@ -67,7 +67,7 @@ import java.util.function.Function;
 public class SharingEntryModelImpl
 	extends BaseModelImpl<SharingEntry> implements SharingEntryModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. All methods that expect a sharing entry model instance should use the <code>SharingEntry</code> interface instead.

@@ -71,7 +71,7 @@ public class BigDecimalEntryPersistenceImpl
 	extends BasePersistenceImpl<BigDecimalEntry>
 	implements BigDecimalEntryPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>BigDecimalEntryUtil</code> to access the big decimal entry persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

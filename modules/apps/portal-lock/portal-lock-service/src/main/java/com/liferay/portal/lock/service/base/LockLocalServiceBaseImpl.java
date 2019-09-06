@@ -63,7 +63,7 @@ public abstract class LockLocalServiceBaseImpl
 	extends BaseLocalServiceImpl
 	implements LockLocalService, AopService, IdentifiableOSGiService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>LockLocalService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.portal.lock.service.LockLocalServiceUtil</code>.

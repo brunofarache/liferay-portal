@@ -28,9 +28,10 @@ import org.osgi.annotation.versioning.ProviderType;
  * @generated
  */
 @ImplementationClassName("com.liferay.tasks.model.impl.TasksEntryImpl")
+@ProviderType
 public interface TasksEntry extends PersistedModel, TasksEntryModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify this interface directly. Add methods to <code>com.liferay.tasks.model.impl.TasksEntryImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.

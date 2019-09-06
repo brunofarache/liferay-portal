@@ -81,7 +81,7 @@ public class SegmentsExperimentPersistenceImpl
 	extends BasePersistenceImpl<SegmentsExperiment>
 	implements SegmentsExperimentPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>SegmentsExperimentUtil</code> to access the segments experiment persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

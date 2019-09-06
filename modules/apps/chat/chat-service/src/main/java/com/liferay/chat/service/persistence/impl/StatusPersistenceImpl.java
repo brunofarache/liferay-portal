@@ -69,7 +69,7 @@ import org.osgi.service.component.annotations.Reference;
 public class StatusPersistenceImpl
 	extends BasePersistenceImpl<Status> implements StatusPersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>StatusUtil</code> to access the status persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

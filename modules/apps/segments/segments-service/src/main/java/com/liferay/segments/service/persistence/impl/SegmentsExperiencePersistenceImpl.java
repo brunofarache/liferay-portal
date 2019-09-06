@@ -81,7 +81,7 @@ public class SegmentsExperiencePersistenceImpl
 	extends BasePersistenceImpl<SegmentsExperience>
 	implements SegmentsExperiencePersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>SegmentsExperienceUtil</code> to access the segments experience persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

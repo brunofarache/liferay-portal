@@ -201,6 +201,11 @@ public class LocalizedEntryWrapper
 		return _localizedEntry.isNew();
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this class directly. All methods that expect a localized entry model instance should use the <code>LocalizedEntry</code> interface instead.
+	 */
 	@Override
 	public void persist() {
 		_localizedEntry.persist();

@@ -76,7 +76,7 @@ public abstract class CalendarNotificationTemplateLocalServiceBaseImpl
 	implements CalendarNotificationTemplateLocalService, AopService,
 			   IdentifiableOSGiService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Use <code>CalendarNotificationTemplateLocalService</code> via injection or a <code>org.osgi.util.tracker.ServiceTracker</code> or use <code>com.liferay.calendar.service.CalendarNotificationTemplateLocalServiceUtil</code>.

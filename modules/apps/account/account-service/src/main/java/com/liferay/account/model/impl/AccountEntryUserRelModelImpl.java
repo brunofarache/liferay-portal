@@ -61,7 +61,7 @@ public class AccountEntryUserRelModelImpl
 	extends BaseModelImpl<AccountEntryUserRel>
 	implements AccountEntryUserRelModel {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. All methods that expect a account entry user rel model instance should use the <code>AccountEntryUserRel</code> interface instead.

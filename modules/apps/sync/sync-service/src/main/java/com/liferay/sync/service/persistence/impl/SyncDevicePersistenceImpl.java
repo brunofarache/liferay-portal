@@ -77,7 +77,7 @@ import org.osgi.service.component.annotations.Reference;
 public class SyncDevicePersistenceImpl
 	extends BasePersistenceImpl<SyncDevice> implements SyncDevicePersistence {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this class directly. Always use <code>SyncDeviceUtil</code> to access the sync device persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.

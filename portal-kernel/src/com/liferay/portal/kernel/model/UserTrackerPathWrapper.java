@@ -160,6 +160,11 @@ public class UserTrackerPathWrapper
 		return model.getUserTrackerPathId();
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this class directly. All methods that expect a user tracker path model instance should use the <code>UserTrackerPath</code> interface instead.
+	 */
 	@Override
 	public void persist() {
 		model.persist();

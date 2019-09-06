@@ -31,10 +31,11 @@ import org.osgi.annotation.versioning.ProviderType;
  * @see PowwowParticipantUtil
  * @generated
  */
+@ProviderType
 public interface PowwowParticipantPersistence
 	extends BasePersistence<PowwowParticipant> {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this interface directly. Always use {@link PowwowParticipantUtil} to access the powwow participant persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this interface.

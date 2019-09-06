@@ -32,7 +32,7 @@ import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 @Deprecated
 public class ClusterGroupLocalServiceUtil {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify this class directly. Add custom service methods to <code>com.liferay.portal.service.impl.ClusterGroupLocalServiceImpl</code> and rerun ServiceBuilder to regenerate this class.

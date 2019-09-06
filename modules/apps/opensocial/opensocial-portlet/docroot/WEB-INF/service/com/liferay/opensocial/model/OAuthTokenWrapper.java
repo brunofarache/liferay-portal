@@ -307,6 +307,11 @@ public class OAuthTokenWrapper
 		return model.getUserUuid();
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this class directly. All methods that expect a o auth token model instance should use the <code>OAuthToken</code> interface instead.
+	 */
 	@Override
 	public void persist() {
 		model.persist();
