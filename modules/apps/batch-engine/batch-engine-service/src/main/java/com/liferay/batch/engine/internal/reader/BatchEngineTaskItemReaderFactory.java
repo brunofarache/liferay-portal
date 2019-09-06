@@ -25,25 +25,23 @@ import java.io.InputStream;
 public class BatchEngineTaskItemReaderFactory {
 
 	public static <T> BatchEngineTaskItemReader<T> create(
-			Class<T> itemClass,
 			BatchEngineTaskContentType batchEngineTaskContentType,
-			InputStream inputStream)
+			InputStream inputStream, Class<T> itemClass)
 		throws IOException {
 
 		if (batchEngineTaskContentType == BatchEngineTaskContentType.CSV) {
 			return new FlatFileBatchEngineTaskItemReader<>(
-				itemClass, inputStream);
+				inputStream, itemClass);
 		}
 
 		if (batchEngineTaskContentType == BatchEngineTaskContentType.JSON) {
-			return new JSONBatchEngineTaskItemReader<>(
-				itemClass, inputStream);
+			return new JSONBatchEngineTaskItemReader<>(inputStream, itemClass);
 		}
 
 		if ((batchEngineTaskContentType == BatchEngineTaskContentType.XLS) ||
 			(batchEngineTaskContentType == BatchEngineTaskContentType.XLSX)) {
 
-			return new XLSBatchEngineTaskItemReader<>(itemClass, inputStream);
+			return new XLSBatchEngineTaskItemReader<>(inputStream, itemClass);
 		}
 
 		throw new IllegalArgumentException(

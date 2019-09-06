@@ -106,10 +106,9 @@ public class BatchEngineTaskExecutorImpl<T> implements BatchEngineTaskExecutor {
 
 		try (BatchEngineTaskItemReader<T> batchEngineTaskItemReader =
 				BatchEngineTaskItemReaderFactory.create(
-					_itemClass,
 					BatchEngineTaskContentType.valueOf(
 						batchEngineTask.getContentType()),
-					content.getBinaryStream())) {
+					content.getBinaryStream(), _itemClass)) {
 
 			while ((item = batchEngineTaskItemReader.read()) != null) {
 				if (items.size() < batchEngineTask.getBatchSize()) {

@@ -29,11 +29,11 @@ public class JSONBatchEngineTaskItemReader<T>
 	implements BatchEngineTaskItemReader<T> {
 
 	public JSONBatchEngineTaskItemReader(
-			Class<? extends T> itemClass, InputStream inputStream)
+			InputStream inputStream, Class<? extends T> itemClass)
 		throws IOException {
 
-		_itemClass = itemClass;
 		_inputStream = inputStream;
+		_itemClass = itemClass;
 
 		_jsonParser = _jsonFactory.createParser(_inputStream);
 
@@ -59,8 +59,8 @@ public class JSONBatchEngineTaskItemReader<T>
 	private static final JsonFactory _jsonFactory = new JsonFactory();
 	private static final ObjectMapper _objectMapper = new ObjectMapper();
 
-	private final Class<? extends T> _itemClass;
 	private final InputStream _inputStream;
+	private final Class<? extends T> _itemClass;
 	private final JsonParser _jsonParser;
 
 }
