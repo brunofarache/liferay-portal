@@ -88,7 +88,7 @@ export default ({
 }) => {
 	const EMPTY_STATE = {
 		button: () => (
-			<Button displayType="secondary" href={`${url}/add/first-step`}>
+			<Button displayType="secondary" href={`${url}/add/form-view`}>
 				{Liferay.Language.get('new-app')}
 			</Button>
 		),
@@ -104,7 +104,7 @@ export default ({
 			addButton={() => (
 				<Button
 					className="nav-btn nav-btn-monospaced navbar-breakpoint-down-d-none"
-					href={`${url}/add/first-step`}
+					href={`${url}/add/form-view`}
 					symbol="plus"
 					tooltip={Liferay.Language.get('new-app')}
 				/>

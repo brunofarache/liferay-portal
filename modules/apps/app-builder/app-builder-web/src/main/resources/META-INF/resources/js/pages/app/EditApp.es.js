@@ -12,25 +12,21 @@
  * details.
  */
 
-import React, {useEffect, useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {Route, Switch} from 'react-router-dom';
-import {AppContext} from './AppContext.es';
-import CreationMultiStep from './CreationMultiStep.es';
-import FormViewSelection from './FormViewSelection.es';
-import Button from '../../components/button/Button.es';
+import {AppContext, AppProvider} from './AppContext.es';
 import ControlMenu from '../../components/control-menu/ControlMenu.es';
-import {UpperToolbarInput} from '../../components/upper-toolbar/UpperToolbar.es';
-import {getItem, addItem, updateItem} from '../../utils/client.es';
+import {getItem} from '../../utils/client.es';
+import SelectFormView from './SelectFormView.es';
+import SelectTableView from './SelectTableView.es';
 
 export default ({
-	history,
 	match: {
-		params: {dataDefinitionId, appId},
+		params: {appId},
 		path
-	},
-	location
+	}
 }) => {
-	const {app, setApp} = useContext(AppContext);
+	const {setApp} = useContext(AppContext);
 
 	let title = Liferay.Language.get('new-app');
 
@@ -47,162 +43,26 @@ export default ({
 		}
 	}, [appId, setApp]);
 
-	const handleBack = () => {
-		history.push(`/custom-object/${dataDefinitionId}/apps`);
-	};
-
-	const handleSubmit = () => {
-		if (app.name.en_US === '') {
-			return;
-		}
-
-		if (appId) {
-			updateItem(`/o/app-builder/v1.0/apps/${appId}`, app).then(
-				handleBack
-			);
-		} else {
-			addItem(
-				`/o/app-builder/v1.0/data-definitions/${dataDefinitionId}/apps`,
-				app
-			).then(handleBack);
-		}
-	};
-
-	const handleNavigation = () => {
-		const nextStep = location.pathname.includes('first')
-			? 'second-step'
-			: 'third-step';
-		history.push(`/custom-object/${dataDefinitionId}/apps/add/${nextStep}`);
-	};
-
-	const handleAppNameChange = event => {
-		const name = event.target.value;
-
-		setApp({
-			...app,
-			name: {
-				en_US: name
-			}
-		});
-	};
-
 	return (
 		<>
 			<ControlMenu backURL="../" title={title} />
 
-			<div className="container-fluid container-fluid-max-lg mt-4">
-				<div className="card card-root shadowless-card">
-					<div className="card-header align-items-center d-flex justify-content-between bg-transparent">
-						<UpperToolbarInput
-							onInput={handleAppNameChange}
-							placeholder={Liferay.Language.get('untitled-app')}
-							value={app.name.en_US}
-						/>
-					</div>
-					<div className="card-body pt-0 pr-0 pl-0">
-						<h4 className="card-divider mb-4"></h4>
-
-						<div className="autofit-row">
-							<div className="col-md-12">
-								<Switch>
-									<Route
-										component={() => (
-											<CreationMultiStep
-												currentStep={1}
-												totalSteps={3}
-											/>
-										)}
-										path={[`${path}/first-step`]}
-									/>
-									<Route
-										component={() => (
-											<CreationMultiStep
-												currentStep={2}
-												totalSteps={3}
-											/>
-										)}
-										path={[`${path}/second-step`]}
-									/>
-									<Route
-										component={() => (
-											<CreationMultiStep
-												currentStep={3}
-												totalSteps={3}
-											/>
-										)}
-										path={[`${path}/third-step`]}
-									/>
-								</Switch>
-							</div>
-						</div>
-
-						<Switch>
-							<Route
-								component={FormViewSelection}
-								path={[`${path}/first-step`]}
-							/>
-						</Switch>
-
-						<h4 className="card-divider"></h4>
-
-						<div className="card-footer bg-transparent">
-							<div className="autofit-row">
-								<div className="col-md-4">
-									<Button
-										displayType="secondary"
-										onClick={handleBack}
-									>
-										{Liferay.Language.get('cancel')}
-									</Button>
-								</div>
-								<div className="col-md-4 offset-md-4 text-right">
-									<Switch>
-										<Route
-											component={() => (
-												<Button
-													displayType="primary"
-													onClick={handleNavigation}
-												>
-													{Liferay.Language.get(
-														'next'
-													)}
-												</Button>
-											)}
-											path={[`${path}/first-step`]}
-										/>
-										<Route
-											component={() => (
-												<Button
-													displayType="primary"
-													onClick={handleNavigation}
-												>
-													{Liferay.Language.get(
-														'next'
-													)}
-												</Button>
-											)}
-											path={[`${path}/second-step`]}
-										/>
-										<Route
-											component={() => (
-												<Button
-													displayType="primary"
-													onClick={handleSubmit}
-												>
-													{Liferay.Language.get(
-														'save'
-													)}
-												</Button>
-											)}
-											path={[`${path}/third-step`]}
-										/>
-									</Switch>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
+			<AppProvider>
+				<Switch>
+					<Route
+						component={SelectFormView}
+						path={[`${path}/form-view`]}
+					></Route>
+					<Route
+						component={SelectTableView}
+						path={[`${path}/table-view`]}
+					></Route>
+					<Route
+						component={SelectFormView}
+						path={[`${path}/deployment`]}
+					></Route>
+				</Switch>
+			</AppProvider>
 		</>
 	);
 };
