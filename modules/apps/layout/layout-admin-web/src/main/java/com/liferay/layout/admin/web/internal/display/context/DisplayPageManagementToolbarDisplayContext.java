@@ -145,10 +145,8 @@ public class DisplayPageManagementToolbarDisplayContext
 						dropDownItemData.put(
 							"addDisplayPageURL", addDisplayPageURL.toString());
 						dropDownItemData.put(
-							"mappingTypes", _getMappingTypes());
-
+							"mappingTypes", _getMappingTypesJSONArray());
 						dropdownItem.setData(dropDownItemData);
-
 						dropdownItem.setLabel(LanguageUtil.get(request, "add"));
 					});
 			}
@@ -221,7 +219,7 @@ public class DisplayPageManagementToolbarDisplayContext
 		return jsonArray;
 	}
 
-	private JSONArray _getMappingTypes() {
+	private JSONArray _getMappingTypesJSONArray() {
 		JSONArray mappingTypesJSONArray = JSONFactoryUtil.createJSONArray();
 
 		for (InfoDisplayContributor<?> infoDisplayContributor :
