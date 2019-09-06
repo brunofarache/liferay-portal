@@ -57,7 +57,7 @@ public class FlatFileBatchEngineTaskItemReader<T>
 			return null;
 		}
 
-		Map<String, Object> columnNameValueMap = new HashMap<>();
+		Map<String, Object> columnValues = new HashMap<>();
 
 		String[] values = StringUtil.split(line);
 
@@ -73,15 +73,15 @@ public class FlatFileBatchEngineTaskItemReader<T>
 			int lastDelimiterIndex = columnName.lastIndexOf('_');
 
 			if (lastDelimiterIndex == -1) {
-				columnNameValueMap.put(columnName, value);
+				columnValues.put(columnName, value);
 			}
 			else {
 				ColumnUtil.handleLocalizationColumn(
-					columnName, columnNameValueMap, lastDelimiterIndex, value);
+					columnName, columnValues, lastDelimiterIndex, value);
 			}
 		}
 
-		return _objectMapper.convertValue(columnNameValueMap, _itemClass);
+		return _objectMapper.convertValue(columnValues, _itemClass);
 	}
 
 	private static final ObjectMapper _objectMapper = new ObjectMapper();

@@ -23,7 +23,7 @@ import java.util.Map;
 public class ColumnUtil {
 
 	public static void handleLocalizationColumn(
-		String columnName, Map<String, Object> columnNameValueMap,
+		String columnName, Map<String, Object> columnValues,
 		int lastDelimiterIndex, String value) {
 
 		String languageId = columnName.substring(lastDelimiterIndex + 1);
@@ -31,12 +31,12 @@ public class ColumnUtil {
 		columnName = columnName.substring(0, lastDelimiterIndex);
 
 		Map<String, String> localizationMap =
-			(Map<String, String>)columnNameValueMap.get(columnName);
+			(Map<String, String>)columnValues.get(columnName);
 
 		if (localizationMap == null) {
 			localizationMap = new HashMap<>();
 
-			columnNameValueMap.put(columnName, localizationMap);
+			columnValues.put(columnName, localizationMap);
 		}
 
 		localizationMap.put(languageId, value);

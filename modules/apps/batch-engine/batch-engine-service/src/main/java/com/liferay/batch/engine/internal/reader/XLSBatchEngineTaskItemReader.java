@@ -77,7 +77,7 @@ public class XLSBatchEngineTaskItemReader<T>
 
 		Row row = _rowIterator.next();
 
-		Map<String, Object> columnNameValueMap = new HashMap<>();
+		Map<String, Object> columnValues = new HashMap<>();
 
 		int index = 0;
 
@@ -89,14 +89,14 @@ public class XLSBatchEngineTaskItemReader<T>
 			}
 
 			if (CellType.BOOLEAN == cell.getCellType()) {
-				columnNameValueMap.put(columnName, cell.getBooleanCellValue());
+				columnValues.put(columnName, cell.getBooleanCellValue());
 			}
 			else if (CellType.NUMERIC == cell.getCellType()) {
 				if (DateUtil.isCellDateFormatted(cell)) {
-					columnNameValueMap.put(columnName, cell.getDateCellValue());
+					columnValues.put(columnName, cell.getDateCellValue());
 				}
 				else {
-					columnNameValueMap.put(
+					columnValues.put(
 						columnName, cell.getNumericCellValue());
 				}
 			}
@@ -106,17 +106,17 @@ public class XLSBatchEngineTaskItemReader<T>
 				int lastDelimiterIndex = columnName.lastIndexOf('_');
 
 				if (lastDelimiterIndex == -1) {
-					columnNameValueMap.put(columnName, value);
+					columnValues.put(columnName, value);
 				}
 				else {
 					ColumnUtil.handleLocalizationColumn(
-						columnName, columnNameValueMap, lastDelimiterIndex,
+						columnName, columnValues, lastDelimiterIndex,
 						value);
 				}
 			}
 		}
 
-		return _objectMapper.convertValue(columnNameValueMap, _itemClass);
+		return _objectMapper.convertValue(columnValues, _itemClass);
 	}
 
 	private static final ObjectMapper _objectMapper = new ObjectMapper();
