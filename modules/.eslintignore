@@ -1,9 +1,9 @@
 ##
-## Deprecated or Archived modules
+## Deprecated or Archived Modules
 ##
 
 	#
-	# Ignore apps that are no longer under active development
+	# Ignore apps that are no longer under active development.
 	#
 	apps/archived
 	apps/chat
@@ -50,8 +50,6 @@
 	xp_progress.js
 	yarn-*.js
 	zippableResources/**
-
-
 
 ##
 ## Sample Files
