@@ -110,8 +110,8 @@ public class XLSBatchEngineTaskItemReader<T>
 				}
 				else {
 					ColumnUtil.handleLocalizationColumn(
-						columnName, value, columnNameValueMap,
-						lastDelimiterIndex);
+						columnName, columnNameValueMap, lastDelimiterIndex,
+						value);
 				}
 			}
 		}

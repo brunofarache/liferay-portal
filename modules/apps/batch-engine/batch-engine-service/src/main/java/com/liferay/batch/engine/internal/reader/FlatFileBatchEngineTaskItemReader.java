@@ -77,7 +77,7 @@ public class FlatFileBatchEngineTaskItemReader<T>
 			}
 			else {
 				ColumnUtil.handleLocalizationColumn(
-					columnName, value, columnNameValueMap, lastDelimiterIndex);
+					columnName, columnNameValueMap, lastDelimiterIndex, value);
 			}
 		}
 

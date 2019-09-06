@@ -22,10 +22,9 @@ import java.util.Map;
  */
 public class ColumnUtil {
 
-	@SuppressWarnings("unchecked")
 	public static void handleLocalizationColumn(
-		String columnName, String value, Map<String, Object> columnNameValueMap,
-		int lastDelimiterIndex) {
+		String columnName, Map<String, Object> columnNameValueMap,
+		int lastDelimiterIndex, String value) {
 
 		String language = columnName.substring(lastDelimiterIndex + 1);
 
