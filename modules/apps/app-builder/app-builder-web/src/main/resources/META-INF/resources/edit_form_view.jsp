@@ -37,6 +37,7 @@ boolean newCustomObject = ParamUtil.getBoolean(request, "newCustomObject");
 
 			<%
 			Map<String, Object> data = new HashMap<>();
+
 			data.put("basePortletURL", basePortletURL.toString());
 			data.put("dataDefinitionId", dataDefinitionId);
 			data.put("dataLayoutBuilderElementId", dataLayoutBuilderElementId);

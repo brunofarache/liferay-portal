@@ -26,6 +26,7 @@ String appBuilderRootElementId = renderResponse.getNamespace() + "-app-builder-r
 
 	<%
 	Map<String, Object> data = new HashMap<>();
+
 	data.put("basePortletURL", basePortletURL);
 	%>
 
