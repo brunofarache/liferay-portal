@@ -16,35 +16,24 @@ import React from 'react';
 import ClayMultiStepNav from '@clayui/multi-step-nav';
 
 export default ({currentStep}) => {
-	const steps = [
-		{
-			active: currentStep === 1,
-			complete: currentStep > 1
-		},
-		{
-			active: currentStep === 2,
-			complete: currentStep > 2
-		},
-		{
-			active: currentStep === 3,
-			complete: false
-		}
-	];
+	const steps = ['1', '2', '3'];
+	const isComplete = index =>
+		index !== steps.length - 1 && currentStep > index;
 
 	return (
 		<ClayMultiStepNav>
-			{steps.map(({active, complete}, i) => (
+			{steps.map((label, index) => (
 				<ClayMultiStepNav.Item
-					active={active}
-					complete={complete}
-					expand={i + 1 !== steps.length}
-					key={i}
+					active={currentStep === index}
+					complete={isComplete(index)}
+					expand={index < steps.length - 1}
+					key={index}
 				>
 					<ClayMultiStepNav.Divider />
 
 					<ClayMultiStepNav.Indicator
-						complete={complete}
-						label={1 + i}
+						complete={isComplete(index)}
+						label={label}
 					/>
 				</ClayMultiStepNav.Item>
 			))}

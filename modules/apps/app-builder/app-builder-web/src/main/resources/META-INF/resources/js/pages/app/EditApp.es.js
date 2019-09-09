@@ -31,7 +31,7 @@ export default ({
 		}
 	});
 
-	const [currentStep, setCurrentStep] = useState(1);
+	const [currentStep, setCurrentStep] = useState(0);
 
 	let title = Liferay.Language.get('new-app');
 
@@ -96,21 +96,21 @@ export default ({
 							</div>
 						</div>
 
-						{currentStep == 1 && (
+						{currentStep == 0 && (
 							<div className="autofit-row">
 								<div className="col-md-12">
 									Choose Form View
 								</div>
 							</div>
 						)}
-						{currentStep == 2 && (
+						{currentStep == 1 && (
 							<div className="autofit-row">
 								<div className="col-md-12">
 									Choose Table View
 								</div>
 							</div>
 						)}
-						{currentStep == 3 && (
+						{currentStep == 2 && (
 							<div className="autofit-row">
 								<div className="col-md-12">Deploy</div>
 							</div>

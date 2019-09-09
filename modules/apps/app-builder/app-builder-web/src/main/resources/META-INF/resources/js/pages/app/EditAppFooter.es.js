@@ -16,12 +16,12 @@ import React from 'react';
 import Button from '../../components/button/Button.es';
 
 export default ({currentStep, onCancel, onDeploy, onStepChange}) => {
-	const handlePreviousStep = () => {
-		onStepChange(currentStep - 1);
+	const onNextStep = () => {
+		onStepChange(currentStep + 1);
 	};
 
-	const handleNextStep = () => {
-		onStepChange(currentStep + 1);
+	const onPreviousStep = () => {
+		onStepChange(currentStep - 1);
 	};
 
 	return (
@@ -33,21 +33,21 @@ export default ({currentStep, onCancel, onDeploy, onStepChange}) => {
 					</Button>
 				</div>
 				<div className="col-md-4 offset-md-4 text-right">
-					{currentStep > 1 && (
+					{currentStep > 0 && (
 						<Button
 							className="mr-3"
 							displayType="secondary"
-							onClick={handlePreviousStep}
+							onClick={onPreviousStep}
 						>
 							{Liferay.Language.get('previous')}
 						</Button>
 					)}
-					{currentStep < 3 && (
-						<Button displayType="primary" onClick={handleNextStep}>
+					{currentStep < 2 && (
+						<Button displayType="primary" onClick={onNextStep}>
 							{Liferay.Language.get('next')}
 						</Button>
 					)}
-					{currentStep === 3 && (
+					{currentStep === 2 && (
 						<Button displayType="primary" onClick={onDeploy}>
 							{Liferay.Language.get('deploy')}
 						</Button>
