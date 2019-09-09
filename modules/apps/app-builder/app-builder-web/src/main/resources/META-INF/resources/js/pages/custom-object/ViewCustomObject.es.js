@@ -58,7 +58,7 @@ export default ({
 
 			<Route
 				component={EditApp}
-				path={[`${path}/apps/add`, `${path}/apps/:appId(\\d+)`]}
+				path={[`${path}/apps/deploy`, `${path}/apps/:appId(\\d+)`]}
 			/>
 
 			<Route
