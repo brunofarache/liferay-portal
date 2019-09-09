@@ -12,11 +12,12 @@
  * details.
  */
 
-import React, {useState, useEffect} from 'react';
-import Button from '../../components/button/Button.es';
+import React, {useState} from 'react';
+import EditAppFooter from './EditAppFooter.es';
+import MultiStepNav from './MultiStepNav.es';
 import ControlMenu from '../../components/control-menu/ControlMenu.es';
 import {UpperToolbarInput} from '../../components/upper-toolbar/UpperToolbar.es';
-import {getItem, addItem, updateItem} from '../../utils/client.es';
+import {addItem, updateItem} from '../../utils/client.es';
 
 export default ({
 	history,
@@ -24,14 +25,15 @@ export default ({
 		params: {dataDefinitionId, appId}
 	}
 }) => {
-	const [state, setState] = useState({
+	const [app, setApp] = useState({
 		app: {
 			name: {
 				en_US: ''
 			}
-		},
-		dataDefinition: {}
+		}
 	});
+
+	const [currentStep, setCurrentStep] = useState(1);
 
 	let title = Liferay.Language.get('new-app');
 
@@ -39,39 +41,11 @@ export default ({
 		title = Liferay.Language.get('edit-app');
 	}
 
-	useEffect(() => {
-		const getDataDefinition = getItem(
-			`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}`
-		);
-
-		if (appId) {
-			const getApp = getItem(`/apps/${appId}`);
-
-			Promise.all([getApp, getDataDefinition]).then(
-				([app, dataDefinition]) => {
-					setState({
-						app,
-						dataDefinition
-					});
-				}
-			);
-		} else {
-			getDataDefinition.then(dataDefinition => {
-				setState(prevState => ({
-					...prevState,
-					dataDefinition
-				}));
-			});
-		}
-	}, [appId, dataDefinitionId]);
-
 	const handleBack = () => {
 		history.push(`/custom-object/${dataDefinitionId}/apps`);
 	};
 
 	const handleSubmit = () => {
-		const {app} = state;
-
 		if (app.name.en_US === '') {
 			return;
 		}
@@ -89,15 +63,10 @@ export default ({
 	};
 
 	const handleAppNameChange = event => {
-		const name = event.target.value;
-
-		setState(prevState => ({
-			...prevState,
-			app: {
-				...prevState.app,
-				name: {
-					en_US: name
-				}
+		setApp(prevState => ({
+			...prevState.app,
+			name: {
+				en_US: event.target.value
 			}
 		}));
 	};
@@ -112,32 +81,41 @@ export default ({
 						<UpperToolbarInput
 							onInput={handleAppNameChange}
 							placeholder={Liferay.Language.get('untitled-app')}
-							value={state.app.en_US}
+							value={app.en_US}
 						/>
 					</div>
 
 					<h4 className="card-divider"></h4>
 
-					<div className="card-footer bg-transparent">
+					<div className="card-body p-0">
 						<div className="autofit-row">
-							<div className="col-md-4">
-								<Button
-									displayType="secondary"
-									onClick={handleBack}
-								>
-									{Liferay.Language.get('cancel')}
-								</Button>
-							</div>
-							<div className="col-md-4 offset-md-4 text-right">
-								<Button
-									displayType="secondary"
-									onClick={handleSubmit}
-								>
-									{Liferay.Language.get('save')}
-								</Button>
+							<div className="col-md-12">
+								<MultiStepNav currentStep={currentStep} />
 							</div>
 						</div>
+
+						{currentStep == 1 && (
+							<div className="autofit-row">
+								<div className="col-md-12">Hello1</div>
+							</div>
+						)}
+						{currentStep == 2 && (
+							<div className="autofit-row">
+								<div className="col-md-12">Hello2</div>
+							</div>
+						)}
+						{currentStep == 3 && (
+							<div className="autofit-row">
+								<div className="col-md-12">Hello3</div>
+							</div>
+						)}
 					</div>
+
+					<EditAppFooter
+						currentStep={currentStep}
+						onCancel={() => {}}
+						onStepChange={step => setCurrentStep(step)}
+					/>
 				</div>
 			</div>
 		</>
