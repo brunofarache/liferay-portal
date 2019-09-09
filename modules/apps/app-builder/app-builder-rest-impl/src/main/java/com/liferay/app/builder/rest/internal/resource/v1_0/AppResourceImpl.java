@@ -18,6 +18,7 @@ import com.liferay.app.builder.constants.AppBuilderAppConstants;
 import com.liferay.app.builder.exception.AppBuilderAppStatusException;
 import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.app.builder.rest.dto.v1_0.App;
+import com.liferay.app.builder.rest.internal.jaxrs.exception.InvalidAppException;
 import com.liferay.app.builder.rest.internal.jaxrs.exception.NoSuchDataListViewException;
 import com.liferay.app.builder.rest.internal.odata.entity.v1_0.AppBuilderAppEntityModel;
 import com.liferay.app.builder.rest.internal.resource.v1_0.util.LocalizedValueUtil;
@@ -56,7 +57,6 @@ import com.liferay.portal.vulcan.util.SearchUtil;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MultivaluedMap;
@@ -224,16 +224,12 @@ public class AppResourceImpl
 			_appBuilderAppLocalService.addAppBuilderApp(
 				ddmStructure.getGroupId(), contextCompany.getCompanyId(),
 				PrincipalThreadLocal.getUserId(), dataDefinitionId,
-				Optional.ofNullable(
-					app.getDataLayoutId()
-				).orElse(
-					AppBuilderAppConstants.DEFAULT_DDM_STRUCTURE_LAYOUT_ID
-				),
-				Optional.ofNullable(
-					app.getDataListViewId()
-				).orElse(
-					AppBuilderAppConstants.DEFAULT_DE_DATA_LIST_VIEW_ID
-				),
+				GetterUtil.getLong(
+					app.getDataLayoutId(),
+					AppBuilderAppConstants.DEFAULT_DE_DATA_LAYOUT_ID),
+				GetterUtil.getLong(
+					app.getDataListViewId(),
+					AppBuilderAppConstants.DEFAULT_DE_DATA_LIST_VIEW_ID),
 				LocalizedValueUtil.toLocaleStringMap(app.getName()),
 				_toJSON(app.getSettings()),
 				appBuilderAppConstantsStatus.getValue()));
@@ -318,6 +314,14 @@ public class AppResourceImpl
 	private void _validate(
 			Long ddmStructureLayoutId, Long deDataListViewId, String status)
 		throws Exception {
+
+		if (Validator.isNull(ddmStructureLayoutId) &&
+			Validator.isNull(deDataListViewId)) {
+
+			throw new InvalidAppException(
+				"An app must have one data engine data layout or one data " +
+					"engine data list view");
+		}
 
 		if (Validator.isNotNull(ddmStructureLayoutId)) {
 			DDMStructureLayout ddmStructureLayout =
