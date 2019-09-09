@@ -16,8 +16,9 @@ import React, {useState} from 'react';
 import EditAppFooter from './EditAppFooter.es';
 import MultiStepNav from './MultiStepNav.es';
 import ControlMenu from '../../components/control-menu/ControlMenu.es';
-import {UpperToolbarInput} from '../../components/upper-toolbar/UpperToolbar.es';
 import {addItem, updateItem} from '../../utils/client.es';
+import EditAppHeader from './EditAppHeader.es';
+import SelectFormView from './SelectFormView.es';
 
 export default ({
 	history,
@@ -69,23 +70,16 @@ export default ({
 		}
 	};
 
-	const {
-		name: {en_US: appName}
-	} = app;
-
 	return (
 		<>
 			<ControlMenu backURL="../" title={title} />
 
 			<div className="container-fluid container-fluid-max-lg mt-4">
 				<div className="card card-root">
-					<div className="card-header align-items-center d-flex justify-content-between bg-transparent">
-						<UpperToolbarInput
-							onInput={onAppNameChange}
-							placeholder={Liferay.Language.get('untitled-app')}
-							value={appName}
-						/>
-					</div>
+					<EditAppHeader
+						app={app}
+						onAppNameChange={onAppNameChange}
+					/>
 
 					<h4 className="card-divider"></h4>
 
