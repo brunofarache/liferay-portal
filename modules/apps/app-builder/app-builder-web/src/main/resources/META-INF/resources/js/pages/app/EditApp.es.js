@@ -26,10 +26,8 @@ export default ({
 	}
 }) => {
 	const [app, setApp] = useState({
-		app: {
-			name: {
-				en_US: ''
-			}
+		name: {
+			en_US: ''
 		}
 	});
 
@@ -41,35 +39,39 @@ export default ({
 		title = Liferay.Language.get('edit-app');
 	}
 
-	const handleBack = () => {
+	const onAppNameChange = event => {
+		const name = event.target.value;
+
+		setApp(prevApp => ({
+			...prevApp,
+			name: {
+				en_US: name
+			}
+		}));
+	};
+
+	const onCancel = () => {
 		history.push(`/custom-object/${dataDefinitionId}/apps`);
 	};
 
-	const handleSubmit = () => {
+	const onDeploy = () => {
 		if (app.name.en_US === '') {
 			return;
 		}
 
 		if (appId) {
-			updateItem(`/o/app-builder/v1.0/apps/${appId}`, app).then(
-				handleBack
-			);
+			updateItem(`/o/app-builder/v1.0/apps/${appId}`, app).then(onCancel);
 		} else {
 			addItem(
 				`/o/app-builder/v1.0/data-definitions/${dataDefinitionId}/apps`,
 				app
-			).then(handleBack);
+			).then(onCancel);
 		}
 	};
 
-	const handleAppNameChange = event => {
-		setApp(prevState => ({
-			...prevState.app,
-			name: {
-				en_US: event.target.value
-			}
-		}));
-	};
+	const {
+		name: {en_US: appName}
+	} = app;
 
 	return (
 		<>
@@ -79,9 +81,9 @@ export default ({
 				<div className="card card-root">
 					<div className="card-header align-items-center d-flex justify-content-between bg-transparent">
 						<UpperToolbarInput
-							onInput={handleAppNameChange}
+							onInput={onAppNameChange}
 							placeholder={Liferay.Language.get('untitled-app')}
-							value={app.en_US}
+							value={appName}
 						/>
 					</div>
 
@@ -96,24 +98,29 @@ export default ({
 
 						{currentStep == 1 && (
 							<div className="autofit-row">
-								<div className="col-md-12">Hello1</div>
+								<div className="col-md-12">
+									Choose Form View
+								</div>
 							</div>
 						)}
 						{currentStep == 2 && (
 							<div className="autofit-row">
-								<div className="col-md-12">Hello2</div>
+								<div className="col-md-12">
+									Choose Table View
+								</div>
 							</div>
 						)}
 						{currentStep == 3 && (
 							<div className="autofit-row">
-								<div className="col-md-12">Hello3</div>
+								<div className="col-md-12">Deploy</div>
 							</div>
 						)}
 					</div>
 
 					<EditAppFooter
 						currentStep={currentStep}
-						onCancel={() => {}}
+						onCancel={onCancel}
+						onDeploy={onDeploy}
 						onStepChange={step => setCurrentStep(step)}
 					/>
 				</div>
