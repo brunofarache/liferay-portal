@@ -16,8 +16,6 @@ package com.liferay.segments.service;
 
 import com.liferay.portal.kernel.service.ServiceWrapper;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 /**
  * Provides a wrapper for {@link SegmentsExperimentLocalService}.
  *
@@ -25,7 +23,6 @@ import org.osgi.annotation.versioning.ProviderType;
  * @see SegmentsExperimentLocalService
  * @generated
  */
-@ProviderType
 public class SegmentsExperimentLocalServiceWrapper
 	implements SegmentsExperimentLocalService,
 			   ServiceWrapper<SegmentsExperimentLocalService> {
@@ -36,6 +33,11 @@ public class SegmentsExperimentLocalServiceWrapper
 		_segmentsExperimentLocalService = segmentsExperimentLocalService;
 	}
 
+	/**
+	 * NOTE FOR DEVELOPERS:
+	 *
+	 * Never modify or reference this interface directly. Always use {@link SegmentsExperimentLocalServiceUtil} to access the segments experiment local service. Add custom service methods to <code>com.liferay.segments.service.impl.SegmentsExperimentLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 */
 	@Override
 	public com.liferay.segments.model.SegmentsExperiment addSegmentsExperiment(
 			long segmentsExperienceId, long classNameId, long classPK,

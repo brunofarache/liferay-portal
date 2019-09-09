@@ -67,16 +67,7 @@ public class ContentPageEditorLayoutPageTemplateDisplayContext
 
 		SoyContext soyContext = super.getEditorSoyContext();
 
-		soyContext.put(
-			"getInfoClassTypesURL",
-			getFragmentEntryActionURL("/content_layout/get_info_class_types")
-		).put(
-			"getInfoDisplayContributorsURL",
-			getFragmentEntryActionURL(
-				"/content_layout/get_info_display_contributors")
-		).put(
-			"lastSaveDate", StringPool.BLANK
-		);
+		soyContext.put("lastSaveDate", StringPool.BLANK);
 
 		if (_pageIsDisplayPage) {
 			soyContext.put(
@@ -109,12 +100,6 @@ public class ContentPageEditorLayoutPageTemplateDisplayContext
 
 			soyContext.put("status", LanguageUtil.get(request, statusLabel));
 		}
-
-		soyContext.put(
-			"updateLayoutPageTemplateEntryAssetTypeURL",
-			getFragmentEntryActionURL(
-				"/content_layout" +
-					"/update_layout_page_template_entry_asset_type"));
 
 		_editorSoyContext = soyContext;
 
@@ -166,7 +151,9 @@ public class ContentPageEditorLayoutPageTemplateDisplayContext
 			AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(
 				layoutPageTemplateEntry.getClassName());
 
-		if (assetRendererFactory == null) {
+		if ((assetRendererFactory == null) ||
+			!assetRendererFactory.isSupportsClassTypes()) {
+
 			return null;
 		}
 
@@ -218,9 +205,7 @@ public class ContentPageEditorLayoutPageTemplateDisplayContext
 
 		String subtypeLabel = _getMappingSubtypeLabel();
 
-		if ((layoutPageTemplateEntry.getClassTypeId() >= 0) &&
-			Validator.isNotNull(subtypeLabel)) {
-
+		if (Validator.isNotNull(subtypeLabel)) {
 			SoyContext subtypeSoyContext =
 				SoyContextFactoryUtil.createSoyContext();
 

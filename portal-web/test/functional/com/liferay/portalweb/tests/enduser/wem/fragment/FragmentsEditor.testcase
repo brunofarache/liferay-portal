@@ -23,7 +23,7 @@ definition {
 		}
 
 		task ("Navigate to fragments admin") {
-			FragmentsAdmin.openFragmentsAdmin(siteURLKey = "test-site-name");
+			FragmentsAdminNavigator.openFragmentsAdmin(siteURLKey = "test-site-name");
 		}
 	}
 
@@ -42,7 +42,7 @@ definition {
 	@priority = "4"
 	test AutocompleteFragment {
 		task ("Navigate to the fragment collection") {
-			FragmentsAdmin.gotoCollection(collectionName = "Collection Name");
+			FragmentsAdminNavigator.gotoCollection(collectionName = "Collection Name");
 		}
 
 		task ("Add a fragment section") {
@@ -52,7 +52,7 @@ definition {
 		task ("Assert the fragment editor has autocomplete for lfr-editable tags") {
 			var fragmentHTML = '''<lfr-editable id="" type="image">''';
 
-			FragmentsAdmin.autocompleteFragmentHTML(
+			FragmentsEditor.autocompleteFragmentHTML(
 				autocompleteField = "lfr-editable:image",
 				fragmentHTML = "${fragmentHTML}");
 		}
@@ -60,7 +60,7 @@ definition {
 		task ("Assert the fragment editor has autocomplete for lfr-widget tags") {
 			var fragmentHTML = '''<lfr-widget-asset-list>''';
 
-			FragmentsAdmin.autocompleteFragmentHTML(
+			FragmentsEditor.autocompleteFragmentHTML(
 				autocompleteField = "lfr-widget-asset-list",
 				fragmentHTML = "${fragmentHTML}");
 		}

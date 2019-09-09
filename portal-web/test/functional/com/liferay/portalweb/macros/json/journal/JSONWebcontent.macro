@@ -57,11 +57,11 @@ definition {
 
 		var contentXML = JSONWebcontentSetter.setContentXML(content = "${content}");
 
-		var descriptionMap = JSONWebcontentSetter.setDescriptionMap(
-			description = "${description}");
+		var descriptionMap = JSONWebcontentSetter.setDescriptionMap(description = "${description}");
 
 		var folderId = JSONWebcontentSetter.setFolderId(
-			folderName = "${folderName}");
+			folderName = "${folderName}",
+			groupId = "${groupId}");
 
 		var serviceContext = JSONWebcontentSetter.setServiceContext(
 			assetCategoryIds = "${assetCategoryIds}",
@@ -78,6 +78,19 @@ definition {
 			groupId = "${groupId}",
 			serviceContext = "${serviceContext}",
 			titleMap = "${titleMap}");
+	}
+
+	@summary = "Get the 'folderId' for the folder '${folderName}' that is part of the Site '${groupName}' via JSON"
+	macro getFolderIdByFolderName {
+		Variables.assertDefined(parameterList = "${folderName},${groupName}");
+
+		var groupId = JSONWebcontentSetter.setGroupId(groupName = "${groupName}");
+
+		var folderId = JSONWebcontentAPI._getFolderIdByFolderName(
+			folderName = "${folderName}",
+			groupId = "${groupId}");
+
+		return "${folderId}";
 	}
 
 }

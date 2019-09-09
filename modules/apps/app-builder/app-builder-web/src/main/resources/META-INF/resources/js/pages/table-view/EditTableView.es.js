@@ -16,6 +16,7 @@ import classNames from 'classnames';
 import React, {useEffect, useState} from 'react';
 import DropZone from './DropZone.es';
 import ControlMenu from '../../components/control-menu/ControlMenu.es';
+import DragLayer from '../../components/drag-and-drop/DragLayer.es';
 import FieldTypeList from '../../components/field-types/FieldTypeList.es';
 import {Loading} from '../../components/loading/Loading.es';
 import Sidebar from '../../components/sidebar/Sidebar.es';
@@ -50,7 +51,7 @@ const EditTableView = ({
 		title = Liferay.Language.get('edit-table-view');
 	}
 
-	const onAddField = fieldName => {
+	const onAddColumn = fieldName => {
 		setState(prevState => ({
 			...prevState,
 			dataListView: {
@@ -72,6 +73,18 @@ const EditTableView = ({
 				name: {
 					en_US: name
 				}
+			}
+		}));
+	};
+
+	const onRemoveColumn = column => {
+		setState(prevState => ({
+			...prevState,
+			dataListView: {
+				...prevState.dataListView,
+				fieldNames: prevState.dataListView.fieldNames.filter(
+					fieldName => fieldName != column
+				)
 			}
 		}));
 	};
@@ -162,6 +175,8 @@ const EditTableView = ({
 			<ControlMenu backURL="../" title={title} />
 
 			<Loading isLoading={dataDefinition === null}>
+				<DragLayer />
+
 				<form
 					onSubmit={event => {
 						event.preventDefault();
@@ -203,12 +218,15 @@ const EditTableView = ({
 							<FieldTypeList
 								fieldTypes={availableFields.map(field => ({
 									description: field.fieldType,
+									disabled: columns.some(
+										column => column === field.name
+									),
 									icon: field.fieldType,
 									label: field.name,
 									name: field.fieldType
 								}))}
 								keywords={keywords}
-								onAddField={onAddField}
+								onAddColumn={onAddColumn}
 							/>
 						</Sidebar.TabContent>
 					</Sidebar.Body>
@@ -220,7 +238,11 @@ const EditTableView = ({
 					})}
 				>
 					<div className="container table-view-container">
-						<DropZone columns={columns} />
+						<DropZone
+							columns={columns}
+							onAddColumn={onAddColumn}
+							onRemoveColumn={onRemoveColumn}
+						/>
 					</div>
 				</div>
 			</Loading>

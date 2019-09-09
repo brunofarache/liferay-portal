@@ -472,13 +472,14 @@ public class SegmentsExperimentLocalServiceImpl
 					" no found");
 		}
 
-		UnicodeProperties typeSettings = new UnicodeProperties(true);
+		UnicodeProperties typeSettingsProperties =
+			segmentsExperiment.getTypeSettingsProperties();
 
-		typeSettings.setProperty(
+		typeSettingsProperties.setProperty(
 			"winnerSegmentsExperienceId",
 			String.valueOf(winnerSegmentsExperienceId));
 
-		segmentsExperiment.setTypeSettings(typeSettings.toString());
+		segmentsExperiment.setTypeSettings(typeSettingsProperties.toString());
 
 		SegmentsExperimentConstants.Status statusObject =
 			SegmentsExperimentConstants.Status.valueOf(status);
@@ -522,10 +523,10 @@ public class SegmentsExperimentLocalServiceImpl
 	private void _validateConfidenceLevel(double confidenceLevel)
 		throws PortalException {
 
-		if ((confidenceLevel > 1) || (confidenceLevel < 0)) {
+		if ((confidenceLevel < 0.8) || (confidenceLevel > 0.99)) {
 			throw new SegmentsExperimentConfidenceLevelException(
 				"Confidence level " + confidenceLevel +
-					" is not a value between 0 and 1");
+					" is not a value between 0.8 and 0.99");
 		}
 	}
 

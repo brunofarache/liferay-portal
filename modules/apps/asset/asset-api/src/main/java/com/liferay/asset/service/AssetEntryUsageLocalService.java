@@ -56,7 +56,7 @@ import org.osgi.annotation.versioning.ProviderType;
 public interface AssetEntryUsageLocalService
 	extends BaseLocalService, PersistedModelLocalService {
 
-	/*
+	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify or reference this interface directly. Always use {@link AssetEntryUsageLocalServiceUtil} to access the asset entry usage local service. Add custom service methods to <code>com.liferay.asset.service.impl.AssetEntryUsageLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.

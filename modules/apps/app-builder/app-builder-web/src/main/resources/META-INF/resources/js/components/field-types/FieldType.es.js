@@ -20,18 +20,32 @@ import classnames from 'classnames';
 import {getEmptyImage} from 'react-dnd-html5-backend';
 import FieldTypeDragPreview from './FieldTypeDragPreview.es';
 
+const ICONS = {
+	checkbox_multiple: 'select-from-list',
+	document_library: 'upload',
+	numeric: 'caret-double',
+	radio: 'radio-button',
+	select: 'list'
+};
+
 export default props => {
-	const {description, icon, label, name, onAddField = () => {}} = props;
+	const {
+		description,
+		disabled,
+		icon,
+		label,
+		name,
+		onAddColumn = () => {}
+	} = props;
 
 	const [{dragging}, drag, preview] = useDrag({
+		canDrag: _ => !disabled,
 		collect: monitor => ({
 			dragging: monitor.isDragging()
 		}),
 		item: {
 			...props,
-			preview: () => {
-				return <FieldTypeDragPreview {...props} />;
-			},
+			preview: () => <FieldTypeDragPreview {...props} />,
 			type: 'fieldType'
 		}
 	});
@@ -40,19 +54,32 @@ export default props => {
 		preview(getEmptyImage(), {captureDraggingState: true});
 	}, [preview]);
 
+	const handleOnAddColumn = label => {
+		if (disabled) {
+			return;
+		}
+
+		onAddColumn(label);
+	};
+
+	const fieldIcon = ICONS[icon] ? ICONS[icon] : icon;
+
 	return (
 		<div
-			className={classnames({
-				'autofit-row': true,
-				'autofit-row-center': true,
-				dragging,
-				'field-type': true,
-				'p-0': true,
-				'pb-3': true,
-				'pt-3': true
-			})}
+			className={classnames(
+				'autofit-row',
+				'autofit-row-center',
+				'field-type',
+				'p-0',
+				'pb-3',
+				'pt-3',
+				{
+					disabled,
+					dragging
+				}
+			)}
 			data-field-type-name={name}
-			onDoubleClick={() => onAddField(label)}
+			onDoubleClick={() => handleOnAddColumn(label)}
 			ref={drag}
 		>
 			<div className="autofit-col pl-2 pr-2">
@@ -64,7 +91,7 @@ export default props => {
 					displayType="light"
 					size="md"
 				>
-					<ClayIcon symbol={icon} />
+					<ClayIcon symbol={fieldIcon} />
 				</ClaySticker>
 			</div>
 			<div className="autofit-col autofit-col-expand pr-2">

@@ -41,6 +41,34 @@ definition {
 		Button.clickComment();
 	}
 
+	macro addExperience {
+		var key_experienceName = "${experienceName}";
+
+		AssertTextEquals(
+			locator1 = "PageEditor#EXPERIENCE_LABEL",
+			value1 = "Experience");
+
+		Click(locator1 = "PageEditor#EXPERIENCE_DEFAULT_BUTTON_NAME");
+
+		Click(
+			key_text = "New Experience",
+			locator1 = "Button#ANY");
+
+		Type(
+			locator1 = "PageEditor#EXPERIENCE_NAME",
+			value1 = "${experienceName}");
+
+		Button.clickSave();
+
+		AssertClick(
+			locator1 = "PageEditor#EXPERIENCE_BUTTON_NAME",
+			value1 = "${experienceName}");
+
+		AssertElementPresent(
+			key_experienceName = "${experienceName}",
+			locator1 = "PageEditor#EXPERIENCE_SELECT_ITEM");
+	}
+
 	macro addFragment {
 		PageEditor.expandFragmentCollection(collectionName = "${collectionName}");
 
@@ -95,6 +123,18 @@ definition {
 
 	macro assertFragmentSidebarLoaded {
 		AssertVisible(locator1 = "PageEditor#FRAGMENT_SIDEBAR_LOADED");
+	}
+
+	macro changeExperience {
+		var key_experienceName = "${newExperience}";
+
+		Click(locator1 = "PageEditor#EXPERIENCE_LABEL");
+
+		Click(locator1 = "PageEditor#EXPERIENCE_SELECT_ITEM");
+
+		Click(locator1 = "PageEditor#FRAGMENT_SIDEBAR");
+
+		AssertElementPresent(locator1 = "PageEditor#EXPERIENCE_BUTTON_NAME");
 	}
 
 	macro clickBack {
