@@ -27,6 +27,7 @@ export default ({
 	}
 }) => {
 	const [app, setApp] = useState({
+		dataLayoutId: null,
 		name: {
 			en_US: ''
 		}
@@ -70,6 +71,13 @@ export default ({
 		}
 	};
 
+	const onFormViewSelect = formViewId => {
+		setApp(prevApp => ({
+			...prevApp,
+			dataLayoutId: formViewId
+		}));
+	};
+
 	return (
 		<>
 			<ControlMenu backURL="../" title={title} />
@@ -81,7 +89,7 @@ export default ({
 						onAppNameChange={onAppNameChange}
 					/>
 
-					<h4 className="card-divider"></h4>
+					<h4 className="card-divider mb-4"></h4>
 
 					<div className="card-body p-0">
 						<div className="autofit-row">
@@ -91,11 +99,10 @@ export default ({
 						</div>
 
 						{currentStep == 0 && (
-							<div className="autofit-row">
-								<div className="col-md-12">
-									Choose Form View
-								</div>
-							</div>
+							<SelectFormView
+								dataLayoutId={app.dataLayoutId}
+								onFormViewSelect={onFormViewSelect}
+							/>
 						)}
 						{currentStep == 1 && (
 							<div className="autofit-row">
