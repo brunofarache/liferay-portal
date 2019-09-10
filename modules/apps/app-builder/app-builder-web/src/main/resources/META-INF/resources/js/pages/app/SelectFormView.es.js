@@ -28,8 +28,8 @@ export default withRouter(
 		match: {
 			params: {dataDefinitionId}
 		},
-        onFormViewSelect,
-        dataLayoutId
+		onFormViewSelect,
+		dataLayoutId
 	}) => {
 		const [formViews, setFormViews] = useState([]);
 		const [selectedFormViewId, setSelectedFormViewId] = useState({});
@@ -40,17 +40,17 @@ export default withRouter(
 			);
 
 			getFormViews.then(response => {
-                setFormViews(response.items);
-                
-                if (dataLayoutId) {
-                    setSelectedFormViewId(dataLayoutId);
-                }
+				setFormViews(response.items);
+
+				if (dataLayoutId) {
+					setSelectedFormViewId(dataLayoutId);
+				}
 			});
 		}, [dataLayoutId, dataDefinitionId]);
 
-		const handleSelectedFormViewChange = newFormView => {
-			setSelectedFormViewId(newFormView.id);
-			onFormViewSelect(newFormView.id);
+		const onSelectedFormViewIdChange = newFormViewId => {
+			setSelectedFormViewId(newFormViewId);
+			onFormViewSelect(newFormViewId);
 		};
 
 		return (
@@ -121,8 +121,8 @@ export default withRouter(
 											)}
 											key={index}
 											onClick={() =>
-												handleSelectedFormViewChange(
-													formView
+												onSelectedFormViewIdChange(
+													formView.id
 												)
 											}
 										>
@@ -143,7 +143,7 @@ export default withRouter(
 												<ClayRadioGroup
 													inline
 													onSelectedValueChange={
-														handleSelectedFormViewChange
+														onSelectedFormViewIdChange
 													}
 													selectedValue={
 														selectedFormViewId
