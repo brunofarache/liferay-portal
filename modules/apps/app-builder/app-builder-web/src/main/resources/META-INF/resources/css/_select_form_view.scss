@@ -1,0 +1,27 @@
+.selectable-row:hover {
+	cursor: pointer;
+}
+
+.selectable-active {
+	font-weight: bold;
+}
+
+.scrollable-container {
+	max-height: 45vh;
+	overflow-y: scroll;
+}
+
+.scrollable-container::-webkit-scrollbar {
+	width: 8px;
+	background-color: transparent;
+}
+
+.scrollable-container::-webkit-scrollbar-thumb {
+	border-radius: 8px;
+	border-radius: 11px;
+	background-color: #a7a9bc;
+}
+
+.scrollable-container::-webkit-scrollbar-track {
+	background-color: transparent;
+}
