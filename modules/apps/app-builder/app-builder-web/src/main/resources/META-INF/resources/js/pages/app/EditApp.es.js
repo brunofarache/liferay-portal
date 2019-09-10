@@ -14,11 +14,11 @@
 
 import React, {useState} from 'react';
 import EditAppFooter from './EditAppFooter.es';
+import EditAppHeader from './EditAppHeader.es';
 import MultiStepNav from './MultiStepNav.es';
+import SelectFormView from './SelectFormView.es';
 import ControlMenu from '../../components/control-menu/ControlMenu.es';
 import {addItem, updateItem} from '../../utils/client.es';
-import EditAppHeader from './EditAppHeader.es';
-import SelectFormView from './SelectFormView.es';
 
 export default ({
 	history,
