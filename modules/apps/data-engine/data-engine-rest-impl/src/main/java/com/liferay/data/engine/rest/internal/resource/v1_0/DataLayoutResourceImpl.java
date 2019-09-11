@@ -14,6 +14,9 @@
 
 package com.liferay.data.engine.rest.internal.resource.v1_0;
 
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
+
 import com.liferay.data.engine.field.type.util.LocalizedValueUtil;
 import com.liferay.data.engine.rest.dto.v1_0.DataLayout;
 import com.liferay.data.engine.rest.dto.v1_0.DataLayoutPermission;
@@ -25,6 +28,7 @@ import com.liferay.data.engine.rest.internal.model.InternalDataRecordCollection;
 import com.liferay.data.engine.rest.internal.odata.entity.v1_0.DataLayoutEntityModel;
 import com.liferay.data.engine.rest.internal.resource.v1_0.util.DataEnginePermissionUtil;
 import com.liferay.data.engine.rest.resource.v1_0.DataLayoutResource;
+import com.liferay.data.engine.service.DEDataDefinitionFieldLinkLocalService;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
 import com.liferay.dynamic.data.mapping.model.DDMStructureVersion;
@@ -259,6 +263,8 @@ public class DataLayoutResourceImpl
 
 		ServiceContext serviceContext = new ServiceContext();
 
+		String dataLayoutJSON = DataLayoutUtil.toJSON(dataLayout);
+
 		dataLayout = _toDataLayout(
 			_ddmStructureLayoutLocalService.addStructureLayout(
 				PrincipalThreadLocal.getUserId(), ddmStructure.getGroupId(),
@@ -267,13 +273,24 @@ public class DataLayoutResourceImpl
 				LocalizedValueUtil.toLocaleStringMap(dataLayout.getName()),
 				LocalizedValueUtil.toLocaleStringMap(
 					dataLayout.getDescription()),
-				DataLayoutUtil.toJSON(dataLayout), serviceContext));
+				dataLayoutJSON, serviceContext));
 
 		_resourceLocalService.addModelResources(
 			contextCompany.getCompanyId(), ddmStructure.getGroupId(),
 			PrincipalThreadLocal.getUserId(),
 			InternalDataLayout.class.getName(), dataLayout.getId(),
 			serviceContext.getModelPermissions());
+
+		DocumentContext jsonContext = JsonPath.parse(dataLayoutJSON);
+
+		List<String> fieldNames = jsonContext.read(
+			"$['pages'][*]['rows'][*]['columns'][*]['fieldNames'][*]");
+
+		for (String fieldName : fieldNames) {
+			_deDataDefinitionFieldLinkLocalService.addDEDataDefinitionFieldLink(
+				dataLayout.getSiteId(), _getClassNameId(), dataLayout.getId(),
+				dataDefinitionId, fieldName);
+		}
 
 		return dataLayout;
 	}
@@ -454,6 +471,10 @@ public class DataLayoutResourceImpl
 
 	@Reference
 	private DDMStructureVersionLocalService _ddmStructureVersionLocalService;
+
+	@Reference
+	private DEDataDefinitionFieldLinkLocalService
+		_deDataDefinitionFieldLinkLocalService;
 
 	@Reference
 	private GroupLocalService _groupLocalService;
