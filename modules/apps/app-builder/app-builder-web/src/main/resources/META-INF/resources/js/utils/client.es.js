@@ -60,7 +60,10 @@ export const getItem = endpoint => {
 	});
 };
 
-export const getURL = (path, params = {['p_auth']: Liferay.authToken}) => {
+export const getURL = (
+	path,
+	params = {['p_auth']: Liferay.authToken, t: Date.now()}
+) => {
 	const uri = new URL(`${window.location.origin}${path}`);
 	const keys = Object.keys(params);
 
