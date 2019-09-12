@@ -17,8 +17,6 @@ package com.liferay.data.engine.service.impl;
 import com.liferay.data.engine.model.DEDataDefinitionFieldLink;
 import com.liferay.data.engine.service.base.DEDataDefinitionFieldLinkLocalServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
-import com.liferay.portal.kernel.search.Indexable;
-import com.liferay.portal.kernel.search.IndexableType;
 
 import org.osgi.service.component.annotations.Component;
 
@@ -32,7 +30,6 @@ import org.osgi.service.component.annotations.Component;
 public class DEDataDefinitionFieldLinkLocalServiceImpl
 	extends DEDataDefinitionFieldLinkLocalServiceBaseImpl {
 
-	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public DEDataDefinitionFieldLink addDEDataDefinitionFieldLink(
 		long groupId, long classNameId, long classPK, long ddmStructureId,
