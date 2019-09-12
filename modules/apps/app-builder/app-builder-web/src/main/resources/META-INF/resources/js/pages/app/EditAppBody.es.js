@@ -71,13 +71,17 @@ export default ({emptyState, endpoint, title, ...restProps}) => {
 				</div>
 			</div>
 
-			<ListItems
-				emptyState={emptyState}
-				isEmpty={items.length === 0}
-				isLoading={isLoading}
-				items={items}
-				{...restProps}
-			/>
+			<div className="autofit-row pl-4 pr-4 scrollable-container">
+				<div className="autofit-col-expand">
+					<ListItems
+						emptyState={emptyState}
+						isEmpty={items.length === 0}
+						isLoading={isLoading}
+						items={items}
+						{...restProps}
+					/>
+				</div>
+			</div>
 		</>
 	);
 };

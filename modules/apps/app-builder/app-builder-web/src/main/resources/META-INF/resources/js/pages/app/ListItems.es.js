@@ -24,72 +24,62 @@ const {Body, Cell, Head, Row} = ClayTable;
 
 const ListItems = ({items, itemId, onItemIdChange}) => {
 	return (
-		<div className="autofit-row pl-4 pr-4 scrollable-container">
-			<div className="autofit-col-expand">
-				<table className="table table-responsive table-autofit table-hover table-heading-nowrap table-nowrap">
-					<Head>
-						<Row>
-							<Cell expanded={true} headingCell>
-								{Liferay.Language.get('name')}
-							</Cell>
-							<Cell headingCell>
-								{Liferay.Language.get('create-date')}
-							</Cell>
-							<Cell headingCell>
-								{Liferay.Language.get('modified-date')}
-							</Cell>
-							<Cell headingCell></Cell>
-						</Row>
-					</Head>
-					<Body>
-						{items.map(
-							(
-								{
-									dateCreated,
-									dateModified,
-									id,
-									name: {en_US: itemName}
-								},
-								index
-							) => {
-								return (
-									<Row
-										className={classNames(
-											'selectable-row',
-											{
-												'selectable-active':
-													id === itemId
-											}
-										)}
-										key={index}
-										onClick={() => onItemIdChange(id)}
+		<table className="table table-responsive table-autofit table-hover table-heading-nowrap table-nowrap">
+			<Head>
+				<Row>
+					<Cell expanded={true} headingCell>
+						{Liferay.Language.get('name')}
+					</Cell>
+					<Cell headingCell>
+						{Liferay.Language.get('create-date')}
+					</Cell>
+					<Cell headingCell>
+						{Liferay.Language.get('modified-date')}
+					</Cell>
+					<Cell headingCell></Cell>
+				</Row>
+			</Head>
+			<Body>
+				{items.map(
+					(
+						{
+							dateCreated,
+							dateModified,
+							id,
+							name: {en_US: itemName}
+						},
+						index
+					) => {
+						return (
+							<Row
+								className={classNames('selectable-row', {
+									'selectable-active': id === itemId
+								})}
+								key={index}
+								onClick={() => onItemIdChange(id)}
+							>
+								<Cell align="left">{itemName}</Cell>
+								<Cell>{moment(dateCreated).fromNow()}</Cell>
+								<Cell>
+									{moment(dateModified).fromNow()}
+								</Cell>
+								<Cell align={'right'}>
+									<ClayRadioGroup
+										inline
+										onSelectedValueChange={() =>
+											onItemIdChange(id)
+										}
+										selectedValue={itemId}
 									>
-										<Cell align="left">{itemName}</Cell>
-										<Cell>
-											{moment(dateCreated).fromNow()}
-										</Cell>
-										<Cell>
-											{moment(dateModified).fromNow()}
-										</Cell>
-										<Cell align={'right'}>
-											<ClayRadioGroup
-												inline
-												onSelectedValueChange={() =>
-													onItemIdChange(id)
-												}
-												selectedValue={itemId}
-											>
-												<ClayRadio value={id} />
-											</ClayRadioGroup>
-										</Cell>
-									</Row>
-								);
-							}
-						)}
-					</Body>
-				</table>
-			</div>
-		</div>
+										<ClayRadio value={id} />
+									</ClayRadioGroup>
+								</Cell>
+							</Row>
+						);
+					}
+				)}
+			</Body>
+		</table>
 	);
 };
 
