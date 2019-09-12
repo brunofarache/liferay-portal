@@ -60,9 +60,7 @@ const ListItems = ({items, itemId, onItemIdChange}) => {
 							>
 								<Cell align="left">{itemName}</Cell>
 								<Cell>{moment(dateCreated).fromNow()}</Cell>
-								<Cell>
-									{moment(dateModified).fromNow()}
-								</Cell>
+								<Cell>{moment(dateModified).fromNow()}</Cell>
 								<Cell align={'right'}>
 									<ClayRadioGroup
 										inline
