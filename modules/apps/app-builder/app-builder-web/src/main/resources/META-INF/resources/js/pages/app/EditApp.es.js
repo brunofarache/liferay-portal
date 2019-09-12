@@ -97,7 +97,7 @@ export default ({
 			<ControlMenu backURL="../" title={title} />
 
 			<div className="container-fluid container-fluid-max-lg mt-4">
-				<div className="card card-root">
+				<div className="card card-root shadowless-card mb-0">
 					<div className="card-header align-items-center d-flex justify-content-between bg-transparent">
 						<UpperToolbarInput
 							onInput={onAppNameChange}
@@ -108,7 +108,7 @@ export default ({
 
 					<h4 className="card-divider mb-4"></h4>
 
-					<div className="card-body p-0">
+					<div className="card-body shadowless-card-body p-0">
 						<div className="autofit-row">
 							<div className="col-md-12">
 								<MultiStepNav currentStep={currentStep} />
@@ -143,6 +143,8 @@ export default ({
 							</div>
 						)}
 					</div>
+
+					<h4 className="card-divider"></h4>
 
 					<EditAppFooter
 						currentStep={currentStep}
