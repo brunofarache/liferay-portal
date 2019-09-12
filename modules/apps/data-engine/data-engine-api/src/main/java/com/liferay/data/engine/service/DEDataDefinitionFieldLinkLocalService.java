@@ -71,7 +71,6 @@ public interface DEDataDefinitionFieldLinkLocalService
 	public DEDataDefinitionFieldLink addDEDataDefinitionFieldLink(
 		DEDataDefinitionFieldLink deDataDefinitionFieldLink);
 
-	@Indexable(type = IndexableType.REINDEX)
 	public DEDataDefinitionFieldLink addDEDataDefinitionFieldLink(
 		long groupId, long classNameId, long classPK, long ddmStructureId,
 		String fieldName);
