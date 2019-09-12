@@ -12,18 +12,21 @@
  * details.
  */
 
-import React, {createContext} from 'react';
+import React from 'react';
+import {Route, HashRouter as Router, Switch} from 'react-router-dom';
+import ListEntries from './ListEntries.es';
+import {AppContextProvider} from '../../AppContext.es';
 
-const AppContext = createContext();
-
-const context = {
-	siteId: Liferay.ThemeDisplay.getCompanyGroupId()
-};
-
-const AppContextProvider = ({appId, basePortletURL, children}) => (
-	<AppContext.Provider value={{...context, appId, basePortletURL}}>
-		{children}
-	</AppContext.Provider>
-);
-
-export {AppContext, AppContextProvider};
+export default function({appId}) {
+	return (
+		<div className="app-builder-root">
+			<AppContextProvider appId={appId}>
+				<Router>
+					<Switch>
+						<Route component={ListEntries} path="/" />
+					</Switch>
+				</Router>
+			</AppContextProvider>
+		</div>
+	);
+}

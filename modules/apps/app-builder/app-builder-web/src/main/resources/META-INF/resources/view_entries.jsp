@@ -1,3 +1,4 @@
+<%--
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
@@ -11,19 +12,26 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
+--%>
 
-import React, {createContext} from 'react';
+<%@ include file="/init.jsp" %>
 
-const AppContext = createContext();
+<%
+long appId = (long)request.getAttribute(AppBuilderWebKeys.APP_ID);
 
-const context = {
-	siteId: Liferay.ThemeDisplay.getCompanyGroupId()
-};
+String appBuilderRootElementId = renderResponse.getNamespace() + "-app-builder-root";
+%>
 
-const AppContextProvider = ({appId, basePortletURL, children}) => (
-	<AppContext.Provider value={{...context, appId, basePortletURL}}>
-		{children}
-	</AppContext.Provider>
-);
+<div id="<%= appBuilderRootElementId %>">
 
-export {AppContext, AppContextProvider};
+	<%
+	Map<String, Object> data = new HashMap<>();
+
+	data.put("appId", appId);
+	%>
+
+	<react:component
+		data="<%= data %>"
+		module="js/pages/entry/ListEntriesApp.es"
+	/>
+</div>

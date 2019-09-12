@@ -12,18 +12,13 @@
  * details.
  */
 
-import React, {createContext} from 'react';
+package com.liferay.app.builder.web.internal.constants;
 
-const AppContext = createContext();
+/**
+ * @author Bruno Farache
+ */
+public class AppBuilderWebKeys {
 
-const context = {
-	siteId: Liferay.ThemeDisplay.getCompanyGroupId()
-};
+	public static final String APP_ID = "APP_ID";
 
-const AppContextProvider = ({appId, basePortletURL, children}) => (
-	<AppContext.Provider value={{...context, appId, basePortletURL}}>
-		{children}
-	</AppContext.Provider>
-);
-
-export {AppContext, AppContextProvider};
+}
