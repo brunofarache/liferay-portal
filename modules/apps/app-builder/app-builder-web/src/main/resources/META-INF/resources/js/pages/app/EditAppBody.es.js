@@ -18,7 +18,7 @@ import ListItems from './ListItems.es';
 import Button from '../../components/button/Button.es';
 import {getURL} from '../../utils/client.es';
 
-export default ({endpoint, title, ...restProps}) => {
+export default ({emptyState, endpoint, title, ...restProps}) => {
 	const [isLoading, setLoading] = useState(true);
 
 	const {resource} = useResource({
@@ -72,6 +72,7 @@ export default ({endpoint, title, ...restProps}) => {
 			</div>
 
 			<ListItems
+				emptyState={emptyState}
 				isEmpty={items.length === 0}
 				isLoading={isLoading}
 				items={items}

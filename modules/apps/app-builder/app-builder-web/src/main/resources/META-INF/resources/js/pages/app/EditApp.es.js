@@ -12,10 +12,12 @@
  * details.
  */
 
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
+import EditAppBody from './EditAppBody.es';
 import EditAppFooter from './EditAppFooter.es';
 import MultiStepNav from './MultiStepNav.es';
-import EditAppBody from './EditAppBody.es';
+import {AppContext} from '../../AppContext.es';
+import Button from '../../components/button/Button.es';
 import ControlMenu from '../../components/control-menu/ControlMenu.es';
 import {UpperToolbarInput} from '../../components/upper-toolbar/UpperToolbar.es';
 import {addItem, updateItem} from '../../utils/client.es';
@@ -26,6 +28,8 @@ export default ({
 		params: {dataDefinitionId, appId}
 	}
 }) => {
+	const {basePortletURL} = useContext(AppContext);
+
 	const [app, setApp] = useState({
 		dataLayoutId: null,
 		dataListViewId: null,
@@ -41,6 +45,31 @@ export default ({
 	if (appId) {
 		title = Liferay.Language.get('edit-app');
 	}
+
+	const addFormViewUrl = Liferay.Util.PortletURL.createRenderURL(
+		basePortletURL,
+		{
+			dataDefinitionId,
+			mvcRenderCommandName: '/edit_form_view'
+		}
+	);
+
+	const addTableViewUrl = `${basePortletURL}/#/custom-object/${dataDefinitionId}/table-views/add`;
+
+	const getEmptyState = (buttonText, description, title, addUrl) => {
+		return {
+			button: () => (
+				<Button
+					displayType="secondary"
+					onClick={() => Liferay.Util.navigate(addUrl)}
+				>
+					{buttonText}
+				</Button>
+			),
+			description,
+			title
+		};
+	};
 
 	const onAppNameChange = event => {
 		const name = event.target.value;
@@ -117,6 +146,16 @@ export default ({
 
 						{currentStep == 0 && (
 							<EditAppBody
+								emptyState={getEmptyState(
+									Liferay.Language.get('new-form-view'),
+									Liferay.Language.get(
+										'create-one-or-more-forms-to-display-the-data-held-in-your-data-object'
+									),
+									Liferay.Language.get(
+										'there-are-no-form-views-yet'
+									),
+									addFormViewUrl
+								)}
 								endpoint={`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}/data-layouts`}
 								itemId={dataLayoutId}
 								onItemIdChange={onDataLayoutIdChange}
@@ -128,6 +167,16 @@ export default ({
 
 						{currentStep == 1 && (
 							<EditAppBody
+								emptyState={getEmptyState(
+									Liferay.Language.get('new-table-view'),
+									Liferay.Language.get(
+										'create-one-or-more-tables-to-display-the-data-held-in-your-data-object'
+									),
+									Liferay.Language.get(
+										'there-are-no-table-views-yet'
+									),
+									addTableViewUrl
+								)}
 								endpoint={`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}/data-list-views`}
 								itemId={dataListViewId}
 								onItemIdChange={onDataListViewIdChange}
