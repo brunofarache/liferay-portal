@@ -12,8 +12,34 @@
  * details.
  */
 
-import useKeyDown from './useKeyDown.es';
-import useRequest from './useRequest.es';
-import useSidebarContent from './useSidebarContent.es';
+import {useEffect, useState} from 'react';
+import {request} from '../utils/client.es';
 
-export {useKeyDown, useRequest, useSidebarContent};
+export default endpoint => {
+	const [state, setState] = useState({
+		error: null,
+		isLoading: true,
+		response: {}
+	});
+
+	useEffect(() => {
+		request(endpoint)
+			.then(response => response.json())
+			.then(response => {
+				setState({
+					error: null,
+					isLoading: false,
+					response
+				});
+			})
+			.catch(error => {
+				setState({
+					error,
+					isLoading: false,
+					response: {}
+				});
+			});
+	}, [endpoint]);
+
+	return state;
+};

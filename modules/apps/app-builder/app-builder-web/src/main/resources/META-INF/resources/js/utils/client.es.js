@@ -48,6 +48,15 @@ export const deleteItem = endpoint => {
 	});
 };
 
+export const request = (endpoint, method = 'GET') =>
+	fetch(getURL(endpoint), {
+		headers: {
+			Accept: 'application/json',
+			'Content-Type': 'application/json'
+		},
+		method
+	});
+
 export const getItem = endpoint => {
 	return fetch(getURL(endpoint), {
 		headers: {

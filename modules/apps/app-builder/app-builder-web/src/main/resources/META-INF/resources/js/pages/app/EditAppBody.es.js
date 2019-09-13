@@ -12,32 +12,16 @@
  * details.
  */
 
-import React, {useState} from 'react';
-import {useResource} from '@clayui/data-provider';
+import React from 'react';
 import ListItems from './ListItems.es';
 import Button from '../../components/button/Button.es';
-import {getURL} from '../../utils/client.es';
+import {useRequest} from '../../hooks/index.es';
 
-export default ({emptyState, endpoint, title, ...restProps}) => {
-	const [isLoading, setLoading] = useState(true);
-
-	const {resource} = useResource({
-		fetchDelay: 0,
-		fetchOptions: {
-			credentials: 'same-origin',
-			method: 'GET'
-		},
-		link: getURL(endpoint),
-		onNetworkStatusChange: status => {
-			setLoading(status < 4);
-		}
-	});
-
-	let items = [];
-
-	if (resource) {
-		({items = []} = resource);
-	}
+export default ({endpoint, title, ...restProps}) => {
+	const {
+		response: {items = []},
+		isLoading
+	} = useRequest(endpoint);
 
 	return (
 		<>
@@ -74,7 +58,6 @@ export default ({emptyState, endpoint, title, ...restProps}) => {
 			<div className="autofit-row pl-4 pr-4 scrollable-container">
 				<div className="autofit-col-expand">
 					<ListItems
-						emptyState={emptyState}
 						isEmpty={items.length === 0}
 						isLoading={isLoading}
 						items={items}
