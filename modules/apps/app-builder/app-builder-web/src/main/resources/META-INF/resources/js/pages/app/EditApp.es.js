@@ -13,9 +13,9 @@
  */
 
 import React, {useState} from 'react';
+import EditAppBody from './EditAppBody.es';
 import EditAppFooter from './EditAppFooter.es';
 import MultiStepNav from './MultiStepNav.es';
-import EditAppBody from './EditAppBody.es';
 import ControlMenu from '../../components/control-menu/ControlMenu.es';
 import {UpperToolbarInput} from '../../components/upper-toolbar/UpperToolbar.es';
 import {addItem, updateItem} from '../../utils/client.es';
@@ -41,6 +41,13 @@ export default ({
 	if (appId) {
 		title = Liferay.Language.get('edit-app');
 	}
+
+	const getEmptyState = (description, title) => {
+		return {
+			description,
+			title
+		};
+	};
 
 	const onAppNameChange = event => {
 		const name = event.target.value;
@@ -97,7 +104,7 @@ export default ({
 			<ControlMenu backURL="../" title={title} />
 
 			<div className="container-fluid container-fluid-max-lg mt-4">
-				<div className="card card-root">
+				<div className="card card-root shadowless-card mb-0">
 					<div className="card-header align-items-center d-flex justify-content-between bg-transparent">
 						<UpperToolbarInput
 							onInput={onAppNameChange}
@@ -108,7 +115,7 @@ export default ({
 
 					<h4 className="card-divider mb-4"></h4>
 
-					<div className="card-body p-0">
+					<div className="card-body shadowless-card-body p-0">
 						<div className="autofit-row">
 							<div className="col-md-12">
 								<MultiStepNav currentStep={currentStep} />
@@ -117,6 +124,14 @@ export default ({
 
 						{currentStep == 0 && (
 							<EditAppBody
+								emptyState={getEmptyState(
+									Liferay.Language.get(
+										'create-one-or-more-forms-to-display-the-data-held-in-your-data-object'
+									),
+									Liferay.Language.get(
+										'there-are-no-form-views-yet'
+									)
+								)}
 								endpoint={`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}/data-layouts`}
 								itemId={dataLayoutId}
 								onItemIdChange={onDataLayoutIdChange}
@@ -128,6 +143,14 @@ export default ({
 
 						{currentStep == 1 && (
 							<EditAppBody
+								emptyState={getEmptyState(
+									Liferay.Language.get(
+										'create-one-or-more-tables-to-display-the-data-held-in-your-data-object'
+									),
+									Liferay.Language.get(
+										'there-are-no-table-views-yet'
+									)
+								)}
 								endpoint={`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}/data-list-views`}
 								itemId={dataListViewId}
 								onItemIdChange={onDataListViewIdChange}
@@ -143,6 +166,8 @@ export default ({
 							</div>
 						)}
 					</div>
+
+					<h4 className="card-divider"></h4>
 
 					<EditAppFooter
 						currentStep={currentStep}
