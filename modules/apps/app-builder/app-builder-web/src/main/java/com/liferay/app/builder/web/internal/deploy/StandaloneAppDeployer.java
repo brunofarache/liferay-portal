@@ -219,7 +219,7 @@ public class StandaloneAppDeployer implements AppDeployer {
 	}
 
 	private String _getGroupName(long appId) {
-		return "App" + appId;
+		return GroupConstants.APP + appId;
 	}
 
 	@Reference
