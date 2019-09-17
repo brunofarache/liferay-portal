@@ -13,6 +13,7 @@
  */
 
 import React, {useState} from 'react';
+import DeployApp from './DeployApp.es';
 import EditAppBody from './EditAppBody.es';
 import EditAppFooter from './EditAppFooter.es';
 import MultiStepNav from './MultiStepNav.es';
@@ -31,10 +32,22 @@ export default ({
 		dataListViewId: null,
 		name: {
 			en_US: ''
-		}
+		},
+		settings: {
+			deploymentTypes: []
+		},
+		status: 'deployed'
 	});
 
 	const [currentStep, setCurrentStep] = useState(0);
+	const [isLoading, setIsLoading] = useState(false);
+
+	const {
+		dataLayoutId,
+		dataListViewId,
+		name: {en_US: appName},
+		settings: {deploymentTypes}
+	} = app;
 
 	let title = Liferay.Language.get('new-app');
 
@@ -65,10 +78,7 @@ export default ({
 	};
 
 	const onDeploy = () => {
-		if (app.name.en_US === '') {
-			return;
-		}
-
+		setIsLoading(true);
 		if (appId) {
 			updateItem(`/o/app-builder/v1.0/apps/${appId}`, app).then(onCancel);
 		} else {
@@ -77,6 +87,15 @@ export default ({
 				app
 			).then(onCancel);
 		}
+	};
+
+	const onDeploymentConfigChange = deploymentConfig => {
+		setApp(prevApp => ({
+			...prevApp,
+			settings: {
+				deploymentTypes: deploymentConfig
+			}
+		}));
 	};
 
 	const onDataLayoutIdChange = dataLayoutId => {
@@ -93,11 +112,19 @@ export default ({
 		}));
 	};
 
-	const {
-		dataLayoutId,
-		dataListViewId,
-		name: {en_US: appName}
-	} = app;
+	const validateNextStep = () => {
+		let nextStepDisabled = false;
+
+		if (currentStep === 2) {
+			nextStepDisabled =
+				appName === '' ||
+				!dataLayoutId ||
+				!dataDefinitionId ||
+				deploymentTypes.length === 0;
+		}
+
+		return nextStepDisabled;
+	};
 
 	return (
 		<>
@@ -161,9 +188,12 @@ export default ({
 						)}
 
 						{currentStep == 2 && (
-							<div className="autofit-row">
-								<div className="col-md-12">Deploy</div>
-							</div>
+							<DeployApp
+								appName={appName}
+								onDeploymentConfigChange={
+									onDeploymentConfigChange
+								}
+							/>
 						)}
 					</div>
 
@@ -171,6 +201,8 @@ export default ({
 
 					<EditAppFooter
 						currentStep={currentStep}
+						isLoading={isLoading}
+						nextStepDisabled={validateNextStep()}
 						onCancel={onCancel}
 						onDeploy={onDeploy}
 						onStepChange={step => setCurrentStep(step)}

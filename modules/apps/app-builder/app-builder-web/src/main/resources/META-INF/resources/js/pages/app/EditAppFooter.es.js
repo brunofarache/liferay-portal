@@ -15,7 +15,14 @@
 import React from 'react';
 import Button from '../../components/button/Button.es';
 
-export default ({currentStep, onCancel, onDeploy, onStepChange}) => {
+export default ({
+	currentStep,
+	isLoading = false,
+	nextStepDisabled = false,
+	onCancel,
+	onDeploy,
+	onStepChange
+}) => {
 	const onNextStep = () => {
 		onStepChange(currentStep + 1);
 	};
@@ -43,12 +50,20 @@ export default ({currentStep, onCancel, onDeploy, onStepChange}) => {
 						</Button>
 					)}
 					{currentStep < 2 && (
-						<Button displayType="primary" onClick={onNextStep}>
+						<Button
+							disabled={nextStepDisabled}
+							displayType="primary"
+							onClick={onNextStep}
+						>
 							{Liferay.Language.get('next')}
 						</Button>
 					)}
 					{currentStep === 2 && (
-						<Button displayType="primary" onClick={onDeploy}>
+						<Button
+							disabled={isLoading || nextStepDisabled}
+							displayType="primary"
+							onClick={onDeploy}
+						>
 							{Liferay.Language.get('deploy')}
 						</Button>
 					)}
