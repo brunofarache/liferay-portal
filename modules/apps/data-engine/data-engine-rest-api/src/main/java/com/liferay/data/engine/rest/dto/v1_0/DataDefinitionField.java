@@ -49,7 +49,7 @@ public class DataDefinitionField {
 	@GraphQLName("IndexType")
 	public static enum IndexType {
 
-		NONE("none"), KEYWORD("keyword"), TEXT("text");
+		ALL("all"), KEYWORD("keyword"), NONE("none"), TEXT("text");
 
 		@JsonCreator
 		public static IndexType create(String value) {

@@ -31,7 +31,7 @@ public class DataDefinitionField {
 
 	public static enum IndexType {
 
-		NONE("none"), KEYWORD("keyword"), TEXT("text");
+		ALL("all"), KEYWORD("keyword"), NONE("none"), TEXT("text");
 
 		public static IndexType create(String value) {
 			for (IndexType indexType : values()) {
