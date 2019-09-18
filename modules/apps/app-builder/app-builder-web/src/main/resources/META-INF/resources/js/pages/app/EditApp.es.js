@@ -13,14 +13,13 @@
  */
 
 import React, {useState} from 'react';
-import DeployApp from './DeployApp.es';
 import EditAppBody from './EditAppBody.es';
 import EditAppFooter from './EditAppFooter.es';
 import MultiStepNav from './MultiStepNav.es';
-import Button from '../../components/button/Button.es';
 import ControlMenu from '../../components/control-menu/ControlMenu.es';
-import {UpperToolbarInput} from '../../components/upper-toolbar/UpperToolbar.es';
-import {addItem, updateItem} from '../../utils/client.es';
+import {AppDeploymentProvider} from './AppDeploymentContext.es';
+import EditAppHeader from './EditAppHeader.es';
+import DeployApp from './DeployApp.es';
 
 export default ({
 	history,
@@ -28,28 +27,7 @@ export default ({
 		params: {dataDefinitionId, appId}
 	}
 }) => {
-	const [app, setApp] = useState({
-		dataLayoutId: null,
-		dataListViewId: null,
-		name: {
-			en_US: ''
-		},
-		settings: {
-			deploymentTypes: []
-		},
-		status: 'deployed'
-	});
-
 	const [currentStep, setCurrentStep] = useState(0);
-
-	const {
-		dataLayoutId,
-		dataListViewId,
-		name: {en_US: appName},
-		settings
-	} = app;
-
-	const {deploymentTypes} = settings;
 
 	let title = Liferay.Language.get('new-app');
 
@@ -64,159 +42,83 @@ export default ({
 		};
 	};
 
-	const onAppNameChange = event => {
-		const name = event.target.value;
-
-		setApp(prevApp => ({
-			...prevApp,
-			name: {
-				en_US: name
-			}
-		}));
-	};
-
 	const onCancel = () => {
 		history.push(`/custom-object/${dataDefinitionId}/apps`);
 	};
 
-	const onDeploy = () => {
-		if (appId) {
-			updateItem(`/o/app-builder/v1.0/apps/${appId}`, app).then(onCancel);
-		} else {
-			addItem(
-				`/o/app-builder/v1.0/data-definitions/${dataDefinitionId}/apps`,
-				app
-			).then(onCancel);
-		}
-	};
-
-	const onSettingsChange = settings => {
-		setApp(prevApp => ({
-			...prevApp,
-			settings
-		}));
-	};
-
-	const onDataLayoutIdChange = dataLayoutId => {
-		setApp(prevApp => ({
-			...prevApp,
-			dataLayoutId
-		}));
-	};
-
-	const onDataListViewIdChange = dataListViewId => {
-		setApp(prevApp => ({
-			...prevApp,
-			dataListViewId
-		}));
+	const onCurrentStepChange = step => {
+		setCurrentStep(step);
 	};
 
 	return (
 		<>
 			<ControlMenu backURL="../" title={title} />
 
-			<div className="container-fluid container-fluid-max-lg mt-4">
-				<div className="card card-root shadowless-card mb-0">
-					<div className="card-header align-items-center d-flex justify-content-between bg-transparent">
-						<UpperToolbarInput
-							onInput={onAppNameChange}
-							placeholder={Liferay.Language.get('untitled-app')}
-							value={appName}
-						/>
-					</div>
+			<AppDeploymentProvider>
+				<div className="container-fluid container-fluid-max-lg mt-4">
+					<div className="card card-root shadowless-card mb-0">
+						<EditAppHeader />
 
-					<h4 className="card-divider mb-4"></h4>
-
-					<div className="card-body shadowless-card-body p-0">
-						<div className="autofit-row">
-							<div className="col-md-12">
-								<MultiStepNav currentStep={currentStep} />
+						<div className="card-body shadowless-card-body p-0">
+							<div className="autofit-row">
+								<div className="col-md-12">
+									<MultiStepNav currentStep={currentStep} />
+								</div>
 							</div>
+
+							{currentStep == 0 && (
+								<EditAppBody
+									action={'CHANGE_DATA_LAYOUT'}
+									emptyState={getEmptyState(
+										Liferay.Language.get(
+											'create-one-or-more-forms-to-display-the-data-held-in-your-data-object'
+										),
+										Liferay.Language.get(
+											'there-are-no-form-views-yet'
+										)
+									)}
+									endpoint={`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}/data-layouts`}
+									targetProperty={'dataLayoutId'}
+									title={Liferay.Language.get(
+										'select-a-form-view'
+									)}
+								/>
+							)}
+
+							{currentStep == 1 && (
+								<EditAppBody
+									action={'CHANGE_LIST_VIEW'}
+									emptyState={getEmptyState(
+										Liferay.Language.get(
+											'create-one-or-more-tables-to-display-the-data-held-in-your-data-object'
+										),
+										Liferay.Language.get(
+											'there-are-no-table-views-yet'
+										)
+									)}
+									endpoint={`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}/data-list-views`}
+									targetProperty={'dataListViewId'}
+									title={Liferay.Language.get(
+										'select-a-table-view'
+									)}
+								/>
+							)}
+
+							{currentStep == 2 && <DeployApp />}
 						</div>
 
-						{currentStep == 0 && (
-							<EditAppBody
-								emptyState={getEmptyState(
-									Liferay.Language.get(
-										'create-one-or-more-forms-to-display-the-data-held-in-your-data-object'
-									),
-									Liferay.Language.get(
-										'there-are-no-form-views-yet'
-									)
-								)}
-								endpoint={`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}/data-layouts`}
-								itemId={dataLayoutId}
-								onItemIdChange={onDataLayoutIdChange}
-								title={Liferay.Language.get(
-									'select-a-form-view'
-								)}
-							/>
-						)}
+						<h4 className="card-divider"></h4>
 
-						{currentStep == 1 && (
-							<EditAppBody
-								emptyState={getEmptyState(
-									Liferay.Language.get(
-										'create-one-or-more-tables-to-display-the-data-held-in-your-data-object'
-									),
-									Liferay.Language.get(
-										'there-are-no-table-views-yet'
-									)
-								)}
-								endpoint={`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}/data-list-views`}
-								itemId={dataListViewId}
-								onItemIdChange={onDataListViewIdChange}
-								title={Liferay.Language.get(
-									'select-a-table-view'
-								)}
-							/>
-						)}
-
-						{currentStep == 2 && (
-							<DeployApp
-								appName={appName}
-								onSettingsChange={onSettingsChange}
-								settings={settings}
-							/>
-						)}
+						<EditAppFooter
+							appId={appId}
+							currentStep={currentStep}
+							dataDefinitionId={dataDefinitionId}
+							onCancel={onCancel}
+							onCurrentStepChange={onCurrentStepChange}
+						/>
 					</div>
-
-					<h4 className="card-divider"></h4>
-
-					<EditAppFooter onCancel={onCancel}>
-						{currentStep > 0 && (
-							<Button
-								className="mr-3"
-								displayType="secondary"
-								onClick={() => setCurrentStep(currentStep - 1)}
-							>
-								{Liferay.Language.get('previous')}
-							</Button>
-						)}
-						{currentStep < 2 && (
-							<Button
-								disabled={
-									(currentStep === 0 && !dataLayoutId) ||
-									(currentStep === 1 && !dataListViewId)
-								}
-								displayType="primary"
-								onClick={() => setCurrentStep(currentStep + 1)}
-							>
-								{Liferay.Language.get('next')}
-							</Button>
-						)}
-						{currentStep === 2 && (
-							<Button
-								disabled={!deploymentTypes.length || !appName}
-								displayType="primary"
-								onClick={onDeploy}
-							>
-								{Liferay.Language.get('deploy')}
-							</Button>
-						)}
-					</EditAppFooter>
 				</div>
-			</div>
+			</AppDeploymentProvider>
 		</>
 	);
 };

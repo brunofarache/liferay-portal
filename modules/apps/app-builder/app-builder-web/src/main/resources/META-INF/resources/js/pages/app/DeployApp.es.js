@@ -12,9 +12,20 @@
  * details.
  */
 
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
+import {AppDeploymentContext} from './AppDeploymentContext.es';
 
-export default ({appName, onSettingsChange, settings}) => {
+export default () => {
+	const {
+		state: {
+			app: {
+				name: {en_US: appName},
+				settings
+			}
+		},
+		dispatch
+	} = useContext(AppDeploymentContext);
+
 	const [state, setState] = useState({
 		productMenu: settings.deploymentTypes.includes('productMenu'),
 		standalone: settings.deploymentTypes.includes('standalone'),
@@ -24,11 +35,13 @@ export default ({appName, onSettingsChange, settings}) => {
 	const onSwitchToggle = type => {
 		const {deploymentTypes: types} = settings;
 
-		onSettingsChange({
-			...settings,
-			deploymentTypes: types.includes(type)
-				? types.filter(deploymentType => deploymentType !== type)
-				: types.concat(type)
+		dispatch({
+			settings: {
+				deploymentTypes: types.includes(type)
+					? types.filter(deploymentType => deploymentType !== type)
+					: types.concat(type)
+			},
+			type: 'CHANGE_APP_SETTINGS'
 		});
 
 		setState(prevState => ({
