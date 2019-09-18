@@ -68,6 +68,7 @@ export default ({
 
 							{currentStep == 0 && (
 								<EditAppBody
+									action={'CHANGE_DATA_LAYOUT'}
 									emptyState={getEmptyState(
 										Liferay.Language.get(
 											'create-one-or-more-forms-to-display-the-data-held-in-your-data-object'
@@ -86,6 +87,7 @@ export default ({
 
 							{currentStep == 1 && (
 								<EditAppBody
+									action={'CHANGE_LIST_VIEW'}
 									emptyState={getEmptyState(
 										Liferay.Language.get(
 											'create-one-or-more-tables-to-display-the-data-held-in-your-data-object'

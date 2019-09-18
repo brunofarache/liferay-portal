@@ -23,16 +23,19 @@ import {AppDeploymentContext} from './AppDeploymentContext.es';
 
 const {Body, Cell, Head, Row} = ClayTable;
 
-const ListItems = ({targetProperty, items}) => {
-	const {app, setApp} = useContext(AppDeploymentContext);
-
-	const itemId = app[targetProperty];
+const ListItems = ({action, items, targetProperty}) => {
+	const {
+		state: {
+			app: {[targetProperty]: itemId}
+		},
+		dispatch
+	} = useContext(AppDeploymentContext);
 
 	const onItemIdChange = itemId => {
-		setApp(prevApp => ({
-			...prevApp,
-			[targetProperty]: itemId
-		}));
+		dispatch({
+			itemId,
+			type: action
+		});
 	};
 
 	return (

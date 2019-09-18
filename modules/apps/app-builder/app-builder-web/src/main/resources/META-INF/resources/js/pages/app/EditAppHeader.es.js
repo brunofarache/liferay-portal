@@ -18,21 +18,21 @@ import {UpperToolbarInput} from '../../components/upper-toolbar/UpperToolbar.es'
 
 export default () => {
 	const {
-		app: {
-			name: {en_US: appName}
+		state: {
+			app: {
+				name: {en_US: appName}
+			}
 		},
-		setApp
+		dispatch
 	} = useContext(AppDeploymentContext);
 
 	const onAppNameChange = event => {
-		const name = event.target.value;
+		const appName = event.target.value;
 
-		setApp(prevApp => ({
-			...prevApp,
-			name: {
-				en_US: name
-			}
-		}));
+		dispatch({
+			appName,
+			type: 'CHANGE_APP_NAME'
+		});
 	};
 
 	return (

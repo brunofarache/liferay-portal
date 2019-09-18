@@ -12,22 +12,70 @@
  * details.
  */
 
-import React, {createContext, useState} from 'react';
+import React, {createContext, useReducer} from 'react';
+
+function reducer(state, action) {
+	switch (action.type) {
+		case 'CHANGE_LIST_VIEW': {
+			return {
+				...state,
+				app: {
+					...state.app,
+					dataListViewId: action.itemId
+				}
+			};
+		}
+		case 'CHANGE_DATA_LAYOUT': {
+			return {
+				...state,
+				app: {
+					...state.app,
+					dataLayoutId: action.itemId
+				}
+			};
+		}
+		case 'CHANGE_APP_NAME': {
+			return {
+				...state,
+				app: {
+					...state.app,
+					name: {
+						en_US: action.appName
+					}
+				}
+			};
+		}
+		case 'CHANGE_APP_SETTINGS': {
+			return {
+				...state,
+				app: {
+					...state.app,
+					settings: action.settings
+				}
+			};
+		}
+		default: {
+			return state;
+		}
+	}
+}
 
 const useApp = () => {
-	const [app, setApp] = useState({
-		appDeployments: [],
-		dataLayoutId: null,
-		dataListViewId: null,
-		name: {
-			en_US: ''
-		},
-		settings: {
-			deploymentTypes: []
-		},
-		status: 'undeployed'
+	const [state, dispatch] = useReducer(reducer, {
+		app: {
+			dataLayoutId: null,
+			dataListViewId: null,
+			name: {
+				en_US: ''
+			},
+			settings: {
+				deploymentTypes: []
+			},
+			status: 'undeployed'
+		}
 	});
-	return {app, setApp};
+
+	return {dispatch, state};
 };
 
 const AppDeploymentContext = createContext();

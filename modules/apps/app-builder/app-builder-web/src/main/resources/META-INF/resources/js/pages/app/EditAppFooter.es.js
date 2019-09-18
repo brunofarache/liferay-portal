@@ -24,7 +24,9 @@ export default ({
 	onCancel,
 	onCurrentStepChange
 }) => {
-	const {app} = useContext(AppDeploymentContext);
+	const {
+		state: {app}
+	} = useContext(AppDeploymentContext);
 
 	const {
 		dataLayoutId,
