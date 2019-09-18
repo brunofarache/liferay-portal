@@ -31,7 +31,7 @@ export default () => {
 
 		dispatch({
 			appName,
-			type: 'CHANGE_APP_NAME'
+			type: 'UPDATE_NAME'
 		});
 	};
 

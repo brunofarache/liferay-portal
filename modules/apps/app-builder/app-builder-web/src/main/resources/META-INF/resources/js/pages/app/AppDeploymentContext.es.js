@@ -16,7 +16,7 @@ import React, {createContext, useReducer} from 'react';
 
 function reducer(state, action) {
 	switch (action.type) {
-		case 'CHANGE_LIST_VIEW': {
+		case 'UPDATE_LIST_VIEW_ID': {
 			return {
 				...state,
 				app: {
@@ -25,7 +25,7 @@ function reducer(state, action) {
 				}
 			};
 		}
-		case 'CHANGE_DATA_LAYOUT': {
+		case 'UPDATE_DATA_LAYOUT_ID': {
 			return {
 				...state,
 				app: {
@@ -34,7 +34,7 @@ function reducer(state, action) {
 				}
 			};
 		}
-		case 'CHANGE_APP_NAME': {
+		case 'UPDATE_NAME': {
 			return {
 				...state,
 				app: {
@@ -45,7 +45,7 @@ function reducer(state, action) {
 				}
 			};
 		}
-		case 'CHANGE_APP_SETTINGS': {
+		case 'UPDATE_SETTINGS': {
 			return {
 				...state,
 				app: {
@@ -60,7 +60,9 @@ function reducer(state, action) {
 	}
 }
 
-const useApp = () => {
+const AppDeploymentContext = createContext();
+
+const AppDeploymentProvider = ({children}) => {
 	const [state, dispatch] = useReducer(reducer, {
 		app: {
 			dataLayoutId: null,
@@ -75,14 +77,8 @@ const useApp = () => {
 		}
 	});
 
-	return {dispatch, state};
-};
-
-const AppDeploymentContext = createContext();
-
-const AppDeploymentProvider = ({children}) => {
 	return (
-		<AppDeploymentContext.Provider value={useApp()}>
+		<AppDeploymentContext.Provider value={{dispatch, state}}>
 			{children}
 		</AppDeploymentContext.Provider>
 	);
