@@ -41,7 +41,7 @@ export default () => {
 					? types.filter(deploymentType => deploymentType !== type)
 					: types.concat(type)
 			},
-			type: 'CHANGE_APP_SETTINGS'
+			type: 'UPDATE_SETTINGS'
 		});
 
 		setState(prevState => ({
