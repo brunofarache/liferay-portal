@@ -14,15 +14,30 @@
 
 import classNames from 'classnames';
 import moment from 'moment';
-import React from 'react';
+import React, {useContext} from 'react';
 import {ClayRadio, ClayRadioGroup} from '@clayui/form';
 import ClayTable from '@clayui/table';
 import {withLoading} from '../../components/loading/Loading.es';
 import {withEmpty} from '../../components/table/EmptyState.es';
+import {AppDeploymentContext} from './AppDeploymentContext.es';
 
 const {Body, Cell, Head, Row} = ClayTable;
 
-const ListItems = ({items, itemId, onItemIdChange}) => {
+const ListItems = ({action, items, targetProperty}) => {
+	const {
+		state: {
+			app: {[targetProperty]: itemId}
+		},
+		dispatch
+	} = useContext(AppDeploymentContext);
+
+	const onItemIdChange = itemId => {
+		dispatch({
+			itemId,
+			type: action
+		});
+	};
+
 	return (
 		<table className="table table-responsive table-autofit table-hover table-heading-nowrap table-nowrap">
 			<Head>
