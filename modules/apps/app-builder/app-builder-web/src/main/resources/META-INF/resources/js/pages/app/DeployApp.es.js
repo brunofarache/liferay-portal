@@ -12,24 +12,53 @@
  * details.
  */
 
-import React, {useState} from 'react';
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
 
-export default ({appName, onSettingsChange, settings}) => {
+import React, {useState, useContext} from 'react';
+import ClayAlert from '@clayui/alert';
+import DeploymentOption from './DeploymentOption.es';
+import {AppDeploymentContext} from './AppDeploymentContext.es';
+
+export default () => {
+	const {
+		app: {
+			name: {en_US: appName},
+			settings
+		},
+		setApp
+	} = useContext(AppDeploymentContext);
+
 	const [state, setState] = useState({
 		productMenu: settings.deploymentTypes.includes('productMenu'),
 		standalone: settings.deploymentTypes.includes('standalone'),
 		widget: settings.deploymentTypes.includes('widget')
 	});
 
+	const [showWidgetAlert, setShowWidgetAlert] = useState(true);
+
 	const onSwitchToggle = type => {
 		const {deploymentTypes: types} = settings;
 
-		onSettingsChange({
-			...settings,
-			deploymentTypes: types.includes(type)
-				? types.filter(deploymentType => deploymentType !== type)
-				: types.concat(type)
-		});
+		setApp(prevApp => ({
+			...prevApp,
+			settings: {
+				deploymentTypes: types.includes(type)
+					? types.filter(deploymentType => deploymentType !== type)
+					: types.concat(type)
+			}
+		}));
 
 		setState(prevState => ({
 			...prevState,
@@ -37,7 +66,7 @@ export default ({appName, onSettingsChange, settings}) => {
 		}));
 	};
 
-	const {productMenu: isProductMenu} = state;
+	const {productMenu: isProductMenu, widget: isWidget} = state;
 
 	return (
 		<>
@@ -47,110 +76,120 @@ export default ({appName, onSettingsChange, settings}) => {
 				</div>
 			</div>
 
-			<div className="autofit-row pl-4 pr-4 mb-4">
+			<div className="autofit-row pl-4 pr-4 scrollable-container">
 				<div className="autofit-col-expand">
-					<section className="autofit-section">
-						<p className="list-group-title">
-							<h3>{Liferay.Language.get('product-menu')}</h3>
-						</p>
-						<p className="list-group-subtext">
-							<small>
-								{Liferay.Language.get(
-									'deploy-to-the-control-panel-or-a-site-menu'
-								)}
-							</small>
-						</p>
-					</section>
-				</div>
-
-				<div className="autofit-col right">
-					<label className="toggle-switch">
-						<input
-							checked={isProductMenu}
-							className="toggle-switch-check"
-							onChange={() => onSwitchToggle('productMenu')}
-							type="checkbox"
-						/>
-						<span aria-hidden="true" className="toggle-switch-bar">
-							<span className="toggle-switch-handle"></span>
-						</span>
-					</label>
-				</div>
-			</div>
-
-			{isProductMenu && (
-				<>
-					<div className="autofit-row pl-4 pr-4">
-						<div className="autofit-col-expand">
-							<div className="form-group">
-								<label htmlFor="menuLabel">
-									{Liferay.Language.get('menu-label')}
-								</label>
-								<input
-									className="form-control"
-									disabled={true}
-									id="menuLabel"
-									placeholder={Liferay.Language.get(
-										'untitled-app'
-									)}
-									type="text"
-									value={appName}
-								/>
+					<DeploymentOption
+						isActive={isProductMenu}
+						onToggle={onSwitchToggle}
+						optionDescription={Liferay.Language.get(
+							'deploy-to-the-control-panel-or-a-site-menu'
+						)}
+						optionKey={'productMenu'}
+						optionTitle={Liferay.Language.get('product-menu')}
+					>
+						<>
+							<div className="autofit-row">
+								<div className="autofit-col-expand">
+									<div className="form-group">
+										<label htmlFor="productMenuName">
+											{Liferay.Language.get('menu-label')}
+										</label>
+										<input
+											className="form-control"
+											disabled={true}
+											id="productMenuName"
+											placeholder={Liferay.Language.get(
+												'untitled-app'
+											)}
+											type="text"
+											value={appName}
+										/>
+									</div>
+								</div>
 							</div>
-						</div>
-					</div>
 
-					<div className="autofit-row pl-4 pr-4">
-						<div className="autofit-col-expand">
-							<div className="form-group">
-								<label htmlFor="selectPlacement">
-									{Liferay.Language.get('place-it-in-the')}
-								</label>
-								<select
-									className="form-control"
-									disabled={true}
-									id="selectPlacement"
-									value={1}
-								>
-									<option value={1}>
-										{Liferay.Language.get('control-panel')}
-									</option>
-									<option value={2}>
-										{Liferay.Language.get('site-menu')}
-									</option>
-									<option value={3}>
+							<div className="autofit-row">
+								<div className="autofit-col-expand">
+									<div className="form-group">
+										<label htmlFor="selectPlacement">
+											{Liferay.Language.get(
+												'place-it-in-the'
+											)}
+										</label>
+										<select
+											className="form-control"
+											disabled={true}
+											id="selectPlacement"
+											value={1}
+										>
+											<option value={1}>
+												{Liferay.Language.get(
+													'control-panel'
+												)}
+											</option>
+											<option value={2}>
+												{Liferay.Language.get(
+													'site-menu'
+												)}
+											</option>
+											<option value={3}>
+												{Liferay.Language.get(
+													'control-panel-and-site-menu'
+												)}
+											</option>
+										</select>
+									</div>
+								</div>
+								<div className="col-md-6">
+									<div className="form-group">
+										<label htmlFor="selectSites">
+											{Liferay.Language.get('site-menu')}
+										</label>
+										<select
+											className="form-control"
+											disabled={true}
+											id="selectSites"
+											value={1}
+										>
+											<option value={1}>
+												{Liferay.Language.get(
+													'all-sites'
+												)}
+											</option>
+										</select>
+									</div>
+								</div>
+							</div>
+						</>
+					</DeploymentOption>
+
+					<DeploymentOption
+						isActive={isWidget}
+						onToggle={onSwitchToggle}
+						optionDescription={Liferay.Language.get(
+							'deploy-it-as-a-display-widget'
+						)}
+						optionKey={'widget'}
+						optionTitle={Liferay.Language.get('widget')}
+					>
+						{showWidgetAlert && (
+							<div className="autofit-row pl-2 pr-2">
+								<div className="col-md-12">
+									<ClayAlert
+										displayType="info"
+										onClose={() =>
+											setShowWidgetAlert(false)
+										}
+										title={Liferay.Language.get('info')}
+									>
 										{Liferay.Language.get(
-											'control-panel-and-site-menu'
+											'the-widget-will-be-available-under-add-widgets-app-builder'
 										)}
-									</option>
-								</select>
+									</ClayAlert>
+								</div>
 							</div>
-						</div>
-
-						<div className="col-md-6">
-							<div className="form-group">
-								<label htmlFor="selectSite">
-									{Liferay.Language.get('site')}
-								</label>
-								<select
-									className="form-control"
-									disabled={true}
-									id="selectSite"
-									value={1}
-								>
-									<option value={1}>
-										{Liferay.Language.get('all-sites')}
-									</option>
-								</select>
-							</div>
-						</div>
-					</div>
-				</>
-			)}
-
-			<div className="autofit-row pl-2 pr-2">
-				<div className="col-md-12">
-					<h4 className="card-divider"></h4>
+						)}
+					</DeploymentOption>
 				</div>
 			</div>
 		</>
