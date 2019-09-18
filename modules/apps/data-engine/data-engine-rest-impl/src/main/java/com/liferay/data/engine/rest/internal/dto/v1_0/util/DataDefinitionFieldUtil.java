@@ -119,7 +119,6 @@ public class DataDefinitionFieldUtil {
 
 		spiDataDefinitionField.setReadOnly(
 			GetterUtil.getBoolean(dataDefinitionField.getReadOnly()));
-
 		spiDataDefinitionField.setRepeatable(
 			GetterUtil.getBoolean(dataDefinitionField.getRepeatable()));
 		spiDataDefinitionField.setRequired(

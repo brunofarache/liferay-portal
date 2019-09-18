@@ -61,7 +61,8 @@ components:
                     format: int64
                     type: integer
                 indexType:
-                    enum: [none, keyword, text]
+                    default: "all"
+                    enum: [all, keyword, none, text]
                     type: string
                 indexable:
                     type: boolean
