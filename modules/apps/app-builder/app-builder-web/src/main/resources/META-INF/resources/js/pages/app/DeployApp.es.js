@@ -12,7 +12,7 @@
  * details.
  */
 
-import React, {useState, useContext} from 'react';
+import React, {useContext} from 'react';
 import {AppDeploymentContext} from './AppDeploymentContext.es';
 
 export default () => {
@@ -20,37 +20,68 @@ export default () => {
 		state: {
 			app: {
 				name: {en_US: appName},
-				settings
+				appDeployments
 			}
 		},
 		dispatch
 	} = useContext(AppDeploymentContext);
 
-	const [state, setState] = useState({
-		productMenu: settings.deploymentTypes.includes('productMenu'),
-		standalone: settings.deploymentTypes.includes('standalone'),
-		widget: settings.deploymentTypes.includes('widget')
-	});
+	const productMenu = appDeployments.find(
+		deployment => deployment.type === 'productMenu'
+	);
 
-	const onSwitchToggle = type => {
-		const {deploymentTypes: types} = settings;
+	const onScopeChange = event => {
+		const scope = Number(event.target.value);
+
+		const newSettings = {
+			...appDeployments.find(
+				deployment => deployment.type === 'productMenu'
+			).settings
+		};
+
+		if (scope === 1) {
+			newSettings.scope = ['control_panel'];
+		} else if (scope === 2) {
+			newSettings.scope = ['site_administration.content'];
+		} else {
+			newSettings.scope = [
+				'control_panel',
+				'site_administration.content'
+			];
+		}
 
 		dispatch({
-			settings: {
-				deploymentTypes: types.includes(type)
-					? types.filter(deploymentType => deploymentType !== type)
-					: types.concat(type)
-			},
-			type: 'UPDATE_SETTINGS'
+			deploymentType: 'productMenu',
+			settings: newSettings,
+			type: 'UPDATE_DEPLOYMENT_SETTINGS'
 		});
-
-		setState(prevState => ({
-			...prevState,
-			[type]: !prevState[type]
-		}));
 	};
 
-	const {productMenu: isProductMenu} = state;
+	const onSwitchToggle = deployment => {
+		dispatch({
+			deployment,
+			type: 'TOGGLE_DEPLOYMENT'
+		});
+	};
+
+	const getScope = scopes => {
+		let scope = 1;
+
+		if (
+			scopes.some(scope => scope === 'control_panel') &&
+			scopes.some(scope => scope === 'site_administration.content')
+		) {
+			scope = 3;
+		} else if (
+			scopes.some(scope => scope === 'site_administration.content')
+		) {
+			scope = 2;
+		}
+
+		return scope;
+	};
+
+	const scope = getScope(productMenu ? productMenu.settings.scope : []);
 
 	return (
 		<>
@@ -79,9 +110,16 @@ export default () => {
 				<div className="autofit-col right">
 					<label className="toggle-switch">
 						<input
-							checked={isProductMenu}
+							checked={productMenu}
 							className="toggle-switch-check"
-							onChange={() => onSwitchToggle('productMenu')}
+							onChange={() =>
+								onSwitchToggle({
+									settings: {
+										scope: ['control_panel']
+									},
+									type: 'productMenu'
+								})
+							}
 							type="checkbox"
 						/>
 						<span aria-hidden="true" className="toggle-switch-bar">
@@ -91,7 +129,7 @@ export default () => {
 				</div>
 			</div>
 
-			{isProductMenu && (
+			{productMenu && (
 				<>
 					<div className="autofit-row pl-4 pr-4">
 						<div className="autofit-col-expand">
@@ -116,14 +154,14 @@ export default () => {
 					<div className="autofit-row pl-4 pr-4">
 						<div className="autofit-col-expand">
 							<div className="form-group">
-								<label htmlFor="selectPlacement">
+								<label htmlFor="selectScope">
 									{Liferay.Language.get('place-it-in-the')}
 								</label>
 								<select
 									className="form-control"
-									disabled={true}
-									id="selectPlacement"
-									value={1}
+									id="selectScope"
+									onChange={onScopeChange}
+									value={scope}
 								>
 									<option value={1}>
 										{Liferay.Language.get('control-panel')}
@@ -140,23 +178,25 @@ export default () => {
 							</div>
 						</div>
 
-						<div className="col-md-6">
-							<div className="form-group">
-								<label htmlFor="selectSite">
-									{Liferay.Language.get('site')}
-								</label>
-								<select
-									className="form-control"
-									disabled={true}
-									id="selectSite"
-									value={1}
-								>
-									<option value={1}>
-										{Liferay.Language.get('all-sites')}
-									</option>
-								</select>
+						{scope !== 1 && (
+							<div className="col-md-6">
+								<div className="form-group">
+									<label htmlFor="selectSite">
+										{Liferay.Language.get('site')}
+									</label>
+									<select
+										className="form-control"
+										disabled={true}
+										id="selectSite"
+										value={1}
+									>
+										<option value={1}>
+											{Liferay.Language.get('all-sites')}
+										</option>
+									</select>
+								</div>
 							</div>
-						</div>
+						)}
 					</div>
 				</>
 			)}
