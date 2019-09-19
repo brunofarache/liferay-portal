@@ -49,18 +49,16 @@ function reducer(state, action) {
 			};
 		}
 		case 'UPDATE_DEPLOYMENT': {
-			const appDeployments = state.app.appDeployments
-				.filter(
-					appDeployment =>
-						appDeployment.type !== action.appDeployment.type
-				)
-				.concat(action.appDeployment);
-
 			return {
 				...state,
 				app: {
 					...state.app,
-					appDeployments
+					appDeployments: state.app.appDeployments
+						.filter(
+							appDeployment =>
+								appDeployment.type !== action.appDeployment.type
+						)
+						.concat(action.appDeployment)
 				}
 			};
 		}
