@@ -38,26 +38,26 @@ export default () => {
 		dispatch
 	} = useContext(AppDeploymentContext);
 
-	const onSettingsChange = event => {
+	const productMenu = appDeployments.find(
+		appDeployment => appDeployment.type === 'productMenu'
+	);
+
+	const onScopeChange = event => {
 		const newScope = event.target.value;
 
-		const newSettings = {
-			...appDeployments.find(
-				deployment => deployment.type === 'productMenu'
-			).settings,
-			scope: newScope.split(',')
+		const newDeployment = {
+			...productMenu,
+			settings: {
+				...productMenu.settings,
+				scope: newScope.split(',')
+			}
 		};
 
 		dispatch({
-			deploymentType: 'productMenu',
-			settings: newSettings,
-			type: 'UPDATE_DEPLOYMENT_SETTINGS'
+			appDeployment: newDeployment,
+			type: 'UPDATE_DEPLOYMENT'
 		});
 	};
-
-	const productMenu = appDeployments.find(
-		deployment => deployment.type === 'productMenu'
-	);
 
 	if (!productMenu) {
 		return <></>;
@@ -78,7 +78,7 @@ export default () => {
 						<select
 							className="form-control"
 							id="scope"
-							onChange={onSettingsChange}
+							onChange={onScopeChange}
 							value={scope}
 						>
 							{SCOPES.map(({label, value}, index) => (
