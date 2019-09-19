@@ -87,7 +87,7 @@ export default ({
 
 							{currentStep == 1 && (
 								<EditAppBody
-									action={'UPDATE_LIST_VIEW_ID'}
+									action="UPDATE_DATA_LIST_VIEW_ID"
 									emptyState={getEmptyState(
 										Liferay.Language.get(
 											'create-one-or-more-tables-to-display-the-data-held-in-your-data-object'

@@ -14,6 +14,7 @@
 
 import React, {useContext} from 'react';
 import {AppDeploymentContext} from './AppDeploymentContext.es';
+import ToggleSwitch from '../../components/toggle-switch/ToggleSwitch.es';
 
 const CONTROL_PANEL_SCOPES = [
 	{
@@ -89,27 +90,22 @@ export default () => {
 				</div>
 
 				<div className="autofit-col right">
-					<label className="toggle-switch">
-						<input
-							checked={productMenu}
-							className="toggle-switch-check"
-							onChange={() =>
+					<ToggleSwitch
+						checked={!!productMenu}
+						onChange={checked => {
+							if (checked) {
 								dispatch({
-									deployment: {
-										settings: {
-											scope: ['control_panel']
-										},
-										type: 'productMenu'
-									},
-									type: 'TOGGLE_DEPLOYMENT'
-								})
+									deploymentType: 'productMenu',
+									type: 'ADD_DEPLOYMENT'
+								});
+							} else {
+								dispatch({
+									deploymentType: 'productMenu',
+									type: 'REMOVE_DEPLOYMENT'
+								});
 							}
-							type="checkbox"
-						/>
-						<span aria-hidden="true" className="toggle-switch-bar">
-							<span className="toggle-switch-handle"></span>
-						</span>
-					</label>
+						}}
+					/>
 				</div>
 			</div>
 
