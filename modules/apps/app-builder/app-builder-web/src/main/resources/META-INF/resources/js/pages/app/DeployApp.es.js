@@ -14,30 +14,13 @@
 
 import React, {useContext} from 'react';
 import {AppDeploymentContext} from './AppDeploymentContext.es';
+import ProductMenuSettings from './ProductMenuSettings.es';
 import ToggleSwitch from '../../components/toggle-switch/ToggleSwitch.es';
-
-const CONTROL_PANEL_SCOPES = [
-	{
-		label: Liferay.Language.get('control-panel'),
-		value: ['control_panel']
-	},
-	{
-		label: Liferay.Language.get('site-menu'),
-		value: ['site_administration.content']
-	},
-	{
-		label: Liferay.Language.get('control-panel-and-site-menu'),
-		value: ['control_panel', 'site_administration.content']
-	}
-];
 
 export default () => {
 	const {
 		state: {
-			app: {
-				name: {en_US: appName},
-				appDeployments
-			}
+			app: {appDeployments}
 		},
 		dispatch
 	} = useContext(AppDeploymentContext);
@@ -45,25 +28,6 @@ export default () => {
 	const productMenu = appDeployments.find(
 		deployment => deployment.type === 'productMenu'
 	);
-
-	const onScopeChange = event => {
-		const newScope = event.target.value;
-
-		const newSettings = {
-			...appDeployments.find(
-				deployment => deployment.type === 'productMenu'
-			).settings,
-			scope: newScope.split(',')
-		};
-
-		dispatch({
-			deploymentType: 'productMenu',
-			settings: newSettings,
-			type: 'UPDATE_DEPLOYMENT_SETTINGS'
-		});
-	};
-
-	const scope = productMenu ? productMenu.settings.scope : [];
 
 	return (
 		<>
@@ -109,78 +73,7 @@ export default () => {
 				</div>
 			</div>
 
-			{productMenu && (
-				<>
-					<div className="autofit-row pl-4 pr-4">
-						<div className="autofit-col-expand">
-							<div className="form-group">
-								<label htmlFor="menuLabel">
-									{Liferay.Language.get('menu-label')}
-								</label>
-								<input
-									className="form-control"
-									disabled={true}
-									id="menuLabel"
-									placeholder={Liferay.Language.get(
-										'untitled-app'
-									)}
-									type="text"
-									value={appName}
-								/>
-							</div>
-						</div>
-					</div>
-
-					<div className="autofit-row pl-4 pr-4">
-						<div className="autofit-col-expand">
-							<div className="form-group">
-								<label htmlFor="selectScope">
-									{Liferay.Language.get('place-it-in-the')}
-								</label>
-								<select
-									className="form-control"
-									id="selectScope"
-									onChange={onScopeChange}
-									value={scope}
-								>
-									{CONTROL_PANEL_SCOPES.map(
-										(scope, index) => {
-											return (
-												<option
-													key={index}
-													value={scope.value}
-												>
-													{scope.label}
-												</option>
-											);
-										}
-									)}
-								</select>
-							</div>
-						</div>
-
-						{scope.includes('site_administration.content') && (
-							<div className="col-md-6">
-								<div className="form-group">
-									<label htmlFor="selectSite">
-										{Liferay.Language.get('site')}
-									</label>
-									<select
-										className="form-control"
-										disabled={true}
-										id="selectSite"
-										value={1}
-									>
-										<option value={1}>
-											{Liferay.Language.get('all-sites')}
-										</option>
-									</select>
-								</div>
-							</div>
-						)}
-					</div>
-				</>
-			)}
+			<ProductMenuSettings />
 
 			<div className="autofit-row pl-2 pr-2">
 				<div className="col-md-12">
