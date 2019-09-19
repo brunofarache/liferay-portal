@@ -16,12 +16,19 @@ import React, {createContext, useReducer} from 'react';
 
 function reducer(state, action) {
 	switch (action.type) {
-		case 'UPDATE_LIST_VIEW_ID': {
+		case 'UPDATE_DEPLOYMENT_SETTINGS': {
+			const deployments = [...state.app.appDeployments];
+
+			const index = deployments.findIndex(
+				deployment => deployment.type === action.deploymentType
+			);
+			deployments[index].settings = action.settings;
+
 			return {
 				...state,
 				app: {
 					...state.app,
-					dataListViewId: action.itemId
+					appDeployments: deployments
 				}
 			};
 		}
@@ -31,6 +38,15 @@ function reducer(state, action) {
 				app: {
 					...state.app,
 					dataLayoutId: action.itemId
+				}
+			};
+		}
+		case 'UPDATE_LIST_VIEW_ID': {
+			return {
+				...state,
+				app: {
+					...state.app,
+					dataListViewId: action.itemId
 				}
 			};
 		}
@@ -45,12 +61,25 @@ function reducer(state, action) {
 				}
 			};
 		}
-		case 'UPDATE_SETTINGS': {
+		case 'TOGGLE_DEPLOYMENT': {
+			const {
+				app: {appDeployments}
+			} = state;
+
+			const newDeployments = appDeployments.some(
+				appDeployment => appDeployment.type === action.deployment.type
+			)
+				? appDeployments.filter(
+						appDeployment =>
+							appDeployment.type !== action.deployment.type
+				  )
+				: appDeployments.concat(action.deployment);
+
 			return {
 				...state,
 				app: {
 					...state.app,
-					settings: action.settings
+					appDeployments: newDeployments
 				}
 			};
 		}
@@ -65,15 +94,13 @@ const AppDeploymentContext = createContext();
 const AppDeploymentProvider = ({children}) => {
 	const [state, dispatch] = useReducer(reducer, {
 		app: {
+			appDeployments: [],
 			dataLayoutId: null,
 			dataListViewId: null,
 			name: {
 				en_US: ''
 			},
-			settings: {
-				deploymentTypes: []
-			},
-			status: 'undeployed'
+			status: 'deployed'
 		}
 	});
 
