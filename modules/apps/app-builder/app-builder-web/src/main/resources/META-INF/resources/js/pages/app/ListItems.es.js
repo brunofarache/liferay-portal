@@ -23,18 +23,25 @@ import {AppDeploymentContext} from './AppDeploymentContext.es';
 
 const {Body, Cell, Head, Row} = ClayTable;
 
-const ListItems = ({action, items, targetProperty}) => {
+const ListItems = ({items, itemType}) => {
 	const {
 		state: {
-			app: {[targetProperty]: itemId}
+			app: {dataLayoutId, dataListViewId}
 		},
 		dispatch
 	} = useContext(AppDeploymentContext);
 
-	const onItemIdChange = itemId => {
+	const itemId = itemType === 'DATA_LAYOUT' ? dataLayoutId : dataListViewId;
+
+	const onItemIdChange = id => {
+		const type =
+			itemType === 'DATA_LAYOUT'
+				? 'UPDATE_DATA_LAYOUT_ID'
+				: 'UPDATE_DATA_LIST_VIEW_ID';
+
 		dispatch({
-			itemId,
-			type: action
+			id,
+			type
 		});
 	};
 
