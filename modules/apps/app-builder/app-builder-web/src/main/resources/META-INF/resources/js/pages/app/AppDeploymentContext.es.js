@@ -48,19 +48,19 @@ function reducer(state, action) {
 				}
 			};
 		}
-		case 'UPDATE_DEPLOYMENT_SETTINGS': {
-			const deployments = [...state.app.appDeployments];
-
-			const index = deployments.findIndex(
-				deployment => deployment.type === action.deploymentType
-			);
-			deployments[index].settings = action.settings;
+		case 'UPDATE_DEPLOYMENT': {
+			const appDeployments = state.app.appDeployments
+				.filter(
+					appDeployment =>
+						appDeployment.type !== action.appDeployment.type
+				)
+				.concat(action.appDeployment);
 
 			return {
 				...state,
 				app: {
 					...state.app,
-					appDeployments: deployments
+					appDeployments
 				}
 			};
 		}
