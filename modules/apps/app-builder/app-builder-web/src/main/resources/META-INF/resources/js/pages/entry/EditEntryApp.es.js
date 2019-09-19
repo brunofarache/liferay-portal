@@ -1,4 +1,3 @@
-<%--
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
@@ -12,28 +11,22 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
---%>
 
-<%@ include file="/init.jsp" %>
+import React from 'react';
+import EditEntry from './EditEntry.es';
+import {AppContextProvider} from '../../AppContext.es';
 
-<%
-long appId = (long)request.getAttribute(AppBuilderWebKeys.APP_ID);
-
-String appBuilderRootElementId = renderResponse.getNamespace() + "-app-builder-root";
-%>
-
-<div id="<%= appBuilderRootElementId %>">
-	<portlet:renderURL var="basePortletURL" />
-
-	<%
-	Map<String, Object> data = new HashMap<>();
-
-	data.put("appId", appId);
-	data.put("basePortletURL", basePortletURL.toString());
-	%>
-
-	<react:component
-		data="<%= data %>"
-		module="js/pages/entry/ListEntriesApp.es"
-	/>
-</div>
+export default ({
+	basePortletURL,
+	dataDefinitionId,
+	editEntryContainerElementId
+}) => {
+	return (
+		<AppContextProvider basePortletURL={basePortletURL}>
+			<EditEntry
+				dataDefinitionId={dataDefinitionId}
+				editEntryContainerElementId={editEntryContainerElementId}
+			/>
+		</AppContextProvider>
+	);
+};

@@ -17,10 +17,10 @@ import {Route, HashRouter as Router, Switch} from 'react-router-dom';
 import ListEntries from './ListEntries.es';
 import {AppContextProvider} from '../../AppContext.es';
 
-export default function({appId}) {
+export default function(props) {
 	return (
 		<div className="app-builder-root">
-			<AppContextProvider appId={appId}>
+			<AppContextProvider {...props}>
 				<Router>
 					<Switch>
 						<Route component={ListEntries} path="/" />

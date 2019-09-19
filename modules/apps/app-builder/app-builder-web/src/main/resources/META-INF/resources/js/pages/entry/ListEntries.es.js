@@ -29,50 +29,49 @@ const ACTIONS = [
 
 const ListEntries = () => {
 	const [state, setState] = useState({
-		dataDefinition: {},
+		dataDefinitionId: null,
+		dataLayoutId: null,
 		dataListView: {
 			fieldNames: []
 		},
 		isLoading: true
 	});
 
-	const {dataDefinition, dataListView, isLoading} = state;
-
-	const {appId} = useContext(AppContext);
+	const {appId, basePortletURL} = useContext(AppContext);
 
 	useEffect(() => {
 		getItem(`/o/app-builder/v1.0/apps/${appId}`).then(
-			({dataDefinitionId, dataListViewId}) => {
-				const getDataDefinition = getItem(
-					`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}`
-				);
-
-				const getDataListView = getItem(
+			({dataDefinitionId, dataLayoutId, dataListViewId}) => {
+				getItem(
 					`/o/data-engine/v1.0/data-list-views/${dataListViewId}`
-				);
-
-				Promise.all([getDataDefinition, getDataListView]).then(
-					([dataDefinition, dataListView]) => {
-						setState(prevState => ({
-							...prevState,
-							dataDefinition: {
-								...prevState.dataDefinition,
-								...dataDefinition
-							},
-							dataListView: {
-								...prevState.dataListView,
-								...dataListView
-							},
-							isLoading: false
-						}));
-					}
-				);
+				).then(dataListView => {
+					setState(prevState => ({
+						...prevState,
+						dataDefinitionId,
+						dataLayoutId,
+						dataListView: {
+							...prevState.dataListView,
+							...dataListView
+						},
+						isLoading: false
+					}));
+				});
 			}
 		);
 	}, [appId]);
 
-	const {id: dataDefinitionId} = dataDefinition;
+	const {dataDefinitionId, dataLayoutId, dataListView, isLoading} = state;
 	const {fieldNames: columns} = dataListView;
+
+	const onClickAddButton = () => {
+		Liferay.Util.navigate(
+			Liferay.Util.PortletURL.createRenderURL(basePortletURL, {
+				dataDefinitionId,
+				dataLayoutId,
+				mvcPath: '/edit_entry.jsp'
+			})
+		);
+	};
 
 	return (
 		<Loading isLoading={isLoading}>
@@ -81,7 +80,7 @@ const ListEntries = () => {
 				addButton={() => (
 					<Button
 						className="nav-btn nav-btn-monospaced navbar-breakpoint-down-d-none"
-						href="/add"
+						onClick={onClickAddButton}
 						symbol="plus"
 						tooltip={Liferay.Language.get('new-entry')}
 					/>
@@ -92,7 +91,10 @@ const ListEntries = () => {
 				}))}
 				emptyState={{
 					button: () => (
-						<Button displayType="secondary" href="add">
+						<Button
+							displayType="secondary"
+							onClick={onClickAddButton}
+						>
 							{Liferay.Language.get('new-entry')}
 						</Button>
 					),
