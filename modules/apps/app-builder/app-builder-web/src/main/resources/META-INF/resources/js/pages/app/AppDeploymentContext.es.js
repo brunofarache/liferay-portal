@@ -16,6 +16,38 @@ import React, {createContext, useReducer} from 'react';
 
 function reducer(state, action) {
 	switch (action.type) {
+		case 'ADD_DEPLOYMENT': {
+			let settings = {};
+
+			if (action.deploymentType == 'productMenu') {
+				settings = {
+					scope: ['control_panel']
+				};
+			}
+
+			return {
+				...state,
+				app: {
+					...state.app,
+					appDeployments: state.app.appDeployments.concat({
+						settings,
+						type: action.deploymentType
+					})
+				}
+			};
+		}
+		case 'REMOVE_DEPLOYMENT': {
+			return {
+				...state,
+				app: {
+					...state.app,
+					appDeployments: state.app.appDeployments.filter(
+						appDeployment =>
+							appDeployment.type !== action.deploymentType
+					)
+				}
+			};
+		}
 		case 'UPDATE_DEPLOYMENT_SETTINGS': {
 			const deployments = [...state.app.appDeployments];
 
@@ -41,7 +73,7 @@ function reducer(state, action) {
 				}
 			};
 		}
-		case 'UPDATE_LIST_VIEW_ID': {
+		case 'UPDATE_DATA_LIST_VIEW_ID': {
 			return {
 				...state,
 				app: {
@@ -58,28 +90,6 @@ function reducer(state, action) {
 					name: {
 						en_US: action.appName
 					}
-				}
-			};
-		}
-		case 'TOGGLE_DEPLOYMENT': {
-			const {
-				app: {appDeployments}
-			} = state;
-
-			const newDeployments = appDeployments.some(
-				appDeployment => appDeployment.type === action.deployment.type
-			)
-				? appDeployments.filter(
-						appDeployment =>
-							appDeployment.type !== action.deployment.type
-				  )
-				: appDeployments.concat(action.deployment);
-
-			return {
-				...state,
-				app: {
-					...state.app,
-					appDeployments: newDeployments
 				}
 			};
 		}
