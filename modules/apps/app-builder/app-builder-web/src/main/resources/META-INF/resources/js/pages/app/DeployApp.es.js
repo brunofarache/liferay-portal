@@ -15,6 +15,21 @@
 import React, {useContext} from 'react';
 import {AppDeploymentContext} from './AppDeploymentContext.es';
 
+const CONTROL_PANEL_SCOPES = [
+	{
+		label: Liferay.Language.get('control-panel'),
+		value: ['control_panel']
+	},
+	{
+		label: Liferay.Language.get('site-menu'),
+		value: ['site_administration.content']
+	},
+	{
+		label: Liferay.Language.get('control-panel-and-site-menu'),
+		value: ['control_panel', 'site_administration.content']
+	}
+];
+
 export default () => {
 	const {
 		state: {
@@ -31,24 +46,14 @@ export default () => {
 	);
 
 	const onScopeChange = event => {
-		const scope = Number(event.target.value);
+		const newScope = event.target.value;
 
 		const newSettings = {
 			...appDeployments.find(
 				deployment => deployment.type === 'productMenu'
-			).settings
+			).settings,
+			scope: newScope.split(',')
 		};
-
-		if (scope === 1) {
-			newSettings.scope = ['control_panel'];
-		} else if (scope === 2) {
-			newSettings.scope = ['site_administration.content'];
-		} else {
-			newSettings.scope = [
-				'control_panel',
-				'site_administration.content'
-			];
-		}
 
 		dispatch({
 			deploymentType: 'productMenu',
@@ -57,31 +62,7 @@ export default () => {
 		});
 	};
 
-	const onSwitchToggle = deployment => {
-		dispatch({
-			deployment,
-			type: 'TOGGLE_DEPLOYMENT'
-		});
-	};
-
-	const getScope = scopes => {
-		let scope = 1;
-
-		if (
-			scopes.some(scope => scope === 'control_panel') &&
-			scopes.some(scope => scope === 'site_administration.content')
-		) {
-			scope = 3;
-		} else if (
-			scopes.some(scope => scope === 'site_administration.content')
-		) {
-			scope = 2;
-		}
-
-		return scope;
-	};
-
-	const scope = getScope(productMenu ? productMenu.settings.scope : []);
+	const scope = productMenu ? productMenu.settings.scope : [];
 
 	return (
 		<>
@@ -113,11 +94,14 @@ export default () => {
 							checked={productMenu}
 							className="toggle-switch-check"
 							onChange={() =>
-								onSwitchToggle({
-									settings: {
-										scope: ['control_panel']
+								dispatch({
+									deployment: {
+										settings: {
+											scope: ['control_panel']
+										},
+										type: 'productMenu'
 									},
-									type: 'productMenu'
+									type: 'TOGGLE_DEPLOYMENT'
 								})
 							}
 							type="checkbox"
@@ -163,22 +147,23 @@ export default () => {
 									onChange={onScopeChange}
 									value={scope}
 								>
-									<option value={1}>
-										{Liferay.Language.get('control-panel')}
-									</option>
-									<option value={2}>
-										{Liferay.Language.get('site-menu')}
-									</option>
-									<option value={3}>
-										{Liferay.Language.get(
-											'control-panel-and-site-menu'
-										)}
-									</option>
+									{CONTROL_PANEL_SCOPES.map(
+										(scope, index) => {
+											return (
+												<option
+													key={index}
+													value={scope.value}
+												>
+													{scope.label}
+												</option>
+											);
+										}
+									)}
 								</select>
 							</div>
 						</div>
 
-						{scope !== 1 && (
+						{scope.includes('site_administration.content') && (
 							<div className="col-md-6">
 								<div className="form-group">
 									<label htmlFor="selectSite">
