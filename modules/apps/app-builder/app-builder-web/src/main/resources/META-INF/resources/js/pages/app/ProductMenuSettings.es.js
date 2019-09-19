@@ -43,13 +43,13 @@ export default () => {
 	);
 
 	const onScopeChange = event => {
-		const newScope = event.target.value;
+		const scope = event.target.value;
 
 		const newDeployment = {
 			...productMenu,
 			settings: {
 				...productMenu.settings,
-				scope: newScope.split(',')
+				scope: scope.split(',')
 			}
 		};
 

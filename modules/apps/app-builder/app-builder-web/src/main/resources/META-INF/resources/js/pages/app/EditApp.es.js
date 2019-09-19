@@ -68,7 +68,6 @@ export default ({
 
 							{currentStep == 0 && (
 								<EditAppBody
-									action={'UPDATE_DATA_LAYOUT_ID'}
 									emptyState={getEmptyState(
 										Liferay.Language.get(
 											'create-one-or-more-forms-to-display-the-data-held-in-your-data-object'
@@ -78,7 +77,7 @@ export default ({
 										)
 									)}
 									endpoint={`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}/data-layouts`}
-									targetProperty={'dataLayoutId'}
+									itemType="DATA_LAYOUT"
 									title={Liferay.Language.get(
 										'select-a-form-view'
 									)}
@@ -87,7 +86,6 @@ export default ({
 
 							{currentStep == 1 && (
 								<EditAppBody
-									action="UPDATE_DATA_LIST_VIEW_ID"
 									emptyState={getEmptyState(
 										Liferay.Language.get(
 											'create-one-or-more-tables-to-display-the-data-held-in-your-data-object'
@@ -97,7 +95,7 @@ export default ({
 										)
 									)}
 									endpoint={`/o/data-engine/v1.0/data-definitions/${dataDefinitionId}/data-list-views`}
-									targetProperty={'dataListViewId'}
+									itemType="DATA_LIST_VIEW"
 									title={Liferay.Language.get(
 										'select-a-table-view'
 									)}

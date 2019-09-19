@@ -67,7 +67,7 @@ function reducer(state, action) {
 				...state,
 				app: {
 					...state.app,
-					dataLayoutId: action.itemId
+					dataLayoutId: action.id
 				}
 			};
 		}
@@ -76,7 +76,7 @@ function reducer(state, action) {
 				...state,
 				app: {
 					...state.app,
-					dataListViewId: action.itemId
+					dataListViewId: action.id
 				}
 			};
 		}
