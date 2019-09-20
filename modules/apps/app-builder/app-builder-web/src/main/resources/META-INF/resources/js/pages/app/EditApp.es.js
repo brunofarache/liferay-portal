@@ -13,13 +13,13 @@
  */
 
 import React, {useState} from 'react';
+import DeployApp from './DeployApp.es';
 import EditAppBody from './EditAppBody.es';
 import EditAppFooter from './EditAppFooter.es';
+import EditAppHeader from './EditAppHeader.es';
+import {EditAppProvider} from './EditAppContext.es';
 import MultiStepNav from './MultiStepNav.es';
 import ControlMenu from '../../components/control-menu/ControlMenu.es';
-import {EditAppProvider} from './EditAppContext.es';
-import EditAppHeader from './EditAppHeader.es';
-import DeployApp from './DeployApp.es';
 
 export default ({
 	history,

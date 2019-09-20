@@ -17,7 +17,6 @@ import ProductMenuSettings from './ProductMenuSettings.es';
 import WidgetSettings from './WidgetSettings.es';
 
 export default () => {
-
 	return (
 		<>
 			<div className="autofit-row pl-4 pr-4 mb-4">

@@ -12,12 +12,14 @@
  * details.
  */
 
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import ClayAlert from '@clayui/alert';
 import {EditAppContext} from './EditAppContext.es';
 import ToggleSwitch from '../../components/toggle-switch/ToggleSwitch.es';
 
 export default () => {
+	const [isAlertClosed, setAlertClosed] = useState(false);
+
 	const {
 		state: {
 			app: {appDeployments}
@@ -50,6 +52,7 @@ export default () => {
 						checked={isWidget}
 						onChange={checked => {
 							if (checked) {
+								setAlertClosed(false);
 								dispatch({
 									deploymentType: 'widget',
 									type: 'ADD_DEPLOYMENT'
@@ -65,15 +68,23 @@ export default () => {
 				</div>
 			</div>
 
-			{isWidget && 
+			{isWidget && !isAlertClosed && (
 				<div className="autofit-row pl-4 pr-4">
 					<div className="autofit-col-expand">
-						<ClayAlert displayType="info" title={Liferay.Language.get('info')}>
-							{Liferay.Language.get('the-widget-will-be-available-under-add-widgets-app-builder')}
+						<ClayAlert
+							displayType="info"
+							onClose={() => setAlertClosed(!isAlertClosed)}
+							title={`${Liferay.Language.get('info')}:`}
+						>
+							{`${Liferay.Language.get(
+								'the-widget-will-be-available-under'
+							)} "${Liferay.Language.get(
+								'add-widgets-app-builder'
+							)}"`}
 						</ClayAlert>
 					</div>
 				</div>
-			}
+			)}
 		</>
 	);
 };
