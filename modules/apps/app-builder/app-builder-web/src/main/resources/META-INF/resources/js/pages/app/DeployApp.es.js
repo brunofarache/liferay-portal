@@ -12,22 +12,11 @@
  * details.
  */
 
-import React, {useContext} from 'react';
-import {AppDeploymentContext} from './AppDeploymentContext.es';
+import React from 'react';
 import ProductMenuSettings from './ProductMenuSettings.es';
-import ToggleSwitch from '../../components/toggle-switch/ToggleSwitch.es';
+import WidgetSettings from './WidgetSettings.es';
 
 export default () => {
-	const {
-		state: {
-			app: {appDeployments}
-		},
-		dispatch
-	} = useContext(AppDeploymentContext);
-
-	const productMenu = appDeployments.find(
-		deployment => deployment.type === 'productMenu'
-	);
 
 	return (
 		<>
@@ -37,45 +26,17 @@ export default () => {
 				</div>
 			</div>
 
-			<div className="autofit-row pl-4 pr-4 mb-4">
-				<div className="autofit-col-expand">
-					<section className="autofit-section">
-						<p className="list-group-title">
-							<h3>{Liferay.Language.get('product-menu')}</h3>
-						</p>
-						<p className="list-group-subtext">
-							<small>
-								{Liferay.Language.get(
-									'deploy-to-the-control-panel-or-a-site-menu'
-								)}
-							</small>
-						</p>
-					</section>
-				</div>
+			<ProductMenuSettings />
 
-				<div className="autofit-col right">
-					<ToggleSwitch
-						checked={!!productMenu}
-						onChange={checked => {
-							if (checked) {
-								dispatch({
-									deploymentType: 'productMenu',
-									type: 'ADD_DEPLOYMENT'
-								});
-							} else {
-								dispatch({
-									deploymentType: 'productMenu',
-									type: 'REMOVE_DEPLOYMENT'
-								});
-							}
-						}}
-					/>
+			<div className="autofit-row pl-2 pr-2 mb-4">
+				<div className="col-md-12">
+					<h4 className="card-divider"></h4>
 				</div>
 			</div>
 
-			<ProductMenuSettings />
+			<WidgetSettings />
 
-			<div className="autofit-row pl-2 pr-2">
+			<div className="autofit-row pl-2 pr-2 mb-2">
 				<div className="col-md-12">
 					<h4 className="card-divider"></h4>
 				</div>

@@ -14,7 +14,7 @@
 
 import React, {useContext} from 'react';
 import Button from '../../components/button/Button.es';
-import {AppDeploymentContext} from './AppDeploymentContext.es';
+import {EditAppContext} from './EditAppContext.es';
 import {updateItem, addItem} from '../../utils/client.es';
 
 export default ({
@@ -26,7 +26,7 @@ export default ({
 }) => {
 	const {
 		state: {app}
-	} = useContext(AppDeploymentContext);
+	} = useContext(EditAppContext);
 
 	const {
 		dataLayoutId,

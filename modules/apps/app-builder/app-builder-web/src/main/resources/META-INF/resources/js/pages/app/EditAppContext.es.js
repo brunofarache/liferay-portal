@@ -97,9 +97,9 @@ function reducer(state, action) {
 	}
 }
 
-const AppDeploymentContext = createContext();
+const EditAppContext = createContext();
 
-const AppDeploymentProvider = ({children}) => {
+const EditAppProvider = ({children}) => {
 	const [state, dispatch] = useReducer(reducer, {
 		app: {
 			appDeployments: [],
@@ -113,10 +113,10 @@ const AppDeploymentProvider = ({children}) => {
 	});
 
 	return (
-		<AppDeploymentContext.Provider value={{dispatch, state}}>
+		<EditAppContext.Provider value={{dispatch, state}}>
 			{children}
-		</AppDeploymentContext.Provider>
+		</EditAppContext.Provider>
 	);
 };
 
-export {AppDeploymentProvider, AppDeploymentContext};
+export {EditAppProvider, EditAppContext};
