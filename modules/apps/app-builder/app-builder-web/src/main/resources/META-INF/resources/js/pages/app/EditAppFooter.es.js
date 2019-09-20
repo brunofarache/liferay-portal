@@ -12,7 +12,7 @@
  * details.
  */
 
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import {withRouter} from 'react-router-dom';
 import Button from '../../components/button/Button.es';
 import {EditAppContext} from './EditAppContext.es';
@@ -31,7 +31,10 @@ export default withRouter(
 			state: {app}
 		} = useContext(EditAppContext);
 
+		const [isDeployLoading, setDeployLoading] = useState(false);
+
 		const {
+			appDeployments,
 			dataLayoutId,
 			dataListViewId,
 			id: appId,
@@ -43,6 +46,8 @@ export default withRouter(
 		};
 
 		const onDeploy = () => {
+			setDeployLoading(true);
+
 			if (appId) {
 				updateItem(`/o/app-builder/v1.0/apps/${appId}`, app).then(
 					onCancel
@@ -91,7 +96,11 @@ export default withRouter(
 						)}
 						{currentStep === 2 && (
 							<Button
-								disabled={!appName}
+								disabled={
+									!appName ||
+									isDeployLoading ||
+									!appDeployments.length
+								}
 								displayType="primary"
 								onClick={onDeploy}
 							>
