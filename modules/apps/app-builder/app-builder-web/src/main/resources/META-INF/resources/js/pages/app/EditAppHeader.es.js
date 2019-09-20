@@ -13,7 +13,7 @@
  */
 
 import React, {useContext} from 'react';
-import {AppDeploymentContext} from './AppDeploymentContext.es';
+import {EditAppContext} from './EditAppContext.es';
 import {UpperToolbarInput} from '../../components/upper-toolbar/UpperToolbar.es';
 
 export default () => {
@@ -24,7 +24,7 @@ export default () => {
 			}
 		},
 		dispatch
-	} = useContext(AppDeploymentContext);
+	} = useContext(EditAppContext);
 
 	const onAppNameChange = event => {
 		const appName = event.target.value;

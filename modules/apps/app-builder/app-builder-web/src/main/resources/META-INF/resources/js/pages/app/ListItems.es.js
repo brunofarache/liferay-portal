@@ -19,7 +19,7 @@ import {ClayRadio, ClayRadioGroup} from '@clayui/form';
 import ClayTable from '@clayui/table';
 import {withLoading} from '../../components/loading/Loading.es';
 import {withEmpty} from '../../components/table/EmptyState.es';
-import {AppDeploymentContext} from './AppDeploymentContext.es';
+import {EditAppContext} from './EditAppContext.es';
 
 const {Body, Cell, Head, Row} = ClayTable;
 
@@ -29,7 +29,7 @@ const ListItems = ({items, itemType}) => {
 			app: {dataLayoutId, dataListViewId}
 		},
 		dispatch
-	} = useContext(AppDeploymentContext);
+	} = useContext(EditAppContext);
 
 	const itemId = itemType === 'DATA_LAYOUT' ? dataLayoutId : dataListViewId;
 
