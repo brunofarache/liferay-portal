@@ -279,11 +279,13 @@ public class AppResourceImpl
 
 			String status = app.getStatus();
 
-			if (status.equals(AppBuilderAppConstants.Status.DEPLOYED)) {
-				appDeployer.deploy(app.getId());
-			}
-			else {
-				appDeployer.undeploy(app.getId());
+			if (appDeployer != null) {
+				if (status.equals(AppBuilderAppConstants.Status.DEPLOYED)) {
+					appDeployer.deploy(appId);
+				}
+				else {
+					appDeployer.undeploy(appId);
+				}
 			}
 		}
 
