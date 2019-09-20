@@ -22,7 +22,6 @@ import MultiStepNav from './MultiStepNav.es';
 import ControlMenu from '../../components/control-menu/ControlMenu.es';
 
 export default ({
-	history,
 	match: {
 		params: {dataDefinitionId, appId}
 	}
@@ -40,10 +39,6 @@ export default ({
 			description,
 			title
 		};
-	};
-
-	const onCancel = () => {
-		history.push(`/custom-object/${dataDefinitionId}/apps`);
 	};
 
 	const onCurrentStepChange = step => {
@@ -108,10 +103,7 @@ export default ({
 						<h4 className="card-divider"></h4>
 
 						<EditAppFooter
-							appId={appId}
 							currentStep={currentStep}
-							dataDefinitionId={dataDefinitionId}
-							onCancel={onCancel}
 							onCurrentStepChange={onCurrentStepChange}
 						/>
 					</div>

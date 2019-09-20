@@ -13,79 +13,94 @@
  */
 
 import React, {useContext} from 'react';
+import {withRouter} from 'react-router-dom';
 import Button from '../../components/button/Button.es';
 import {EditAppContext} from './EditAppContext.es';
 import {updateItem, addItem} from '../../utils/client.es';
 
-export default ({
-	appId,
-	currentStep,
-	dataDefinitionId,
-	onCancel,
-	onCurrentStepChange
-}) => {
-	const {
-		state: {app}
-	} = useContext(EditAppContext);
+export default withRouter(
+	({
+		currentStep,
+		history,
+		match: {
+			params: {dataDefinitionId}
+		},
+		onCurrentStepChange
+	}) => {
+		const {
+			state: {app}
+		} = useContext(EditAppContext);
 
-	const {
-		dataLayoutId,
-		dataListViewId,
-		name: {en_US: appName}
-	} = app;
+		const {
+			dataLayoutId,
+			dataListViewId,
+			id: appId,
+			name: {en_US: appName}
+		} = app;
 
-	const onDeploy = () => {
-		if (appId) {
-			updateItem(`/o/app-builder/v1.0/apps/${appId}`, app).then(onCancel);
-		} else {
-			addItem(
-				`/o/app-builder/v1.0/data-definitions/${dataDefinitionId}/apps`,
-				app
-			).then(onCancel);
-		}
-	};
+		const onCancel = () => {
+			history.push(`/custom-object/${dataDefinitionId}/apps`);
+		};
 
-	return (
-		<div className="card-footer bg-transparent">
-			<div className="autofit-row">
-				<div className="col-md-4">
-					<Button displayType="secondary" onClick={onCancel}>
-						{Liferay.Language.get('cancel')}
-					</Button>
-				</div>
-				<div className="col-md-4 offset-md-4 text-right">
-					{currentStep > 0 && (
-						<Button
-							className="mr-3"
-							displayType="secondary"
-							onClick={() => onCurrentStepChange(currentStep - 1)}
-						>
-							{Liferay.Language.get('previous')}
+		const onDeploy = () => {
+			if (appId) {
+				updateItem(`/o/app-builder/v1.0/apps/${appId}`, app).then(
+					onCancel
+				);
+			} else {
+				addItem(
+					`/o/app-builder/v1.0/data-definitions/${dataDefinitionId}/apps`,
+					app
+				).then(onCancel);
+			}
+		};
+
+		return (
+			<div className="card-footer bg-transparent">
+				<div className="autofit-row">
+					<div className="col-md-4">
+						<Button displayType="secondary" onClick={onCancel}>
+							{Liferay.Language.get('cancel')}
 						</Button>
-					)}
-					{currentStep < 2 && (
-						<Button
-							disabled={
-								(currentStep === 0 && !dataLayoutId) ||
-								(currentStep === 1 && !dataListViewId)
-							}
-							displayType="primary"
-							onClick={() => onCurrentStepChange(currentStep + 1)}
-						>
-							{Liferay.Language.get('next')}
-						</Button>
-					)}
-					{currentStep === 2 && (
-						<Button
-							disabled={!appName}
-							displayType="primary"
-							onClick={onDeploy}
-						>
-							{Liferay.Language.get('deploy')}
-						</Button>
-					)}
+					</div>
+					<div className="col-md-4 offset-md-4 text-right">
+						{currentStep > 0 && (
+							<Button
+								className="mr-3"
+								displayType="secondary"
+								onClick={() =>
+									onCurrentStepChange(currentStep - 1)
+								}
+							>
+								{Liferay.Language.get('previous')}
+							</Button>
+						)}
+						{currentStep < 2 && (
+							<Button
+								disabled={
+									(currentStep === 0 && !dataLayoutId) ||
+									(currentStep === 1 && !dataListViewId)
+								}
+								displayType="primary"
+								onClick={() =>
+									onCurrentStepChange(currentStep + 1)
+								}
+							>
+								{Liferay.Language.get('next')}
+							</Button>
+						)}
+						{currentStep === 2 && (
+							<Button
+								disabled={!appName}
+								displayType="primary"
+								onClick={onDeploy}
+							>
+								{Liferay.Language.get('deploy')}
+							</Button>
+						)}
+					</div>
 				</div>
 			</div>
-		</div>
-	);
-};
+		);
+	}
+);
