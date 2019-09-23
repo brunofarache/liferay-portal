@@ -31,7 +31,7 @@ export default withRouter(
 			state: {app}
 		} = useContext(EditAppContext);
 
-		const [isDeployLoading, setDeployLoading] = useState(false);
+		const [isDeploying, setDeploying] = useState(false);
 
 		const {
 			appDeployments,
@@ -46,17 +46,19 @@ export default withRouter(
 		};
 
 		const onDeploy = () => {
-			setDeployLoading(true);
+			setDeploying(true);
 
 			if (appId) {
-				updateItem(`/o/app-builder/v1.0/apps/${appId}`, app).then(
-					onCancel
-				);
+				updateItem(`/o/app-builder/v1.0/apps/${appId}`, app)
+					.then(onCancel)
+					.catch(() => setDeploying(false));
 			} else {
 				addItem(
 					`/o/app-builder/v1.0/data-definitions/${dataDefinitionId}/apps`,
 					app
-				).then(onCancel);
+				)
+					.then(onCancel)
+					.catch(() => setDeploying(false));
 			}
 		};
 
@@ -97,9 +99,9 @@ export default withRouter(
 						{currentStep === 2 && (
 							<Button
 								disabled={
+									appDeployments.length === 0 ||
 									!appName ||
-									isDeployLoading ||
-									!appDeployments.length
+									isDeploying
 								}
 								displayType="primary"
 								onClick={onDeploy}
