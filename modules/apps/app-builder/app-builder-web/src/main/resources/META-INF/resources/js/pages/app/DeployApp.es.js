@@ -50,8 +50,18 @@ export default () => {
 			<Settings
 				deploymentType="widget"
 				settings={WidgetSettings}
-				subtitle={Liferay.Language.get('deploy-a-display-widget')}
+				subtitle={Liferay.Language.get('deploy-a-widget')}
 				title={Liferay.Language.get('widget')}
+			/>
+
+			<Divider />
+
+			<Settings
+				deploymentType="standalone"
+				subtitle={Liferay.Language.get(
+					'deploy-a-standalone-app-with-a-direct-link'
+				)}
+				title={Liferay.Language.get('standalone')}
 			/>
 
 			<Divider />
