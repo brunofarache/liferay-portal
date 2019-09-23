@@ -12,7 +12,8 @@
  * details.
  */
 
-import React, {createContext, useReducer} from 'react';
+import React, {createContext, useEffect, useReducer} from 'react';
+import {useRequest} from '../../hooks/index.es';
 
 function reducer(state, action) {
 	switch (action.type) {
@@ -45,6 +46,15 @@ function reducer(state, action) {
 						appDeployment =>
 							appDeployment.type !== action.deploymentType
 					)
+				}
+			};
+		}
+		case 'UPDATE_APP': {
+			return {
+				...state,
+				app: {
+					...state.app,
+					...action.app
 				}
 			};
 		}
@@ -111,7 +121,7 @@ function reducer(state, action) {
 
 const EditAppContext = createContext();
 
-const EditAppProvider = ({children}) => {
+const EditAppProvider = ({appId, children}) => {
 	const [state, dispatch] = useReducer(reducer, {
 		app: {
 			appDeployments: [],
@@ -123,6 +133,17 @@ const EditAppProvider = ({children}) => {
 			status: 'deployed'
 		}
 	});
+
+	const {response} = useRequest(`/o/app-builder/v1.0/apps/${appId}`);
+
+	useEffect(() => {
+		if (response) {
+			dispatch({
+				app: response,
+				type: 'UPDATE_APP'
+			});
+		}
+	}, [response]);
 
 	return (
 		<EditAppContext.Provider value={{dispatch, state}}>

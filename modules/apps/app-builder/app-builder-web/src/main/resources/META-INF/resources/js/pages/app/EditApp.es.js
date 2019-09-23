@@ -15,9 +15,9 @@
 import React, {useState} from 'react';
 import DeployApp from './DeployApp.es';
 import EditAppBody from './EditAppBody.es';
+import {EditAppProvider} from './EditAppContext.es';
 import EditAppFooter from './EditAppFooter.es';
 import EditAppHeader from './EditAppHeader.es';
-import {EditAppProvider} from './EditAppContext.es';
 import MultiStepNav from './MultiStepNav.es';
 import ControlMenu from '../../components/control-menu/ControlMenu.es';
 
@@ -49,7 +49,7 @@ export default ({
 		<>
 			<ControlMenu backURL="../" title={title} />
 
-			<EditAppProvider>
+			<EditAppProvider appId={appId}>
 				<div className="container-fluid container-fluid-max-lg mt-4">
 					<div className="card card-root shadowless-card mb-0">
 						<EditAppHeader />
