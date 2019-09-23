@@ -38,34 +38,21 @@ export default () => {
 		dispatch
 	} = useContext(EditAppContext);
 
-	const productMenu = appDeployments.find(
-		appDeployment => appDeployment.type === 'productMenu'
-	);
-
 	const onScopeChange = event => {
 		const scope = event.target.value;
 
-		const newDeployment = {
-			...productMenu,
-			settings: {
-				...productMenu.settings,
-				scope: scope.split(',')
-			}
-		};
-
 		dispatch({
-			appDeployment: newDeployment,
-			type: 'UPDATE_DEPLOYMENT'
+			deploymentType: 'productMenu',
+			settings: {scope: scope.split(',')},
+			type: 'UPDATE_SETTINGS'
 		});
 	};
 
-	if (!productMenu) {
-		return <></>;
-	}
-
 	const {
 		settings: {scope}
-	} = productMenu;
+	} = appDeployments.find(
+		appDeployment => appDeployment.type === 'productMenu'
+	);
 
 	return (
 		<div className="autofit-row pl-4 pr-4">

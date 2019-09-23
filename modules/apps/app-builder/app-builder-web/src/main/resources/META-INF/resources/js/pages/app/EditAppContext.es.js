@@ -48,7 +48,19 @@ function reducer(state, action) {
 				}
 			};
 		}
-		case 'UPDATE_DEPLOYMENT': {
+		case 'UPDATE_SETTINGS': {
+			const appDeployment = state.app.appDeployments.find(
+				appDeployment => appDeployment.type === action.deploymentType
+			);
+
+			const newAppDeployment = {
+				...appDeployment,
+				settings: {
+					...appDeployment.settings,
+					...action.settings
+				}
+			};
+
 			return {
 				...state,
 				app: {
@@ -56,9 +68,9 @@ function reducer(state, action) {
 					appDeployments: state.app.appDeployments
 						.filter(
 							appDeployment =>
-								appDeployment.type !== action.appDeployment.type
+								appDeployment.type !== action.deploymentType
 						)
-						.concat(action.appDeployment)
+						.concat(newAppDeployment)
 				}
 			};
 		}
