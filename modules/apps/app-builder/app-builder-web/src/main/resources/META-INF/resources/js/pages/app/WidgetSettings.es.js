@@ -26,9 +26,9 @@ export default () => {
 					onClose={() => setAlertClosed(!isAlertClosed)}
 					title={`${Liferay.Language.get('info')}:`}
 				>
-					{`${Liferay.Language.get(
-						'the-widget-will-be-available-under'
-					)} "${Liferay.Language.get('add-widgets-app-builder')}"`}
+					{Liferay.Language.get(
+						'the-widget-will-be-available-under-add-widgets-app-builder'
+					)}
 				</ClayAlert>
 			</div>
 		</div>
