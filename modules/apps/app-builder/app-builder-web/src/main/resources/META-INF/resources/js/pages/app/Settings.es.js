@@ -60,7 +60,7 @@ export default ({deploymentType, settings = () => <></>, subtitle, title}) => {
 				</div>
 			</div>
 
-			{settings}
+			{checked && settings()}
 		</>
 	);
 };

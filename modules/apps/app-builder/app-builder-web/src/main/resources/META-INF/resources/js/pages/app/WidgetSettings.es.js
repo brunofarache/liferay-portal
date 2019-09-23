@@ -16,21 +16,23 @@ import React, {useState} from 'react';
 import ClayAlert from '@clayui/alert';
 
 export default () => {
-	const [isAlertClosed, setAlertClosed] = useState(false);
+	const [show, setShow] = useState(true);
 
 	return (
-		<div className="autofit-row pl-4 pr-4">
-			<div className="autofit-col-expand">
-				<ClayAlert
-					displayType="info"
-					onClose={() => setAlertClosed(!isAlertClosed)}
-					title={`${Liferay.Language.get('info')}:`}
-				>
-					{Liferay.Language.get(
-						'the-widget-will-be-available-under-add-widgets-app-builder'
-					)}
-				</ClayAlert>
+		show && (
+			<div className="autofit-row pl-4 pr-4">
+				<div className="autofit-col-expand">
+					<ClayAlert
+						displayType="info"
+						onClose={() => setShow(!show)}
+						title={`${Liferay.Language.get('info')}:`}
+					>
+						{Liferay.Language.get(
+							'the-widget-will-be-available-under-add-widgets-app-builder'
+						)}
+					</ClayAlert>
+				</div>
 			</div>
-		</div>
+		)
 	);
 };
