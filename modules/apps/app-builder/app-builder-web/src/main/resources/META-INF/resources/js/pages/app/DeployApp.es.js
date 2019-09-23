@@ -37,17 +37,6 @@ export default () => {
 			</div>
 
 			<Settings
-				deploymentType="productMenu"
-				settings={ProductMenuSettings}
-				subtitle={Liferay.Language.get(
-					'deploy-to-the-control-panel-or-a-site-menu'
-				)}
-				title={Liferay.Language.get('product-menu')}
-			/>
-
-			<Divider />
-
-			<Settings
 				deploymentType="widget"
 				settings={WidgetSettings}
 				subtitle={Liferay.Language.get('deploy-a-widget')}
@@ -62,6 +51,17 @@ export default () => {
 					'deploy-a-standalone-app-with-a-direct-link'
 				)}
 				title={Liferay.Language.get('standalone')}
+			/>
+
+			<Divider />
+
+			<Settings
+				deploymentType="productMenu"
+				settings={ProductMenuSettings}
+				subtitle={Liferay.Language.get(
+					'deploy-to-the-control-panel-or-a-site-menu'
+				)}
+				title={Liferay.Language.get('product-menu')}
 			/>
 
 			<Divider />
