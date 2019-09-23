@@ -14,6 +14,7 @@
 
 import React from 'react';
 import ProductMenuSettings from './ProductMenuSettings.es';
+import Settings from './Settings.es';
 import WidgetSettings from './WidgetSettings.es';
 
 const Divider = () => {
@@ -35,9 +36,24 @@ export default () => {
 				</div>
 			</div>
 
-			<ProductMenuSettings />
+			<Settings
+				deploymentType="productMenu"
+				settings={ProductMenuSettings}
+				subtitle={Liferay.Language.get(
+					'deploy-to-the-control-panel-or-a-site-menu'
+				)}
+				title={Liferay.Language.get('product-menu')}
+			/>
+
 			<Divider />
-			<WidgetSettings />
+
+			<Settings
+				deploymentType="widget"
+				settings={WidgetSettings}
+				subtitle={Liferay.Language.get('deploy-a-display-widget')}
+				title={Liferay.Language.get('widget')}
+			/>
+
 			<Divider />
 		</>
 	);
