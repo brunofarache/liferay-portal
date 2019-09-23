@@ -16,6 +16,16 @@ import React from 'react';
 import ProductMenuSettings from './ProductMenuSettings.es';
 import WidgetSettings from './WidgetSettings.es';
 
+const Divider = () => {
+	return (
+		<div className="autofit-row pl-2 pr-2 mb-4">
+			<div className="col-md-12">
+				<h4 className="card-divider"></h4>
+			</div>
+		</div>
+	);
+};
+
 export default () => {
 	return (
 		<>
@@ -26,20 +36,9 @@ export default () => {
 			</div>
 
 			<ProductMenuSettings />
-
-			<div className="autofit-row pl-2 pr-2 mb-4">
-				<div className="col-md-12">
-					<h4 className="card-divider"></h4>
-				</div>
-			</div>
-
+			<Divider />
 			<WidgetSettings />
-
-			<div className="autofit-row pl-2 pr-2 mb-2">
-				<div className="col-md-12">
-					<h4 className="card-divider"></h4>
-				</div>
-			</div>
+			<Divider />
 		</>
 	);
 };
