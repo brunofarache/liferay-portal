@@ -13,7 +13,7 @@
  */
 
 import React, {useContext} from 'react';
-import {EditAppContext, UPDATE_SETTINGS} from './EditAppContext.es';
+import EditAppContext, {UPDATE_SETTINGS} from './EditAppContext.es';
 
 const SCOPES = [
 	{

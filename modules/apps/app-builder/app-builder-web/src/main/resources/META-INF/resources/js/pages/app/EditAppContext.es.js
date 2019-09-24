@@ -12,18 +12,17 @@
  * details.
  */
 
-import React, {createContext, useEffect, useReducer} from 'react';
-import {useRequest} from '../../hooks/index.es';
+import {createContext} from 'react';
 
 export const ADD_DEPLOYMENT = 'ADD_DEPLOYMENT';
 export const REMOVE_DEPLOYMENT = 'REMOVE_DEPLOYMENT';
 export const UPDATE_APP = 'UPDATE_APP';
-export const UPDATE_SETTINGS = 'UPDATE_SETTINGS';
 export const UPDATE_DATA_LAYOUT_ID = 'UPDATE_DATA_LAYOUT_ID';
 export const UPDATE_DATA_LIST_VIEW_ID = 'UPDATE_DATA_LIST_VIEW_ID';
 export const UPDATE_NAME = 'UPDATE_NAME';
+export const UPDATE_SETTINGS = 'UPDATE_SETTINGS';
 
-function reducer(state, action) {
+const reducer = (state, action) => {
 	switch (action.type) {
 		case ADD_DEPLOYMENT: {
 			let settings = {};
@@ -66,32 +65,6 @@ function reducer(state, action) {
 				}
 			};
 		}
-		case UPDATE_SETTINGS: {
-			const appDeployment = state.app.appDeployments.find(
-				appDeployment => appDeployment.type === action.deploymentType
-			);
-
-			const newAppDeployment = {
-				...appDeployment,
-				settings: {
-					...appDeployment.settings,
-					...action.settings
-				}
-			};
-
-			return {
-				...state,
-				app: {
-					...state.app,
-					appDeployments: state.app.appDeployments
-						.filter(
-							appDeployment =>
-								appDeployment.type !== action.deploymentType
-						)
-						.concat(newAppDeployment)
-				}
-			};
-		}
 		case UPDATE_DATA_LAYOUT_ID: {
 			return {
 				...state,
@@ -121,43 +94,39 @@ function reducer(state, action) {
 				}
 			};
 		}
+		case UPDATE_SETTINGS: {
+			const appDeployment = state.app.appDeployments.find(
+				appDeployment => appDeployment.type === action.deploymentType
+			);
+
+			const newAppDeployment = {
+				...appDeployment,
+				settings: {
+					...appDeployment.settings,
+					...action.settings
+				}
+			};
+
+			return {
+				...state,
+				app: {
+					...state.app,
+					appDeployments: state.app.appDeployments
+						.filter(
+							appDeployment =>
+								appDeployment.type !== action.deploymentType
+						)
+						.concat(newAppDeployment)
+				}
+			};
+		}
 		default: {
 			return state;
 		}
 	}
-}
+};
 
 const EditAppContext = createContext();
 
-const EditAppProvider = ({appId, children}) => {
-	const [state, dispatch] = useReducer(reducer, {
-		app: {
-			appDeployments: [],
-			dataLayoutId: null,
-			dataListViewId: null,
-			name: {
-				en_US: ''
-			},
-			status: 'deployed'
-		}
-	});
-
-	const {response} = useRequest(`/o/app-builder/v1.0/apps/${appId}`);
-
-	useEffect(() => {
-		if (response) {
-			dispatch({
-				app: response,
-				type: 'UPDATE_APP'
-			});
-		}
-	}, [response]);
-
-	return (
-		<EditAppContext.Provider value={{dispatch, state}}>
-			{children}
-		</EditAppContext.Provider>
-	);
-};
-
-export {EditAppProvider, EditAppContext};
+export {reducer};
+export default EditAppContext;

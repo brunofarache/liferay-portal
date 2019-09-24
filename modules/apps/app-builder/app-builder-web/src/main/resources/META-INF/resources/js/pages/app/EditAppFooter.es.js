@@ -15,7 +15,7 @@
 import React, {useContext, useState} from 'react';
 import {withRouter} from 'react-router-dom';
 import Button from '../../components/button/Button.es';
-import {EditAppContext} from './EditAppContext.es';
+import EditAppContext from './EditAppContext.es';
 import {updateItem, addItem} from '../../utils/client.es';
 
 export default withRouter(

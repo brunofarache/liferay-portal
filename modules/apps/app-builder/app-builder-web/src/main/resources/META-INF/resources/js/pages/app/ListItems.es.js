@@ -19,8 +19,7 @@ import {ClayRadio, ClayRadioGroup} from '@clayui/form';
 import ClayTable from '@clayui/table';
 import {withLoading} from '../../components/loading/Loading.es';
 import {withEmpty} from '../../components/table/EmptyState.es';
-import {
-	EditAppContext,
+import EditAppContext, {
 	UPDATE_DATA_LAYOUT_ID,
 	UPDATE_DATA_LIST_VIEW_ID
 } from './EditAppContext.es';

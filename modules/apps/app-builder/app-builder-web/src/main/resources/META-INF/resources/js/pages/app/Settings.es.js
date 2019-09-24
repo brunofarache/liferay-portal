@@ -13,8 +13,7 @@
  */
 
 import React, {useContext} from 'react';
-import {
-	EditAppContext,
+import EditAppContext, {
 	ADD_DEPLOYMENT,
 	REMOVE_DEPLOYMENT
 } from './EditAppContext.es';
