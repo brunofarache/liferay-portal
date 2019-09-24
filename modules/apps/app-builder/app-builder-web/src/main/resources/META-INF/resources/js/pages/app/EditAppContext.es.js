@@ -15,9 +15,17 @@
 import React, {createContext, useEffect, useReducer} from 'react';
 import {useRequest} from '../../hooks/index.es';
 
+export const ADD_DEPLOYMENT = 'ADD_DEPLOYMENT';
+export const REMOVE_DEPLOYMENT = 'REMOVE_DEPLOYMENT';
+export const UPDATE_APP = 'UPDATE_APP';
+export const UPDATE_SETTINGS = 'UPDATE_SETTINGS';
+export const UPDATE_DATA_LAYOUT_ID = 'UPDATE_DATA_LAYOUT_ID';
+export const UPDATE_DATA_LIST_VIEW_ID = 'UPDATE_DATA_LIST_VIEW_ID';
+export const UPDATE_NAME = 'UPDATE_NAME';
+
 function reducer(state, action) {
 	switch (action.type) {
-		case 'ADD_DEPLOYMENT': {
+		case ADD_DEPLOYMENT: {
 			let settings = {};
 
 			if (action.deploymentType == 'productMenu') {
@@ -37,7 +45,7 @@ function reducer(state, action) {
 				}
 			};
 		}
-		case 'REMOVE_DEPLOYMENT': {
+		case REMOVE_DEPLOYMENT: {
 			return {
 				...state,
 				app: {
@@ -49,7 +57,7 @@ function reducer(state, action) {
 				}
 			};
 		}
-		case 'UPDATE_APP': {
+		case UPDATE_APP: {
 			return {
 				...state,
 				app: {
@@ -58,7 +66,7 @@ function reducer(state, action) {
 				}
 			};
 		}
-		case 'UPDATE_SETTINGS': {
+		case UPDATE_SETTINGS: {
 			const appDeployment = state.app.appDeployments.find(
 				appDeployment => appDeployment.type === action.deploymentType
 			);
@@ -84,7 +92,7 @@ function reducer(state, action) {
 				}
 			};
 		}
-		case 'UPDATE_DATA_LAYOUT_ID': {
+		case UPDATE_DATA_LAYOUT_ID: {
 			return {
 				...state,
 				app: {
@@ -93,7 +101,7 @@ function reducer(state, action) {
 				}
 			};
 		}
-		case 'UPDATE_DATA_LIST_VIEW_ID': {
+		case UPDATE_DATA_LIST_VIEW_ID: {
 			return {
 				...state,
 				app: {
@@ -102,7 +110,7 @@ function reducer(state, action) {
 				}
 			};
 		}
-		case 'UPDATE_NAME': {
+		case UPDATE_NAME: {
 			return {
 				...state,
 				app: {

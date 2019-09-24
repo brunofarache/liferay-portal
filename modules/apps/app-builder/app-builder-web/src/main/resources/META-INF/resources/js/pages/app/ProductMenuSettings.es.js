@@ -13,7 +13,7 @@
  */
 
 import React, {useContext} from 'react';
-import {EditAppContext} from './EditAppContext.es';
+import {EditAppContext, UPDATE_SETTINGS} from './EditAppContext.es';
 
 const SCOPES = [
 	{
@@ -44,7 +44,7 @@ export default () => {
 		dispatch({
 			deploymentType: 'productMenu',
 			settings: {scope: scope.split(',')},
-			type: 'UPDATE_SETTINGS'
+			type: UPDATE_SETTINGS
 		});
 	};
 

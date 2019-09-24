@@ -19,7 +19,11 @@ import {ClayRadio, ClayRadioGroup} from '@clayui/form';
 import ClayTable from '@clayui/table';
 import {withLoading} from '../../components/loading/Loading.es';
 import {withEmpty} from '../../components/table/EmptyState.es';
-import {EditAppContext} from './EditAppContext.es';
+import {
+	EditAppContext,
+	UPDATE_DATA_LAYOUT_ID,
+	UPDATE_DATA_LIST_VIEW_ID
+} from './EditAppContext.es';
 
 const {Body, Cell, Head, Row} = ClayTable;
 
@@ -36,8 +40,8 @@ const ListItems = ({items, itemType}) => {
 	const onItemIdChange = id => {
 		const type =
 			itemType === 'DATA_LAYOUT'
-				? 'UPDATE_DATA_LAYOUT_ID'
-				: 'UPDATE_DATA_LIST_VIEW_ID';
+				? UPDATE_DATA_LAYOUT_ID
+				: UPDATE_DATA_LIST_VIEW_ID;
 
 		dispatch({
 			id,

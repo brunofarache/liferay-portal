@@ -13,7 +13,11 @@
  */
 
 import React, {useContext} from 'react';
-import {EditAppContext} from './EditAppContext.es';
+import {
+	EditAppContext,
+	ADD_DEPLOYMENT,
+	REMOVE_DEPLOYMENT
+} from './EditAppContext.es';
 import ToggleSwitch from '../../components/toggle-switch/ToggleSwitch.es';
 
 export default ({deploymentType, settings = () => <></>, subtitle, title}) => {
@@ -47,12 +51,12 @@ export default ({deploymentType, settings = () => <></>, subtitle, title}) => {
 							if (checked) {
 								dispatch({
 									deploymentType,
-									type: 'ADD_DEPLOYMENT'
+									type: ADD_DEPLOYMENT
 								});
 							} else {
 								dispatch({
 									deploymentType,
-									type: 'REMOVE_DEPLOYMENT'
+									type: REMOVE_DEPLOYMENT
 								});
 							}
 						}}
