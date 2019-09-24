@@ -265,22 +265,37 @@ public class AppResourceImpl
 		AppBuilderAppConstants.Status appBuilderAppConstantsStatus =
 			AppBuilderAppConstants.Status.parse(app.getStatus());
 
-		app = _toApp(
+		AppBuilderApp appBuilderApp =
 			_appBuilderAppLocalService.updateAppBuilderApp(
 				PrincipalThreadLocal.getUserId(), appId,
 				ddmStructure.getStructureId(),
 				GetterUtil.getLong(app.getDataLayoutId()),
 				GetterUtil.getLong(app.getDataListViewId()),
 				LocalizedValueUtil.toLocaleStringMap(app.getName()),
-				appBuilderAppConstantsStatus.getValue()));
+				appBuilderAppConstantsStatus.getValue());
+
+		List<AppBuilderAppDeployment> appBuilderAppDeployments =
+			_appBuilderAppDeploymentLocalService.getAppBuilderAppDeployments(
+				appId);
+
+		for (AppBuilderAppDeployment appBuilderAppDeployment :
+				appBuilderAppDeployments) {
+
+			_appBuilderAppDeploymentLocalService.deleteAppBuilderAppDeployment(
+				appBuilderAppDeployment.getAppBuilderAppDeploymentId());
+		}
 
 		for (AppDeployment appDeployment : app.getAppDeployments()) {
+			_appBuilderAppDeploymentLocalService.addAppBuilderAppDeployment(
+				app.getId(), _toJSONString(appDeployment.getSettings()),
+				appDeployment.getType());
+
 			AppDeployer appDeployer = _appDeployerTracker.getAppDeployer(
 				appDeployment.getType());
 
 			if (appDeployer != null) {
 				if (Objects.equals(
-						app.getStatus(),
+						appBuilderAppConstantsStatus,
 						AppBuilderAppConstants.Status.DEPLOYED)) {
 
 					appDeployer.deploy(appId);
@@ -291,7 +306,7 @@ public class AppResourceImpl
 			}
 		}
 
-		return app;
+		return _toApp(appBuilderApp);
 	}
 
 	@Override
