@@ -31,9 +31,11 @@ export default ({checked = false, onChange}) => {
 						setChecked(newChecked);
 						onChange(newChecked);
 					}}
-					title={Liferay.Language.get(
-						isChecked ? 'turn-off' : 'turn-on'
-					)}
+					title={
+						isChecked
+							? Liferay.Language.get('turn-off')
+							: Liferay.Language.get('turn-on')
+					}
 					type="checkbox"
 				/>
 
