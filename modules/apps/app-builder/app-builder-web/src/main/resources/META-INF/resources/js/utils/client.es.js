@@ -14,7 +14,7 @@
 
 import {fetch} from 'frontend-js-web';
 
-const COMMON_HEADERS = {
+const HEADERS = {
 	Accept: 'application/json',
 	'Content-Type': 'application/json'
 };
@@ -22,7 +22,7 @@ const COMMON_HEADERS = {
 export const addItem = (endpoint, item) => {
 	return fetch(getURL(endpoint), {
 		body: JSON.stringify(item),
-		headers: COMMON_HEADERS,
+		headers: HEADERS,
 		method: 'POST'
 	}).then(response => response.json());
 };
@@ -48,31 +48,26 @@ export const deleteItem = endpoint => {
 	});
 };
 
-export const executePut = (endpoint, body) => {
-	return fetch(getURL(endpoint), {
-		body,
-		headers: COMMON_HEADERS,
-		method: 'PUT'
-	});
-};
-
 export const request = (endpoint, method = 'GET') =>
 	fetch(getURL(endpoint), {
-		headers: COMMON_HEADERS,
+		headers: HEADERS,
 		method
 	});
 
 export const getItem = endpoint => {
 	return fetch(getURL(endpoint), {
-		headers: COMMON_HEADERS,
+		headers: HEADERS,
 		method: 'GET'
 	}).then(response => response.json());
 };
 
-export const getURL = (
-	path,
-	params = {['p_auth']: Liferay.authToken, t: Date.now()}
-) => {
+export const getURL = (path, params) => {
+	params = {
+		['p_auth']: Liferay.authToken,
+		t: Date.now(),
+		...params
+	};
+
 	const uri = new URL(`${window.location.origin}${path}`);
 	const keys = Object.keys(params);
 
@@ -81,10 +76,12 @@ export const getURL = (
 	return uri.toString();
 };
 
-export const updateItem = (endpoint, item) => {
-	return fetch(getURL(endpoint), {
+export const updateItem = (endpoint, item, params) => {
+	return fetch(getURL(endpoint, params), {
 		body: JSON.stringify(item),
-		headers: COMMON_HEADERS,
+		headers: HEADERS,
 		method: 'PUT'
-	}).then(response => response.json());
+	})
+		.then(response => response.text())
+		.then(text => (text ? JSON.parse(text) : {}));
 };

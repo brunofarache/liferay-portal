@@ -17,7 +17,7 @@ import React from 'react';
 
 const {Divider, Item} = ClayDropDown;
 
-export default ({action: {action, getName, name}, item, setActive}) => {
+export default ({action: {action, name}, item, setActive}) => {
 	if (name === 'divider') {
 		return <Divider />;
 	}
@@ -33,7 +33,7 @@ export default ({action: {action, getName, name}, item, setActive}) => {
 				}
 			}}
 		>
-			{getName ? getName(item) : name}
+			{typeof name === 'function' ? name(item) : name}
 		</Item>
 	);
 };

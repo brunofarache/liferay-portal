@@ -18,7 +18,12 @@ import {Link} from 'react-router-dom';
 import ClayLabel from '@clayui/label';
 import Button from '../../components/button/Button.es';
 import ListView from '../../components/list-view/ListView.es';
-import {confirmDelete, executePut} from '../../utils/client.es';
+import {confirmDelete, updateItem} from '../../utils/client.es';
+
+const DEPLOYMENT_ACTION = {
+	deploy: Liferay.Language.get('deploy'),
+	undeploy: Liferay.Language.get('undeploy')
+};
 
 const DEPLOYMENT_STATUS = {
 	deployed: Liferay.Language.get('deployed'),
@@ -47,6 +52,8 @@ const concatTypes = types => {
 	}, '');
 };
 
+const isDeployed = item => item.status.toLowerCase() === 'deployed';
+
 const COLUMNS = [
 	{
 		key: 'name',
@@ -69,7 +76,7 @@ const COLUMNS = [
 		value: Liferay.Language.get('modified-date')
 	},
 	{
-		key: 'status',
+		key: 'statusLabel',
 		value: Liferay.Language.get('status')
 	}
 ];
@@ -80,25 +87,26 @@ export default ({
 		url
 	}
 }) => {
-	const getActionName = item =>
-		item.status.props.children === 'Deployed'
-			? Liferay.Language.get('undeploy')
-			: Liferay.Language.get('deploy');
-
-	const toggleDeployment = item => {
-		const action =
-			item.status.props.children === 'Deployed' ? 'undeploy' : 'deploy';
-
-		return executePut(
-			`/o/app-builder/v1.0/apps/${item.id}/deployment?deploymentAction=${action}`
-		);
-	};
-
 	const ACTIONS = [
 		{
-			action: toggleDeployment,
-			getName: getActionName,
-			name: Liferay.Language.get('deploy')
+			action: item =>
+				new Promise((resolve, reject) => {
+					const deploymentAction = isDeployed(item)
+						? 'undeploy'
+						: 'deploy';
+
+					updateItem(
+						`/o/app-builder/v1.0/apps/${item.id}/deployment`,
+						{},
+						{deploymentAction}
+					)
+						.then(() => resolve(true))
+						.catch(error => reject(error));
+				}),
+			name: item =>
+				isDeployed(item)
+					? DEPLOYMENT_ACTION.undeploy
+					: DEPLOYMENT_ACTION.deploy
 		},
 		{
 			action: confirmDelete('/o/app-builder/v1.0/apps/'),
@@ -134,9 +142,9 @@ export default ({
 			endpoint={`/o/app-builder/v1.0/data-definitions/${dataDefinitionId}/apps`}
 		>
 			{item => ({
+				...item,
 				dateCreated: moment(item.dateCreated).fromNow(),
 				dateModified: moment(item.dateModified).fromNow(),
-				id: item.id,
 				name: (
 					<Link
 						to={`/custom-object/${dataDefinitionId}/apps/${item.id}`}
@@ -144,13 +152,9 @@ export default ({
 						{item.name.en_US}
 					</Link>
 				),
-				status: (
+				statusLabel: (
 					<ClayLabel
-						displayType={
-							item.status.toLowerCase() === 'deployed'
-								? 'success'
-								: 'secondary'
-						}
+						displayType={isDeployed(item) ? 'success' : 'secondary'}
 					>
 						{DEPLOYMENT_STATUS[item.status.toLowerCase()]}
 					</ClayLabel>
