@@ -106,7 +106,7 @@ export default withRouter(
 								displayType="primary"
 								onClick={onDeploy}
 							>
-								{Liferay.Language.get('deploy')}
+								{app.id ? Liferay.Language.get('save') : Liferay.Language.get('deploy')}
 							</Button>
 						)}
 					</div>
