@@ -14,13 +14,15 @@
 
 import {fetch} from 'frontend-js-web';
 
+const COMMON_HEADERS = {
+	Accept: 'application/json',
+	'Content-Type': 'application/json'
+};
+
 export const addItem = (endpoint, item) => {
 	return fetch(getURL(endpoint), {
 		body: JSON.stringify(item),
-		headers: {
-			Accept: 'application/json',
-			'Content-Type': 'application/json'
-		},
+		headers: COMMON_HEADERS,
 		method: 'POST'
 	}).then(response => response.json());
 };
@@ -49,29 +51,20 @@ export const deleteItem = endpoint => {
 export const executePut = (endpoint, body) => {
 	return fetch(getURL(endpoint), {
 		body,
-		headers: {
-			Accept: 'application/json',
-			'Content-Type': 'application/json'
-		},
+		headers: COMMON_HEADERS,
 		method: 'PUT'
 	});
 };
 
 export const request = (endpoint, method = 'GET') =>
 	fetch(getURL(endpoint), {
-		headers: {
-			Accept: 'application/json',
-			'Content-Type': 'application/json'
-		},
+		headers: COMMON_HEADERS,
 		method
 	});
 
 export const getItem = endpoint => {
 	return fetch(getURL(endpoint), {
-		headers: {
-			Accept: 'application/json',
-			'Content-Type': 'application/json'
-		},
+		headers: COMMON_HEADERS,
 		method: 'GET'
 	}).then(response => response.json());
 };
@@ -91,10 +84,7 @@ export const getURL = (
 export const updateItem = (endpoint, item) => {
 	return fetch(getURL(endpoint), {
 		body: JSON.stringify(item),
-		headers: {
-			Accept: 'application/json',
-			'Content-Type': 'application/json'
-		},
+		headers: COMMON_HEADERS,
 		method: 'PUT'
 	}).then(response => response.json());
 };
