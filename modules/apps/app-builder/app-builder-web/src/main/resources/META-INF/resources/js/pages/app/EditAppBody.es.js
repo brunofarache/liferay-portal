@@ -19,16 +19,14 @@ import {useRequest} from '../../hooks/index.es';
 
 export default ({endpoint, title, ...restProps}) => {
 	const [keywords, setKeywords] = useState('');
+	const regex = new RegExp(keywords, 'ig');
 
 	const {
-		response: {items: responseItems = []},
+		response: {items = []},
 		isLoading
 	} = useRequest(endpoint);
 
-	const filteredItems = responseItems.filter(
-		item =>
-			item.name.en_US.toUpperCase().indexOf(keywords.toUpperCase()) > -1
-	);
+	const filteredItems = items.filter(item => regex.test(item.name.en_US));
 
 	return (
 		<>
