@@ -12,16 +12,23 @@
  * details.
  */
 
-import React from 'react';
+import React, {useState} from 'react';
 import ListItems from './ListItems.es';
 import Button from '../../components/button/Button.es';
 import {useRequest} from '../../hooks/index.es';
 
 export default ({endpoint, title, ...restProps}) => {
+	const [keywords, setKeywords] = useState('');
+
 	const {
-		response: {items = []},
+		response: {items: responseItems = []},
 		isLoading
 	} = useRequest(endpoint);
+
+	const filteredItems = responseItems.filter(
+		item =>
+			item.name.en_US.toUpperCase().indexOf(keywords.toUpperCase()) > -1
+	);
 
 	return (
 		<>
@@ -38,14 +45,17 @@ export default ({endpoint, title, ...restProps}) => {
 							<input
 								aria-label={Liferay.Language.get('search')}
 								className="form-control input-group-inset input-group-inset-after"
+								onChange={event =>
+									setKeywords(event.target.value)
+								}
 								placeholder={`${Liferay.Language.get(
 									'search'
 								)}...`}
 								type="text"
+								value={keywords}
 							/>
 							<div className="input-group-inset-item input-group-inset-item-after">
 								<Button
-									disabled={true}
 									displayType="unstyled"
 									symbol="search"
 								/>
@@ -58,9 +68,10 @@ export default ({endpoint, title, ...restProps}) => {
 			<div className="autofit-row pl-4 pr-4 scrollable-container">
 				<div className="autofit-col-expand">
 					<ListItems
-						isEmpty={items.length === 0}
+						isEmpty={filteredItems.length === 0}
 						isLoading={isLoading}
-						items={items}
+						items={filteredItems}
+						keywords={keywords}
 						{...restProps}
 					/>
 				</div>
