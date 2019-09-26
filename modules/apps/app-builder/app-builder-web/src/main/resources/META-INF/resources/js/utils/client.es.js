@@ -46,6 +46,17 @@ export const deleteItem = endpoint => {
 	});
 };
 
+export const executePut = (endpoint, body) => {
+	return fetch(getURL(endpoint), {
+		body,
+		headers: {
+			Accept: 'application/json',
+			'Content-Type': 'application/json'
+		},
+		method: 'PUT'
+	});
+};
+
 export const request = (endpoint, method = 'GET') =>
 	fetch(getURL(endpoint), {
 		headers: {

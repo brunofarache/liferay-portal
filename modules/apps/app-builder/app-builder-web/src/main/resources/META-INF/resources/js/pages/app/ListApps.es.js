@@ -18,7 +18,7 @@ import {Link} from 'react-router-dom';
 import ClayLabel from '@clayui/label';
 import Button from '../../components/button/Button.es';
 import ListView from '../../components/list-view/ListView.es';
-import {confirmDelete} from '../../utils/client.es';
+import {confirmDelete, executePut} from '../../utils/client.es';
 
 const DEPLOYMENT_STATUS = {
 	deployed: Liferay.Language.get('deployed'),
@@ -80,6 +80,32 @@ export default ({
 		url
 	}
 }) => {
+	const getActionName = item =>
+		item.status.props.children === 'Deployed'
+			? Liferay.Language.get('undeploy')
+			: Liferay.Language.get('deploy');
+
+	const toggleDeployment = item => {
+		const action =
+			item.status.props.children === 'Deployed' ? 'undeploy' : 'deploy';
+
+		return executePut(
+			`/o/app-builder/v1.0/apps/${item.id}/deployment?deploymentAction=${action}`
+		);
+	};
+
+	const ACTIONS = [
+		{
+			action: toggleDeployment,
+			getName: getActionName,
+			name: Liferay.Language.get('deploy')
+		},
+		{
+			action: confirmDelete('/o/app-builder/v1.0/apps/'),
+			name: Liferay.Language.get('delete')
+		}
+	];
+
 	const EMPTY_STATE = {
 		button: () => (
 			<Button displayType="secondary" href={`${url}/deploy`}>
@@ -94,12 +120,7 @@ export default ({
 
 	return (
 		<ListView
-			actions={[
-				{
-					action: confirmDelete('/o/app-builder/v1.0/apps/'),
-					name: Liferay.Language.get('delete')
-				}
-			]}
+			actions={ACTIONS}
 			addButton={() => (
 				<Button
 					className="nav-btn nav-btn-monospaced navbar-breakpoint-down-d-none"
