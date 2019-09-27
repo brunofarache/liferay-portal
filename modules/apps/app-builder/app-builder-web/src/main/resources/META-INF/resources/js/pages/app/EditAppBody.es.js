@@ -60,7 +60,7 @@ export default ({endpoint, title, ...restProps}) => {
 								value={keywords}
 							/>
 							<div className="input-group-inset-item input-group-inset-item-after">
-								{keywords !== '' ? (
+								{keywords ? (
 									<Button
 										displayType="unstyled"
 										key="timesButton"
