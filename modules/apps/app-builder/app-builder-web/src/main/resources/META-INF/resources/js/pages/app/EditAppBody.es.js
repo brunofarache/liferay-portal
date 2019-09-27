@@ -12,7 +12,7 @@
  * details.
  */
 
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import ListItems from './ListItems.es';
 import Button from '../../components/button/Button.es';
 import {useRequest} from '../../hooks/index.es';
@@ -20,6 +20,7 @@ import {useRequest} from '../../hooks/index.es';
 export default ({endpoint, title, ...restProps}) => {
 	const [keywords, setKeywords] = useState('');
 	const regex = new RegExp(keywords, 'ig');
+	const searchInput = useRef(null);
 
 	const {
 		response: {items = []},
@@ -27,6 +28,11 @@ export default ({endpoint, title, ...restProps}) => {
 	} = useRequest(endpoint);
 
 	const filteredItems = items.filter(item => regex.test(item.name.en_US));
+
+	const onSearchClear = () => {
+		setKeywords('');
+		searchInput.current.focus();
+	};
 
 	return (
 		<>
@@ -49,14 +55,25 @@ export default ({endpoint, title, ...restProps}) => {
 								placeholder={`${Liferay.Language.get(
 									'search'
 								)}...`}
+								ref={searchInput}
 								type="text"
 								value={keywords}
 							/>
 							<div className="input-group-inset-item input-group-inset-item-after">
-								<Button
-									displayType="unstyled"
-									symbol="search"
-								/>
+								{keywords !== '' ? (
+									<Button
+										displayType="unstyled"
+										key="timesButton"
+										onClick={onSearchClear}
+										symbol="times"
+									/>
+								) : (
+									<Button
+										displayType="unstyled"
+										key="searchButton"
+										symbol="search"
+									/>
+								)}
 							</div>
 						</div>
 					</div>
