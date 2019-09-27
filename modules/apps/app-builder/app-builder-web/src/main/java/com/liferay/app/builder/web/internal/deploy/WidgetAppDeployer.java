@@ -19,7 +19,7 @@ import com.liferay.app.builder.deploy.AppDeployer;
 import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.app.builder.service.AppBuilderAppLocalService;
 import com.liferay.app.builder.web.internal.constants.AppBuilderPortletKeys;
-import com.liferay.app.builder.web.internal.portlet.WidgetAppPortlet;
+import com.liferay.app.builder.web.internal.portlet.DeployedAppPortlet;
 import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 
@@ -89,7 +89,7 @@ public class WidgetAppDeployer implements AppDeployer {
 		long appId, String appName, String portletName) {
 
 		return _bundleContext.registerService(
-			Portlet.class, new WidgetAppPortlet(appId),
+			Portlet.class, new DeployedAppPortlet(appId),
 			new HashMapDictionary<String, Object>() {
 				{
 					put("com.liferay.portlet.add-default-resource", true);
