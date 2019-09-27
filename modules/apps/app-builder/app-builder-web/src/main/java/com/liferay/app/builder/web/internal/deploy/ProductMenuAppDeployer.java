@@ -24,7 +24,7 @@ import com.liferay.app.builder.web.internal.application.list.ProductMenuAppPanel
 import com.liferay.app.builder.web.internal.application.list.ProductMenuAppPanelCategory;
 import com.liferay.app.builder.web.internal.constants.AppBuilderPanelCategoryKeys;
 import com.liferay.app.builder.web.internal.constants.AppBuilderPortletKeys;
-import com.liferay.app.builder.web.internal.portlet.ProductMenuAppPortlet;
+import com.liferay.app.builder.web.internal.portlet.DeployedAppPortlet;
 import com.liferay.application.list.PanelApp;
 import com.liferay.application.list.PanelCategory;
 import com.liferay.application.list.constants.PanelCategoryKeys;
@@ -185,7 +185,7 @@ public class ProductMenuAppDeployer implements AppDeployer {
 		long appId, String appName, String portletName) {
 
 		return _bundleContext.registerService(
-			Portlet.class, new ProductMenuAppPortlet(appId),
+			Portlet.class, new DeployedAppPortlet(appId),
 			new HashMapDictionary<String, Object>() {
 				{
 					put("com.liferay.portlet.add-default-resource", true);

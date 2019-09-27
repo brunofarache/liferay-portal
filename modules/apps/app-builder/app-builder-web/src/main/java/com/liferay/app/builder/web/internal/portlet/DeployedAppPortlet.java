@@ -24,11 +24,11 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
 /**
- * @author Jeyvison Nascimento
+ * @author Gabriel Albuquerque
  */
-public class ProductMenuAppPortlet extends MVCPortlet {
+public class DeployedAppPortlet extends MVCPortlet {
 
-	public ProductMenuAppPortlet(long appId) {
+	public DeployedAppPortlet(long appId) {
 		_appId = appId;
 	}
 

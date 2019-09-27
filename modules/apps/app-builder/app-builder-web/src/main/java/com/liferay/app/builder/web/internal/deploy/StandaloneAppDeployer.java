@@ -21,7 +21,7 @@ import com.liferay.app.builder.service.AppBuilderAppLocalService;
 import com.liferay.app.builder.web.internal.constants.AppBuilderPortletKeys;
 import com.liferay.app.builder.web.internal.layout.type.access.policy.DeployedAppPortletLayoutTypeAccessPolicy;
 import com.liferay.app.builder.web.internal.layout.type.controller.DeployedAppPortletLayoutTypeController;
-import com.liferay.app.builder.web.internal.portlet.StandaloneAppPortlet;
+import com.liferay.app.builder.web.internal.portlet.DeployedAppPortlet;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
@@ -232,13 +232,16 @@ public class StandaloneAppDeployer implements AppDeployer {
 		long appId, String appName, String portletName) {
 
 		return _bundleContext.registerService(
-			Portlet.class, new StandaloneAppPortlet(appId),
+			Portlet.class, new DeployedAppPortlet(appId),
 			new HashMapDictionary<String, Object>() {
 				{
 					put(
 						"com.liferay.portlet.application-type",
 						"full-page-application");
 					put("com.liferay.portlet.add-default-resource", "true");
+					put(
+						"com.liferay.portlet.display-category",
+						"category.hidden");
 					put("com.liferay.portlet.use-default-template", "true");
 					put("javax.portlet.display-name", appName);
 					put("javax.portlet.name", portletName);
