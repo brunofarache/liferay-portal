@@ -283,6 +283,11 @@ public class AppResourceImpl
 		for (AppBuilderAppDeployment appBuilderAppDeployment :
 				appBuilderAppDeployments) {
 
+			AppDeployer appDeployer = _appDeployerTracker.getAppDeployer(
+				appBuilderAppDeployment.getType());
+
+			appDeployer.undeploy(appId);
+
 			_appBuilderAppDeploymentLocalService.deleteAppBuilderAppDeployment(
 				appBuilderAppDeployment.getAppBuilderAppDeploymentId());
 		}
