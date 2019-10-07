@@ -29,6 +29,10 @@ export default ({actions, item}) => {
 		</Button>
 	);
 
+	actions = actions.filter(action =>
+		action.show ? action.show(item) : true
+	);
+
 	if (actions.length === 0) {
 		return DropdownButton;
 	}

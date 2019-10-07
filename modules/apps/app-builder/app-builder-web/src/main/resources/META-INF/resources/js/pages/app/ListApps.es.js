@@ -118,7 +118,11 @@ export default ({
 						`${portalURL}${pathFriendlyURLPublic}/App${item.id}`
 					)
 				),
-			name: Liferay.Language.get('open-standalone-app')
+			name: Liferay.Language.get('open-standalone-app'),
+			show: item =>
+				item.appDeployments.some(
+					deployment => deployment.type === 'standalone'
+				)
 		},
 		{
 			action: confirmDelete('/o/app-builder/v1.0/apps/'),
