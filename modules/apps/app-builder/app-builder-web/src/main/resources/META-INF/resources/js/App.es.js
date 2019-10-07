@@ -20,9 +20,9 @@ import {AppContextProvider} from './AppContext.es';
 import ListCustomObjects from './pages/custom-object/ListCustomObjects.es';
 import ViewCustomObject from './pages/custom-object/ViewCustomObject.es';
 
-export default dragDropContext(HTML5Backend)(({basePortletURL}) => {
+export default dragDropContext(HTML5Backend)(props => {
 	return (
-		<AppContextProvider basePortletURL={basePortletURL}>
+		<AppContextProvider {...props}>
 			<Router>
 				<Switch>
 					<Route component={ListCustomObjects} exact path="/" />

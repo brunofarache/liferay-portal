@@ -13,9 +13,10 @@
  */
 
 import moment from 'moment';
-import React from 'react';
+import React, {useContext} from 'react';
 import {Link} from 'react-router-dom';
 import ClayLabel from '@clayui/label';
+import {AppContext} from '../../AppContext.es';
 import Button from '../../components/button/Button.es';
 import ListView from '../../components/list-view/ListView.es';
 import {confirmDelete, updateItem} from '../../utils/client.es';
@@ -87,6 +88,8 @@ export default ({
 		url
 	}
 }) => {
+	const {pathFriendlyURLPublic, portalURL} = useContext(AppContext);
+
 	const ACTIONS = [
 		{
 			action: item =>
@@ -107,6 +110,15 @@ export default ({
 				isDeployed(item)
 					? DEPLOYMENT_ACTION.undeploy
 					: DEPLOYMENT_ACTION.deploy
+		},
+		{
+			action: item =>
+				Promise.resolve(
+					window.open(
+						`${portalURL}${pathFriendlyURLPublic}/App${item.id}`
+					)
+				),
+			name: Liferay.Language.get('open-standalone-app')
 		},
 		{
 			action: confirmDelete('/o/app-builder/v1.0/apps/'),

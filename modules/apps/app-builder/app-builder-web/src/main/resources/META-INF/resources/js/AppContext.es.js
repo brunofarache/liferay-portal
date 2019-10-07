@@ -16,12 +16,14 @@ import React, {createContext} from 'react';
 
 const AppContext = createContext();
 
-const context = {
-	siteId: Liferay.ThemeDisplay.getCompanyGroupId()
-};
-
-const AppContextProvider = ({appId, basePortletURL, children}) => (
-	<AppContext.Provider value={{...context, appId, basePortletURL}}>
+const AppContextProvider = ({children, ...restProps}) => (
+	<AppContext.Provider
+		value={{
+			portalURL: Liferay.ThemeDisplay.getPortalURL(),
+			siteId: Liferay.ThemeDisplay.getCompanyGroupId(),
+			...restProps
+		}}
+	>
 		{children}
 	</AppContext.Provider>
 );
