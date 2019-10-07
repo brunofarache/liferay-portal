@@ -1,4 +1,3 @@
-<%--
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
@@ -12,18 +11,24 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
---%>
 
-<%@ include file="/layout/init.jsp" %>
+package com.liferay.app.builder.web.internal.layout.type.access.policy;
 
-<%
-String ppid = ParamUtil.getString(request, "p_p_id");
-String velocityTemplateId = theme.getThemeId() + LayoutTemplateConstants.STANDARD_SEPARATOR + "pop_up";
-String velocityTemplateContent = LayoutTemplateLocalServiceUtil.getContent("pop_up", true, theme.getThemeId());
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.Portlet;
+import com.liferay.portal.kernel.model.impl.DefaultLayoutTypeAccessPolicyImpl;
 
-if (Validator.isNotNull(velocityTemplateContent)) {
-	RuntimePageUtil.processTemplate(request, response, ppid, new StringTemplateResource(velocityTemplateId, velocityTemplateContent));
+/**
+ * @author Gabriel Albuquerque
+ */
+public class DeployedAppPortletLayoutTypeAccessPolicy
+	extends DefaultLayoutTypeAccessPolicyImpl {
+
+	@Override
+	protected boolean isAccessGrantedByPortletOnPage(
+		Layout layout, Portlet portlet) {
+
+		return true;
+	}
+
 }
-%>
-
-<liferay-ui:layout-common />
