@@ -286,7 +286,9 @@ public class AppResourceImpl
 			AppDeployer appDeployer = _appDeployerTracker.getAppDeployer(
 				appBuilderAppDeployment.getType());
 
-			appDeployer.undeploy(appId);
+			if (appDeployer != null) {
+				appDeployer.undeploy(appId);
+			}
 
 			_appBuilderAppDeploymentLocalService.deleteAppBuilderAppDeployment(
 				appBuilderAppDeployment.getAppBuilderAppDeploymentId());
