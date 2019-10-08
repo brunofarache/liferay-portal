@@ -12,10 +12,12 @@
  * details.
  */
 
+import ClayLink from '@clayui/link';
 import React, {useContext, useState} from 'react';
 import {withRouter} from 'react-router-dom';
 import Button from '../../components/button/Button.es';
 import EditAppContext from './EditAppContext.es';
+import {AppContext} from '../../AppContext.es';
 import {updateItem, addItem} from '../../utils/client.es';
 import {ToastContext} from '../../components/toast/ToastContext.es';
 
@@ -32,6 +34,7 @@ export default withRouter(
 			state: {app}
 		} = useContext(EditAppContext);
 
+		const {getStandaloneURL} = useContext(AppContext);
 		const {addToast} = useContext(ToastContext);
 
 		const [isDeploying, setDeploying] = useState(false);
@@ -44,11 +47,20 @@ export default withRouter(
 			name: {en_US: appName}
 		} = app;
 
-		const addSuccessToast = () => {
+		const addSuccessToast = appId => {
+			const url = getStandaloneURL(appId);
+
 			addToast({
 				displayType: 'success',
-				message: Liferay.Language.get('app-deployed'),
-				title: Liferay.Language.get('success')
+				message: (
+					<>
+						{Liferay.Language.get('app-deployed')}{' '}
+						<ClayLink href={url} target="_blank">
+							{url}
+						</ClayLink>
+					</>
+				),
+				title: `${Liferay.Language.get('success')}:`
 			});
 		};
 
@@ -61,7 +73,7 @@ export default withRouter(
 
 			if (appId) {
 				updateItem(`/o/app-builder/v1.0/apps/${appId}`, app)
-					.then(addSuccessToast)
+					.then(() => addSuccessToast(appId))
 					.then(onCancel)
 					.catch(() => setDeploying(false));
 			} else {
@@ -69,7 +81,7 @@ export default withRouter(
 					`/o/app-builder/v1.0/data-definitions/${dataDefinitionId}/apps`,
 					app
 				)
-					.then(addSuccessToast)
+					.then(app => addSuccessToast(app.id))
 					.then(onCancel)
 					.catch(() => setDeploying(false));
 			}

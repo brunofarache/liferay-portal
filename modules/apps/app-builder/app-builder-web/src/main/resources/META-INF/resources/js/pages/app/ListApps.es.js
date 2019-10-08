@@ -88,7 +88,7 @@ export default ({
 		url
 	}
 }) => {
-	const {pathFriendlyURLPublic, portalURL} = useContext(AppContext);
+	const {getStandaloneURL} = useContext(AppContext);
 
 	const ACTIONS = [
 		{
@@ -114,9 +114,7 @@ export default ({
 		{
 			action: item =>
 				Promise.resolve(
-					window.open(
-						`${portalURL}${pathFriendlyURLPublic}/App${item.id}`
-					)
+					window.open(getStandaloneURL(item.id), '_blank')
 				),
 			name: Liferay.Language.get('open-standalone-app'),
 			show: item =>
