@@ -12,6 +12,7 @@
  * details.
  */
 
+import ClayIcon from '@clayui/icon';
 import ClayLink from '@clayui/link';
 import React, {useContext, useState} from 'react';
 import {withRouter} from 'react-router-dom';
@@ -56,7 +57,7 @@ export default withRouter(
 					<>
 						{Liferay.Language.get('app-deployed')}{' '}
 						<ClayLink href={url} target="_blank">
-							{url}
+							{url} <ClayIcon symbol="shortcut" />
 						</ClayLink>
 					</>
 				),
