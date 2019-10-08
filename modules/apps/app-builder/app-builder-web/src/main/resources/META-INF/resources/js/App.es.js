@@ -19,20 +19,23 @@ import {Route, HashRouter as Router, Switch} from 'react-router-dom';
 import {AppContextProvider} from './AppContext.es';
 import ListCustomObjects from './pages/custom-object/ListCustomObjects.es';
 import ViewCustomObject from './pages/custom-object/ViewCustomObject.es';
+import {ToastContextProvider} from './components/toast/ToastContext.es';
 
 export default dragDropContext(HTML5Backend)(props => {
 	return (
 		<AppContextProvider {...props}>
-			<Router>
-				<Switch>
-					<Route component={ListCustomObjects} exact path="/" />
+			<ToastContextProvider>
+				<Router>
+					<Switch>
+						<Route component={ListCustomObjects} exact path="/" />
 
-					<Route
-						component={ViewCustomObject}
-						path="/custom-object/:dataDefinitionId(\d+)"
-					/>
-				</Switch>
-			</Router>
+						<Route
+							component={ViewCustomObject}
+							path="/custom-object/:dataDefinitionId(\d+)"
+						/>
+					</Switch>
+				</Router>
+			</ToastContextProvider>
 		</AppContextProvider>
 	);
 });

@@ -17,6 +17,7 @@ import {withRouter} from 'react-router-dom';
 import Button from '../../components/button/Button.es';
 import EditAppContext from './EditAppContext.es';
 import {updateItem, addItem} from '../../utils/client.es';
+import {ToastContext} from '../../components/toast/ToastContext.es';
 
 export default withRouter(
 	({
@@ -31,6 +32,8 @@ export default withRouter(
 			state: {app}
 		} = useContext(EditAppContext);
 
+		const {addToast} = useContext(ToastContext);
+
 		const [isDeploying, setDeploying] = useState(false);
 
 		const {
@@ -41,6 +44,14 @@ export default withRouter(
 			name: {en_US: appName}
 		} = app;
 
+		const addSuccessToast = () => {
+			addToast({
+				displayType: 'success',
+				message: Liferay.Language.get('app-deployed'),
+				title: Liferay.Language.get('success')
+			});
+		};
+
 		const onCancel = () => {
 			history.push(`/custom-object/${dataDefinitionId}/apps`);
 		};
@@ -50,6 +61,7 @@ export default withRouter(
 
 			if (appId) {
 				updateItem(`/o/app-builder/v1.0/apps/${appId}`, app)
+					.then(addSuccessToast)
 					.then(onCancel)
 					.catch(() => setDeploying(false));
 			} else {
@@ -57,6 +69,7 @@ export default withRouter(
 					`/o/app-builder/v1.0/data-definitions/${dataDefinitionId}/apps`,
 					app
 				)
+					.then(addSuccessToast)
 					.then(onCancel)
 					.catch(() => setDeploying(false));
 			}
