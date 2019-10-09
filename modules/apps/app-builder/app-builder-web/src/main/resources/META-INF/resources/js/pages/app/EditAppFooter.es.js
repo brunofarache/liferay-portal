@@ -48,17 +48,33 @@ export default withRouter(
 			name: {en_US: appName}
 		} = app;
 
-		const addSuccessToast = appId => {
+		const getStandaloneLink = appId => {
+			const isStandalone = appDeployments.some(
+				deployment => deployment.type === 'standalone'
+			);
+
+			if (!isStandalone) {
+				return <></>;
+			}
+
 			const url = getStandaloneURL(appId);
 
+			return (
+				<ClayLink href={url} target="_blank">
+					{url} <ClayIcon symbol="shortcut" />
+				</ClayLink>
+			);
+		};
+
+		const addSuccessToast = appId => {
 			addToast({
 				displayType: 'success',
 				message: (
 					<>
-						{Liferay.Language.get('app-deployed')}{' '}
-						<ClayLink href={url} target="_blank">
-							{url} <ClayIcon symbol="shortcut" />
-						</ClayLink>
+						{Liferay.Language.get(
+							'the-app-was-deployed-successfully'
+						)}{' '}
+						{getStandaloneLink(appId)}
 					</>
 				),
 				title: `${Liferay.Language.get('success')}:`
