@@ -40,10 +40,6 @@
 			position: static;
 		}
 
-		.panel-group {
-			border-radius: 0;
-		}
-
 		.panel-app-root {
 			&.active {
 				border-left: 4px solid #fff;
@@ -59,6 +55,10 @@
 					padding-left: 20px;
 				}
 			}
+		}
+
+		.panel-group {
+			border-radius: 0;
 		}
 	}
 

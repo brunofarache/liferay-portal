@@ -15,6 +15,7 @@
 package com.liferay.app.builder.web.internal.application.list;
 
 import com.liferay.application.list.BasePanelApp;
+import com.liferay.application.list.constants.PanelCategoryKeys;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -29,12 +30,12 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author Jeyvison Nascimento
  */
-public class ProductMenuAppPanelApp extends BasePanelApp {
+public class ProductMenuPanelApp extends BasePanelApp {
 
-	public ProductMenuAppPanelApp(
-		boolean inControlPanel, String portletId, long[] siteIds) {
+	public ProductMenuPanelApp(
+		String panelCategoryKey, String portletId, long[] siteIds) {
 
-		_inControlPanel = inControlPanel;
+		_panelCategoryKey = panelCategoryKey;
 		_portletId = portletId;
 		_siteIds = siteIds;
 	}
@@ -66,7 +67,7 @@ public class ProductMenuAppPanelApp extends BasePanelApp {
 		throws PortalException {
 
 		if (super.isShow(permissionChecker, group) &&
-			(_inControlPanel ||
+			(PanelCategoryKeys.CONTROL_PANEL.equals(_panelCategoryKey) ||
 			 ArrayUtil.contains(_siteIds, group.getGroupId()))) {
 
 			return true;
@@ -75,7 +76,7 @@ public class ProductMenuAppPanelApp extends BasePanelApp {
 		return false;
 	}
 
-	private final boolean _inControlPanel;
+	private final String _panelCategoryKey;
 	private final String _portletId;
 	private final long[] _siteIds;
 
