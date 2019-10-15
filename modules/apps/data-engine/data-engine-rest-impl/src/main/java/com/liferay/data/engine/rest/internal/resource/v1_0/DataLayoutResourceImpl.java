@@ -90,6 +90,9 @@ public class DataLayoutResourceImpl
 			PermissionThreadLocal.getPermissionChecker(), dataLayoutId,
 			ActionKeys.DELETE);
 
+		_deDataDefinitionFieldLinkLocalService.deleteDEDataDefinitionFieldLinks(
+			_getClassNameId(), dataLayoutId);
+
 		_ddmStructureLayoutLocalService.deleteDDMStructureLayout(dataLayoutId);
 	}
 

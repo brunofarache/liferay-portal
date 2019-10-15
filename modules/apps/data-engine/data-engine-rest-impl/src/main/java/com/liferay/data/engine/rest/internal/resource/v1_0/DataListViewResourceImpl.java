@@ -72,6 +72,9 @@ public class DataListViewResourceImpl
 
 	@Override
 	public void deleteDataListView(Long dataListViewId) throws Exception {
+		_deDataDefinitionFieldLinkLocalService.deleteDEDataDefinitionFieldLinks(
+			_getClassNameId(), dataListViewId);
+
 		_deDataListViewLocalService.deleteDEDataListView(dataListViewId);
 	}
 
