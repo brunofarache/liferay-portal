@@ -28,6 +28,11 @@
 		<tei-class>com.liferay.taglib.security.PermissionsURLTei</tei-class>
 		<body-content>JSP</body-content>
 		<attribute>
+			<name>actionsBlacklist</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
 			<name>modelResource</name>
 			<required>true</required>
 			<rtexprvalue>true</rtexprvalue>

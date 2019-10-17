@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.portlet.PortletProviderUtil;
 import com.liferay.portal.kernel.portlet.WindowStateFactory;
 import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -66,7 +67,48 @@ public class PermissionsURLTag extends TagSupport {
 	 * @throws Exception if an exception occurred
 	 */
 	public static String doTag(
-			String redirect, String modelResource,
+		String redirect, String modelResource,
+		String modelResourceDescription, Object resourceGroupId,
+		String resourcePrimKey, String windowState, int[] roleTypes,
+		HttpServletRequest httpServletRequest)
+		throws Exception {
+
+		return PermissionsURLTag.doTag(null, redirect, modelResource,
+			modelResourceDescription, resourceGroupId, resourcePrimKey,
+			windowState, roleTypes, httpServletRequest);
+
+	}
+
+	/**
+	 * Returns the URL for opening the resource's permissions configuration
+	 * dialog and for configuring the resource's permissions.
+	 *
+	 * @param  actionsBlacklist the blacklist of the resource's actions that won't
+     *         be shown in the action list.
+	 * @param  redirect the redirect. If the redirect is <code>null</code> or
+	 *         the dialog does not open as a pop-up, the current URL is obtained
+	 *         via {@link PortalUtil#getCurrentURL(HttpServletRequest)} and
+	 *         used.
+	 * @param  modelResource the resource's class for which to configure
+	 *         permissions
+	 * @param  modelResourceDescription the human-friendly description of the
+	 *         resource
+	 * @param  resourceGroupId the group ID to which the resource belongs. The
+	 *         ID can be a number, string containing a number, or substitution
+	 *         string. If the resource group ID is <code>null</code>, it is
+	 *         obtained via {@link ThemeDisplay#getScopeGroupId()}.
+	 * @param  resourcePrimKey the primary key of the resource
+	 * @param  windowState the window state to use when opening the permissions
+	 *         configuration dialog. For more information, see {@link
+	 *         LiferayWindowState}.
+	 * @param  roleTypes the role types
+	 * @param  httpServletRequest the current request
+	 * @return the URL for opening the resource's permissions configuration
+	 *         dialog and for configuring the resource's permissions
+	 * @throws Exception if an exception occurred
+	 */
+	public static String doTag(
+			String[] actionsBlacklist, String redirect, String modelResource,
 			String modelResourceDescription, Object resourceGroupId,
 			String resourcePrimKey, String windowState, int[] roleTypes,
 			HttpServletRequest httpServletRequest)
@@ -118,6 +160,11 @@ public class PermissionsURLTag extends TagSupport {
 			portletURL.setWindowState(WindowState.MAXIMIZED);
 		}
 
+		if(ArrayUtil.isNotEmpty(actionsBlacklist)){
+			portletURL.setParameter("actionsBlacklist", StringUtil.merge(
+				actionsBlacklist));
+		}
+
 		portletURL.setParameter("mvcPath", "/edit_permissions.jsp");
 
 		if (Validator.isNotNull(redirect)) {
@@ -153,8 +200,9 @@ public class PermissionsURLTag extends TagSupport {
 	public int doEndTag() throws JspException {
 		try {
 			String portletURLToString = doTag(
-				_redirect, _modelResource, _modelResourceDescription,
-				_resourceGroupId, _resourcePrimKey, _windowState, _roleTypes,
+				_actionsBlacklist, _redirect, _modelResource,
+				_modelResourceDescription, _resourceGroupId, _resourcePrimKey,
+				_windowState, _roleTypes,
 				(HttpServletRequest)pageContext.getRequest());
 
 			if (Validator.isNotNull(_var)) {
@@ -171,6 +219,10 @@ public class PermissionsURLTag extends TagSupport {
 		}
 
 		return EVAL_PAGE;
+	}
+
+	public void setActionsBlacklist(String[] actionsBlacklist){
+		_actionsBlacklist = actionsBlacklist;
 	}
 
 	public void setModelResource(String modelResource) {
@@ -205,6 +257,7 @@ public class PermissionsURLTag extends TagSupport {
 		_windowState = windowState;
 	}
 
+	private String[] _actionsBlacklist;
 	private String _modelResource;
 	private String _modelResourceDescription;
 	private String _redirect;
