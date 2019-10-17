@@ -23,12 +23,18 @@ import com.liferay.app.builder.service.AppBuilderAppLocalService;
 import com.liferay.app.builder.web.internal.application.list.ProductMenuPanelApp;
 import com.liferay.app.builder.web.internal.constants.AppBuilderPortletKeys;
 import com.liferay.app.builder.web.internal.portlet.AppPortlet;
+import com.liferay.app.builder.web.internal.portlet.configuration.icon.AppPortletConfigurationIcon;
 import com.liferay.application.list.PanelApp;
 import com.liferay.application.list.constants.PanelCategoryKeys;
+import com.liferay.dynamic.data.lists.model.DDLRecordSet;
+import com.liferay.dynamic.data.lists.service.DDLRecordSetLocalService;
+import com.liferay.dynamic.data.mapping.model.DDMStructure;
+import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.portlet.configuration.icon.PortletConfigurationIcon;
 import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 
@@ -82,6 +88,9 @@ public class ProductMenuAppDeployer implements AppDeployer {
 		String appName = appBuilderApp.getName(
 			LocaleThreadLocal.getDefaultLocale());
 
+		Long dataRecordCollectionId = _getDefaultDataRecordCollectionId(
+			appBuilderApp.getDdmStructureId());
+
 		String portletName = _getPortletName(appId);
 
 		String controlPanelMenuLabel = portletName.concat("controlPanel");
@@ -101,7 +110,11 @@ public class ProductMenuAppDeployer implements AppDeployer {
 						PanelCategoryKeys.SITE_ADMINISTRATION_CONTENT,
 						siteMenuLabel,
 						JSONUtil.toLongArray(
-							jsonObject.getJSONArray("siteIds")))
+							jsonObject.getJSONArray("siteIds"))),
+					_deployPortletConfigurationIcon(
+						dataRecordCollectionId, controlPanelMenuLabel),
+					_deployPortletConfigurationIcon(
+						dataRecordCollectionId, siteMenuLabel)
 				});
 		}
 		else {
@@ -122,7 +135,9 @@ public class ProductMenuAppDeployer implements AppDeployer {
 					_deployPanelApp(
 						scope, menuLabel,
 						JSONUtil.toLongArray(
-							jsonObject.getJSONArray("siteIds")))
+							jsonObject.getJSONArray("siteIds"))),
+					_deployPortletConfigurationIcon(
+						dataRecordCollectionId, menuLabel)
 				});
 		}
 
@@ -176,6 +191,31 @@ public class ProductMenuAppDeployer implements AppDeployer {
 			AppPortlet.getProperties(appName, portletName, new HashMap<>()));
 	}
 
+	private ServiceRegistration<?> _deployPortletConfigurationIcon(
+		Long dataRecordCollectionId, String portletName) {
+
+		return _bundleContext.registerService(
+			PortletConfigurationIcon.class,
+			new AppPortletConfigurationIcon(dataRecordCollectionId),
+			new HashMapDictionary<String, Object>() {
+				{
+					put("javax.portlet.name", portletName);
+				}
+			});
+	}
+
+	private long _getDefaultDataRecordCollectionId(Long ddmStructureId)
+		throws Exception {
+
+		DDMStructure ddmStructure = _ddmStructureLocalService.getStructure(
+			ddmStructureId);
+
+		DDLRecordSet ddlRecordSet = _ddlRecordSetLocalService.getRecordSet(
+			ddmStructure.getGroupId(), ddmStructure.getStructureKey());
+
+		return ddlRecordSet.getRecordSetId();
+	}
+
 	private String _getPortletName(long appId) {
 		return AppBuilderPortletKeys.PRODUCT_MENU_APP + "_" + appId;
 	}
@@ -188,6 +228,12 @@ public class ProductMenuAppDeployer implements AppDeployer {
 	private AppBuilderAppLocalService _appBuilderAppLocalService;
 
 	private BundleContext _bundleContext;
+
+	@Reference
+	private DDLRecordSetLocalService _ddlRecordSetLocalService;
+
+	@Reference
+	private DDMStructureLocalService _ddmStructureLocalService;
 
 	@Reference
 	private JSONFactory _jsonFactory;
