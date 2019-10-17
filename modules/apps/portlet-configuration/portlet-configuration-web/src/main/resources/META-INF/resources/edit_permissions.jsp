@@ -39,7 +39,9 @@ if (Validator.isNotNull(portletConfigurationPermissionsDisplayContext.getModelRe
 		/>
 
 		<aui:form action="<%= portletConfigurationPermissionsDisplayContext.getUpdateRolePermissionsURL() %>" cssClass="container-fluid-1280" method="post" name="fm">
+			<aui:input name="actionsBlacklist" type="hidden" value="<%= StringUtil.merge(portletConfigurationPermissionsDisplayContext.getActionsBlacklist()) %>" />
 			<aui:input name="resourceId" type="hidden" value="<%= resource.getResourceId() %>" />
+
 
 			<liferay-ui:search-container
 				searchContainer="<%= roleSearchContainer %>"

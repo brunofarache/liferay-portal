@@ -72,8 +72,8 @@ page import="com.liferay.portlet.configuration.web.internal.display.context.Port
 page import="com.liferay.portlet.configuration.web.internal.servlet.taglib.clay.ArchivedSettingsVerticalCard" %><%@
 page import="com.liferay.portlet.portletconfiguration.action.ActionUtil" %><%@
 page import="com.liferay.portlet.portletconfiguration.util.PublicRenderParameterConfiguration" %><%@
-page import="com.liferay.taglib.servlet.PipingServletResponse" %>
-
+page import="com.liferay.taglib.servlet.PipingServletResponse" %><%@
+page import="com.liferay.portal.kernel.util.StringUtil" %>
 <%@ page import="java.util.ArrayList" %><%@
 page import="java.util.LinkedHashSet" %><%@
 page import="java.util.List" %><%@

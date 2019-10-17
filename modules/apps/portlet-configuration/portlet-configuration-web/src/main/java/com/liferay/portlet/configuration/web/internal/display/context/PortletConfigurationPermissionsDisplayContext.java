@@ -45,6 +45,7 @@ import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
 import com.liferay.portal.kernel.service.RoleServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
@@ -63,6 +64,8 @@ import com.liferay.sites.kernel.util.SitesUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.PortletMode;
@@ -161,7 +164,14 @@ public class PortletConfigurationPermissionsDisplayContext {
 			}
 		}
 
-		_actions = resourceActions;
+		Stream<String> stream = resourceActions.stream();
+
+		_actions = stream.filter(
+			resourceAction -> !ArrayUtil.contains(
+				getActionsBlacklist(), resourceAction)
+		).collect(
+			Collectors.toList()
+		);
 
 		return _actions;
 	}
@@ -264,6 +274,20 @@ public class PortletConfigurationPermissionsDisplayContext {
 			_httpServletRequest, "modelResource");
 
 		return _modelResource;
+	}
+
+	public String[] getActionsBlacklist(){
+
+		if(_actionsBlacklist != null){
+			return _actionsBlacklist;
+		}
+
+		_actionsBlacklist = StringUtil.split(
+			ParamUtil.getString(
+				_httpServletRequest, "actionsBlacklist"));
+
+		return _actionsBlacklist;
+
 	}
 
 	public String getModelResourceDescription() {
@@ -710,6 +734,7 @@ public class PortletConfigurationPermissionsDisplayContext {
 	}
 
 	private List<String> _actions;
+	private String[] _actionsBlacklist;
 	private Group _group;
 	private final long _groupId;
 	private List<String> _guestUnsupportedActions;
