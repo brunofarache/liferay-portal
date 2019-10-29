@@ -20,8 +20,8 @@ import React, {useContext, useEffect, useState} from 'react';
 
 import {getItem} from '../../utils/client.es';
 import EditAppContext, {
-	ALL_SITES,
 	PRODUCT_MENU,
+	SITE_ID_ALL,
 	TOGGLE_SETTINGS_SITE_ID,
 	UPDATE_SETTINGS_SCOPE
 } from './EditAppContext.es';
@@ -98,7 +98,7 @@ export default () => {
 
 	const sitesNames = siteIds
 		.map(siteId => {
-			if (siteId === ALL_SITES) {
+			if (siteId === SITE_ID_ALL) {
 				return Liferay.Language.get('all-sites');
 			}
 
@@ -193,14 +193,14 @@ export default () => {
 									</ClayInput.Group>
 								</Item>
 
-								<Item key={ALL_SITES}>
+								<Item key={SITE_ID_ALL}>
 									<ClayCheckbox
-										checked={siteIds.includes(ALL_SITES)}
+										checked={siteIds.includes(SITE_ID_ALL)}
 										label={Liferay.Language.get(
 											'all-sites'
 										)}
 										onChange={() =>
-											onSiteIdsChange(ALL_SITES)
+											onSiteIdsChange(SITE_ID_ALL)
 										}
 									/>
 								</Item>
@@ -209,16 +209,16 @@ export default () => {
 
 								{filteredSites.map(({id, name}) => (
 									<Item
-										disabled={siteIds.includes(ALL_SITES)}
+										disabled={siteIds.includes(SITE_ID_ALL)}
 										key={id}
 									>
 										<ClayCheckbox
 											checked={
 												siteIds.includes(id) ||
-												siteIds.includes(ALL_SITES)
+												siteIds.includes(SITE_ID_ALL)
 											}
 											disabled={siteIds.includes(
-												ALL_SITES
+												SITE_ID_ALL
 											)}
 											label={name}
 											onChange={() => onSiteIdsChange(id)}

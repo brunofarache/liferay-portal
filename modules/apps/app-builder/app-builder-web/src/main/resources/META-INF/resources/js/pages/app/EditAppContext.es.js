@@ -15,9 +15,9 @@
 import {createContext} from 'react';
 
 export const ADD_DEPLOYMENT = 'ADD_DEPLOYMENT';
-export const ALL_SITES = -1;
 export const PRODUCT_MENU = 'productMenu';
 export const REMOVE_DEPLOYMENT = 'REMOVE_DEPLOYMENT';
+export const SITE_ID_ALL = -1;
 export const TOGGLE_SETTINGS_SITE_ID = 'TOGGLE_SETTINGS_SITE_ID';
 export const UPDATE_APP = 'UPDATE_APP';
 export const UPDATE_DATA_LAYOUT_ID = 'UPDATE_DATA_LAYOUT_ID';
