@@ -20,10 +20,12 @@ import com.liferay.data.engine.field.type.util.LocalizedValueUtil;
 import com.liferay.data.engine.model.DEDataListView;
 import com.liferay.data.engine.rest.dto.v1_0.DataDefinition;
 import com.liferay.data.engine.rest.dto.v1_0.DataDefinitionPermission;
+import com.liferay.data.engine.rest.dto.v1_0.DataLayout;
 import com.liferay.data.engine.rest.dto.v1_0.DataRecordCollection;
 import com.liferay.data.engine.rest.internal.constants.DataActionKeys;
 import com.liferay.data.engine.rest.internal.constants.DataDefinitionConstants;
 import com.liferay.data.engine.rest.internal.dto.v1_0.util.DataDefinitionUtil;
+import com.liferay.data.engine.rest.internal.dto.v1_0.util.DataLayoutUtil;
 import com.liferay.data.engine.rest.internal.dto.v1_0.util.DataRecordCollectionUtil;
 import com.liferay.data.engine.rest.internal.model.InternalDataDefinition;
 import com.liferay.data.engine.rest.internal.model.InternalDataLayout;
@@ -79,6 +81,7 @@ import com.liferay.portal.vulcan.resource.EntityModelResource;
 import com.liferay.portal.vulcan.util.SearchUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -416,6 +419,11 @@ public class DataDefinitionResourceImpl
 			PermissionThreadLocal.getPermissionChecker(), dataDefinitionId,
 			ActionKeys.UPDATE);
 
+		DDMStructure ddmStructure = _ddmStructureLocalService.getStructure(
+			dataDefinitionId);
+
+		_updateRemovedFields(dataDefinition, ddmStructure);
+
 		return DataDefinitionUtil.toDataDefinition(
 			_ddmStructureLocalService.updateStructure(
 				PrincipalThreadLocal.getUserId(), dataDefinitionId,
@@ -470,6 +478,67 @@ public class DataDefinitionResourceImpl
 		}
 
 		return new StructureModifiedDateComparator(ascending);
+	}
+
+	private void _updateRemovedFields(
+			DataDefinition dataDefinition, DDMStructure ddmStructure)
+		throws Exception {
+
+		DataDefinition savedDataDefinition =
+			DataDefinitionUtil.toDataDefinition(
+				ddmStructure, _fieldTypeTracker);
+
+		List<String> removedFieldNames = transformToList(
+			savedDataDefinition.getDataDefinitionFields(),
+			dataDefinitionField -> dataDefinitionField.getName());
+
+		removedFieldNames.removeAll(
+			transformToList(
+				dataDefinition.getDataDefinitionFields(),
+				dataDefinitionField -> dataDefinitionField.getName()));
+
+		DDMStructureVersion structureVersion =
+			ddmStructure.getStructureVersion();
+
+		List<DDMStructureLayout> structureLayouts =
+			_ddmStructureLayoutLocalService.getStructureLayouts(
+				ddmStructure.getGroupId(),
+				_portal.getClassNameId(InternalDataLayout.class),
+				structureVersion.getStructureVersionId());
+
+		for (DDMStructureLayout ddmStructureLayout : structureLayouts) {
+			DataLayout dataLayout = DataLayoutUtil.toDataLayout(
+				ddmStructureLayout.getDefinition());
+
+			if (DataLayoutUtil.removeFieldsDataLayout(
+					dataLayout, removedFieldNames)) {
+
+				ddmStructureLayout.setDefinition(
+					DataLayoutUtil.toJSON(dataLayout));
+
+				_ddmStructureLayoutLocalService.updateDDMStructureLayout(
+					ddmStructureLayout);
+			}
+		}
+
+		List<DEDataListView> deDataListViews =
+			_deDataListViewLocalService.getDEDataListViews(
+				ddmStructure.getStructureId());
+
+		for (DEDataListView deDataListView : deDataListViews) {
+			String[] fields = JSONUtil.toStringArray(
+				_jsonFactory.createJSONArray(deDataListView.getFieldNames()));
+
+			if (DataLayoutUtil.existsAnyField(
+					ArrayUtil.toStringArray(removedFieldNames), fields)) {
+
+				deDataListView.setFieldNames(
+					Arrays.toString(
+						DataLayoutUtil.removeFields(
+							ArrayUtil.toStringArray(removedFieldNames),
+							fields)));
+			}
+		}
 	}
 
 	private static final EntityModel _entityModel =
