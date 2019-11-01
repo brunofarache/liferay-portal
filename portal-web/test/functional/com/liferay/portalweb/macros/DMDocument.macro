@@ -60,6 +60,22 @@ definition {
 			PortletEntry.inputDescription(description = "${dmDocumentDescription}");
 		}
 
+		if (isSet(textField)) {
+			var key_fieldName = "Text";
+
+			Type(
+				locator1 = "TextInput#DDM",
+				value1 = "${textField}");
+		}
+
+		if (isSet(numberField)) {
+			var key_fieldName = "Number";
+
+			Type(
+				locator1 = "TextInput#DDM",
+				value1 = "${numberField}");
+		}
+
 		if (isSet(validationError)) {
 			Button.clickPublish();
 
@@ -510,7 +526,7 @@ definition {
 
 		LexiconEntry.gotoEllipsisMenuItem(menuItem = "Checkin");
 
-		if (IsElementPresent(locator1 = "Radio#MAJOR_VERSION")) {
+		if (IsElementPresent(locator1 = "DocumentsAndMedia#CHECKIN_DIALOG_TITLE")) {
 			if ("${revision}" == "Major") {
 				Click(locator1 = "Radio#MAJOR_VERSION");
 			}
@@ -546,7 +562,7 @@ definition {
 
 		MenuItem.click(menuItem = "Checkin");
 
-		if (IsElementPresent(locator1 = "Radio#MAJOR_VERSION")) {
+		if (IsElementPresent(locator1 = "DocumentsAndMedia#CHECKIN_DIALOG_TITLE")) {
 			if ("${revision}" == "Major") {
 				Click(locator1 = "Radio#MAJOR_VERSION");
 			}
@@ -584,7 +600,7 @@ definition {
 			locator1 = "Button#CHECKIN",
 			value1 = "Checkin");
 
-		if (IsElementPresent(locator1 = "Radio#MAJOR_VERSION")) {
+		if (IsElementPresent(locator1 = "DocumentsAndMedia#CHECKIN_DIALOG_TITLE")) {
 			if ("${revision}" == "Major") {
 				Click(locator1 = "Radio#MAJOR_VERSION");
 			}
@@ -1176,7 +1192,14 @@ definition {
 	}
 
 	macro removeTag {
-		Click(locator1 = "Button#EDIT");
+		if (IsElementPresent(locator1 = "Button#EDIT")) {
+			Click(locator1 = "Button#EDIT");
+		}
+		else {
+			LexiconEntry.gotoEntryMenuItem(
+				menuItem = "Edit",
+				rowEntry = "DM Document Title");
+		}
 
 		Panel.expandPanel(panel = "Categorization");
 
@@ -1208,7 +1231,7 @@ definition {
 			locator1 = "Button#SAVE_AND_CHECKIN",
 			value1 = "Save and Check In");
 
-		if (IsElementPresent(locator1 = "Radio#MAJOR_VERSION")) {
+		if (IsElementPresent(locator1 = "DocumentsAndMedia#CHECKIN_DIALOG_TITLE")) {
 			if ("${revision}" == "Major Version") {
 				Click(locator1 = "Radio#MAJOR_VERSION");
 			}

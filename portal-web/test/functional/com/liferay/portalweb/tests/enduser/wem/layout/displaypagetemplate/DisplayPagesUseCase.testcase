@@ -346,7 +346,9 @@ definition {
 
 		ContentPages.addPage(pageName = "Test Content Page Name");
 
-		PageEditor.addBasicComponent(fragmentName = "Image");
+		PageEditor.addFragment(
+			collectionName = "Basic Components",
+			fragmentName = "Image");
 
 		PageEditor.editFragmentImage(
 			fileName = "Document_1.png",
@@ -359,8 +361,18 @@ definition {
 			imageFrament = "Image");
 
 		PageEditorMapping.mapEditableFieldToAsset(
-			assetField = "Web Content Article",
-			webContentTitle = "WC WebContent Title");
+			entryTitle = "WC WebContent Title",
+			navItem = "Web Content");
+
+		task ("Select mapping panel field.") {
+			Select(
+				locator1 = "PageEditorEditableLink#FIELD",
+				value1 = "Image");
+
+			SelectFrame(value1 = "relative=top");
+
+			PageEditor.waitForAutoSave();
+		}
 
 		task ("Assert the image field contains the mapped image.") {
 			PageEditor.clickPublish();
@@ -418,8 +430,8 @@ definition {
 		PageEditor.addLayoutSection(columnCount = "2");
 
 		PageEditor.editLayoutSectionImage(
-			assetField = "Web Content Article",
-			webContentTitle = "WC WebContent Title");
+			entryTitle = "WC WebContent Title",
+			navItem = "Web Content");
 
 		task ("Assert the layout background field contains the mapped image.") {
 			PageEditor.clickPublish();
@@ -783,7 +795,7 @@ definition {
 
 			PageEditor.addWidget(portletName = "Language Selector");
 
-			PageEditor.gotoTab(tabName = "Sections");
+			PageEditor.gotoTab(tabName = "Section Builder");
 
 			PageEditor.addFragment(
 				collectionName = "Collection Name",

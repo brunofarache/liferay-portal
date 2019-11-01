@@ -181,6 +181,33 @@ public class LayoutPageTemplateEntryServiceSoap {
 		}
 	}
 
+	public static
+		com.liferay.layout.page.template.model.LayoutPageTemplateEntrySoap
+				copyLayoutPageTemplateEntry(
+					long groupId, long layoutPageTemplateCollectionId,
+					long layoutPageTemplateEntryId,
+					com.liferay.portal.kernel.service.ServiceContext
+						serviceContext)
+			throws RemoteException {
+
+		try {
+			com.liferay.layout.page.template.model.LayoutPageTemplateEntry
+				returnValue =
+					LayoutPageTemplateEntryServiceUtil.
+						copyLayoutPageTemplateEntry(
+							groupId, layoutPageTemplateCollectionId,
+							layoutPageTemplateEntryId, serviceContext);
+
+			return com.liferay.layout.page.template.model.
+				LayoutPageTemplateEntrySoap.toSoapModel(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
 	public static void deleteLayoutPageTemplateEntries(
 			long[] layoutPageTemplateEntryIds)
 		throws RemoteException {
@@ -262,6 +289,10 @@ public class LayoutPageTemplateEntryServiceSoap {
 		}
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static
 		com.liferay.layout.page.template.model.LayoutPageTemplateEntrySoap
 				fetchLayoutPageTemplateEntry(long groupId, String name)
@@ -298,99 +329,6 @@ public class LayoutPageTemplateEntryServiceSoap {
 
 			return com.liferay.layout.page.template.model.
 				LayoutPageTemplateEntrySoap.toSoapModel(returnValue);
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x), with no direct replacement
-	 */
-	@Deprecated
-	public static int getLayoutPageTemplateCollectionsCount(
-			long groupId, long layoutPageTemplateCollectionId)
-		throws RemoteException {
-
-		try {
-			int returnValue =
-				LayoutPageTemplateEntryServiceUtil.
-					getLayoutPageTemplateCollectionsCount(
-						groupId, layoutPageTemplateCollectionId);
-
-			return returnValue;
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x), with no direct replacement
-	 */
-	@Deprecated
-	public static int getLayoutPageTemplateCollectionsCount(
-			long groupId, long layoutPageTemplateCollectionId, int status)
-		throws RemoteException {
-
-		try {
-			int returnValue =
-				LayoutPageTemplateEntryServiceUtil.
-					getLayoutPageTemplateCollectionsCount(
-						groupId, layoutPageTemplateCollectionId, status);
-
-			return returnValue;
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x), with no direct replacement
-	 */
-	@Deprecated
-	public static int getLayoutPageTemplateCollectionsCount(
-			long groupId, long layoutPageTemplateCollectionId, String name)
-		throws RemoteException {
-
-		try {
-			int returnValue =
-				LayoutPageTemplateEntryServiceUtil.
-					getLayoutPageTemplateCollectionsCount(
-						groupId, layoutPageTemplateCollectionId, name);
-
-			return returnValue;
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x), with no direct replacement
-	 */
-	@Deprecated
-	public static int getLayoutPageTemplateCollectionsCount(
-			long groupId, long layoutPageTemplateCollectionId, String name,
-			int status)
-		throws RemoteException {
-
-		try {
-			int returnValue =
-				LayoutPageTemplateEntryServiceUtil.
-					getLayoutPageTemplateCollectionsCount(
-						groupId, layoutPageTemplateCollectionId, name, status);
-
-			return returnValue;
 		}
 		catch (Exception e) {
 			_log.error(e, e);

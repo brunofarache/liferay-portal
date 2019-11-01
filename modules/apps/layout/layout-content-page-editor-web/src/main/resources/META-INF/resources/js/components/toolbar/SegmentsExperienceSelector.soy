@@ -5,7 +5,7 @@
  */
 {template .render}
 	{@param? activeSegmentsExperienceName: string }
-	{@param? availableSegmentsExperiences: list<[
+	{@param? availableSegmentsExperiencesList: list<[
 		segmentsExperienceId: string,
 		hasLockedSegmentsExperiment: bool,
 		name: string,
@@ -42,7 +42,7 @@
 	{@param? _openCreateModal: any }
 	{@param? _toggleEditModal: any }
 	{@param? _toggleCreateModal: any }
-	{@param? availableSegmentsEntries: list<[
+	{@param? availableSegmentsEntriesList: list<[
 		segmentsEntryId: string,
 		name: string
 	]>}
@@ -63,14 +63,17 @@
 
 	{let $canCreateExperiences: (
 			($hasEditSegmentsEntryPermission == true or
-			($availableSegmentsEntries and length($availableSegmentsEntries) > 0))
+			($availableSegmentsEntriesList and length($availableSegmentsEntriesList) > 0))
 		)
 	/}
 
 	{if
-		$availableSegmentsExperiences and
-		length($availableSegmentsExperiences) > 0 and
-		$canCreateExperiences
+		$canCreateExperiences and
+		$availableSegmentsExperiencesList and
+		(
+			($hasUpdatePermissions and (length($availableSegmentsExperiencesList) > 0)) or
+			((not $hasUpdatePermissions) and (length($availableSegmentsExperiencesList) > 1))
+		)
 	}
 		<div
 			class="segments-experience-selector position-relative"
@@ -138,7 +141,8 @@
 
 				{if $hasUpdatePermissions}
 					{let $experiencesHelpMessage kind="text"}
-						{if $availableSegmentsEntries and length($availableSegmentsEntries) < 1 or length($availableSegmentsExperiences) < 2}
+						{if $availableSegmentsEntriesList and
+						length($availableSegmentsEntriesList) < 1 or length($availableSegmentsExperiencesList) < 2}
 							{msg desc=""}experience-help-message-empty-state{/msg}
 						{else}
 							{msg desc=""}experience-help-message-started-state{/msg}
@@ -167,10 +171,11 @@
 					{/call}
 				{/if}
 
-				{let $notDefaultExperienceLength: (length($availableSegmentsExperiences) - 2) /}
-				{if length($availableSegmentsExperiences) > 1}
+				{let $notDefaultExperienceLength: (length($availableSegmentsExperiencesList) - 2) /}
+
+				{if length($availableSegmentsExperiencesList) > 1}
 					<ul class="list-unstyled mt-4">
-						{foreach $experience in $availableSegmentsExperiences}
+						{foreach $experience in $availableSegmentsExperiencesList}
 							{let $experienceClasses kind="text"}
 								d-flex
 								{sp}dropdown-menu__experience
@@ -219,8 +224,8 @@
 
 								{if $hasUpdatePermissions and ($defaultSegmentsExperienceId != $experience.segmentsExperienceId) and not $experience.hasLockedSegmentsExperiment}
 									<div class="align-items-center d-flex dropdown-menu__experience--btn-group px-2">
-										{let $disbledMoveUp: (isFirst($experience)) /}
-										{let $disbledMoveDown: ($notDefaultExperienceLength == index($experience)) /}
+										{let $disabledMoveUp: (isFirst($experience)) /}
+										{let $disabledMoveDown: ($notDefaultExperienceLength == index($experience)) /}
 										{let $priorityUpButtonRef: 'buttonPriorityUp' + $experience.segmentsExperienceId /}
 										{let $priorityDownButtonRef: 'buttonPriorityDown' + $experience.segmentsExperienceId /}
 
@@ -229,7 +234,7 @@
 										{/let}
 
 										{call ClayButton.render}
-											{param disabled: $disbledMoveUp /}
+											{param disabled: $disabledMoveUp /}
 											{param data: [
 												'priority': $experience.priority,
 												'segmentsExperienceId': $experience.segmentsExperienceId
@@ -252,7 +257,7 @@
 										{/let}
 
 										{call ClayButton.render}
-											{param disabled: $disbledMoveDown /}
+											{param disabled: $disabledMoveDown /}
 											{param data: [
 												'priority': $experience.priority,
 												'segmentsExperienceId': $experience.segmentsExperienceId
@@ -379,7 +384,7 @@
 				],
 				'segmentSelector': [
 					'inputId': 'SegmentSelector',
-					'segments':  $availableSegmentsEntries,
+					'segments':  $availableSegmentsEntriesList,
 					'label': $segmentLabel,
 					'value': ($modalStates and $modalStates.creation) ? $modalStates.creation.segmentsEntryId : null
 				]
@@ -424,7 +429,7 @@
 				],
 				'segmentSelector': [
 					'inputId': 'SegmentSelector',
-					'segments': $availableSegmentsEntries,
+					'segments': $availableSegmentsEntriesList,
 					'label': $segmentLabel,
 					'value': ($modalStates and $modalStates.edition) ? $modalStates.edition.segmentsEntryId : null
 				]

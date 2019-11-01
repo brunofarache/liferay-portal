@@ -102,6 +102,10 @@ public class DEDataListViewLocalServiceUtil {
 		return getService().deleteDEDataListView(deDataListViewId);
 	}
 
+	public static void deleteDEDataListViews(long ddmStructureId) {
+		getService().deleteDEDataListViews(ddmStructureId);
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -267,6 +271,12 @@ public class DEDataListViewLocalServiceUtil {
 		getDEDataListViews(int start, int end) {
 
 		return getService().getDEDataListViews(start, end);
+	}
+
+	public static java.util.List<com.liferay.data.engine.model.DEDataListView>
+		getDEDataListViews(long ddmStructureId) {
+
+		return getService().getDEDataListViews(ddmStructureId);
 	}
 
 	public static java.util.List<com.liferay.data.engine.model.DEDataListView>

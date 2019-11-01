@@ -101,6 +101,18 @@ public class LayoutPageTemplateEntryServiceUtil {
 			groupId, layoutPageTemplateCollectionId, name, serviceContext);
 	}
 
+	public static com.liferay.layout.page.template.model.LayoutPageTemplateEntry
+			copyLayoutPageTemplateEntry(
+				long groupId, long layoutPageTemplateCollectionId,
+				long layoutPageTemplateEntryId,
+				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().copyLayoutPageTemplateEntry(
+			groupId, layoutPageTemplateCollectionId, layoutPageTemplateEntryId,
+			serviceContext);
+	}
+
 	public static void deleteLayoutPageTemplateEntries(
 			long[] layoutPageTemplateEntryIds)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -133,6 +145,10 @@ public class LayoutPageTemplateEntryServiceUtil {
 			layoutPageTemplateEntryId);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static com.liferay.layout.page.template.model.LayoutPageTemplateEntry
 			fetchLayoutPageTemplateEntry(long groupId, String name)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -146,51 +162,6 @@ public class LayoutPageTemplateEntryServiceUtil {
 
 		return getService().fetchLayoutPageTemplateEntryByUuidAndGroupId(
 			uuid, groupId);
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x), with no direct replacement
-	 */
-	@Deprecated
-	public static int getLayoutPageTemplateCollectionsCount(
-		long groupId, long layoutPageTemplateCollectionId) {
-
-		return getService().getLayoutPageTemplateCollectionsCount(
-			groupId, layoutPageTemplateCollectionId);
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x), with no direct replacement
-	 */
-	@Deprecated
-	public static int getLayoutPageTemplateCollectionsCount(
-		long groupId, long layoutPageTemplateCollectionId, int status) {
-
-		return getService().getLayoutPageTemplateCollectionsCount(
-			groupId, layoutPageTemplateCollectionId, status);
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x), with no direct replacement
-	 */
-	@Deprecated
-	public static int getLayoutPageTemplateCollectionsCount(
-		long groupId, long layoutPageTemplateCollectionId, String name) {
-
-		return getService().getLayoutPageTemplateCollectionsCount(
-			groupId, layoutPageTemplateCollectionId, name);
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x), with no direct replacement
-	 */
-	@Deprecated
-	public static int getLayoutPageTemplateCollectionsCount(
-		long groupId, long layoutPageTemplateCollectionId, String name,
-		int status) {
-
-		return getService().getLayoutPageTemplateCollectionsCount(
-			groupId, layoutPageTemplateCollectionId, name, status);
 	}
 
 	public static java.util.List

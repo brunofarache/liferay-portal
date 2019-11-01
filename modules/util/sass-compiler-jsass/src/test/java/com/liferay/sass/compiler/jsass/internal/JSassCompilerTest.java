@@ -45,8 +45,49 @@ public class JSassCompilerTest {
 	@Test
 	public void testCompileFileClayCss() throws Exception {
 		try (SassCompiler sassCompiler = new JSassCompiler()) {
+			File clayCssDir = new File(
+				"../sass-compiler-jni/test-classes/unit/com/liferay/sass" +
+					"/compiler/jni/internal/dependencies/clay-css");
+
+			for (File inputFile : clayCssDir.listFiles()) {
+				if (inputFile.isDirectory()) {
+					continue;
+				}
+
+				String fileName = inputFile.getName();
+
+				if (fileName.startsWith("_") || !fileName.endsWith("scss")) {
+					continue;
+				}
+
+				String actualOutput = sassCompiler.compileFile(
+					inputFile.getCanonicalPath(), "", true);
+
+				Assert.assertNotNull("Testing: " + fileName, actualOutput);
+
+				String expectedOutputFileName =
+					"expected" + File.separator +
+						fileName.replace("scss", "css");
+
+				File expectedOutputFile = new File(
+					clayCssDir, expectedOutputFileName);
+
+				if (expectedOutputFile.exists()) {
+					String expectedOutput = read(expectedOutputFile.toPath());
+
+					Assert.assertEquals(
+						"Testing: " + fileName, stripNewLines(expectedOutput),
+						stripNewLines(actualOutput));
+				}
+			}
+		}
+	}
+
+	@Test
+	public void testCompileFileSassSpec() throws Exception {
+		try (SassCompiler sassCompiler = new JSassCompiler()) {
 			File sassSpecDir = new File(
-				"../sass-compiler-jni/src/test/resources/com/liferay/sass" +
+				"../sass-compiler-jni/test-classes/unit/com/liferay/sass" +
 					"/compiler/jni/internal/dependencies/sass-spec");
 
 			for (File testDir : sassSpecDir.listFiles()) {
@@ -79,7 +120,7 @@ public class JSassCompilerTest {
 	public void testCompileFileSassVariableWithUnicode() throws Exception {
 		try (SassCompiler sassCompiler = new JSassCompiler()) {
 			File inputDir = new File(
-				"../sass-compiler-jni/src/test/resources/com/liferay/sass" +
+				"../sass-compiler-jni/test-classes/unit/com/liferay/sass" +
 					"/compiler/jni/internal/dependencies/");
 
 			File inputFile = new File(inputDir, "/unicode/input.scss");
@@ -103,7 +144,7 @@ public class JSassCompilerTest {
 	public void testCompileFileWithSourceMap() throws Exception {
 		try (SassCompiler sassCompiler = new JSassCompiler()) {
 			File inputDir = new File(
-				"../sass-compiler-jni/src/test/resources/com/liferay/sass" +
+				"../sass-compiler-jni/test-classes/unit/com/liferay/sass" +
 					"/compiler/jni/internal/dependencies/sass-spec/14_imports");
 
 			File sourceMapFile = new File(
@@ -124,7 +165,7 @@ public class JSassCompilerTest {
 			Assert.assertTrue(sourceMapFile.exists());
 
 			File expectedOutputFile = new File(
-				"../sass-compiler-jni/src/test/resources/com/liferay/sass" +
+				"../sass-compiler-jni/test-classes/unit/com/liferay/sass" +
 					"/compiler/jni/internal/dependencies/sourcemap",
 				"expected_output_custom_source_map.css");
 
@@ -151,7 +192,7 @@ public class JSassCompilerTest {
 	public void testCompileStringSassVariableWithUnicode() throws Exception {
 		try (SassCompiler sassCompiler = new JSassCompiler()) {
 			File inputDir = new File(
-				"../sass-compiler-jni/src/test/resources/com/liferay/sass" +
+				"../sass-compiler-jni/test-classes/unit/com/liferay/sass" +
 					"/compiler/jni/internal/dependencies/");
 
 			File inputFile = new File(inputDir, "/unicode/input.scss");
@@ -176,7 +217,7 @@ public class JSassCompilerTest {
 	public void testCompileStringWithSourceMap() throws Exception {
 		try (SassCompiler sassCompiler = new JSassCompiler()) {
 			File inputDir = new File(
-				"../sass-compiler-jni/src/test/resources/com/liferay/sass" +
+				"../sass-compiler-jni/test-classes/unit/com/liferay/sass" +
 					"/compiler/jni/internal/dependencies/sass-spec/14_imports");
 
 			File sourceMapFile = new File(inputDir, "input.css.map");
@@ -197,7 +238,7 @@ public class JSassCompilerTest {
 			Assert.assertTrue(sourceMapFile.exists());
 
 			File expectedOutputFile = new File(
-				"../sass-compiler-jni/src/test/resources/com/liferay/sass" +
+				"../sass-compiler-jni/test-classes/unit/com/liferay/sass" +
 					"/compiler/jni/internal/dependencies/sourcemap",
 				"expected_output.css");
 

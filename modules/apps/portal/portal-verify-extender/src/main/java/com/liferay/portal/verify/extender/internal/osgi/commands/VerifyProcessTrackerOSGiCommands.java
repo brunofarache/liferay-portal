@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.workflow.WorkflowThreadLocal;
 import com.liferay.portal.output.stream.container.OutputStreamContainer;
 import com.liferay.portal.output.stream.container.OutputStreamContainerFactory;
 import com.liferay.portal.output.stream.container.OutputStreamContainerFactoryTracker;
+import com.liferay.portal.output.stream.container.constants.OutputStreamContainerConstants;
 import com.liferay.portal.search.index.IndexStatusManager;
 import com.liferay.portal.verify.VerifyException;
 import com.liferay.portal.verify.VerifyProcess;
@@ -464,7 +465,9 @@ public class VerifyProcessTrackerOSGiCommands {
 			String key, VerifyProcess serviceVerifyProcess,
 			List<VerifyProcess> contentVerifyProcesses) {
 
-			_execute(verifyProcessTrackerMap, key, "dummy", false);
+			_execute(
+				verifyProcessTrackerMap, key,
+				OutputStreamContainerConstants.FACTORY_NAME_DUMMY, false);
 		}
 
 		@Override

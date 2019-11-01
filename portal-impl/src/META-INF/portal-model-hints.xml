@@ -29,6 +29,7 @@
 		<hint name="max-length">4000</hint>
 	</hint-collection>
 	<model name="com.liferay.announcements.kernel.model.AnnouncementsDelivery">
+		<field name="mvccVersion" type="long" />
 		<field name="deliveryId" type="long" />
 		<field name="companyId" type="long" />
 		<field name="userId" type="long" />
@@ -38,6 +39,7 @@
 		<field name="website" type="boolean" />
 	</model>
 	<model name="com.liferay.announcements.kernel.model.AnnouncementsEntry">
+		<field name="mvccVersion" type="long" />
 		<field name="uuid" type="String" />
 		<field name="entryId" type="long" />
 		<field name="companyId" type="long" />
@@ -66,6 +68,7 @@
 		<field name="alert" type="boolean" />
 	</model>
 	<model name="com.liferay.announcements.kernel.model.AnnouncementsFlag">
+		<field name="mvccVersion" type="long" />
 		<field name="flagId" type="long" />
 		<field name="companyId" type="long" />
 		<field name="userId" type="long" />
@@ -712,7 +715,7 @@
 			<hint-collection name="CLOB" />
 		</field>
 		<field name="priority" type="int" />
-		<field name="masterLayoutPageTemplateEntryId" type="long" />
+		<field name="masterLayoutPlid" type="long" />
 		<field name="layoutPrototypeUuid" type="String" />
 		<field name="layoutPrototypeLinkEnabled" type="boolean" />
 		<field name="sourcePrototypeLayoutUuid" type="String" />
@@ -1233,6 +1236,7 @@
 	</model>
 	<model name="com.liferay.portal.kernel.model.ResourcePermission">
 		<field name="mvccVersion" type="long" />
+		<field name="ctCollectionId" type="long" />
 		<field name="resourcePermissionId" type="long" />
 		<field name="companyId" type="long" />
 		<field name="name" type="String">

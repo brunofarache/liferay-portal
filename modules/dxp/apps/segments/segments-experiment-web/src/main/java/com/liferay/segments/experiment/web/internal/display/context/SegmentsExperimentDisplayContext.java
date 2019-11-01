@@ -1,15 +1,15 @@
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * The contents of this file are subject to the terms of the Liferay Enterprise
+ * Subscription License ("License"). You may not use this file except in
+ * compliance with the License. You can obtain a copy of the License by
+ * contacting Liferay, Inc. See the License for the specific language governing
+ * permissions and limitations under the License, including but not limited to
+ * distribution rights of the Software.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
+ *
+ *
  */
 
 package com.liferay.segments.experiment.web.internal.display.context;
@@ -29,6 +29,7 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -100,10 +101,11 @@ public class SegmentsExperimentDisplayContext {
 			return _data;
 		}
 
-		_data = new HashMap<>();
-
-		_data.put("context", getContext());
-		_data.put("props", getProps());
+		_data = HashMapBuilder.<String, Object>put(
+			"context", getContext()
+		).put(
+			"props", getProps()
+		).build();
 
 		return _data;
 	}
@@ -311,11 +313,11 @@ public class SegmentsExperimentDisplayContext {
 	}
 
 	private Map<String, Object> _getPage() {
-		Map<String, Object> page = new HashMap<>();
-
-		page.put(
-			"classNameId", PortalUtil.getClassNameId(Layout.class.getName()));
-		page.put("classPK", _themeDisplay.getPlid());
+		Map<String, Object> page = HashMapBuilder.<String, Object>put(
+			"classNameId", PortalUtil.getClassNameId(Layout.class.getName())
+		).put(
+			"classPK", _themeDisplay.getPlid()
+		).build();
 
 		Layout layout = _themeDisplay.getLayout();
 

@@ -1,23 +1,5 @@
 definition {
 
-	macro addBasicComponent {
-		PageEditor.gotoTab(tabName = "Section Builder");
-
-		PageEditor.expandFragmentCollection(collectionName = "Basic Components");
-
-		DragAndDrop(
-			fragmentName = "${fragmentName}",
-			locator1 = "PageEditor#SECTION_BUILDER_BASIC_COMPONENTS_FRAGMENT",
-			locator2 = "PageEditor#FRAGMENT_DROP_TARGET",
-			value1 = "");
-
-		AssertElementPresent(
-			key_fragmentName = "${fragmentName}",
-			locator1 = "Fragment#FRAGMENT_HEADER");
-
-		PageEditor.waitForAutoSave();
-	}
-
 	macro addComment {
 		PageEditor.gotoTab(tabName = "Comments");
 
@@ -33,9 +15,21 @@ definition {
 
 		Click.clickAt(locator1 = "PageEditor#FRAGMENT_SIDEBAR_COMMENTS");
 
-		Type(
-			locator1 = "PageEditor#FRAGMENT_SIDEBAR_COMMENTS",
-			value1 = "${fragmentComment}");
+		if (isSet(mentionsUserScreenName)) {
+			var key_mentionsUserScreenName = "${mentionsUserScreenName}";
+
+			Type.sendKeys(
+				locator1 = "PageEditor#FRAGMENT_SIDEBAR_COMMENTS",
+				value1 = "${fragmentComment} @${mentionsUserScreenName}");
+
+			Click.clickNoMouseOver(locator1 = "Mentions#MENTIONS_USER_DISPLAY_OPTION");
+		}
+
+		else {
+			Type(
+				locator1 = "PageEditor#FRAGMENT_SIDEBAR_COMMENTS",
+				value1 = "${fragmentComment}");
+		}
 
 		Button.clickComment();
 
@@ -98,9 +92,11 @@ definition {
 	macro addFragment {
 		PageEditor.expandFragmentCollection(collectionName = "${collectionName}");
 
-		Click.clickNoMouseOverNoWaitForVisible(
-			key_fragmentName = "${fragmentName}",
-			locator1 = "PageEditor#FRAGMENT_SIDEBAR_ADD_FRAGMENT_BUTTON");
+		DragAndDrop(
+			fragmentName = "${fragmentName}",
+			locator1 = "PageEditor#SECTION_BUILDER_FRAGMENTS",
+			locator2 = "PageEditor#FRAGMENT_DROP_TARGET",
+			value1 = "");
 
 		AssertElementPresent(
 			key_fragmentName = "${fragmentName}",
@@ -131,7 +127,7 @@ definition {
 
 		Click(locator1 = "//input[@type='text' and contains(@id,'width')]");
 
-		PageEditor.waitforAutoSave():
+		PageEditor.waitForAutoSave();
 	}
 
 	macro addWidget {
@@ -402,20 +398,9 @@ definition {
 			locator1 = "PageEditorEditableLink#LAYOUT_BACKGROUND_IMAGE_SOURCE_FIELD",
 			value1 = "Content Mapping");
 
-		Click(locator1 = "PageEditor#EDITABLE_FIELD_TOOLBAR_MAP_DROPDOWN");
-
-		Click(
-			key_assetField = "${assetField}",
-			locator1 = "PageEditor#EDITABLE_FIELD_TOOLBAR_MAP_DROPDOWN_ASSET");
-
-		if (isSet(webContentTitle)) {
-			SelectFrame(locator1 = "IFrame#DIALOG");
-
-			AssertClick(
-				key_webContentTitle = "${webContentTitle}",
-				locator1 = "Link#WEB_CONTENT_ARTICLE",
-				value1 = "${webContentTitle}");
-		}
+		PageEditorMapping.mapEditableFieldToAsset(
+			entryTitle = "${entryTitle}",
+			navItem = "${navItem}");
 
 		Select(
 			locator1 = "PageEditorEditableLink#LAYOUT_BACKGROUND_IMAGE_FIELD",
@@ -654,6 +639,17 @@ definition {
 					key_fragmentComment = "${fragmentComment}",
 					locator1 = "PageEditor#FRAGMENT_SIDEBAR_COMMENT_ENTRY_HIGHLIGHTED",
 					value1 = "${fragmentComment}");
+			}
+
+			else if (isSet(mentionsUserScreenName)) {
+				AssertTextEquals(
+					key_fragmentComment = "${fragmentComment}",
+					locator1 = "PageEditor#FRAGMENT_SIDEBAR_COMMENT_ENTRY",
+					value1 = "${fragmentComment}@${mentionsUserScreenName}");
+
+				Mentions.viewMentionTagLink(
+					mentionsUserFullName = "${mentionsUserFullName}",
+					mentionsUserScreenName = "${mentionsUserScreenName}");
 			}
 
 			else {

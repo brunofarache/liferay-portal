@@ -107,6 +107,11 @@ public interface DEDataDefinitionFieldLinkLocalService
 			long deDataDefinitionFieldLinkId)
 		throws PortalException;
 
+	public void deleteDEDataDefinitionFieldLinks(long ddmStructureId);
+
+	public void deleteDEDataDefinitionFieldLinks(
+		long classNameId, long classPK);
+
 	/**
 	 * @throws PortalException
 	 */
@@ -239,6 +244,10 @@ public interface DEDataDefinitionFieldLinkLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<DEDataDefinitionFieldLink> getDEDataDefinitionFieldLinks(
 		int start, int end);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<DEDataDefinitionFieldLink> getDEDataDefinitionFieldLinks(
+		long classNameId, long ddmStructureId, String fieldName);
 
 	/**
 	 * Returns the number of de data definition field links.

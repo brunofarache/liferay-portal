@@ -85,19 +85,6 @@ public interface DDMStructureLayoutLocalService
 			DDMFormLayout ddmFormLayout, ServiceContext serviceContext)
 		throws PortalException;
 
-	/**
-	 * @deprecated As of Mueller (7.2.x), replaced by {@link
-	 #addStructureLayout(long, long, long, long, Map, Map, String,
-	 String, ServiceContext)}
-	 */
-	@Deprecated
-	@Indexable(type = IndexableType.REINDEX)
-	public DDMStructureLayout addStructureLayout(
-			long userId, long groupId, long structureVersionId,
-			Map<Locale, String> name, Map<Locale, String> description,
-			String definition, ServiceContext serviceContext)
-		throws PortalException;
-
 	@Indexable(type = IndexableType.REINDEX)
 	public DDMStructureLayout addStructureLayout(
 			long userId, long groupId, long classNameId,
@@ -361,6 +348,10 @@ public interface DDMStructureLayoutLocalService
 	public List<DDMStructureLayout> getStructureLayouts(
 		long groupId, long classNameId, int start, int end,
 		OrderByComparator<DDMStructureLayout> orderByComparator);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<DDMStructureLayout> getStructureLayouts(
+		long groupId, long classNameId, long structureVersionId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<DDMStructureLayout> getStructureLayouts(

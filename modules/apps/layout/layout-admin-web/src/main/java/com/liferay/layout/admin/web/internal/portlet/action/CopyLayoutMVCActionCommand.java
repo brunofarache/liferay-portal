@@ -15,11 +15,11 @@
 package com.liferay.layout.admin.web.internal.portlet.action;
 
 import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
+import com.liferay.layout.admin.web.internal.handler.LayoutExceptionRequestHandler;
 import com.liferay.layout.util.LayoutCopyHelper;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Layout;
@@ -31,8 +31,10 @@ import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.LayoutService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
+import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -80,11 +82,12 @@ public class CopyLayoutMVCActionCommand extends BaseMVCActionCommand {
 		long groupId = ParamUtil.getLong(actionRequest, "groupId");
 		boolean privateLayout = ParamUtil.getBoolean(
 			actionRequest, "privateLayout");
+
 		String name = ParamUtil.getString(actionRequest, "name");
 
-		Map<Locale, String> nameMap = new HashMap<>();
-
-		nameMap.put(themeDisplay.getLocale(), name);
+		Map<Locale, String> nameMap = HashMapBuilder.<Locale, String>put(
+			themeDisplay.getLocale(), name
+		).build();
 
 		if (!Objects.equals(
 				themeDisplay.getLocale(), LocaleUtil.getSiteDefault())) {
@@ -152,13 +155,12 @@ public class CopyLayoutMVCActionCommand extends BaseMVCActionCommand {
 				_log.debug(pe, pe);
 			}
 
-			jsonObject.put(
-				"error",
-				LanguageUtil.get(
-					themeDisplay.getLocale(), "an-unexpected-error-occurred"));
+			SessionErrors.add(actionRequest, "layoutNameInvalid");
 
-			JSONPortletResponseUtil.writeJSON(
-				actionRequest, actionResponse, jsonObject);
+			hideDefaultErrorMessage(actionRequest);
+
+			_layoutExceptionRequestHandler.handlePortalException(
+				actionRequest, actionResponse, pe);
 		}
 	}
 
@@ -167,6 +169,9 @@ public class CopyLayoutMVCActionCommand extends BaseMVCActionCommand {
 
 	@Reference
 	private LayoutCopyHelper _layoutCopyHelper;
+
+	@Reference
+	private LayoutExceptionRequestHandler _layoutExceptionRequestHandler;
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;

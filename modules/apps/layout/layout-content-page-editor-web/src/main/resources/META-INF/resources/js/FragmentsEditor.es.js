@@ -19,6 +19,8 @@ import {Config} from 'metal-state';
 
 import './components/fragment_entry_link/FragmentEntryLinkList.es';
 
+import './components/master_page/MasterFragmentEntryLinkList.es';
+
 import './components/sidebar/FragmentsEditorSidebar.es';
 
 import './components/toolbar/FragmentsEditorToolbar.es';
@@ -105,15 +107,10 @@ class FragmentsEditor extends Component {
 			this
 		);
 
-		if (this.hasUpdatePermissions) {
-			document.addEventListener('click', this._handleDocumentClick, true);
-			document.addEventListener('keydown', this._handleDocumentKeyDown);
-			document.addEventListener('keyup', this._handleDocumentKeyUp);
-			document.addEventListener(
-				'mouseover',
-				this._handleDocumentMouseOver
-			);
-		}
+		document.addEventListener('click', this._handleDocumentClick, true);
+		document.addEventListener('keydown', this._handleDocumentKeyDown);
+		document.addEventListener('keyup', this._handleDocumentKeyUp);
+		document.addEventListener('mouseover', this._handleDocumentMouseOver);
 	}
 
 	/**

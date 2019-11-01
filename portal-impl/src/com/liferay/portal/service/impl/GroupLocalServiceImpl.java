@@ -43,6 +43,7 @@ import com.liferay.portal.kernel.exception.GroupInheritContentException;
 import com.liferay.portal.kernel.exception.GroupKeyException;
 import com.liferay.portal.kernel.exception.GroupParentException;
 import com.liferay.portal.kernel.exception.LocaleException;
+import com.liferay.portal.kernel.exception.NoSuchCompanyException;
 import com.liferay.portal.kernel.exception.NoSuchGroupException;
 import com.liferay.portal.kernel.exception.NoSuchLayoutSetException;
 import com.liferay.portal.kernel.exception.PendingBackgroundTaskException;
@@ -104,6 +105,7 @@ import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.GroupThreadLocal;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
@@ -654,9 +656,9 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			return layout.getScopeGroup();
 		}
 
-		Map<Locale, String> nameMap = new HashMap<>();
-
-		nameMap.put(LocaleUtil.getDefault(), String.valueOf(layout.getPlid()));
+		Map<Locale, String> nameMap = HashMapBuilder.<Locale, String>put(
+			LocaleUtil.getDefault(), String.valueOf(layout.getPlid())
+		).build();
 
 		return groupLocalService.addGroup(
 			userId, GroupConstants.DEFAULT_PARENT_GROUP_ID,
@@ -1965,20 +1967,6 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	@Override
 	public List<Group> getLiveGroups() {
 		return groupFinder.findByLiveGroups();
-	}
-
-	/**
-	 * Returns all non-system groups having <code>null</code> or empty friendly
-	 * URLs.
-	 *
-	 * @return     the non-system groups having <code>null</code> or empty
-	 *             friendly URLs
-	 * @deprecated As of Judson (7.1.x), with no direct replacement
-	 */
-	@Deprecated
-	@Override
-	public List<Group> getNullFriendlyURLGroups() {
-		return groupFinder.findByNullFriendlyURL();
 	}
 
 	/**
@@ -4000,20 +3988,20 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		User defaultUser = userLocalService.getDefaultUser(
 			group.getCompanyId());
 
-		Map<String, String[]> parameterMap = new HashMap<>();
-
-		parameterMap.put(
-			PortletDataHandlerKeys.PERMISSIONS,
-			new String[] {Boolean.TRUE.toString()});
-		parameterMap.put(
-			PortletDataHandlerKeys.PORTLET_CONFIGURATION,
-			new String[] {Boolean.TRUE.toString()});
-		parameterMap.put(
-			PortletDataHandlerKeys.PORTLET_DATA,
-			new String[] {Boolean.TRUE.toString()});
-		parameterMap.put(
-			PortletDataHandlerKeys.PORTLET_DATA_CONTROL_DEFAULT,
-			new String[] {Boolean.TRUE.toString()});
+		Map<String, String[]> parameterMap =
+			HashMapBuilder.<String, String[]>put(
+				PortletDataHandlerKeys.PERMISSIONS,
+				new String[] {Boolean.TRUE.toString()}
+			).put(
+				PortletDataHandlerKeys.PORTLET_CONFIGURATION,
+				new String[] {Boolean.TRUE.toString()}
+			).put(
+				PortletDataHandlerKeys.PORTLET_DATA,
+				new String[] {Boolean.TRUE.toString()}
+			).put(
+				PortletDataHandlerKeys.PORTLET_DATA_CONTROL_DEFAULT,
+				new String[] {Boolean.TRUE.toString()}
+			).build();
 
 		Map<String, Serializable> importLayoutSettingsMap =
 			ExportImportConfigurationSettingsMapFactoryUtil.
@@ -4389,7 +4377,10 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			return friendlyURL;
 		}
 
-		friendlyURL = StringPool.SLASH + getFriendlyURL(friendlyName);
+		String safeFriendlyName = StringUtil.removeChars(
+			friendlyName, CharPool.PERCENT);
+
+		friendlyURL = StringPool.SLASH + getFriendlyURL(safeFriendlyName);
 
 		return getValidatedFriendlyURL(
 			companyId, groupId, classNameId, classPK, friendlyURL);
@@ -4937,10 +4928,17 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		}
 
 		if (site) {
-			Company company = companyLocalService.getCompany(companyId);
+			try {
+				Company company = companyLocalService.getCompany(companyId);
 
-			if (groupKey.equals(company.getName())) {
-				throw new DuplicateGroupException();
+				if (groupKey.equals(company.getName())) {
+					throw new DuplicateGroupException();
+				}
+			}
+			catch (NoSuchCompanyException nsce) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(nsce, nsce);
+				}
 			}
 		}
 	}

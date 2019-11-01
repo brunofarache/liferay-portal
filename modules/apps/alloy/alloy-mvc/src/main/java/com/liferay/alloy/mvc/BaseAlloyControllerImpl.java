@@ -79,6 +79,7 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -330,19 +331,6 @@ public abstract class BaseAlloyControllerImpl implements AlloyController {
 				baseModelIndexer.reindex(baseModel);
 			}
 		}
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x), as of 7.1.x, with no direct replacement
-	 */
-	@Deprecated
-	@SuppressWarnings("unused")
-	@Transactional(
-		isolation = Isolation.PORTAL, propagation = Propagation.REQUIRES_NEW,
-		rollbackFor = Exception.class
-	)
-	public void invoke(Method method) throws Exception {
-		method.invoke(this);
 	}
 
 	@Override
@@ -1510,9 +1498,9 @@ public abstract class BaseAlloyControllerImpl implements AlloyController {
 			portlet.getPortletId() + SessionMessages.KEY_SUFFIX_REFRESH_PORTLET,
 			portlet.getPortletId());
 
-		Map<String, String> data = new HashMap<>();
-
-		data.put("addSuccessMessage", StringPool.TRUE);
+		Map<String, String> data = HashMapBuilder.put(
+			"addSuccessMessage", StringPool.TRUE
+		).build();
 
 		SessionMessages.add(
 			request,

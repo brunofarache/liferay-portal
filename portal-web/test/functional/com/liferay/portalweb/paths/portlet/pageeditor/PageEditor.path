@@ -136,22 +136,17 @@
 </tr>
 <tr>
 	<td>FRAGMENT_SIDEBAR_COLLECTION_PANEL</td>
-	<td>//div[contains(@class,'fragments-editor-sidebar-section')]//*[normalize-space()='${key_collectionName}']</td>
+	<td>//button[normalize-space()='${key_collectionName}']</td>
 	<td></td>
 </tr>
 <tr>
 	<td>FRAGMENT_SIDEBAR_COLLECTION_PANEL_COLLAPSED</td>
-	<td>//div[contains(@class,'fragments-editor-sidebar-section')]//a[contains(@class,'collapsed')][normalize-space()='${key_collectionName}'] | //button[@aria-expanded='false'][normalize-space()='${key_collectionName}']</td>
+	<td>//button[@aria-expanded='false'][normalize-space()='${key_collectionName}']</td>
 	<td></td>
 </tr>
 <tr>
 	<td>FRAGMENT_SIDEBAR_COLLECTION_PANEL_EXPANDED</td>
-	<td>//div[contains(@class,'fragments-editor-sidebar-section')]//*[@aria-expanded='true'][normalize-space()='${key_collectionName}']</td>
-	<td></td>
-</tr>
-<tr>
-	<td>FRAGMENT_SIDEBAR_ADD_FRAGMENT_BUTTON</td>
-	<td>//button[@data-item-name='${key_fragmentName}']</td>
+	<td>//button[@aria-expanded='true'][normalize-space()='${key_collectionName}']</td>
 	<td></td>
 </tr>
 <tr>
@@ -299,13 +294,8 @@
 	<td></td>
 </tr>
 <tr>
-	<td>EDITABLE_FIELD_TOOLBAR_MAP_DROPDOWN</td>
-	<td>//button[contains(@id,'asset-select-button')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>EDITABLE_FIELD_TOOLBAR_MAP_DROPDOWN_ASSET</td>
-	<td>//button[contains(@class,'dropdown-item') and @data-asset-browser-window-title='${key_assetField}']</td>
+	<td>EDITABLE_FIELD_TOOLBAR_MAP_ASSET_SELECT_POPUP_BUTTON</td>
+	<td>//div[contains(@class,'asset-select')]//button</td>
 	<td></td>
 </tr>
 <tr>
@@ -330,8 +320,8 @@
 </tr>
 <!--SECTION_BUILDER-->
 <tr>
-	<td>SECTION_BUILDER_BASIC_COMPONENTS_FRAGMENT</td>
-	<td>//div[contains(@data-item-id,'BASIC_COMPONENT-button') and contains(@data-item-name,'${fragmentName}')]</td>
+	<td>SECTION_BUILDER_FRAGMENTS</td>
+	<td>//div[contains(@data-item-name,'${fragmentName}')]</td>
 	<td></td>
 </tr>
 <tr>

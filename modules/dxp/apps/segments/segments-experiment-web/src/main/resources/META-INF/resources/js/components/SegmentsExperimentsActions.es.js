@@ -1,23 +1,23 @@
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
- *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
+ * The contents of this file are subject to the terms of the Liferay Enterprise
+ * Subscription License ("License"). You may not use this file except in
+ * compliance with the License. You can obtain a copy of the License by
+ * contacting Liferay, Inc. See the License for the specific language governing
+ * permissions and limitations under the License, including but not limited to
+ * distribution rights of the Software.
  */
 
-import React, {useState, useContext} from 'react';
-import PropTypes from 'prop-types';
 import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
 import ClayLink from '@clayui/link';
-import {ReviewExperimentModal} from './ReviewExperimentModal.es';
+import {useModal} from '@clayui/modal';
+import PropTypes from 'prop-types';
+import React, {useState, useContext} from 'react';
+
+import SegmentsExperimentsContext from '../context.es';
+import {updateSegmentsExperiment, updateVariants} from '../state/actions.es';
 import {
 	STATUS_COMPLETED,
 	STATUS_DRAFT,
@@ -27,9 +27,8 @@ import {
 	STATUS_RUNNING,
 	STATUS_TERMINATED
 } from '../util/statuses.es';
-import SegmentsExperimentsContext from '../context.es';
-import {updateSegmentsExperiment, updateVariants} from '../state/actions.es';
 import {StateContext, DispatchContext} from './../state/context.es';
+import {ReviewExperimentModal} from './ReviewExperimentModal.es';
 
 function _experimentReady(experiment, variants) {
 	if (variants.length <= 1) return false;
@@ -39,10 +38,13 @@ function _experimentReady(experiment, variants) {
 }
 
 function SegmentsExperimentsActions({onEditSegmentsExperimentStatus}) {
-	const {variants, experiment, viewExperimentURL} = useContext(StateContext);
+	const {experiment, variants, viewExperimentURL} = useContext(StateContext);
 	const dispatch = useContext(DispatchContext);
 
 	const [reviewModalVisible, setReviewModalVisible] = useState(false);
+	const {observer, onClose} = useModal({
+		onClose: () => setReviewModalVisible(false)
+	});
 	const {APIService} = useContext(SegmentsExperimentsContext);
 
 	const readyToRun = _experimentReady(experiment, variants);
@@ -121,15 +123,15 @@ function SegmentsExperimentsActions({onEditSegmentsExperimentStatus}) {
 
 			{reviewModalVisible && (
 				<ReviewExperimentModal
+					modalObserver={observer}
+					onModalClose={onClose}
 					onRun={_handleRunExperiment}
-					setVisible={setReviewModalVisible}
 					variants={variants}
-					visible={reviewModalVisible}
 				/>
 			)}
 			{viewExperimentURL && (
 				<ClayLink
-					className="btn btn-secondary btn-sm w-100 mt-3"
+					className="btn btn-secondary btn-sm mt-3 w-100"
 					displayType="secondary"
 					href={viewExperimentURL}
 					target="_blank"
@@ -141,7 +143,7 @@ function SegmentsExperimentsActions({onEditSegmentsExperimentStatus}) {
 		</>
 	);
 
-	function _handleRunExperiment({splitVariantsMap, confidenceLevel}) {
+	function _handleRunExperiment({confidenceLevel, splitVariantsMap}) {
 		const body = {
 			confidenceLevel,
 			segmentsExperimentId: experiment.segmentsExperimentId,
@@ -149,7 +151,7 @@ function SegmentsExperimentsActions({onEditSegmentsExperimentStatus}) {
 			status: STATUS_RUNNING
 		};
 
-		return APIService.runExperiment(body).then(function(response) {
+		return APIService.runExperiment(body).then(response => {
 			const {segmentsExperiment} = response;
 			const updatedVariants = variants.map(variant => ({
 				...variant,

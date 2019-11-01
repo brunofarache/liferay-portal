@@ -19,6 +19,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -42,7 +43,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -435,16 +435,16 @@ public class ModulesStructureTest {
 
 	@Test
 	public void testScanLog4JConfigurationXML() throws IOException {
-		final Map<String, String> renameMap = new HashMap<>();
-
-		renameMap.put(
+		final Map<String, String> renameMap = HashMapBuilder.put(
 			"src/main/resources/META-INF/portal-log4j-ext.xml",
-			"module-log4j-ext.xml");
-		renameMap.put(
-			"src/main/resources/META-INF/portal-log4j.xml", "module-log4j.xml");
-		renameMap.put(
-			"src/META-INF/portal-log4j-ext.xml", "module-log4j-ext.xml");
-		renameMap.put("src/META-INF/portal-log4j.xml", "module-log4j.xml");
+			"module-log4j-ext.xml"
+		).put(
+			"src/main/resources/META-INF/portal-log4j.xml", "module-log4j.xml"
+		).put(
+			"src/META-INF/portal-log4j-ext.xml", "module-log4j-ext.xml"
+		).put(
+			"src/META-INF/portal-log4j.xml", "module-log4j.xml"
+		).build();
 
 		Files.walkFileTree(
 			_modulesDirPath,
@@ -814,6 +814,10 @@ public class ModulesStructureTest {
 		return false;
 	}
 
+	private boolean _isInDXPModulesDir(Path dirPath) {
+		return _isInModulesRootDir(dirPath, "dxp");
+	}
+
 	private boolean _isInGitRepoReadOnly(Path dirPath) throws IOException {
 		Path gitRepoPath = _getGitRepoPath(dirPath);
 
@@ -1023,6 +1027,7 @@ public class ModulesStructureTest {
 			return;
 		}
 
+		boolean dxpRepo = _isInDXPModulesDir(dirPath);
 		boolean privateRepo = _isInPrivateModulesDir(dirPath);
 		boolean readOnlyRepo = _isInGitRepoReadOnly(dirPath);
 
@@ -1030,7 +1035,7 @@ public class ModulesStructureTest {
 		Path gradlePropertiesPath = dirPath.resolve("gradle.properties");
 		Path settingsGradlePath = dirPath.resolve("settings.gradle");
 
-		if (!privateRepo && !readOnlyRepo) {
+		if (!dxpRepo && !privateRepo && !readOnlyRepo) {
 			String buildGradle = ModulesStructureTestUtil.read(buildGradlePath);
 
 			Assert.assertEquals(
@@ -1102,17 +1107,17 @@ public class ModulesStructureTest {
 			else if (key.equals(_GIT_REPO_GRADLE_PROJECT_PATH_PREFIX_KEY)) {
 				projectPathPrefix = value;
 			}
-			else if (privateRepo &&
+			else if ((dxpRepo || privateRepo) &&
 					 key.equals(_GIT_REPO_GRADLE_REPOSITORY_PRIVATE_PASSWORD)) {
 
 				repositoryPrivatePassword = value;
 			}
-			else if (privateRepo &&
+			else if ((dxpRepo || privateRepo) &&
 					 key.equals(_GIT_REPO_GRADLE_REPOSITORY_PRIVATE_URL)) {
 
 				repositoryPrivateUrl = value;
 			}
-			else if (privateRepo &&
+			else if ((dxpRepo || privateRepo) &&
 					 key.equals(_GIT_REPO_GRADLE_REPOSITORY_PRIVATE_USERNAME)) {
 
 				repositoryPrivateUsername = value;
@@ -1135,7 +1140,7 @@ public class ModulesStructureTest {
 				allowedKeys.add(_GIT_REPO_GRADLE_PROJECT_GROUP_KEY);
 				allowedKeys.add(_GIT_REPO_GRADLE_PROJECT_PATH_PREFIX_KEY);
 
-				if (privateRepo) {
+				if (dxpRepo || privateRepo) {
 					allowedKeys.add(
 						_GIT_REPO_GRADLE_REPOSITORY_PRIVATE_PASSWORD);
 					allowedKeys.add(_GIT_REPO_GRADLE_REPOSITORY_PRIVATE_URL);
@@ -1178,7 +1183,9 @@ public class ModulesStructureTest {
 				"\" in ", String.valueOf(gradlePropertiesPath)),
 			_getProjectPathPrefix(dirPath), projectPathPrefix);
 
-		if (privateRepo) {
+		// TODO Remove the check for 7.0 once osb-loop and osb-testray are fixed
+
+		if (!_branchName.startsWith("7.0") && (dxpRepo || privateRepo)) {
 			_testGradleBuildProperty(
 				gradlePropertiesPath,
 				_GIT_REPO_GRADLE_REPOSITORY_PRIVATE_PASSWORD,
@@ -1199,7 +1206,7 @@ public class ModulesStructureTest {
 					"apply from: \"settings-ext.gradle\"");
 		}
 
-		if (!privateRepo && !readOnlyRepo) {
+		if (!dxpRepo && !privateRepo && !readOnlyRepo) {
 			String settingsGradle = ModulesStructureTestUtil.read(
 				settingsGradlePath);
 
@@ -1495,7 +1502,10 @@ public class ModulesStructureTest {
 
 			sb.append(".releng/");
 
-			if (_isInPrivateModulesDir(dirPath)) {
+			if (_isInDXPModulesDir(dirPath)) {
+				sb.append("dxp/");
+			}
+			else if (_isInPrivateModulesDir(dirPath)) {
 				sb.append("private/");
 			}
 

@@ -16,7 +16,9 @@ package com.liferay.depot.web.internal.portlet.action;
 
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryLocalService;
+import com.liferay.depot.web.internal.constants.DepotAdminWebKeys;
 import com.liferay.depot.web.internal.constants.DepotPortletKeys;
+import com.liferay.item.selector.ItemSelector;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -32,7 +34,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alejandro Tardín
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + DepotPortletKeys.DEPOT_ADMIN,
 		"mvc.command.name=/depot_entry/edit"
@@ -50,7 +51,11 @@ public class EditDepotEntryMVCRenderCommand implements MVCRenderCommand {
 			DepotEntry depotEntry = _depotEntryLocalService.getDepotEntry(
 				ParamUtil.getLong(renderRequest, "depotEntryId"));
 
-			renderRequest.setAttribute("depotEntry", depotEntry);
+			renderRequest.setAttribute(
+				DepotAdminWebKeys.DEPOT_ENTRY, depotEntry);
+
+			renderRequest.setAttribute(
+				DepotAdminWebKeys.ITEM_SELECTOR, _itemSelector);
 
 			return "/edit_depot_entry.jsp";
 		}
@@ -61,5 +66,8 @@ public class EditDepotEntryMVCRenderCommand implements MVCRenderCommand {
 
 	@Reference
 	private DepotEntryLocalService _depotEntryLocalService;
+
+	@Reference
+	private ItemSelector _itemSelector;
 
 }

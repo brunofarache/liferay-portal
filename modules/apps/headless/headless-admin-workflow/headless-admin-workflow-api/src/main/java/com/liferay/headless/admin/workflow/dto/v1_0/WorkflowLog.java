@@ -14,9 +14,11 @@
 
 package com.liferay.headless.admin.workflow.dto.v1_0;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
@@ -49,6 +51,41 @@ import javax.xml.bind.annotation.XmlRootElement;
 @JsonFilter("Liferay.Vulcan")
 @XmlRootElement(name = "WorkflowLog")
 public class WorkflowLog {
+
+	@GraphQLName("Type")
+	public static enum Type {
+
+		TASK_ASSIGN("TaskAssign"), TASK_COMPLETION("TaskCompletion"),
+		TASK_UPDATE("TaskUpdate"), TRANSITION("Transition");
+
+		@JsonCreator
+		public static Type create(String value) {
+			for (Type type : values()) {
+				if (Objects.equals(type.getValue(), value)) {
+					return type;
+				}
+			}
+
+			return null;
+		}
+
+		@JsonValue
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private Type(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
+	}
 
 	@Schema(
 		description = "The user account of the person auditing the workflow."
@@ -221,6 +258,35 @@ public class WorkflowLog {
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	protected Creator previousPerson;
 
+	@Schema
+	@Valid
+	public Role getPreviousRole() {
+		return previousRole;
+	}
+
+	public void setPreviousRole(Role previousRole) {
+		this.previousRole = previousRole;
+	}
+
+	@JsonIgnore
+	public void setPreviousRole(
+		UnsafeSupplier<Role, Exception> previousRoleUnsafeSupplier) {
+
+		try {
+			previousRole = previousRoleUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected Role previousRole;
+
 	@Schema(description = "The workflow's previous state.")
 	public String getPreviousState() {
 		return previousState;
@@ -248,6 +314,33 @@ public class WorkflowLog {
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	protected String previousState;
+
+	@Schema
+	@Valid
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
+	}
+
+	@JsonIgnore
+	public void setRole(UnsafeSupplier<Role, Exception> roleUnsafeSupplier) {
+		try {
+			role = roleUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected Role role;
 
 	@Schema(description = "The workflow's current state.")
 	public String getState() {
@@ -306,16 +399,26 @@ public class WorkflowLog {
 	protected Long taskId;
 
 	@Schema(description = "The workflow log's type.")
-	public String getType() {
+	@Valid
+	public Type getType() {
 		return type;
 	}
 
-	public void setType(String type) {
+	@JsonIgnore
+	public String getTypeAsString() {
+		if (type == null) {
+			return null;
+		}
+
+		return type.toString();
+	}
+
+	public void setType(Type type) {
 		this.type = type;
 	}
 
 	@JsonIgnore
-	public void setType(UnsafeSupplier<String, Exception> typeUnsafeSupplier) {
+	public void setType(UnsafeSupplier<Type, Exception> typeUnsafeSupplier) {
 		try {
 			type = typeUnsafeSupplier.get();
 		}
@@ -329,7 +432,7 @@ public class WorkflowLog {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
-	protected String type;
+	protected Type type;
 
 	@Override
 	public boolean equals(Object object) {
@@ -429,6 +532,16 @@ public class WorkflowLog {
 			sb.append(String.valueOf(previousPerson));
 		}
 
+		if (previousRole != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"previousRole\": ");
+
+			sb.append(String.valueOf(previousRole));
+		}
+
 		if (previousState != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -441,6 +554,16 @@ public class WorkflowLog {
 			sb.append(_escape(previousState));
 
 			sb.append("\"");
+		}
+
+		if (role != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"role\": ");
+
+			sb.append(String.valueOf(role));
 		}
 
 		if (state != null) {
@@ -476,7 +599,7 @@ public class WorkflowLog {
 
 			sb.append("\"");
 
-			sb.append(_escape(type));
+			sb.append(type);
 
 			sb.append("\"");
 		}

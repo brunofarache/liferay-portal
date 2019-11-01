@@ -381,6 +381,15 @@ mariadb.executable=${mariadb.executable}]]></echo>
 						<then>
 							<start-docker-database />
 						</then>
+						<elseif>
+							<and>
+								<equals arg1="@{database.type}" arg2="oracle" />
+								<equals arg1="@{database.version}" arg2="19.3.0.0.0" />
+							</and>
+							<then>
+								<fail message="Unsupported database: @{database.type}-@{database.version}" />
+							</then>
+						</elseif>
 						<else>
 							<exec executable="${database.service.executable}" resultproperty="exec.result">
 								<arg line="${database.service.cmd.start}" />
@@ -503,6 +512,12 @@ mariadb.executable=${mariadb.executable}]]></echo>
 
 					public List getTestUtilModules() {
 						List appBndFiles = findFiles(new File(projectDir, "modules/apps"), ".+/app.bnd");
+
+						File dxpAppsDir = new File(projectDir, "modules/dxp/apps");
+
+						if (dxpAppsDir.exists()) {
+							appBndFiles.addAll(findFiles(dxpAppsDir, ".+/app.bnd"));
+						}
 
 						File privateAppsDir = new File(projectDir, "modules/private/apps");
 
@@ -1631,6 +1646,8 @@ app.server.type=@{app.server.type}]]></echo>
 				<test-action>
 					<database-test-run-test database.type="mysql" stop.app.server="true">
 						<test-action>
+							<antcall inheritAll="false" target="setup-profile-dxp" />
+
 							<antcall inheritAll="false" target="prepare-log4j-ext-xml">
 								<param name="database.type" value="@{database.type}" />
 							</antcall>
@@ -1790,6 +1807,8 @@ com.liferay.portal.kernel.util.ServiceProxyFactory.timeout=300000</echo>
 				<test-action>
 					<database-test-run-test database.type="mysql" stop.app.server="true">
 						<test-action>
+							<antcall inheritAll="false" target="setup-profile-dxp" />
+
 							<antcall inheritAll="false" target="prepare-log4j-ext-xml">
 								<param name="database.type" value="@{database.type}" />
 							</antcall>
@@ -1808,6 +1827,7 @@ com.liferay.portal.kernel.util.ServiceProxyFactory.timeout=300000</echo>
 										dir="modules"
 									>
 										<include name="apps/*" />
+										<include name="dxp/apps/*" />
 										<include name="private/apps/*" />
 										<exclude name="${build.exclude.dirs}" />
 										<exclude name="apps/static" />
@@ -2122,6 +2142,8 @@ log.sanitizer.enabled=false</echo>
 				<test-action>
 					<database-test-run-test database.type="mysql" stop.app.server="true">
 						<test-action>
+							<antcall inheritAll="false" target="setup-profile-dxp" />
+
 							<antcall inheritAll="false" target="prepare-log4j-ext-xml">
 								<param name="database.type" value="@{database.type}" />
 							</antcall>
@@ -2708,6 +2730,8 @@ log.sanitizer.enabled=false</echo>
 		<attribute name="database.type" />
 
 		<sequential>
+			<antcall inheritAll="false" target="setup-profile-dxp" />
+
 			<antcall inheritAll="false" target="prepare-log4j-ext-xml">
 				<param name="database.type" value="@{database.type}" />
 			</antcall>
@@ -3012,6 +3036,95 @@ log.sanitizer.enabled=false</echo>
 			</exec>
 
 			<delete file="${docker.start.script}" />
+
+			<if>
+				<or>
+					<equals arg1="${database.type}" arg2="mariadb" />
+					<equals arg1="${database.type}" arg2="mysql" />
+				</or>
+				<then>
+					<property location="${project.dir}/setup.sh" name="setup.sh.file" />
+
+					<local name="database.name" />
+
+					<condition else="MariaDB" property="database.name" value="MySQL">
+						<equals arg1="${database.type}" arg2="mysql" />
+					</condition>
+
+					<get-database-property property.name="database.version" />
+
+					<echo file="${setup.sh.file}">
+						<![CDATA[
+							#!/bin/bash
+
+							while ! mysqladmin ping --host=localhost --silent
+							do
+								echo "Waiting for ${database.name} ${database.version} to be ready"
+
+								sleep 10
+							done
+						]]>
+					</echo>
+
+					<get-database-property property.name="database.host" />
+
+					<execute failonerror="false">
+						<![CDATA[
+							docker cp ${setup.sh.file} ${database.host}:/tmp/setup.sh
+
+							docker exec ${database.host} /bin/bash /tmp/setup.sh
+						]]>
+					</execute>
+				</then>
+				<elseif>
+					<equals arg1="${database.type}" arg2="oracle" />
+					<then>
+						<property location="${project.dir}/setup.sh" name="setup.sh.file" />
+
+						<get-database-property property.name="database.version" />
+
+						<echo file="${setup.sh.file}">
+							<![CDATA[
+								#!/bin/bash
+
+								sqlplus ${oracle.admin.user}/${oracle.admin.password} @/tmp/setup.sql
+
+								while [[ "$(${ORACLE_HOME}/bin/lsnrctl status | grep READY)" == "" ]]
+								do
+									echo "Waiting for Oracle ${database.version} to be ready"
+
+									sleep 10
+								done
+
+								${ORACLE_HOME}/bin/lsnrctl status
+							]]>
+						</echo>
+
+						<property location="${project.dir}/setup.sql" name="setup.sql.file" />
+
+						<echo file="${setup.sql.file}">
+							<![CDATA[
+								alter system set result_cache_max_size=24M scope=spfile;
+								alter system set sga_target=4928M scope=spfile;
+								alter system set shared_pool_reserved_size=40M scope=spfile;
+
+								quit;
+							]]>
+						</echo>
+
+						<get-database-property property.name="database.host" />
+
+						<execute failonerror="false">
+							<![CDATA[
+								docker cp ${setup.sh.file} ${database.host}:/tmp/setup.sh
+								docker cp ${setup.sql.file} ${database.host}:/tmp/setup.sql
+
+								docker exec ${database.host} /bin/bash /tmp/setup.sh
+							]]>
+						</execute>
+					</then>
+				</elseif>
+			</if>
 		</sequential>
 	</macrodef>
 
@@ -3310,9 +3423,9 @@ log.sanitizer.enabled=false</echo>
 
 				<trycatch property="junit.failure.message">
 					<try>
-						<for keepgoing="true" list="check-upgrade-client-gogoshell,check-upgrade-client-help,check-upgrade-client-java-version,check-upgrade-client-custom-log,check-upgrade-client-additional-settings,check-upgrade-client-upgrade-core-only,check-upgrade-client-zip-content" param="upgrade.test.target">
+						<for keepgoing="true" list="check-upgrade-client-gogoshell,check-upgrade-client-help,check-upgrade-client-java-version,check-upgrade-client-custom-log,check-upgrade-client-additional-settings,check-upgrade-client-sh-disconnect,check-upgrade-client-upgrade-core-only,check-upgrade-client-zip-content,check-upgrade-properties-app-db-set,check-upgrade-properties-app-ext-set,check-upgrade-properties-db-ext-set,check-upgrade-properties-none-set" param="upgrade.test.target">
 							<sequential>
-								<ant antfile="build-test-db-upgrade-client.xml" target="@{upgrade.test.target}" />
+								<ant antfile="modules/util/portal-tools-db-upgrade-client/src/testFunctional/ant/build-test-db-upgrade-client.xml" target="@{upgrade.test.target}" />
 							</sequential>
 						</for>
 					</try>
@@ -3616,6 +3729,26 @@ log.sanitizer.enabled=false</echo>
 		/>
 	</target>
 
+	<target name="functional-bundle-tomcat-oracle193-jdk8">
+		<set-tomcat-version-number liferay.portal.bundle="${test.portal.bundle.version}" />
+
+		<run-functional-test
+			app.server.type="tomcat"
+			database.type="oracle"
+			database.version="19.3.0.0.0"
+			setup.proxy="false"
+			test.build.fix.pack.zip.url="${test.build.fix.pack.zip.url}"
+			test.fix.pack.base.url="${test.fix.pack.base.url}"
+			test.license.xml.url="${test.license.xml.url}"
+			test.plugin.zip.url="${test.plugin.zip.url}"
+			test.plugins.war.zip.url="${test.plugins.war.zip.url}"
+			test.portal.bundle.version="${test.portal.bundle.version}"
+			test.portal.bundle.zip.url="${test.portal.bundle.zip.url}"
+			test.portal.lpkg.name="${test.portal.lpkg.name}"
+			test.sql.zip.url="${test.sql.zip.url}"
+		/>
+	</target>
+
 	<target name="functional-bundle-tomcat-postgresql10-jdk8">
 		<set-tomcat-version-number liferay.portal.bundle="${test.portal.bundle.version}" />
 
@@ -3825,6 +3958,14 @@ log.sanitizer.enabled=false</echo>
 		<run-functional-test app.server.type="tomcat" database.type="oracle" test.portal.log.assert="true" />
 	</target>
 
+	<target name="functional-smoke-tomcat90-oracle193-jdk8">
+		<run-functional-test app.server.type="tomcat" database.type="oracle" database.version="19.3.0.0.0" test.portal.log.assert="true" />
+	</target>
+
+	<target name="functional-smoke-tomcat90-oracle193-jdk11_open">
+		<run-functional-test app.server.type="tomcat" database.type="oracle" database.version="19.3.0.0.0" test.portal.log.assert="true" />
+	</target>
+
 	<target name="functional-smoke-tomcat90-postgresql10-jdk8">
 		<run-functional-test app.server.type="tomcat" database.type="postgresql" test.portal.log.assert="true" />
 	</target>
@@ -3917,6 +4058,14 @@ log.sanitizer.enabled=false</echo>
 		<run-functional-test app.server.type="tomcat" database.type="oracle" />
 	</target>
 
+	<target name="functional-tomcat90-oracle193-jdk8">
+		<run-functional-test app.server.type="tomcat" database.type="oracle" database.version="19.3.0.0.0" />
+	</target>
+
+	<target name="functional-tomcat90-oracle193-jdk11_open">
+		<run-functional-test app.server.type="tomcat" database.type="oracle" database.version="19.3.0.0.0" />
+	</target>
+
 	<target name="functional-tomcat90-postgresql10-jdk8">
 		<run-functional-test app.server.type="tomcat" database.type="postgresql" />
 	</target>
@@ -3981,6 +4130,14 @@ log.sanitizer.enabled=false</echo>
 		<run-functional-test app.server.type="tomcat" database.type="oracle" />
 	</target>
 
+	<target name="functional-upgrade-tomcat90-oracle193-jdk8">
+		<run-functional-test app.server.type="tomcat" database.type="oracle" database.version="19.3.0.0.0" />
+	</target>
+
+	<target name="functional-upgrade-tomcat90-oracle193-jdk11_open">
+		<run-functional-test app.server.type="tomcat" database.type="oracle" database.version="19.3.0.0.0" />
+	</target>
+
 	<target name="functional-upgrade-tomcat90-postgresql10-jdk8">
 		<run-functional-test app.server.type="tomcat" database.type="postgresql" />
 	</target>
@@ -4023,6 +4180,10 @@ log.sanitizer.enabled=false</echo>
 
 	<target name="functional-weblogic122-oracle122-jdk8">
 		<run-functional-test app.server.type="weblogic" database.type="oracle" />
+	</target>
+
+	<target name="functional-weblogic122-oracle193-jdk8">
+		<run-functional-test app.server.type="weblogic" database.type="oracle" database.version="19.3.0.0.0" />
 	</target>
 
 	<target name="functional-wildfly160-mariadb102-jdk8">
@@ -4073,7 +4234,7 @@ log.sanitizer.enabled=false</echo>
 					<path>
 						<dirset
 							dir="modules"
-							excludes="private/**,node_modules/**,**/node_modules/**,${base.dir}/**/test/stories/**"
+							excludes="dxp/**,node_modules/**,**/node_modules/**,${base.dir}/**/test/stories/**"
 							includes="**/test"
 						/>
 					</path>
@@ -4145,7 +4306,7 @@ log.sanitizer.enabled=false</echo>
 	<target name="js-unit-private-jdk8">
 		<run-batch-test>
 			<test-action>
-				<gradle-execute dir="modules/private" task="packageRunTest">
+				<gradle-execute dir="modules/dxp" task="packageRunTest">
 					<arg value="--continue" />
 					<arg value="--parallel" />
 					<arg value="-DpackageRunTest.ignore.failures=true" />
@@ -4528,6 +4689,44 @@ log.sanitizer.enabled=false</echo>
 		/>
 	</target>
 
+	<target name="modules-integration-bundle-oracle193-jdk8">
+		<set-tomcat-version-number liferay.portal.bundle="${test.portal.bundle.version}" />
+
+		<run-modules-integration-test
+			database.type="oracle"
+			database.version="19.3.0.0.0"
+			test.build.fix.pack.zip.url="${test.build.fix.pack.zip.url}"
+			test.fix.pack.base.url="${test.fix.pack.base.url}"
+			test.license.xml.url="${test.license.xml.url}"
+			test.portal.bundle.dependencies.zip.url="${test.portal.bundle.dependencies.zip.url}"
+			test.portal.bundle.osgi.zip.url="${test.portal.bundle.osgi.zip.url}"
+			test.portal.bundle.tools.zip.url="${test.portal.bundle.tools.zip.url}"
+			test.portal.bundle.version="${test.portal.bundle.version}"
+			test.portal.bundle.war.url="${test.portal.bundle.war.url}"
+			test.portal.bundle.zip.url="${test.portal.bundle.zip.url}"
+			test.sql.zip.url="${test.sql.zip.url}"
+		/>
+	</target>
+
+	<target name="modules-integration-bundle-oracle193-jdk11_open">
+		<set-tomcat-version-number liferay.portal.bundle="${test.portal.bundle.version}" />
+
+		<run-modules-integration-test
+			database.type="oracle"
+			database.version="19.3.0.0.0"
+			test.build.fix.pack.zip.url="${test.build.fix.pack.zip.url}"
+			test.fix.pack.base.url="${test.fix.pack.base.url}"
+			test.license.xml.url="${test.license.xml.url}"
+			test.portal.bundle.dependencies.zip.url="${test.portal.bundle.dependencies.zip.url}"
+			test.portal.bundle.osgi.zip.url="${test.portal.bundle.osgi.zip.url}"
+			test.portal.bundle.tools.zip.url="${test.portal.bundle.tools.zip.url}"
+			test.portal.bundle.version="${test.portal.bundle.version}"
+			test.portal.bundle.war.url="${test.portal.bundle.war.url}"
+			test.portal.bundle.zip.url="${test.portal.bundle.zip.url}"
+			test.sql.zip.url="${test.sql.zip.url}"
+		/>
+	</target>
+
 	<target name="modules-integration-bundle-postgresql10-jdk8">
 		<set-tomcat-version-number liferay.portal.bundle="${test.portal.bundle.version}" />
 
@@ -4644,6 +4843,14 @@ log.sanitizer.enabled=false</echo>
 		<run-modules-integration-test database.type="oracle" />
 	</target>
 
+	<target name="modules-integration-oracle193-jdk8">
+		<run-modules-integration-test database.type="oracle" database.version="19.3.0.0.0" />
+	</target>
+
+	<target name="modules-integration-oracle193-jdk11_open">
+		<run-modules-integration-test database.type="oracle" database.version="19.3.0.0.0" />
+	</target>
+
 	<target name="modules-integration-postgresql10-jdk8">
 		<run-modules-integration-test database.type="postgresql" />
 	</target>
@@ -4733,13 +4940,16 @@ log.sanitizer.enabled=false</echo>
 
 						<antcall inheritAll="false" target="install-portal-snapshots" />
 
-						<echo>tar --extract --file=liferay-portal-source.tar.gz modules/core/portal-bootstrap/build/system.packages.extra.mf --gzip --to-stdout --verbose > modules/core/portal-bootstrap/system.packages.extra.mf</echo>
+						<echo>tar --extract --file=liferay-portal-source.tar.gz modules/core/portal-bootstrap/build/system.packages.extra.mf --gzip --to-stdout --verbose > modules/core/portal-bootstrap/system.packages.extra.mf
+tar -zxvf liferay-portal-source.tar.gz --wildcards '*.profile-dxp.properties'</echo>
 
 						<execute>
 							<![CDATA[
 								mkdir -p modules/core/portal-bootstrap
 
 								tar --extract --file=liferay-portal-source.tar.gz modules/core/portal-bootstrap/build/system.packages.extra.mf --gzip --to-stdout --verbose > modules/core/portal-bootstrap/system.packages.extra.mf
+
+								tar -zxvf liferay-portal-source.tar.gz --wildcards '*.profile-dxp.properties'
 							]]>
 						</execute>
 					</then>
@@ -5423,12 +5633,15 @@ ${output.content}</echo>
 
 			<test-set-up>
 				<echo>tar --extract --file=liferay-portal-source.tar.gz modules/core/portal-bootstrap/build/system.packages.extra.mf --gzip --verbose
-tar --extract --file=liferay-portal-source.tar.gz modules/core/portal-bootstrap/lib/biz.aQute.bnd.annotation.jar --gzip --verbose</echo>
+tar --extract --file=liferay-portal-source.tar.gz modules/core/portal-bootstrap/lib/biz.aQute.bnd.annotation.jar --gzip --verbose
+tar -zxvf liferay-portal-source.tar.gz --wildcards '*.profile-dxp.properties'
+				</echo>
 
 				<execute>
 					<![CDATA[
 						tar --extract --file=liferay-portal-source.tar.gz modules/core/portal-bootstrap/build/system.packages.extra.mf --gzip --verbose
 						tar --extract --file=liferay-portal-source.tar.gz modules/core/portal-bootstrap/lib/biz.aQute.bnd.annotation.jar --gzip --verbose
+						tar -zxvf liferay-portal-source.tar.gz --wildcards '*.profile-dxp.properties'
 					]]>
 				</execute>
 

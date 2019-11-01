@@ -30,7 +30,7 @@ UnicodeProperties layoutTypeSettings = selLayout.getTypeSettingsProperties();
 <aui:model-context bean="<%= selLayout %>" model="<%= Layout.class %>" />
 
 <c:if test="<%= !StringUtil.equals(selLayout.getType(), LayoutConstants.TYPE_ASSET_DISPLAY) %>">
-	<aui:input id="title" label="html-title" name="title" placeholder="title" />
+	<aui:input id="title" label="html-title" name="title" placeholder="<%= layoutsAdminDisplayContext.getPageTitle() %>" />
 
 	<h4><liferay-ui:message key="meta-tags" /></h4>
 
@@ -45,19 +45,38 @@ UnicodeProperties layoutTypeSettings = selLayout.getTypeSettingsProperties();
 
 			<%
 			Map<String, Object> data = new HashMap<>();
-			Map<String, String> targetsIds = new HashMap<>();
 
-			targetsIds.put("description", "descriptionSEO");
-			targetsIds.put("title", "title");
+			data.put(
+				"targets",
+				JSONUtil.putAll(
+					JSONUtil.put(
+						"id", "canonicalURL"
+					).put(
+						"type", "canonicalURL"
+					).put(
+						"usePlaceholderAsFallback", true
+					),
+					JSONUtil.put(
+						"id", "descriptionSEO"
+					).put(
+						"type", "description"
+					).put(
+						"usePlaceholderAsFallback", false
+					),
+					JSONUtil.put(
+						"id", "title"
+					).put(
+						"type", "title"
+					).put(
+						"usePlaceholderAsFallback", true
+					)));
 
-			data.put("suffixTitle", StringPool.BLANK);
-			data.put("targetsIds", targetsIds);
-			data.put("url", StringPool.BLANK);
+			data.put("titleSuffix", layoutsAdminDisplayContext.getPageTitleSuffix());
 			%>
 
 			<react:component
 				data="<%= data %>"
-				module="js/seo/index.es"
+				module="js/seo/PreviewSeo.es"
 			/>
 		</div>
 	</div>
@@ -123,7 +142,7 @@ UnicodeProperties layoutTypeSettings = selLayout.getTypeSettingsProperties();
 			<aui:input checked="<%= selLayoutSEOEntry.isCanonicalURLEnabled() %>" helpMessage="use-custom-canonical-url-help" label="use-custom-canonical-url" name="canonicalURLEnabled" type="toggle-switch" />
 
 			<div id="<portlet:namespace />customCanonicalURLSettings">
-				<aui:input name="canonicalURL" placeholder="canonical-url">
+				<aui:input name="canonicalURL" placeholder="<%= layoutsAdminDisplayContext.getCanonicalLayoutURL() %>">
 					<aui:validator name="url" />
 				</aui:input>
 			</div>
@@ -132,7 +151,7 @@ UnicodeProperties layoutTypeSettings = selLayout.getTypeSettingsProperties();
 			<aui:input checked="<%= false %>" helpMessage="use-custom-canonical-url-help" label="use-custom-canonical-url" name="canonicalURLEnabled" type="toggle-switch" />
 
 			<div id="<portlet:namespace />customCanonicalURLSettings">
-				<aui:input localized="<%= true %>" name="canonicalURL" placeholder="canonical-url" type="text">
+				<aui:input localized="<%= true %>" name="canonicalURL" placeholder="<%= layoutsAdminDisplayContext.getCanonicalLayoutURL() %>" type="text">
 					<aui:validator name="url" />
 				</aui:input>
 			</div>
@@ -152,11 +171,11 @@ UnicodeProperties layoutTypeSettings = selLayout.getTypeSettingsProperties();
 			<aui:model-context bean="<%= selLayoutSEOEntry %>" model="<%= LayoutSEOEntry.class %>" />
 
 			<div id="<portlet:namespace />openGraphSettings">
-				<aui:input checked="<%= selLayoutSEOEntry.isOpenGraphTitleEnabled() %>" helpMessage="use-custom-open-graph-title-help" label="use-custom-title" name="openGraphTitleEnabled" type="checkbox" wrapperCssClass="mb-1" />
+				<aui:input checked="<%= selLayoutSEOEntry.isOpenGraphTitleEnabled() %>" helpMessage="use-custom-open-graph-title-help" label="use-custom-open-graph-title" name="openGraphTitleEnabled" type="checkbox" wrapperCssClass="mb-1" />
 
 				<aui:input label="<%= StringPool.BLANK %>" name="openGraphTitle" placeholder="title" />
 
-				<aui:input checked="<%= selLayoutSEOEntry.isOpenGraphDescriptionEnabled() %>" helpMessage="use-custom-open-graph-description-help" label="use-custom-description" name="openGraphDescriptionEnabled" type="checkbox" wrapperCssClass="mb-1" />
+				<aui:input checked="<%= selLayoutSEOEntry.isOpenGraphDescriptionEnabled() %>" helpMessage="use-custom-open-graph-description-help" label="use-custom-open-graph-description" name="openGraphDescriptionEnabled" type="checkbox" wrapperCssClass="mb-1" />
 
 				<aui:input label="<%= StringPool.BLANK %>" name="openGraphDescription" placeholder="description" />
 
@@ -165,11 +184,11 @@ UnicodeProperties layoutTypeSettings = selLayout.getTypeSettingsProperties();
 		</c:when>
 		<c:otherwise>
 			<div id="<portlet:namespace />openGraphSettings">
-				<aui:input checked="<%= false %>" helpMessage="use-custom-open-graph-title-help" label="use-custom-title" name="openGraphTitleEnabled" type="checkbox" wrapperCssClass="mb-1" />
+				<aui:input checked="<%= false %>" helpMessage="use-custom-open-graph-title-help" label="use-custom-open-graph-title" name="openGraphTitleEnabled" type="checkbox" wrapperCssClass="mb-1" />
 
 				<aui:input label="<%= StringPool.BLANK %>" localized="<%= true %>" name="openGraphTitle" type="text" />
 
-				<aui:input checked="<%= false %>" helpMessage="use-custom-open-graph-description-help" label="use-custom-description" name="openGraphDescriptionEnabled" type="checkbox" wrapperCssClass="mb-1" />
+				<aui:input checked="<%= false %>" helpMessage="use-custom-open-graph-description-help" label="use-custom-open-graph-description" name="openGraphDescriptionEnabled" type="checkbox" wrapperCssClass="mb-1" />
 
 				<aui:input label="<%= StringPool.BLANK %>" localized="<%= true %>" name="openGraphDescription" type="textarea" />
 
@@ -185,7 +204,7 @@ UnicodeProperties layoutTypeSettings = selLayout.getTypeSettingsProperties();
 
 		<div class="input-group">
 			<div class="input-group-item">
-				<aui:input disabled="<%= true %>" label="<%= StringPool.BLANK %>" name="openGraphImageTitle" placeholder="image" type="text" value="<%= layoutsAdminDisplayContext.getItemSelectorURL() %>" wrapperCssClass="w-100" />
+				<aui:input disabled="<%= true %>" label="<%= StringPool.BLANK %>" name="openGraphImageURL" placeholder="image" type="text" value="<%= layoutsAdminDisplayContext.getOpenGraphImageURL() %>" wrapperCssClass="w-100" />
 			</div>
 
 			<div class="input-group-item input-group-item-shrink">
@@ -193,48 +212,45 @@ UnicodeProperties layoutTypeSettings = selLayout.getTypeSettingsProperties();
 			</div>
 		</div>
 
-		<aui:script use="liferay-item-selector-dialog">
+		<aui:script require="frontend-js-web/liferay/ItemSelectorDialog.es as ItemSelectorDialog">
 			var openGraphImageButton = document.getElementById(
 				'<portlet:namespace />openGraphImageButton'
 			);
 
 			if (openGraphImageButton) {
+				var itemSelectorDialog = new ItemSelectorDialog.default({
+					buttonAddLabel: '<liferay-ui:message key="done" />',
+					eventName: '<portlet:namespace />openGraphImageSelectedItem',
+					title: '<liferay-ui:message key="open-graph-image" />',
+					url: '<%= layoutsAdminDisplayContext.getItemSelectorURL() %>'
+				});
+
+				itemSelectorDialog.on('selectedItemChange', function(event) {
+					var selectedItem = event.selectedItem;
+
+					if (selectedItem) {
+						var itemValue = JSON.parse(selectedItem.value);
+
+						var openGraphImageFileEntryId = document.getElementById(
+							'<portlet:namespace />openGraphImageFileEntryId'
+						);
+
+						if (openGraphImageFileEntryId) {
+							openGraphImageFileEntryId.value = itemValue.fileEntryId;
+						}
+
+						var openGraphImageURL = document.getElementById(
+							'<portlet:namespace />openGraphImageURL'
+						);
+
+						if (openGraphImageURL) {
+							openGraphImageURL.value = itemValue.url;
+						}
+					}
+				});
+
 				openGraphImageButton.addEventListener('click', function(event) {
 					event.preventDefault();
-
-					var itemSelectorDialog = new A.LiferayItemSelectorDialog({
-						eventName: '<portlet:namespace />openGraphImageSelectedItem',
-						on: {
-							selectedItemChange: function(event) {
-								var selectedItem = event.newVal;
-
-								if (selectedItem) {
-									var itemValue = JSON.parse(selectedItem.value);
-
-									var openGraphImageFileEntryId = document.getElementById(
-										'<portlet:namespace />openGraphImageFileEntryId'
-									);
-
-									if (openGraphImageFileEntryId) {
-										openGraphImageFileEntryId.value =
-											itemValue.fileEntryId;
-									}
-
-									var openGraphImageTitle = document.getElementById(
-										'<portlet:namespace />openGraphImageTitle'
-									);
-
-									if (openGraphImageTitle) {
-										openGraphImageTitle.value = itemValue.url;
-									}
-								}
-							}.bind(this)
-						},
-						'strings.add': Liferay.Language.get('ok'),
-						title: '<liferay-ui:message key="open-graph-image" />',
-						url: '<%= layoutsAdminDisplayContext.getItemSelectorURL() %>'
-					});
-
 					itemSelectorDialog.open();
 				});
 			}

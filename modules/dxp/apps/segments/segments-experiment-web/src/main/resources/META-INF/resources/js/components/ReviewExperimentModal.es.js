@@ -1,17 +1,18 @@
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
- *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
+ * The contents of this file are subject to the terms of the Liferay Enterprise
+ * Subscription License ("License"). You may not use this file except in
+ * compliance with the License. You can obtain a copy of the License by
+ * contacting Liferay, Inc. See the License for the specific language governing
+ * permissions and limitations under the License, including but not limited to
+ * distribution rights of the Software.
  */
 
+import ClayButton from '@clayui/button';
+import ClayLoadingIndicator from '@clayui/loading-indicator';
+import ClayModal from '@clayui/modal';
+import PropTypes from 'prop-types';
 import React, {
 	useCallback,
 	useContext,
@@ -19,13 +20,12 @@ import React, {
 	useEffect,
 	useRef
 } from 'react';
-import PropTypes from 'prop-types';
-import ClayButton from '@clayui/button';
-import ClayLoadingIndicator from '@clayui/loading-indicator';
-import ClayModal, {useModal} from '@clayui/modal';
-import {SplitPicker} from './SplitPicker/SplitPicker.es';
-import {SliderWithLabel} from './SliderWithLabel.es';
+
+import SegmentsExperimentContext from '../context.es';
+import {StateContext} from '../state/context.es';
 import {SegmentsVariantType} from '../types.es';
+import {SUCCESS_ANIMATION_FILE_NAME} from '../util/contants.es';
+import {useDebounceCallback} from '../util/hooks.es';
 import {
 	INITIAL_CONFIDENCE_LEVEL,
 	MAX_CONFIDENCE_LEVEL,
@@ -33,14 +33,12 @@ import {
 	percentageNumberToIndex
 } from '../util/percentages.es';
 import BusyButton from './BusyButton/BusyButton.es';
-import SegmentsExperimentContext from '../context.es';
-import {StateContext} from '../state/context.es';
-import {useDebounceCallback} from '../util/hooks.es';
-import {SUCCESS_ANIMATION_FILE_NAME} from '../util/contants.es';
+import {SliderWithLabel} from './SliderWithLabel.es';
+import {SplitPicker} from './SplitPicker/SplitPicker.es';
 
 const TIME_ESTIMATION_THROTTLE_TIME_MS = 1000;
 
-function ReviewExperimentModal({onRun, variants, visible, setVisible}) {
+function ReviewExperimentModal({modalObserver, onModalClose, onRun, variants}) {
 	const [busy, setBusy] = useState(false);
 	const [success, setSuccess] = useState(false);
 	const [estimation, setEstimation] = useState({
@@ -66,12 +64,8 @@ function ReviewExperimentModal({onRun, variants, visible, setVisible}) {
 			return {...variant, split};
 		})
 	);
-	const {assetsPath, APIService} = useContext(SegmentsExperimentContext);
+	const {APIService, assetsPath} = useContext(SegmentsExperimentContext);
 	const {experiment} = useContext(StateContext);
-
-	const {observer, onClose} = useModal({
-		onClose: () => setVisible(false)
-	});
 
 	const mounted = useRef();
 
@@ -97,8 +91,7 @@ function ReviewExperimentModal({onRun, variants, visible, setVisible}) {
 			.catch(_error => {
 				if (mounted.current) {
 					setEstimation({
-						days: null,
-						loading: false
+						error: true
 					});
 				}
 			});
@@ -133,122 +126,127 @@ function ReviewExperimentModal({onRun, variants, visible, setVisible}) {
 	);
 
 	return (
-		visible && (
-			<ClayModal observer={observer} size="lg">
-				<ClayModal.Header>
-					{success
-						? Liferay.Language.get('test-started-successfully')
-						: Liferay.Language.get('review-and-run-test')}
-				</ClayModal.Header>
-				<ClayModal.Body>
-					{success ? (
-						<div
-							className="text-center"
-							style={{height: height + 'px'}}
-						>
-							<img
-								alt=""
-								className="mb-4 mt-3"
-								src={successAnimationPath}
-								width="250px"
-							/>
-							<h3>
-								{Liferay.Language.get('test-running-message')}
-							</h3>
-						</div>
-					) : (
-						<div ref={measureHeight}>
-							<h3 className="sheet-subtitle border-bottom-0 text-secondary">
-								{Liferay.Language.get('traffic-split')}
-							</h3>
+		<ClayModal observer={modalObserver} size="lg">
+			<ClayModal.Header>
+				{success
+					? Liferay.Language.get('test-started-successfully')
+					: Liferay.Language.get('review-and-run-test')}
+			</ClayModal.Header>
+			<ClayModal.Body>
+				{success ? (
+					<div
+						className="text-center"
+						style={{height: height + 'px'}}
+					>
+						<img
+							alt=""
+							className="mb-4 mt-3"
+							src={successAnimationPath}
+							width="250px"
+						/>
+						<h3>{Liferay.Language.get('test-running-message')}</h3>
+					</div>
+				) : (
+					<div ref={measureHeight}>
+						<h3 className="border-bottom-0 sheet-subtitle text-secondary">
+							{Liferay.Language.get('traffic-split')}
+						</h3>
 
-							<SplitPicker
-								onChange={variants => {
-									setDraftVariants(variants);
-								}}
-								variants={draftVariants}
-							/>
+						<SplitPicker
+							onChange={variants => {
+								setDraftVariants(variants);
+							}}
+							variants={draftVariants}
+						/>
 
-							<hr />
+						<hr />
 
-							<h3 className="sheet-subtitle border-bottom-0 text-secondary">
-								{Liferay.Language.get('confidence-level')}
-							</h3>
+						<h3 className="border-bottom-0 sheet-subtitle text-secondary">
+							{Liferay.Language.get('confidence-level')}
+						</h3>
 
-							<SliderWithLabel
-								label={Liferay.Language.get(
-									'confidence-level-required'
-								)}
-								max={MAX_CONFIDENCE_LEVEL}
-								min={MIN_CONFIDENCE_LEVEL}
-								onValueChange={setConfidenceLevel}
-								value={confidenceLevel}
-							/>
+						<SliderWithLabel
+							label={Liferay.Language.get(
+								'confidence-level-required'
+							)}
+							max={MAX_CONFIDENCE_LEVEL}
+							min={MIN_CONFIDENCE_LEVEL}
+							onValueChange={setConfidenceLevel}
+							value={confidenceLevel}
+						/>
 
-							<hr />
-							<div>
-								<div className="d-flex">
-									<label className="w-100">
-										{Liferay.Language.get(
-											'estimated-time-to-declare-winner'
-										)}
-									</label>
+						<hr />
+						<div className="d-flex">
+							<div className="w-100">
+								<label>
+									{Liferay.Language.get(
+										'estimated-time-to-declare-winner'
+									)}
+								</label>
 
-									<p className="mb-0 text-nowrap">
-										{estimation.loading ? (
-											<ClayLoadingIndicator
-												className="my-0"
-												small
-											/>
-										) : (
-											estimation.days &&
-											_getDaysMessage(estimation.days)
-										)}
-									</p>
-								</div>
 								<p className="small text-secondary">
 									{Liferay.Language.get(
 										'time-depends-on-confidence-level-and-traffic-to-the-variants'
 									)}
 								</p>
 							</div>
+
+							<p className="mb-0 text-nowrap">
+								{estimation.loading && (
+									<ClayLoadingIndicator
+										className="my-0"
+										small
+									/>
+								)}
+
+								{!estimation.loading &&
+								(estimation.days === undefined ||
+									estimation.error) ? (
+									<span className="small text-secondary">
+										{Liferay.Language.get('not-available')}
+									</span>
+								) : (
+									estimation.days &&
+									_getDaysMessage(estimation.days)
+								)}
+							</p>
 						</div>
-					)}
-				</ClayModal.Body>
+					</div>
+				)}
+			</ClayModal.Body>
 
-				<ClayModal.Footer
-					last={
-						success ? (
-							<ClayButton.Group>
-								<ClayButton
-									displayType="primary"
-									onClick={() => setVisible(false)}
-								>
-									{Liferay.Language.get('ok')}
-								</ClayButton>
-							</ClayButton.Group>
-						) : (
-							<ClayButton.Group spaced>
-								<ClayButton
-									displayType="secondary"
-									onClick={onClose}
-								>
-									{Liferay.Language.get('cancel')}
-								</ClayButton>
+			<ClayModal.Footer
+				last={
+					success ? (
+						<ClayButton.Group>
+							<ClayButton
+								displayType="primary"
+								onClick={onModalClose}
+							>
+								{Liferay.Language.get('ok')}
+							</ClayButton>
+						</ClayButton.Group>
+					) : (
+						<ClayButton.Group spaced>
+							<ClayButton
+								displayType="secondary"
+								onClick={onModalClose}
+							>
+								{Liferay.Language.get('cancel')}
+							</ClayButton>
 
-								<BusyButton
-									busy={busy}
-									disabled={busy}
-									onClick={_handleRun}
-								>
-									{Liferay.Language.get('run')}
-								</BusyButton>
-							</ClayButton.Group>
-						)
-					}
-				/>
-			</ClayModal>
-		)
+							<BusyButton
+								busy={busy}
+								disabled={busy}
+								onClick={_handleRun}
+							>
+								{Liferay.Language.get('run')}
+							</BusyButton>
+						</ClayButton.Group>
+					)
+				}
+			/>
+		</ClayModal>
 	);
 
 	/**
@@ -288,10 +286,10 @@ function _getDaysMessage(days) {
 }
 
 ReviewExperimentModal.propTypes = {
+	modalObserver: PropTypes.object.isRequired,
+	onModalClose: PropTypes.func.isRequired,
 	onRun: PropTypes.func.isRequired,
-	setVisible: PropTypes.func.isRequired,
-	variants: PropTypes.arrayOf(SegmentsVariantType),
-	visible: PropTypes.bool.isRequired
+	variants: PropTypes.arrayOf(SegmentsVariantType)
 };
 
 export {ReviewExperimentModal};

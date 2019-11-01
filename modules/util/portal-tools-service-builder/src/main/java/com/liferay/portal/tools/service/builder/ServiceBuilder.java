@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ClearThreadLocalUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.PropertiesUtil;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -1698,6 +1699,8 @@ public class ServiceBuilder {
 			methodName.equals("deactivate") || methodName.equals("destroy") ||
 			methodName.equals("equals") ||
 			methodName.equals("getAopInterfaces") ||
+			methodName.equals("getCTIgnoredAttributeNames") ||
+			methodName.equals("getCTMergeableAttributeNames") ||
 			methodName.equals("getCTPersistence") ||
 			methodName.equals("getClass") ||
 			methodName.equals("getModelClass") ||
@@ -4467,20 +4470,31 @@ public class ServiceBuilder {
 
 		TemplateHashModel staticModels = beansWrapper.getStaticModels();
 
-		Map<String, Object> context = new HashMap<>();
-
-		context.put("apiPackagePath", _apiPackagePath);
-		context.put("author", _author);
-		context.put("beanLocatorUtil", _beanLocatorUtil);
-		context.put("dependencyInjectorDS", _dependencyInjectorDS);
-		context.put("modelHintsUtil", ModelHintsUtil.getModelHints());
-		context.put("osgiModule", _osgiModule);
-		context.put("packagePath", _packagePath);
-		context.put("pluginName", _pluginName);
-		context.put("portletShortName", _portletShortName);
-		context.put("propsUtil", _propsUtil);
-		context.put("serviceBuilder", this);
-		context.put("stringUtil", StringUtil_IW.getInstance());
+		Map<String, Object> context = HashMapBuilder.<String, Object>put(
+			"apiPackagePath", _apiPackagePath
+		).put(
+			"author", _author
+		).put(
+			"beanLocatorUtil", _beanLocatorUtil
+		).put(
+			"dependencyInjectorDS", _dependencyInjectorDS
+		).put(
+			"modelHintsUtil", ModelHintsUtil.getModelHints()
+		).put(
+			"osgiModule", _osgiModule
+		).put(
+			"packagePath", _packagePath
+		).put(
+			"pluginName", _pluginName
+		).put(
+			"portletShortName", _portletShortName
+		).put(
+			"propsUtil", _propsUtil
+		).put(
+			"serviceBuilder", this
+		).put(
+			"stringUtil", StringUtil_IW.getInstance()
+		).build();
 		//context.put("system", staticModels.get("java.lang.System"));
 		context.put(
 			"textFormatter", staticModels.get(TextFormatter.class.getName()));
@@ -5372,7 +5386,9 @@ public class ServiceBuilder {
 
 		String absoluteFileName = _normalize(absolutePath.toString());
 
-		if (absoluteFileName.contains("/modules/private/apps/")) {
+		if (absoluteFileName.contains("/modules/dxp/apps/") ||
+			absoluteFileName.contains("/modules/private/apps/")) {
+
 			return true;
 		}
 
@@ -5389,7 +5405,9 @@ public class ServiceBuilder {
 				if (properties.containsKey("project.path.prefix")) {
 					String s = properties.getProperty("project.path.prefix");
 
-					if (s.startsWith(":private:apps")) {
+					if (s.startsWith(":dxp:apps") ||
+						s.startsWith(":private:apps")) {
+
 						return true;
 					}
 
@@ -5835,6 +5853,19 @@ public class ServiceBuilder {
 				columnElement.attributeValue("localized"));
 			boolean colJsonEnabled = GetterUtil.getBoolean(
 				columnElement.attributeValue("json-enabled"), jsonEnabled);
+
+			String changeTrackingMode = "strict";
+
+			if (columnName.equals("modifiedDate") &&
+				columnType.equals("Date")) {
+
+				changeTrackingMode = "ignore";
+			}
+
+			changeTrackingMode = GetterUtil.getString(
+				columnElement.attributeValue("change-tracking-mode"),
+				changeTrackingMode);
+
 			boolean containerModel = GetterUtil.getBoolean(
 				columnElement.attributeValue("container-model"));
 			boolean parentContainerModel = GetterUtil.getBoolean(
@@ -5858,8 +5889,8 @@ public class ServiceBuilder {
 				columnName, columnDBName, columnType, primary, accessor,
 				filterPrimary, columnEntityName, mappingTableName, idType,
 				idParam, convertNull, lazy, localized, colJsonEnabled,
-				containerModel, parentContainerModel, uadAnonymizeFieldName,
-				uadNonanonymizable);
+				changeTrackingMode, containerModel, parentContainerModel,
+				uadAnonymizeFieldName, uadNonanonymizable);
 
 			if (primary) {
 				if (!columnType.equals("int") && !columnType.equals("long") &&
@@ -5872,6 +5903,17 @@ public class ServiceBuilder {
 				}
 
 				pkEntityColumns.add(entityColumn);
+			}
+
+			if (!changeTrackingMode.equals("strict") &&
+				(primary ||
+				 (!changeTrackingMode.equals("ignore") &&
+				  !changeTrackingMode.equals("merge")))) {
+
+				throw new ServiceBuilderException(
+					StringBundler.concat(
+						"Illegal change-tracking-mode ", changeTrackingMode,
+						" for entity ", entityName, " on column ", columnName));
 			}
 
 			if (columnType.equals("Collection")) {
@@ -6305,7 +6347,7 @@ public class ServiceBuilder {
 		if (entity.isUADEnabled()) {
 			if (!_uadApplicationEntities.containsKey(uadApplicationName)) {
 				_uadApplicationEntities.put(
-					uadApplicationName, ListUtil.toList(entity));
+					uadApplicationName, ListUtil.fromArray(entity));
 			}
 			else {
 				List<Entity> uadApplicationEntities =
@@ -6332,8 +6374,8 @@ public class ServiceBuilder {
 		if (versioned) {
 			EntityColumn headEntityColumn = new EntityColumn(
 				"head", "head", "boolean", false, false, false, null, null,
-				null, null, true, false, false, false, false, false, null,
-				false);
+				null, null, true, false, false, false, "strict", false, false,
+				null, false);
 
 			headEntityColumn.setComparator("=");
 			headEntityColumn.setFinderPath(true);

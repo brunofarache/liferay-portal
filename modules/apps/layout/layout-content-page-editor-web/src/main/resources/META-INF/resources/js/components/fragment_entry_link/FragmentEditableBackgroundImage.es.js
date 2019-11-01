@@ -25,7 +25,7 @@ import {getAssetFieldValue} from '../../utils/FragmentsEditorFetchUtils.es';
 import {
 	editableShouldBeHighlighted,
 	editableIsMapped,
-	editableIsMappedToAssetEntry
+	editableIsMappedToInfoItem
 } from '../../utils/FragmentsEditorGetUtils.es';
 import {
 	BACKGROUND_IMAGE_FRAGMENT_ENTRY_PROCESSOR,
@@ -59,7 +59,7 @@ class FragmentEditableBackgroundImage extends Component {
 		);
 
 		this.element.addEventListener(
-			'click',
+			'dblclick',
 			this._handleEditableBackgroundImageClick
 		);
 
@@ -75,7 +75,7 @@ class FragmentEditableBackgroundImage extends Component {
 
 		if (this.element) {
 			this.element.removeEventListener(
-				'click',
+				'dblclick',
 				this._handleEditableBackgroundImageClick
 			);
 		}
@@ -87,6 +87,7 @@ class FragmentEditableBackgroundImage extends Component {
 	 */
 	syncActiveItemId() {
 		if (
+			this.hasUpdatePermissions &&
 			this.activeItemId === this._getItemId() &&
 			this.activeItemType ===
 				FRAGMENTS_EDITOR_ITEM_TYPES.backgroundImageEditable
@@ -256,7 +257,11 @@ class FragmentEditableBackgroundImage extends Component {
 	_handleEditableBackgroundImageClick(event) {
 		const item = event.target.closest('[data-fragments-editor-item-id]');
 
-		if (item === this.element && this._active) {
+		if (
+			this.hasUpdatePermissions &&
+			item === this.element &&
+			this._active
+		) {
 			openImageSelector(image =>
 				this._updateFragmentBackgroundImage(image)
 			);
@@ -365,7 +370,7 @@ class FragmentEditableBackgroundImage extends Component {
 	_updateMappedFieldValue() {
 		if (
 			this.getAssetFieldValueURL &&
-			editableIsMappedToAssetEntry(this.editableValues)
+			editableIsMappedToInfoItem(this.editableValues)
 		) {
 			getAssetFieldValue(
 				this.editableValues.classNameId,
@@ -452,15 +457,6 @@ FragmentEditableBackgroundImage.STATE = {
 	processor: Config.string().required(),
 
 	/**
-	 * If <code>true</code>, the mapping is activated.
-	 * @default undefined
-	 * @instance
-	 * @memberOf FragmentEditableBackgroundImage
-	 * @type {!boolean}
-	 */
-	showMapping: Config.bool().required(),
-
-	/**
 	 * Store instance.
 	 * @default undefined
 	 * @instance
@@ -475,6 +471,7 @@ const ConnectedFragmentEditableBackgroundImage = getConnectedComponent(
 	[
 		'activeItemId',
 		'activeItemType',
+		'hasUpdatePermissions',
 		'hoveredItemId',
 		'hoveredItemType',
 		'defaultLanguageId',

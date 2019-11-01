@@ -101,6 +101,19 @@ public class LayoutPageTemplateEntryServiceWrapper
 	}
 
 	@Override
+	public com.liferay.layout.page.template.model.LayoutPageTemplateEntry
+			copyLayoutPageTemplateEntry(
+				long groupId, long layoutPageTemplateCollectionId,
+				long layoutPageTemplateEntryId,
+				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _layoutPageTemplateEntryService.copyLayoutPageTemplateEntry(
+			groupId, layoutPageTemplateCollectionId, layoutPageTemplateEntryId,
+			serviceContext);
+	}
+
+	@Override
 	public void deleteLayoutPageTemplateEntries(
 			long[] layoutPageTemplateEntryIds)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -137,6 +150,10 @@ public class LayoutPageTemplateEntryServiceWrapper
 			layoutPageTemplateEntryId);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public com.liferay.layout.page.template.model.LayoutPageTemplateEntry
 			fetchLayoutPageTemplateEntry(long groupId, String name)
@@ -153,59 +170,6 @@ public class LayoutPageTemplateEntryServiceWrapper
 
 		return _layoutPageTemplateEntryService.
 			fetchLayoutPageTemplateEntryByUuidAndGroupId(uuid, groupId);
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x), with no direct replacement
-	 */
-	@Deprecated
-	@Override
-	public int getLayoutPageTemplateCollectionsCount(
-		long groupId, long layoutPageTemplateCollectionId) {
-
-		return _layoutPageTemplateEntryService.
-			getLayoutPageTemplateCollectionsCount(
-				groupId, layoutPageTemplateCollectionId);
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x), with no direct replacement
-	 */
-	@Deprecated
-	@Override
-	public int getLayoutPageTemplateCollectionsCount(
-		long groupId, long layoutPageTemplateCollectionId, int status) {
-
-		return _layoutPageTemplateEntryService.
-			getLayoutPageTemplateCollectionsCount(
-				groupId, layoutPageTemplateCollectionId, status);
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x), with no direct replacement
-	 */
-	@Deprecated
-	@Override
-	public int getLayoutPageTemplateCollectionsCount(
-		long groupId, long layoutPageTemplateCollectionId, String name) {
-
-		return _layoutPageTemplateEntryService.
-			getLayoutPageTemplateCollectionsCount(
-				groupId, layoutPageTemplateCollectionId, name);
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x), with no direct replacement
-	 */
-	@Deprecated
-	@Override
-	public int getLayoutPageTemplateCollectionsCount(
-		long groupId, long layoutPageTemplateCollectionId, String name,
-		int status) {
-
-		return _layoutPageTemplateEntryService.
-			getLayoutPageTemplateCollectionsCount(
-				groupId, layoutPageTemplateCollectionId, name, status);
 	}
 
 	@Override

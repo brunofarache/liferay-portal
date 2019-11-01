@@ -809,7 +809,7 @@ public class DirectoryWatcher extends Thread implements BundleListener
     private void initializeCurrentManagedBundles()
     {
         Bundle[] bundles = this.context.getBundles();
-        String watchedDirPath = watchedDirectory.toURI().normalize().getPath();
+        String watchedDirPath = watchedDirectory.toURI().normalize().toString();
         Map<File, Long> checksums = new HashMap<File, Long>();
         Pattern filePattern = filter == null || filter.isEmpty() ? null : Pattern.compile(filter);
         for (Bundle bundle : bundles) {
@@ -995,6 +995,18 @@ public class DirectoryWatcher extends Thread implements BundleListener
         String bundleLocation, BufferedInputStream is, long checksum, AtomicBoolean modified)
         throws IOException, BundleException
     {
+		Bundle bundle = context.getBundle(bundleLocation);
+
+		if ((bundle != null) &&
+			(Util.loadChecksum(bundle, context) != checksum)) {
+
+			bundle.update(is);
+
+			Util.storeChecksum(bundle, checksum, context);
+
+			return bundle;
+		}
+
         JarInputStream jar = null;
         try {
             is.mark(256 * 1024);

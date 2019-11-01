@@ -2220,7 +2220,9 @@ definition {
 				fieldName = "TextField",
 				fieldValue = "${fieldValue}");
 
-			FormPortlet.submit();
+			FormPortlet.clickSubmit();
+
+			Alert.viewSuccessMessage();
 
 			Refresh();
 		}
@@ -4194,11 +4196,11 @@ definition {
 
 		FormFields.editText(
 			fieldName = "label",
-			fieldValue = ",-+!@#$%^*()=_.?/;:{}[]\|");
+			fieldValue = ",-+!@#$%^*()=.?/;:{}[]\|");
 
-		FormFields.viewFieldName(fieldName = "text");
+		FormFields.viewFieldName(fieldName = "TextField");
 
-		FormFields.editFieldName(fieldValue = ",-+!@#$%^*()=_.?/;:{}[]\|");
+		FormFields.editFieldName(fieldValue = ",-+!@#$%^*()=.?/;:{}[]\|");
 
 		Form.closeSidebar();
 

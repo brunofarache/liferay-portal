@@ -42,6 +42,7 @@ create table Address (
 );
 
 create table AnnouncementsDelivery (
+	mvccVersion LONG default 0 not null,
 	deliveryId LONG not null primary key,
 	companyId LONG,
 	userId LONG,
@@ -52,6 +53,7 @@ create table AnnouncementsDelivery (
 );
 
 create table AnnouncementsEntry (
+	mvccVersion LONG default 0 not null,
 	uuid_ VARCHAR(75) null,
 	entryId LONG not null primary key,
 	companyId LONG,
@@ -72,6 +74,7 @@ create table AnnouncementsEntry (
 );
 
 create table AnnouncementsFlag (
+	mvccVersion LONG default 0 not null,
 	flagId LONG not null primary key,
 	companyId LONG,
 	userId LONG,
@@ -585,7 +588,7 @@ create table Layout (
 	colorSchemeId VARCHAR(75) null,
 	css TEXT null,
 	priority INTEGER,
-	mLayoutPageTemplateEntryId LONG,
+	masterLayoutPlid LONG,
 	layoutPrototypeUuid VARCHAR(75) null,
 	layoutPrototypeLinkEnabled BOOLEAN,
 	sourcePrototypeLayoutUuid VARCHAR(75) null,
@@ -1048,7 +1051,8 @@ create table ResourceAction (
 
 create table ResourcePermission (
 	mvccVersion LONG default 0 not null,
-	resourcePermissionId LONG not null primary key,
+	ctCollectionId LONG default 0 not null,
+	resourcePermissionId LONG not null,
 	companyId LONG,
 	name VARCHAR(255) null,
 	scope INTEGER,
@@ -1057,7 +1061,8 @@ create table ResourcePermission (
 	roleId LONG,
 	ownerId LONG,
 	actionIds LONG,
-	viewActionId BOOLEAN
+	viewActionId BOOLEAN,
+	primary key (resourcePermissionId, ctCollectionId)
 );
 
 create table Role_ (

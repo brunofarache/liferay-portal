@@ -27,8 +27,15 @@ public interface AccountUserRetriever {
 
 	public List<User> getAccountUsers(long accountEntryId);
 
+	public long getAccountUsersCount(long accountEntryId);
+
 	public BaseModelSearchResult<User> searchAccountUsers(
 			long accountEntryId, String keywords, int status, int cur,
+			int delta, String sortField, boolean reverse)
+		throws PortalException;
+
+	public BaseModelSearchResult<User> searchAccountUsers(
+			long[] accountEntryIds, String keywords, int status, int cur,
 			int delta, String sortField, boolean reverse)
 		throws PortalException;
 

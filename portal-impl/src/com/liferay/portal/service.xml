@@ -612,9 +612,9 @@
 		<column name="parentLayoutId" type="long" />
 		<column name="classNameId" type="long" />
 		<column name="classPK" type="long" />
-		<column localized="true" name="name" type="String" />
-		<column localized="true" name="title" type="String" />
-		<column localized="true" name="description" type="String" />
+		<column change-tracking-mode="merge" localized="true" name="name" type="String" />
+		<column change-tracking-mode="merge" localized="true" name="title" type="String" />
+		<column change-tracking-mode="merge" localized="true" name="description" type="String" />
 		<column localized="true" name="keywords" type="String" />
 		<column localized="true" name="robots" type="String" />
 		<column name="type" type="String" />
@@ -627,7 +627,7 @@
 		<column name="colorSchemeId" type="String" />
 		<column name="css" type="String" />
 		<column name="priority" type="int" />
-		<column db-name="mLayoutPageTemplateEntryId" name="masterLayoutPageTemplateEntryId" type="long" />
+		<column name="masterLayoutPlid" type="long" />
 		<column name="layoutPrototypeUuid" type="String" />
 		<column name="layoutPrototypeLinkEnabled" type="boolean" />
 		<column name="sourcePrototypeLayoutUuid" type="String" />
@@ -669,9 +669,9 @@
 			<finder-column name="groupId" />
 			<finder-column name="type" />
 		</finder>
-		<finder name="G_MLPTEI" return-type="Collection" where="system = [$FALSE$]">
+		<finder name="G_MLP" return-type="Collection" where="system = [$FALSE$]">
 			<finder-column name="groupId" />
-			<finder-column name="masterLayoutPageTemplateEntryId" />
+			<finder-column name="masterLayoutPlid" />
 		</finder>
 		<finder name="C_L" return-type="Collection" where="system = [$FALSE$]">
 			<finder-column name="companyId" />
@@ -2168,7 +2168,7 @@
 		<reference entity="Company" package-path="com.liferay.portal" />
 		<reference entity="ResourcePermission" package-path="com.liferay.portal" />
 	</entity>
-	<entity local-service="true" name="ResourcePermission" remote-service="true">
+	<entity change-tracking-enabled="true" local-service="true" name="ResourcePermission" remote-service="true">
 
 		<!-- PK fields -->
 
@@ -2308,6 +2308,12 @@
 			<finder-column name="companyId" />
 			<finder-column name="classNameId" />
 			<finder-column arrayable-operator="OR" name="classPK" />
+		</finder>
+		<finder name="C_C_C_T" return-type="Collection" unique="true">
+			<finder-column name="companyId" />
+			<finder-column name="classNameId" />
+			<finder-column arrayable-operator="OR" name="classPK" />
+			<finder-column name="type" />
 		</finder>
 
 		<!-- References -->

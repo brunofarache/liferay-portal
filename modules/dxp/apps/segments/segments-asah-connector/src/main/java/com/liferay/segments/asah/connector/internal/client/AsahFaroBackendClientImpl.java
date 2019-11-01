@@ -1,15 +1,15 @@
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * The contents of this file are subject to the terms of the Liferay Enterprise
+ * Subscription License ("License"). You may not use this file except in
+ * compliance with the License. You can obtain a copy of the License by
+ * contacting Liferay, Inc. See the License for the specific language governing
+ * permissions and limitations under the License, including but not limited to
+ * distribution rights of the Software.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
+ *
+ *
  */
 
 package com.liferay.segments.asah.connector.internal.client;
@@ -17,6 +17,8 @@ package com.liferay.segments.asah.connector.internal.client;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.NestableRuntimeException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -79,12 +81,27 @@ public class AsahFaroBackendClientImpl implements AsahFaroBackendClient {
 	public Long calculateExperimentEstimatedDaysDuration(
 		String experimentId, ExperimentSettings experimentSettings) {
 
-		return _jsonWebServiceClient.doPost(
-			Long.class,
+		String days = _jsonWebServiceClient.doPost(
+			String.class,
 			StringUtil.replace(
 				_PATH_EXPERIMENTS_ESTIMATED_DAYS_DURATION, "{experimentId}",
 				experimentId),
 			experimentSettings, _headers);
+
+		if (Validator.isNull(days)) {
+			return null;
+		}
+
+		try {
+			return Long.valueOf(days);
+		}
+		catch (NumberFormatException nfe) {
+			if (_log.isDebugEnabled()) {
+				_log.debug("Unable to parse " + days, nfe);
+			}
+
+			return null;
+		}
 	}
 
 	@Override
@@ -332,6 +349,9 @@ public class AsahFaroBackendClientImpl implements AsahFaroBackendClient {
 
 	private static final String _PATH_INTERESTS_TERMS =
 		"api/1.0/interests/terms/{userId}";
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		AsahFaroBackendClientImpl.class);
 
 	private static final IndividualJSONObjectMapper
 		_individualJSONObjectMapper = new IndividualJSONObjectMapper();

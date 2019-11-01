@@ -114,7 +114,7 @@ definition {
 
 		SitePages.openPagesAdmin(siteURLKey = "site-name");
 
-		LexiconEntry.gotoAdd();
+		LexiconEntry.gotoAddMenuItem(menuItem = "Public Page");
 
 		Navigator.gotoNavNested(navNested = "Global Templates");
 
@@ -132,7 +132,7 @@ definition {
 
 		SitePages.openPagesAdmin(siteURLKey = "site-name");
 
-		LexiconEntry.gotoAdd();
+		LexiconEntry.gotoAddMenuItem(menuItem = "Public Page");
 
 		Navigator.gotoNavNested(navNested = "Global Templates");
 
@@ -211,6 +211,8 @@ definition {
 			larFileName = "college-and-department-page-templates.lar",
 			uploadFrom = "dependencies");
 
+		PageTemplatesAdminGlobalSite.openGlobalPageTemplatesAdmin();
+
 		PageTemplatesAdminGlobalSite.viewCP(pageTemplateName = "College Landing Page");
 
 		PageTemplatesAdminGlobalSite.viewCP(pageTemplateName = "Department Landing Page");
@@ -265,7 +267,7 @@ definition {
 
 		PageTemplatesAdminGlobalSite.viewDefaultLocalizedCP(
 			pageTemplateNameList = "Blog,Búsqueda,Wiki",
-			portletTitle = "Páginas del sitio web");
+			portletTitle = "Plantillas de página");
 
 		Navigator.openURL();
 

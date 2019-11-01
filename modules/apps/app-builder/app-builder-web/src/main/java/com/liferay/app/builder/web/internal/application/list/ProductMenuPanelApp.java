@@ -14,6 +14,7 @@
 
 package com.liferay.app.builder.web.internal.application.list;
 
+import com.liferay.app.builder.constants.AppBuilderAppConstants;
 import com.liferay.application.list.BasePanelApp;
 import com.liferay.application.list.constants.PanelCategoryKeys;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -38,6 +39,11 @@ public class ProductMenuPanelApp extends BasePanelApp {
 		_panelCategoryKey = panelCategoryKey;
 		_portletId = portletId;
 		_siteIds = siteIds;
+	}
+
+	@Override
+	public String getKey() {
+		return _portletId;
 	}
 
 	@Override
@@ -68,6 +74,7 @@ public class ProductMenuPanelApp extends BasePanelApp {
 
 		if (super.isShow(permissionChecker, group) &&
 			(PanelCategoryKeys.CONTROL_PANEL.equals(_panelCategoryKey) ||
+			 ArrayUtil.contains(_siteIds, AppBuilderAppConstants.SITE_ID_ALL) ||
 			 ArrayUtil.contains(_siteIds, group.getGroupId()))) {
 
 			return true;

@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.servlet.MultiSessionMessages;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -48,7 +49,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alejandro Tardín
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + DepotPortletKeys.DEPOT_ADMIN,
 		"mvc.command.name=/depot_entry/add"
@@ -80,10 +80,10 @@ public class AddDepotEntryMVCActionCommand extends BaseMVCActionCommand {
 					DepotEntry.class.getName(), actionRequest));
 
 			PortletURL editDepotURL =
-				DepotEntryURLUtil.getEditDepotEntryRenderURL(
-					depotEntry.getDepotEntryId(),
+				DepotEntryURLUtil.getEditDepotEntryPortletURL(
+					_groupLocalService.getGroup(depotEntry.getGroupId()),
 					ParamUtil.getString(actionRequest, "redirect"),
-					_portal.getLiferayPortletResponse(actionResponse));
+					_portal.getLiferayPortletRequest(actionRequest));
 
 			MultiSessionMessages.add(
 				actionRequest,
@@ -115,6 +115,9 @@ public class AddDepotEntryMVCActionCommand extends BaseMVCActionCommand {
 
 	@Reference
 	private DepotEntryLocalService _depotEntryLocalService;
+
+	@Reference
+	private GroupLocalService _groupLocalService;
 
 	@Reference
 	private Portal _portal;

@@ -35,7 +35,7 @@ import {
 	getItemPath,
 	getRowIndex,
 	itemIsInPath,
-	editableIsMappedToAssetEntry
+	editableIsMappedToInfoItem
 } from '../../utils/FragmentsEditorGetUtils.es';
 import {
 	moveRow,
@@ -219,6 +219,7 @@ class FragmentEntryLinkListRow extends Component {
 	 */
 	rendered() {
 		if (
+			this.hasUpdatePermissions &&
 			this.rowId === this.activeItemId &&
 			this.activeItemType === FRAGMENTS_EDITOR_ITEM_TYPES.row &&
 			!this._resizing &&
@@ -495,7 +496,7 @@ class FragmentEntryLinkListRow extends Component {
 		if (
 			this.getAssetFieldValueURL &&
 			this.row.config.backgroundImage &&
-			editableIsMappedToAssetEntry(this.row.config.backgroundImage)
+			editableIsMappedToInfoItem(this.row.config.backgroundImage)
 		) {
 			getAssetFieldValue(
 				this.row.config.backgroundImage.classNameId,
@@ -638,6 +639,7 @@ const ConnectedFragmentEntryLinkListRow = getConnectedComponent(
 		'dropTargetItemId',
 		'dropTargetItemType',
 		'getAssetFieldValueURL',
+		'hasUpdatePermissions',
 		'hoveredItemId',
 		'hoveredItemType',
 		'layoutData',

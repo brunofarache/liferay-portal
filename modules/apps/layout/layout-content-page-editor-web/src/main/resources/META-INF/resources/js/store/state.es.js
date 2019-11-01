@@ -19,7 +19,8 @@ import {getEmptyLayoutData} from '../utils/LayoutDataList.es';
 import {
 	EDITABLE_FRAGMENT_ENTRY_PROCESSOR,
 	FRAGMENTS_EDITOR_ITEM_BORDERS,
-	FRAGMENTS_EDITOR_ROW_TYPES
+	FRAGMENTS_EDITOR_ROW_TYPES,
+	PAGE_TYPES
 } from '../utils/constants';
 
 const LayoutDataShape = Config.shapeOf({
@@ -528,7 +529,7 @@ const INITIAL_STATE = {
 	 * @review
 	 * @type {object[]}
 	 */
-	mappedAssetEntries: Config.array().value([]),
+	mappedInfoItems: Config.array().value([]),
 
 	/**
 	 * URL for getting the list of mapping fields
@@ -537,6 +538,13 @@ const INITIAL_STATE = {
 	 * @type {string}
 	 */
 	mappingFieldsURL: Config.string().value(''),
+
+	/**
+	 * Master page layout data
+	 * @review
+	 * @type {{structure: Array}}
+	 */
+	masterPageLayoutData: LayoutDataShape,
 
 	/**
 	 * @default []
@@ -554,6 +562,12 @@ const INITIAL_STATE = {
 			usagesCount: Config.number()
 		})
 	).value([]),
+
+	/**
+	 * @review
+	 * @type {number}
+	 */
+	pageType: Config.oneOf(Object.values(PAGE_TYPES)),
 
 	/**
 	 * Portlet namespace needed for prefixing form inputs
@@ -695,7 +709,7 @@ const INITIAL_STATE = {
 	 * @review
 	 * @type {string}
 	 */
-	selectedSidebarPanelId: Config.string().value('sections'),
+	selectedSidebarPanelId: Config.string().value('elements'),
 
 	/**
 	 * Flag indicating if resolved comments should be shown

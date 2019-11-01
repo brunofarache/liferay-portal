@@ -125,6 +125,21 @@ public class LayoutPageTemplateEntryServiceImpl
 	}
 
 	@Override
+	public LayoutPageTemplateEntry copyLayoutPageTemplateEntry(
+			long groupId, long layoutPageTemplateCollectionId,
+			long layoutPageTemplateEntryId, ServiceContext serviceContext)
+		throws PortalException {
+
+		_portletResourcePermission.check(
+			getPermissionChecker(), groupId,
+			LayoutPageTemplateActionKeys.ADD_LAYOUT_PAGE_TEMPLATE_ENTRY);
+
+		return layoutPageTemplateEntryLocalService.copyLayoutPageTemplateEntry(
+			getUserId(), groupId, layoutPageTemplateCollectionId,
+			layoutPageTemplateEntryId, serviceContext);
+	}
+
+	@Override
 	public void deleteLayoutPageTemplateEntries(
 			long[] layoutPageTemplateEntryIds)
 		throws PortalException {
@@ -178,6 +193,10 @@ public class LayoutPageTemplateEntryServiceImpl
 		return layoutPageTemplateEntry;
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public LayoutPageTemplateEntry fetchLayoutPageTemplateEntry(
 			long groupId, String name)
@@ -202,67 +221,6 @@ public class LayoutPageTemplateEntryServiceImpl
 
 		return layoutPageTemplateEntryLocalService.
 			fetchLayoutPageTemplateEntryByUuidAndGroupId(uuid, groupId);
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x), with no direct replacement
-	 */
-	@Deprecated
-	@Override
-	public int getLayoutPageTemplateCollectionsCount(
-		long groupId, long layoutPageTemplateCollectionId) {
-
-		return getLayoutPageTemplateCollectionsCount(
-			groupId, layoutPageTemplateCollectionId,
-			WorkflowConstants.STATUS_ANY);
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x), with no direct replacement
-	 */
-	@Deprecated
-	@Override
-	public int getLayoutPageTemplateCollectionsCount(
-		long groupId, long layoutPageTemplateCollectionId, int status) {
-
-		if (status == WorkflowConstants.STATUS_ANY) {
-			return layoutPageTemplateEntryPersistence.filterCountByG_L(
-				groupId, layoutPageTemplateCollectionId);
-		}
-
-		return layoutPageTemplateEntryPersistence.filterCountByG_L_S(
-			groupId, layoutPageTemplateCollectionId, status);
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x), with no direct replacement
-	 */
-	@Deprecated
-	@Override
-	public int getLayoutPageTemplateCollectionsCount(
-		long groupId, long layoutPageTemplateCollectionId, String name) {
-
-		return getLayoutPageTemplateCollectionsCount(
-			groupId, layoutPageTemplateCollectionId, name,
-			WorkflowConstants.STATUS_ANY);
-	}
-
-	/**
-	 * @deprecated As of Judson (7.1.x), with no direct replacement
-	 */
-	@Deprecated
-	@Override
-	public int getLayoutPageTemplateCollectionsCount(
-		long groupId, long layoutPageTemplateCollectionId, String name,
-		int status) {
-
-		if (status == WorkflowConstants.STATUS_ANY) {
-			return layoutPageTemplateEntryPersistence.filterCountByG_L_LikeN(
-				groupId, layoutPageTemplateCollectionId, name);
-		}
-
-		return layoutPageTemplateEntryPersistence.filterCountByG_L_LikeN_S(
-			groupId, layoutPageTemplateCollectionId, name, status);
 	}
 
 	@Override

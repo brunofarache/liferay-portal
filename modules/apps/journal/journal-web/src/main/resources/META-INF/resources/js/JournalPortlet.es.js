@@ -12,8 +12,8 @@
  * details.
  */
 
-import PortletBase from 'frontend-js-web/liferay/PortletBase.es';
 import {AOP} from 'frontend-js-web';
+import PortletBase from 'frontend-js-web/liferay/PortletBase.es';
 import {delegate, on} from 'metal-dom';
 import {EventHandler} from 'metal-events';
 
@@ -130,6 +130,8 @@ class JournalPortlet extends PortletBase {
 				defaultLanguageId,
 				selectedLanguageId
 			);
+
+			this._updateLanguageIdInput(selectedLanguageId);
 		}
 	}
 
@@ -246,6 +248,15 @@ class JournalPortlet extends PortletBase {
 		if (actionName) {
 			this._setActionName(actionName);
 		}
+	}
+
+	/**
+	 * @private
+	 */
+	_updateLanguageIdInput(selectedLanguageId) {
+		const languageIdInput = document.getElementById(this.ns('languageId'));
+
+		languageIdInput.value = selectedLanguageId;
 	}
 
 	/**

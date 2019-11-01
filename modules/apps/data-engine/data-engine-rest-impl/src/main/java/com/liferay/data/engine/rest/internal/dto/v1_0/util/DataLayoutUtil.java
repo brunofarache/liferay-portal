@@ -22,14 +22,84 @@ import com.liferay.data.engine.rest.dto.v1_0.DataLayoutRow;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 /**
  * @author Jeyvison Nascimento
  */
 public class DataLayoutUtil {
+
+	public static boolean existsAnyField(
+		String[] removedFields, String[] savedFields) {
+
+		return ArrayUtil.exists(
+			savedFields, field -> ArrayUtil.contains(removedFields, field));
+	}
+
+	public static String[] removeFields(
+		String[] removedFields, String[] savedFields) {
+
+		return ArrayUtil.filter(
+			savedFields,
+			fieldName -> !ArrayUtil.contains(removedFields, fieldName));
+	}
+
+	public static boolean removeFieldsDataLayout(
+		DataLayout dataLayout, List<String> removedFields) {
+
+		Stream<DataLayoutPage> pages = Arrays.stream(
+			dataLayout.getDataLayoutPages());
+
+		AtomicReference<Boolean> modified = new AtomicReference<>(false);
+
+		pages.forEach(
+			dataLayoutPage -> {
+				Stream<DataLayoutRow> streamRows = Arrays.stream(
+					dataLayoutPage.getDataLayoutRows());
+
+				streamRows.forEach(
+					dataLayoutRow -> {
+						Stream<DataLayoutColumn> columns = Arrays.stream(
+							dataLayoutRow.getDataLayoutColumns());
+
+						columns.forEach(
+							dataLayoutColumn -> {
+								if (existsAnyField(
+										ArrayUtil.toStringArray(removedFields),
+										dataLayoutColumn.getFieldNames())) {
+
+									modified.set(true);
+
+									dataLayoutColumn.setFieldNames(
+										removeFields(
+											ArrayUtil.toStringArray(
+												removedFields),
+											dataLayoutColumn.getFieldNames()));
+								}
+							});
+
+						dataLayoutRow.setDataLayoutColumns(
+							ArrayUtil.filter(
+								dataLayoutRow.getDataLayoutColumns(),
+								column -> !ArrayUtil.isEmpty(
+									column.getFieldNames())));
+					});
+
+				dataLayoutPage.setDataLayoutRows(
+					ArrayUtil.filter(
+						dataLayoutPage.getDataLayoutRows(),
+						row -> !ArrayUtil.isEmpty(row.getDataLayoutColumns())));
+			});
+
+		return modified.get();
+	}
 
 	public static DataLayout toDataLayout(String json) throws Exception {
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(json);

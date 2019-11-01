@@ -24,8 +24,7 @@ import com.liferay.talend.runtime.client.RESTClient;
 import com.liferay.talend.runtime.client.ResponseHandler;
 import com.liferay.talend.runtime.client.exception.ResponseContentClientException;
 
-import java.io.IOException;
-
+import java.util.Collections;
 import java.util.List;
 
 import javax.json.JsonObject;
@@ -48,7 +47,6 @@ import org.talend.daikon.i18n.I18nMessageProvider;
 import org.talend.daikon.i18n.I18nMessages;
 import org.talend.daikon.i18n.TranslatableImpl;
 import org.talend.daikon.properties.ValidationResult;
-import org.talend.daikon.properties.ValidationResultMutable;
 
 /**
  * @author Zoltán Takács
@@ -58,24 +56,12 @@ import org.talend.daikon.properties.ValidationResultMutable;
 public class LiferaySourceOrSink
 	extends TranslatableImpl implements OASSource, SourceOrSink {
 
-	public JsonObject doDeleteRequest(RuntimeContainer runtimeContainer) {
-		return doDeleteRequest(runtimeContainer, null);
-	}
-
 	public JsonObject doDeleteRequest(
 		RuntimeContainer runtimeContainer, String resourceURL) {
 
 		RESTClient restClient = getRestClient(runtimeContainer, resourceURL);
 
-		return _responseHandler.asJsonObject(restClient.executeDeleteRequest());
-	}
-
-	public JsonObject doDeleteRequest(String resourceURL) {
-		return doDeleteRequest(null, resourceURL);
-	}
-
-	public JsonObject doGetRequest(RuntimeContainer runtimeContainer) {
-		return doGetRequest(runtimeContainer, null);
+		return _getResponseContentJsonObject(restClient.executeDeleteRequest());
 	}
 
 	public JsonObject doGetRequest(
@@ -83,7 +69,7 @@ public class LiferaySourceOrSink
 
 		RESTClient restClient = getRestClient(runtimeContainer, resourceURL);
 
-		return _responseHandler.asJsonObject(restClient.executeGetRequest());
+		return _getResponseContentJsonObject(restClient.executeGetRequest());
 	}
 
 	public JsonObject doGetRequest(String resourceURL) {
@@ -96,31 +82,8 @@ public class LiferaySourceOrSink
 
 		RESTClient restClient = getRestClient(runtimeContainer, resourceURL);
 
-		Response response = restClient.executePatchRequest(jsonObject);
-
-		if (!_responseHandler.isSuccess(response)) {
-			throw new ResponseContentClientException(
-				"Request did not succeed", response.getStatus(), null);
-		}
-
-		if (!_responseHandler.isApplicationJsonContentType(response)) {
-			if (response.getStatus() == 204) {
-				return null;
-			}
-
-			throw new ResponseContentClientException(
-				"Unable to decode response content type " +
-					_responseHandler.getContentType(response),
-				response.getStatus(), null);
-		}
-
-		return _responseHandler.asJsonObject(response);
-	}
-
-	public JsonObject doPostRequest(
-		RuntimeContainer runtimeContainer, JsonObject jsonObject) {
-
-		return doPostRequest(runtimeContainer, null, jsonObject);
+		return _getResponseContentJsonObject(
+			restClient.executePatchRequest(jsonObject));
 	}
 
 	public JsonObject doPostRequest(
@@ -131,25 +94,6 @@ public class LiferaySourceOrSink
 
 		return _responseHandler.asJsonObject(
 			restClient.executePostRequest(jsonObject));
-	}
-
-	public JsonObject doPostRequest(String resourceURL, JsonObject jsonObject)
-		throws IOException {
-
-		return doPostRequest(null, resourceURL, jsonObject);
-	}
-
-	public LiferayConnectionProperties getConnectionProperties() {
-		LiferayConnectionProperties liferayConnectionProperties =
-			liferayConnectionPropertiesProvider.
-				getLiferayConnectionProperties();
-
-		if (liferayConnectionProperties.getReferencedComponentId() != null) {
-			liferayConnectionProperties =
-				liferayConnectionProperties.getReferencedConnectionProperties();
-		}
-
-		return liferayConnectionProperties;
 	}
 
 	public LiferayConnectionProperties getEffectiveConnection(
@@ -194,15 +138,11 @@ public class LiferaySourceOrSink
 		return liferayConnectionProperties;
 	}
 
-	/**
-	 * @deprecated As of Mueller (7.2.x)
-	 */
-	@Deprecated
 	@Override
 	public Schema getEndpointSchema(
 		RuntimeContainer runtimeContainer, String endpoint) {
 
-		throw new UnsupportedOperationException();
+		return null;
 	}
 
 	@Override
@@ -236,15 +176,9 @@ public class LiferaySourceOrSink
 			getEffectiveConnection(runtimeContainer), resourceURL);
 	}
 
-	/**
-	 * @deprecated As of Mueller (7.2.x)
-	 */
-	@Deprecated
 	@Override
-	public List<NamedThing> getSchemaNames(RuntimeContainer runtimeContainer)
-		throws IOException {
-
-		throw new UnsupportedOperationException();
+	public List<NamedThing> getSchemaNames(RuntimeContainer runtimeContainer) {
+		return Collections.emptyList();
 	}
 
 	@Override
@@ -266,22 +200,23 @@ public class LiferaySourceOrSink
 		RuntimeContainer runtimeContainer,
 		ComponentProperties componentProperties) {
 
-		ValidationResultMutable validationResultMutable =
-			new ValidationResultMutable();
+		if (!(componentProperties instanceof
+				LiferayConnectionPropertiesProvider)) {
+
+			return ValidationResult.OK;
+		}
 
 		liferayConnectionPropertiesProvider =
 			(LiferayConnectionPropertiesProvider)componentProperties;
 
-		validationResultMutable.setStatus(ValidationResult.Result.OK);
-
 		try {
 			getRestClient(runtimeContainer);
+
+			return ValidationResult.OK;
 		}
 		catch (TalendRuntimeException tre) {
 			return ExceptionUtils.exceptionToValidationResult(tre);
 		}
-
-		return validationResultMutable;
 	}
 
 	@Override
@@ -337,7 +272,7 @@ public class LiferaySourceOrSink
 		RuntimeContainer runtimeContainer) {
 
 		try {
-			doGetRequest(runtimeContainer);
+			doGetRequest(runtimeContainer, null);
 
 			return new ValidationResult(
 				ValidationResult.Result.OK,
@@ -387,6 +322,26 @@ public class LiferaySourceOrSink
 	protected volatile LiferayConnectionPropertiesProvider
 		liferayConnectionPropertiesProvider;
 	protected RESTClient restClient;
+
+	private JsonObject _getResponseContentJsonObject(Response response) {
+		if (!_responseHandler.isSuccess(response)) {
+			throw new ResponseContentClientException(
+				"Request did not succeed", response.getStatus(), null);
+		}
+
+		if (!_responseHandler.isApplicationJsonContentType(response)) {
+			if (response.getStatus() == 204) {
+				return null;
+			}
+
+			throw new ResponseContentClientException(
+				"Unable to decode response content type " +
+					_responseHandler.getContentType(response),
+				response.getStatus(), null);
+		}
+
+		return _responseHandler.asJsonObject(response);
+	}
 
 	private boolean _isNullString(String value) {
 		if (value == null) {

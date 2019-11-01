@@ -17,12 +17,15 @@ package com.liferay.data.engine.rest.internal.resource.v1_0;
 import com.liferay.data.engine.field.type.FieldType;
 import com.liferay.data.engine.field.type.FieldTypeTracker;
 import com.liferay.data.engine.field.type.util.LocalizedValueUtil;
+import com.liferay.data.engine.model.DEDataListView;
 import com.liferay.data.engine.rest.dto.v1_0.DataDefinition;
 import com.liferay.data.engine.rest.dto.v1_0.DataDefinitionPermission;
+import com.liferay.data.engine.rest.dto.v1_0.DataLayout;
 import com.liferay.data.engine.rest.dto.v1_0.DataRecordCollection;
 import com.liferay.data.engine.rest.internal.constants.DataActionKeys;
 import com.liferay.data.engine.rest.internal.constants.DataDefinitionConstants;
 import com.liferay.data.engine.rest.internal.dto.v1_0.util.DataDefinitionUtil;
+import com.liferay.data.engine.rest.internal.dto.v1_0.util.DataLayoutUtil;
 import com.liferay.data.engine.rest.internal.dto.v1_0.util.DataRecordCollectionUtil;
 import com.liferay.data.engine.rest.internal.model.InternalDataDefinition;
 import com.liferay.data.engine.rest.internal.model.InternalDataLayout;
@@ -31,12 +34,15 @@ import com.liferay.data.engine.rest.internal.odata.entity.v1_0.DataDefinitionEnt
 import com.liferay.data.engine.rest.internal.resource.common.CommonDataRecordCollectionResource;
 import com.liferay.data.engine.rest.internal.resource.v1_0.util.DataEnginePermissionUtil;
 import com.liferay.data.engine.rest.resource.v1_0.DataDefinitionResource;
+import com.liferay.data.engine.service.DEDataDefinitionFieldLinkLocalService;
+import com.liferay.data.engine.service.DEDataListViewLocalService;
 import com.liferay.dynamic.data.lists.service.DDLRecordSetLocalService;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormTemplateContextFactory;
 import com.liferay.dynamic.data.mapping.form.values.factory.DDMFormValuesFactory;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMStructureConstants;
+import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
 import com.liferay.dynamic.data.mapping.model.DDMStructureVersion;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
@@ -47,6 +53,7 @@ import com.liferay.dynamic.data.mapping.util.comparator.StructureNameComparator;
 import com.liferay.frontend.js.loader.modules.extender.npm.NPMResolver;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
@@ -74,6 +81,7 @@ import com.liferay.portal.vulcan.resource.EntityModelResource;
 import com.liferay.portal.vulcan.util.SearchUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -107,6 +115,8 @@ public class DataDefinitionResourceImpl
 		_ddlRecordSetLocalService.deleteDDMStructureRecordSets(
 			dataDefinitionId);
 
+		_ddmStructureLocalService.deleteDDMStructure(dataDefinitionId);
+
 		List<DDMStructureVersion> ddmStructureVersions =
 			_ddmStructureVersionLocalService.getStructureVersions(
 				dataDefinitionId);
@@ -120,7 +130,10 @@ public class DataDefinitionResourceImpl
 				ddmStructureVersion);
 		}
 
-		_ddmStructureLocalService.deleteDDMStructure(dataDefinitionId);
+		_deDataDefinitionFieldLinkLocalService.deleteDEDataDefinitionFieldLinks(
+			dataDefinitionId);
+
+		_deDataListViewLocalService.deleteDEDataListViews(dataDefinitionId);
 	}
 
 	@Override
@@ -160,6 +173,46 @@ public class DataDefinitionResourceImpl
 		);
 
 		return jsonArray.toJSONString();
+	}
+
+	@Override
+	public String getDataDefinitionDataDefinitionFieldLink(
+			Long dataDefinitionId, String fieldName)
+		throws Exception {
+
+		return JSONUtil.put(
+			"dataLayouts",
+			transformToArray(
+				_deDataDefinitionFieldLinkLocalService.
+					getDEDataDefinitionFieldLinks(
+						_portal.getClassNameId(InternalDataLayout.class),
+						dataDefinitionId, fieldName),
+				deDataDefinitionFieldLink -> {
+					DDMStructureLayout ddmStructureLayout =
+						_ddmStructureLayoutLocalService.getDDMStructureLayout(
+							deDataDefinitionFieldLink.getClassPK());
+
+					return ddmStructureLayout.getName(
+						ddmStructureLayout.getDefaultLanguageId());
+				},
+				String.class)
+		).put(
+			"dataListViews",
+			transformToArray(
+				_deDataDefinitionFieldLinkLocalService.
+					getDEDataDefinitionFieldLinks(
+						_portal.getClassNameId(DEDataListView.class),
+						dataDefinitionId, fieldName),
+				deDataDefinitionFieldLink -> {
+					DEDataListView deDataListView =
+						_deDataListViewLocalService.getDEDataListView(
+							deDataDefinitionFieldLink.getClassPK());
+
+					return deDataListView.getName(
+						deDataListView.getDefaultLanguageId());
+				},
+				String.class)
+		).toString();
 	}
 
 	@Override
@@ -366,6 +419,11 @@ public class DataDefinitionResourceImpl
 			PermissionThreadLocal.getPermissionChecker(), dataDefinitionId,
 			ActionKeys.UPDATE);
 
+		DDMStructure ddmStructure = _ddmStructureLocalService.getStructure(
+			dataDefinitionId);
+
+		_updateRemovedFields(dataDefinition, ddmStructure);
+
 		return DataDefinitionUtil.toDataDefinition(
 			_ddmStructureLocalService.updateStructure(
 				PrincipalThreadLocal.getUserId(), dataDefinitionId,
@@ -422,6 +480,67 @@ public class DataDefinitionResourceImpl
 		return new StructureModifiedDateComparator(ascending);
 	}
 
+	private void _updateRemovedFields(
+			DataDefinition dataDefinition, DDMStructure ddmStructure)
+		throws Exception {
+
+		DataDefinition savedDataDefinition =
+			DataDefinitionUtil.toDataDefinition(
+				ddmStructure, _fieldTypeTracker);
+
+		List<String> removedFieldNames = transformToList(
+			savedDataDefinition.getDataDefinitionFields(),
+			dataDefinitionField -> dataDefinitionField.getName());
+
+		removedFieldNames.removeAll(
+			transformToList(
+				dataDefinition.getDataDefinitionFields(),
+				dataDefinitionField -> dataDefinitionField.getName()));
+
+		DDMStructureVersion structureVersion =
+			ddmStructure.getStructureVersion();
+
+		List<DDMStructureLayout> structureLayouts =
+			_ddmStructureLayoutLocalService.getStructureLayouts(
+				ddmStructure.getGroupId(),
+				_portal.getClassNameId(InternalDataLayout.class),
+				structureVersion.getStructureVersionId());
+
+		for (DDMStructureLayout ddmStructureLayout : structureLayouts) {
+			DataLayout dataLayout = DataLayoutUtil.toDataLayout(
+				ddmStructureLayout.getDefinition());
+
+			if (DataLayoutUtil.removeFieldsDataLayout(
+					dataLayout, removedFieldNames)) {
+
+				ddmStructureLayout.setDefinition(
+					DataLayoutUtil.toJSON(dataLayout));
+
+				_ddmStructureLayoutLocalService.updateDDMStructureLayout(
+					ddmStructureLayout);
+			}
+		}
+
+		List<DEDataListView> deDataListViews =
+			_deDataListViewLocalService.getDEDataListViews(
+				ddmStructure.getStructureId());
+
+		for (DEDataListView deDataListView : deDataListViews) {
+			String[] fields = JSONUtil.toStringArray(
+				_jsonFactory.createJSONArray(deDataListView.getFieldNames()));
+
+			if (DataLayoutUtil.existsAnyField(
+					ArrayUtil.toStringArray(removedFieldNames), fields)) {
+
+				deDataListView.setFieldNames(
+					Arrays.toString(
+						DataLayoutUtil.removeFields(
+							ArrayUtil.toStringArray(removedFieldNames),
+							fields)));
+			}
+		}
+	}
+
 	private static final EntityModel _entityModel =
 		new DataDefinitionEntityModel();
 
@@ -451,6 +570,13 @@ public class DataDefinitionResourceImpl
 
 	@Reference
 	private DDMStructureVersionLocalService _ddmStructureVersionLocalService;
+
+	@Reference
+	private DEDataDefinitionFieldLinkLocalService
+		_deDataDefinitionFieldLinkLocalService;
+
+	@Reference
+	private DEDataListViewLocalService _deDataListViewLocalService;
 
 	@Reference
 	private FieldTypeTracker _fieldTypeTracker;

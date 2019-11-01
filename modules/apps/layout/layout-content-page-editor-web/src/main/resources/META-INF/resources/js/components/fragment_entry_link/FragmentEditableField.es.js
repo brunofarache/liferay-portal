@@ -37,7 +37,7 @@ import {
 } from '../../utils/FragmentsEditorComponentUtils.es';
 import {
 	editableIsMapped,
-	editableIsMappedToAssetEntry,
+	editableIsMappedToInfoItem,
 	editableShouldBeHighlighted,
 	getItemPath
 } from '../../utils/FragmentsEditorGetUtils.es';
@@ -50,6 +50,7 @@ import {
 	CREATE_PROCESSOR_EVENT_TYPES
 } from '../../utils/constants';
 import debouncedAlert from '../../utils/debouncedAlert.es';
+import {isNullOrUndefined} from '../../utils/isNullOrUndefined.es';
 import {prefixSegmentsExperienceId} from '../../utils/prefixSegmentsExperienceId.es';
 import FloatingToolbar from '../floating_toolbar/FloatingToolbar.es';
 import FragmentProcessors from '../fragment_processors/FragmentProcessors.es';
@@ -125,8 +126,12 @@ class FragmentEditableField extends PortletBase {
 		const mapped = editableIsMapped(this.editableValues);
 
 		const value = mapped
-			? this._mappedFieldValue || this.editableValues.defaultValue
-			: translatedValue || this.editableValues.defaultValue;
+			? isNullOrUndefined(this._mappedFieldValue)
+				? this.editableValues.defaultValue
+				: this._mappedFieldValue
+			: isNullOrUndefined(translatedValue)
+			? this.editableValues.defaultValue
+			: translatedValue;
 
 		const processor =
 			FragmentProcessors[this.type] || FragmentProcessors.fallback;
@@ -195,18 +200,21 @@ class FragmentEditableField extends PortletBase {
 	 * @review
 	 */
 	syncActiveItemId() {
+		const eventName = this.type === 'image' ? 'dblclick' : 'click';
+
 		if (
+			this.hasUpdatePermissions &&
 			this._getItemId() === this.activeItemId &&
 			this.activeItemType === FRAGMENTS_EDITOR_ITEM_TYPES.editable
 		) {
 			this._createFloatingToolbar();
 
-			this.element.addEventListener('click', this._createProcessor);
+			this.element.addEventListener(eventName, this._createProcessor);
 		} else {
 			this._disposeFloatingToolbar();
 			this._destroyProcessors();
 
-			this.element.removeEventListener('click', this._createProcessor);
+			this.element.removeEventListener(eventName, this._createProcessor);
 		}
 	}
 
@@ -332,9 +340,11 @@ class FragmentEditableField extends PortletBase {
 	 */
 	_disposeFloatingToolbar() {
 		if (this._floatingToolbar) {
-			this._floatingToolbar.dispose();
+			requestAnimationFrame(() => {
+				this._floatingToolbar.dispose();
 
-			this._floatingToolbar = null;
+				this._floatingToolbar = null;
+			});
 		}
 	}
 
@@ -358,7 +368,11 @@ class FragmentEditableField extends PortletBase {
 				item.itemType === FRAGMENTS_EDITOR_ITEM_TYPES.fragment
 		);
 
-		return fragmentEntryLinkIsActive || siblingIsActive;
+		return (
+			!this.hasUpdatePermissions ||
+			fragmentEntryLinkIsActive ||
+			siblingIsActive
+		);
 	}
 
 	/**
@@ -524,7 +538,7 @@ class FragmentEditableField extends PortletBase {
 	_updateMappedFieldValue() {
 		if (
 			this.getAssetFieldValueURL &&
-			editableIsMappedToAssetEntry(this.editableValues)
+			editableIsMappedToInfoItem(this.editableValues)
 		) {
 			this.fetch(this.getAssetFieldValueURL, {
 				classNameId: this.editableValues.classNameId,
@@ -535,7 +549,7 @@ class FragmentEditableField extends PortletBase {
 				.then(response => {
 					const {fieldValue} = response;
 
-					if (fieldValue) {
+					if (!isNullOrUndefined(fieldValue)) {
 						if (
 							this.type === 'image' &&
 							typeof fieldValue.url === 'string'
@@ -695,6 +709,7 @@ const ConnectedFragmentEditableField = getConnectedComponent(
 		'defaultSegmentsExperienceId',
 		'getAssetFieldValueURL',
 		'getAssetMappingFieldsURL',
+		'hasUpdatePermissions',
 		'hoveredItemId',
 		'hoveredItemType',
 		'languageId',

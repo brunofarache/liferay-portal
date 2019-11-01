@@ -26,7 +26,9 @@ import com.liferay.change.tracking.service.CTProcessLocalService;
 import com.liferay.change.tracking.service.base.CTCollectionLocalServiceBaseImpl;
 import com.liferay.petra.lang.SafeClosable;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.change.tracking.sql.CTSQLModeThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
+import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.ModelHintsUtil;
 import com.liferay.portal.kernel.model.change.tracking.CTModel;
@@ -98,8 +100,6 @@ public class CTCollectionLocalServiceImpl
 
 		for (CTEntry ctEntry : ctEntries) {
 			modelClassNameIds.add(ctEntry.getModelClassNameId());
-
-			_ctEntryLocalService.deleteCTEntry(ctEntry);
 		}
 
 		for (long modelClassNameId : modelClassNameIds) {
@@ -109,6 +109,10 @@ public class CTCollectionLocalServiceImpl
 			if (ctService != null) {
 				_removeCTModels(ctService, ctCollection.getCtCollectionId());
 			}
+		}
+
+		for (CTEntry ctEntry : ctEntries) {
+			_ctEntryLocalService.deleteCTEntry(ctEntry);
 		}
 
 		ctPreferencesPersistence.removeByCollectionId(
@@ -171,7 +175,9 @@ public class CTCollectionLocalServiceImpl
 		try (SafeClosable safeClosable1 =
 				CTPersistenceHelperThreadLocal.setEnabled(false);
 			SafeClosable safeClosable2 =
-				CTCollectionThreadLocal.setCTCollectionId(ctCollectionId)) {
+				CTCollectionThreadLocal.setCTCollectionId(ctCollectionId);
+			SafeClosable safeClosable3 = CTSQLModeThreadLocal.setCTSQLMode(
+				CTSQLModeThreadLocal.CTSQLMode.CT_ONLY)) {
 
 			ctService.updateWithUnsafeFunction(
 				ctPersistence -> {
@@ -181,6 +187,12 @@ public class CTCollectionLocalServiceImpl
 					for (T ctModel : ctModels) {
 						ctPersistence.removeCTModel(ctModel, true);
 					}
+
+					Session session = ctPersistence.getCurrentSession();
+
+					session.flush();
+
+					session.clear();
 
 					return null;
 				});

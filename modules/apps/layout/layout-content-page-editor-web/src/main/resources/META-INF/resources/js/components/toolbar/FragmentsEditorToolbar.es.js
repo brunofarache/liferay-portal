@@ -26,6 +26,7 @@ import './ExperimentsLabel.es';
 import {TOGGLE_SIDEBAR} from '../../actions/actions.es';
 import getConnectedComponent from '../../store/ConnectedComponent.es';
 import {setIn} from '../../utils/FragmentsEditorUpdateUtils.es';
+import {PAGE_TYPES} from '../../utils/constants';
 import templates from './FragmentsEditorToolbar.soy';
 
 /**
@@ -52,6 +53,14 @@ class FragmentsEditorToolbar extends Component {
 		}
 
 		return nextState;
+	}
+
+	syncLastSaveDate() {
+		this._publishButtonEnabled =
+			this._online &&
+			Boolean(this.lastSaveDate) &&
+			(this.pageType !== PAGE_TYPES.master ||
+				this.layoutData.hasDropZone);
 	}
 
 	/**
@@ -152,6 +161,19 @@ FragmentsEditorToolbar.STATE = {
 	 */
 	_online: Config.bool()
 		.internal()
+		.value(true),
+
+	/**
+	 * If the publish button should be enabled
+	 * @default true
+	 * @instance
+	 * @memberof FragmentsEditorToolbar
+	 * @private
+	 * @review
+	 * @type {boolean}
+	 */
+	_publishButtonEnabled: Config.bool()
+		.internal()
 		.value(true)
 };
 
@@ -163,7 +185,9 @@ const ConnectedFragmentsEditorToolbar = getConnectedComponent(
 		'discardDraftURL',
 		'hasUpdatePermissions',
 		'lastSaveDate',
+		'layoutData',
 		'portletNamespace',
+		'pageType',
 		'publishURL',
 		'redirectURL',
 		'savingChanges',

@@ -110,6 +110,8 @@ public interface DEDataListViewLocalService
 	public DEDataListView deleteDEDataListView(long deDataListViewId)
 		throws PortalException;
 
+	public void deleteDEDataListViews(long ddmStructureId);
+
 	/**
 	 * @throws PortalException
 	 */
@@ -237,6 +239,9 @@ public interface DEDataListViewLocalService
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<DEDataListView> getDEDataListViews(int start, int end);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<DEDataListView> getDEDataListViews(long ddmStructureId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<DEDataListView> getDEDataListViews(

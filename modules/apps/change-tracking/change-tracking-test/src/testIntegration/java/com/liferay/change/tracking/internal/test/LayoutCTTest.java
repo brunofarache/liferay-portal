@@ -24,7 +24,9 @@ import com.liferay.change.tracking.service.CTProcessLocalService;
 import com.liferay.counter.kernel.service.CounterLocalService;
 import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.petra.lang.SafeClosable;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
+import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
@@ -32,7 +34,9 @@ import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.test.log.CaptureAppender;
 import com.liferay.portal.test.log.Log4JLoggerTestUtil;
 import com.liferay.portal.test.rule.ExpectedDBType;
@@ -42,6 +46,11 @@ import com.liferay.portal.test.rule.ExpectedType;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Level;
@@ -120,6 +129,118 @@ public class LayoutCTTest {
 	}
 
 	@Test
+	public void testDeleteCTCollectionAdd() throws Exception {
+		try (SafeClosable safeClosable =
+				CTCollectionThreadLocal.setCTCollectionId(
+					_ctCollection.getCtCollectionId())) {
+
+			LayoutTestUtil.addLayout(_group);
+		}
+
+		_ctCollectionLocalService.deleteCTCollection(_ctCollection);
+
+		try (Connection con = DataAccess.getConnection();
+			PreparedStatement ps = con.prepareStatement(
+				"select * from Layout where ctCollectionId = " +
+					_ctCollection.getCtCollectionId());
+			ResultSet rs = ps.executeQuery()) {
+
+			Assert.assertFalse(rs.next());
+		}
+		finally {
+			_ctCollection = null;
+		}
+	}
+
+	@Test
+	public void testDeleteCTCollectionModify() throws Exception {
+		Layout layout = LayoutTestUtil.addLayout(_group);
+
+		try (SafeClosable safeClosable =
+				CTCollectionThreadLocal.setCTCollectionId(
+					_ctCollection.getCtCollectionId())) {
+
+			layout.setTitle(RandomTestUtil.randomString());
+
+			layout = _layoutLocalService.updateLayout(layout);
+		}
+
+		_ctCollectionLocalService.deleteCTCollection(_ctCollection);
+
+		try (Connection con = DataAccess.getConnection();
+			PreparedStatement ps = con.prepareStatement(
+				"select * from Layout where ctCollectionId = " +
+					_ctCollection.getCtCollectionId());
+			ResultSet rs = ps.executeQuery()) {
+
+			Assert.assertFalse(rs.next());
+		}
+		finally {
+			_ctCollection = null;
+		}
+	}
+
+	@Test
+	public void testDeleteCTCollectionPublishDelete() throws Exception {
+		Layout layout = LayoutTestUtil.addLayout(_group);
+
+		try (SafeClosable safeClosable =
+				CTCollectionThreadLocal.setCTCollectionId(
+					_ctCollection.getCtCollectionId())) {
+
+			_layoutLocalService.deleteLayout(layout);
+		}
+
+		_ctProcessLocalService.addCTProcess(
+			_ctCollection.getUserId(), _ctCollection.getCtCollectionId());
+
+		_ctCollectionLocalService.deleteCTCollection(_ctCollection);
+
+		try (Connection con = DataAccess.getConnection();
+			PreparedStatement ps = con.prepareStatement(
+				"select * from Layout where ctCollectionId = " +
+					_ctCollection.getCtCollectionId());
+			ResultSet rs = ps.executeQuery()) {
+
+			Assert.assertFalse(rs.next());
+		}
+		finally {
+			_ctCollection = null;
+		}
+	}
+
+	@Test
+	public void testDeleteCTCollectionPublishModify() throws Exception {
+		Layout layout = LayoutTestUtil.addLayout(_group);
+
+		try (SafeClosable safeClosable =
+				CTCollectionThreadLocal.setCTCollectionId(
+					_ctCollection.getCtCollectionId())) {
+
+			layout.setTitle(RandomTestUtil.randomString());
+
+			layout = _layoutLocalService.updateLayout(layout);
+		}
+
+		_ctProcessLocalService.addCTProcess(
+			_ctCollection.getUserId(), _ctCollection.getCtCollectionId());
+
+		_ctCollectionLocalService.deleteCTCollection(_ctCollection);
+
+		try (Connection con = DataAccess.getConnection();
+			PreparedStatement ps = con.prepareStatement(
+				"select * from Layout where ctCollectionId = " +
+					_ctCollection.getCtCollectionId());
+			ResultSet rs = ps.executeQuery()) {
+
+			Assert.assertFalse(rs.next());
+		}
+		finally {
+			_ctCollection = null;
+		}
+	}
+
+	@Test
 	public void testModifyLayout() throws Exception {
 		Layout layout = LayoutTestUtil.addLayout(_group);
 
@@ -158,17 +279,190 @@ public class LayoutCTTest {
 			CTConstants.CT_CHANGE_TYPE_MODIFICATION, ctEntry.getChangeType());
 	}
 
+	@Test
+	public void testModifyLayoutWithPagination() throws Exception {
+		Layout layout = LayoutTestUtil.addLayout(_group);
+
+		String description = layout.getDescription();
+
+		try (SafeClosable safeClosable =
+				CTCollectionThreadLocal.setCTCollectionId(
+					_ctCollection.getCtCollectionId())) {
+
+			String ctDescription = RandomTestUtil.randomString();
+
+			layout.setDescription(ctDescription);
+
+			layout = _layoutLocalService.updateLayout(layout);
+
+			List<Layout> layouts = _layoutLocalService.getLayouts(
+				_group.getGroupId(), layout.isPrivateLayout(), 0, 2, null);
+
+			Assert.assertEquals(layouts.toString(), 1, layouts.size());
+
+			layout = layouts.get(0);
+
+			Assert.assertEquals(ctDescription, layout.getDescription());
+		}
+
+		List<Layout> layouts = _layoutLocalService.getLayouts(
+			_group.getGroupId(), layout.isPrivateLayout(), 0, 2, null);
+
+		Assert.assertEquals(layouts.toString(), 1, layouts.size());
+
+		layout = layouts.get(0);
+
+		Assert.assertEquals(description, layout.getDescription());
+	}
+
+	@Test
+	public void testPublishAvoidsConstraintViolationsWithAddRemove()
+		throws Exception {
+
+		Layout layout1 = LayoutTestUtil.addLayout(_group);
+
+		String friendlyURL = layout1.getFriendlyURL();
+
+		Layout layout2 = null;
+
+		try (SafeClosable safeClosable =
+				CTCollectionThreadLocal.setCTCollectionId(
+					_ctCollection.getCtCollectionId())) {
+
+			_layoutLocalService.deleteLayout(layout1);
+
+			layout2 = LayoutTestUtil.addLayout(_group);
+
+			layout2.setFriendlyURL(friendlyURL);
+
+			layout2 = _layoutLocalService.updateLayout(layout2);
+		}
+
+		_ctProcessLocalService.addCTProcess(
+			_ctCollection.getUserId(), _ctCollection.getCtCollectionId());
+
+		Assert.assertNull(_layoutLocalService.fetchLayout(layout1.getPlid()));
+
+		layout2 = _layoutLocalService.fetchLayout(layout2.getPlid());
+
+		Assert.assertNotNull(layout2);
+
+		Assert.assertEquals(friendlyURL, layout2.getFriendlyURL());
+	}
+
+	@Test
+	public void testPublishAvoidsConstraintViolationsWithModifications()
+		throws Exception {
+
+		Layout layout1 = LayoutTestUtil.addLayout(_group);
+		Layout layout2 = LayoutTestUtil.addLayout(_group);
+
+		String friendlyURLA = layout1.getFriendlyURL();
+		String friendlyURLB = layout2.getFriendlyURL();
+
+		try (SafeClosable safeClosable =
+				CTCollectionThreadLocal.setCTCollectionId(
+					_ctCollection.getCtCollectionId())) {
+
+			layout1.setFriendlyURL("/friendlyURLSwap");
+
+			layout1 = _layoutLocalService.updateLayout(layout1);
+
+			layout2.setFriendlyURL(friendlyURLA);
+
+			layout2 = _layoutLocalService.updateLayout(layout2);
+
+			layout1.setFriendlyURL(friendlyURLB);
+
+			layout1 = _layoutLocalService.updateLayout(layout1);
+		}
+
+		_ctProcessLocalService.addCTProcess(
+			_ctCollection.getUserId(), _ctCollection.getCtCollectionId());
+
+		layout1 = _layoutLocalService.fetchLayout(layout1.getPlid());
+
+		Assert.assertNotNull(layout1);
+
+		layout2 = _layoutLocalService.fetchLayout(layout2.getPlid());
+
+		Assert.assertNotNull(layout2);
+
+		Assert.assertEquals(friendlyURLB, layout1.getFriendlyURL());
+
+		Assert.assertEquals(friendlyURLA, layout2.getFriendlyURL());
+	}
+
+	@Test
+	public void testPublishCTEntriesValues() throws Exception {
+		Layout deletedLayout = LayoutTestUtil.addLayout(_group);
+		Layout modifiedLayout = LayoutTestUtil.addLayout(_group);
+
+		try (SafeClosable safeClosable =
+				CTCollectionThreadLocal.setCTCollectionId(
+					_ctCollection.getCtCollectionId())) {
+
+			LayoutTestUtil.addLayout(_group);
+
+			_layoutLocalService.deleteLayout(deletedLayout);
+
+			modifiedLayout.setFriendlyURL("/testModifyLayout");
+
+			modifiedLayout = _layoutLocalService.updateLayout(modifiedLayout);
+		}
+
+		_ctProcessLocalService.addCTProcess(
+			_ctCollection.getUserId(), _ctCollection.getCtCollectionId());
+
+		try (Connection con = DataAccess.getConnection();
+			PreparedStatement ps = con.prepareStatement(
+				StringBundler.concat(
+					"select changeType from CTEntry inner join Layout on ",
+					"CTEntry.modelClassNameId = ",
+					_classNameLocalService.getClassNameId(Layout.class),
+					" and CTEntry.modelClassPK = Layout.plid and ",
+					"CTEntry.modelMvccVersion = Layout.mvccVersion where ",
+					"CTEntry.ctCollectionId = ",
+					_ctCollection.getCtCollectionId(),
+					" order by ctEntryId ASC"));
+			ResultSet rs = ps.executeQuery()) {
+
+			Assert.assertTrue(rs.next());
+
+			Assert.assertEquals(
+				CTConstants.CT_CHANGE_TYPE_ADDITION, rs.getLong("changeType"));
+
+			Assert.assertTrue(rs.next());
+
+			Assert.assertEquals(
+				CTConstants.CT_CHANGE_TYPE_DELETION, rs.getLong("changeType"));
+
+			Assert.assertTrue(rs.next());
+
+			Assert.assertEquals(
+				CTConstants.CT_CHANGE_TYPE_MODIFICATION,
+				rs.getLong("changeType"));
+
+			Assert.assertFalse(rs.next());
+		}
+	}
+
 	@ExpectedLogs(
 		expectedLogs = {
 			@ExpectedLog(
 				expectedDBType = ExpectedDBType.DB2,
-				expectedLog = "Error for batch element",
-				expectedType = ExpectedType.PREFIX
+				expectedLog = "Batch failure.",
+				expectedType = ExpectedType.CONTAINS
 			),
 			@ExpectedLog(
 				expectedDBType = ExpectedDBType.DB2,
-				expectedLog = "Batch failure.",
+				expectedLog = "DB2 SQL Error: SQLCODE=-803",
 				expectedType = ExpectedType.CONTAINS
+			),
+			@ExpectedLog(
+				expectedDBType = ExpectedDBType.DB2,
+				expectedLog = "Error for batch element",
+				expectedType = ExpectedType.PREFIX
 			),
 			@ExpectedLog(
 				expectedDBType = ExpectedDBType.HYPERSONIC,
@@ -379,6 +673,141 @@ public class LayoutCTTest {
 	}
 
 	@Test
+	public void testPublishModifiedLayoutMergeableConflict() throws Exception {
+		Layout layout = LayoutTestUtil.addLayout(_group);
+
+		String title = layout.getTitle();
+
+		try (SafeClosable safeClosable =
+				CTCollectionThreadLocal.setCTCollectionId(
+					_ctCollection.getCtCollectionId())) {
+
+			layout = _layoutLocalService.updateLayout(layout);
+		}
+
+		layout = _layoutLocalService.getLayout(layout.getPlid());
+
+		layout.setTitle(RandomTestUtil.randomString());
+
+		layout = _layoutLocalService.updateLayout(layout);
+
+		_ctProcessLocalService.addCTProcess(
+			_ctCollection.getUserId(), _ctCollection.getCtCollectionId());
+
+		Layout productionLayout = _layoutLocalService.fetchLayout(
+			layout.getPlid());
+
+		Assert.assertNotNull(productionLayout);
+
+		Assert.assertEquals(title, productionLayout.getTitle());
+	}
+
+	@Test
+	public void testPublishModifiedLayoutWithIgnorableChange()
+		throws Exception {
+
+		Layout layout = LayoutTestUtil.addLayout(_group);
+
+		Date modifiedDate = layout.getModifiedDate();
+
+		modifiedDate = new Date((modifiedDate.getTime() / 1000) * 1000);
+
+		layout.setModifiedDate(modifiedDate);
+
+		layout = _layoutLocalService.updateLayout(layout);
+
+		try (SafeClosable safeClosable =
+				CTCollectionThreadLocal.setCTCollectionId(
+					_ctCollection.getCtCollectionId())) {
+
+			layout.setModifiedDate(
+				new Date(modifiedDate.getTime() + Time.HOUR));
+
+			layout = _layoutLocalService.updateLayout(layout);
+		}
+
+		_ctProcessLocalService.addCTProcess(
+			_ctCollection.getUserId(), _ctCollection.getCtCollectionId());
+
+		Layout productionLayout = _layoutLocalService.fetchLayout(
+			layout.getPlid());
+
+		Assert.assertNotNull(productionLayout);
+
+		Assert.assertEquals(modifiedDate, productionLayout.getModifiedDate());
+	}
+
+	@Test
+	public void testPublishModifiedLayoutWithIgnorableConflict()
+		throws Exception {
+
+		Layout layout = LayoutTestUtil.addLayout(_group);
+
+		Date modifiedDate = layout.getModifiedDate();
+
+		modifiedDate = new Date((modifiedDate.getTime() / 1000) * 1000);
+
+		layout.setModifiedDate(modifiedDate);
+
+		layout = _layoutLocalService.updateLayout(layout);
+
+		try (SafeClosable safeClosable =
+				CTCollectionThreadLocal.setCTCollectionId(
+					_ctCollection.getCtCollectionId())) {
+
+			layout.setModifiedDate(modifiedDate);
+
+			layout = _layoutLocalService.updateLayout(layout);
+		}
+
+		layout = _layoutLocalService.getLayout(layout.getPlid());
+
+		modifiedDate = new Date(modifiedDate.getTime() + Time.HOUR);
+
+		layout.setModifiedDate(modifiedDate);
+
+		layout = _layoutLocalService.updateLayout(layout);
+
+		_ctProcessLocalService.addCTProcess(
+			_ctCollection.getUserId(), _ctCollection.getCtCollectionId());
+
+		Layout productionLayout = _layoutLocalService.fetchLayout(
+			layout.getPlid());
+
+		Assert.assertNotNull(productionLayout);
+
+		Assert.assertEquals(modifiedDate, productionLayout.getModifiedDate());
+	}
+
+	@Test
+	public void testPublishModifiedLayoutWithMergeableChange()
+		throws Exception {
+
+		Layout layout = LayoutTestUtil.addLayout(_group);
+
+		String title = RandomTestUtil.randomString();
+
+		try (SafeClosable safeClosable =
+				CTCollectionThreadLocal.setCTCollectionId(
+					_ctCollection.getCtCollectionId())) {
+
+			layout.setTitle(title);
+
+			layout = _layoutLocalService.updateLayout(layout);
+		}
+
+		_ctProcessLocalService.addCTProcess(
+			_ctCollection.getUserId(), _ctCollection.getCtCollectionId());
+
+		Layout productionLayout = _layoutLocalService.fetchLayout(
+			layout.getPlid());
+
+		Assert.assertNotNull(productionLayout);
+
+		Assert.assertEquals(title, productionLayout.getTitle());
+	}
+
+	@Test
 	public void testPublishModifiedLayoutWithTargetDeleted() throws Exception {
 		Layout layout = LayoutTestUtil.addLayout(_group);
 
@@ -491,6 +920,102 @@ public class LayoutCTTest {
 
 		Assert.assertEquals(
 			CTConstants.CT_CHANGE_TYPE_DELETION, ctEntry.getChangeType());
+	}
+
+	@Test
+	public void testScratchedAddThenDelete() throws Exception {
+		try (SafeClosable safeClosable =
+				CTCollectionThreadLocal.setCTCollectionId(
+					_ctCollection.getCtCollectionId())) {
+
+			Layout layout = LayoutTestUtil.addLayout(_group);
+
+			try (Connection con = DataAccess.getConnection();
+				PreparedStatement ps = con.prepareStatement(
+					"select ctCollectionId from Layout where plid = " +
+						layout.getPlid());
+				ResultSet rs = ps.executeQuery()) {
+
+				Assert.assertTrue(rs.next());
+
+				Assert.assertEquals(
+					_ctCollection.getCtCollectionId(),
+					rs.getLong("ctCollectionId"));
+
+				Assert.assertFalse(rs.next());
+			}
+
+			_layoutLocalService.deleteLayout(layout);
+
+			CTEntry ctEntry = _ctEntryLocalService.fetchCTEntry(
+				_ctCollection.getCtCollectionId(),
+				_classNameLocalService.getClassNameId(Layout.class),
+				layout.getPlid());
+
+			Assert.assertNull(ctEntry);
+
+			try (Connection con = DataAccess.getConnection();
+				PreparedStatement ps = con.prepareStatement(
+					"select * from Layout where plid = " + layout.getPlid());
+				ResultSet rs = ps.executeQuery()) {
+
+				Assert.assertFalse(rs.next());
+			}
+		}
+	}
+
+	@Test
+	public void testScratchedModifyThenDelete() throws Exception {
+		Layout layout = LayoutTestUtil.addLayout(_group);
+
+		try (SafeClosable safeClosable =
+				CTCollectionThreadLocal.setCTCollectionId(
+					_ctCollection.getCtCollectionId())) {
+
+			layout.setTitle(RandomTestUtil.randomString());
+
+			layout = _layoutLocalService.updateLayout(layout);
+
+			try (Connection con = DataAccess.getConnection();
+				PreparedStatement ps = con.prepareStatement(
+					"select COUNT(*) from Layout where plid = " +
+						layout.getPlid());
+				ResultSet rs = ps.executeQuery()) {
+
+				Assert.assertTrue(rs.next());
+
+				Assert.assertEquals(2, rs.getLong(1));
+
+				Assert.assertFalse(rs.next());
+			}
+
+			_layoutLocalService.deleteLayout(layout);
+
+			CTEntry ctEntry = _ctEntryLocalService.fetchCTEntry(
+				_ctCollection.getCtCollectionId(),
+				_classNameLocalService.getClassNameId(Layout.class),
+				layout.getPlid());
+
+			Assert.assertNotNull(ctEntry);
+
+			Assert.assertEquals(
+				CTConstants.CT_CHANGE_TYPE_DELETION, ctEntry.getChangeType());
+
+			try (Connection con = DataAccess.getConnection();
+				PreparedStatement ps = con.prepareStatement(
+					"select ctCollectionId from Layout where plid = " +
+						layout.getPlid());
+				ResultSet rs = ps.executeQuery()) {
+
+				Assert.assertTrue(rs.next());
+
+				Assert.assertEquals(
+					CTConstants.CT_COLLECTION_ID_PRODUCTION,
+					rs.getLong("ctCollectionId"));
+
+				Assert.assertFalse(rs.next());
+			}
+		}
 	}
 
 	@Inject
