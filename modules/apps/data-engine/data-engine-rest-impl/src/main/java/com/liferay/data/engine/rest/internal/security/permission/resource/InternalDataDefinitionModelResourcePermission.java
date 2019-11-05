@@ -23,7 +23,9 @@ import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
+import com.liferay.portal.kernel.util.Portal;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -112,7 +114,15 @@ public class InternalDataDefinitionModelResourcePermission
 		return null;
 	}
 
+	@Activate
+	protected void activate() {
+		_portal.getClassNameId(InternalDataDefinition.class);
+	}
+
 	@Reference
 	protected DDMStructureLocalService ddmStructureLocalService;
+
+	@Reference
+	private Portal _portal;
 
 }
