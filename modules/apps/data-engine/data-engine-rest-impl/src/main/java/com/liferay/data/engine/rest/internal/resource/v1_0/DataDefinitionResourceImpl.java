@@ -68,8 +68,8 @@ import com.liferay.dynamic.data.mapping.util.comparator.StructureModifiedDateCom
 import com.liferay.dynamic.data.mapping.util.comparator.StructureNameComparator;
 import com.liferay.frontend.js.loader.modules.extender.npm.NPMResolver;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -107,6 +107,7 @@ import com.liferay.portal.vulcan.util.SearchUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -701,19 +702,14 @@ public class DataDefinitionResourceImpl
 	}
 
 	private void _updateDataLayouts(
-			DDMStructure ddmStructure, String[] removedFieldNames)
+			Set<Long> ddmStructureLayoutIds, String[] removedFieldNames)
 		throws Exception {
 
-		DDMStructureVersion structureVersion =
-			ddmStructure.getStructureVersion();
+		for (Long ddmStructureLayoutId : ddmStructureLayoutIds) {
+			DDMStructureLayout ddmStructureLayout =
+				_ddmStructureLayoutLocalService.getStructureLayout(
+					ddmStructureLayoutId);
 
-		List<DDMStructureLayout> ddmStructureLayouts =
-			_ddmStructureLayoutLocalService.getStructureLayouts(
-				ddmStructure.getGroupId(),
-				_portal.getClassNameId(InternalDataLayout.class),
-				structureVersion.getStructureVersionId());
-
-		for (DDMStructureLayout ddmStructureLayout : ddmStructureLayouts) {
 			DataLayout dataLayout = DataLayoutUtil.toDataLayout(
 				ddmStructureLayout.getDDMFormLayout());
 
@@ -739,14 +735,13 @@ public class DataDefinitionResourceImpl
 	}
 
 	private void _updateDataListViews(
-			DDMStructure ddmStructure, String[] removedFieldNames)
-		throws JSONException {
+			Set<Long> deDataListViewIds, String[] removedFieldNames)
+		throws PortalException {
 
-		List<DEDataListView> deDataListViews =
-			_deDataListViewLocalService.getDEDataListViews(
-				ddmStructure.getStructureId());
+		for (Long deDataListViewId : deDataListViewIds) {
+			DEDataListView deDataListView =
+				_deDataListViewLocalService.getDEDataListView(deDataListViewId);
 
-		for (DEDataListView deDataListView : deDataListViews) {
 			String[] fieldNames = JSONUtil.toStringArray(
 				_jsonFactory.createJSONArray(deDataListView.getFieldNames()));
 
@@ -768,8 +763,41 @@ public class DataDefinitionResourceImpl
 		String[] removedFieldNames = _getRemovedFieldNames(
 			dataDefinition, ddmStructure);
 
-		_updateDataLayouts(ddmStructure, removedFieldNames);
-		_updateDataListViews(ddmStructure, removedFieldNames);
+		Set<Long> ddmStructureLayoutIds = new HashSet<>();
+		Set<Long> deDataListViewIds = new HashSet<>();
+
+		for (String removedFieldName : removedFieldNames) {
+			ddmStructureLayoutIds.addAll(
+				transform(
+					_deDataDefinitionFieldLinkLocalService.
+						getDEDataDefinitionFieldLinks(
+							_portal.getClassNameId(InternalDataLayout.class),
+							ddmStructure.getStructureId(), removedFieldName),
+					deDataDefinitionFieldLink ->
+						deDataDefinitionFieldLink.getClassPK()));
+
+			deDataListViewIds.addAll(
+				transform(
+					_deDataDefinitionFieldLinkLocalService.
+						getDEDataDefinitionFieldLinks(
+							_portal.getClassNameId(DEDataListView.class),
+							ddmStructure.getStructureId(), removedFieldName),
+					deDataDefinitionFieldLink ->
+						deDataDefinitionFieldLink.getClassPK()));
+
+			_deDataDefinitionFieldLinkLocalService.
+				deleteDEDataDefinitionFieldLinks(
+					_portal.getClassNameId(InternalDataLayout.class),
+					ddmStructure.getStructureId(), removedFieldName);
+
+			_deDataDefinitionFieldLinkLocalService.
+				deleteDEDataDefinitionFieldLinks(
+					_portal.getClassNameId(DEDataListView.class),
+					ddmStructure.getStructureId(), removedFieldName);
+		}
+
+		_updateDataLayouts(ddmStructureLayoutIds, removedFieldNames);
+		_updateDataListViews(deDataListViewIds, removedFieldNames);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
