@@ -20,11 +20,15 @@ import com.liferay.data.engine.rest.internal.resource.util.DataEnginePermissionU
 import com.liferay.data.engine.rest.resource.v2_0.DataModelPermissionResource;
 import com.liferay.dynamic.data.lists.model.DDLRecordSet;
 import com.liferay.dynamic.data.lists.service.DDLRecordSetLocalService;
+import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.model.ResourceAction;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.ResourcePermission;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
@@ -51,6 +55,36 @@ import org.osgi.service.component.annotations.ServiceScope;
 )
 public class DataModelPermissionResourceImpl
 	extends BaseDataModelPermissionResourceImpl {
+
+	@Override
+	public String getDataRecordCollectionCurrentUserDataModelPermissions(
+			Long dataRecordCollectionId)
+		throws Exception {
+
+		List<ResourceAction> resourceActions =
+			_resourceActionLocalService.getResourceActions(
+				DataRecordCollectionConstants.RESOURCE_NAME);
+
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		DDLRecordSet ddlRecordSet = _ddlRecordSetLocalService.getRecordSet(
+			dataRecordCollectionId);
+
+		JSONArray actionIds = JSONFactoryUtil.createJSONArray();
+
+		for (ResourceAction resourceAction : resourceActions) {
+			if (permissionChecker.hasPermission(
+					ddlRecordSet.getGroupId(),
+					DataRecordCollectionConstants.RESOURCE_NAME,
+					dataRecordCollectionId, resourceAction.getActionId())) {
+
+				actionIds.put(resourceAction.getActionId());
+			}
+		}
+
+		return actionIds.toString();
+	}
 
 	@Override
 	public Page<DataModelPermission>
@@ -109,9 +143,8 @@ public class DataModelPermissionResourceImpl
 	}
 
 	private DataModelPermission _toDataModelPermission(
-			Long dataRecordCollectionId, DDLRecordSet ddlRecordSet,
-			List<ResourceAction> resourceActions, Role role)
-		throws Exception {
+		Long dataRecordCollectionId, DDLRecordSet ddlRecordSet,
+		List<ResourceAction> resourceActions, Role role) {
 
 		ResourcePermission resourcePermission =
 			_resourcePermissionLocalService.fetchResourcePermission(
