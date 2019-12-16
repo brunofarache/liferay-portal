@@ -41,6 +41,7 @@ import javax.validation.constraints.NotNull;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -56,6 +57,118 @@ import javax.ws.rs.core.UriInfo;
 @Path("/v2.0")
 public abstract class BaseDataModelPermissionResourceImpl
 	implements DataModelPermissionResource {
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'GET' 'http://localhost:8080/o/data-engine/v2.0/data-definitions/{dataDefinitionId}/data-model-permissions'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@GET
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.PATH, name = "dataDefinitionId"),
+			@Parameter(in = ParameterIn.QUERY, name = "roleNames")
+		}
+	)
+	@Path("/data-definitions/{dataDefinitionId}/data-model-permissions")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "DataModelPermission")})
+	public Page<DataModelPermission> getDataDefinitionDataModelPermissionsPage(
+			@NotNull @Parameter(hidden = true) @PathParam("dataDefinitionId")
+				Long dataDefinitionId,
+			@NotNull @Parameter(hidden = true) @QueryParam("roleNames") String
+				roleNames)
+		throws Exception {
+
+		return Page.of(Collections.emptyList());
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'PUT' 'http://localhost:8080/o/data-engine/v2.0/data-definitions/{dataDefinitionId}/data-model-permissions'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@Consumes({"application/json", "application/xml"})
+	@PUT
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.PATH, name = "dataDefinitionId")}
+	)
+	@Path("/data-definitions/{dataDefinitionId}/data-model-permissions")
+	@Produces("application/json")
+	@Tags(value = {@Tag(name = "DataModelPermission")})
+	public void putDataDefinitionDataModelPermission(
+			@NotNull @Parameter(hidden = true) @PathParam("dataDefinitionId")
+				Long dataDefinitionId,
+			DataModelPermission[] dataModelPermissions)
+		throws Exception {
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'GET' 'http://localhost:8080/o/data-engine/v2.0/data-layouts/{dataLayoutId}/data-model-permissions'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@GET
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.PATH, name = "dataLayoutId"),
+			@Parameter(in = ParameterIn.QUERY, name = "roleNames")
+		}
+	)
+	@Path("/data-layouts/{dataLayoutId}/data-model-permissions")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "DataModelPermission")})
+	public Page<DataModelPermission> getDataLayoutDataModelPermissionsPage(
+			@NotNull @Parameter(hidden = true) @PathParam("dataLayoutId") Long
+				dataLayoutId,
+			@NotNull @Parameter(hidden = true) @QueryParam("roleNames") String
+				roleNames)
+		throws Exception {
+
+		return Page.of(Collections.emptyList());
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'PUT' 'http://localhost:8080/o/data-engine/v2.0/data-layouts/{dataLayoutId}/data-model-permissions'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@Consumes({"application/json", "application/xml"})
+	@PUT
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.PATH, name = "dataLayoutId")}
+	)
+	@Path("/data-layouts/{dataLayoutId}/data-model-permissions")
+	@Produces("application/json")
+	@Tags(value = {@Tag(name = "DataModelPermission")})
+	public void putDataLayoutDataModelPermission(
+			@NotNull @Parameter(hidden = true) @PathParam("dataLayoutId") Long
+				dataLayoutId,
+			DataModelPermission[] dataModelPermissions)
+		throws Exception {
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'POST' 'http://localhost:8080/o/data-engine/v2.0/sites/{siteId}/data-model-permissions'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@Consumes({"application/json", "application/xml"})
+	@POST
+	@Parameters(value = {@Parameter(in = ParameterIn.PATH, name = "siteId")})
+	@Path("/sites/{siteId}/data-model-permissions")
+	@Produces("application/json")
+	@Tags(value = {@Tag(name = "DataModelPermission")})
+	public void postSiteDataModelPermission(
+			@NotNull @Parameter(hidden = true) @PathParam("siteId") Long siteId,
+			DataModelPermission[] dataModelPermissions)
+		throws Exception {
+	}
 
 	/**
 	 * Invoke this method with the command line:

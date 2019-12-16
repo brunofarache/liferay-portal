@@ -39,6 +39,51 @@ public interface DataModelPermissionResource {
 		return new Builder();
 	}
 
+	public Page<DataModelPermission> getDataDefinitionDataModelPermissionsPage(
+			Long dataDefinitionId, String roleNames)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse
+			getDataDefinitionDataModelPermissionsPageHttpResponse(
+				Long dataDefinitionId, String roleNames)
+		throws Exception;
+
+	public void putDataDefinitionDataModelPermission(
+			Long dataDefinitionId, DataModelPermission[] dataModelPermissions)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse
+			putDataDefinitionDataModelPermissionHttpResponse(
+				Long dataDefinitionId,
+				DataModelPermission[] dataModelPermissions)
+		throws Exception;
+
+	public Page<DataModelPermission> getDataLayoutDataModelPermissionsPage(
+			Long dataLayoutId, String roleNames)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse
+			getDataLayoutDataModelPermissionsPageHttpResponse(
+				Long dataLayoutId, String roleNames)
+		throws Exception;
+
+	public void putDataLayoutDataModelPermission(
+			Long dataLayoutId, DataModelPermission[] dataModelPermissions)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse
+			putDataLayoutDataModelPermissionHttpResponse(
+				Long dataLayoutId, DataModelPermission[] dataModelPermissions)
+		throws Exception;
+
+	public void postSiteDataModelPermission(
+			Long siteId, DataModelPermission[] dataModelPermissions)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse postSiteDataModelPermissionHttpResponse(
+			Long siteId, DataModelPermission[] dataModelPermissions)
+		throws Exception;
+
 	public Page<DataModelPermission>
 			getDataRecordCollectionDataModelPermissionsPage(
 				Long dataRecordCollectionId, String roleNames)
@@ -115,6 +160,326 @@ public interface DataModelPermissionResource {
 
 	public static class DataModelPermissionResourceImpl
 		implements DataModelPermissionResource {
+
+		public Page<DataModelPermission>
+				getDataDefinitionDataModelPermissionsPage(
+					Long dataDefinitionId, String roleNames)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				getDataDefinitionDataModelPermissionsPageHttpResponse(
+					dataDefinitionId, roleNames);
+
+			String content = httpResponse.getContent();
+
+			_logger.fine("HTTP response content: " + content);
+
+			_logger.fine("HTTP response message: " + httpResponse.getMessage());
+			_logger.fine(
+				"HTTP response status code: " + httpResponse.getStatusCode());
+
+			return Page.of(content, DataModelPermissionSerDes::toDTO);
+		}
+
+		public HttpInvoker.HttpResponse
+				getDataDefinitionDataModelPermissionsPageHttpResponse(
+					Long dataDefinitionId, String roleNames)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
+
+			if (roleNames != null) {
+				httpInvoker.parameter("roleNames", String.valueOf(roleNames));
+			}
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port +
+						"/o/data-engine/v2.0/data-definitions/{dataDefinitionId}/data-model-permissions",
+				dataDefinitionId);
+
+			httpInvoker.userNameAndPassword(
+				_builder._login + ":" + _builder._password);
+
+			return httpInvoker.invoke();
+		}
+
+		public void putDataDefinitionDataModelPermission(
+				Long dataDefinitionId,
+				DataModelPermission[] dataModelPermissions)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				putDataDefinitionDataModelPermissionHttpResponse(
+					dataDefinitionId, dataModelPermissions);
+
+			String content = httpResponse.getContent();
+
+			_logger.fine("HTTP response content: " + content);
+
+			_logger.fine("HTTP response message: " + httpResponse.getMessage());
+			_logger.fine(
+				"HTTP response status code: " + httpResponse.getStatusCode());
+		}
+
+		public HttpInvoker.HttpResponse
+				putDataDefinitionDataModelPermissionHttpResponse(
+					Long dataDefinitionId,
+					DataModelPermission[] dataModelPermissions)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			httpInvoker.body(
+				Stream.of(
+					dataModelPermissions
+				).map(
+					value -> String.valueOf(value)
+				).collect(
+					Collectors.toList()
+				).toString(),
+				"application/json");
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.PUT);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port +
+						"/o/data-engine/v2.0/data-definitions/{dataDefinitionId}/data-model-permissions",
+				dataDefinitionId);
+
+			httpInvoker.userNameAndPassword(
+				_builder._login + ":" + _builder._password);
+
+			return httpInvoker.invoke();
+		}
+
+		public Page<DataModelPermission> getDataLayoutDataModelPermissionsPage(
+				Long dataLayoutId, String roleNames)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				getDataLayoutDataModelPermissionsPageHttpResponse(
+					dataLayoutId, roleNames);
+
+			String content = httpResponse.getContent();
+
+			_logger.fine("HTTP response content: " + content);
+
+			_logger.fine("HTTP response message: " + httpResponse.getMessage());
+			_logger.fine(
+				"HTTP response status code: " + httpResponse.getStatusCode());
+
+			return Page.of(content, DataModelPermissionSerDes::toDTO);
+		}
+
+		public HttpInvoker.HttpResponse
+				getDataLayoutDataModelPermissionsPageHttpResponse(
+					Long dataLayoutId, String roleNames)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
+
+			if (roleNames != null) {
+				httpInvoker.parameter("roleNames", String.valueOf(roleNames));
+			}
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port +
+						"/o/data-engine/v2.0/data-layouts/{dataLayoutId}/data-model-permissions",
+				dataLayoutId);
+
+			httpInvoker.userNameAndPassword(
+				_builder._login + ":" + _builder._password);
+
+			return httpInvoker.invoke();
+		}
+
+		public void putDataLayoutDataModelPermission(
+				Long dataLayoutId, DataModelPermission[] dataModelPermissions)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				putDataLayoutDataModelPermissionHttpResponse(
+					dataLayoutId, dataModelPermissions);
+
+			String content = httpResponse.getContent();
+
+			_logger.fine("HTTP response content: " + content);
+
+			_logger.fine("HTTP response message: " + httpResponse.getMessage());
+			_logger.fine(
+				"HTTP response status code: " + httpResponse.getStatusCode());
+		}
+
+		public HttpInvoker.HttpResponse
+				putDataLayoutDataModelPermissionHttpResponse(
+					Long dataLayoutId,
+					DataModelPermission[] dataModelPermissions)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			httpInvoker.body(
+				Stream.of(
+					dataModelPermissions
+				).map(
+					value -> String.valueOf(value)
+				).collect(
+					Collectors.toList()
+				).toString(),
+				"application/json");
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.PUT);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port +
+						"/o/data-engine/v2.0/data-layouts/{dataLayoutId}/data-model-permissions",
+				dataLayoutId);
+
+			httpInvoker.userNameAndPassword(
+				_builder._login + ":" + _builder._password);
+
+			return httpInvoker.invoke();
+		}
+
+		public void postSiteDataModelPermission(
+				Long siteId, DataModelPermission[] dataModelPermissions)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				postSiteDataModelPermissionHttpResponse(
+					siteId, dataModelPermissions);
+
+			String content = httpResponse.getContent();
+
+			_logger.fine("HTTP response content: " + content);
+
+			_logger.fine("HTTP response message: " + httpResponse.getMessage());
+			_logger.fine(
+				"HTTP response status code: " + httpResponse.getStatusCode());
+		}
+
+		public HttpInvoker.HttpResponse postSiteDataModelPermissionHttpResponse(
+				Long siteId, DataModelPermission[] dataModelPermissions)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			httpInvoker.body(
+				Stream.of(
+					dataModelPermissions
+				).map(
+					value -> String.valueOf(value)
+				).collect(
+					Collectors.toList()
+				).toString(),
+				"application/json");
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port +
+						"/o/data-engine/v2.0/sites/{siteId}/data-model-permissions",
+				siteId);
+
+			httpInvoker.userNameAndPassword(
+				_builder._login + ":" + _builder._password);
+
+			return httpInvoker.invoke();
+		}
 
 		public Page<DataModelPermission>
 				getDataRecordCollectionDataModelPermissionsPage(
