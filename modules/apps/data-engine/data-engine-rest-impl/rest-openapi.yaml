@@ -624,6 +624,67 @@ paths:
                     description:
                         ""
             tags: ["DataListView"]
+    "/data-definitions/{dataDefinitionId}/data-model-permissions":
+        get:
+            operationId: getDataDefinitionDataModelPermissionsPage
+            parameters:
+                - in: path
+                  name: dataDefinitionId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: query
+                  name: roleNames
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/DataModelPermission"
+                                type: array
+                        application/xml:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/DataModelPermission"
+                                type: array
+                    description:
+                        ""
+            tags: ["DataModelPermission"]
+        put:
+            operationId: putDataDefinitionDataModelPermission
+            parameters:
+                - in: path
+                  name: dataDefinitionId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            items:
+                                $ref: "#/components/schemas/DataModelPermission"
+                            type: array
+                    application/xml:
+                        schema:
+                            items:
+                                $ref: "#/components/schemas/DataModelPermission"
+                            type: array
+                description:
+                    ""
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                    description:
+                        ""
+            tags: ["DataModelPermission"]
     "/data-definitions/{dataDefinitionId}/data-record-collection":
         get:
             operationId: getDataDefinitionDataRecordCollection
@@ -875,6 +936,67 @@ paths:
                     description:
                         ""
             tags: ["DataLayout"]
+    "/data-layouts/{dataLayoutId}/data-model-permissions":
+        get:
+            operationId: getDataLayoutDataModelPermissionsPage
+            parameters:
+                - in: path
+                  name: dataLayoutId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: query
+                  name: roleNames
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/DataModelPermission"
+                                type: array
+                        application/xml:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/DataModelPermission"
+                                type: array
+                    description:
+                        ""
+            tags: ["DataModelPermission"]
+        put:
+            operationId: putDataLayoutDataModelPermission
+            parameters:
+                - in: path
+                  name: dataLayoutId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            items:
+                                $ref: "#/components/schemas/DataModelPermission"
+                            type: array
+                    application/xml:
+                        schema:
+                            items:
+                                $ref: "#/components/schemas/DataModelPermission"
+                            type: array
+                description:
+                    ""
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                    description:
+                        ""
+            tags: ["DataModelPermission"]
     "/data-list-views/{dataListViewId}":
         delete:
             operationId: deleteDataListView
@@ -1498,6 +1620,37 @@ paths:
                     description:
                         ""
             tags: ["DataLayout"]
+    "/sites/{siteId}/data-model-permissions":
+        post:
+            operationId: postSiteDataModelPermission
+            parameters:
+                - in: path
+                  name: siteId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            items:
+                                $ref: "#/components/schemas/DataModelPermission"
+                            type: array
+                    application/xml:
+                        schema:
+                            items:
+                                $ref: "#/components/schemas/DataModelPermission"
+                            type: array
+                description:
+                    ""
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                    description:
+                        ""
+            tags: ["DataModelPermission"]
     "/sites/{siteId}/data-record-collection-permissions":
         post:
             operationId: postSiteDataRecordCollectionPermission
