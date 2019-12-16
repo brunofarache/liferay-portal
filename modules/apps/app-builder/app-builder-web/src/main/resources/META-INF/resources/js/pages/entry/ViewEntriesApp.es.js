@@ -17,21 +17,26 @@ import {Route, HashRouter as Router, Switch} from 'react-router-dom';
 
 import {AppContextProvider} from '../../AppContext.es';
 import ListEntries from './ListEntries.es';
+import {PermissionsContextProvider} from './PermissionsContext.es';
 import ViewEntry from './ViewEntry.es';
 
 export default function(props) {
 	return (
 		<div className="app-builder-root">
 			<AppContextProvider {...props}>
-				<Router>
-					<Switch>
-						<Route component={ListEntries} exact path="/" />
-						<Route
-							component={ViewEntry}
-							path="/entries/:entryIndex(\d+)"
-						/>
-					</Switch>
-				</Router>
+				<PermissionsContextProvider
+					dataDefinitionId={props.dataDefinitionId}
+				>
+					<Router>
+						<Switch>
+							<Route component={ListEntries} exact path="/" />
+							<Route
+								component={ViewEntry}
+								path="/entries/:entryIndex(\d+)"
+							/>
+						</Switch>
+					</Router>
+				</PermissionsContextProvider>
 			</AppContextProvider>
 		</div>
 	);

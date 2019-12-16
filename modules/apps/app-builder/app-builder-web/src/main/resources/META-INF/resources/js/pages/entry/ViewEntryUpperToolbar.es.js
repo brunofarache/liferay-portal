@@ -21,9 +21,13 @@ import {withRouter} from 'react-router-dom';
 import {AppContext} from '../../AppContext.es';
 import UpperToolbar from '../../components/upper-toolbar/UpperToolbar.es';
 import Lang from '../../utils/lang.es';
+import {ACTIONS, PermissionsContext} from './PermissionsContext.es';
 
 export default withRouter(({onDelete, onEdit, onNext, onPrev, page, total}) => {
 	const {showFormView} = useContext(AppContext);
+	const actionIds = useContext(PermissionsContext);
+	const hasDeletePermission = actionIds.includes(ACTIONS.DELETE_DATA_RECORD);
+	const hasEditPermission = actionIds.includes(ACTIONS.UPDATE_DATA_RECORD);
 
 	return (
 		<UpperToolbar>
@@ -66,16 +70,20 @@ export default withRouter(({onDelete, onEdit, onNext, onPrev, page, total}) => {
 
 			{showFormView && (
 				<UpperToolbar.Group>
-					<UpperToolbar.Button
-						displayType="secondary"
-						onClick={onDelete}
-					>
-						{Liferay.Language.get('delete')}
-					</UpperToolbar.Button>
+					{hasDeletePermission && (
+						<UpperToolbar.Button
+							displayType="secondary"
+							onClick={onDelete}
+						>
+							{Liferay.Language.get('delete')}
+						</UpperToolbar.Button>
+					)}
 
-					<UpperToolbar.Button onClick={onEdit}>
-						{Liferay.Language.get('edit')}
-					</UpperToolbar.Button>
+					{hasEditPermission && (
+						<UpperToolbar.Button onClick={onEdit}>
+							{Liferay.Language.get('edit')}
+						</UpperToolbar.Button>
+					)}
 				</UpperToolbar.Group>
 			)}
 		</UpperToolbar>

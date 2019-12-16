@@ -21,17 +21,7 @@ import ManagementToolbar from '../../components/management-toolbar/ManagementToo
 import SearchInput from '../../components/management-toolbar/search/SearchInput.es';
 import Table from '../../components/table/Table.es';
 import {getItem, updateItem} from '../../utils/client.es';
-
-const ADD_DATA_RECORD = 'ADD_DATA_RECORD';
-const DELETE_DATA_RECORD = 'DELETE_DATA_RECORD';
-const UPDATE_DATA_RECORD = 'UPDATE_DATA_RECORD';
-const VIEW_DATA_RECORD = 'VIEW_DATA_RECORD';
-const ACTIONS = [
-	ADD_DATA_RECORD,
-	DELETE_DATA_RECORD,
-	UPDATE_DATA_RECORD,
-	VIEW_DATA_RECORD
-];
+import {ACTIONS} from '../entry/PermissionsContext.es';
 
 const COLUMNS = [
 	{
@@ -40,22 +30,22 @@ const COLUMNS = [
 		value: Liferay.Language.get('role')
 	},
 	{
-		key: ADD_DATA_RECORD,
+		key: ACTIONS.ADD_DATA_RECORD,
 		sortable: false,
 		value: Liferay.Language.get('add-entry')
 	},
 	{
-		key: DELETE_DATA_RECORD,
+		key: ACTIONS.DELETE_DATA_RECORD,
 		sortable: false,
 		value: Liferay.Language.get('delete')
 	},
 	{
-		key: UPDATE_DATA_RECORD,
+		key: ACTIONS.UPDATE_DATA_RECORD,
 		sortable: false,
 		value: Liferay.Language.get('update')
 	},
 	{
-		key: VIEW_DATA_RECORD,
+		key: ACTIONS.VIEW_DATA_RECORD,
 		sortable: false,
 		value: Liferay.Language.get('view')
 	}
@@ -113,11 +103,7 @@ export default ({dataDefinitionId, onClose}) => {
 		}
 	}, [dataDefinitionId]);
 
-	if (!dataDefinitionId) {
-		return <></>;
-	}
-
-	if (isLoading) {
+	if (!dataDefinitionId || isLoading) {
 		return <></>;
 	}
 
@@ -175,7 +161,7 @@ export default ({dataDefinitionId, onClose}) => {
 				)
 			};
 
-			ACTIONS.forEach(action => {
+			Object.keys(ACTIONS).forEach(action => {
 				item = {
 					...item,
 					[action]: (

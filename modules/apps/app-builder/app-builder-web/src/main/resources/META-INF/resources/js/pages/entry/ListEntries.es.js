@@ -24,6 +24,7 @@ import {toQuery, toQueryString} from '../../hooks/useQuery.es';
 import {confirmDelete, getItem} from '../../utils/client.es';
 import {getFieldLabel} from '../../utils/dataDefinition.es';
 import {FieldValuePreview} from './FieldPreview.es';
+import {ACTIONS, PermissionsContext} from './PermissionsContext.es';
 
 const ListEntries = withRouter(({history, location}) => {
 	const [state, setState] = useState({
@@ -40,6 +41,10 @@ const ListEntries = withRouter(({history, location}) => {
 		dataListViewId,
 		showFormView
 	} = useContext(AppContext);
+
+	const actionIds = useContext(PermissionsContext);
+	const hasAddPermission = actionIds.includes(ACTIONS.ADD_DATA_RECORD);
+	const hasViewPermission = actionIds.includes(ACTIONS.VIEW_DATA_RECORD);
 
 	useEffect(() => {
 		Promise.all([
@@ -74,19 +79,25 @@ const ListEntries = withRouter(({history, location}) => {
 		Liferay.Util.navigate(getEditURL(dataRecordId));
 	};
 
-	let actions = [];
+	const actions = [];
 
 	if (showFormView) {
-		actions = [
-			{
+		if (hasViewPermission) {
+			actions.push({
 				action: ({viewURL}) => Promise.resolve(history.push(viewURL)),
 				name: Liferay.Language.get('view')
-			},
-			{
+			});
+		}
+
+		if (actionIds.includes(ACTIONS.UPDATE_DATA_RECORD)) {
+			actions.push({
 				action: ({id}) => Promise.resolve(handleEditItem(id)),
 				name: Liferay.Language.get('edit')
-			},
-			{
+			});
+		}
+
+		if (actionIds.includes(ACTIONS.DELETE_DATA_RECORD)) {
+			actions.push({
 				action: item =>
 					confirmDelete('/o/data-engine/v2.0/data-records/')(
 						item
@@ -104,8 +115,8 @@ const ListEntries = withRouter(({history, location}) => {
 						return Promise.resolve(confirmed);
 					}),
 				name: Liferay.Language.get('delete')
-			}
-		];
+			});
+		}
 	}
 
 	return (
@@ -113,7 +124,8 @@ const ListEntries = withRouter(({history, location}) => {
 			<ListView
 				actions={actions}
 				addButton={() =>
-					showFormView && (
+					showFormView &&
+					hasAddPermission && (
 						<Button
 							className="nav-btn nav-btn-monospaced navbar-breakpoint-down-d-none"
 							onClick={() => handleEditItem(0)}
@@ -128,7 +140,8 @@ const ListEntries = withRouter(({history, location}) => {
 				}))}
 				emptyState={{
 					button: () =>
-						showFormView && (
+						showFormView &&
+						hasAddPermission && (
 							<Button
 								displayType="secondary"
 								onClick={() => handleEditItem(0)}
@@ -168,7 +181,7 @@ const ListEntries = withRouter(({history, location}) => {
 							/>
 						);
 
-						if (columnIndex === 0) {
+						if (columnIndex === 0 && hasViewPermission) {
 							fieldValuePreview = (
 								<Link to={viewURL}>{fieldValuePreview}</Link>
 							);
