@@ -188,6 +188,13 @@ public abstract class BaseDataModelPermissionResourceTestCase {
 	}
 
 	@Test
+	public void testGetDataRecordCollectionCurrentUserDataModelPermissions()
+		throws Exception {
+
+		Assert.assertTrue(false);
+	}
+
+	@Test
 	public void testGetDataRecordCollectionDataModelPermissionsPage()
 		throws Exception {
 

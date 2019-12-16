@@ -41,6 +41,10 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface DataModelPermissionResource {
 
+	public String getDataRecordCollectionCurrentUserDataModelPermissions(
+			Long dataRecordCollectionId)
+		throws Exception;
+
 	public Page<DataModelPermission>
 			getDataRecordCollectionDataModelPermissionsPage(
 				Long dataRecordCollectionId, String roleNames)

@@ -17,6 +17,7 @@ package com.liferay.data.engine.rest.internal.resource.v2_0;
 import com.liferay.data.engine.rest.dto.v2_0.DataModelPermission;
 import com.liferay.data.engine.rest.resource.v2_0.DataModelPermissionResource;
 import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
@@ -56,6 +57,31 @@ import javax.ws.rs.core.UriInfo;
 @Path("/v2.0")
 public abstract class BaseDataModelPermissionResourceImpl
 	implements DataModelPermissionResource {
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'GET' 'http://localhost:8080/o/data-engine/v2.0/data-record-collections/{dataRecordCollectionId}/current-user-data-model-permissions'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@GET
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.PATH, name = "dataRecordCollectionId")
+		}
+	)
+	@Path(
+		"/data-record-collections/{dataRecordCollectionId}/current-user-data-model-permissions"
+	)
+	@Produces("application/json")
+	@Tags(value = {@Tag(name = "DataModelPermission")})
+	public String getDataRecordCollectionCurrentUserDataModelPermissions(
+			@NotNull @Parameter(hidden = true)
+			@PathParam("dataRecordCollectionId") Long dataRecordCollectionId)
+		throws Exception {
+
+		return StringPool.BLANK;
+	}
 
 	/**
 	 * Invoke this method with the command line:

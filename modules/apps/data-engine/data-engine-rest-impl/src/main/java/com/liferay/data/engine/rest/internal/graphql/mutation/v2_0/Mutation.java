@@ -151,7 +151,7 @@ public class Mutation {
 
 	@GraphQLField
 	public boolean createSiteDataDefinitionPermission(
-			@GraphQLName("siteKey") @NotEmpty String siteKey,
+			Long siteId, @GraphQLName("siteKey") @NotEmpty String siteKey,
 			@GraphQLName("operation") String operation,
 			@GraphQLName("dataDefinitionPermission") DataDefinitionPermission
 				dataDefinitionPermission)
@@ -162,15 +162,14 @@ public class Mutation {
 			this::_populateResourceContext,
 			dataDefinitionResource ->
 				dataDefinitionResource.postSiteDataDefinitionPermission(
-					Long.valueOf(siteKey), operation,
-					dataDefinitionPermission));
+					siteId, operation, dataDefinitionPermission));
 
 		return true;
 	}
 
 	@GraphQLField
 	public DataDefinition createSiteDataDefinition(
-			@GraphQLName("siteKey") @NotEmpty String siteKey,
+			Long siteId, @GraphQLName("siteKey") @NotEmpty String siteKey,
 			@GraphQLName("dataDefinition") DataDefinition dataDefinition)
 		throws Exception {
 
@@ -179,7 +178,7 @@ public class Mutation {
 			this::_populateResourceContext,
 			dataDefinitionResource ->
 				dataDefinitionResource.postSiteDataDefinition(
-					Long.valueOf(siteKey), dataDefinition));
+					siteId, dataDefinition));
 	}
 
 	@GraphQLField
@@ -243,7 +242,7 @@ public class Mutation {
 
 	@GraphQLField
 	public boolean createSiteDataLayoutPermission(
-			@GraphQLName("siteKey") @NotEmpty String siteKey,
+			Long siteId, @GraphQLName("siteKey") @NotEmpty String siteKey,
 			@GraphQLName("operation") String operation,
 			@GraphQLName("dataLayoutPermission") DataLayoutPermission
 				dataLayoutPermission)
@@ -254,7 +253,7 @@ public class Mutation {
 			this::_populateResourceContext,
 			dataLayoutResource ->
 				dataLayoutResource.postSiteDataLayoutPermission(
-					Long.valueOf(siteKey), operation, dataLayoutPermission));
+					siteId, operation, dataLayoutPermission));
 
 		return true;
 	}
@@ -441,7 +440,7 @@ public class Mutation {
 
 	@GraphQLField
 	public boolean createSiteDataRecordCollectionPermission(
-			@GraphQLName("siteKey") @NotEmpty String siteKey,
+			Long siteId, @GraphQLName("siteKey") @NotEmpty String siteKey,
 			@GraphQLName("operation") String operation,
 			@GraphQLName("dataRecordCollectionPermission")
 				DataRecordCollectionPermission dataRecordCollectionPermission)
@@ -453,8 +452,7 @@ public class Mutation {
 			dataRecordCollectionResource ->
 				dataRecordCollectionResource.
 					postSiteDataRecordCollectionPermission(
-						Long.valueOf(siteKey), operation,
-						dataRecordCollectionPermission));
+						siteId, operation, dataRecordCollectionPermission));
 
 		return true;
 	}
