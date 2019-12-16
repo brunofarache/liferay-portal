@@ -15,11 +15,19 @@
 package com.liferay.data.engine.rest.internal.resource.v2_0;
 
 import com.liferay.data.engine.rest.dto.v2_0.DataModelPermission;
+import com.liferay.data.engine.rest.internal.constants.DataDefinitionConstants;
+import com.liferay.data.engine.rest.internal.constants.DataEngineConstants;
+import com.liferay.data.engine.rest.internal.constants.DataLayoutConstants;
 import com.liferay.data.engine.rest.internal.constants.DataRecordCollectionConstants;
 import com.liferay.data.engine.rest.internal.resource.util.DataEnginePermissionUtil;
 import com.liferay.data.engine.rest.resource.v2_0.DataModelPermissionResource;
 import com.liferay.dynamic.data.lists.model.DDLRecordSet;
 import com.liferay.dynamic.data.lists.service.DDLRecordSetLocalService;
+import com.liferay.dynamic.data.mapping.model.DDMStructure;
+import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
+import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalService;
+import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.ResourceAction;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.ResourcePermission;
@@ -31,6 +39,7 @@ import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.permission.ModelPermissions;
 import com.liferay.portal.kernel.service.permission.ModelPermissionsFactory;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.vulcan.pagination.Page;
 
@@ -53,6 +62,23 @@ public class DataModelPermissionResourceImpl
 	extends BaseDataModelPermissionResourceImpl {
 
 	@Override
+	public Page<DataModelPermission> getDataDefinitionDataModelPermissionsPage(
+			Long dataDefinitionId, String roleNames)
+		throws Exception {
+
+		DDMStructure ddmStructure = _ddmStructureLocalService.getDDMStructure(
+			dataDefinitionId);
+
+		DataEnginePermissionUtil.checkPermission(
+			ActionKeys.PERMISSIONS, _groupLocalService,
+			ddmStructure.getGroupId());
+
+		return _getDataModelPermissionPage(
+			ddmStructure.getCompanyId(), dataDefinitionId,
+			DataRecordCollectionConstants.RESOURCE_NAME, roleNames);
+	}
+
+	@Override
 	public Page<DataModelPermission>
 			getDataRecordCollectionDataModelPermissionsPage(
 				Long dataRecordCollectionId, String roleNames)
@@ -65,18 +91,66 @@ public class DataModelPermissionResourceImpl
 			ActionKeys.PERMISSIONS, _groupLocalService,
 			ddlRecordSet.getGroupId());
 
-		List<ResourceAction> resourceActions =
-			_resourceActionLocalService.getResourceActions(
-				DataRecordCollectionConstants.RESOURCE_NAME);
+		return _getDataModelPermissionPage(
+			ddlRecordSet.getCompanyId(), dataRecordCollectionId,
+			DataDefinitionConstants.RESOURCE_NAME, roleNames);
+	}
 
-		return Page.of(
-			transform(
-				DataEnginePermissionUtil.getRoles(
-					contextCompany, _roleLocalService,
-					StringUtil.split(roleNames)),
-				role -> _toDataModelPermission(
-					dataRecordCollectionId, ddlRecordSet, resourceActions,
-					role)));
+	@Override
+	public void postSiteDataModelPermission(
+			Long siteId, DataModelPermission[] dataModelPermissions)
+		throws Exception {
+
+		DataEnginePermissionUtil.checkPermission(
+			ActionKeys.PERMISSIONS, _groupLocalService, siteId);
+
+		for (DataModelPermission dataModelPermission : dataModelPermissions) {
+			DataEnginePermissionUtil.persistPermission(
+				ListUtil.fromArray(dataModelPermission.getActionIds()),
+				contextCompany, DataEngineConstants.OPERATION_SAVE_PERMISSION,
+				_resourcePermissionLocalService, _roleLocalService,
+				new String[] {dataModelPermission.getRoleName()});
+		}
+	}
+
+	@Override
+	public void putDataDefinitionDataModelPermission(
+			Long dataDefinitionId, DataModelPermission[] dataModelPermissions)
+		throws Exception {
+
+		DDMStructure ddmStructure = _ddmStructureLocalService.getDDMStructure(
+			dataDefinitionId);
+
+		DataEnginePermissionUtil.checkPermission(
+			ActionKeys.PERMISSIONS, _groupLocalService,
+			ddmStructure.getGroupId());
+
+		_resourcePermissionLocalService.updateResourcePermissions(
+			ddmStructure.getCompanyId(), ddmStructure.getGroupId(),
+			DataRecordCollectionConstants.RESOURCE_NAME,
+			String.valueOf(dataDefinitionId),
+			_getModelPermissions(
+				dataModelPermissions, DataDefinitionConstants.RESOURCE_NAME));
+	}
+
+	@Override
+	public void putDataLayoutDataModelPermission(
+			Long dataLayoutId, DataModelPermission[] dataModelPermissions)
+		throws Exception {
+
+		DDMStructureLayout ddmStructureLayout =
+			_ddmStructureLayoutLocalService.getStructureLayout(dataLayoutId);
+
+		DataEnginePermissionUtil.checkPermission(
+			ActionKeys.PERMISSIONS, _groupLocalService,
+			ddmStructureLayout.getGroupId());
+
+		_resourcePermissionLocalService.updateResourcePermissions(
+			ddmStructureLayout.getCompanyId(), ddmStructureLayout.getGroupId(),
+			DataRecordCollectionConstants.RESOURCE_NAME,
+			String.valueOf(dataLayoutId),
+			_getModelPermissions(
+				dataModelPermissions, DataLayoutConstants.RESOURCE_NAME));
 	}
 
 	@Override
@@ -92,9 +166,36 @@ public class DataModelPermissionResourceImpl
 			ActionKeys.PERMISSIONS, _groupLocalService,
 			ddlRecordSet.getGroupId());
 
+		_resourcePermissionLocalService.updateResourcePermissions(
+			ddlRecordSet.getCompanyId(), ddlRecordSet.getGroupId(),
+			DataRecordCollectionConstants.RESOURCE_NAME,
+			String.valueOf(dataRecordCollectionId),
+			_getModelPermissions(
+				dataModelPermissions,
+				DataRecordCollectionConstants.RESOURCE_NAME));
+	}
+
+	private Page<DataModelPermission> _getDataModelPermissionPage(
+			Long companyId, Long id, String resourceName, String roleNames)
+		throws PortalException {
+
+		List<ResourceAction> resourceActions =
+			_resourceActionLocalService.getResourceActions(resourceName);
+
+		return Page.of(
+			transform(
+				DataEnginePermissionUtil.getRoles(
+					contextCompany, _roleLocalService,
+					StringUtil.split(roleNames)),
+				role -> _toDataModelPermission(
+					companyId, id, resourceActions, role)));
+	}
+
+	private ModelPermissions _getModelPermissions(
+		DataModelPermission[] dataModelPermissions, String resourceName) {
+
 		ModelPermissions modelPermissions =
-			ModelPermissionsFactory.createWithDefaultPermissions(
-				DataRecordCollectionConstants.RESOURCE_NAME);
+			ModelPermissionsFactory.createWithDefaultPermissions(resourceName);
 
 		for (DataModelPermission dataModelPermission : dataModelPermissions) {
 			modelPermissions.addRolePermissions(
@@ -102,23 +203,19 @@ public class DataModelPermissionResourceImpl
 				dataModelPermission.getActionIds());
 		}
 
-		_resourcePermissionLocalService.updateResourcePermissions(
-			ddlRecordSet.getCompanyId(), ddlRecordSet.getGroupId(),
-			DataRecordCollectionConstants.RESOURCE_NAME,
-			String.valueOf(dataRecordCollectionId), modelPermissions);
+		return modelPermissions;
 	}
 
 	private DataModelPermission _toDataModelPermission(
-			Long dataRecordCollectionId, DDLRecordSet ddlRecordSet,
-			List<ResourceAction> resourceActions, Role role)
+			Long companyId, Long id, List<ResourceAction> resourceActions,
+			Role role)
 		throws Exception {
 
 		ResourcePermission resourcePermission =
 			_resourcePermissionLocalService.fetchResourcePermission(
-				ddlRecordSet.getCompanyId(),
-				DataRecordCollectionConstants.RESOURCE_NAME,
-				ResourceConstants.SCOPE_INDIVIDUAL,
-				String.valueOf(dataRecordCollectionId), role.getRoleId());
+				companyId, DataRecordCollectionConstants.RESOURCE_NAME,
+				ResourceConstants.SCOPE_INDIVIDUAL, String.valueOf(id),
+				role.getRoleId());
 
 		if (resourcePermission == null) {
 			return null;
@@ -146,6 +243,12 @@ public class DataModelPermissionResourceImpl
 
 	@Reference
 	private DDLRecordSetLocalService _ddlRecordSetLocalService;
+
+	@Reference
+	private DDMStructureLayoutLocalService _ddmStructureLayoutLocalService;
+
+	@Reference
+	private DDMStructureLocalService _ddmStructureLocalService;
 
 	@Reference
 	private GroupLocalService _groupLocalService;

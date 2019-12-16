@@ -23,7 +23,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.ResourceConstants;
-import com.liferay.portal.kernel.model.ResourcePermission;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
@@ -166,26 +165,25 @@ public class DataEnginePermissionUtil {
 				DataEngineConstants.OPERATION_SAVE_PERMISSION, operation)) {
 
 			for (Role role : roles) {
-				resourcePermissionLocalService.setResourcePermissions(
-					company.getCompanyId(), DataEngineConstants.RESOURCE_NAME,
-					ResourceConstants.SCOPE_COMPANY,
-					String.valueOf(company.getCompanyId()), role.getRoleId(),
-					ArrayUtil.toStringArray(actionIds));
-			}
-		}
-		else {
-			for (Role role : roles) {
-				ResourcePermission resourcePermission =
-					resourcePermissionLocalService.fetchResourcePermission(
+				for (String actionId : actionIds) {
+					resourcePermissionLocalService.addResourcePermission(
 						company.getCompanyId(),
 						DataEngineConstants.RESOURCE_NAME,
 						ResourceConstants.SCOPE_COMPANY,
 						String.valueOf(company.getCompanyId()),
-						role.getRoleId());
-
-				if (resourcePermission != null) {
-					resourcePermissionLocalService.deleteResourcePermission(
-						resourcePermission);
+						role.getRoleId(), actionId);
+				}
+			}
+		}
+		else {
+			for (Role role : roles) {
+				for (String actionId : actionIds) {
+					resourcePermissionLocalService.removeResourcePermission(
+						company.getCompanyId(),
+						DataEngineConstants.RESOURCE_NAME,
+						ResourceConstants.SCOPE_COMPANY,
+						String.valueOf(company.getCompanyId()),
+						role.getRoleId(), actionId);
 				}
 			}
 		}
