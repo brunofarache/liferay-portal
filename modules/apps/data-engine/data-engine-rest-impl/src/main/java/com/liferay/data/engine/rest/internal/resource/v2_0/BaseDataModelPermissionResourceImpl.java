@@ -61,31 +61,6 @@ public abstract class BaseDataModelPermissionResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'GET' 'http://localhost:8080/o/data-engine/v2.0/data-record-collections/{dataRecordCollectionId}/current-user-data-model-permissions'  -u 'test@liferay.com:test'
-	 */
-	@Override
-	@GET
-	@Parameters(
-		value = {
-			@Parameter(in = ParameterIn.PATH, name = "dataRecordCollectionId")
-		}
-	)
-	@Path(
-		"/data-record-collections/{dataRecordCollectionId}/current-user-data-model-permissions"
-	)
-	@Produces("application/json")
-	@Tags(value = {@Tag(name = "DataModelPermission")})
-	public String getDataRecordCollectionCurrentUserDataModelPermissions(
-			@NotNull @Parameter(hidden = true)
-			@PathParam("dataRecordCollectionId") Long dataRecordCollectionId)
-		throws Exception {
-
-		return StringPool.BLANK;
-	}
-
-	/**
-	 * Invoke this method with the command line:
-	 *
 	 * curl -X 'GET' 'http://localhost:8080/o/data-engine/v2.0/data-record-collections/{dataRecordCollectionId}/data-model-permissions'  -u 'test@liferay.com:test'
 	 */
 	@Override
@@ -136,6 +111,31 @@ public abstract class BaseDataModelPermissionResourceImpl
 			@PathParam("dataRecordCollectionId") Long dataRecordCollectionId,
 			DataModelPermission[] dataModelPermissions)
 		throws Exception {
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'GET' 'http://localhost:8080/o/data-engine/v2.0/data-record-collections/{dataRecordCollectionId}/data-model-permissions/by-current-user'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@GET
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.PATH, name = "dataRecordCollectionId")
+		}
+	)
+	@Path(
+		"/data-record-collections/{dataRecordCollectionId}/data-model-permissions/by-current-user"
+	)
+	@Produces("application/json")
+	@Tags(value = {@Tag(name = "DataModelPermission")})
+	public String getDataRecordCollectionDataModelPermissionByCurrentUser(
+			@NotNull @Parameter(hidden = true)
+			@PathParam("dataRecordCollectionId") Long dataRecordCollectionId)
+		throws Exception {
+
+		return StringPool.BLANK;
 	}
 
 	public void setContextAcceptLanguage(AcceptLanguage contextAcceptLanguage) {

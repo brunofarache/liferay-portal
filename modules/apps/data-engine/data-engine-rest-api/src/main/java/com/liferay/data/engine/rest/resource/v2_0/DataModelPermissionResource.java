@@ -41,10 +41,6 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface DataModelPermissionResource {
 
-	public String getDataRecordCollectionCurrentUserDataModelPermissions(
-			Long dataRecordCollectionId)
-		throws Exception;
-
 	public Page<DataModelPermission>
 			getDataRecordCollectionDataModelPermissionsPage(
 				Long dataRecordCollectionId, String roleNames)
@@ -53,6 +49,10 @@ public interface DataModelPermissionResource {
 	public void putDataRecordCollectionDataModelPermission(
 			Long dataRecordCollectionId,
 			DataModelPermission[] dataModelPermissions)
+		throws Exception;
+
+	public String getDataRecordCollectionDataModelPermissionByCurrentUser(
+			Long dataRecordCollectionId)
 		throws Exception;
 
 	public default void setContextAcceptLanguage(
