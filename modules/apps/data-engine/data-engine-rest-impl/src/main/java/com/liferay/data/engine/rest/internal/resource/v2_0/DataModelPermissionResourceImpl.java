@@ -57,7 +57,7 @@ public class DataModelPermissionResourceImpl
 	extends BaseDataModelPermissionResourceImpl {
 
 	@Override
-	public String getDataRecordCollectionCurrentUserDataModelPermissions(
+	public String getDataRecordCollectionDataModelPermissionByCurrentUser(
 			Long dataRecordCollectionId)
 		throws Exception {
 

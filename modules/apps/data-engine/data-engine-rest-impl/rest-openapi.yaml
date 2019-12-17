@@ -1009,25 +1009,6 @@ paths:
                     description:
                         ""
             tags: ["DataRecordCollection"]
-    "/data-record-collections/{dataRecordCollectionId}/current-user-data-model-permissions":
-        get:
-            operationId: getDataRecordCollectionCurrentUserDataModelPermissions
-            parameters:
-                - in: path
-                  name: dataRecordCollectionId
-                  required: true
-                  schema:
-                      format: int64
-                      type: integer
-            responses:
-                200:
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                    description:
-                        ""
-            tags: ["DataModelPermission"]
     "/data-record-collections/{dataRecordCollectionId}/data-model-permissions":
         get:
             operationId: getDataRecordCollectionDataModelPermissionsPage
@@ -1086,6 +1067,25 @@ paths:
                 204:
                     content:
                         application/json: {}
+                    description:
+                        ""
+            tags: ["DataModelPermission"]
+    "/data-record-collections/{dataRecordCollectionId}/data-model-permissions/by-current-user":
+        get:
+            operationId: getDataRecordCollectionDataModelPermissionByCurrentUser
+            parameters:
+                - in: path
+                  name: dataRecordCollectionId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                type: string
                     description:
                         ""
             tags: ["DataModelPermission"]
