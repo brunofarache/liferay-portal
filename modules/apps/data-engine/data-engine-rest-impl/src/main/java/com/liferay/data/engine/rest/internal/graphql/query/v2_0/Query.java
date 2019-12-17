@@ -333,6 +333,46 @@ public class Query {
 	/**
 	 * Invoke this method with the command line:
 	 *
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {dataDefinitionDataModelPermissions(dataDefinitionId: ___, roleNames: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
+	 */
+	@GraphQLField
+	public DataModelPermissionPage dataDefinitionDataModelPermissions(
+			@GraphQLName("dataDefinitionId") Long dataDefinitionId,
+			@GraphQLName("roleNames") String roleNames)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_dataModelPermissionResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			dataModelPermissionResource -> new DataModelPermissionPage(
+				dataModelPermissionResource.
+					getDataDefinitionDataModelPermissionsPage(
+						dataDefinitionId, roleNames)));
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {dataLayoutDataModelPermissions(dataLayoutId: ___, roleNames: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
+	 */
+	@GraphQLField
+	public DataModelPermissionPage dataLayoutDataModelPermissions(
+			@GraphQLName("dataLayoutId") Long dataLayoutId,
+			@GraphQLName("roleNames") String roleNames)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_dataModelPermissionResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			dataModelPermissionResource -> new DataModelPermissionPage(
+				dataModelPermissionResource.
+					getDataLayoutDataModelPermissionsPage(
+						dataLayoutId, roleNames)));
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
 	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {dataRecordCollectionDataModelPermissions(dataRecordCollectionId: ___, roleNames: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField
@@ -547,29 +587,6 @@ public class Query {
 	}
 
 	@GraphQLTypeExtension(DataRecordCollection.class)
-	public class GetDataDefinitionTypeExtension {
-
-		public GetDataDefinitionTypeExtension(
-			DataRecordCollection dataRecordCollection) {
-
-			_dataRecordCollection = dataRecordCollection;
-		}
-
-		@GraphQLField
-		public DataDefinition dataDefinition() throws Exception {
-			return _applyComponentServiceObjects(
-				_dataDefinitionResourceComponentServiceObjects,
-				Query.this::_populateResourceContext,
-				dataDefinitionResource ->
-					dataDefinitionResource.getDataDefinition(
-						_dataRecordCollection.getDataDefinitionId()));
-		}
-
-		private DataRecordCollection _dataRecordCollection;
-
-	}
-
-	@GraphQLTypeExtension(DataRecordCollection.class)
 	public class GetDataRecordCollectionDataModelPermissionsPageTypeExtension {
 
 		public GetDataRecordCollectionDataModelPermissionsPageTypeExtension(
@@ -593,66 +610,6 @@ public class Query {
 		}
 
 		private DataRecordCollection _dataRecordCollection;
-
-	}
-
-	@GraphQLTypeExtension(DataDefinition.class)
-	public class GetDataDefinitionDataListViewsPageTypeExtension {
-
-		public GetDataDefinitionDataListViewsPageTypeExtension(
-			DataDefinition dataDefinition) {
-
-			_dataDefinition = dataDefinition;
-		}
-
-		@GraphQLField
-		public DataListViewPage dataListViews(
-				@GraphQLName("keywords") String keywords,
-				@GraphQLName("pageSize") int pageSize,
-				@GraphQLName("page") int page,
-				@GraphQLName("sort") String sortsString)
-			throws Exception {
-
-			return _applyComponentServiceObjects(
-				_dataListViewResourceComponentServiceObjects,
-				Query.this::_populateResourceContext,
-				dataListViewResource -> new DataListViewPage(
-					dataListViewResource.getDataDefinitionDataListViewsPage(
-						_dataDefinition.getId(), keywords,
-						Pagination.of(page, pageSize),
-						_sortsBiFunction.apply(
-							dataListViewResource, sortsString))));
-		}
-
-		private DataDefinition _dataDefinition;
-
-	}
-
-	@GraphQLTypeExtension(DataDefinition.class)
-	public class GetDataDefinitionDataRecordsPageTypeExtension {
-
-		public GetDataDefinitionDataRecordsPageTypeExtension(
-			DataDefinition dataDefinition) {
-
-			_dataDefinition = dataDefinition;
-		}
-
-		@GraphQLField
-		public DataRecordPage dataRecords(
-				@GraphQLName("pageSize") int pageSize,
-				@GraphQLName("page") int page)
-			throws Exception {
-
-			return _applyComponentServiceObjects(
-				_dataRecordResourceComponentServiceObjects,
-				Query.this::_populateResourceContext,
-				dataRecordResource -> new DataRecordPage(
-					dataRecordResource.getDataDefinitionDataRecordsPage(
-						_dataDefinition.getId(),
-						Pagination.of(page, pageSize))));
-		}
-
-		private DataDefinition _dataDefinition;
 
 	}
 
@@ -739,66 +696,6 @@ public class Query {
 	}
 
 	@GraphQLTypeExtension(DataDefinition.class)
-	public class GetDataDefinitionDataLayoutsPageTypeExtension {
-
-		public GetDataDefinitionDataLayoutsPageTypeExtension(
-			DataDefinition dataDefinition) {
-
-			_dataDefinition = dataDefinition;
-		}
-
-		@GraphQLField
-		public DataLayoutPage dataLayouts(
-				@GraphQLName("keywords") String keywords,
-				@GraphQLName("pageSize") int pageSize,
-				@GraphQLName("page") int page,
-				@GraphQLName("sort") String sortsString)
-			throws Exception {
-
-			return _applyComponentServiceObjects(
-				_dataLayoutResourceComponentServiceObjects,
-				Query.this::_populateResourceContext,
-				dataLayoutResource -> new DataLayoutPage(
-					dataLayoutResource.getDataDefinitionDataLayoutsPage(
-						_dataDefinition.getId(), keywords,
-						Pagination.of(page, pageSize),
-						_sortsBiFunction.apply(
-							dataLayoutResource, sortsString))));
-		}
-
-		private DataDefinition _dataDefinition;
-
-	}
-
-	@GraphQLTypeExtension(DataRecordCollection.class)
-	public class GetDataRecordCollectionDataRecordsPageTypeExtension {
-
-		public GetDataRecordCollectionDataRecordsPageTypeExtension(
-			DataRecordCollection dataRecordCollection) {
-
-			_dataRecordCollection = dataRecordCollection;
-		}
-
-		@GraphQLField
-		public DataRecordPage dataRecords(
-				@GraphQLName("pageSize") int pageSize,
-				@GraphQLName("page") int page)
-			throws Exception {
-
-			return _applyComponentServiceObjects(
-				_dataRecordResourceComponentServiceObjects,
-				Query.this::_populateResourceContext,
-				dataRecordResource -> new DataRecordPage(
-					dataRecordResource.getDataRecordCollectionDataRecordsPage(
-						_dataRecordCollection.getId(),
-						Pagination.of(page, pageSize))));
-		}
-
-		private DataRecordCollection _dataRecordCollection;
-
-	}
-
-	@GraphQLTypeExtension(DataDefinition.class)
 	public class GetDataDefinitionDataRecordCollectionTypeExtension {
 
 		public GetDataDefinitionDataRecordCollectionTypeExtension(
@@ -868,6 +765,203 @@ public class Query {
 		}
 
 		private DataRecordCollection _dataRecordCollection;
+
+	}
+
+	@GraphQLTypeExtension(DataLayout.class)
+	public class GetDataLayoutDataModelPermissionsPageTypeExtension {
+
+		public GetDataLayoutDataModelPermissionsPageTypeExtension(
+			DataLayout dataLayout) {
+
+			_dataLayout = dataLayout;
+		}
+
+		@GraphQLField
+		public DataModelPermissionPage dataModelPermissions(
+				@GraphQLName("roleNames") String roleNames)
+			throws Exception {
+
+			return _applyComponentServiceObjects(
+				_dataModelPermissionResourceComponentServiceObjects,
+				Query.this::_populateResourceContext,
+				dataModelPermissionResource -> new DataModelPermissionPage(
+					dataModelPermissionResource.
+						getDataLayoutDataModelPermissionsPage(
+							_dataLayout.getId(), roleNames)));
+		}
+
+		private DataLayout _dataLayout;
+
+	}
+
+	@GraphQLTypeExtension(DataRecordCollection.class)
+	public class GetDataDefinitionTypeExtension {
+
+		public GetDataDefinitionTypeExtension(
+			DataRecordCollection dataRecordCollection) {
+
+			_dataRecordCollection = dataRecordCollection;
+		}
+
+		@GraphQLField
+		public DataDefinition dataDefinition() throws Exception {
+			return _applyComponentServiceObjects(
+				_dataDefinitionResourceComponentServiceObjects,
+				Query.this::_populateResourceContext,
+				dataDefinitionResource ->
+					dataDefinitionResource.getDataDefinition(
+						_dataRecordCollection.getDataDefinitionId()));
+		}
+
+		private DataRecordCollection _dataRecordCollection;
+
+	}
+
+	@GraphQLTypeExtension(DataDefinition.class)
+	public class GetDataDefinitionDataListViewsPageTypeExtension {
+
+		public GetDataDefinitionDataListViewsPageTypeExtension(
+			DataDefinition dataDefinition) {
+
+			_dataDefinition = dataDefinition;
+		}
+
+		@GraphQLField
+		public DataListViewPage dataListViews(
+				@GraphQLName("keywords") String keywords,
+				@GraphQLName("pageSize") int pageSize,
+				@GraphQLName("page") int page,
+				@GraphQLName("sort") String sortsString)
+			throws Exception {
+
+			return _applyComponentServiceObjects(
+				_dataListViewResourceComponentServiceObjects,
+				Query.this::_populateResourceContext,
+				dataListViewResource -> new DataListViewPage(
+					dataListViewResource.getDataDefinitionDataListViewsPage(
+						_dataDefinition.getId(), keywords,
+						Pagination.of(page, pageSize),
+						_sortsBiFunction.apply(
+							dataListViewResource, sortsString))));
+		}
+
+		private DataDefinition _dataDefinition;
+
+	}
+
+	@GraphQLTypeExtension(DataDefinition.class)
+	public class GetDataDefinitionDataRecordsPageTypeExtension {
+
+		public GetDataDefinitionDataRecordsPageTypeExtension(
+			DataDefinition dataDefinition) {
+
+			_dataDefinition = dataDefinition;
+		}
+
+		@GraphQLField
+		public DataRecordPage dataRecords(
+				@GraphQLName("pageSize") int pageSize,
+				@GraphQLName("page") int page)
+			throws Exception {
+
+			return _applyComponentServiceObjects(
+				_dataRecordResourceComponentServiceObjects,
+				Query.this::_populateResourceContext,
+				dataRecordResource -> new DataRecordPage(
+					dataRecordResource.getDataDefinitionDataRecordsPage(
+						_dataDefinition.getId(),
+						Pagination.of(page, pageSize))));
+		}
+
+		private DataDefinition _dataDefinition;
+
+	}
+
+	@GraphQLTypeExtension(DataDefinition.class)
+	public class GetDataDefinitionDataLayoutsPageTypeExtension {
+
+		public GetDataDefinitionDataLayoutsPageTypeExtension(
+			DataDefinition dataDefinition) {
+
+			_dataDefinition = dataDefinition;
+		}
+
+		@GraphQLField
+		public DataLayoutPage dataLayouts(
+				@GraphQLName("keywords") String keywords,
+				@GraphQLName("pageSize") int pageSize,
+				@GraphQLName("page") int page,
+				@GraphQLName("sort") String sortsString)
+			throws Exception {
+
+			return _applyComponentServiceObjects(
+				_dataLayoutResourceComponentServiceObjects,
+				Query.this::_populateResourceContext,
+				dataLayoutResource -> new DataLayoutPage(
+					dataLayoutResource.getDataDefinitionDataLayoutsPage(
+						_dataDefinition.getId(), keywords,
+						Pagination.of(page, pageSize),
+						_sortsBiFunction.apply(
+							dataLayoutResource, sortsString))));
+		}
+
+		private DataDefinition _dataDefinition;
+
+	}
+
+	@GraphQLTypeExtension(DataRecordCollection.class)
+	public class GetDataRecordCollectionDataRecordsPageTypeExtension {
+
+		public GetDataRecordCollectionDataRecordsPageTypeExtension(
+			DataRecordCollection dataRecordCollection) {
+
+			_dataRecordCollection = dataRecordCollection;
+		}
+
+		@GraphQLField
+		public DataRecordPage dataRecords(
+				@GraphQLName("pageSize") int pageSize,
+				@GraphQLName("page") int page)
+			throws Exception {
+
+			return _applyComponentServiceObjects(
+				_dataRecordResourceComponentServiceObjects,
+				Query.this::_populateResourceContext,
+				dataRecordResource -> new DataRecordPage(
+					dataRecordResource.getDataRecordCollectionDataRecordsPage(
+						_dataRecordCollection.getId(),
+						Pagination.of(page, pageSize))));
+		}
+
+		private DataRecordCollection _dataRecordCollection;
+
+	}
+
+	@GraphQLTypeExtension(DataDefinition.class)
+	public class GetDataDefinitionDataModelPermissionsPageTypeExtension {
+
+		public GetDataDefinitionDataModelPermissionsPageTypeExtension(
+			DataDefinition dataDefinition) {
+
+			_dataDefinition = dataDefinition;
+		}
+
+		@GraphQLField
+		public DataModelPermissionPage dataModelPermissions(
+				@GraphQLName("roleNames") String roleNames)
+			throws Exception {
+
+			return _applyComponentServiceObjects(
+				_dataModelPermissionResourceComponentServiceObjects,
+				Query.this::_populateResourceContext,
+				dataModelPermissionResource -> new DataModelPermissionPage(
+					dataModelPermissionResource.
+						getDataDefinitionDataModelPermissionsPage(
+							_dataDefinition.getId(), roleNames)));
+		}
+
+		private DataDefinition _dataDefinition;
 
 	}
 

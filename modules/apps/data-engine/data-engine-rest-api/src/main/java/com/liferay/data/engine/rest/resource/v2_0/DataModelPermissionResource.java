@@ -41,6 +41,22 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface DataModelPermissionResource {
 
+	public Page<DataModelPermission> getDataDefinitionDataModelPermissionsPage(
+			Long dataDefinitionId, String roleNames)
+		throws Exception;
+
+	public void putDataDefinitionDataModelPermission(
+			Long dataDefinitionId, DataModelPermission[] dataModelPermissions)
+		throws Exception;
+
+	public Page<DataModelPermission> getDataLayoutDataModelPermissionsPage(
+			Long dataLayoutId, String roleNames)
+		throws Exception;
+
+	public void putDataLayoutDataModelPermission(
+			Long dataLayoutId, DataModelPermission[] dataModelPermissions)
+		throws Exception;
+
 	public Page<DataModelPermission>
 			getDataRecordCollectionDataModelPermissionsPage(
 				Long dataRecordCollectionId, String roleNames)
@@ -53,6 +69,10 @@ public interface DataModelPermissionResource {
 
 	public String getDataRecordCollectionDataModelPermissionByCurrentUser(
 			Long dataRecordCollectionId)
+		throws Exception;
+
+	public void postSiteDataModelPermission(
+			Long siteId, DataModelPermission[] dataModelPermissions)
 		throws Exception;
 
 	public default void setContextAcceptLanguage(
