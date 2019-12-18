@@ -106,14 +106,6 @@ public interface DataModelPermissionResource {
 				Long dataRecordCollectionId)
 		throws Exception;
 
-	public void postSiteDataModelPermission(
-			Long siteId, DataModelPermission[] dataModelPermissions)
-		throws Exception;
-
-	public HttpInvoker.HttpResponse postSiteDataModelPermissionHttpResponse(
-			Long siteId, DataModelPermission[] dataModelPermissions)
-		throws Exception;
-
 	public static class Builder {
 
 		public Builder authentication(String login, String password) {
@@ -605,70 +597,6 @@ public interface DataModelPermissionResource {
 					_builder._port +
 						"/o/data-engine/v2.0/data-record-collections/{dataRecordCollectionId}/data-model-permissions/by-current-user",
 				dataRecordCollectionId);
-
-			httpInvoker.userNameAndPassword(
-				_builder._login + ":" + _builder._password);
-
-			return httpInvoker.invoke();
-		}
-
-		public void postSiteDataModelPermission(
-				Long siteId, DataModelPermission[] dataModelPermissions)
-			throws Exception {
-
-			HttpInvoker.HttpResponse httpResponse =
-				postSiteDataModelPermissionHttpResponse(
-					siteId, dataModelPermissions);
-
-			String content = httpResponse.getContent();
-
-			_logger.fine("HTTP response content: " + content);
-
-			_logger.fine("HTTP response message: " + httpResponse.getMessage());
-			_logger.fine(
-				"HTTP response status code: " + httpResponse.getStatusCode());
-		}
-
-		public HttpInvoker.HttpResponse postSiteDataModelPermissionHttpResponse(
-				Long siteId, DataModelPermission[] dataModelPermissions)
-			throws Exception {
-
-			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
-
-			httpInvoker.body(
-				Stream.of(
-					dataModelPermissions
-				).map(
-					value -> String.valueOf(value)
-				).collect(
-					Collectors.toList()
-				).toString(),
-				"application/json");
-
-			if (_builder._locale != null) {
-				httpInvoker.header(
-					"Accept-Language", _builder._locale.toLanguageTag());
-			}
-
-			for (Map.Entry<String, String> entry :
-					_builder._headers.entrySet()) {
-
-				httpInvoker.header(entry.getKey(), entry.getValue());
-			}
-
-			for (Map.Entry<String, String> entry :
-					_builder._parameters.entrySet()) {
-
-				httpInvoker.parameter(entry.getKey(), entry.getValue());
-			}
-
-			httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
-
-			httpInvoker.path(
-				_builder._scheme + "://" + _builder._host + ":" +
-					_builder._port +
-						"/o/data-engine/v2.0/sites/{siteId}/data-model-permissions",
-				siteId);
 
 			httpInvoker.userNameAndPassword(
 				_builder._login + ":" + _builder._password);

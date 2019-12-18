@@ -29,7 +29,6 @@ import com.liferay.data.engine.rest.client.resource.v2_0.DataModelPermissionReso
 import com.liferay.data.engine.rest.client.serdes.v2_0.DataModelPermissionSerDes;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -449,27 +448,6 @@ public abstract class BaseDataModelPermissionResourceTestCase {
 		throws Exception {
 
 		Assert.assertTrue(false);
-	}
-
-	@Test
-	public void testPostSiteDataModelPermission() throws Exception {
-		Assert.assertTrue(false);
-	}
-
-	@Test
-	public void testGraphQLPostSiteDataModelPermission() throws Exception {
-		DataModelPermission randomDataModelPermission =
-			randomDataModelPermission();
-
-		DataModelPermission dataModelPermission =
-			testGraphQLDataModelPermission_addDataModelPermission(
-				randomDataModelPermission);
-
-		Assert.assertTrue(
-			equalsJSONObject(
-				randomDataModelPermission,
-				JSONFactoryUtil.createJSONObject(
-					JSONFactoryUtil.serialize(dataModelPermission))));
 	}
 
 	protected void assertHttpResponseStatusCode(

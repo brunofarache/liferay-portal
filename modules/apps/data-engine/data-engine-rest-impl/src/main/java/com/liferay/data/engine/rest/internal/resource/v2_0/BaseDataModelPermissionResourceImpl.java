@@ -42,7 +42,6 @@ import javax.validation.constraints.NotNull;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -231,24 +230,6 @@ public abstract class BaseDataModelPermissionResourceImpl
 		throws Exception {
 
 		return StringPool.BLANK;
-	}
-
-	/**
-	 * Invoke this method with the command line:
-	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/data-engine/v2.0/sites/{siteId}/data-model-permissions'  -u 'test@liferay.com:test'
-	 */
-	@Override
-	@Consumes({"application/json", "application/xml"})
-	@POST
-	@Parameters(value = {@Parameter(in = ParameterIn.PATH, name = "siteId")})
-	@Path("/sites/{siteId}/data-model-permissions")
-	@Produces("application/json")
-	@Tags(value = {@Tag(name = "DataModelPermission")})
-	public void postSiteDataModelPermission(
-			@NotNull @Parameter(hidden = true) @PathParam("siteId") Long siteId,
-			DataModelPermission[] dataModelPermissions)
-		throws Exception {
 	}
 
 	public void setContextAcceptLanguage(AcceptLanguage contextAcceptLanguage) {

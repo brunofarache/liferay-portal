@@ -354,23 +354,6 @@ public class Mutation {
 	}
 
 	@GraphQLField
-	public boolean createSiteDataModelPermission(
-			@GraphQLName("siteKey") @NotEmpty String siteKey,
-			@GraphQLName("dataModelPermissions") DataModelPermission[]
-				dataModelPermissions)
-		throws Exception {
-
-		_applyVoidComponentServiceObjects(
-			_dataModelPermissionResourceComponentServiceObjects,
-			this::_populateResourceContext,
-			dataModelPermissionResource ->
-				dataModelPermissionResource.postSiteDataModelPermission(
-					Long.valueOf(siteKey), dataModelPermissions));
-
-		return true;
-	}
-
-	@GraphQLField
 	public DataRecord createDataDefinitionDataRecord(
 			@GraphQLName("dataDefinitionId") Long dataDefinitionId,
 			@GraphQLName("dataRecord") DataRecord dataRecord)

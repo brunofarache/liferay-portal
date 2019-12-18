@@ -71,10 +71,6 @@ public interface DataModelPermissionResource {
 			Long dataRecordCollectionId)
 		throws Exception;
 
-	public void postSiteDataModelPermission(
-			Long siteId, DataModelPermission[] dataModelPermissions)
-		throws Exception;
-
 	public default void setContextAcceptLanguage(
 		AcceptLanguage contextAcceptLanguage) {
 	}
