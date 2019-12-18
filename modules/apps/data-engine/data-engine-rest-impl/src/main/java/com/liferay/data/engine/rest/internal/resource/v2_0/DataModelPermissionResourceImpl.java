@@ -144,7 +144,8 @@ public class DataModelPermissionResourceImpl
 			DataDefinitionConstants.RESOURCE_NAME,
 			String.valueOf(dataDefinitionId),
 			_getModelPermissions(
-				dataModelPermissions, DataDefinitionConstants.RESOURCE_NAME));
+				ddmStructure.getCompanyId(), dataModelPermissions,
+				dataDefinitionId, DataDefinitionConstants.RESOURCE_NAME));
 	}
 
 	@Override
@@ -163,7 +164,8 @@ public class DataModelPermissionResourceImpl
 			ddmStructureLayout.getCompanyId(), ddmStructureLayout.getGroupId(),
 			DataLayoutConstants.RESOURCE_NAME, String.valueOf(dataLayoutId),
 			_getModelPermissions(
-				dataModelPermissions, DataLayoutConstants.RESOURCE_NAME));
+				ddmStructureLayout.getCompanyId(), dataModelPermissions,
+				dataLayoutId, DataLayoutConstants.RESOURCE_NAME));
 	}
 
 	@Override
@@ -184,7 +186,8 @@ public class DataModelPermissionResourceImpl
 			DataRecordCollectionConstants.RESOURCE_NAME,
 			String.valueOf(dataRecordCollectionId),
 			_getModelPermissions(
-				dataModelPermissions,
+				ddlRecordSet.getCompanyId(), dataModelPermissions,
+				dataRecordCollectionId,
 				DataRecordCollectionConstants.RESOURCE_NAME));
 	}
 
@@ -205,12 +208,35 @@ public class DataModelPermissionResourceImpl
 	}
 
 	private ModelPermissions _getModelPermissions(
-		DataModelPermission[] dataModelPermissions, String resourceName) {
+			long companyId, DataModelPermission[] dataModelPermissions,
+			long primKey, String resourceName)
+		throws PortalException {
 
 		ModelPermissions modelPermissions = ModelPermissionsFactory.create(
 			new String[0], new String[0], resourceName);
 
 		for (DataModelPermission dataModelPermission : dataModelPermissions) {
+			String[] actionIds = dataModelPermission.getActionIds();
+
+			if (actionIds.length == 0) {
+				List<ResourceAction> resourceActions =
+					_resourceActionLocalService.getResourceActions(
+						resourceName);
+
+				Role role = _roleLocalService.getRole(
+					companyId, dataModelPermission.getRoleName());
+
+				for (ResourceAction resourceAction : resourceActions) {
+					_resourcePermissionLocalService.removeResourcePermission(
+						companyId, resourceName,
+						ResourceConstants.SCOPE_INDIVIDUAL,
+						String.valueOf(primKey), role.getRoleId(),
+						resourceAction.getActionId());
+				}
+
+				continue;
+			}
+
 			modelPermissions.addRolePermissions(
 				dataModelPermission.getRoleName(),
 				dataModelPermission.getActionIds());
