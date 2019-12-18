@@ -1639,37 +1639,6 @@ paths:
                     description:
                         ""
             tags: ["DataLayout"]
-    "/sites/{siteId}/data-model-permissions":
-        post:
-            operationId: postSiteDataModelPermission
-            parameters:
-                - in: path
-                  name: siteId
-                  required: true
-                  schema:
-                      format: int64
-                      type: integer
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            items:
-                                $ref: "#/components/schemas/DataModelPermission"
-                            type: array
-                    application/xml:
-                        schema:
-                            items:
-                                $ref: "#/components/schemas/DataModelPermission"
-                            type: array
-                description:
-                    ""
-            responses:
-                204:
-                    content:
-                        application/json: {}
-                    description:
-                        ""
-            tags: ["DataModelPermission"]
     "/sites/{siteId}/data-record-collection-permissions":
         post:
             operationId: postSiteDataRecordCollectionPermission

@@ -16,7 +16,6 @@ package com.liferay.data.engine.rest.internal.resource.v2_0;
 
 import com.liferay.data.engine.rest.dto.v2_0.DataModelPermission;
 import com.liferay.data.engine.rest.internal.constants.DataDefinitionConstants;
-import com.liferay.data.engine.rest.internal.constants.DataEngineConstants;
 import com.liferay.data.engine.rest.internal.constants.DataLayoutConstants;
 import com.liferay.data.engine.rest.internal.constants.DataRecordCollectionConstants;
 import com.liferay.data.engine.rest.internal.resource.util.DataEnginePermissionUtil;
@@ -43,7 +42,6 @@ import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.permission.ModelPermissions;
 import com.liferay.portal.kernel.service.permission.ModelPermissionsFactory;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.vulcan.pagination.Page;
 
@@ -78,7 +76,7 @@ public class DataModelPermissionResourceImpl
 
 		return _getDataModelPermissionPage(
 			ddmStructure.getCompanyId(), dataDefinitionId,
-			DataRecordCollectionConstants.RESOURCE_NAME, roleNames);
+			DataDefinitionConstants.RESOURCE_NAME, roleNames);
 	}
 
 	@Override
@@ -126,24 +124,7 @@ public class DataModelPermissionResourceImpl
 
 		return _getDataModelPermissionPage(
 			ddlRecordSet.getCompanyId(), dataRecordCollectionId,
-			DataDefinitionConstants.RESOURCE_NAME, roleNames);
-	}
-
-	@Override
-	public void postSiteDataModelPermission(
-			Long siteId, DataModelPermission[] dataModelPermissions)
-		throws Exception {
-
-		DataEnginePermissionUtil.checkPermission(
-			ActionKeys.PERMISSIONS, _groupLocalService, siteId);
-
-		for (DataModelPermission dataModelPermission : dataModelPermissions) {
-			DataEnginePermissionUtil.persistPermission(
-				ListUtil.fromArray(dataModelPermission.getActionIds()),
-				contextCompany, DataEngineConstants.OPERATION_SAVE_PERMISSION,
-				_resourcePermissionLocalService, _roleLocalService,
-				new String[] {dataModelPermission.getRoleName()});
-		}
+			DataRecordCollectionConstants.RESOURCE_NAME, roleNames);
 	}
 
 	@Override
@@ -160,7 +141,7 @@ public class DataModelPermissionResourceImpl
 
 		_resourcePermissionLocalService.updateResourcePermissions(
 			ddmStructure.getCompanyId(), ddmStructure.getGroupId(),
-			DataRecordCollectionConstants.RESOURCE_NAME,
+			DataDefinitionConstants.RESOURCE_NAME,
 			String.valueOf(dataDefinitionId),
 			_getModelPermissions(
 				dataModelPermissions, DataDefinitionConstants.RESOURCE_NAME));
@@ -180,8 +161,7 @@ public class DataModelPermissionResourceImpl
 
 		_resourcePermissionLocalService.updateResourcePermissions(
 			ddmStructureLayout.getCompanyId(), ddmStructureLayout.getGroupId(),
-			DataRecordCollectionConstants.RESOURCE_NAME,
-			String.valueOf(dataLayoutId),
+			DataLayoutConstants.RESOURCE_NAME, String.valueOf(dataLayoutId),
 			_getModelPermissions(
 				dataModelPermissions, DataLayoutConstants.RESOURCE_NAME));
 	}
@@ -221,14 +201,14 @@ public class DataModelPermissionResourceImpl
 					contextCompany, _roleLocalService,
 					StringUtil.split(roleNames)),
 				role -> _toDataModelPermission(
-					companyId, id, resourceActions, role)));
+					companyId, id, resourceActions, resourceName, role)));
 	}
 
 	private ModelPermissions _getModelPermissions(
 		DataModelPermission[] dataModelPermissions, String resourceName) {
 
-		ModelPermissions modelPermissions =
-			ModelPermissionsFactory.createWithDefaultPermissions(resourceName);
+		ModelPermissions modelPermissions = ModelPermissionsFactory.create(
+			new String[0], new String[0], resourceName);
 
 		for (DataModelPermission dataModelPermission : dataModelPermissions) {
 			modelPermissions.addRolePermissions(
@@ -240,15 +220,13 @@ public class DataModelPermissionResourceImpl
 	}
 
 	private DataModelPermission _toDataModelPermission(
-			Long companyId, Long id, List<ResourceAction> resourceActions,
-			Role role)
-		throws Exception {
+		Long companyId, Long id, List<ResourceAction> resourceActions,
+		String resourceName, Role role) {
 
 		ResourcePermission resourcePermission =
 			_resourcePermissionLocalService.fetchResourcePermission(
-				companyId, DataRecordCollectionConstants.RESOURCE_NAME,
-				ResourceConstants.SCOPE_INDIVIDUAL, String.valueOf(id),
-				role.getRoleId());
+				companyId, resourceName, ResourceConstants.SCOPE_INDIVIDUAL,
+				String.valueOf(id), role.getRoleId());
 
 		if (resourcePermission == null) {
 			return null;
