@@ -114,10 +114,27 @@ export default ({dataDefinitionId, onClose}) => {
 		);
 
 	const onSave = () => {
-		updateItem(
-			`/o/data-engine/v2.0/data-record-collections/${dataRecordCollectionId}/data-model-permissions`,
-			permissions
-		).then(() => onClose());
+		const dataDefinitionPermissions = [];
+
+		Object.values(permissions).forEach(({actionIds, roleName}) => {
+			if (actionIds.length > 0) {
+				dataDefinitionPermissions.push({
+					actionIds: [ACTIONS.VIEW],
+					roleName
+				});
+			}
+		});
+
+		Promise.all([
+			updateItem(
+				`/o/data-engine/v2.0/data-record-collections/${dataRecordCollectionId}/data-model-permissions`,
+				permissions
+			),
+			updateItem(
+				`/o/data-engine/v2.0/data-definitions/${dataDefinitionId}/data-model-permissions`,
+				dataDefinitionPermissions
+			)
+		]).then(() => onClose());
 	};
 
 	const togglePermission = (roleName, actionId) => {
