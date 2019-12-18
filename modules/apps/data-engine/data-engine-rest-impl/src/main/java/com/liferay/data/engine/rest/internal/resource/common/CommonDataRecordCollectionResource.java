@@ -315,7 +315,7 @@ public class CommonDataRecordCollectionResource<T> {
 		}
 
 		if (hasDefinePermissionsPermission) {
-			actionIds.add(DataActionKeys.DEFINE_PERMISSIONS);
+			actionIds.add(ActionKeys.PERMISSIONS);
 		}
 
 		if (actionIds.isEmpty()) {

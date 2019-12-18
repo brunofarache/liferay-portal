@@ -451,7 +451,7 @@ public class DataDefinitionResourceImpl
 		if (GetterUtil.getBoolean(
 				dataDefinitionPermission.getDefinePermissions())) {
 
-			actionIds.add(DataActionKeys.DEFINE_PERMISSIONS);
+			actionIds.add(ActionKeys.PERMISSIONS);
 		}
 
 		if (actionIds.isEmpty()) {

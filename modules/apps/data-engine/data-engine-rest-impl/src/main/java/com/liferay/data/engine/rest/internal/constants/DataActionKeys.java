@@ -28,8 +28,6 @@ public class DataActionKeys {
 	public static final String ADD_DATA_RECORD_COLLECTION =
 		"ADD_DATA_RECORD_COLLECTION";
 
-	public static final String DEFINE_PERMISSIONS = "DEFINE_PERMISSIONS";
-
 	public static final String DELETE_DATA_RECORD = "DELETE_DATA_RECORD";
 
 	public static final String EXPORT_DATA_RECORDS = "EXPORT_DATA_RECORDS";

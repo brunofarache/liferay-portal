@@ -355,7 +355,7 @@ public class DataLayoutResourceImpl
 		if (GetterUtil.getBoolean(
 				dataLayoutPermission.getDefinePermissions())) {
 
-			actionIds.add(DataActionKeys.DEFINE_PERMISSIONS);
+			actionIds.add(ActionKeys.PERMISSIONS);
 		}
 
 		if (actionIds.isEmpty()) {

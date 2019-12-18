@@ -14,7 +14,6 @@
 
 package com.liferay.data.engine.rest.internal.resource.util;
 
-import com.liferay.data.engine.rest.internal.constants.DataActionKeys;
 import com.liferay.data.engine.rest.internal.constants.DataEngineConstants;
 import com.liferay.portal.kernel.exception.NoSuchRoleException;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -26,6 +25,7 @@ import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalService;
@@ -59,8 +59,7 @@ public class DataEnginePermissionUtil {
 				"Operation must be \"delete\" or \"save\"");
 		}
 
-		checkPermission(
-			DataActionKeys.DEFINE_PERMISSIONS, groupLocalService, siteId);
+		checkPermission(ActionKeys.PERMISSIONS, groupLocalService, siteId);
 	}
 
 	public static void checkPermission(
