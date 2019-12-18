@@ -184,6 +184,10 @@ export default ({dataDefinitionId, onClose}) => {
 					[action]: (
 						<input
 							checked={isChecked(name, action)}
+							disabled={
+								name === 'Guest' &&
+								action !== ACTIONS.VIEW_DATA_RECORD
+							}
 							name={action}
 							onClick={() => togglePermission(name, action)}
 							type="checkbox"
