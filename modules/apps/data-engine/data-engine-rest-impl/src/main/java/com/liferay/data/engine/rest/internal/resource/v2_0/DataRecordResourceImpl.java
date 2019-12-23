@@ -160,8 +160,7 @@ public class DataRecordResourceImpl extends BaseDataRecordResourceImpl {
 					pagination.getEndPosition(), null),
 				this::_toDataRecord),
 			pagination,
-			_ddlRecordLocalService.getRecordsCount(
-				dataRecordCollectionId, PrincipalThreadLocal.getUserId()));
+			_ddlRecordLocalService.getRecordsCount(dataRecordCollectionId));
 	}
 
 	@Override
