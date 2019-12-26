@@ -158,7 +158,10 @@ export default ({history}) => {
 					{
 						action: ({id}) =>
 							Promise.resolve(setPermissionsDataDefinitionId(id)),
-						name: Liferay.Language.get('permissions')
+						name: Liferay.Language.get('app-permissions')
+					},
+					{
+						name: 'divider'
 					},
 					{
 						action: confirmDelete(
