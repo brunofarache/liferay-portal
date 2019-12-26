@@ -293,12 +293,6 @@ public class DataLayoutResourceImpl
 				ddmFormLayoutSerializerSerializeResponse.getContent(),
 				serviceContext));
 
-		_resourceLocalService.addModelResources(
-			contextCompany.getCompanyId(), ddmStructure.getGroupId(),
-			PrincipalThreadLocal.getUserId(),
-			InternalDataLayout.class.getName(), dataLayout.getId(),
-			serviceContext.getModelPermissions());
-
 		_addDataDefinitionFieldLinks(
 			dataDefinitionId, dataLayout.getId(),
 			ddmFormLayoutSerializerSerializeResponse.getContent(),
@@ -341,37 +335,6 @@ public class DataLayoutResourceImpl
 			DataLayoutConstants.RESOURCE_NAME, _resourcePermissionLocalService,
 			_roleLocalService, dataLayoutPermission.getRoleNames(),
 			ddmStructureLayout.getGroupId());
-	}
-
-	@Override
-	public void postSiteDataLayoutPermission(
-			Long siteId, String operation,
-			DataLayoutPermission dataLayoutPermission)
-		throws Exception {
-
-		DataEnginePermissionUtil.checkOperationPermission(
-			_groupLocalService, operation, siteId);
-
-		List<String> actionIds = new ArrayList<>();
-
-		if (GetterUtil.getBoolean(dataLayoutPermission.getAddDataLayout())) {
-			actionIds.add(DataActionKeys.ADD_DATA_LAYOUT);
-		}
-
-		if (GetterUtil.getBoolean(
-				dataLayoutPermission.getDefinePermissions())) {
-
-			actionIds.add(ActionKeys.PERMISSIONS);
-		}
-
-		if (actionIds.isEmpty()) {
-			return;
-		}
-
-		DataEnginePermissionUtil.persistPermission(
-			actionIds, contextCompany, operation,
-			_resourcePermissionLocalService, _roleLocalService,
-			dataLayoutPermission.getRoleNames());
 	}
 
 	@Override
