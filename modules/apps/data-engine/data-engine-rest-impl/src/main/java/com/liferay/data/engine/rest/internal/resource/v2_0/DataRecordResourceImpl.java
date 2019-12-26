@@ -28,7 +28,6 @@ import com.liferay.dynamic.data.lists.model.DDLRecord;
 import com.liferay.dynamic.data.lists.model.DDLRecordSet;
 import com.liferay.dynamic.data.lists.model.DDLRecordSetVersion;
 import com.liferay.dynamic.data.lists.service.DDLRecordLocalService;
-import com.liferay.dynamic.data.lists.service.DDLRecordService;
 import com.liferay.dynamic.data.lists.service.DDLRecordSetLocalService;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
@@ -221,7 +220,7 @@ public class DataRecordResourceImpl extends BaseDataRecordResourceImpl {
 	public DataRecord putDataRecord(Long dataRecordId, DataRecord dataRecord)
 		throws Exception {
 
-		DDLRecord ddlRecord = _ddlRecordService.getRecord(dataRecordId);
+		DDLRecord ddlRecord = _ddlRecordLocalService.getRecord(dataRecordId);
 
 		DDLRecordSet ddlRecordSet = ddlRecord.getRecordSet();
 
@@ -348,9 +347,6 @@ public class DataRecordResourceImpl extends BaseDataRecordResourceImpl {
 
 	@Reference
 	private DDLRecordLocalService _ddlRecordLocalService;
-
-	@Reference
-	private DDLRecordService _ddlRecordService;
 
 	@Reference
 	private DDLRecordSetLocalService _ddlRecordSetLocalService;
