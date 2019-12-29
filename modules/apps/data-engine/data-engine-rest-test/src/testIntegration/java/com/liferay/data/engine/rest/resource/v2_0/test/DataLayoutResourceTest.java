@@ -15,11 +15,11 @@
 package com.liferay.data.engine.rest.resource.v2_0.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.data.engine.rest.client.dto.v2_0.DataDefinition;
 import com.liferay.data.engine.rest.client.dto.v2_0.DataLayout;
 import com.liferay.data.engine.rest.client.pagination.Page;
 import com.liferay.data.engine.rest.client.pagination.Pagination;
 import com.liferay.data.engine.rest.resource.v2_0.test.util.DataDefinitionTestUtil;
-import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 
@@ -42,9 +42,10 @@ public class DataLayoutResourceTest extends BaseDataLayoutResourceTestCase {
 	public void setUp() throws Exception {
 		super.setUp();
 
-		_ddmStructure = DataDefinitionTestUtil.addDDMStructure(testGroup);
-		_irrelevantDDMStructure = DataDefinitionTestUtil.addDDMStructure(
-			irrelevantGroup);
+		_dataDefinition = DataDefinitionTestUtil.addDataDefinition(
+			testGroup.getGroupId());
+		_irrelevantDataDefinition = DataDefinitionTestUtil.addDataDefinition(
+			irrelevantGroup.getGroupId());
 	}
 
 	@Override
@@ -146,7 +147,7 @@ public class DataLayoutResourceTest extends BaseDataLayoutResourceTestCase {
 			super.randomIrrelevantDataLayout();
 
 		randomIrrelevantDataLayout.setDataDefinitionId(
-			_irrelevantDDMStructure.getStructureId());
+			_irrelevantDataDefinition.getId());
 
 		return randomIrrelevantDataLayout;
 	}
@@ -154,20 +155,20 @@ public class DataLayoutResourceTest extends BaseDataLayoutResourceTestCase {
 	@Override
 	protected DataLayout testDeleteDataLayout_addDataLayout() throws Exception {
 		return dataLayoutResource.postDataDefinitionDataLayout(
-			_ddmStructure.getStructureId(), randomDataLayout());
+			_dataDefinition.getId(), randomDataLayout());
 	}
 
 	@Override
 	protected Long testGetDataDefinitionDataLayoutsPage_getDataDefinitionId()
 		throws Exception {
 
-		return _ddmStructure.getStructureId();
+		return _dataDefinition.getId();
 	}
 
 	@Override
 	protected DataLayout testGetDataLayout_addDataLayout() throws Exception {
 		return dataLayoutResource.postDataDefinitionDataLayout(
-			_ddmStructure.getStructureId(), randomDataLayout());
+			_dataDefinition.getId(), randomDataLayout());
 	}
 
 	@Override
@@ -175,7 +176,7 @@ public class DataLayoutResourceTest extends BaseDataLayoutResourceTestCase {
 		throws Exception {
 
 		return dataLayoutResource.postDataDefinitionDataLayout(
-			_ddmStructure.getStructureId(), randomDataLayout());
+			_dataDefinition.getId(), randomDataLayout());
 	}
 
 	@Override
@@ -190,13 +191,13 @@ public class DataLayoutResourceTest extends BaseDataLayoutResourceTestCase {
 	@Override
 	protected DataLayout testPutDataLayout_addDataLayout() throws Exception {
 		return dataLayoutResource.postDataDefinitionDataLayout(
-			_ddmStructure.getStructureId(), randomDataLayout());
+			_dataDefinition.getId(), randomDataLayout());
 	}
 
 	private DataLayout _createDataLayout(String name) {
 		DataLayout dataLayout = new DataLayout() {
 			{
-				dataDefinitionId = _ddmStructure.getStructureId();
+				dataDefinitionId = _dataDefinition.getId();
 				dataLayoutKey = RandomTestUtil.randomString();
 				dateCreated = RandomTestUtil.nextDate();
 				dateModified = RandomTestUtil.nextDate();
@@ -258,7 +259,7 @@ public class DataLayoutResourceTest extends BaseDataLayoutResourceTestCase {
 		dataLayoutResource.deleteDataLayout(dataLayout.getId());
 	}
 
-	private DDMStructure _ddmStructure;
-	private DDMStructure _irrelevantDDMStructure;
+	private DataDefinition _dataDefinition;
+	private DataDefinition _irrelevantDataDefinition;
 
 }
