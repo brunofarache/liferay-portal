@@ -46,9 +46,19 @@ const ActionsMenu = ({actions}) => {
 			}
 		>
 			<ItemList>
-				{actions.map((action, index) => (
-					<Item key={index} onClick={() => {}}>
-						{action}
+				{actions.map(({action, name}, index) => (
+					<Item
+						key={index}
+						onClick={event => {
+							event.preventDefault();
+							setActive(false);
+
+							if (action) {
+								action();
+							}
+						}}
+					>
+						{name}
 					</Item>
 				))}
 			</ItemList>
@@ -167,13 +177,7 @@ export const InlineControlMenu = ({backURL, title, tooltip, url}) => {
 	);
 };
 
-export const PortalControlMenu = ({
-	actions = ['Permissions'],
-	backURL,
-	title,
-	tooltip,
-	url
-}) => {
+export const PortalControlMenu = ({actions, backURL, title, tooltip, url}) => {
 	backURL = resolveBackURL(backURL, url);
 
 	useEffect(() => {
