@@ -20,6 +20,7 @@ import {AppContext} from '../../AppContext.es';
 import Button from '../../components/button/Button.es';
 import ControlMenu from '../../components/control-menu/ControlMenu.es';
 import ListView from '../../components/list-view/ListView.es';
+import PermissionsModal from '../../components/permissions/PermissionsModal.es';
 import {useKeyDown} from '../../hooks/index.es';
 import isClickOutside from '../../utils/clickOutside.es';
 import {addItem, confirmDelete} from '../../utils/client.es';
@@ -57,6 +58,8 @@ export default ({history}) => {
 		permissionsDataDefinitionId,
 		setPermissionsDataDefinitionId
 	] = useState(null);
+
+	const [isPermissionsModalOpen, openPermissionsModal] = useState(false);
 
 	const onClickAddButton = ({currentTarget}) => {
 		setAlignElement(currentTarget);
@@ -122,6 +125,12 @@ export default ({history}) => {
 	return (
 		<>
 			<ControlMenu
+				actions={[
+					{
+						action: () => openPermissionsModal(true),
+						name: Liferay.Language.get('permissions')
+					}
+				]}
 				title={Liferay.Language.get(
 					'javax.portlet.title.com_liferay_app_builder_web_internal_portlet_CustomObjectsPortlet'
 				)}
@@ -224,6 +233,19 @@ export default ({history}) => {
 			<CustomObjectPermissionsModal
 				dataDefinitionId={permissionsDataDefinitionId}
 				onClose={() => setPermissionsDataDefinitionId(null)}
+			/>
+
+			<PermissionsModal
+				actions={[
+					{
+						key: 'VIEW_DATA_RECORD',
+						sortable: false,
+						value: Liferay.Language.get('manage')
+					}
+				]}
+				endpoint="/o/data-engine/v2.0/data-record-collections/39320/data-model-permissions"
+				isOpen={isPermissionsModalOpen}
+				onClose={() => openPermissionsModal(false)}
 			/>
 		</>
 	);
