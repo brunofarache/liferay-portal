@@ -12,13 +12,72 @@
  * details.
  */
 
+import ClayDropDown, {Align} from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
 import classNames from 'classnames';
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {createPortal} from 'react-dom';
 import {Link as InternalLink, withRouter} from 'react-router-dom';
 
 import {AppContext} from '../../AppContext.es';
+import Button from '../button/Button.es';
+
+const {Item, ItemList} = ClayDropDown;
+
+const ActionsMenu = ({actions}) => {
+	const [active, setActive] = useState(false);
+
+	if (!actions || actions.length === 0) {
+		return <></>;
+	}
+
+	return createPortal(
+		<ClayDropDown
+			active={active}
+			alignmentPosition={Align.TopLeft}
+			className="lfr-icon-menu portlet-options"
+			onActiveChange={newActive => setActive(newActive)}
+			trigger={
+				<Button displayType="unstyled">
+					<span className="icon-monospaced">
+						<ClayIcon symbol="ellipsis-v" />
+					</span>
+				</Button>
+			}
+		>
+			<ItemList>
+				{actions.map((action, index) => (
+					<Item key={index} onClick={() => {}}>
+						{action}
+					</Item>
+				))}
+			</ItemList>
+		</ClayDropDown>,
+		document.querySelector(
+			'li.control-menu-nav-category.user-control-group > ul > li > div.control-menu-icon'
+		)
+	);
+};
+
+const BackButton = ({backURL}) => {
+	const Link =
+		backURL && backURL.startsWith('http') ? ExternalLink : InternalLink;
+
+	return createPortal(
+		<li className="control-menu-nav-item">
+			<Link
+				className="control-menu-icon lfr-icon-item"
+				tabIndex={1}
+				to={backURL}
+			>
+				<span className="icon-monospaced">
+					<ClayIcon symbol="angle-left" />
+				</span>
+			</Link>
+		</li>,
+		document.querySelector('.sites-control-group .control-menu-nav')
+	);
+};
 
 const ExternalLink = ({children, to, ...props}) => {
 	return (
@@ -59,7 +118,7 @@ export const InlineControlMenu = ({backURL, title, tooltip, url}) => {
 
 	const controlMenuElement = document.getElementById(controlMenuElementId);
 
-	const ControlMenu = (
+	const ControlMenu = () => (
 		<div
 			className={classNames(
 				'app-builder-control-menu',
@@ -101,18 +160,21 @@ export const InlineControlMenu = ({backURL, title, tooltip, url}) => {
 		</div>
 	);
 
-	if (controlMenuElement) {
-		return createPortal(ControlMenu, controlMenuElement);
-	} else {
-		return ControlMenu;
-	}
+	return controlMenuElement ? (
+		createPortal(<ControlMenu />, controlMenuElement)
+	) : (
+		<ControlMenu />
+	);
 };
 
-export const PortalControlMenu = ({backURL, title, tooltip, url}) => {
+export const PortalControlMenu = ({
+	actions = ['Permissions'],
+	backURL,
+	title,
+	tooltip,
+	url
+}) => {
 	backURL = resolveBackURL(backURL, url);
-
-	const Link =
-		backURL && backURL.startsWith('http') ? ExternalLink : InternalLink;
 
 	useEffect(() => {
 		document.querySelector(
@@ -139,23 +201,8 @@ export const PortalControlMenu = ({backURL, title, tooltip, url}) => {
 
 	return (
 		<>
-			{backURL &&
-				createPortal(
-					<li className="control-menu-nav-item">
-						<Link
-							className="control-menu-icon lfr-icon-item"
-							tabIndex={1}
-							to={backURL}
-						>
-							<span className="icon-monospaced">
-								<ClayIcon symbol="angle-left" />
-							</span>
-						</Link>
-					</li>,
-					document.querySelector(
-						'.sites-control-group .control-menu-nav'
-					)
-				)}
+			{backURL && <BackButton backURL={backURL} />}
+			{actions && <ActionsMenu actions={actions} />}
 		</>
 	);
 };
