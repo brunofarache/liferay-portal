@@ -23,8 +23,13 @@ import ListView from '../../components/list-view/ListView.es';
 import PermissionsModal from '../../components/permissions/PermissionsModal.es';
 import {useKeyDown} from '../../hooks/index.es';
 import isClickOutside from '../../utils/clickOutside.es';
-import {addItem, confirmDelete} from '../../utils/client.es';
-import CustomObjectPermissionsModal from './CustomObjectPermissionsModal.es';
+import {
+	addItem,
+	confirmDelete,
+	getItem,
+	updateItem
+} from '../../utils/client.es';
+import {ACTIONS} from '../entry/PermissionsContext.es';
 import CustomObjectPopover from './CustomObjectPopover.es';
 
 const COLUMNS = [
@@ -54,10 +59,14 @@ export default ({history}) => {
 
 	const [alignElement, setAlignElement] = useState(addButtonRef.current);
 	const [isPopoverVisible, setPopoverVisible] = useState(false);
+
 	const [
-		permissionsDataDefinitionId,
-		setPermissionsDataDefinitionId
-	] = useState(null);
+		customObjectPermissionsModalState,
+		setCustomObjectPermissionsModalState
+	] = useState({
+		dataDefinitionId: null,
+		endpoint: null
+	});
 
 	const [isPermissionsModalOpen, openPermissionsModal] = useState(false);
 
@@ -96,6 +105,23 @@ export default ({history}) => {
 			}
 		});
 	};
+
+	const {dataDefinitionId} = customObjectPermissionsModalState;
+
+	useEffect(() => {
+		if (!dataDefinitionId) {
+			return;
+		}
+
+		getItem(
+			`/o/data-engine/v2.0/data-definitions/${dataDefinitionId}/data-record-collection`
+		).then(({id: dataRecordCollectionId}) => {
+			setCustomObjectPermissionsModalState(prevState => ({
+				...prevState,
+				endpoint: `/o/data-engine/v2.0/data-record-collections/${dataRecordCollectionId}/data-model-permissions`
+			}));
+		});
+	}, [dataDefinitionId]);
 
 	useEffect(() => {
 		const handler = ({target}) => {
@@ -167,7 +193,14 @@ export default ({history}) => {
 					},
 					{
 						action: ({id}) =>
-							Promise.resolve(setPermissionsDataDefinitionId(id)),
+							Promise.resolve(
+								setCustomObjectPermissionsModalState(
+									prevState => ({
+										...prevState,
+										dataDefinitionId: id
+									})
+								)
+							),
 						name: Liferay.Language.get('permissions')
 					},
 					{
@@ -227,9 +260,57 @@ export default ({history}) => {
 				visible={isPopoverVisible}
 			/>
 
-			<CustomObjectPermissionsModal
-				dataDefinitionId={permissionsDataDefinitionId}
-				onClose={() => setPermissionsDataDefinitionId(null)}
+			<PermissionsModal
+				actions={[
+					{
+						key: ACTIONS.ADD_DATA_RECORD,
+						sortable: false,
+						value: Liferay.Language.get('add-entry')
+					},
+					{
+						key: ACTIONS.DELETE_DATA_RECORD,
+						sortable: false,
+						value: Liferay.Language.get('delete')
+					},
+					{
+						key: ACTIONS.UPDATE_DATA_RECORD,
+						sortable: false,
+						value: Liferay.Language.get('update')
+					},
+					{
+						key: ACTIONS.VIEW_DATA_RECORD,
+						sortable: false,
+						value: Liferay.Language.get('view')
+					}
+				]}
+				endpoint={customObjectPermissionsModalState.endpoint}
+				isOpen={dataDefinitionId !== null}
+				onClose={() =>
+					setCustomObjectPermissionsModalState({
+						dataDefinitionId: null,
+						endpoint: null
+					})
+				}
+				onSave={permissions => {
+					const dataDefinitionPermissions = [];
+
+					Object.values(permissions).forEach(
+						({actionIds, roleName}) => {
+							if (actionIds.length > 0) {
+								dataDefinitionPermissions.push({
+									actionIds: [ACTIONS.VIEW],
+									roleName
+								});
+							}
+						}
+					);
+
+					return updateItem(
+						`/o/data-engine/v2.0/data-definitions/${dataDefinitionId}/data-model-permissions`,
+						dataDefinitionPermissions
+					);
+				}}
+				title={Liferay.Language.get('app-permissions')}
 			/>
 
 			<PermissionsModal
