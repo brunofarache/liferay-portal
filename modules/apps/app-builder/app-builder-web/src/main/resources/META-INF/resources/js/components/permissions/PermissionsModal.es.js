@@ -22,7 +22,14 @@ import SearchInput from '../../components/management-toolbar/search/SearchInput.
 import Table from '../../components/table/Table.es';
 import {getItem, updateItem} from '../../utils/client.es';
 
-export default ({actions, endpoint, isOpen, onClose, title}) => {
+export default ({
+	actions,
+	endpoint,
+	isOpen,
+	onClose,
+	onSave = Promise.resolve(),
+	title
+}) => {
 	const {observer} = useModal({
 		onClose
 	});
@@ -44,6 +51,10 @@ export default ({actions, endpoint, isOpen, onClose, title}) => {
 	});
 
 	useEffect(() => {
+		if (!isOpen || !endpoint) {
+			return;
+		}
+
 		setState({
 			isLoading: true,
 			permissions: [],
@@ -51,40 +62,37 @@ export default ({actions, endpoint, isOpen, onClose, title}) => {
 			searchText: ''
 		});
 
-		if (endpoint) {
-			getItem('/o/headless-admin-user/v1.0/roles')
-				.then(({items: roles = []}) => {
-					roles = roles.filter(
-						({name, roleType}) =>
-							name !== 'Administrator' &&
-							roleType !== 'organization' &&
-							roleType !== 'site'
-					);
-
-					setState(prevState => ({
-						...prevState,
-						roles
-					}));
-
-					const roleNames = roles.map(({name}) => name);
-
-					return getItem(endpoint, {roleNames});
-				})
-				.then(({items: permissions = []}) => {
-					setState(prevState => ({
-						...prevState,
-						isLoading: false,
-						permissions
-					}));
-				})
-				.catch(_ =>
-					setState(prevState => ({
-						...prevState,
-						isLoading: false
-					}))
+		getItem('/o/headless-admin-user/v1.0/roles')
+			.then(({items: roles = []}) => {
+				roles = roles.filter(
+					({name, roleType}) =>
+						name !== 'Administrator' &&
+						roleType !== 'organization' &&
+						roleType !== 'site'
 				);
-		}
-	}, [endpoint]);
+
+				setState(prevState => ({
+					...prevState,
+					roles
+				}));
+
+				const roleNames = roles.map(({name}) => name);
+				return getItem(endpoint, {roleNames});
+			})
+			.then(({items: permissions = []}) => {
+				setState(prevState => ({
+					...prevState,
+					isLoading: false,
+					permissions
+				}));
+			})
+			.catch(_ =>
+				setState(prevState => ({
+					...prevState,
+					isLoading: false
+				}))
+			);
+	}, [endpoint, isOpen]);
 
 	const {isLoading, permissions, roles, searchText} = state;
 
@@ -98,9 +106,11 @@ export default ({actions, endpoint, isOpen, onClose, title}) => {
 				name === roleName && actionIds.includes(actionId)
 		);
 
-	const onHandleSave = () => {
-		updateItem(endpoint, permissions).then(() => onClose());
-	};
+	const handleOnSave = () =>
+		Promise.all([
+			updateItem(endpoint, permissions),
+			onSave(permissions)
+		]).then(() => onClose());
 
 	const togglePermission = (roleName, actionId) => {
 		const exists = permissions.some(
@@ -189,7 +199,7 @@ export default ({actions, endpoint, isOpen, onClose, title}) => {
 						>
 							{Liferay.Language.get('cancel')}
 						</ClayButton>
-						<ClayButton onClick={() => onHandleSave()}>
+						<ClayButton onClick={() => handleOnSave()}>
 							{Liferay.Language.get('save')}
 						</ClayButton>
 					</ClayButton.Group>
