@@ -85,8 +85,6 @@ import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceLocalService;
-import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
-import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.AggregateResourceBundle;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -396,8 +394,7 @@ public class DataDefinitionResourceImpl
 					_ddlRecordSetLocalService, _ddmStructureLocalService,
 					_groupLocalService,
 					_dataRecordCollectionModelResourcePermission,
-					_resourceLocalService, _resourcePermissionLocalService,
-					_roleLocalService,
+					_resourceLocalService,
 					DataRecordCollectionUtil::toDataRecordCollection);
 
 		commonDataRecordCollectionResource.
@@ -849,11 +846,5 @@ public class DataDefinitionResourceImpl
 
 	@Reference
 	private ResourceLocalService _resourceLocalService;
-
-	@Reference
-	private ResourcePermissionLocalService _resourcePermissionLocalService;
-
-	@Reference
-	private RoleLocalService _roleLocalService;
 
 }

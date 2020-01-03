@@ -14,7 +14,6 @@
 
 package com.liferay.data.engine.rest.internal.security.permission.resource;
 
-import com.liferay.data.engine.rest.internal.constants.DataDefinitionConstants;
 import com.liferay.data.engine.rest.internal.model.InternalDataDefinition;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
@@ -34,7 +33,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	immediate = true,
-	property = "model.class.name=" + DataDefinitionConstants.RESOURCE_NAME,
+	property = "model.class.name=com.liferay.data.engine.rest.internal.model.InternalDataDefinition",
 	service = ModelResourcePermission.class
 )
 public class InternalDataDefinitionModelResourcePermission
@@ -48,7 +47,7 @@ public class InternalDataDefinitionModelResourcePermission
 
 		if (!contains(permissionChecker, internalDataDefinition, actionId)) {
 			throw new PrincipalException.MustHavePermission(
-				permissionChecker, DataDefinitionConstants.RESOURCE_NAME,
+				permissionChecker, InternalDataDefinition.class.getName(),
 				(long)internalDataDefinition.getPrimaryKeyObj(), actionId);
 		}
 	}
@@ -76,10 +75,11 @@ public class InternalDataDefinitionModelResourcePermission
 		DDMStructure ddmStructure = ddmStructureLocalService.getStructure(
 			(long)internalDataDefinition.getPrimaryKeyObj());
 
-		String className = _portal.getClassName(ddmStructure.getClassNameId());
+		String resourceName = _portal.getClassName(
+			ddmStructure.getClassNameId());
 
 		if (permissionChecker.hasOwnerPermission(
-				ddmStructure.getCompanyId(), className,
+				ddmStructure.getCompanyId(), resourceName,
 				(long)internalDataDefinition.getPrimaryKeyObj(),
 				ddmStructure.getUserId(), actionId)) {
 
@@ -87,7 +87,7 @@ public class InternalDataDefinitionModelResourcePermission
 		}
 
 		return permissionChecker.hasPermission(
-			ddmStructure.getGroupId(), className,
+			ddmStructure.getGroupId(), resourceName,
 			(long)internalDataDefinition.getPrimaryKeyObj(), actionId);
 	}
 

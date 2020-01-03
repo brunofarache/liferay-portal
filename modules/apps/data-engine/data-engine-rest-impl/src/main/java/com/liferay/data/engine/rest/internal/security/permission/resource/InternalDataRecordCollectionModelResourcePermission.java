@@ -14,8 +14,6 @@
 
 package com.liferay.data.engine.rest.internal.security.permission.resource;
 
-import com.liferay.data.engine.rest.internal.constants.DataDefinitionConstants;
-import com.liferay.data.engine.rest.internal.constants.DataRecordCollectionConstants;
 import com.liferay.data.engine.rest.internal.model.InternalDataRecordCollection;
 import com.liferay.dynamic.data.lists.model.DDLRecordSet;
 import com.liferay.dynamic.data.lists.service.DDLRecordSetLocalService;
@@ -35,7 +33,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	immediate = true,
-	property = "model.class.name=" + DataRecordCollectionConstants.RESOURCE_NAME,
+	property = "model.class.name=com.liferay.data.engine.rest.internal.model.InternalDataRecordCollection",
 	service = ModelResourcePermission.class
 )
 public class InternalDataRecordCollectionModelResourcePermission
@@ -52,7 +50,7 @@ public class InternalDataRecordCollectionModelResourcePermission
 				permissionChecker, internalDataRecordCollection, actionId)) {
 
 			throw new PrincipalException.MustHavePermission(
-				permissionChecker, DataDefinitionConstants.RESOURCE_NAME,
+				permissionChecker, InternalDataRecordCollection.class.getName(),
 				(long)internalDataRecordCollection.getPrimaryKeyObj(),
 				actionId);
 		}

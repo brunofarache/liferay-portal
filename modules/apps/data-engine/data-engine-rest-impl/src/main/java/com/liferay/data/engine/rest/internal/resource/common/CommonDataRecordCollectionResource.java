@@ -16,7 +16,6 @@ package com.liferay.data.engine.rest.internal.resource.common;
 
 import com.liferay.data.engine.field.type.util.LocalizedValueUtil;
 import com.liferay.data.engine.rest.internal.constants.DataActionKeys;
-import com.liferay.data.engine.rest.internal.constants.DataRecordCollectionConstants;
 import com.liferay.data.engine.rest.internal.model.InternalDataRecordCollection;
 import com.liferay.data.engine.rest.internal.resource.util.DataEnginePermissionUtil;
 import com.liferay.dynamic.data.lists.model.DDLRecordSet;
@@ -34,8 +33,6 @@ import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceLocalService;
-import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
-import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -45,8 +42,6 @@ import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.util.SearchUtil;
 import com.liferay.portal.vulcan.util.TransformUtil;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import javax.validation.ValidationException;
@@ -63,8 +58,6 @@ public class CommonDataRecordCollectionResource<T> {
 		ModelResourcePermission<InternalDataRecordCollection>
 			modelResourcePermission,
 		ResourceLocalService resourceLocalService,
-		ResourcePermissionLocalService resourcePermissionLocalService,
-		RoleLocalService roleLocalService,
 		UnsafeFunction<DDLRecordSet, T, Exception> transformUnsafeFunction) {
 
 		_ddlRecordSetLocalService = ddlRecordSetLocalService;
@@ -72,8 +65,6 @@ public class CommonDataRecordCollectionResource<T> {
 		_groupLocalService = groupLocalService;
 		_modelResourcePermission = modelResourcePermission;
 		_resourceLocalService = resourceLocalService;
-		_resourcePermissionLocalService = resourcePermissionLocalService;
-		_roleLocalService = roleLocalService;
 		_transformUnsafeFunction = transformUnsafeFunction;
 	}
 
@@ -238,95 +229,6 @@ public class CommonDataRecordCollectionResource<T> {
 		return _transformUnsafeFunction.apply(ddlRecordSet);
 	}
 
-	public void postDataRecordCollectionDataRecordCollectionPermissions(
-			Company company, Long dataRecordCollectionId,
-			boolean hasAddDataRecordPermission, boolean hasDeletePermission,
-			boolean hasDeleteDataRecordPermission, boolean hasUpdatePermission,
-			boolean hasUpdateDataRecordPermission, boolean hasViewPermission,
-			boolean hasViewDataRecordPermission,
-			boolean hasExportDataRecordPermission, String operation,
-			String[] roleNames)
-		throws Exception {
-
-		DDLRecordSet ddlRecordSet = _ddlRecordSetLocalService.getRecordSet(
-			dataRecordCollectionId);
-
-		DataEnginePermissionUtil.checkOperationPermission(
-			_groupLocalService, operation, ddlRecordSet.getGroupId());
-
-		List<String> actionIds = new ArrayList<>();
-
-		if (hasAddDataRecordPermission) {
-			actionIds.add(DataActionKeys.ADD_DATA_RECORD);
-		}
-
-		if (hasDeletePermission) {
-			actionIds.add(ActionKeys.DELETE);
-		}
-
-		if (hasDeleteDataRecordPermission) {
-			actionIds.add(DataActionKeys.DELETE_DATA_RECORD);
-		}
-
-		if (hasExportDataRecordPermission) {
-			actionIds.add(DataActionKeys.EXPORT_DATA_RECORDS);
-		}
-
-		if (hasUpdatePermission) {
-			actionIds.add(ActionKeys.UPDATE);
-		}
-
-		if (hasUpdateDataRecordPermission) {
-			actionIds.add(DataActionKeys.UPDATE_DATA_RECORD);
-		}
-
-		if (hasViewPermission) {
-			actionIds.add(ActionKeys.VIEW);
-		}
-
-		if (hasViewDataRecordPermission) {
-			actionIds.add(DataActionKeys.VIEW_DATA_RECORD);
-		}
-
-		if (actionIds.isEmpty()) {
-			return;
-		}
-
-		DataEnginePermissionUtil.persistModelPermission(
-			actionIds, company, dataRecordCollectionId, operation,
-			DataRecordCollectionConstants.RESOURCE_NAME,
-			_resourcePermissionLocalService, _roleLocalService, roleNames,
-			ddlRecordSet.getGroupId());
-	}
-
-	public void postSiteDataRecordCollectionPermissions(
-			Company company, boolean hasAddDataRecordCollectionPermission,
-			boolean hasDefinePermissionsPermission, String operation,
-			String[] roleNames, Long siteId)
-		throws Exception {
-
-		DataEnginePermissionUtil.checkOperationPermission(
-			_groupLocalService, operation, siteId);
-
-		List<String> actionIds = new ArrayList<>();
-
-		if (hasAddDataRecordCollectionPermission) {
-			actionIds.add(DataActionKeys.ADD_DATA_RECORD_COLLECTION);
-		}
-
-		if (hasDefinePermissionsPermission) {
-			actionIds.add(ActionKeys.PERMISSIONS);
-		}
-
-		if (actionIds.isEmpty()) {
-			return;
-		}
-
-		DataEnginePermissionUtil.persistPermission(
-			actionIds, company, operation, _resourcePermissionLocalService,
-			_roleLocalService, roleNames);
-	}
-
 	public T putDataRecordCollection(
 			Long dataRecordCollectionId, Map<String, Object> description,
 			Map<String, Object> name)
@@ -357,9 +259,6 @@ public class CommonDataRecordCollectionResource<T> {
 	private final ModelResourcePermission<InternalDataRecordCollection>
 		_modelResourcePermission;
 	private final ResourceLocalService _resourceLocalService;
-	private final ResourcePermissionLocalService
-		_resourcePermissionLocalService;
-	private final RoleLocalService _roleLocalService;
 	private final UnsafeFunction<DDLRecordSet, T, Exception>
 		_transformUnsafeFunction;
 

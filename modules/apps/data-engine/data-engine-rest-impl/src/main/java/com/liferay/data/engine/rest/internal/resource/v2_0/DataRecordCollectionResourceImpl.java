@@ -25,8 +25,6 @@ import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceLocalService;
-import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
-import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
@@ -186,7 +184,6 @@ public class DataRecordCollectionResourceImpl
 		return new CommonDataRecordCollectionResource<>(
 			_ddlRecordSetLocalService, _ddmStructureLocalService,
 			_groupLocalService, _modelResourcePermission, _resourceLocalService,
-			_resourcePermissionLocalService, _roleLocalService,
 			DataRecordCollectionUtil::toDataRecordCollection);
 	}
 
@@ -204,11 +201,5 @@ public class DataRecordCollectionResourceImpl
 
 	@Reference
 	private ResourceLocalService _resourceLocalService;
-
-	@Reference
-	private ResourcePermissionLocalService _resourcePermissionLocalService;
-
-	@Reference
-	private RoleLocalService _roleLocalService;
 
 }
