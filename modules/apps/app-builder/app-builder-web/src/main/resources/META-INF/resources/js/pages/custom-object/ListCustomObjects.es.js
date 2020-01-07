@@ -279,17 +279,17 @@ export default ({history}) => {
 					{
 						key: ACTIONS.DELETE_DATA_RECORD,
 						sortable: false,
-						value: Liferay.Language.get('delete')
+						value: Liferay.Language.get('delete-entry')
 					},
 					{
 						key: ACTIONS.UPDATE_DATA_RECORD,
 						sortable: false,
-						value: Liferay.Language.get('update')
+						value: Liferay.Language.get('update-entry')
 					},
 					{
 						key: ACTIONS.VIEW_DATA_RECORD,
 						sortable: false,
-						value: Liferay.Language.get('view')
+						value: Liferay.Language.get('view-entries')
 					}
 				]}
 				endpoint={customObjectPermissionsModalState.endpoint}
