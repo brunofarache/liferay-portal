@@ -106,6 +106,12 @@ export default ({history}) => {
 		});
 	};
 
+	const rolesFilter = ({name, roleType}) =>
+		name !== 'Administrator' &&
+		name !== 'Owner' &&
+		roleType !== 'organization' &&
+		roleType !== 'site';
+
 	const {dataDefinitionId} = customObjectPermissionsModalState;
 
 	useEffect(() => {
@@ -313,6 +319,7 @@ export default ({history}) => {
 						dataDefinitionPermissions
 					);
 				}}
+				rolesFilter={rolesFilter}
 				title={Liferay.Language.get('app-permissions')}
 			/>
 
@@ -324,9 +331,10 @@ export default ({history}) => {
 						value: Liferay.Language.get('manage')
 					}
 				]}
-				endpoint="/o/data-engine/v2.0/data-record-collections/39320/data-model-permissions"
+				endpoint="o/app-builder/v1.0/data-model-permissions"
 				isOpen={isPermissionsModalOpen}
 				onClose={() => openPermissionsModal(false)}
+				rolesFilter={rolesFilter}
 			/>
 		</>
 	);

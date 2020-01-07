@@ -28,6 +28,7 @@ export default ({
 	isOpen,
 	onClose,
 	onSave = Promise.resolve(),
+	rolesFilter = () => true,
 	title
 }) => {
 	const {observer} = useModal({
@@ -64,12 +65,7 @@ export default ({
 
 		getItem('/o/headless-admin-user/v1.0/roles')
 			.then(({items: roles = []}) => {
-				roles = roles.filter(
-					({name, roleType}) =>
-						name !== 'Administrator' &&
-						roleType !== 'organization' &&
-						roleType !== 'site'
-				);
+				roles = roles.filter(rolesFilter);
 
 				setState(prevState => ({
 					...prevState,
@@ -92,7 +88,7 @@ export default ({
 					isLoading: false
 				}))
 			);
-	}, [endpoint, isOpen]);
+	}, [endpoint, isOpen, rolesFilter]);
 
 	const {isLoading, permissions, roles, searchText} = state;
 
