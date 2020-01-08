@@ -108,6 +108,7 @@ export default ({history}) => {
 
 	const rolesFilter = ({name, roleType}) =>
 		name !== 'Administrator' &&
+		name !== 'Guest' &&
 		name !== 'Owner' &&
 		roleType !== 'organization' &&
 		roleType !== 'site';

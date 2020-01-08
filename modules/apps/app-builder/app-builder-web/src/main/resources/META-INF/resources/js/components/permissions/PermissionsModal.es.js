@@ -25,9 +25,10 @@ import {getItem, updateItem} from '../../utils/client.es';
 export default ({
 	actions,
 	endpoint,
+	isDisabled = () => false,
 	isOpen,
 	onClose,
-	onSave = Promise.resolve(),
+	onSave = () => Promise.resolve(),
 	rolesFilter = () => true,
 	title
 }) => {
@@ -155,6 +156,7 @@ export default ({
 					[key]: (
 						<input
 							checked={isChecked(name, key)}
+							disabled={isDisabled(name, key)}
 							name={key}
 							onClick={() => togglePermission(name, key)}
 							type="checkbox"
