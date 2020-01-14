@@ -67,7 +67,7 @@ const deploy = (item, deploy, resolve, reject) => {
 		.catch(error => reject(error));
 };
 
-const isDeployed = item => item.status.toLowerCase() === 'deployed';
+const isDeployed = status => status === 'deployed';
 
 const showUndeployModal = (item, resolve, reject, undeployModalContext) => {
 	const [state, dispatch] = undeployModalContext;
@@ -85,7 +85,7 @@ const showUndeployModal = (item, resolve, reject, undeployModalContext) => {
 							<ClayList.ItemField expand>
 								<span>
 									<b>{Liferay.Language.get('name')}:</b>{' '}
-									{item.name.en_US}
+									{item.nameText}
 								</span>
 								<span>
 									<b>
@@ -140,7 +140,7 @@ const showUndeployModal = (item, resolve, reject, undeployModalContext) => {
 
 const COLUMNS = [
 	{
-		key: 'nameLabel',
+		key: 'name',
 		sortable: true,
 		value: Liferay.Language.get('name')
 	},
@@ -160,7 +160,7 @@ const COLUMNS = [
 		value: Liferay.Language.get('modified-date')
 	},
 	{
-		key: 'statusLabel',
+		key: 'status',
 		value: Liferay.Language.get('status')
 	}
 ];
@@ -178,7 +178,7 @@ export default ({
 		{
 			action: item =>
 				new Promise((resolve, reject) => {
-					if (isDeployed(item)) {
+					if (isDeployed(item.statusText)) {
 						showUndeployModal(
 							item,
 							resolve,
@@ -190,7 +190,7 @@ export default ({
 					}
 				}),
 			name: item =>
-				isDeployed(item)
+				isDeployed(item.statusText)
 					? DEPLOYMENT_ACTION.undeploy
 					: DEPLOYMENT_ACTION.deploy
 		},
@@ -242,20 +242,26 @@ export default ({
 				...item,
 				dateCreated: moment(item.dateCreated).fromNow(),
 				dateModified: moment(item.dateModified).fromNow(),
-				nameLabel: (
+				name: (
 					<Link
 						to={`/custom-object/${dataDefinitionId}/apps/${item.id}`}
 					>
 						{item.name.en_US}
 					</Link>
 				),
-				statusLabel: (
+				nameText: item.name.en_US,
+				status: (
 					<ClayLabel
-						displayType={isDeployed(item) ? 'success' : 'secondary'}
+						displayType={
+							isDeployed(item.status.toLowerCase())
+								? 'success'
+								: 'secondary'
+						}
 					>
 						{DEPLOYMENT_STATUS[item.status.toLowerCase()]}
 					</ClayLabel>
 				),
+				statusText: item.status.toLowerCase(),
 				type: concatTypes(
 					item.appDeployments.map(deployment => deployment.type)
 				)
