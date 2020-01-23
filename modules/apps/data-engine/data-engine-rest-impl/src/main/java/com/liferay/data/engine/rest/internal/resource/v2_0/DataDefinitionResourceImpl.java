@@ -452,7 +452,7 @@ public class DataDefinitionResourceImpl
 
 			return _getResourceName(ddmStructure);
 		}
-		catch (PortalException pe) {
+		catch (PortalException portalException) {
 			return DDMStructure.class.getName();
 		}
 	}
