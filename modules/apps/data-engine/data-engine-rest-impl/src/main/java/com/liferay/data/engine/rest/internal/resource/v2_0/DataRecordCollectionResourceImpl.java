@@ -226,7 +226,7 @@ public class DataRecordCollectionResourceImpl
 
 			return _getResourceName(ddlRecordSet);
 		}
-		catch (PortalException pe) {
+		catch (PortalException portalException) {
 			return DDLRecordSet.class.getName();
 		}
 	}
