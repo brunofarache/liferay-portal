@@ -740,6 +740,7 @@
 		<exception>Content</exception>
 		<exception>ContentData</exception>
 		<exception>ContentName</exception>
+		<exception>DataProviderDuplicateInputParameterName</exception>
 		<exception>DataProviderInstanceName</exception>
 		<exception>DataProviderInstanceURL</exception>
 		<exception>FormInstanceName</exception>

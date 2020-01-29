@@ -15,6 +15,7 @@
 package com.liferay.dynamic.data.mapping.service.impl;
 
 import com.liferay.dynamic.data.mapping.data.provider.configuration.DDMDataProviderConfiguration;
+import com.liferay.dynamic.data.mapping.exception.DataProviderDuplicateInputParameterNameException;
 import com.liferay.dynamic.data.mapping.exception.DataProviderInstanceNameException;
 import com.liferay.dynamic.data.mapping.exception.DataProviderInstanceURLException;
 import com.liferay.dynamic.data.mapping.exception.NoSuchDataProviderInstanceException;
@@ -48,9 +49,14 @@ import com.liferay.portal.kernel.util.Validator;
 
 import java.net.URL;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -368,6 +374,8 @@ public class DDMDataProviderInstanceLocalServiceImpl
 			_validateLocalNetworkURL(ddmFormValues);
 		}
 
+		_validateInputParameterName(ddmFormValues);
+
 		_ddmFormValuesValidator.validate(ddmFormValues);
 	}
 
@@ -385,6 +393,53 @@ public class DDMDataProviderInstanceLocalServiceImpl
 		}
 
 		return true;
+	}
+
+	private void _validateInputParameterName(DDMFormValues ddmFormValues)
+		throws PortalException {
+
+		Map<String, List<DDMFormFieldValue>> ddmFormFieldValuesMap =
+			ddmFormValues.getDDMFormFieldValuesMap();
+
+		if (!ddmFormFieldValuesMap.containsKey("inputParameters")) {
+			return;
+		}
+
+		List<DDMFormFieldValue> ddmFormFieldValues = ddmFormFieldValuesMap.get(
+			"inputParameters");
+
+		Stream<DDMFormFieldValue> ddmFormFieldStream =
+			ddmFormFieldValues.stream();
+
+		List<DDMFormFieldValue> valuesList = ddmFormFieldStream.flatMap(
+			ddmFormFieldValue ->
+				ddmFormFieldValue.getNestedDDMFormFieldValuesMap(
+				).get(
+					"inputParameterName"
+				).stream()
+		).collect(
+			Collectors.toList()
+		);
+
+		Stream<DDMFormFieldValue> valuesListStream = valuesList.stream();
+
+		Collection<String> values = valuesListStream.flatMap(
+			ddmFormFieldValue -> ddmFormFieldValue.getValue(
+			).getValues(
+			).values(
+			).stream()
+		).collect(
+			Collectors.toList()
+		);
+
+		Set<String> paramNames = new HashSet<>();
+
+		for (String value : values) {
+			if (!paramNames.add(value)) {
+				throw new DataProviderDuplicateInputParameterNameException(
+					"Parameter name must not be repeated");
+			}
+		}
 	}
 
 	private void _validateLocalNetworkURL(DDMFormValues ddmFormValues)
