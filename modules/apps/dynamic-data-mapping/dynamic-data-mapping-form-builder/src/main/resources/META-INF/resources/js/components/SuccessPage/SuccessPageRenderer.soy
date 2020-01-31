@@ -13,6 +13,7 @@
 	{@param? _handleFieldEdited: any}
 	{@param? editable: bool}
 	{@param? empty: bool}
+	{@param? editingLanguageId: string}
 	{@param? page: ?}
 	{@param? paginationMode: ?}
 	{@param? readOnly: bool}
@@ -30,6 +31,7 @@
 		{/if}
 
 		{call SuccessPage.render}
+			{param editingLanguageId: $editingLanguageId /}
 			{param successPageSettings: $page?.successPageSettings /}
 		{/call}
 
