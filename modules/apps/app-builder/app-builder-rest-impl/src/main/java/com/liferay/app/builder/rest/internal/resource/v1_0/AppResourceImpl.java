@@ -239,7 +239,7 @@ public class AppResourceImpl
 	public App postDataDefinitionApp(Long dataDefinitionId, App app)
 		throws Exception {
 
-		_checkPortletPermissions();
+		_checkPortletPermissions(AppBuilderActionKeys.ADD_APP);
 
 		_validate(
 			app.getDataLayoutId(), app.getDataListViewId(), app.getName(),
@@ -370,7 +370,8 @@ public class AppResourceImpl
 
 		if (_portletResourcePermission.contains(
 				PermissionThreadLocal.getPermissionChecker(),
-				contextCompany.getGroupId(), ActionKeys.MANAGE)) {
+				contextCompany.getGroupId(),
+				ActionKeys.ACCESS_IN_CONTROL_PANEL)) {
 
 			return;
 		}
@@ -379,17 +380,18 @@ public class AppResourceImpl
 			PermissionThreadLocal.getPermissionChecker(), appId, actionId);
 	}
 
-	private void _checkPortletPermissions() throws PortalException {
+	private void _checkPortletPermissions(String actionId) throws PortalException {
 		if (_portletResourcePermission.contains(
 				PermissionThreadLocal.getPermissionChecker(),
-				contextCompany.getGroupId(), ActionKeys.MANAGE)) {
+				contextCompany.getGroupId(),
+				ActionKeys.ACCESS_IN_CONTROL_PANEL)) {
 
 			return;
 		}
 
 		_portletResourcePermission.check(
 			PermissionThreadLocal.getPermissionChecker(),
-			contextCompany.getGroupId(), AppBuilderActionKeys.ADD_APP);
+			contextCompany.getGroupId(), actionId);
 	}
 
 	@Reference(
@@ -402,7 +404,7 @@ public class AppResourceImpl
 		_modelResourcePermission = modelResourcePermission;
 	}
 
-	private App _toApp(AppBuilderApp appBuilderApp) throws Exception {
+	private App _toApp(AppBuilderApp appBuilderApp) {
 		AppBuilderAppConstants.Status appBuilderAppConstantsStatus =
 			AppBuilderAppConstants.Status.parse(appBuilderApp.getStatus());
 
