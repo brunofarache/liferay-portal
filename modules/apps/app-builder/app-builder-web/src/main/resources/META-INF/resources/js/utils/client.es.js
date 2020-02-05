@@ -59,20 +59,15 @@ export const confirmDelete = endpoint => item =>
 
 export const deleteItem = endpoint =>
 	fetch(getURL(endpoint), {
-		method: 'DELETE'
-	});
-
-export const request = (endpoint, method = 'GET') =>
-	fetch(getURL(endpoint), {
 		headers: HEADERS,
-		method
-	});
+		method: 'DELETE'
+	}).then(response => parseResponse(response));
 
 export const getItem = (endpoint, params) =>
 	fetch(getURL(endpoint, params), {
 		headers: HEADERS,
 		method: 'GET'
-	}).then(response => response.json());
+	}).then(response => parseResponse(response));
 
 export const getURL = (path, params) => {
 	params = {
@@ -88,6 +83,12 @@ export const getURL = (path, params) => {
 
 	return uri.toString();
 };
+
+export const request = (endpoint, method = 'GET') =>
+	fetch(getURL(endpoint), {
+		headers: HEADERS,
+		method
+	}).then(response => parseResponse(response));
 
 export const updateItem = (endpoint, item, params) =>
 	fetch(getURL(endpoint, params), {
