@@ -25,7 +25,7 @@ public interface DataDefinitionContentType {
 
 	public String getContentType();
 
-	public String getResourceName();
+	public String getPortletResourceName();
 
 	public default boolean hasPermission(
 		PermissionChecker permissionChecker, long companyId, long groupId,
@@ -45,7 +45,7 @@ public interface DataDefinitionContentType {
 		PermissionChecker permissionChecker, long groupId, String actionId) {
 
 		return permissionChecker.hasPermission(
-			groupId, getResourceName(), groupId, actionId);
+			groupId, getPortletResourceName(), groupId, actionId);
 	}
 
 }
