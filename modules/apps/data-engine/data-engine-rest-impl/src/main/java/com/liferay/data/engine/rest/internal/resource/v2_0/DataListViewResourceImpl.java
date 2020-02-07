@@ -187,10 +187,8 @@ public class DataListViewResourceImpl
 			dataDefinitionId);
 
 		_dataDefinitionModelResourcePermission.checkPortletPermission(
-			PermissionThreadLocal.getPermissionChecker(),
-			_dataDefinitionContentTypeTracker.getDataDefinitionContentType(
-				ddmStructure.getClassNameId()),
-			ddmStructure.getGroupId(), DataActionKeys.ADD_DATA_DEFINITION);
+			PermissionThreadLocal.getPermissionChecker(), ddmStructure,
+			DataActionKeys.ADD_DATA_DEFINITION);
 
 		dataListView = _toDataListView(
 			_deDataListViewLocalService.addDEDataListView(
