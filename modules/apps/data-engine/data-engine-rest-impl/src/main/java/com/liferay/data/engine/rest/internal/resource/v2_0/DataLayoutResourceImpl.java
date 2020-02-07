@@ -141,11 +141,10 @@ public class DataLayoutResourceImpl
 			dataDefinitionId);
 
 		_dataDefinitionModelResourcePermission.checkPortletPermission(
-			DataActionKeys.ADD_DATA_DEFINITION,
+			PermissionThreadLocal.getPermissionChecker(),
 			_dataDefinitionContentTypeTracker.getDataDefinitionContentType(
 				ddmStructure.getClassNameId()),
-			ddmStructure.getGroupId(),
-			PermissionThreadLocal.getPermissionChecker());
+			ddmStructure.getGroupId(), DataActionKeys.ADD_DATA_DEFINITION);
 
 		SPIDataLayoutResource<DataLayout> spiDataLayoutResource =
 			_getSPIDataLayoutResource();
