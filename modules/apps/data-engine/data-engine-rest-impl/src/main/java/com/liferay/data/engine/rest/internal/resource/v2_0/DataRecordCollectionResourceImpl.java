@@ -170,11 +170,11 @@ public class DataRecordCollectionResourceImpl
 			dataDefinitionId);
 
 		_dataDefinitionModelResourcePermission.checkPortletPermission(
-			DataActionKeys.ADD_DATA_RECORD_COLLECTION,
+			PermissionThreadLocal.getPermissionChecker(),
 			_dataDefinitionContentTypeTracker.getDataDefinitionContentType(
 				ddmStructure.getClassNameId()),
 			ddmStructure.getGroupId(),
-			PermissionThreadLocal.getPermissionChecker());
+			DataActionKeys.ADD_DATA_RECORD_COLLECTION);
 
 		String dataRecordCollectionKey =
 			dataRecordCollection.getDataRecordCollectionKey();
