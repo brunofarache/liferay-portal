@@ -45,7 +45,7 @@ public class AppBuilderDataDefinitionContentType
 	}
 
 	@Override
-	public String getResourceName() {
+	public String getPortletResourceName() {
 		return "com.liferay.app.builder";
 	}
 
@@ -75,8 +75,15 @@ public class AppBuilderDataDefinitionContentType
 	public boolean hasPortletPermission(
 		PermissionChecker permissionChecker, long groupId, String actionId) {
 
+		if (_portletResourcePermission.contains(
+				permissionChecker, groupId,
+				ActionKeys.ACCESS_IN_CONTROL_PANEL)) {
+
+			return true;
+		}
+
 		return _portletResourcePermission.contains(
-			permissionChecker, groupId, ActionKeys.ACCESS_IN_CONTROL_PANEL);
+			permissionChecker, groupId, actionId);
 	}
 
 	@Reference
