@@ -66,9 +66,9 @@ public class DataDefinitionModelResourcePermission
 	}
 
 	public void checkPortletPermission(
-			String actionId,
+			PermissionChecker permissionChecker,
 			DataDefinitionContentType dataDefinitionContentType, long groupId,
-			PermissionChecker permissionChecker)
+			String actionId)
 		throws PortalException {
 
 		if (!dataDefinitionContentType.hasPortletPermission(
