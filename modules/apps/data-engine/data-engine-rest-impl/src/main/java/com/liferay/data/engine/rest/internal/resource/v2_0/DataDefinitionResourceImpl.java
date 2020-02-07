@@ -354,13 +354,8 @@ public class DataDefinitionResourceImpl
 			Long siteId, String contentType, DataDefinition dataDefinition)
 		throws Exception {
 
-		DataDefinitionContentType dataDefinitionContentType =
-			_dataDefinitionContentTypeTracker.getDataDefinitionContentType(
-				contentType);
-
 		_dataDefinitionModelResourcePermission.checkPortletPermission(
-			PermissionThreadLocal.getPermissionChecker(),
-			dataDefinitionContentType, siteId,
+			PermissionThreadLocal.getPermissionChecker(), contentType, siteId,
 			DataActionKeys.ADD_DATA_DEFINITION);
 
 		DDMFormSerializerSerializeRequest.Builder builder =
@@ -370,6 +365,10 @@ public class DataDefinitionResourceImpl
 
 		DDMFormSerializerSerializeResponse ddmFormSerializerSerializeResponse =
 			_ddmFormSerializer.serialize(builder.build());
+
+		DataDefinitionContentType dataDefinitionContentType =
+			_dataDefinitionContentTypeTracker.getDataDefinitionContentType(
+				contentType);
 
 		DDMStructure ddmStructure = _ddmStructureLocalService.addStructure(
 			PrincipalThreadLocal.getUserId(), siteId,
