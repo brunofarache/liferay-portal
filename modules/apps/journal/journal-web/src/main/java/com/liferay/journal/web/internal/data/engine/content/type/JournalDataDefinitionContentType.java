@@ -42,7 +42,7 @@ public class JournalDataDefinitionContentType
 	}
 
 	@Override
-	public String getResourceName() {
+	public String getPortletResourceName() {
 		return "com.liferay.journal";
 	}
 
