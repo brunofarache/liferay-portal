@@ -359,8 +359,9 @@ public class DataDefinitionResourceImpl
 				contentType);
 
 		_dataDefinitionModelResourcePermission.checkPortletPermission(
-			DataActionKeys.ADD_DATA_DEFINITION, dataDefinitionContentType,
-			siteId, PermissionThreadLocal.getPermissionChecker());
+			PermissionThreadLocal.getPermissionChecker(),
+			dataDefinitionContentType, siteId,
+			DataActionKeys.ADD_DATA_DEFINITION);
 
 		DDMFormSerializerSerializeRequest.Builder builder =
 			DDMFormSerializerSerializeRequest.Builder.newBuilder(
