@@ -14,6 +14,7 @@
 
 package com.liferay.data.engine.content.type;
 
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 
 /**
@@ -28,8 +29,9 @@ public interface DataDefinitionContentType {
 	public String getPortletResourceName();
 
 	public default boolean hasPermission(
-		PermissionChecker permissionChecker, long companyId, long groupId,
-		String resourceName, long primKey, long userId, String actionId) {
+			PermissionChecker permissionChecker, long companyId, long groupId,
+			String resourceName, long primKey, long userId, String actionId)
+		throws PortalException {
 
 		if (permissionChecker.hasOwnerPermission(
 				companyId, resourceName, primKey, userId, actionId)) {
@@ -42,7 +44,8 @@ public interface DataDefinitionContentType {
 	}
 
 	public default boolean hasPortletPermission(
-		PermissionChecker permissionChecker, long groupId, String actionId) {
+			PermissionChecker permissionChecker, long groupId, String actionId)
+		throws PortalException {
 
 		return permissionChecker.hasPermission(
 			groupId, getPortletResourceName(), groupId, actionId);

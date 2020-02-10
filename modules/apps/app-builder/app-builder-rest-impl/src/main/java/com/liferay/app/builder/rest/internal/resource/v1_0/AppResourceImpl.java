@@ -370,8 +370,7 @@ public class AppResourceImpl
 
 		if (_portletResourcePermission.contains(
 				PermissionThreadLocal.getPermissionChecker(),
-				contextCompany.getGroupId(),
-				ActionKeys.ACCESS_IN_CONTROL_PANEL)) {
+				contextCompany.getGroupId(), ActionKeys.MANAGE)) {
 
 			return;
 		}
@@ -380,11 +379,12 @@ public class AppResourceImpl
 			PermissionThreadLocal.getPermissionChecker(), appId, actionId);
 	}
 
-	private void _checkPortletPermissions(String actionId) throws PortalException {
+	private void _checkPortletPermissions(String actionId)
+		throws PortalException {
+
 		if (_portletResourcePermission.contains(
 				PermissionThreadLocal.getPermissionChecker(),
-				contextCompany.getGroupId(),
-				ActionKeys.ACCESS_IN_CONTROL_PANEL)) {
+				contextCompany.getGroupId(), ActionKeys.MANAGE)) {
 
 			return;
 		}
