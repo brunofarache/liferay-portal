@@ -16,8 +16,10 @@ package com.liferay.app.builder.internal.data.engine.content.type;
 
 import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.data.engine.content.type.DataDefinitionContentType;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
 import com.liferay.portal.kernel.util.Portal;
 
@@ -51,12 +53,13 @@ public class AppBuilderDataDefinitionContentType
 
 	@Override
 	public boolean hasPermission(
-		PermissionChecker permissionChecker, long companyId, long groupId,
-		String resourceName, long primKey, long userId, String actionId) {
+			PermissionChecker permissionChecker, long companyId, long groupId,
+			String resourceName, long primKey, long userId, String actionId)
+		throws PortalException {
 
 		if (_portletResourcePermission.contains(
-				permissionChecker, groupId,
-				ActionKeys.ACCESS_IN_CONTROL_PANEL)) {
+				PermissionThreadLocal.getPermissionChecker(), groupId,
+				ActionKeys.MANAGE)) {
 
 			return true;
 		}
@@ -73,11 +76,12 @@ public class AppBuilderDataDefinitionContentType
 
 	@Override
 	public boolean hasPortletPermission(
-		PermissionChecker permissionChecker, long groupId, String actionId) {
+			PermissionChecker permissionChecker, long groupId, String actionId)
+		throws PortalException {
 
 		if (_portletResourcePermission.contains(
-				permissionChecker, groupId,
-				ActionKeys.ACCESS_IN_CONTROL_PANEL)) {
+				PermissionThreadLocal.getPermissionChecker(), groupId,
+				ActionKeys.MANAGE)) {
 
 			return true;
 		}
