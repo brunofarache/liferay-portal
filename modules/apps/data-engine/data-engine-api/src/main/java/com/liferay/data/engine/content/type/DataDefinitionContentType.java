@@ -24,9 +24,13 @@ public interface DataDefinitionContentType {
 
 	public long getClassNameId();
 
-	public String getContentType();
+	public default String getContentType() {
+		return "default";
+	}
 
-	public String getPortletResourceName();
+	public default String getPortletResourceName() {
+		return "com.liferay.data.engine";
+	}
 
 	public default boolean hasPermission(
 			PermissionChecker permissionChecker, long companyId, long groupId,
