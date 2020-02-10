@@ -15,6 +15,7 @@
 package com.liferay.app.builder.rest.internal.resource.v1_0;
 
 import com.liferay.app.builder.constants.AppBuilderAppConstants;
+import com.liferay.app.builder.constants.AppBuilderConstants;
 import com.liferay.app.builder.deploy.AppDeployer;
 import com.liferay.app.builder.deploy.AppDeployerTracker;
 import com.liferay.app.builder.exception.AppBuilderAppStatusException;
@@ -42,7 +43,6 @@ import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -97,14 +97,18 @@ public class AppResourceImpl
 
 	@Override
 	public void deleteApp(Long appId) throws Exception {
-		_checkPermissions(appId, ActionKeys.DELETE);
+		_modelResourcePermission.check(
+			PermissionThreadLocal.getPermissionChecker(), appId,
+			ActionKeys.DELETE);
 
 		_appBuilderAppLocalService.deleteAppBuilderApp(appId);
 	}
 
 	@Override
 	public App getApp(Long appId) throws Exception {
-		_checkPermissions(appId, ActionKeys.VIEW);
+		_modelResourcePermission.check(
+			PermissionThreadLocal.getPermissionChecker(), appId,
+			ActionKeys.VIEW);
 
 		return _toApp(_appBuilderAppLocalService.getAppBuilderApp(appId));
 	}
@@ -239,7 +243,14 @@ public class AppResourceImpl
 	public App postDataDefinitionApp(Long dataDefinitionId, App app)
 		throws Exception {
 
-		_checkPortletPermissions(AppBuilderActionKeys.ADD_APP);
+		if (!_portletResourcePermission.contains(
+				PermissionThreadLocal.getPermissionChecker(),
+				contextCompany.getGroupId(), ActionKeys.MANAGE)) {
+
+			_portletResourcePermission.check(
+				PermissionThreadLocal.getPermissionChecker(),
+				contextCompany.getGroupId(), AppBuilderActionKeys.ADD_APP);
+		}
 
 		_validate(
 			app.getDataLayoutId(), app.getDataListViewId(), app.getName(),
@@ -282,7 +293,9 @@ public class AppResourceImpl
 
 	@Override
 	public App putApp(Long appId, App app) throws Exception {
-		_checkPermissions(appId, ActionKeys.UPDATE);
+		_modelResourcePermission.check(
+			PermissionThreadLocal.getPermissionChecker(), appId,
+			ActionKeys.UPDATE);
 
 		_validate(
 			app.getDataLayoutId(), app.getDataListViewId(), app.getName(),
@@ -338,7 +351,9 @@ public class AppResourceImpl
 			Long appId, DeploymentAction deploymentAction)
 		throws Exception {
 
-		_checkPermissions(appId, ActionKeys.UPDATE);
+		_modelResourcePermission.check(
+			PermissionThreadLocal.getPermissionChecker(), appId,
+			ActionKeys.UPDATE);
 
 		List<AppBuilderAppDeployment> appBuilderAppDeployments =
 			_appBuilderAppDeploymentLocalService.getAppBuilderAppDeployments(
@@ -363,35 +378,6 @@ public class AppResourceImpl
 		Response.ResponseBuilder responseBuilder = Response.accepted();
 
 		return responseBuilder.build();
-	}
-
-	private void _checkPermissions(long appId, String actionId)
-		throws PortalException {
-
-		if (_portletResourcePermission.contains(
-				PermissionThreadLocal.getPermissionChecker(),
-				contextCompany.getGroupId(), ActionKeys.MANAGE)) {
-
-			return;
-		}
-
-		_modelResourcePermission.check(
-			PermissionThreadLocal.getPermissionChecker(), appId, actionId);
-	}
-
-	private void _checkPortletPermissions(String actionId)
-		throws PortalException {
-
-		if (_portletResourcePermission.contains(
-				PermissionThreadLocal.getPermissionChecker(),
-				contextCompany.getGroupId(), ActionKeys.MANAGE)) {
-
-			return;
-		}
-
-		_portletResourcePermission.check(
-			PermissionThreadLocal.getPermissionChecker(),
-			contextCompany.getGroupId(), actionId);
 	}
 
 	@Reference(
@@ -574,7 +560,9 @@ public class AppResourceImpl
 	@Reference
 	private Portal _portal;
 
-	@Reference(target = "(resource.name=com.liferay.app.builder)")
+	@Reference(
+		target = "(resource.name=" + AppBuilderConstants.RESOURCE_NAME + ")"
+	)
 	private PortletResourcePermission _portletResourcePermission;
 
 	@Reference

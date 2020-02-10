@@ -14,6 +14,7 @@
 
 package com.liferay.app.builder.internal.data.engine.content.type;
 
+import com.liferay.app.builder.constants.AppBuilderConstants;
 import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.data.engine.content.type.DataDefinitionContentType;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -48,7 +49,7 @@ public class AppBuilderDataDefinitionContentType
 
 	@Override
 	public String getPortletResourceName() {
-		return "com.liferay.app.builder";
+		return AppBuilderConstants.RESOURCE_NAME;
 	}
 
 	@Override
@@ -93,7 +94,9 @@ public class AppBuilderDataDefinitionContentType
 	@Reference
 	private Portal _portal;
 
-	@Reference(target = "(resource.name=com.liferay.app.builder)")
+	@Reference(
+		target = "(resource.name=" + AppBuilderConstants.RESOURCE_NAME + ")"
+	)
 	private PortletResourcePermission _portletResourcePermission;
 
 }
