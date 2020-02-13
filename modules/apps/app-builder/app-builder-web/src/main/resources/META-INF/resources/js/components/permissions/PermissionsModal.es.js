@@ -18,6 +18,7 @@ import ClayModal, {useModal} from '@clayui/modal';
 import {SearchInput} from 'data-engine-taglib';
 import React, {useEffect, useState} from 'react';
 
+import {Loading} from '../../components/loading/Loading.es';
 import ManagementToolbar from '../../components/management-toolbar/ManagementToolbar.es';
 import Table from '../../components/table/Table.es';
 import {getItem, updateItem} from '../../utils/client.es';
@@ -94,7 +95,7 @@ export default ({
 
 	const {isLoading, permissions, roles, searchText} = state;
 
-	if (!isOpen || isLoading) {
+	if (!isOpen) {
 		return <></>;
 	}
 
@@ -142,8 +143,9 @@ export default ({
 
 	const filteredRoles = roles
 		.filter(({name}) => new RegExp(searchText, 'ig').test(name))
-		.map(({name}) => {
+		.map(({id, name}) => {
 			let item = {
+				id,
 				name: (
 					<>
 						<ClayIcon symbol="user" /> {name}
@@ -159,7 +161,7 @@ export default ({
 							checked={isChecked(name, key)}
 							disabled={isDisabled(name, key)}
 							name={key}
-							onClick={() => togglePermission(name, key)}
+							onChange={() => togglePermission(name, key)}
 							type="checkbox"
 						/>
 					)
@@ -187,7 +189,13 @@ export default ({
 					/>
 				</ManagementToolbar>
 
-				<Table align="center" columns={columns} items={filteredRoles} />
+				<Loading isLoading={isLoading}>
+					<Table
+						align="center"
+						columns={columns}
+						items={filteredRoles}
+					/>
+				</Loading>
 			</ClayModal.Body>
 			<ClayModal.Footer
 				last={
