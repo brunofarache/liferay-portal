@@ -21,7 +21,7 @@ import templates from './SuccessPage.soy.js';
 
 class SucessPage extends Component {
 	prepareStateForRender(state) {
-		const {successPageSettings, editingLanguageId} = this;
+		const {editingLanguageId, successPageSettings} = this;
 		const {body, title} = successPageSettings;
 
 		return {
@@ -33,9 +33,11 @@ class SucessPage extends Component {
 
 	shouldUpdate(changes) {
 		const {editingLanguageId} = changes;
-		
-		return editingLanguageId 
-			&& editingLanguageId.newVal !== editingLanguageId.prevVal;
+
+		return (
+			editingLanguageId &&
+			editingLanguageId.newVal !== editingLanguageId.prevVal
+		);
 	}
 
 	_handleSuccessPageUpdated(event) {
@@ -56,6 +58,8 @@ class SucessPage extends Component {
 }
 
 SucessPage.STATE = {
+	editingLanguageId: Config.string(),
+
 	/**
 	 * @instance
 	 * @memberof SucessPage
@@ -65,9 +69,7 @@ SucessPage.STATE = {
 	successPageSettings: Config.object().value({
 		body: {},
 		title: {}
-	}),
-
-	editingLanguageId: Config.string()
+	})
 };
 
 Soy.register(SucessPage, templates);
