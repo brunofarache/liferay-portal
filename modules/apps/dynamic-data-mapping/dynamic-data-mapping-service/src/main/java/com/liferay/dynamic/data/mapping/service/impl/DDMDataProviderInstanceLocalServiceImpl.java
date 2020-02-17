@@ -15,9 +15,9 @@
 package com.liferay.dynamic.data.mapping.service.impl;
 
 import com.liferay.dynamic.data.mapping.data.provider.configuration.DDMDataProviderConfiguration;
-import com.liferay.dynamic.data.mapping.exception.DataProviderDuplicateInputParameterNameException;
 import com.liferay.dynamic.data.mapping.exception.DataProviderInstanceNameException;
 import com.liferay.dynamic.data.mapping.exception.DataProviderInstanceURLException;
+import com.liferay.dynamic.data.mapping.exception.DuplicateDataProviderInstanceParameterNameException;
 import com.liferay.dynamic.data.mapping.exception.NoSuchDataProviderInstanceException;
 import com.liferay.dynamic.data.mapping.exception.RequiredDataProviderInstanceException;
 import com.liferay.dynamic.data.mapping.internal.data.provider.configuration.activator.DDMDataProviderConfigurationActivator;
@@ -374,7 +374,7 @@ public class DDMDataProviderInstanceLocalServiceImpl
 			_validateLocalNetworkURL(ddmFormValues);
 		}
 
-		_validateInputParameterName(ddmFormValues);
+		_validateParameterNames(ddmFormValues);
 
 		_ddmFormValuesValidator.validate(ddmFormValues);
 	}
@@ -395,7 +395,38 @@ public class DDMDataProviderInstanceLocalServiceImpl
 		return true;
 	}
 
-	private void _validateInputParameterName(DDMFormValues ddmFormValues)
+	private void _validateLocalNetworkURL(DDMFormValues ddmFormValues)
+		throws PortalException {
+
+		Map<String, List<DDMFormFieldValue>> ddmFormFieldValuesMap =
+			ddmFormValues.getDDMFormFieldValuesMap();
+
+		if (!ddmFormFieldValuesMap.containsKey("url")) {
+			return;
+		}
+
+		List<DDMFormFieldValue> ddmFormFieldValues = ddmFormFieldValuesMap.get(
+			"url");
+
+		for (DDMFormFieldValue ddmFormFieldValue : ddmFormFieldValues) {
+			Value value = ddmFormFieldValue.getValue();
+
+			for (Locale locale : value.getAvailableLocales()) {
+				String valueString = value.getString(locale);
+
+				if (!Validator.isUrl(valueString)) {
+					continue;
+				}
+
+				if (_isLocalNetworkURL(valueString)) {
+					throw new DataProviderInstanceURLException(
+						"URL must not be a local network");
+				}
+			}
+		}
+	}
+
+	private void _validateParameterNames(DDMFormValues ddmFormValues)
 		throws PortalException {
 
 		Map<String, List<DDMFormFieldValue>> ddmFormFieldValuesMap =
@@ -439,42 +470,12 @@ public class DDMDataProviderInstanceLocalServiceImpl
 
 		for (String inputParameterName : inputParameterNames) {
 			if (inputParameterNamesSet.contains(inputParameterName)) {
-				throw new DataProviderDuplicateInputParameterNameException(
-					"Duplicate input parameter name: " + inputParameterName);
+				throw new DuplicateDataProviderInstanceParameterNameException(
+					"Duplicate data provider parameter name: " +
+						inputParameterName);
 			}
 
 			inputParameterNamesSet.add(inputParameterName);
-		}
-	}
-
-	private void _validateLocalNetworkURL(DDMFormValues ddmFormValues)
-		throws PortalException {
-
-		Map<String, List<DDMFormFieldValue>> ddmFormFieldValuesMap =
-			ddmFormValues.getDDMFormFieldValuesMap();
-
-		if (!ddmFormFieldValuesMap.containsKey("url")) {
-			return;
-		}
-
-		List<DDMFormFieldValue> ddmFormFieldValues = ddmFormFieldValuesMap.get(
-			"url");
-
-		for (DDMFormFieldValue ddmFormFieldValue : ddmFormFieldValues) {
-			Value value = ddmFormFieldValue.getValue();
-
-			for (Locale locale : value.getAvailableLocales()) {
-				String valueString = value.getString(locale);
-
-				if (!Validator.isUrl(valueString)) {
-					continue;
-				}
-
-				if (_isLocalNetworkURL(valueString)) {
-					throw new DataProviderInstanceURLException(
-						"URL must not be a local network");
-				}
-			}
 		}
 	}
 

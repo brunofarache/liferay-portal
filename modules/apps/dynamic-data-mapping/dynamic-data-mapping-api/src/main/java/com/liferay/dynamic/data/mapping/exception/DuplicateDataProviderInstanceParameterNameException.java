@@ -19,23 +19,25 @@ import com.liferay.portal.kernel.exception.PortalException;
 /**
  * @author Brian Wing Shun Chan
  */
-public class DataProviderDuplicateInputParameterNameException
+public class DuplicateDataProviderInstanceParameterNameException
 	extends PortalException {
 
-	public DataProviderDuplicateInputParameterNameException() {
+	public DuplicateDataProviderInstanceParameterNameException() {
 	}
 
-	public DataProviderDuplicateInputParameterNameException(String msg) {
+	public DuplicateDataProviderInstanceParameterNameException(String msg) {
 		super(msg);
 	}
 
-	public DataProviderDuplicateInputParameterNameException(
+	public DuplicateDataProviderInstanceParameterNameException(
 		String msg, Throwable cause) {
 
 		super(msg, cause);
 	}
 
-	public DataProviderDuplicateInputParameterNameException(Throwable cause) {
+	public DuplicateDataProviderInstanceParameterNameException(
+		Throwable cause) {
+
 		super(cause);
 	}
 
