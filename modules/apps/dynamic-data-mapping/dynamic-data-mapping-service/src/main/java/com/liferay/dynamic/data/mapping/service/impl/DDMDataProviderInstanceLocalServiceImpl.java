@@ -15,9 +15,9 @@
 package com.liferay.dynamic.data.mapping.service.impl;
 
 import com.liferay.dynamic.data.mapping.data.provider.configuration.DDMDataProviderConfiguration;
-import com.liferay.dynamic.data.mapping.exception.DataProviderDuplicateInputParameterNameException;
 import com.liferay.dynamic.data.mapping.exception.DataProviderInstanceNameException;
 import com.liferay.dynamic.data.mapping.exception.DataProviderInstanceURLException;
+import com.liferay.dynamic.data.mapping.exception.DuplicateDataProviderInstanceInputParameterNameException;
 import com.liferay.dynamic.data.mapping.exception.NoSuchDataProviderInstanceException;
 import com.liferay.dynamic.data.mapping.exception.RequiredDataProviderInstanceException;
 import com.liferay.dynamic.data.mapping.internal.data.provider.configuration.activator.DDMDataProviderConfigurationActivator;
@@ -374,7 +374,7 @@ public class DDMDataProviderInstanceLocalServiceImpl
 			_validateLocalNetworkURL(ddmFormValues);
 		}
 
-		_validateInputParameterName(ddmFormValues);
+		_validateInputParameterNames(ddmFormValues);
 
 		_ddmFormValuesValidator.validate(ddmFormValues);
 	}
@@ -395,7 +395,7 @@ public class DDMDataProviderInstanceLocalServiceImpl
 		return true;
 	}
 
-	private void _validateInputParameterName(DDMFormValues ddmFormValues)
+	private void _validateInputParameterNames(DDMFormValues ddmFormValues)
 		throws PortalException {
 
 		Map<String, List<DDMFormFieldValue>> ddmFormFieldValuesMap =
@@ -405,19 +405,18 @@ public class DDMDataProviderInstanceLocalServiceImpl
 			return;
 		}
 
-		List<DDMFormFieldValue> ddmFormFieldValues = ddmFormFieldValuesMap.get(
+		List<DDMFormFieldValue> inputParameters = ddmFormFieldValuesMap.get(
 			"inputParameters");
 
-		Stream<DDMFormFieldValue> ddmFormFieldValuesStream =
-			ddmFormFieldValues.stream();
+		Stream<DDMFormFieldValue> inputParametersStream =
+			inputParameters.stream();
 
 		List<DDMFormFieldValue> inputParameterNamesList =
-			ddmFormFieldValuesStream.flatMap(
-				ddmFormFieldValue ->
-					ddmFormFieldValue.getNestedDDMFormFieldValuesMap(
-					).get(
-						"inputParameterName"
-					).stream()
+			inputParametersStream.flatMap(
+				inputParameter -> inputParameter.getNestedDDMFormFieldValuesMap(
+				).get(
+					"inputParameterName"
+				).stream()
 			).collect(
 				Collectors.toList()
 			);
@@ -427,7 +426,7 @@ public class DDMDataProviderInstanceLocalServiceImpl
 
 		Collection<String> inputParameterNames =
 			inputParameterNamesStream.flatMap(
-				ddmFormFieldValue -> ddmFormFieldValue.getValue(
+				inputParameterName -> inputParameterName.getValue(
 				).getValues(
 				).values(
 				).stream()
@@ -439,8 +438,9 @@ public class DDMDataProviderInstanceLocalServiceImpl
 
 		for (String inputParameterName : inputParameterNames) {
 			if (inputParameterNamesSet.contains(inputParameterName)) {
-				throw new DataProviderDuplicateInputParameterNameException(
-					"Duplicate input parameter name: " + inputParameterName);
+				throw new DuplicateDataProviderInstanceInputParameterNameException(
+					"Duplicate data provider input parameter name: " +
+						inputParameterName);
 			}
 
 			inputParameterNamesSet.add(inputParameterName);
