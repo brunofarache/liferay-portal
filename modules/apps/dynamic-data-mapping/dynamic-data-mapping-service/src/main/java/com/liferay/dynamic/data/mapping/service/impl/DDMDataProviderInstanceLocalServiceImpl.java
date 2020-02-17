@@ -408,37 +408,42 @@ public class DDMDataProviderInstanceLocalServiceImpl
 		List<DDMFormFieldValue> ddmFormFieldValues = ddmFormFieldValuesMap.get(
 			"inputParameters");
 
-		Stream<DDMFormFieldValue> ddmFormFieldStream =
+		Stream<DDMFormFieldValue> ddmFormFieldValuesStream =
 			ddmFormFieldValues.stream();
 
-		List<DDMFormFieldValue> valuesList = ddmFormFieldStream.flatMap(
-			ddmFormFieldValue ->
-				ddmFormFieldValue.getNestedDDMFormFieldValuesMap(
-				).get(
-					"inputParameterName"
+		List<DDMFormFieldValue> inputParameterNamesList =
+			ddmFormFieldValuesStream.flatMap(
+				ddmFormFieldValue ->
+					ddmFormFieldValue.getNestedDDMFormFieldValuesMap(
+					).get(
+						"inputParameterName"
+					).stream()
+			).collect(
+				Collectors.toList()
+			);
+
+		Stream<DDMFormFieldValue> inputParameterNamesStream =
+			inputParameterNamesList.stream();
+
+		Collection<String> inputParameterNames =
+			inputParameterNamesStream.flatMap(
+				ddmFormFieldValue -> ddmFormFieldValue.getValue(
+				).getValues(
+				).values(
 				).stream()
-		).collect(
-			Collectors.toList()
-		);
+			).collect(
+				Collectors.toList()
+			);
 
-		Stream<DDMFormFieldValue> valuesListStream = valuesList.stream();
+		Set<String> inputParameterNamesSet = new HashSet<>();
 
-		Collection<String> values = valuesListStream.flatMap(
-			ddmFormFieldValue -> ddmFormFieldValue.getValue(
-			).getValues(
-			).values(
-			).stream()
-		).collect(
-			Collectors.toList()
-		);
-
-		Set<String> paramNames = new HashSet<>();
-
-		for (String value : values) {
-			if (!paramNames.add(value)) {
+		for (String inputParameterName : inputParameterNames) {
+			if (inputParameterNamesSet.contains(inputParameterName)) {
 				throw new DataProviderDuplicateInputParameterNameException(
-					"Parameter name must not be repeated");
+					"Duplicate input parameter name: " + inputParameterName);
 			}
+
+			inputParameterNamesSet.add(inputParameterName);
 		}
 	}
 
