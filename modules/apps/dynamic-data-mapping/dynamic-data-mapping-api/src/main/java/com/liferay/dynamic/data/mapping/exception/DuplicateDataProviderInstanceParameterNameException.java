@@ -11,7 +11,6 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
-
 package com.liferay.dynamic.data.mapping.exception;
 
 import com.liferay.portal.kernel.exception.PortalException;
@@ -19,23 +18,20 @@ import com.liferay.portal.kernel.exception.PortalException;
 /**
  * @author Brian Wing Shun Chan
  */
-public class DataProviderDuplicateInputParameterNameException
-	extends PortalException {
+public class DuplicateDataProviderInstanceParameterNameException extends PortalException {
 
-	public DataProviderDuplicateInputParameterNameException() {
+	public DuplicateDataProviderInstanceParameterNameException() {
 	}
 
-	public DataProviderDuplicateInputParameterNameException(String msg) {
+	public DuplicateDataProviderInstanceParameterNameException(String msg) {
 		super(msg);
 	}
 
-	public DataProviderDuplicateInputParameterNameException(
-		String msg, Throwable cause) {
-
+	public DuplicateDataProviderInstanceParameterNameException(String msg, Throwable cause) {
 		super(msg, cause);
 	}
 
-	public DataProviderDuplicateInputParameterNameException(Throwable cause) {
+	public DuplicateDataProviderInstanceParameterNameException(Throwable cause) {
 		super(cause);
 	}
 
