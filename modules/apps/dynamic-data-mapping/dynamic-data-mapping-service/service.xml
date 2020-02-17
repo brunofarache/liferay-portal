@@ -740,9 +740,9 @@
 		<exception>Content</exception>
 		<exception>ContentData</exception>
 		<exception>ContentName</exception>
-		<exception>DataProviderDuplicateInputParameterName</exception>
 		<exception>DataProviderInstanceName</exception>
 		<exception>DataProviderInstanceURL</exception>
+		<exception>DuplicateDataProviderInstanceInputParameterName</exception>
 		<exception>FormInstanceName</exception>
 		<exception>FormInstanceRecordExporter</exception>
 		<exception>FormInstanceRecordGroupId</exception>
