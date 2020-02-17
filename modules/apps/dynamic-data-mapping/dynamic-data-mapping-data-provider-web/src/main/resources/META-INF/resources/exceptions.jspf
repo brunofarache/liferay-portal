@@ -15,4 +15,5 @@
 --%>
 
 <liferay-ui:error exception="<%= DataProviderInstanceURLException.class %>" message="url-must-not-be-a-local-network" />
-<liferay-ui:error exception="<%= DataProviderDuplicateInputParameterNameException.class %>" message="the-parameter-name-introduced-already-exists-please-introduce-a-different-one" />
+
+<liferay-ui:error exception="<%= DataProviderDuplicateInputParameterNameException.class %>" message="input-parameter-names-must-be-unique" />
