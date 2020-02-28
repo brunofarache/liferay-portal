@@ -15,10 +15,11 @@
 package com.liferay.dynamic.data.mapping.form.builder.internal.converter;
 
 import com.liferay.dynamic.data.mapping.expression.internal.DDMExpressionFactoryImpl;
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.DDMFormRule;
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.serializer.DDMFormRuleSerializerContext;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
+import com.liferay.dynamic.data.mapping.model.DDMFormRule;
+import com.liferay.dynamic.data.mapping.spi.converter.model.SPIDDMFormRule;
+import com.liferay.dynamic.data.mapping.spi.converter.serializer.SPIDDMFormRuleSerializerContext;
 import com.liferay.dynamic.data.mapping.storage.FieldConstants;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.CharPool;
@@ -90,9 +91,8 @@ public class DDMFormRuleToDDMFormRuleModelConverterTest
 		JSONArray expectedDDMFormRulesJSONArray = jsonFactory.createJSONArray(
 			read("ddm-form-rules-model-auto-fill-actions.json"));
 
-		List<com.liferay.dynamic.data.mapping.model.DDMFormRule>
-			actualDDMFormRules = convert(
-				"ddm-form-rules-auto-fill-actions.json");
+		List<DDMFormRule> actualDDMFormRules = convert(
+			"ddm-form-rules-auto-fill-actions.json");
 
 		JSONArray actualDDMFormRulesJSONArray = jsonFactory.createJSONArray(
 			serialize(actualDDMFormRules));
@@ -330,12 +330,10 @@ public class DDMFormRuleToDDMFormRuleModelConverterTest
 
 		String serializedDDMFormRules = read(fromFileName);
 
-		com.liferay.dynamic.data.mapping.model.DDMFormRule[] ddmFormRules =
-			deserialize(
-				serializedDDMFormRules,
-				com.liferay.dynamic.data.mapping.model.DDMFormRule[].class);
+		DDMFormRule[] ddmFormRules = deserialize(
+			serializedDDMFormRules, DDMFormRule[].class);
 
-		List<DDMFormRule> actualDDMFormRules = _ddmFormRuleConverter.convert(
+		List<SPIDDMFormRule> actualDDMFormRules = _ddmFormRuleConverter.convert(
 			ListUtil.fromArray(ddmFormRules));
 
 		JSONAssert.assertEquals(
@@ -346,17 +344,13 @@ public class DDMFormRuleToDDMFormRuleModelConverterTest
 			String fromFileName, String toFileName)
 		throws Exception {
 
-		List<com.liferay.dynamic.data.mapping.model.DDMFormRule>
-			actualDDMFormRules = convert(fromFileName);
+		List<DDMFormRule> actualDDMFormRules = convert(fromFileName);
 
 		JSONAssert.assertEquals(
 			read(toFileName), serialize(actualDDMFormRules), false);
 	}
 
-	protected List<com.liferay.dynamic.data.mapping.model.DDMFormRule> convert(
-			String fileName)
-		throws Exception {
-
+	protected List<DDMFormRule> convert(String fileName) throws Exception {
 		String serializedDDMFormRules = read(fileName);
 
 		return _ddmFormRuleConverter.convert(
@@ -396,6 +390,6 @@ public class DDMFormRuleToDDMFormRuleModelConverterTest
 		new DDMFormRuleDeserializer();
 
 	@Mock
-	private DDMFormRuleSerializerContext _ddmFormRuleSerializerContext;
+	private SPIDDMFormRuleSerializerContext _ddmFormRuleSerializerContext;
 
 }
