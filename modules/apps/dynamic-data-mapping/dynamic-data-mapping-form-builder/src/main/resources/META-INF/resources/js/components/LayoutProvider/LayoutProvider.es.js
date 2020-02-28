@@ -16,6 +16,7 @@ import {
 	FormSupport,
 	PagesVisitor,
 	RulesVisitor,
+	normalizeFieldName,
 } from 'dynamic-data-mapping-form-renderer';
 import handlePaginationItemClicked from 'dynamic-data-mapping-form-renderer/js/store/actions/handlePaginationItemClicked.es';
 import Component from 'metal-jsx';
@@ -583,6 +584,17 @@ class LayoutProvider extends Component {
 		});
 	}
 
+	_shouldAutoGenerateNameValueFn() {
+		return (defaultLanguageId, editingLanguageId, focusedField) => {
+			const {fieldName, label} = focusedField;
+
+			return (
+				defaultLanguageId === editingLanguageId &&
+				fieldName.indexOf(normalizeFieldName(label)) === 0
+			);
+		};
+	}
+
 	_successPageSettingsValueFn() {
 		return this.props.initialSuccessPageSettings;
 	}
@@ -692,6 +704,17 @@ LayoutProvider.PROPS = {
 	 */
 
 	rules: Config.arrayOf(ruleStructure),
+
+	/**
+	 * @default _shouldAutoGenerateNameValueFn
+	 * @instance
+	 * @memberof LayoutProvider
+	 * @type {?function}
+	 */
+
+	shouldAutoGenerateName: Config.func().valueFn(
+		'_shouldAutoGenerateNameValueFn'
+	),
 
 	/**
 	 * @default undefined

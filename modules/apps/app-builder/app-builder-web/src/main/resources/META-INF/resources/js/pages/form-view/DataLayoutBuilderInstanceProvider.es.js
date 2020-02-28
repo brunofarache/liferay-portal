@@ -69,6 +69,8 @@ export default ({children, dataLayoutBuilder}) => {
 				style: 'danger',
 			},
 		];
+
+		provider.props.shouldAutoGenerateName = () => false;
 	}, [dataLayout, dataLayoutBuilder, dispatch, onDeleteDefinitionField]);
 
 	useEffect(() => {

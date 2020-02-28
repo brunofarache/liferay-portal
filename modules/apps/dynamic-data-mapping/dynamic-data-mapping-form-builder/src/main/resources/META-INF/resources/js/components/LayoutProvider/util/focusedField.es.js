@@ -17,19 +17,6 @@ import {normalizeFieldName} from 'dynamic-data-mapping-form-renderer';
 import {updateFieldValidationProperty} from './fields.es';
 import {updateSettingsContextProperty} from './settings.es';
 
-const shouldAutoGenerateName = (
-	defaultLanguageId,
-	editingLanguageId,
-	focusedField
-) => {
-	const {fieldName, label} = focusedField;
-
-	return (
-		defaultLanguageId === editingLanguageId &&
-		fieldName.indexOf(normalizeFieldName(label)) === 0
-	);
-};
-
 export const updateFocusedFieldName = (
 	editingLanguageId,
 	fieldNameGenerator,
@@ -110,6 +97,7 @@ export const updateFocusedFieldLabel = (
 	editingLanguageId,
 	fieldNameGenerator,
 	focusedField,
+	shouldAutoGenerateName,
 	value
 ) => {
 	let {fieldName, settingsContext} = focusedField;
@@ -183,7 +171,12 @@ export const updateFocusedFieldOptions = (
 };
 
 export const updateFocusedField = (
-	{defaultLanguageId, editingLanguageId, fieldNameGenerator},
+	{
+		defaultLanguageId,
+		editingLanguageId,
+		fieldNameGenerator,
+		shouldAutoGenerateName,
+	},
 	state,
 	fieldName,
 	value
@@ -208,6 +201,7 @@ export const updateFocusedField = (
 				editingLanguageId,
 				fieldNameGenerator,
 				focusedField,
+				shouldAutoGenerateName,
 				value
 			),
 		};
