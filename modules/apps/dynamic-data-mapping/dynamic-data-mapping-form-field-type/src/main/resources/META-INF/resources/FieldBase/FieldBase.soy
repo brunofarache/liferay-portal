@@ -4,17 +4,17 @@
 	{@param name: string}
 	{@param? _handleAddRepeatedFieldButtonClicked: any}
 	{@param? _handleRemoveRepeatedFieldButtonClicked: any}
+	{@param? _localizedValue: list<[
+		languageId: string,
+		name: string,
+		value: ?
+	]>}
 	{@param? contentRenderer: any}
 	{@param? displayErrors: bool}
 	{@param? errorMessage: string}
 	{@param? id: string}
 	{@param? tip: string}
 	{@param? label: string}
-	{@param? localizedValue: list<[
-		languageId: string,
-		name: string,
-		value: ?
-	]>}
 	{@param? readOnly: bool}
 	{@param? required: bool}
 	{@param? repeatable: bool}
@@ -101,8 +101,8 @@
 
 		{$contentRenderer}
 
-		{if $localizedValue and length($localizedValue) > 0}
-			{foreach $language in $localizedValue}
+		{if $_localizedValue and length($_localizedValue) > 0}
+			{foreach $language in $_localizedValue}
 				{if $language.value != ''}
 					<input type="hidden" name="{$language.name}" value="{$language.value}" />
 				{/if}
