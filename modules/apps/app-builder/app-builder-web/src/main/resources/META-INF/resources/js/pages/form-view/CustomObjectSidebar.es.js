@@ -39,12 +39,6 @@ import FormViewContext from './FormViewContext.es';
 const DropDown = () => {
 	const [{fieldTypes}, dispatch] = useContext(FormViewContext);
 	const [active, setActive] = useState(false);
-	const [showFieldTypes, setShowFieldTypes] = useState(false);
-
-	const onActiveChange = newVal => {
-		setActive(newVal);
-		setShowFieldTypes(false);
-	};
 
 	const onClickFieldType = fieldTypeName => {
 		setActive(false);
@@ -75,30 +69,21 @@ const DropDown = () => {
 			active={active}
 			alignmentPosition={Align.BottomRight}
 			className="custom-object-dropdown"
-			onActiveChange={onActiveChange}
+			onActiveChange={newVal => setActive(newVal)}
 			trigger={
 				<ClayButtonWithIcon displayType="unstyled" symbol="plus" />
 			}
 		>
 			<ClayDropDown.ItemList className="custom-object-dropdown-list">
-				{showFieldTypes ? (
-					filteredFieldTypes.map(({icon, label, name}) => (
-						<ClayDropDown.Item
-							key={name}
-							onClick={() => onClickFieldType(name)}
-							symbolLeft={icon}
-						>
-							{label}
-						</ClayDropDown.Item>
-					))
-				) : (
+				{filteredFieldTypes.map(({icon, label, name}) => (
 					<ClayDropDown.Item
-						key={'add'}
-						onClick={() => setShowFieldTypes(true)}
+						key={name}
+						onClick={() => onClickFieldType(name)}
+						symbolLeft={icon}
 					>
-						{Liferay.Language.get('add-field-to-object')}
+						{label}
 					</ClayDropDown.Item>
-				)}
+				))}
 			</ClayDropDown.ItemList>
 		</ClayDropDown>
 	);
