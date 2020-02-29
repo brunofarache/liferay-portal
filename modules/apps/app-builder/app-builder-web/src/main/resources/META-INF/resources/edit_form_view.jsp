@@ -68,6 +68,7 @@ boolean newCustomObject = ParamUtil.getBoolean(request, "newCustomObject");
 					componentId="<%= componentId %>"
 					dataDefinitionId="<%= dataDefinitionId %>"
 					dataLayoutId="<%= dataLayoutId %>"
+					enableSuccessPage="<%= false %>"
 					namespace="<%= renderResponse.getNamespace() %>"
 					scopes='<%= SetUtil.fromCollection(Arrays.asList("app-builder")) %>'
 				/>
