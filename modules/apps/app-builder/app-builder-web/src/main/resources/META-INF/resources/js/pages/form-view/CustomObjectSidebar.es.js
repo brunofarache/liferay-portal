@@ -64,8 +64,8 @@ const DropDown = () => {
 		}
 	}, [active]);
 
-	const filteredFieldTypes = fieldTypes.filter(
-		({group}) => group === 'basic'
+	const filteredFieldTypes = fieldTypes.filter(({scope}) =>
+		scope.includes('app-builder')
 	);
 
 	filteredFieldTypes.sort(({displayOrder: a}, {displayOrder: b}) => a - b);
@@ -92,19 +92,12 @@ const DropDown = () => {
 						</ClayDropDown.Item>
 					))
 				) : (
-					<>
-						<ClayDropDown.Item
-							key={'add'}
-							onClick={() => setShowFieldTypes(true)}
-						>
-							{Liferay.Language.get('add-field-to-object')}
-						</ClayDropDown.Item>
-						<ClayDropDown.Item key={'import'}>
-							{Liferay.Language.get(
-								'import-fields-from-spreadsheet'
-							)}
-						</ClayDropDown.Item>
-					</>
+					<ClayDropDown.Item
+						key={'add'}
+						onClick={() => setShowFieldTypes(true)}
+					>
+						{Liferay.Language.get('add-field-to-object')}
+					</ClayDropDown.Item>
 				)}
 			</ClayDropDown.ItemList>
 		</ClayDropDown>
