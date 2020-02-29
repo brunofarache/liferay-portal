@@ -37,10 +37,12 @@ export default Component => {
 	}
 
 	WithLocale.STATE = {
-		_localizedValue: Config.arrayOf(Config.shapeOf({
-			name: Config.string(),
-			value: Config.any(),
-		})).value([]),
+		_localizedValue: Config.arrayOf(
+			Config.shapeOf({
+				name: Config.string(),
+				value: Config.any(),
+			})
+		).value([]),
 
 		localizedValue: Config.object().value({}),
 	};
