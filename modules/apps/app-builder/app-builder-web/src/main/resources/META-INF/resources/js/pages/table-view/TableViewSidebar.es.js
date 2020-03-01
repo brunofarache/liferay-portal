@@ -117,25 +117,22 @@ export default ({onAddFieldName, onClose}) => {
 			<Sidebar.Body>
 				{!displayFieldFilters && (
 					<Sidebar.Tabs
-						initialSelectedTab={'columns'}
 						tabs={[
 							{
 								label: Liferay.Language.get('columns'),
-								name: 'columns',
+								render: () => (
+									<FieldsTabContent
+										keywords={keywords}
+										onAddFieldName={onAddFieldName}
+									/>
+								),
 							},
 							{
 								label: Liferay.Language.get('filters'),
-								name: 'filters',
+								render: () => <TableViewFiltersList />,
 							},
 						]}
-					>
-						<FieldsTabContent
-							keywords={keywords}
-							name="columns"
-							onAddFieldName={onAddFieldName}
-						/>
-						<TableViewFiltersList name="filters" />
-					</Sidebar.Tabs>
+					/>
 				)}
 			</Sidebar.Body>
 		</Sidebar>

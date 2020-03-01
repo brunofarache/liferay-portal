@@ -43,6 +43,7 @@ import DataLayoutBuilderContext from './DataLayoutBuilderContext.es';
 
 const DefaultSidebarBody = ({keywords}) => {
 	const [dataLayoutBuilder] = useContext(DataLayoutBuilderContext);
+	const [{fieldsets}] = useContext(AppContext);
 
 	const onDoubleClick = ({name}) => {
 		const {activePage, pages} = dataLayoutBuilder.getStore();
@@ -68,36 +69,27 @@ const DefaultSidebarBody = ({keywords}) => {
 
 	fieldTypes.sort(({displayOrder: a}, {displayOrder: b}) => a - b);
 
-	const tabNames = {
-		fields: 'fields',
-		fieldsets: 'fieldsets',
-	};
-
-	return (
-		<>
-			<Sidebar.Tabs
-				initialSelectedTab={tabNames.fields}
-				tabs={[
-					{
-						label: Liferay.Language.get('fields'),
-						name: tabNames.fields,
-					},
-					{
-						label: Liferay.Language.get('fieldsets'),
-						name: tabNames.fieldsets,
-					},
-				]}
-			>
+	const tabs = [
+		{
+			label: Liferay.Language.get('fields'),
+			render: () => (
 				<FieldTypeList
 					fieldTypes={fieldTypes}
 					keywords={keywords}
-					name={tabNames.fields}
 					onDoubleClick={onDoubleClick}
 				/>
-				<FieldSets name={tabNames.fieldsets} />
-			</Sidebar.Tabs>
-		</>
-	);
+			),
+		},
+	];
+
+	if (fieldsets.length > 0) {
+		tabs.push({
+			label: Liferay.Language.get('fieldsets'),
+			render: () => <FieldSets />,
+		});
+	}
+
+	return <Sidebar.Tabs tabs={tabs} />;
 };
 
 const SettingsSidebarBody = () => {
