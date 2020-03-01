@@ -91,30 +91,11 @@ const FieldsTabContent = ({keywords, onAddFieldName}) => {
 	);
 };
 
-const SidebarContent = ({activeTabIndex, keywords, onAddFieldName}) => {
-	switch (activeTabIndex) {
-		case 0:
-			return (
-				<FieldsTabContent
-					keywords={keywords}
-					onAddFieldName={onAddFieldName}
-				/>
-			);
-		case 1:
-			return <TableViewFiltersList />;
-		default:
-			return null;
-	}
-};
-
 export default ({onAddFieldName, onClose}) => {
 	const [{focusedColumn}] = useContext(EditTableViewContext);
 
-	const [activeTabIndex, setActiveTabIndex] = useState(0);
 	const [keywords, setKeywords] = useState('');
 	const [sidebarClosed, setSidebarClosed] = useState(false);
-
-	const onClickTab = tabIndex => setActiveTabIndex(tabIndex);
 
 	const onSidebarToggle = closed => {
 		setSidebarClosed(closed);
@@ -135,31 +116,27 @@ export default ({onAddFieldName, onClose}) => {
 
 			<Sidebar.Body>
 				{!displayFieldFilters && (
-					<Sidebar.Tab
+					<Sidebar.Tabs
+						initialSelectedTab={'columns'}
 						tabs={[
 							{
-								active: activeTabIndex === 0,
 								label: Liferay.Language.get('columns'),
-								onClick: onClickTab,
+								name: 'columns',
 							},
 							{
-								active: activeTabIndex === 1,
 								label: Liferay.Language.get('filters'),
-								onClick: onClickTab,
+								name: 'filters',
 							},
 						]}
-					/>
+					>
+						<FieldsTabContent
+							keywords={keywords}
+							name="columns"
+							onAddFieldName={onAddFieldName}
+						/>
+						<TableViewFiltersList name="filters" />
+					</Sidebar.Tabs>
 				)}
-
-				<Sidebar.TabContent>
-					<SidebarContent
-						activeTabIndex={
-							displayFieldFilters ? 1 : activeTabIndex
-						}
-						keywords={keywords}
-						onAddFieldName={onAddFieldName}
-					/>
-				</Sidebar.TabContent>
 			</Sidebar.Body>
 		</Sidebar>
 	);
