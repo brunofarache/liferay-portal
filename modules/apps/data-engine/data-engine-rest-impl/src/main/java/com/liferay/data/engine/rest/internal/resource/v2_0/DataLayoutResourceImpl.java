@@ -158,7 +158,7 @@ public class DataLayoutResourceImpl
 				DataDefinitionUtil.toDDMForm(
 					DataDefinitionUtil.toDataDefinition(
 						_ddmFormFieldTypeServicesTracker,
-						_spiDDMFormRuleConverter, ddmStructure),
+						ddmStructure, _spiDDMFormRuleConverter),
 					_ddmFormFieldTypeServicesTracker),
 				_ddmFormLayoutSerializer, _ddmFormRuleDeserializer),
 			dataLayout.getDataLayoutKey(), dataLayout.getDescription(),
@@ -186,9 +186,10 @@ public class DataLayoutResourceImpl
 				DataDefinitionUtil.toDDMForm(
 					DataDefinitionUtil.toDataDefinition(
 						_ddmFormFieldTypeServicesTracker,
-						_spiDDMFormRuleConverter,
 						_ddmStructureLocalService.getStructure(
-							ddmStructureLayout.getDDMStructureId())),
+							ddmStructureLayout.getDDMStructureId()),
+						_spiDDMFormRuleConverter
+					),
 					_ddmFormFieldTypeServicesTracker),
 				_ddmFormLayoutSerializer, _ddmFormRuleDeserializer),
 			dataLayout.getDescription(), dataLayout.getName());
@@ -200,7 +201,7 @@ public class DataLayoutResourceImpl
 			_ddmStructureVersionLocalService,
 			_deDataDefinitionFieldLinkLocalService,
 			ddmStructureLayout -> DataLayoutUtil.toDataLayout(
-				_spiDDMFormRuleConverter, ddmStructureLayout));
+				ddmStructureLayout, _spiDDMFormRuleConverter));
 	}
 
 	private static final EntityModel _entityModel = new DataLayoutEntityModel();

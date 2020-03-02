@@ -177,8 +177,10 @@ public class DataDefinitionResourceImpl
 			ActionKeys.VIEW);
 
 		return DataDefinitionUtil.toDataDefinition(
-			_ddmFormFieldTypeServicesTracker, _spiDDMFormRuleConverter,
-			_ddmStructureLocalService.getStructure(dataDefinitionId));
+			_ddmFormFieldTypeServicesTracker,
+			_ddmStructureLocalService.getStructure(dataDefinitionId),
+			_spiDDMFormRuleConverter
+		);
 	}
 
 	@Override
@@ -299,10 +301,10 @@ public class DataDefinitionResourceImpl
 				contentType);
 
 		return DataDefinitionUtil.toDataDefinition(
-			_ddmFormFieldTypeServicesTracker, _spiDDMFormRuleConverter,
-			_ddmStructureLocalService.getStructure(
+			_ddmFormFieldTypeServicesTracker, _ddmStructureLocalService.getStructure(
 				siteId, dataDefinitionContentType.getClassNameId(),
-				dataDefinitionKey));
+				dataDefinitionKey), _spiDDMFormRuleConverter
+		);
 	}
 
 	@Override
@@ -364,9 +366,10 @@ public class DataDefinitionResourceImpl
 			},
 			sorts,
 			document -> DataDefinitionUtil.toDataDefinition(
-				_ddmFormFieldTypeServicesTracker, _spiDDMFormRuleConverter,
-				_ddmStructureLocalService.getStructure(
-					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))));
+				_ddmFormFieldTypeServicesTracker, _ddmStructureLocalService.getStructure(
+					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK))),
+				_spiDDMFormRuleConverter
+			));
 	}
 
 	@Override
@@ -434,8 +437,9 @@ public class DataDefinitionResourceImpl
 		}
 
 		dataDefinition = DataDefinitionUtil.toDataDefinition(
-			_ddmFormFieldTypeServicesTracker, _spiDDMFormRuleConverter,
-			ddmStructure);
+			_ddmFormFieldTypeServicesTracker, ddmStructure,
+			_spiDDMFormRuleConverter
+		);
 
 		_resourceLocalService.addResources(
 			contextCompany.getCompanyId(), siteId,
@@ -503,15 +507,15 @@ public class DataDefinitionResourceImpl
 			_ddmFormSerializer.serialize(builder.build());
 
 		return DataDefinitionUtil.toDataDefinition(
-			_ddmFormFieldTypeServicesTracker, _spiDDMFormRuleConverter,
-			_ddmStructureLocalService.updateStructure(
+			_ddmFormFieldTypeServicesTracker, _ddmStructureLocalService.updateStructure(
 				PrincipalThreadLocal.getUserId(), dataDefinitionId,
 				DDMStructureConstants.DEFAULT_PARENT_STRUCTURE_ID,
 				LocalizedValueUtil.toLocaleStringMap(dataDefinition.getName()),
 				LocalizedValueUtil.toLocaleStringMap(
 					dataDefinition.getDescription()),
 				ddmFormSerializerSerializeResponse.getContent(),
-				new ServiceContext()));
+				new ServiceContext()), _spiDDMFormRuleConverter
+		);
 	}
 
 	@Override
@@ -692,8 +696,9 @@ public class DataDefinitionResourceImpl
 
 		DataDefinition existingDataDefinition =
 			DataDefinitionUtil.toDataDefinition(
-				_ddmFormFieldTypeServicesTracker, _spiDDMFormRuleConverter,
-				ddmStructure);
+				_ddmFormFieldTypeServicesTracker, ddmStructure,
+				_spiDDMFormRuleConverter
+			);
 
 		return _removeFieldNames(
 			transform(
@@ -727,7 +732,7 @@ public class DataDefinitionResourceImpl
 			_ddmStructureVersionLocalService,
 			_deDataDefinitionFieldLinkLocalService,
 			ddmStructureLayout -> DataLayoutUtil.toDataLayout(
-				_spiDDMFormRuleConverter, ddmStructureLayout));
+				ddmStructureLayout, _spiDDMFormRuleConverter));
 	}
 
 	private String[] _removeFieldNames(
@@ -768,8 +773,9 @@ public class DataDefinitionResourceImpl
 		throws Exception {
 
 		return DataDefinitionUtil.toDataDefinition(
-			_ddmFormFieldTypeServicesTracker, _spiDDMFormRuleConverter,
-			ddmStructure);
+			_ddmFormFieldTypeServicesTracker, ddmStructure,
+			_spiDDMFormRuleConverter
+		);
 	}
 
 	private OrderByComparator<DDMStructure> _toOrderByComparator(Sort sort) {

@@ -275,8 +275,9 @@ public class DataRecordResourceImpl
 
 		_validate(
 			DataDefinitionUtil.toDataDefinition(
-				_ddmFormFieldTypeServicesTracker, _spiDDMFormRuleConverter,
-				ddmStructure),
+				_ddmFormFieldTypeServicesTracker, ddmStructure,
+				_spiDDMFormRuleConverter
+			),
 			dataRecord);
 
 		DataStorage dataStorage = _getDataStorage(
@@ -323,8 +324,9 @@ public class DataRecordResourceImpl
 
 		_validate(
 			DataDefinitionUtil.toDataDefinition(
-				_ddmFormFieldTypeServicesTracker, _spiDDMFormRuleConverter,
-				ddmStructure),
+				_ddmFormFieldTypeServicesTracker, ddmStructure,
+				_spiDDMFormRuleConverter
+			),
 			dataRecord);
 
 		DataStorage dataStorage = _getDataStorage(

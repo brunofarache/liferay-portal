@@ -88,8 +88,8 @@ public class DataLayoutUtil {
 	}
 
 	public static DataLayout toDataLayout(
-			SPIDDMFormRuleConverter spiDDMFormRuleConverter,
-			DDMStructureLayout ddmStructureLayout)
+		DDMStructureLayout ddmStructureLayout,
+		SPIDDMFormRuleConverter spiDDMFormRuleConverter)
 		throws Exception {
 
 		if (ddmStructureLayout == null) {

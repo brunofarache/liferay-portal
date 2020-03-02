@@ -55,9 +55,9 @@ import java.util.stream.Stream;
 public class DataDefinitionUtil {
 
 	public static DataDefinition toDataDefinition(
-			DDMFormFieldTypeServicesTracker ddmFormFieldTypeServicesTracker,
-			SPIDDMFormRuleConverter spiDDMFormRuleConverter,
-			DDMStructure ddmStructure)
+		DDMFormFieldTypeServicesTracker ddmFormFieldTypeServicesTracker,
+		DDMStructure ddmStructure,
+		SPIDDMFormRuleConverter spiDDMFormRuleConverter)
 		throws Exception {
 
 		DDMForm ddmForm = ddmStructure.getDDMForm();
@@ -73,8 +73,9 @@ public class DataDefinitionUtil {
 				dateCreated = ddmStructure.getCreateDate();
 				dateModified = ddmStructure.getModifiedDate();
 				defaultDataLayout = DataLayoutUtil.toDataLayout(
-					spiDDMFormRuleConverter,
-					ddmStructure.fetchDDMStructureLayout());
+					ddmStructure.fetchDDMStructureLayout(),
+					spiDDMFormRuleConverter
+				);
 				defaultLanguageId = LanguageUtil.getLanguageId(
 					ddmForm.getDefaultLocale());
 				description = LocalizedValueUtil.toStringObjectMap(
