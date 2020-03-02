@@ -112,29 +112,36 @@ export default ({onAddFieldName, onClose}) => {
 			onSearch={displayFieldFilters ? false : setKeywords}
 			onToggle={onSidebarToggle}
 		>
-			{displayFieldFilters && <FiltersSidebarHeader />}
-
-			<Sidebar.Body>
-				{!displayFieldFilters && (
-					<Sidebar.Tabs
-						tabs={[
-							{
-								label: Liferay.Language.get('columns'),
-								render: () => (
-									<FieldsTabContent
-										keywords={keywords}
-										onAddFieldName={onAddFieldName}
-									/>
-								),
-							},
-							{
-								label: Liferay.Language.get('filters'),
-								render: () => <TableViewFiltersList />,
-							},
-						]}
-					/>
-				)}
-			</Sidebar.Body>
+			{displayFieldFilters ? (
+				<>
+					<FiltersSidebarHeader />
+					<Sidebar.Body>
+						<TableViewFiltersList />
+					</Sidebar.Body>
+				</>
+			) : (
+				<Sidebar.Body>
+					{!displayFieldFilters && (
+						<Sidebar.Tabs
+							tabs={[
+								{
+									label: Liferay.Language.get('columns'),
+									render: () => (
+										<FieldsTabContent
+											keywords={keywords}
+											onAddFieldName={onAddFieldName}
+										/>
+									),
+								},
+								{
+									label: Liferay.Language.get('filters'),
+									render: () => <TableViewFiltersList />,
+								},
+							]}
+						/>
+					)}
+				</Sidebar.Body>
+			)}
 		</Sidebar>
 	);
 };
