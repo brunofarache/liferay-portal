@@ -195,5 +195,6 @@ describe('ListView', () => {
 		});
 
 		expect(nonRefreshAction.mock.calls.length).toBe(1);
+		expect(fetch.mock.calls.length).toEqual(2);
 	});
 });
