@@ -21,6 +21,7 @@ import {
 	DELETE_DATA_DEFINITION_FIELD,
 	DELETE_DATA_LAYOUT_FIELD,
 	EDIT_CUSTOM_OBJECT_FIELD,
+	SWITCH_SIDEBAR_PANEL,
 	UPDATE_CONFIG,
 	UPDATE_DATA_DEFINITION,
 	UPDATE_DATA_LAYOUT,
@@ -65,6 +66,8 @@ const initialState = {
 	fieldTypes: [],
 	focusedCustomObjectField: {},
 	focusedField: {},
+	sidebarOpen: false,
+	sidebarPanelId: 'fields',
 };
 
 const addCustomObjectField = ({
@@ -292,6 +295,15 @@ const createReducer = dataLayoutBuilder => {
 						...editedFocusedCustomObjectField,
 						settingsContext,
 					},
+				};
+			}
+			case SWITCH_SIDEBAR_PANEL: {
+				const {sidebarOpen, sidebarPanelId} = action.payload;
+
+				return {
+					...state,
+					sidebarOpen,
+					sidebarPanelId,
 				};
 			}
 			case UPDATE_DATA_DEFINITION: {
