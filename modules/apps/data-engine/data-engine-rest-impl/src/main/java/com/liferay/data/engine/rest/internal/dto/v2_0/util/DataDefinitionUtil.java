@@ -28,6 +28,7 @@ import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidation;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidationExpression;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
+import com.liferay.dynamic.data.mapping.spi.converter.SPIDDMFormRuleConverter;
 import com.liferay.dynamic.data.mapping.util.DDMFormFactory;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -54,8 +55,9 @@ import java.util.stream.Stream;
 public class DataDefinitionUtil {
 
 	public static DataDefinition toDataDefinition(
-			DDMFormFieldTypeServicesTracker ddmFormFieldTypeServicesTracker,
-			DDMStructure ddmStructure)
+		DDMFormFieldTypeServicesTracker ddmFormFieldTypeServicesTracker,
+		DDMStructure ddmStructure,
+		SPIDDMFormRuleConverter spiDDMFormRuleConverter)
 		throws Exception {
 
 		DDMForm ddmForm = ddmStructure.getDDMForm();
@@ -71,7 +73,9 @@ public class DataDefinitionUtil {
 				dateCreated = ddmStructure.getCreateDate();
 				dateModified = ddmStructure.getModifiedDate();
 				defaultDataLayout = DataLayoutUtil.toDataLayout(
-					ddmStructure.fetchDDMStructureLayout());
+					ddmStructure.fetchDDMStructureLayout(),
+					spiDDMFormRuleConverter
+				);
 				defaultLanguageId = LanguageUtil.getLanguageId(
 					ddmForm.getDefaultLocale());
 				description = LocalizedValueUtil.toStringObjectMap(
