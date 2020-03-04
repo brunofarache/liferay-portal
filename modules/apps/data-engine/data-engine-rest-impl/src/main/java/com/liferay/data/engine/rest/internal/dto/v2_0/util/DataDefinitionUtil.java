@@ -29,6 +29,8 @@ import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidationExpression;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.util.DDMFormFactory;
+import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -38,6 +40,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Validator;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -308,9 +311,27 @@ public class DataDefinitionUtil {
 			_toDDMFormFields(
 				dataDefinitionField.getNestedDataDefinitionFields(),
 				ddmFormFieldTypeServicesTracker));
+
+		Map<String, Object> defaultValue =
+			dataDefinitionField.getDefaultValue();
+
+		if (defaultValue != null) {
+			defaultValue.forEach(
+				(key, value) -> {
+					if (value instanceof ArrayList) {
+						JSONArray jsonArray = JSONFactoryUtil.createJSONArray(
+							(ArrayList)value);
+
+						value = jsonArray.toString();
+					}
+
+					defaultValue.put(key, value);
+				});
+		}
+
 		ddmFormField.setPredefinedValue(
-			LocalizedValueUtil.toLocalizedValue(
-				dataDefinitionField.getDefaultValue()));
+			LocalizedValueUtil.toLocalizedValue(defaultValue));
+
 		ddmFormField.setReadOnly(
 			GetterUtil.getBoolean(dataDefinitionField.getReadOnly()));
 		ddmFormField.setRepeatable(
