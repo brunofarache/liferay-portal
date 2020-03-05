@@ -17,61 +17,52 @@ import React from 'react';
 
 import {PopoverBase} from '../../../../src/main/resources/META-INF/resources/js/components/popover/PopoverBase.es';
 
-const placements = ['bottom', 'left', 'none', 'right', 'top'];
-
 describe('PopoverBase', () => {
 	afterEach(() => {
 		cleanup();
 	});
 
-	placements.forEach(placement => {
-		it(`render popover on ${placement}`, () => {
-			const propsConfig = {
-				none: {},
-				rest: {
-					placement,
-					visible: true,
-				},
-			};
-			const props = propsConfig[placement] || propsConfig.rest;
-			const {container} = render(
-				<PopoverBase {...props}>
-					<PopoverBase.Header>
-						<h1>{`Awesome Header at ${placement}`}</h1>
-					</PopoverBase.Header>
-					<PopoverBase.Body>
-						<p>{`Awesome Body at ${placement}`}</p>
-					</PopoverBase.Body>
-					<PopoverBase.Footer>
-						<span>{`Awesome Footer at ${placement}`}</span>
-					</PopoverBase.Footer>
-				</PopoverBase>
-			);
-			const assertsType = ['toBeFalsy', 'toBeTruthy'];
-			const assertValue = +(placement !== 'none');
-			const assert = {
-				original: assertsType[assertValue],
-				revert: assertsType[+!assertValue],
-			};
+	it('renders correct placement className', () => {
+		const {container, queryByText} = render(
+			<PopoverBase placement="bottom" visible>
+				<PopoverBase.Header>
+					<h1>Header</h1>
+				</PopoverBase.Header>
+				<PopoverBase.Body>
+					<p>Body</p>
+				</PopoverBase.Body>
+				<PopoverBase.Footer>
+					<span>Footer</span>
+				</PopoverBase.Footer>
+			</PopoverBase>
+		);
 
-			expect(container.querySelector('div.arrow'))[assert.original]();
-			expect(
-				container.querySelector(
-					`div.popover.clay-popover-${placement}.hide`
-				)
-			)[assert.revert]();
-			expect(
-				container.querySelector(`div.popover.clay-popover-${placement}`)
-			).toBeTruthy();
-			expect(
-				container.querySelector('.popover-header h1').innerHTML
-			).toBe(`Awesome Header at ${placement}`);
-			expect(container.querySelector('.popover-body p').innerHTML).toBe(
-				`Awesome Body at ${placement}`
-			);
-			expect(
-				container.querySelector('.popover-footer span').innerHTML
-			).toBe(`Awesome Footer at ${placement}`);
-		});
+		expect(container.querySelector('div.arrow')).not.toBeNull();
+		expect(container.querySelector('.hide')).toBeNull();
+		expect(queryByText('Header')).not.toBeNull();
+		expect(queryByText('Body')).not.toBeNull();
+		expect(queryByText('Footer')).not.toBeNull();
+	});
+
+	it('renders with placement as none', () => {
+		const {container, queryByText} = render(
+			<PopoverBase>
+				<PopoverBase.Header>
+					<h1>Header</h1>
+				</PopoverBase.Header>
+				<PopoverBase.Body>
+					<p>Body</p>
+				</PopoverBase.Body>
+				<PopoverBase.Footer>
+					<span>Footer</span>
+				</PopoverBase.Footer>
+			</PopoverBase>
+		);
+
+		expect(container.querySelector('div.arrow')).toBeNull();
+		expect(container.querySelector('.hide')).not.toBeNull();
+		expect(queryByText('Header')).not.toBeNull();
+		expect(queryByText('Body')).not.toBeNull();
+		expect(queryByText('Footer')).not.toBeNull();
 	});
 });
