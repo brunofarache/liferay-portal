@@ -18,26 +18,9 @@ import React from 'react';
 
 import Popover from '../../../../src/main/resources/META-INF/resources/js/components/popover/Popover.es';
 
-const getTitle = position => <h1>{`Hi Title at ${position}`}</h1>;
-const getContent = position => <p>{`Hi Content at ${position}`}</p>;
-const getFooter = position => <span>{`Hi Footer at ${position}`}</span>;
-
-const placements = ['bottom', 'left', 'none', 'right', 'top'];
-
-function getPlacemenetIndex(placement) {
-	const positions = {
-		bottom: 0,
-		'bottom-left': 1,
-		'bottom-right': 2,
-		left: 3,
-		right: 4,
-		top: 5,
-		'top-left': 6,
-		'top-right': 7,
-	};
-
-	return positions[placement];
-}
+const getTitle = () => <h1>Title</h1>;
+const getContent = () => <p>Content</p>;
+const getFooter = () => <span>Footer</span>;
 
 describe('Popover', () => {
 	afterEach(() => {
@@ -45,58 +28,58 @@ describe('Popover', () => {
 		jest.restoreAllMocks();
 	});
 
-	placements.forEach(placement => {
-		it(`render popover at ${placement}`, async () => {
-			const popoverRef = React.createRef();
-			const propsConfig = {
-				left: {
-					ref: popoverRef,
-					title: () => getTitle(placement),
-					visible: true,
-				},
-				rest: {
-					content: () => getContent(placement),
-					footer: () => getFooter(placement),
-					ref: popoverRef,
-					showArrow: true,
-					suggestedPosition: placement,
-					title: () => getTitle(placement),
-					visible: true,
-				},
-				right: {
-					suggestedPosition: 'right',
-				},
-			};
-			const props = propsConfig[placement] || propsConfig.rest;
+	it('run popover on left visible with ref', () => {
+		const popoverRef = React.createRef();
 
-			const spy = jest
-				.spyOn(Align, 'align')
-				.mockImplementation(() => getPlacemenetIndex(placement));
+		const spy = jest.spyOn(Align, 'align').mockImplementation(() => 0);
 
-			const {container} = render(<Popover {...props}></Popover>);
-			if (props.ref) {
-				expect(spy).toBeCalled();
-			}
+		const {container, queryByText} = render(
+			<Popover ref={popoverRef} suggestedPosition="left" visible />
+		);
 
-			expect(container.querySelector('div.arrow'))[
-				placement !== 'none' ? 'toBeTruthy' : 'toBeFalsy'
-			]();
+		expect(spy).toBeCalled();
+		expect(container.querySelector('div.arrow')).not.toBeNull();
 
-			const title = container.querySelector('.popover-header h1');
-			const content = container.querySelector('.popover-body p');
-			const footer = container.querySelector('.popover-footer span');
+		expect(queryByText('Title')).toBeNull();
+		expect(queryByText('Content')).toBeNull();
+		expect(queryByText('Footer')).toBeNull();
+	});
 
-			expect(props.title && props.content ? title.innerHTML : title).toBe(
-				props.title && props.content ? `Hi Title at ${placement}` : null
-			);
+	it('run popover on the right with childrens', () => {
+		const {container, queryByText} = render(
+			<Popover
+				content={getContent}
+				footer={getFooter}
+				showArrow
+				suggestedPosition="right"
+				title={getTitle}
+				visible
+			/>
+		);
 
-			expect(props.content ? content.innerHTML : content).toBe(
-				props.content ? `Hi Content at ${placement}` : null
-			);
+		expect(container.querySelector('div.arrow')).not.toBeNull();
 
-			expect(
-				props.footer && props.content ? footer.innerHTML : footer
-			).toBe(props.footer ? `Hi Footer at ${placement}` : null);
-		});
+		expect(queryByText('Title')).not.toBeNull();
+		expect(queryByText('Content')).not.toBeNull();
+		expect(queryByText('Footer')).not.toBeNull();
+	});
+
+	it('run popover with placement none and no content', () => {
+		const popoverRef = React.createRef();
+
+		const spy = jest.spyOn(Align, 'align').mockImplementation(() => null);
+
+		const {container, queryByText} = render(
+			<Popover ref={popoverRef} showArrow title={getTitle} visible />
+		);
+
+		expect(spy).toBeCalled();
+		expect(container.querySelector('div.arrow')).toBeNull();
+		expect(container.querySelector('.no-content')).not.toBeNull();
+		expect(container.querySelector('.hide')).toBeNull();
+
+		expect(queryByText('Title')).not.toBeNull();
+		expect(queryByText('Content')).toBeNull();
+		expect(queryByText('Footer')).toBeNull();
 	});
 });
