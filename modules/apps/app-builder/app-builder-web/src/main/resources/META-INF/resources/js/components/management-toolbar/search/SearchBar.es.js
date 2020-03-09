@@ -23,11 +23,11 @@ export default ({columns, totalCount}) => {
 	const disabled = keywords === '' && totalCount === 0;
 
 	return (
-		<div className="navbar-form navbar-form-autofit navbar-overlay navbar-overlay-sm-down">
+		<div className="navbar-form navbar-form-autofit navbar-overlay-sm-down">
 			<div className="container-fluid container-fluid-max-xl">
 				<SearchSort columns={columns} disabled={disabled} />
 
-				<div className="navbar-form navbar-form-autofit navbar-overlay navbar-overlay-sm-down">
+				<div className="navbar-form navbar-form-autofit navbar-overlay-sm-down">
 					<div className="container-fluid container-fluid-max-xl">
 						<SearchInputWithForm
 							disabled={disabled}
