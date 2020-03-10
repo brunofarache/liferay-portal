@@ -47,6 +47,8 @@ const AppContent = ({dataLayoutBuilder, setDataLayoutBuilder, ...props}) => {
 		}
 	}, [dataLayoutBuilder, state]);
 
+	console.log(props.functionsMetadata);
+
 	return (
 		<>
 			<DataLayoutBuilder

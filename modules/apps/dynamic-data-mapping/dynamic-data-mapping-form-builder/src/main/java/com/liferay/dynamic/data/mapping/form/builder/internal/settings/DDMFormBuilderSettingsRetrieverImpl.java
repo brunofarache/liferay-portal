@@ -20,6 +20,7 @@ import com.liferay.dynamic.data.mapping.form.builder.settings.DDMFormBuilderSett
 
 import java.util.Locale;
 
+import com.liferay.dynamic.data.mapping.spi.form.builder.settings.DDMFormBuilderSettingsRetrieverHelper;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 

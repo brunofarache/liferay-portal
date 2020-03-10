@@ -48,6 +48,11 @@ public class DataLayoutBuilderTag extends BaseDataLayoutBuilderTag {
 			request, "fieldTypesModules",
 			DataLayoutTaglibUtil.resolveFieldTypesModules());
 
+		setNamespacedAttribute(
+			request, "functionsMetadata",
+			DataLayoutTaglibUtil.getSerializedDDMExpressionFunctionsMetadata(
+				request.getLocale()));
+
 		return result;
 	}
 

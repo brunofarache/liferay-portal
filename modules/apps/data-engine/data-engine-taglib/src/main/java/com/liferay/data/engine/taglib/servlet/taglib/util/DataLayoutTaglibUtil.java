@@ -47,6 +47,7 @@ import com.liferay.dynamic.data.mapping.model.UnlocalizedValue;
 import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
+import com.liferay.dynamic.data.mapping.spi.form.builder.settings.DDMFormBuilderSettingsRetrieverHelper;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.util.DDMFormFactory;
@@ -167,6 +168,13 @@ public class DataLayoutTaglibUtil {
 
 		return _dataLayoutTaglibUtil._getFieldTypesJSONArray(
 			httpServletRequest, scopes);
+	}
+
+	public static String getSerializedDDMExpressionFunctionsMetadata(
+		Locale locale) {
+
+		return _dataLayoutTaglibUtil.
+			_getSerializedDDMExpressionFunctionsMetadata(locale);
 	}
 
 	public static String renderDataLayout(
@@ -433,6 +441,11 @@ public class DataLayoutTaglibUtil {
 		}
 	}
 
+	private String _getSerializedDDMExpressionFunctionsMetadata(Locale locale) {
+		return _ddmFormBuilderSettingsRetrieverHelper.
+			getSerializedDDMExpressionFunctionsMetadata(locale);
+	}
+
 	private boolean _hasJavascriptModule(String name) {
 		DDMFormFieldType ddmFormFieldType =
 			_ddmFormFieldTypeServicesTracker.getDDMFormFieldType(name);
@@ -484,6 +497,10 @@ public class DataLayoutTaglibUtil {
 
 	@Reference
 	private DDMFormBuilderContextFactory _ddmFormBuilderContextFactory;
+
+	@Reference
+	private DDMFormBuilderSettingsRetrieverHelper
+		_ddmFormBuilderSettingsRetrieverHelper;
 
 	@Reference
 	private DDMFormFieldTypeServicesTracker _ddmFormFieldTypeServicesTracker;

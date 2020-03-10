@@ -34,6 +34,8 @@ data.put("fieldTypesModules", fieldTypesModules);
 data.put("groupId", groupId);
 data.put("localizable", localizable);
 data.put("spritemap", themeDisplay.getPathThemeImages() + "/lexicon/icons.svg");
+
+data.put("functionsMetadata", functionsMetadata);
 %>
 
 <div id="<%= componentId + "container" %>">

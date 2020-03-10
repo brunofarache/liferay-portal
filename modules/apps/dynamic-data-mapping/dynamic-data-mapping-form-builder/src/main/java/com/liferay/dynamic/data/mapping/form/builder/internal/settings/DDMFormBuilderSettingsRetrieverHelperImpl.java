@@ -21,6 +21,7 @@ import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMStructureConstants;
 import com.liferay.dynamic.data.mapping.service.DDMStructureService;
 import com.liferay.dynamic.data.mapping.spi.converter.model.SPIDDMFormRule;
+import com.liferay.dynamic.data.mapping.spi.form.builder.settings.DDMFormBuilderSettingsRetrieverHelper;
 import com.liferay.dynamic.data.mapping.util.comparator.StructureNameComparator;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -47,8 +48,9 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
 	immediate = true, service = DDMFormBuilderSettingsRetrieverHelper.class
 )
-public class DDMFormBuilderSettingsRetrieverHelper {
+public class DDMFormBuilderSettingsRetrieverHelperImpl implements DDMFormBuilderSettingsRetrieverHelper {
 
+	@Override
 	public String getDDMDataProviderInstanceParameterSettingsURL() {
 		String servletContextPath = getServletContextPath(
 			_ddmDataProviderInstanceParameterSettingsServlet);
@@ -58,6 +60,7 @@ public class DDMFormBuilderSettingsRetrieverHelper {
 				"settings/");
 	}
 
+	@Override
 	public String getDDMDataProviderInstancesURL() {
 		String servletContextPath = getServletContextPath(
 			_ddmDataProviderInstancesServlet);
@@ -66,6 +69,7 @@ public class DDMFormBuilderSettingsRetrieverHelper {
 			"/dynamic-data-mapping-form-builder-data-provider-instances/");
 	}
 
+	@Override
 	public String getDDMFieldSetDefinitionURL() {
 		String servletContextPath = getServletContextPath(
 			_ddmFieldSetDefinitionServlet);
@@ -74,6 +78,7 @@ public class DDMFormBuilderSettingsRetrieverHelper {
 			"/dynamic-data-mapping-form-builder-fieldset-definition/");
 	}
 
+	@Override
 	public String getDDMFieldSettingsDDMFormContextURL() {
 		String servletContextPath = getServletContextPath(
 			_ddmFieldSettingsDDMFormContextServlet);
@@ -82,6 +87,7 @@ public class DDMFormBuilderSettingsRetrieverHelper {
 			"/dynamic-data-mapping-form-builder-field-settings-form-context/");
 	}
 
+	@Override
 	public String getDDMFormContextProviderURL() {
 		String servletContextPath = getServletContextPath(
 			_ddmFormContextProviderServlet);
@@ -90,6 +96,7 @@ public class DDMFormBuilderSettingsRetrieverHelper {
 			"/dynamic-data-mapping-form-context-provider/");
 	}
 
+	@Override
 	public String getDDMFunctionsURL() {
 		String servletContextPath = getServletContextPath(
 			_ddmFormFunctionsServlet);
@@ -98,6 +105,7 @@ public class DDMFormBuilderSettingsRetrieverHelper {
 			"/dynamic-data-mapping-form-builder-functions/");
 	}
 
+	@Override
 	public JSONArray getFieldSetsMetadataJSONArray(
 		long companyId, long scopeGroupId, long fieldSetClassNameId,
 		Locale locale) {
@@ -133,6 +141,7 @@ public class DDMFormBuilderSettingsRetrieverHelper {
 		return jsonArray;
 	}
 
+	@Override
 	public String getRolesURL() {
 		String servletContextPath = getServletContextPath(_rolesServlet);
 
@@ -140,6 +149,7 @@ public class DDMFormBuilderSettingsRetrieverHelper {
 			"/dynamic-data-mapping-form-builder-roles/");
 	}
 
+	@Override
 	public String getSerializedDDMExpressionFunctionsMetadata(Locale locale) {
 		JSONSerializer jsonSerializer = _jsonFactory.createJSONSerializer();
 
@@ -148,7 +158,8 @@ public class DDMFormBuilderSettingsRetrieverHelper {
 				getDDMExpressionFunctionsMetadata(locale));
 	}
 
-	public String getSerializedDDMFormRules(DDMForm ddmForm) {
+	@Override
+	public String getSerializedDDMFormRules(DDMForm ddmForm){
 		JSONSerializer jsonSerializer = _jsonFactory.createJSONSerializer();
 
 		List<SPIDDMFormRule> spiDDMFormRules =
