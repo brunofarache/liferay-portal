@@ -26,34 +26,32 @@ describe('ListView', () => {
 	});
 
 	it('renders toast and dismiss manually', async () => {
-		const message = 'Toast Called';
-		const {container, queryByText} = render(
+		const message = 'message';
+
+		const {container, queryByRole, queryByText} = render(
 			<ToastContextProvider>
 				<ToastContext.Consumer>
 					{({addToast}) => (
 						<button onClick={() => addToast({message})}>
-							Click Here
+							click
 						</button>
 					)}
 				</ToastContext.Consumer>
 			</ToastContextProvider>
 		);
 
-		const button = queryByText('Click Here');
+		const button = queryByRole('button');
 		expect(button).toBeTruthy();
-		expect(queryByText(message)).toBeNull();
-		expect(
-			container.querySelector('div.alert.alert-dismissible.alert-info')
-		).toBeNull();
-		expect(queryByText).toBeTruthy();
+
+		expect(queryByText(message)).toBeFalsy();
+
+		expect(container.querySelector('.alert-info')).toBeFalsy();
 
 		act(() => {
 			button.dispatchEvent(new MouseEvent('click', {bubbles: true}));
 		});
 
-		expect(
-			container.querySelector('div.alert.alert-dismissible.alert-info')
-		).toBeTruthy();
+		expect(container.querySelector('.alert-info')).toBeTruthy();
 
 		const closeButton = container.querySelector('button.close');
 
@@ -63,8 +61,6 @@ describe('ListView', () => {
 			closeButton.dispatchEvent(new MouseEvent('click', {bubbles: true}));
 		});
 
-		expect(
-			container.querySelector('div.alert.alert-dismissible.alert-info')
-		).toBeNull();
+		expect(container.querySelector('.alert-info')).toBeFalsy();
 	});
 });
