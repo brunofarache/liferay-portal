@@ -29,19 +29,21 @@ const TableWithPagination = ({actions, columns, items, totalCount}) => {
 			<Table actions={actions} columns={columns} items={items} />
 
 			{totalCount > 5 && (
-				<ClayPaginationBarWithBasicItems
-					activeDelta={pageSize}
-					activePage={page}
-					deltas={deltas}
-					ellipsisBuffer={3}
-					onDeltaChange={pageSize =>
-						dispatch({pageSize, type: 'CHANGE_PAGE_SIZE'})
-					}
-					onPageChange={page =>
-						dispatch({page, type: 'CHANGE_PAGE'})
-					}
-					totalItems={totalCount}
-				/>
+				<div className="taglib-search-iterator-page-iterator-bottom">
+					<ClayPaginationBarWithBasicItems
+						activeDelta={pageSize}
+						activePage={page}
+						deltas={deltas}
+						ellipsisBuffer={3}
+						onDeltaChange={pageSize =>
+							dispatch({pageSize, type: 'CHANGE_PAGE_SIZE'})
+						}
+						onPageChange={page =>
+							dispatch({page, type: 'CHANGE_PAGE'})
+						}
+						totalItems={totalCount}
+					/>
+				</div>
 			)}
 		</div>
 	);
