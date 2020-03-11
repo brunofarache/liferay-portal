@@ -22,7 +22,7 @@ import SearchSort from './SearchSort.es';
 
 export default ({addButton, columns, totalCount}) => {
 	const [{keywords}, dispatch] = useContext(SearchContext);
-	const [showSearch, setSearchMobile] = useState(false);
+	const [showMobile, setShowMobile] = useState(false);
 	const disabled = keywords === '' && totalCount === 0;
 
 	return (
@@ -34,12 +34,12 @@ export default ({addButton, columns, totalCount}) => {
 					dispatch({keywords: searchText, type: 'SEARCH'})
 				}
 				searchText={keywords}
-				setSearchMobile={setSearchMobile}
-				showSearch={showSearch}
+				setShowMobile={setShowMobile}
+				showMobile={showMobile}
 			/>
 			<SearchBarActions
 				addButton={addButton}
-				setSearchMobile={setSearchMobile}
+				setShowMobile={setShowMobile}
 			/>
 		</ClayManagementToolbar>
 	);

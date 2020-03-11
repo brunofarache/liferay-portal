@@ -14,6 +14,7 @@
 
 import ClayDropDown, {Align} from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
+import ClayManagementToolbar from '@clayui/management-toolbar';
 import classNames from 'classnames';
 import React, {useContext, useState} from 'react';
 
@@ -56,8 +57,8 @@ export default ({columns, disabled}) => {
 	const {active, asc, column} = state;
 
 	return (
-		<ul className="navbar-nav">
-			<li className="dropdown nav-item">
+		<ClayManagementToolbar.ItemList>
+			<ClayManagementToolbar.Item>
 				<ClayDropDown
 					active={active}
 					alignmentPosition={Align.BottomLeft}
@@ -109,9 +110,8 @@ export default ({columns, disabled}) => {
 						</Group>
 					</ItemList>
 				</ClayDropDown>
-			</li>
-
-			<li className="nav-item">
+			</ClayManagementToolbar.Item>
+			<ClayManagementToolbar.Item>
 				<Button
 					className={classNames('nav-link', 'nav-link-monospaced', {
 						'order-arrow-down-active': !asc,
@@ -123,7 +123,7 @@ export default ({columns, disabled}) => {
 					symbol="order-arrow"
 					tooltip={Liferay.Language.get('reverse-sort-direction')}
 				/>
-			</li>
-		</ul>
+			</ClayManagementToolbar.Item>
+		</ClayManagementToolbar.ItemList>
 	);
 };

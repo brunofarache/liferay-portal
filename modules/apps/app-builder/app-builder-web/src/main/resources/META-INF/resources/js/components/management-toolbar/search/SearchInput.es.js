@@ -20,8 +20,8 @@ import React, {useEffect, useState} from 'react';
 const SearchInput = ({
 	onSubmit,
 	searchText = '',
-	setSearchMobile,
-	showSearch,
+	setShowMobile,
+	showMobile,
 	...restProps
 }) => {
 	const [value, setValue] = useState(searchText);
@@ -36,7 +36,7 @@ const SearchInput = ({
 				event.preventDefault();
 				onSubmit(value.trim());
 			}}
-			showMobile={showSearch}
+			showMobile={showMobile}
 		>
 			<ClayInput.Group>
 				<ClayInput.GroupItem>
@@ -54,7 +54,7 @@ const SearchInput = ({
 						<ClayButtonWithIcon
 							className="navbar-breakpoint-d-none"
 							displayType="unstyled"
-							onClick={() => setSearchMobile(false)}
+							onClick={() => setShowMobile(false)}
 							symbol="times"
 						/>
 						<ClayButtonWithIcon

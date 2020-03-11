@@ -17,14 +17,14 @@ import ClayIcon from '@clayui/icon';
 import ClayManagementToolbar from '@clayui/management-toolbar';
 import React from 'react';
 
-export default function SearchOptions({addButton, setSearchMobile}) {
+export default function SearchOptions({addButton, setShowMobile}) {
 	return (
 		<ClayManagementToolbar.ItemList>
 			<ClayManagementToolbar.Item className="navbar-breakpoint-d-none">
 				<ClayButton
 					className="nav-link nav-link-monospaced"
 					displayType="unstyled"
-					onClick={() => setSearchMobile(true)}
+					onClick={() => setShowMobile(true)}
 				>
 					<ClayIcon symbol="search" />
 				</ClayButton>
