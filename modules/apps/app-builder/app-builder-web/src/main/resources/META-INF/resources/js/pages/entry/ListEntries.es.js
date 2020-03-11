@@ -127,7 +127,7 @@ const ListEntries = withRouter(({history, location}) => {
 					showFormView &&
 					hasAddPermission && (
 						<Button
-							className="nav-btn nav-btn-monospaced navbar-breakpoint-down-d-none"
+							className="nav-btn nav-btn-monospaced"
 							onClick={() => handleEditItem(0)}
 							symbol="plus"
 							tooltip={Liferay.Language.get('new-entry')}
