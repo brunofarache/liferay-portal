@@ -229,7 +229,7 @@ export default ({
 			actions={ACTIONS}
 			addButton={() => (
 				<Button
-					className="nav-btn nav-btn-monospaced navbar-breakpoint-down-d-none"
+					className="nav-btn nav-btn-monospaced"
 					href={`${url}/deploy`}
 					symbol="plus"
 					tooltip={Liferay.Language.get('new-app')}

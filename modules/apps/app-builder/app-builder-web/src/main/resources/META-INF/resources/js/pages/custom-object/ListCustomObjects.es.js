@@ -216,7 +216,7 @@ export default ({history}) => {
 				addButton={() => (
 					<div ref={addButtonRef}>
 						<Button
-							className="nav-btn nav-btn-monospaced navbar-breakpoint-down-d-none"
+							className="nav-btn nav-btn-monospaced"
 							onClick={onClickAddButton}
 							symbol="plus"
 							tooltip={Liferay.Language.get('new-custom-object')}

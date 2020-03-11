@@ -12,33 +12,35 @@
  * details.
  */
 
-import {SearchInputWithForm} from 'data-engine-taglib';
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 
 import SearchContext from './SearchContext.es';
+import {SearchInputWithForm} from './SearchInput';
+import SearchOptions from './SearchOptions';
 import SearchSort from './SearchSort.es';
 
-export default ({columns, totalCount}) => {
+export default ({addButton, columns, totalCount}) => {
 	const [{keywords}, dispatch] = useContext(SearchContext);
+	const [showSearch, setSearchMobile] = useState(false);
 	const disabled = keywords === '' && totalCount === 0;
 
 	return (
-		<div className="navbar-form navbar-form-autofit navbar-overlay-sm-down">
-			<div className="container-fluid container-fluid-max-xl">
-				<SearchSort columns={columns} disabled={disabled} />
-
-				<div className="navbar-form navbar-form-autofit navbar-overlay-sm-down">
-					<div className="container-fluid container-fluid-max-xl">
-						<SearchInputWithForm
-							disabled={disabled}
-							onSubmit={searchText =>
-								dispatch({keywords: searchText, type: 'SEARCH'})
-							}
-							searchText={keywords}
-						/>
-					</div>
-				</div>
-			</div>
-		</div>
+		<>
+			<SearchSort columns={columns} disabled={disabled} />
+			<SearchInputWithForm
+				clearButton
+				disabled={disabled}
+				onSubmit={searchText =>
+					dispatch({keywords: searchText, type: 'SEARCH'})
+				}
+				searchText={keywords}
+				setSearchMobile={setSearchMobile}
+				showSearch={showSearch}
+			/>
+			<SearchOptions
+				addButton={addButton}
+				setSearchMobile={setSearchMobile}
+			/>
+		</>
 	);
 };

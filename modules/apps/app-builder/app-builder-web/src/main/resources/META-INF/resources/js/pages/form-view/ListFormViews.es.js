@@ -78,7 +78,7 @@ export default ({
 			]}
 			addButton={() => (
 				<Button
-					className="nav-btn nav-btn-monospaced navbar-breakpoint-down-d-none"
+					className="nav-btn nav-btn-monospaced"
 					onClick={() => Liferay.Util.navigate(addURL)}
 					symbol="plus"
 					tooltip={Liferay.Language.get('new-form-view')}

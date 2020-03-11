@@ -63,7 +63,7 @@ export default ({
 			]}
 			addButton={() => (
 				<Button
-					className="nav-btn nav-btn-monospaced navbar-breakpoint-down-d-none"
+					className="nav-btn nav-btn-monospaced"
 					href={`${url}/add`}
 					symbol="plus"
 					tooltip={Liferay.Language.get('new-table-view')}

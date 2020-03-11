@@ -13,12 +13,13 @@
  */
 
 import {useResource} from '@clayui/data-provider';
+import ClayManagementToolbar from '@clayui/management-toolbar';
 import React, {useCallback, useEffect, useState} from 'react';
 import {withRouter} from 'react-router-dom';
 
 import useQuery from '../../hooks/useQuery.es';
 import {getURL} from '../../utils/client.es';
-import {ManagementToolbar, SearchBar} from '../management-toolbar/index.es';
+import {SearchBar} from '../management-toolbar/index.es';
 import SearchContext, {
 	reducer,
 } from '../management-toolbar/search/SearchContext.es';
@@ -101,11 +102,13 @@ export default withRouter(
 
 		return (
 			<SearchContext.Provider value={[query, dispatch]}>
-				<ManagementToolbar>
-					<SearchBar columns={columns} totalCount={totalCount} />
-
-					{addButton && addButton()}
-				</ManagementToolbar>
+				<ClayManagementToolbar>
+					<SearchBar
+						addButton={addButton}
+						columns={columns}
+						totalCount={totalCount}
+					/>
+				</ClayManagementToolbar>
 
 				<SearchSubnavigationBar
 					isLoading={isLoading}

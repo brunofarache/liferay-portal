@@ -81,6 +81,12 @@ export default ({columns, disabled}) => {
 									symbol="caret-bottom"
 								/>
 							</span>
+							<span className="navbar-breakpoint-d-none">
+								<ClayIcon
+									className="inline-item inline-item-after"
+									symbol="filter"
+								/>
+							</span>
 						</Button>
 					}
 				>
