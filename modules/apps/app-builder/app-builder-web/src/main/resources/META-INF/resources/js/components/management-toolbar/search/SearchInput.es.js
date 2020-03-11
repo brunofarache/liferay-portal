@@ -15,32 +15,36 @@
 import {ClayButtonWithIcon} from '@clayui/button';
 import {ClayInput} from '@clayui/form';
 import ClayManagementToolbar from '@clayui/management-toolbar';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
-const SearchInput = React.forwardRef(
-	(
-		{setSearchMobile, onChange = () => {}, searchText = '', ...restProps},
-		ref
-	) => {
-		const [value, setValue] = useState(searchText);
-		const searchInputRef = ref ? ref : useRef(null);
+const SearchInput = ({
+	onSubmit,
+	searchText = '',
+	setSearchMobile,
+	showSearch,
+	...restProps
+}) => {
+	const [value, setValue] = useState(searchText);
 
-		useEffect(() => {
-			setValue(searchText);
-		}, [searchText]);
+	useEffect(() => {
+		setValue(searchText);
+	}, [searchText]);
 
-		return (
+	return (
+		<ClayManagementToolbar.Search
+			onSubmit={event => {
+				event.preventDefault();
+				onSubmit(value.trim());
+			}}
+			showMobile={showSearch}
+		>
 			<ClayInput.Group>
 				<ClayInput.GroupItem>
 					<ClayInput
 						aria-label={Liferay.Language.get('search')}
 						className="input-group-inset input-group-inset-after"
-						onChange={({target: {value}}) => {
-							setValue(value);
-							onChange(value);
-						}}
+						onChange={({target: {value}}) => setValue(value)}
 						placeholder={`${Liferay.Language.get('search')}...`}
-						ref={searchInputRef}
 						type="text"
 						value={value}
 						{...restProps}
@@ -61,39 +65,8 @@ const SearchInput = React.forwardRef(
 					</ClayInput.GroupInsetItem>
 				</ClayInput.GroupItem>
 			</ClayInput.Group>
-		);
-	}
-);
-
-const SearchInputWithForm = ({
-	showSearch,
-	onSubmit = () => {},
-	...restProps
-}) => {
-	const [searchText, setSearchText] = useState('');
-
-	const handleSubmit = value => {
-		onSubmit(value.trim());
-	};
-
-	return (
-		<ClayManagementToolbar.Search
-			onSubmit={event => {
-				event.preventDefault();
-				handleSubmit(searchText);
-			}}
-			showMobile={showSearch}
-		>
-			<SearchInput
-				clearButton={false}
-				onChange={searchText => setSearchText(searchText)}
-				onSubmit={handleSubmit}
-				{...restProps}
-			/>
 		</ClayManagementToolbar.Search>
 	);
 };
 
 export default SearchInput;
-
-export {SearchInputWithForm};

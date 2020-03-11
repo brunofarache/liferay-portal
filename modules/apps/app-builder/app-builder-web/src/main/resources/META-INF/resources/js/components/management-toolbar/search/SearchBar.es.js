@@ -12,11 +12,12 @@
  * details.
  */
 
+import ClayManagementToolbar from '@clayui/management-toolbar';
 import React, {useContext, useState} from 'react';
 
+import SearchBarActions from './SearchBarActions.es';
 import SearchContext from './SearchContext.es';
-import {SearchInputWithForm} from './SearchInput';
-import SearchOptions from './SearchOptions';
+import SearchInput from './SearchInput.es';
 import SearchSort from './SearchSort.es';
 
 export default ({addButton, columns, totalCount}) => {
@@ -25,10 +26,9 @@ export default ({addButton, columns, totalCount}) => {
 	const disabled = keywords === '' && totalCount === 0;
 
 	return (
-		<>
+		<ClayManagementToolbar>
 			<SearchSort columns={columns} disabled={disabled} />
-			<SearchInputWithForm
-				clearButton
+			<SearchInput
 				disabled={disabled}
 				onSubmit={searchText =>
 					dispatch({keywords: searchText, type: 'SEARCH'})
@@ -37,10 +37,10 @@ export default ({addButton, columns, totalCount}) => {
 				setSearchMobile={setSearchMobile}
 				showSearch={showSearch}
 			/>
-			<SearchOptions
+			<SearchBarActions
 				addButton={addButton}
 				setSearchMobile={setSearchMobile}
 			/>
-		</>
+		</ClayManagementToolbar>
 	);
 };

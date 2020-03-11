@@ -19,23 +19,21 @@ import React from 'react';
 
 export default function SearchOptions({addButton, setSearchMobile}) {
 	return (
-		<>
-			<ClayManagementToolbar.ItemList>
-				<ClayManagementToolbar.Item className="navbar-breakpoint-d-none">
-					<ClayButton
-						className="nav-link nav-link-monospaced"
-						displayType="unstyled"
-						onClick={() => setSearchMobile(true)}
-					>
-						<ClayIcon symbol="search" />
-					</ClayButton>
+		<ClayManagementToolbar.ItemList>
+			<ClayManagementToolbar.Item className="navbar-breakpoint-d-none">
+				<ClayButton
+					className="nav-link nav-link-monospaced"
+					displayType="unstyled"
+					onClick={() => setSearchMobile(true)}
+				>
+					<ClayIcon symbol="search" />
+				</ClayButton>
+			</ClayManagementToolbar.Item>
+			{addButton && (
+				<ClayManagementToolbar.Item>
+					{addButton()}
 				</ClayManagementToolbar.Item>
-				{addButton && (
-					<ClayManagementToolbar.Item>
-						{addButton()}
-					</ClayManagementToolbar.Item>
-				)}
-			</ClayManagementToolbar.ItemList>
-		</>
+			)}
+		</ClayManagementToolbar.ItemList>
 	);
 }
