@@ -116,7 +116,7 @@ const DropZone = ({fields, onAddFieldName, onRemoveFieldName}) => {
 												data-tooltip-delay="200"
 												symbol="filter"
 												title={Liferay.Language.get(
-													'filter-entries'
+													'this-column-has-applied-filters'
 												)}
 											/>
 										</div>
