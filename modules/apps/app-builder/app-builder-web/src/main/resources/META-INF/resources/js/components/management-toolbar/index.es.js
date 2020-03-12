@@ -12,7 +12,6 @@
  * details.
  */
 
-import ManagementToolbar from './ManagementToolbar.es';
 import SearchBar from './search/SearchBar.es';
 
-export {ManagementToolbar, SearchBar};
+export {SearchBar};
