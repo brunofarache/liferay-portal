@@ -18,11 +18,9 @@ import {withRouter} from 'react-router-dom';
 
 import useQuery from '../../hooks/useQuery.es';
 import {getURL} from '../../utils/client.es';
-import {SearchBar} from '../management-toolbar/index.es';
-import SearchContext, {
-	reducer,
-} from '../management-toolbar/search/SearchContext.es';
-import SearchSubnavigationBar from '../management-toolbar/search/SearchSubnavigationBar.es';
+import ManagementToolbar from '../management-toolbar/ManagementToolbar.es';
+import ManagementToolbarResultsBar from '../management-toolbar/ManagementToolbarResultsBar.es';
+import SearchContext, {reducer} from '../management-toolbar/SearchContext.es';
 import TableWithPagination from '../table/TableWithPagination.es';
 
 export default withRouter(
@@ -101,13 +99,13 @@ export default withRouter(
 
 		return (
 			<SearchContext.Provider value={[query, dispatch]}>
-				<SearchBar
+				<ManagementToolbar
 					addButton={addButton}
 					columns={columns}
 					totalCount={totalCount}
 				/>
 
-				<SearchSubnavigationBar
+				<ManagementToolbarResultsBar
 					isLoading={isLoading}
 					totalCount={totalCount}
 				/>

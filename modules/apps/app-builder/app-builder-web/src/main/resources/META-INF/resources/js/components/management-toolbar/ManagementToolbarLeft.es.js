@@ -18,7 +18,7 @@ import ClayManagementToolbar from '@clayui/management-toolbar';
 import classNames from 'classnames';
 import React, {useContext, useState} from 'react';
 
-import Button from '../../../components/button/Button.es';
+import Button from '../../components/button/Button.es';
 import SearchContext from './SearchContext.es';
 
 const {Group, Item, ItemList} = ClayDropDown;

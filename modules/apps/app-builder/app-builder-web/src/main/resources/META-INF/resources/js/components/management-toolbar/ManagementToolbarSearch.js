@@ -17,7 +17,7 @@ import {ClayInput} from '@clayui/form';
 import ClayManagementToolbar from '@clayui/management-toolbar';
 import React, {useEffect, useState} from 'react';
 
-const SearchInput = ({
+export default ({
 	onSubmit,
 	searchText = '',
 	setShowMobile,
@@ -68,5 +68,3 @@ const SearchInput = ({
 		</ClayManagementToolbar.Search>
 	);
 };
-
-export default SearchInput;

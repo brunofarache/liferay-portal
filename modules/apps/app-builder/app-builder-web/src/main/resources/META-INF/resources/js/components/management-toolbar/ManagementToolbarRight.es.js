@@ -17,7 +17,7 @@ import ClayIcon from '@clayui/icon';
 import ClayManagementToolbar from '@clayui/management-toolbar';
 import React from 'react';
 
-export default function SearchOptions({addButton, setShowMobile}) {
+export default ({addButton, setShowMobile}) => {
 	return (
 		<ClayManagementToolbar.ItemList>
 			<ClayManagementToolbar.Item className="navbar-breakpoint-d-none">
@@ -36,4 +36,4 @@ export default function SearchOptions({addButton, setShowMobile}) {
 			)}
 		</ClayManagementToolbar.ItemList>
 	);
-}
+};
