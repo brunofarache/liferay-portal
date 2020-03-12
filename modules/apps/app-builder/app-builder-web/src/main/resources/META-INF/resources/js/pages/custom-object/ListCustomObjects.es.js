@@ -21,7 +21,6 @@ import Button from '../../components/button/Button.es';
 import ControlMenu from '../../components/control-menu/ControlMenu.es';
 import ListView from '../../components/list-view/ListView.es';
 import PermissionsModal from '../../components/permissions/PermissionsModal.es';
-import {ToastContext} from '../../components/toast/ToastContext.es';
 import {useKeyDown} from '../../hooks/index.es';
 import isClickOutside from '../../utils/clickOutside.es';
 import {
@@ -54,7 +53,6 @@ const COLUMNS = [
 
 export default ({history}) => {
 	const {basePortletURL} = useContext(AppContext);
-	const {successToast} = useContext(ToastContext);
 	const addButtonRef = useRef();
 	const emptyStateButtonRef = useRef();
 	const popoverRef = useRef();
@@ -102,7 +100,6 @@ export default ({history}) => {
 				);
 			}
 			else {
-				successToast();
 				history.push(`/custom-object/${id}/form-views/`);
 			}
 		});
@@ -322,4 +319,3 @@ export default ({history}) => {
 		</>
 	);
 };
-
