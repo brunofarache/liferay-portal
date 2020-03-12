@@ -53,5 +53,5 @@ export default ({isLoading, totalCount}) => {
 		);
 	}
 
-	return <></>
+	return <></>;
 };
