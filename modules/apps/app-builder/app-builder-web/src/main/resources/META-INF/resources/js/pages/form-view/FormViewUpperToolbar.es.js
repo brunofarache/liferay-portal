@@ -22,89 +22,83 @@ import FormViewContext from './FormViewContext.es';
 import saveFormView from './saveFormView.es';
 
 export default ({newCustomObject}) => {
-	const [state, dispatch] = useContext(FormViewContext);
-	const {dataDefinitionId, dataLayout} = state;
+    const [state, dispatch] = useContext(FormViewContext);
+    const {dataDefinitionId, dataLayout} = state;
 
-	const {basePortletURL} = useContext(AppContext);
-	const listUrl = `${basePortletURL}/#/custom-object/${dataDefinitionId}/form-views`;
+    const {basePortletURL} = useContext(AppContext);
+    const listUrl = `${basePortletURL}/#/custom-object/${dataDefinitionId}/form-views`;
 
-	const {addToast} = useContext(ToastContext);
+    const {errorToast, successToast} = useContext(ToastContext);
 
-	const onCancel = () => {
-		if (newCustomObject) {
-			Liferay.Util.navigate(basePortletURL);
-		}
-		else {
-			Liferay.Util.navigate(listUrl);
-		}
-	};
+    const onCancel = () => {
+        if (newCustomObject) {
+            Liferay.Util.navigate(basePortletURL);
+        }
+        else {
+            Liferay.Util.navigate(listUrl);
+        }
+    };
 
-	const onError = error => {
-		const {title: message = ''} = error;
+    const onError = error => {
+        const {title: message = ''} = error;
+        errorToast({message: `${message}.`});
+    };
 
-		addToast({
-			displayType: 'danger',
-			message: (
-				<>
-					{message}
-					{'.'}
-				</>
-			),
-			title: `${Liferay.Language.get('error')}:`,
-		});
-	};
+    const onSuccess = () => {
+        successToast();
+        Liferay.Util.navigate(listUrl);
+    };
 
-	const onInput = ({target}) => {
-		const {value} = target;
+    const onInput = ({target}) => {
+        const {value} = target;
 
-		dispatch({
-			payload: {name: {en_US: value}},
-			type: DataLayoutBuilderActions.UPDATE_DATA_LAYOUT_NAME,
-		});
-	};
+        dispatch({
+            payload: {name: {en_US: value}},
+            type: DataLayoutBuilderActions.UPDATE_DATA_LAYOUT_NAME,
+        });
+    };
 
-	const onKeyDown = event => {
-		if (event.keyCode === 13) {
-			event.preventDefault();
+    const onKeyDown = event => {
+        if (event.keyCode === 13) {
+            event.preventDefault();
 
-			event.target.blur();
-		}
-	};
+            event.target.blur();
+        }
+    };
 
-	const onSave = () => {
-		saveFormView(state)
-			.then(() => {
-				Liferay.Util.navigate(listUrl);
-			})
-			.catch(error => {
-				onError(error);
-			});
-	};
+    const onSave = () => {
+        saveFormView(state)
+            .then(onSuccess)
+            .catch(error => {
+                onError(error);
+            });
+    };
 
-	const {
-		name: {en_US: dataLayoutName = ''},
-	} = dataLayout;
+    const {
+        name: {en_US: dataLayoutName = ''},
+    } = dataLayout;
 
-	return (
-		<UpperToolbar>
-			<UpperToolbar.Input
-				onInput={onInput}
-				onKeyDown={onKeyDown}
-				placeholder={Liferay.Language.get('untitled-form-view')}
-				value={dataLayoutName}
-			/>
-			<UpperToolbar.Group>
-				<UpperToolbar.Button displayType="secondary" onClick={onCancel}>
-					{Liferay.Language.get('cancel')}
-				</UpperToolbar.Button>
+    return (
+        <UpperToolbar>
+            <UpperToolbar.Input
+                onInput={onInput}
+                onKeyDown={onKeyDown}
+                placeholder={Liferay.Language.get('untitled-form-view')}
+                value={dataLayoutName}
+            />
+            <UpperToolbar.Group>
+                <UpperToolbar.Button displayType="secondary" onClick={onCancel}>
+                    {Liferay.Language.get('cancel')}
+                </UpperToolbar.Button>
 
-				<UpperToolbar.Button
-					disabled={dataLayoutName.trim() === ''}
-					onClick={onSave}
-				>
-					{Liferay.Language.get('save')}
-				</UpperToolbar.Button>
-			</UpperToolbar.Group>
-		</UpperToolbar>
-	);
+                <UpperToolbar.Button
+                    disabled={dataLayoutName.trim() === ''}
+                    onClick={onSave}
+                >
+                    {Liferay.Language.get('save')}
+                </UpperToolbar.Button>
+            </UpperToolbar.Group>
+        </UpperToolbar>
+    );
 };
+

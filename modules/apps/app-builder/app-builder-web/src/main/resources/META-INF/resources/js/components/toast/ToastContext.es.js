@@ -12,45 +12,44 @@
  * details.
  */
 
-import ClayAlert from '@clayui/alert';
-import React, {createContext, useState} from 'react';
+import {openToast} from 'frontend-js-web';
+import React, {createContext} from 'react';
 
 const ToastContext = createContext();
 
-const ToastContextProvider = ({autoClose = 5000, children}) => {
-	const [toasts, setToasts] = useState([]);
+const ToastContextProvider = ({children}) => {
+    const addToast = toast => {
+        if (toast.displayType) {
+            toast.type = toast.displayType;
+            delete toast.displayType;
+        }
+        openToast(toast);
+    };
 
-	const addToast = toast => {
-		toast = {
-			...toast,
-			id: Math.floor(Math.random() * 1000),
-		};
+    const successToast = ({message, title} = {}) => {
+        addToast({
+            message:
+                message ||
+                Liferay.Language.get('your-request-completed-successfully'),
+            title: title || `${Liferay.Language.get('success')}:`,
+            type: 'success',
+        });
+    };
 
-		setToasts(prevToasts => prevToasts.concat(toast));
-	};
+    const errorToast = ({message, title} = {}) => {
+        addToast({
+            message,
+            title: title || `${Liferay.Language.get('error')}:`,
+            type: 'danger',
+        });
+    };
 
-	return (
-		<ToastContext.Provider value={{addToast}}>
-			{children}
-
-			<ClayAlert.ToastContainer>
-				{toasts.map(({id, message, ...restProps}) => (
-					<ClayAlert
-						autoClose={autoClose}
-						key={id}
-						onClose={() => {
-							setToasts(prevToasts =>
-								prevToasts.filter(toast => toast.id !== id)
-							);
-						}}
-						{...restProps}
-					>
-						{message}
-					</ClayAlert>
-				))}
-			</ClayAlert.ToastContainer>
-		</ToastContext.Provider>
-	);
+    return (
+        <ToastContext.Provider value={{addToast, errorToast, successToast}}>
+            {children}
+        </ToastContext.Provider>
+    );
 };
 
 export {ToastContext, ToastContextProvider};
+
