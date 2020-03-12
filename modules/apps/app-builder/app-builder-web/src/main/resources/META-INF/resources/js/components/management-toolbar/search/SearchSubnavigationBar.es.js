@@ -12,6 +12,7 @@
  * details.
  */
 
+import {ClayResultsBar} from '@clayui/management-toolbar';
 import React, {useContext} from 'react';
 
 import lang from '../../../utils/lang.es';
@@ -20,50 +21,37 @@ import SearchContext from './SearchContext.es';
 
 export default ({isLoading, totalCount}) => {
 	const [{keywords}, dispatch] = useContext(SearchContext);
-	const invisible = isLoading ? 'invisible' : '';
 
-	return (
-		<>
-			{keywords && (
-				<nav
-					className={`tbar tbar-inline-xs-down subnav-tbar subnav-tbar-primary ${invisible}`}
-				>
-					<div className="container-fluid container-fluid-max-xl">
-						<ul className="tbar-nav tbar-nav-wrap">
-							<li className="tbar-item tbar-item-expand">
-								<div className="tbar-section">
-									<span className="component-text text-truncate-inline">
-										<span className="text-truncate">
-											{lang.sub(
-												Liferay.Language.get(
-													'x-results-for-x'
-												),
-												[totalCount, keywords]
-											)}
-										</span>
-									</span>
-								</div>
-							</li>
-							<li className="tbar-item">
-								<div className="tbar-section">
-									<Button
-										className="component-link tbar-link"
-										displayType="unstyled"
-										onClick={() =>
-											dispatch({
-												keywords: '',
-												type: 'SEARCH',
-											})
-										}
-									>
-										Clear
-									</Button>
-								</div>
-							</li>
-						</ul>
-					</div>
-				</nav>
-			)}
-		</>
-	);
+	if (keywords && !isLoading) {
+		return (
+			<ClayResultsBar>
+				<ClayResultsBar.Item expand>
+					<span className="component-text text-truncate-inline">
+						<span className="text-truncate">
+							{lang.sub(Liferay.Language.get('x-results-for-x'), [
+								totalCount,
+								keywords,
+							])}
+						</span>
+					</span>
+				</ClayResultsBar.Item>
+				<ClayResultsBar.Item>
+					<Button
+						className="component-link tbar-link"
+						displayType="unstyled"
+						onClick={() =>
+							dispatch({
+								keywords: '',
+								type: 'SEARCH',
+							})
+						}
+					>
+						Clear
+					</Button>
+				</ClayResultsBar.Item>
+			</ClayResultsBar>
+		);
+	}
+
+	return <></>
 };
