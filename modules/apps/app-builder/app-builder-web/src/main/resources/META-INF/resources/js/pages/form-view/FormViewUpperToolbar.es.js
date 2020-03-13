@@ -43,7 +43,7 @@ export default ({newCustomObject}) => {
 	};
 
 	const onSuccess = () => {
-		successToast(Liferay.Language.get('form-view-saved'));
+		successToast(Liferay.Language.get('the-form-view-was-saved'));
 		Liferay.Util.navigate(listUrl);
 	};
 
