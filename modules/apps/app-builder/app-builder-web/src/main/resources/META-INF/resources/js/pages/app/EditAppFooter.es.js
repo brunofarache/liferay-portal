@@ -78,8 +78,8 @@ export default withRouter(
 		};
 
 		const onError = error => {
-			const {title: message = ''} = error;
-			errorToast(`${message}.`);
+			const {title = ''} = error;
+			errorToast(`${title}.`);
 			setDeploying(false);
 		};
 

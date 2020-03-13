@@ -38,8 +38,8 @@ export default ({newCustomObject}) => {
 	};
 
 	const onError = error => {
-		const {title: message = ''} = error;
-		errorToast(`${message}.`);
+		const {title = ''} = error;
+		errorToast(`${title}.`);
 	};
 
 	const onSuccess = () => {
