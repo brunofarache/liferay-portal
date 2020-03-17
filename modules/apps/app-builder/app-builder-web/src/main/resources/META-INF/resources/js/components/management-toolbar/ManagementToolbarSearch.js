@@ -58,6 +58,7 @@ export default ({
 							symbol="times"
 						/>
 						<ClayButtonWithIcon
+							data-testid="submitSearchInput"
 							displayType="unstyled"
 							symbol="search"
 							type="submit"
