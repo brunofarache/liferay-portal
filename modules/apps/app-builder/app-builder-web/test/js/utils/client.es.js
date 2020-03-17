@@ -22,12 +22,19 @@ import {
 	request,
 	updateItem,
 } from '../../../src/main/resources/META-INF/resources/js/utils/client.es';
+import * as toast from '../../../src/main/resources/META-INF/resources/js/utils/toast.es'
 
 describe('client', () => {
+	beforeEach(() => {
+		jest.spyOn(toast, 'successToast').mockImplementation(() => {})
+		jest.spyOn(toast, 'errorToast').mockImplementation(() => {})
+	});
+	
 	afterEach(() => {
 		cleanup();
+		jest.clearAllMocks();
 	});
-
+	
 	it('addItem', async () => {
 		const item = {data: 'hello'};
 		fetch.mockResponseOnce(JSON.stringify(item));
