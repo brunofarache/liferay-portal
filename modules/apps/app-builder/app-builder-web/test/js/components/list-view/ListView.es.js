@@ -13,7 +13,7 @@
  */
 
 import {waitForElementToBeRemoved} from '@testing-library/dom';
-import {act, cleanup, render} from '@testing-library/react';
+import {act, cleanup, fireEvent, render} from '@testing-library/react';
 import {createMemoryHistory} from 'history';
 import React from 'react';
 import {HashRouter, Router} from 'react-router-dom';
@@ -156,7 +156,13 @@ describe('ListView', () => {
 			},
 		];
 
-		const {getAllByRole} = render(
+		const {
+			container,
+			getAllByRole,
+			queryAllByTestId,
+			queryAllByText,
+			queryByPlaceholderText,
+		} = render(
 			<HashRouter>
 				<ListView
 					actions={actions}
@@ -197,5 +203,30 @@ describe('ListView', () => {
 
 		expect(nonRefreshAction.mock.calls.length).toBe(1);
 		expect(fetch.mock.calls.length).toEqual(2);
+
+		const input = queryByPlaceholderText('search...');
+
+		await act(async () => {
+			fireEvent.change(input, {target: {value: 'search'}});
+		});
+
+		expect(input.value).toBe('search');
+		expect(container.querySelector('.subnav-tbar')).toBeFalsy();
+
+		const [submit] = queryAllByTestId('submitSearchInput');
+
+		await act(async () => {
+			submit.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+		});
+
+		expect(container.querySelector('.subnav-tbar')).toBeTruthy();
+
+		const [clear] = queryAllByText('Clear');
+
+		await act(async () => {
+			clear.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+		});
+
+		expect(input.value).toBe('');
 	});
 });
