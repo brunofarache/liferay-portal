@@ -23,7 +23,6 @@ export default ({addButton, setShowMobile}) => {
 			<ClayManagementToolbar.Item className="navbar-breakpoint-d-none">
 				<ClayButton
 					className="nav-link nav-link-monospaced"
-					data-testid="toggleMobileToolbarRight"
 					displayType="unstyled"
 					onClick={() => setShowMobile(true)}
 				>
