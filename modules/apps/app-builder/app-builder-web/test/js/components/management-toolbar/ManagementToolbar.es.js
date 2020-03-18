@@ -12,61 +12,59 @@
  * details.
  */
 
-import {act, cleanup, render} from '@testing-library/react';
+import {cleanup, fireEvent, render} from '@testing-library/react';
 import React from 'react';
 
 import ManagementToolbar from '../../../../src/main/resources/META-INF/resources/js/components/management-toolbar/ManagementToolbar.es';
 import SearchContext from '../../../../src/main/resources/META-INF/resources/js/components/management-toolbar/SearchContext.es';
 
-const addButton = onClick => <button onClick={onClick}>Add</button>;
+const addButton = onClick => <button onClick={onClick}>add</button>;
 
 describe('ManagementToolbar', () => {
 	afterEach(() => {
 		cleanup();
+		jest.restoreAllMocks();
 	});
 
-	it('render with props', async () => {
+	it('renders ManagementToolbar with props', async () => {
 		const dispatch = jest.fn();
-		const onClickButton = jest.fn();
+		const onClickButtonCallback = jest.fn();
 		const query = {
 			keywords: '',
 		};
 
 		const columns = [
 			{
-				asc: true,
-				key: 'App',
-				sortable: true,
-				value: 'App',
+				key: 'field1',
 			},
 			{
-				key: 'Date Modified',
+				asc: true,
+				key: 'field2',
+				sortable: true,
+				value: 'field2',
 			},
 		];
 
-		const {container, findByTestId, queryByText} = render(
+		const {container, queryByText} = render(
 			<SearchContext.Provider value={[query, dispatch]}>
 				<ManagementToolbar
-					addButton={() => addButton(onClickButton)}
+					addButton={() => addButton(onClickButtonCallback)}
 					columns={columns}
 				/>
 			</SearchContext.Provider>
 		);
 
-		const dropdown = queryByText('filter-and-order');
-		const appItem = queryByText('App');
+		const dropDown = queryByText('filter-and-order');
+		const field1 = queryByText('field1');
+		const field2 = queryByText('field2');
+		const add = queryByText('add');
 
-		expect(appItem).toBeTruthy();
-		expect(dropdown).toBeTruthy();
-		expect(queryByText('Date Modified')).toBeFalsy();
+		expect(field1).toBeFalsy();
+		expect(field2).toBeTruthy();
+		expect(dropDown).toBeTruthy();
 
-		await act(async () => {
-			dropdown.dispatchEvent(new MouseEvent('click', {bubbles: true}));
-		});
-
-		await act(async () => {
-			appItem.dispatchEvent(new MouseEvent('click', {bubbles: true}));
-		});
+		fireEvent.click(dropDown);
+		fireEvent.click(field2);
 
 		expect(dispatch.mock.calls.length).toBe(1);
 
@@ -74,24 +72,15 @@ describe('ManagementToolbar', () => {
 			'ul .nav-item:nth-child(2) button'
 		);
 
-		await act(async () => {
-			sort.dispatchEvent(new MouseEvent('click', {bubbles: true}));
-		});
+		fireEvent.click(sort);
 
 		expect(dispatch.mock.calls.length).toBe(2);
 
-		const setMobile = await findByTestId('toggleMobileToolbarRight');
+		const setMobile = container.querySelector('.nav-item.navbar-breakpoint-d-none > button');
 
-		await act(async () => {
-			setMobile.dispatchEvent(new MouseEvent('click', {bubbles: true}));
-		});
+		fireEvent.click(setMobile);
+		fireEvent.click(add);
 
-		const add = queryByText('Add');
-
-		await act(async () => {
-			add.dispatchEvent(new MouseEvent('click', {bubbles: true}));
-		});
-
-		expect(onClickButton.mock.calls.length).toBe(1);
+		expect(onClickButtonCallback.mock.calls.length).toBe(1);
 	});
 });
