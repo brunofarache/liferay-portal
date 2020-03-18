@@ -47,6 +47,7 @@ import com.liferay.dynamic.data.mapping.model.UnlocalizedValue;
 import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
+import com.liferay.dynamic.data.mapping.spi.form.builder.settings.DDMFormBuilderSettingsRetrieverHelper;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.util.DDMFormFactory;
@@ -55,7 +56,9 @@ import com.liferay.frontend.js.loader.modules.extender.npm.NPMResolver;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -117,7 +120,9 @@ public class DataLayoutTaglibUtil {
 			dataDefinitionId, httpServletRequest);
 	}
 
-	public static JSONObject getDataLayoutConfigJSONObject(String contentType) {
+	public static JSONObject getDataLayoutConfigJSONObject(
+		String contentType, Locale locale) {
+
 		DataLayoutBuilderDefinition dataLayoutBuilderDefinition =
 			_dataLayoutBuilderDefinitions.get(contentType);
 
@@ -126,8 +131,12 @@ public class DataLayoutTaglibUtil {
 				"default");
 		}
 
-		return JSONUtil.put(
+		boolean allowRules = dataLayoutBuilderDefinition.allowRules();
+
+		JSONObject dataLayoutConfigJSONObject = JSONUtil.put(
 			"allowFieldSets", dataLayoutBuilderDefinition.allowFieldSets()
+		).put(
+			"allowRules", allowRules
 		).put(
 			"disabledProperties",
 			dataLayoutBuilderDefinition.getDisabledProperties()
@@ -142,6 +151,21 @@ public class DataLayoutTaglibUtil {
 			"unimplementedProperties",
 			dataLayoutBuilderDefinition.getUnimplementedProperties()
 		);
+
+		if (allowRules) {
+			try {
+				dataLayoutConfigJSONObject.put(
+					"ruleSettings",
+					JSONUtil.put(
+						"functionsMetadata",
+						_dataLayoutTaglibUtil._getFunctionsMetadata(locale)));
+			}
+			catch (JSONException jsonException) {
+				_log.error(jsonException, jsonException);
+			}
+		}
+
+		return dataLayoutConfigJSONObject;
 	}
 
 	public static JSONObject getDataLayoutJSONObject(
@@ -433,6 +457,14 @@ public class DataLayoutTaglibUtil {
 		}
 	}
 
+	private JSONObject _getFunctionsMetadata(Locale locale)
+		throws JSONException {
+
+		return JSONFactoryUtil.createJSONObject(
+			_ddmFormBuilderSettingsRetrieverHelper.
+				getSerializedDDMExpressionFunctionsMetadata(locale));
+	}
+
 	private boolean _hasJavascriptModule(String name) {
 		DDMFormFieldType ddmFormFieldType =
 			_ddmFormFieldTypeServicesTracker.getDDMFormFieldType(name);
@@ -484,6 +516,10 @@ public class DataLayoutTaglibUtil {
 
 	@Reference
 	private DDMFormBuilderContextFactory _ddmFormBuilderContextFactory;
+
+	@Reference
+	private DDMFormBuilderSettingsRetrieverHelper
+		_ddmFormBuilderSettingsRetrieverHelper;
 
 	@Reference
 	private DDMFormFieldTypeServicesTracker _ddmFormFieldTypeServicesTracker;
