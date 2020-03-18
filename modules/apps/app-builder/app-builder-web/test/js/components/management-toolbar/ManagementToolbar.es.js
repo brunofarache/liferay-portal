@@ -76,7 +76,9 @@ describe('ManagementToolbar', () => {
 
 		expect(dispatch.mock.calls.length).toBe(2);
 
-		const setMobile = container.querySelector('.nav-item.navbar-breakpoint-d-none > button');
+		const setMobile = container.querySelector(
+			'.nav-item.navbar-breakpoint-d-none > button'
+		);
 
 		fireEvent.click(setMobile);
 		fireEvent.click(add);

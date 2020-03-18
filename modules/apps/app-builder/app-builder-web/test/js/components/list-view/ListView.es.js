@@ -35,12 +35,13 @@ describe('ListView', () => {
 	});
 
 	it('renders with empty state', async () => {
-		fetch.mockResponse(JSON.stringify(RESPONSES.NO_ITEMS));
+		const RESPONSE = Object.assign(RESPONSES.NO_ITEMS);
+		delete RESPONSE.items;
+		fetch.mockResponse(JSON.stringify(RESPONSE));
 
 		const {queryByText} = render(
 			<HashRouter>
 				<ListView
-					actions={ACTIONS}
 					columns={COLUMNS}
 					emptyState={EMPTY_STATE}
 					endpoint={ENDPOINT}
@@ -159,7 +160,6 @@ describe('ListView', () => {
 		const {
 			container,
 			getAllByRole,
-			queryAllByTestId,
 			queryAllByText,
 			queryByPlaceholderText,
 		} = render(
@@ -185,9 +185,7 @@ describe('ListView', () => {
 		const refreshButton = buttons[buttons.length - 2];
 
 		await act(async () => {
-			refreshButton.dispatchEvent(
-				new MouseEvent('click', {bubbles: true})
-			);
+			fireEvent.click(refreshButton);
 		});
 
 		expect(refreshAction.mock.calls.length).toBe(1);
@@ -195,37 +193,27 @@ describe('ListView', () => {
 		buttons = getAllByRole('button');
 		const nonRefreshButton = buttons[buttons.length - 1];
 
-		await act(async () => {
-			nonRefreshButton.dispatchEvent(
-				new MouseEvent('click', {bubbles: true})
-			);
-		});
+		fireEvent.click(nonRefreshButton);
 
 		expect(nonRefreshAction.mock.calls.length).toBe(1);
 		expect(fetch.mock.calls.length).toEqual(2);
 
 		const input = queryByPlaceholderText('search...');
 
-		await act(async () => {
-			fireEvent.change(input, {target: {value: 'search'}});
-		});
+		fireEvent.change(input, {target: {value: 'search'}});
 
 		expect(input.value).toBe('search');
 		expect(container.querySelector('.subnav-tbar')).toBeFalsy();
 
-		const [submit] = queryAllByTestId('submitSearchInput');
+		const submit = container.querySelector('span > button:nth-child(2)');
 
-		await act(async () => {
-			submit.dispatchEvent(new MouseEvent('click', {bubbles: true}));
-		});
+		fireEvent.click(submit);
 
 		expect(container.querySelector('.subnav-tbar')).toBeTruthy();
 
 		const [clear] = queryAllByText('Clear');
 
-		await act(async () => {
-			clear.dispatchEvent(new MouseEvent('click', {bubbles: true}));
-		});
+		fireEvent.click(clear);
 
 		expect(input.value).toBe('');
 	});
