@@ -23,7 +23,7 @@ describe('DropDown', () => {
 		jest.restoreAllMocks();
 	});
 
-	it('shows dropdown when trigger is clicked and action is called', async () => {
+	it('shows dropdown when trigger is clicked and action is called', () => {
 		const actionCallback = jest.fn();
 
 		const {baseElement, getAllByRole} = render(
@@ -42,7 +42,6 @@ describe('DropDown', () => {
 		expect(dropDownMenu.classList.contains('show')).toBe(false);
 
 		const [trigger, action] = getAllByRole('button');
-
 		fireEvent.click(trigger);
 
 		expect(dropDownMenu.classList.contains('show')).toBe(true);
@@ -52,7 +51,7 @@ describe('DropDown', () => {
 		expect(actionCallback.mock.calls.length).toBe(1);
 	});
 
-	it('shows dropdown trigger with no action', async () => {
+	it('shows dropdown trigger with no action', () => {
 		const {baseElement, getByRole} = render(<DropDown actions={[]} />);
 
 		const dropDownMenu = baseElement.querySelector('.dropdown-menu');
@@ -65,7 +64,7 @@ describe('DropDown', () => {
 		expect(dropDownMenu).toBeFalsy();
 	});
 
-	it('shows dropdown with hidden action', async () => {
+	it('shows dropdown with hidden action', () => {
 		const {queryByText} = render(
 			<DropDown
 				actions={[
@@ -86,7 +85,7 @@ describe('DropDown', () => {
 		expect(queryByText('action 2')).toBeFalsy();
 	});
 
-	it('shows dropdown with divider', async () => {
+	it('shows dropdown with divider', () => {
 		const {baseElement, queryByText} = render(
 			<DropDown
 				actions={[
@@ -110,7 +109,7 @@ describe('DropDown', () => {
 		expect(queryByText('action 2')).toBeTruthy();
 	});
 
-	it('shows dropdown with name as a function', async () => {
+	it('shows dropdown with name as a function', () => {
 		const {queryByText} = render(
 			<DropDown
 				actions={[

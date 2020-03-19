@@ -26,7 +26,7 @@ describe('ManagementToolbar', () => {
 		jest.restoreAllMocks();
 	});
 
-	it('renders ManagementToolbar with props', async () => {
+	it('renders ManagementToolbar', () => {
 		const dispatch = jest.fn();
 		const onClickButtonCallback = jest.fn();
 		const query = {

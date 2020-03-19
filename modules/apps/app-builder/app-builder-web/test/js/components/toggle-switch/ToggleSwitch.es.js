@@ -23,7 +23,7 @@ describe('ToggleSwitch', () => {
 		jest.restoreAllMocks();
 	});
 
-	it('onChange is called when clicked', async () => {
+	it('onChange is called when clicked', () => {
 		const onChangeCallback = jest.fn();
 
 		const {container} = render(

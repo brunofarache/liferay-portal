@@ -35,9 +35,7 @@ describe('ListView', () => {
 	});
 
 	it('renders with empty state', async () => {
-		const RESPONSE = Object.assign(RESPONSES.NO_ITEMS);
-		delete RESPONSE.items;
-		fetch.mockResponse(JSON.stringify(RESPONSE));
+		fetch.mockResponse(JSON.stringify(RESPONSES.NO_ITEMS));
 
 		const {queryByText} = render(
 			<HashRouter>
@@ -181,7 +179,6 @@ describe('ListView', () => {
 		});
 
 		let buttons = getAllByRole('button');
-
 		const refreshButton = buttons[buttons.length - 2];
 
 		await act(async () => {
@@ -192,27 +189,23 @@ describe('ListView', () => {
 
 		buttons = getAllByRole('button');
 		const nonRefreshButton = buttons[buttons.length - 1];
-
 		fireEvent.click(nonRefreshButton);
 
 		expect(nonRefreshAction.mock.calls.length).toBe(1);
 		expect(fetch.mock.calls.length).toEqual(2);
 
 		const input = queryByPlaceholderText('search...');
+		fireEvent.change(input, {target: {value: 'value'}});
 
-		fireEvent.change(input, {target: {value: 'search'}});
-
-		expect(input.value).toBe('search');
+		expect(input.value).toBe('value');
 		expect(container.querySelector('.subnav-tbar')).toBeFalsy();
 
 		const submit = container.querySelector('span > button:nth-child(2)');
-
 		fireEvent.click(submit);
 
 		expect(container.querySelector('.subnav-tbar')).toBeTruthy();
 
 		const [clear] = queryAllByText('Clear');
-
 		fireEvent.click(clear);
 
 		expect(input.value).toBe('');
