@@ -178,7 +178,7 @@ describe('ControlMenu', () => {
 		expect(spy.mock.calls.length).toBe(2);
 	});
 
-	it('renders ControlMenu with PortalControlMenu without tooltip', async () => {
+	it('renders ControlMenu with PortalControlMenu without tooltip', () => {
 		const context = {
 			appDeploymentType: 'normal',
 		};
