@@ -26,8 +26,17 @@ const {Item, ItemList} = ClayDropDown;
 
 const ActionsMenu = ({actions}) => {
 	const [active, setActive] = useState(false);
+	const [container, setContainer] = useState(null);
 
-	if (!actions || actions.length === 0) {
+	useEffect(() => {
+		setContainer(
+			document.querySelector(
+				'li.control-menu-nav-category.user-control-group > ul > li > div.control-menu-icon'
+			)
+		);
+	}, [container]);
+
+	if (!actions || actions.length === 0 || !container) {
 		return <></>;
 	}
 
@@ -63,15 +72,24 @@ const ActionsMenu = ({actions}) => {
 				))}
 			</ItemList>
 		</ClayDropDown>,
-		document.querySelector(
-			'li.control-menu-nav-category.user-control-group > ul > li > div.control-menu-icon'
-		)
+		container
 	);
 };
 
 const BackButton = ({backURL}) => {
+	const [container, setContainer] = useState(null);
 	const Link =
 		backURL && backURL.startsWith('http') ? ExternalLink : InternalLink;
+
+	useEffect(() => {
+		setContainer(
+			document.querySelector('.sites-control-group .control-menu-nav')
+		);
+	}, [container]);
+
+	if (!container) {
+		return <></>;
+	}
 
 	return createPortal(
 		<li className="control-menu-nav-item">
@@ -85,7 +103,7 @@ const BackButton = ({backURL}) => {
 				</span>
 			</Link>
 		</li>,
-		document.querySelector('.sites-control-group .control-menu-nav')
+		container
 	);
 };
 

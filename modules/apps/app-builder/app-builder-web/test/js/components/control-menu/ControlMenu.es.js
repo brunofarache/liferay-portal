@@ -19,23 +19,16 @@ import {HashRouter} from 'react-router-dom';
 import {AppContext} from '../../../../src/main/resources/META-INF/resources/js/AppContext.es';
 import ControlMenu from '../../../../src/main/resources/META-INF/resources/js/components/control-menu/ControlMenu.es';
 
-function addElement({classEl, el = 'div'}) {
-	const element = document.createElement(el);
-	element.classList.add(classEl);
-
-	return document.body.appendChild(element);
-}
-
 describe('ControlMenu', () => {
 	afterEach(() => {
 		cleanup();
 		jest.restoreAllMocks();
-		document.getElementsByTagName('html')[0].innerHTML = '';
 	});
 
-	xit('renders ControlMenu as standalone with InlineControlMenu', () => {
+	it('renders ControlMenu as standalone with InlineControlMenu', () => {
 		const context = {
 			appDeploymentType: 'standalone',
+			controlMenuElementId: 'standalone',
 		};
 
 		const props = {
@@ -44,7 +37,11 @@ describe('ControlMenu', () => {
 			tooltip: 'tooltip',
 		};
 
-		const {container, queryByText} = render(
+		const element = document.createElement('div');
+		element.id = context.controlMenuElementId;
+		document.body.appendChild(element);
+
+		const {baseElement, queryByText} = render(
 			<HashRouter>
 				<AppContext.Provider value={context}>
 					<ControlMenu {...props} />
@@ -57,62 +54,46 @@ describe('ControlMenu', () => {
 		expect(queryByText(title)).toBeTruthy();
 		expect(document.title).toBe(title);
 		expect(
-			container.querySelector('.app-builder-control-menu.standalone')
+			baseElement.querySelector('.app-builder-control-menu.standalone')
 		).toBeTruthy();
 		expect(
-			container.querySelector(`[data-title="${tooltip}"]`)
+			baseElement.querySelector(`[data-title="${tooltip}"]`)
 		).toBeTruthy();
+
+		document.getElementsByTagName('html')[0].innerHTML = '';
 	});
 
-	it('hello', () => {
+	it('renders ControlMenu as widget with InlineControlMenu', () => {
 		const context = {
 			appDeploymentType: 'widget',
 		};
-
-		// const spy = jest
-		// 	.spyOn(document, 'getElementById')
-		// 	.mockReturnValueOnce(addElement({classEl: 'widget-container'}));
 
 		const props = {
 			backURL: 'https://liferay.com/api',
 			tooltip: 'myapp-tips',
 		};
 
-		const {baseElement, debug} =render(
-			<>
-				<div className="widget-container" id="widget">hello</div>
-				<HashRouter>
-					<AppContext.Provider value={context}>
-						<ControlMenu {...props} />
-					</AppContext.Provider>
-				</HashRouter>
-			</>
+		const {baseElement} = render(
+			<HashRouter>
+				<AppContext.Provider value={context}>
+					<ControlMenu {...props} />
+				</AppContext.Provider>
+			</HashRouter>
 		);
 
-		debug();
-
-		expect(document.querySelector(".widget-container")).toBeTruthy();
-
-		// expect(spy.mock.calls.length).toBe(1);
 		expect(
-			document.querySelector('.app-builder-control-menu.widget')
+			baseElement.querySelector('.app-builder-control-menu.widget')
 		).toBeTruthy();
 		expect(
-			document.querySelector(`[data-title="${props.tooltip}"]`)
+			baseElement.querySelector(`[data-title="${props.tooltip}"]`)
 		).toBeTruthy();
-		expect(document.querySelector('a').href).toBe(props.backURL);
+		expect(baseElement.querySelector('a').href).toBe(props.backURL);
 	});
 
-	xit('renders ControlMenu with PortalControlMenu and validate actions and links', () => {
+	it('renders ControlMenu with PortalControlMenu and validate actions and links', () => {
 		const context = {
 			appDeploymentType: 'normal',
 		};
-		const spy = jest
-			.spyOn(document, 'querySelector')
-			.mockReturnValueOnce(addElement({classEl: 'el1'}))
-			.mockReturnValueOnce(addElement({classEl: 'el2'}))
-			.mockReturnValueOnce(addElement({classEl: 'el3'}))
-			.mockReturnValueOnce(addElement({classEl: 'el4'}));
 
 		const actions = [
 			{
@@ -131,24 +112,38 @@ describe('ControlMenu', () => {
 			tooltip: 'myapp-tips',
 		};
 
-		const {queryByText} = render(
+		const {container, queryByRole, queryByText} = render(
 			<HashRouter>
 				<AppContext.Provider value={context}>
+					<div className="tools-control-group">
+						<div className="control-menu-level-1-heading">
+							title
+						</div>
+						<div className="taglib-icon-help"></div>
+						<div className="sites-control-group">
+							<div className="control-menu-nav">xx</div>
+						</div>
+						<li className="control-menu-nav-category user-control-group">
+							<ul>
+								<li>
+									<div className="control-menu-icon" />
+								</li>
+							</ul>
+						</li>
+					</div>
 					<ControlMenu {...props} />
 				</AppContext.Provider>
 			</HashRouter>
 		);
 
-		expect(spy.mock.calls.length).toBe(4);
-
 		const remove = queryByText('remove');
 		const update = queryByText('update');
-		const dropDown = document.querySelector('.el2 .dropdown button');
+		const dropDown = container.querySelector('.dropdown-toggle');
 
-		expect(document.querySelector(`.el1 a`).href).toBe(`${props.backURL}/`);
-		expect(document.querySelector('.el3').innerHTML).toBe(props.title);
+		expect(queryByRole('link').href).toBe(`${props.backURL}/`);
+		expect(queryByText(props.title)).toBeTruthy();
 		expect(
-			document.querySelector(`.el4[title="${props.tooltip}"]`)
+			container.querySelector(`[title="${props.tooltip}"]`)
 		).toBeTruthy();
 
 		expect(remove).toBeTruthy();
@@ -161,43 +156,41 @@ describe('ControlMenu', () => {
 		expect(actions[0].action.mock.calls.length).toBe(1);
 	});
 
-	xit('renders ControlMenu with PortalControlMenu without actions and link', () => {
+	it('renders ControlMenu with PortalControlMenu without actions and link', () => {
 		const context = {
 			appDeploymentType: 'normal',
 		};
-		const spy = jest
-			.spyOn(document, 'querySelector')
-			.mockReturnValueOnce(addElement({classEl: 'el1'}))
-			.mockReturnValueOnce(null);
 
 		const props = {
 			actions: [],
 			title: 'myapp',
 		};
 
-		const {queryByText} = render(
+		const {container} = render(
 			<HashRouter>
 				<AppContext.Provider value={context}>
+					<div className="tools-control-group">
+						<div className="control-menu-level-1-heading">
+							title
+						</div>
+					</div>
 					<ControlMenu {...props} />
 				</AppContext.Provider>
 			</HashRouter>
 		);
 
-		expect(queryByText(props.title)).toBeTruthy();
-		expect(spy.mock.calls.length).toBe(2);
+		expect(
+			container.querySelector('.control-menu-level-1-heading').innerHTML
+		).not.toBe('title');
+		expect(
+			container.querySelector('.control-menu-level-1-heading').innerHTML
+		).toBe(props.title);
 	});
 
-	xit('renders ControlMenu with PortalControlMenu without tooltip', () => {
+	it('renders ControlMenu with PortalControlMenu without tooltip', () => {
 		const context = {
 			appDeploymentType: 'normal',
 		};
-		const spy = jest
-			.spyOn(document, 'querySelector')
-			.mockReturnValueOnce(addElement({classEl: 'el1'}))
-			.mockReturnValueOnce(addElement({classEl: 'el2'}))
-			.mockReturnValueOnce(addElement({classEl: 'el3'}))
-			.mockReturnValueOnce(addElement({classEl: 'el4'}))
-			.mockReturnValueOnce(addElement({classEl: 'el5'}));
 
 		const props = {
 			actions: [
@@ -213,12 +206,26 @@ describe('ControlMenu', () => {
 		const {queryAllByRole, queryByText} = render(
 			<HashRouter>
 				<AppContext.Provider value={context}>
+					<div className="tools-control-group">
+						<div className="control-menu-level-1-heading">
+							title
+						</div>
+						<div className="taglib-icon-help"></div>
+						<div className="sites-control-group">
+							<div className="control-menu-nav">xx</div>
+						</div>
+						<li className="control-menu-nav-category user-control-group">
+							<ul>
+								<li>
+									<div className="control-menu-icon" />
+								</li>
+							</ul>
+						</li>
+					</div>
 					<ControlMenu {...props} />
 				</AppContext.Provider>
 			</HashRouter>
 		);
-
-		expect(spy.mock.calls.length).toBe(4);
 
 		const [dropDown, remove] = queryAllByRole('button');
 
@@ -229,7 +236,5 @@ describe('ControlMenu', () => {
 		fireEvent.click(dropDown);
 
 		expect(queryByText(props.title)).toBeTruthy();
-
-		expect(spy.mock.calls.length).toBe(5);
 	});
 });
