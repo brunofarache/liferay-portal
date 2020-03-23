@@ -160,9 +160,6 @@ export default ({history}) => {
 				title={Liferay.Language.get(
 					'javax.portlet.title.com_liferay_app_builder_web_internal_portlet_CustomObjectsPortlet'
 				)}
-				tooltip={Liferay.Language.get(
-					'javax.portlet.description.com_liferay_app_builder_web_internal_portlet_CustomObjectsPortlet'
-				)}
 			/>
 
 			<ListView

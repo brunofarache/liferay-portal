@@ -22,6 +22,7 @@ import React, {useEffect, useState} from 'react';
 import {Loading} from '../../components/loading/Loading.es';
 import Table from '../../components/table/Table.es';
 import {getItem, updateItem} from '../../utils/client.es';
+import {errorToast, successToast} from '../../utils/toast.es';
 
 export default ({
 	actions,
@@ -106,10 +107,10 @@ export default ({
 		);
 
 	const handleOnSave = () =>
-		Promise.all([
-			updateItem(endpoint, permissions),
-			onSave(permissions),
-		]).then(() => onClose());
+		Promise.all([updateItem(endpoint, permissions), onSave(permissions)])
+			.then(() => onClose())
+			.then(() => successToast())
+			.catch(() => errorToast());
 
 	const togglePermission = (roleName, actionId) => {
 		const exists = permissions.some(
