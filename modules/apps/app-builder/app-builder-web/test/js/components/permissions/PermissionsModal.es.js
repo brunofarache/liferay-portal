@@ -16,6 +16,7 @@ import {act, cleanup, fireEvent, render} from '@testing-library/react';
 import React from 'react';
 
 import PermissionsModal from '../../../../src/main/resources/META-INF/resources/js/components/permissions/PermissionsModal.es';
+import * as toast from '../../../../src/main/resources/META-INF/resources/js/utils/toast.es';
 
 const ACTIONS = [
 	{
@@ -55,14 +56,20 @@ describe('PermissionsModal', () => {
 		jest.useFakeTimers();
 	});
 
-	afterAll(() => {
-		jest.useRealTimers();
+	beforeEach(() => {
+		cleanup();
+		jest.spyOn(toast, 'successToast').mockImplementation(() => {});
+		jest.spyOn(toast, 'errorToast').mockImplementation(() => {});
 	});
 
 	afterEach(() => {
 		cleanup();
 		jest.clearAllTimers();
-		jest.restoreAllMocks();
+		jest.clearAllMocks();
+	});
+
+	afterAll(() => {
+		jest.useRealTimers();
 	});
 
 	it('renders', async () => {

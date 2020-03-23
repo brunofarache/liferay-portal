@@ -25,13 +25,16 @@ import {
 import * as toast from '../../../src/main/resources/META-INF/resources/js/utils/toast.es';
 
 describe('client', () => {
-	beforeEach(() => {
+	beforeAll(() => {
 		jest.spyOn(toast, 'successToast').mockImplementation(() => {});
 		jest.spyOn(toast, 'errorToast').mockImplementation(() => {});
 	});
 
 	afterEach(() => {
 		cleanup();
+	});
+
+	afterAll(() => {
 		jest.clearAllMocks();
 	});
 
