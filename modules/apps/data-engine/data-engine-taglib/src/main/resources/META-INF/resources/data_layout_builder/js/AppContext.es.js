@@ -58,6 +58,7 @@ const initialState = {
 		dataRules: [],
 		name: {},
 		paginationMode: 'wizard',
+		rules: [],
 	},
 	dataLayoutId: 0,
 	editingLanguageId: themeDisplay.getLanguageId(),
