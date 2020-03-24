@@ -12,10 +12,11 @@
  * details.
  */
 
-import {ClayButtonWithIcon} from '@clayui/button';
+import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
 import React, {useContext, useState} from 'react';
 
 import AppContext from '../../AppContext.es';
+import EmptyState from '../empty-state/EmptyState.es';
 import SearchInput from '../search-input/SearchInput.es';
 import RuleEditorModal from './RuleEditorModal.es';
 
@@ -44,6 +45,7 @@ export default () => {
 						onChange={searchText => setSearchText(searchText)}
 					/>
 				</div>
+
 				<div className="autofit-col ml-2">
 					<ClayButtonWithIcon
 						displayType="primary"
@@ -55,13 +57,33 @@ export default () => {
 				</div>
 			</div>
 
-			{filtereDataRules.map(
-				({conditions, logicalOperator, name}, index) => (
-					<p key={index}>
-						<div>name: {name}</div>
-						<div>conditions: {JSON.stringify(conditions)}</div>
-						<div>logicalOperator: {logicalOperator}</div>
-					</p>
+			{filtereDataRules.length === 0 ? (
+				<EmptyState
+					emptyState={{
+						button: () => (
+							<ClayButton
+								displayType="secondary"
+								onClick={() =>
+									setRulesEditorVisible(!isRulesEditorVisible)
+								}
+							>
+								{Liferay.Language.get('add-rule')}
+							</ClayButton>
+						),
+						title: Liferay.Language.get('there-are-no-rules'),
+					}}
+					keywords={searchText}
+					small
+				/>
+			) : (
+				filtereDataRules.map(
+					({conditions, logicalOperator, name}, index) => (
+						<p key={index}>
+							<div>name: {name}</div>
+							<div>conditions: {JSON.stringify(conditions)}</div>
+							<div>logicalOperator: {logicalOperator}</div>
+						</p>
+					)
 				)
 			)}
 
