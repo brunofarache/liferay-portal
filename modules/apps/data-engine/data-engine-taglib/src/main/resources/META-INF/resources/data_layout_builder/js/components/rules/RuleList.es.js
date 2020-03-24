@@ -12,14 +12,16 @@
  * details.
  */
 
+import {ClayButtonWithIcon} from '@clayui/button';
 import React, {useContext, useState} from 'react';
 
 import AppContext from '../../AppContext.es';
-import Button from '../button/Button.es';
+import SearchInput from '../search-input/SearchInput.es';
 import RuleEditorModal from './RuleEditorModal.es';
 
 export default () => {
 	const [isRulesEditorVisible, setRulesEditorVisible] = useState(false);
+	const [searchText, setSearchText] = useState('');
 
 	const [
 		{
@@ -27,22 +29,41 @@ export default () => {
 		},
 	] = useContext(AppContext);
 
+	const filtereDataRules = dataRules
+		.map((rule, index) => ({
+			...rule,
+			name: `Rule ${index}`,
+		}))
+		.filter(({name}) => new RegExp(searchText, 'ig').test(name));
+
 	return (
 		<>
-			<Button
-				displayType="primary"
-				monospaced={false}
-				onClick={() => setRulesEditorVisible(!isRulesEditorVisible)}
-			>
-				{Liferay.Language.get('add')}
-			</Button>
+			<div className="autofit-row sidebar-section">
+				<div className="autofit-col autofit-col-expand">
+					<SearchInput
+						onChange={searchText => setSearchText(searchText)}
+					/>
+				</div>
+				<div className="autofit-col ml-2">
+					<ClayButtonWithIcon
+						displayType="primary"
+						onClick={() =>
+							setRulesEditorVisible(!isRulesEditorVisible)
+						}
+						symbol="plus"
+					/>
+				</div>
+			</div>
 
-			{dataRules.map(({conditions, logicalOperator}, index) => (
-				<p key={index}>
-					<div>conditions: {JSON.stringify(conditions)}</div>
-					<div>logicalOperator: {logicalOperator}</div>
-				</p>
-			))}
+			{filtereDataRules.map(
+				({conditions, logicalOperator, name}, index) => (
+					<p key={index}>
+						<div>name: {name}</div>
+						<div>conditions: {JSON.stringify(conditions)}</div>
+						<div>logicalOperator: {logicalOperator}</div>
+					</p>
+				)
+			)}
 
 			<RuleEditorModal
 				isVisible={isRulesEditorVisible}
