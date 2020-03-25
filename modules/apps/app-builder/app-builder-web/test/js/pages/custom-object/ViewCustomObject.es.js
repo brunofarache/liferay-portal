@@ -19,6 +19,8 @@ import {HashRouter} from 'react-router-dom';
 import {AppContextProvider} from '../../../../src/main/resources/META-INF/resources/js/AppContext.es';
 import ViewCustomObject from '../../../../src/main/resources/META-INF/resources/js/pages/custom-object/ViewCustomObject.es';
 
+import '@testing-library/jest-dom/extend-expect';
+
 describe('ViewCustomObject', () => {
 	beforeEach(() => {
 		jest.useFakeTimers();
@@ -35,7 +37,7 @@ describe('ViewCustomObject', () => {
 		jest.useRealTimers();
 	});
 
-	it('renders ViewCustomObjects', async () => {
+	it('renders', async () => {
 		const match = {
 			params: {
 				dataDefinitionId: 123,
@@ -44,13 +46,13 @@ describe('ViewCustomObject', () => {
 
 		const response = {
 			name: {
-				en_US: 'Test',
+				en_US: 'custom object',
 			},
 		};
 
 		fetch.mockResponse(JSON.stringify(response));
 
-		const {container, queryByText} = render(
+		const {asFragment, queryByText} = render(
 			<>
 				<div className="tools-control-group">
 					<div className="control-menu-level-1-heading" />
@@ -67,21 +69,12 @@ describe('ViewCustomObject', () => {
 			jest.runAllTimers();
 		});
 
-		const navbarItems = container.querySelectorAll('.nav-link');
-
 		expect(queryByText(response.name.en_US)).toBeTruthy();
-		expect(navbarItems.length).toBe(3);
 
-		const [formView, tableView, apps] = navbarItems;
+		const tableViewsTab = queryByText('table-views');
+		fireEvent.click(tableViewsTab);
+		expect(tableViewsTab.classList.contains('active')).toBeTruthy();
 
-		expect(formView.innerHTML).toBe('form-views');
-		expect(tableView.innerHTML).toBe('table-views');
-		expect(apps.innerHTML).toBe('apps');
-
-		expect(formView.classList.contains('active')).toBeFalsy();
-
-		fireEvent.click(formView);
-
-		expect(formView.classList.contains('active')).toBeTruthy();
+		expect(asFragment()).toMatchSnapshot();
 	});
 });
