@@ -60,9 +60,13 @@ describe('ListCustomObject', () => {
 			.mockResponseOnce(JSON.stringify(RESPONSES.NO_ITEMS))
 			.mockResponseOnce(JSON.stringify({}));
 
-		const {asFragment, container, queryAllByText, queryByText} = render(
-			<ListCustomObjectsWithRouter />
-		);
+		const {
+			asFragment,
+			container,
+			queryAllByRole,
+			queryAllByText,
+			queryByText,
+		} = render(<ListCustomObjectsWithRouter />);
 
 		await waitForElementToBeRemoved(() =>
 			document.querySelector('span.loading-animation')
@@ -77,7 +81,6 @@ describe('ListCustomObject', () => {
 
 		expect(fetch.mock.calls.length).toEqual(1);
 
-		const continueButton = container.querySelector('.btn-sm.btn-primary');
 		const input = container.querySelector('#customObjectNameInput');
 		const checkbox = container.querySelector('input[type=checkbox]');
 		const [newCustomObject] = queryAllByText('new-custom-object');
@@ -95,7 +98,9 @@ describe('ListCustomObject', () => {
 
 		expect(input.value).toBe('test');
 
-		fireEvent.click(continueButton);
+		const form = queryAllByRole('form');
+
+		fireEvent.submit(form[0]);
 
 		expect(fetch.mock.calls.length).toEqual(2);
 		expect(asFragment()).toMatchSnapshot();
