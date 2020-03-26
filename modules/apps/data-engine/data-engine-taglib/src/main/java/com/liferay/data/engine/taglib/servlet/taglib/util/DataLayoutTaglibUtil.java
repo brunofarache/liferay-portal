@@ -19,6 +19,7 @@ import com.liferay.data.engine.renderer.DataLayoutRendererContext;
 import com.liferay.data.engine.rest.client.dto.v2_0.DataDefinition;
 import com.liferay.data.engine.rest.client.dto.v2_0.DataLayout;
 import com.liferay.data.engine.rest.client.dto.v2_0.DataRecord;
+import com.liferay.data.engine.rest.client.dto.v2_0.DataRule;
 import com.liferay.data.engine.rest.client.resource.v2_0.DataDefinitionResource;
 import com.liferay.data.engine.rest.client.resource.v2_0.DataLayoutResource;
 import com.liferay.data.engine.rest.client.resource.v2_0.DataRecordResource;
@@ -587,6 +588,8 @@ public class DataLayoutTaglibUtil {
 			_populateDDMFormFieldSettingsContext(
 				ddmForm.getDDMFormFieldsMap(true), ddmFormTemplateContext);
 
+			ddmFormTemplateContext.put("rules", _getDataRulesJSONArray());
+
 			return _jsonFactory.createJSONObject(
 				_jsonFactory.looseSerializeDeep(ddmFormTemplateContext));
 		}
@@ -744,6 +747,40 @@ public class DataLayoutTaglibUtil {
 
 			return ddmFormLayoutDeserializerDeserializeResponse.
 				getDDMFormLayout();
+		}
+
+		private JSONArray _getDataRulesJSONArray() throws JSONException {
+			JSONArray dataRulesJSONArray = _jsonFactory.createJSONArray();
+
+			for (DataRule dataRule : _dataLayout.getDataRules()) {
+				JSONObject dataRuleJSONObject = _jsonFactory.createJSONObject();
+
+				JSONArray actionsJSONArray = _jsonFactory.createJSONArray();
+
+				for (Object action : dataRule.getActions()) {
+					actionsJSONArray.put(
+						_jsonFactory.createJSONObject((String)action));
+				}
+
+				dataRuleJSONObject.put("actions", actionsJSONArray);
+
+				JSONArray conditionsJSONArray = _jsonFactory.createJSONArray();
+
+				for (Object condition : dataRule.getConditions()) {
+					conditionsJSONArray.put(
+						_jsonFactory.createJSONObject((String)condition));
+				}
+
+				dataRuleJSONObject.put(
+					"conditions", conditionsJSONArray
+				).put(
+					"logical-operator", dataRule.getLogicalOperator()
+				);
+
+				dataRulesJSONArray.put(dataRuleJSONObject);
+			}
+
+			return dataRulesJSONArray;
 		}
 
 		private DDMForm _getDDMForm() throws Exception {

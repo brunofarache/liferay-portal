@@ -17,6 +17,7 @@ import {createContext} from 'react';
 
 import {
 	ADD_CUSTOM_OBJECT_FIELD,
+	ADD_DATA_LAYOUT_RULE,
 	DELETE_DATA_DEFINITION_FIELD,
 	DELETE_DATA_LAYOUT_FIELD,
 	EDIT_CUSTOM_OBJECT_FIELD,
@@ -24,7 +25,6 @@ import {
 	UPDATE_DATA_DEFINITION,
 	UPDATE_DATA_LAYOUT,
 	UPDATE_DATA_LAYOUT_NAME,
-	UPDATE_DATA_LAYOUT_RULES,
 	UPDATE_EDITING_LANGUAGE_ID,
 	UPDATE_FIELDSETS,
 	UPDATE_FIELD_TYPES,
@@ -214,6 +214,30 @@ const createReducer = dataLayoutBuilder => {
 					},
 				};
 			}
+			case ADD_DATA_LAYOUT_RULE: {
+				const {dataRule} = action.payload;
+				const {
+					dataLayout: {dataRules},
+				} = state;
+
+				if (
+					Object.prototype.hasOwnProperty.call(
+						dataRule,
+						'logical-operator'
+					)
+				) {
+					dataRule['logicalOperator'] = dataRule['logical-operator'];
+					delete dataRule['logical-operator'];
+				}
+
+				return {
+					...state,
+					dataLayout: {
+						...state.dataLayout,
+						dataRules: dataRules.concat(dataRule),
+					},
+				};
+			}
 			case DELETE_DATA_DEFINITION_FIELD: {
 				const {fieldName} = action.payload;
 				const {dataDefinition} = state;
@@ -300,31 +324,6 @@ const createReducer = dataLayoutBuilder => {
 					dataLayout: {
 						...state.dataLayout,
 						name,
-					},
-				};
-			}
-			case UPDATE_DATA_LAYOUT_RULES: {
-				let {dataRules} = action.payload;
-
-				dataRules = dataRules.map(rule => {
-					if (
-						Object.prototype.hasOwnProperty.call(
-							rule,
-							'logical-operator'
-						)
-					) {
-						rule['logicalOperator'] = rule['logical-operator'];
-						delete rule['logical-operator'];
-					}
-
-					return rule;
-				});
-
-				return {
-					...state,
-					dataLayout: {
-						...state.dataLayout,
-						dataRules,
 					},
 				};
 			}
