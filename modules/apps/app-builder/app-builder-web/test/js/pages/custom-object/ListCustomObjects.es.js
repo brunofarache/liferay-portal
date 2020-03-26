@@ -184,16 +184,28 @@ describe('ListCustomObject', () => {
 	});
 
 	it('renders with data and remove item', async () => {
+		const ONE_ITEM = {
+			...RESPONSES.ONE_ITEM,
+			items: [{
+				dateCreated: '2020-03-26T11:26:54.262Z',
+				dateModified: '2020-03-26T11:26:54.262Z',
+				id: 1,
+				name: {
+					en_US: 'Item Name'
+				},
+			}],
+		};
+
 		fetch
-			.mockResponseOnce(JSON.stringify(RESPONSES.ONE_ITEM))
+			.mockResponseOnce(JSON.stringify(ONE_ITEM))
 			.mockResponseOnce(JSON.stringify({}))
 			.mockResponseOnce(JSON.stringify(RESPONSES.NO_ITEMS));
 
-		const confirmWindow = jest
+		const confirmationDialog = jest
 			.spyOn(window, 'confirm')
 			.mockImplementation(() => true);
 
-		const {container, queryAllByTestId, queryByText} = render(
+		const {container, queryByText} = render(
 			<ListCustomObjectsWithRouter />
 		);
 
@@ -209,7 +221,8 @@ describe('ListCustomObject', () => {
 		expect(queryByText('there-are-no-custom-objects-yet')).toBeFalsy();
 
 		expect(fetch.mock.calls.length).toBe(1);
-		expect(queryAllByTestId('item').length).toBe(1);
+
+		expect(queryByText('Item Name')).toBeTruthy();
 
 		const deleteButton = queryByText('delete');
 
@@ -229,7 +242,7 @@ describe('ListCustomObject', () => {
 		});
 
 		expect(spySuccessToast.mock.calls.length).toBe(1);
-		expect(confirmWindow.mock.calls.length).toBe(1);
+		expect(confirmationDialog.mock.calls.length).toBe(1);
 		expect(fetch.mock.calls.length).toBe(3);
 
 		expect(
@@ -241,6 +254,18 @@ describe('ListCustomObject', () => {
 	});
 
 	it('renders with data and update item permission', async () => {
+		const ONE_ITEM = {
+			...RESPONSES.ONE_ITEM,
+			items: [{
+				dateCreated: '2020-03-26T11:26:54.262Z',
+				dateModified: '2020-03-26T11:26:54.262Z',
+				id: 1,
+				name: {
+					en_US: 'Item Name'
+				},
+			}],
+		};
+		
 		const permissionItem = {
 			availableLanguages: ['en-US'],
 			dateCreated: '2020-03-05T20:06:51Z',
@@ -258,7 +283,7 @@ describe('ListCustomObject', () => {
 		};
 
 		fetch
-			.mockResponseOnce(JSON.stringify(RESPONSES.ONE_ITEM))
+			.mockResponseOnce(JSON.stringify(ONE_ITEM))
 			.mockResponseOnce(
 				JSON.stringify({
 					dataDefinitionId: 38408,
@@ -266,7 +291,7 @@ describe('ListCustomObject', () => {
 					description: {},
 					id: 38410,
 					name: {
-						en_US: 'qwex',
+						en_US: 'Name',
 					},
 					siteId: 20129,
 				})
@@ -274,7 +299,7 @@ describe('ListCustomObject', () => {
 			.mockResponseOnce(JSON.stringify(permissionResponse))
 			.mockResponse(JSON.stringify());
 
-		const {queryAllByTestId, queryByText} = render(
+		const {queryByText} = render(
 			<ListCustomObjectsWithRouter />
 		);
 
@@ -283,7 +308,7 @@ describe('ListCustomObject', () => {
 		);
 
 		expect(fetch.mock.calls.length).toBe(1);
-		expect(queryAllByTestId('item').length).toBe(1);
+		expect(queryByText('Item Name')).toBeTruthy();
 
 		const permission = queryByText('app-permissions');
 
