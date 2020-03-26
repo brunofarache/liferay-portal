@@ -230,12 +230,12 @@ exports[`ListCustomObject renders with data and hit actions 1`] = `
               <td
                 class="table-cell-expand-smaller text-left"
               >
-                2 hours ago
+                4 hours ago
               </td>
               <td
                 class="table-cell-expand-smaller text-left"
               >
-                2 hours ago
+                4 hours ago
               </td>
               <td
                 class=""
@@ -897,12 +897,12 @@ exports[`ListCustomObject renders with data and update item permission 1`] = `
               <td
                 class="table-cell-expand-smaller text-left"
               >
-                2 hours ago
+                4 hours ago
               </td>
               <td
                 class="table-cell-expand-smaller text-left"
               >
-                2 hours ago
+                4 hours ago
               </td>
               <td
                 class=""
