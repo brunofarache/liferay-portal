@@ -24,9 +24,7 @@ import * as toasts from '../../../../src/main/resources/META-INF/resources/js/ut
 import {RESPONSES} from '../../constants.es';
 
 describe('ListCustomObject', () => {
-	const ListCustomObjectsWithRouter = ({
-		history = createMemoryHistory(),
-	}) => (
+	const ListCustomObjectsWithRouter = ({history = createMemoryHistory()}) => (
 		<AppContextProvider value={{}}>
 			<div className="tools-control-group">
 				<div className="control-menu-level-1-heading" />
@@ -57,22 +55,18 @@ describe('ListCustomObject', () => {
 		jest.useRealTimers();
 	});
 
-	it('renders with empty state and new item', async () => {
-		fetch.mockResponse(JSON.stringify(RESPONSES.NO_ITEMS));
+	it('renders with empty state and create new object with checkbox marked', async () => {
+		fetch
+			.mockResponseOnce(JSON.stringify(RESPONSES.NO_ITEMS))
+			.mockResponseOnce(JSON.stringify({}));
 
-		const {
-			container,
-			queryAllByRole,
-			queryAllByText,
-			queryByPlaceholderText,
-			queryByText,
-		} = render(<ListCustomObjectsWithRouter />);
+		const {asFragment, container, queryAllByText, queryByText} = render(
+			<ListCustomObjectsWithRouter />
+		);
 
 		await waitForElementToBeRemoved(() =>
 			document.querySelector('span.loading-animation')
 		);
-
-		const [filter, sort] = queryAllByRole('button');
 
 		expect(
 			queryByText(
@@ -80,20 +74,15 @@ describe('ListCustomObject', () => {
 			)
 		).toBeTruthy();
 		expect(queryByText('there-are-no-custom-objects-yet')).toBeTruthy();
-		expect(
-			container.querySelector('.control-menu-level-1-heading')
-		).not.toBe('title');
-		expect(queryByPlaceholderText('search...').disabled).toBe(true);
-		expect(filter.disabled).toBe(true);
-		expect(sort.disabled).toBe(true);
+
 		expect(fetch.mock.calls.length).toEqual(1);
 
 		const continueButton = container.querySelector('.btn-sm.btn-primary');
-		const nameInput = container.querySelector('#customObjectNameInput');
+		const input = container.querySelector('#customObjectNameInput');
 		const checkbox = container.querySelector('input[type=checkbox]');
 		const [newCustomObject] = queryAllByText('new-custom-object');
 
-		expect(nameInput.value).toBe('');
+		expect(input.value).toBe('');
 		expect(checkbox.checked).toBe(true);
 
 		fireEvent.click(newCustomObject);
@@ -102,45 +91,22 @@ describe('ListCustomObject', () => {
 			createRenderURL: jest.fn(),
 		};
 
-		fireEvent.change(nameInput, {target: {value: 'test'}});
+		fireEvent.change(input, {target: {value: 'test'}});
 
-		expect(nameInput.value).toBe('test');
+		expect(input.value).toBe('test');
 
 		fireEvent.click(continueButton);
+
+		expect(fetch.mock.calls.length).toEqual(2);
+		expect(asFragment()).toMatchSnapshot();
 	});
 
-	it('renders with empty state and create an item', async () => {
-		fetch.mockResponseOnce(JSON.stringify(RESPONSES.NO_ITEMS));
-		fetch.mockResponseOnce(
-			JSON.stringify({
-				id: 38317,
-				name: {
-					en_US: 'test',
-				},
-			})
-		);
-		fetch.mockResponseOnce(
-			JSON.stringify({
-				actions: {},
-				items: [
-					{
-						availableLanguages: ['en-US'],
-						dateCreated: '2020-03-05T20:06:51Z',
-						dateModified: '2020-03-05T20:06:51Z',
-						description: '',
-						id: 30302,
-						name: 'Account Administrator',
-						roleType: 'regular',
-					},
-				],
-				lastPage: 1,
-				page: 1,
-				pageSize: 20,
-				totalCount: 1,
-			})
-		);
+	it('renders with empty state and create new object with checkbox dismarked', async () => {
+		fetch
+			.mockResponseOnce(JSON.stringify(RESPONSES.NO_ITEMS))
+			.mockResponseOnce(JSON.stringify({}));
 
-		const {container, queryAllByText} = render(
+		const {asFragment, container, queryAllByText} = render(
 			<ListCustomObjectsWithRouter />
 		);
 
@@ -151,13 +117,13 @@ describe('ListCustomObject', () => {
 		expect(fetch.mock.calls.length).toEqual(1);
 
 		const continueButton = container.querySelector('.btn-sm.btn-primary');
-		const nameInput = container.querySelector('#customObjectNameInput');
+		const input = container.querySelector('#customObjectNameInput');
 		const checkbox = container.querySelector('input[type=checkbox]');
 		const [newCustomObject] = queryAllByText('new-custom-object');
 
 		const [cancel] = queryAllByText('cancel');
 
-		expect(nameInput.value).toBe('');
+		expect(input.value).toBe('');
 		expect(checkbox.checked).toBe(true);
 		expect(container.querySelector('.form-group.has-error')).toBeFalsy();
 
@@ -173,27 +139,30 @@ describe('ListCustomObject', () => {
 
 		expect(container.querySelector('.form-group.has-error')).toBeTruthy();
 
-		fireEvent.change(nameInput, {target: {value: 'test'}});
+		fireEvent.change(input, {target: {value: 'test'}});
 
-		expect(nameInput.value).toBe('test');
+		expect(input.value).toBe('test');
 		expect(checkbox.checked).toBe(false);
 
 		fireEvent.click(continueButton);
 
 		expect(fetch.mock.calls.length).toEqual(2);
+		expect(asFragment()).toMatchSnapshot();
 	});
 
 	it('renders with data and remove item', async () => {
 		const ONE_ITEM = {
 			...RESPONSES.ONE_ITEM,
-			items: [{
-				dateCreated: '2020-03-26T11:26:54.262Z',
-				dateModified: '2020-03-26T11:26:54.262Z',
-				id: 1,
-				name: {
-					en_US: 'Item Name'
+			items: [
+				{
+					dateCreated: '2020-03-26T11:26:54.262Z',
+					dateModified: '2020-03-26T11:26:54.262Z',
+					id: 1,
+					name: {
+						en_US: 'Item Name',
+					},
 				},
-			}],
+			],
 		};
 
 		fetch
@@ -205,7 +174,7 @@ describe('ListCustomObject', () => {
 			.spyOn(window, 'confirm')
 			.mockImplementation(() => true);
 
-		const {container, queryByText} = render(
+		const {asFragment, container, queryByText} = render(
 			<ListCustomObjectsWithRouter />
 		);
 
@@ -241,8 +210,8 @@ describe('ListCustomObject', () => {
 			fireEvent.click(deleteButton);
 		});
 
-		expect(spySuccessToast.mock.calls.length).toBe(1);
 		expect(confirmationDialog.mock.calls.length).toBe(1);
+		expect(spySuccessToast.mock.calls.length).toBe(1);
 		expect(fetch.mock.calls.length).toBe(3);
 
 		expect(
@@ -251,21 +220,10 @@ describe('ListCustomObject', () => {
 			)
 		).toBeTruthy();
 		expect(queryByText('there-are-no-custom-objects-yet')).toBeTruthy();
+		expect(asFragment()).toMatchSnapshot();
 	});
 
 	it('renders with data and update item permission', async () => {
-		const ONE_ITEM = {
-			...RESPONSES.ONE_ITEM,
-			items: [{
-				dateCreated: '2020-03-26T11:26:54.262Z',
-				dateModified: '2020-03-26T11:26:54.262Z',
-				id: 1,
-				name: {
-					en_US: 'Item Name'
-				},
-			}],
-		};
-		
 		const permissionItem = {
 			availableLanguages: ['en-US'],
 			dateCreated: '2020-03-05T20:06:51Z',
@@ -283,7 +241,7 @@ describe('ListCustomObject', () => {
 		};
 
 		fetch
-			.mockResponseOnce(JSON.stringify(ONE_ITEM))
+			.mockResponseOnce(JSON.stringify(RESPONSES.ONE_ITEM))
 			.mockResponseOnce(
 				JSON.stringify({
 					dataDefinitionId: 38408,
@@ -297,9 +255,9 @@ describe('ListCustomObject', () => {
 				})
 			)
 			.mockResponseOnce(JSON.stringify(permissionResponse))
-			.mockResponse(JSON.stringify());
+			.mockResponse(JSON.stringify({}));
 
-		const {queryByText} = render(
+		const {asFragment, container, queryByText} = render(
 			<ListCustomObjectsWithRouter />
 		);
 
@@ -308,7 +266,7 @@ describe('ListCustomObject', () => {
 		);
 
 		expect(fetch.mock.calls.length).toBe(1);
-		expect(queryByText('Item Name')).toBeTruthy();
+		expect(container.querySelectorAll('tbody tr').length).toBe(1);
 
 		const permission = queryByText('app-permissions');
 
@@ -345,6 +303,7 @@ describe('ListCustomObject', () => {
 
 		expect(fetch.mock.calls.length).toBe(6);
 		expect(spySuccessToast.mock.calls.length).toBe(1);
+		expect(asFragment()).toMatchSnapshot();
 	});
 
 	it('renders with data and hit actions', async () => {
@@ -352,7 +311,7 @@ describe('ListCustomObject', () => {
 
 		const history = createMemoryHistory();
 
-		const {baseElement} = render(
+		const {asFragment, baseElement} = render(
 			<ListCustomObjectsWithRouter history={history} />
 		);
 
@@ -386,5 +345,6 @@ describe('ListCustomObject', () => {
 
 		expect(history.length).toBe(4);
 		expect(history.location.pathname).toBe('/custom-object/1/apps');
+		expect(asFragment()).toMatchSnapshot();
 	});
 });
