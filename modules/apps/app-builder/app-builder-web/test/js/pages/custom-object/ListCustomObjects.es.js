@@ -49,9 +49,8 @@ describe('ListCustomObject', () => {
 
 	afterEach(() => {
 		cleanup();
-		jest.restoreAllMocks();
 		jest.clearAllTimers();
-		jest.clearAllMocks();
+		jest.restoreAllMocks();
 	});
 
 	afterAll(() => {
