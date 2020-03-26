@@ -23,18 +23,6 @@ import ListCustomObjects from '../../../../src/main/resources/META-INF/resources
 import * as toasts from '../../../../src/main/resources/META-INF/resources/js/utils/toast.es';
 import {RESPONSES} from '../../constants.es';
 
-const item = {
-	dateCreated: new Date(),
-	dateModified: new Date(),
-	id: 1,
-	name: 'Test',
-};
-
-RESPONSES.ONE_ITEM = {
-	...RESPONSES.ONE_ITEM,
-	items: [item],
-};
-
 describe('ListCustomObject', () => {
 	let history;
 	let ListCustomObjectsWrapper;
