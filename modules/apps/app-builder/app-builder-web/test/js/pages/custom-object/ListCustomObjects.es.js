@@ -24,28 +24,27 @@ import * as toasts from '../../../../src/main/resources/META-INF/resources/js/ut
 import {RESPONSES} from '../../constants.es';
 
 describe('ListCustomObject', () => {
-	let history;
-	let ListCustomObjectsWrapper;
+	const ListCustomObjectsWithRouter = ({
+		history = createMemoryHistory(),
+	}) => (
+		<AppContextProvider value={{}}>
+			<div className="tools-control-group">
+				<div className="control-menu-level-1-heading" />
+			</div>
+
+			<HashRouter>
+				<ListCustomObjects history={history} />
+			</HashRouter>
+		</AppContextProvider>
+	);
+
 	let spySuccessToast;
 
 	beforeEach(() => {
 		jest.useFakeTimers();
-		history = createMemoryHistory();
 		spySuccessToast = jest
 			.spyOn(toasts, 'successToast')
 			.mockImplementation();
-
-		ListCustomObjectsWrapper = () => (
-			<AppContextProvider value={{}}>
-				<div className="tools-control-group">
-					<div className="control-menu-level-1-heading" />
-				</div>
-
-				<HashRouter>
-					<ListCustomObjects history={history} />
-				</HashRouter>
-			</AppContextProvider>
-		);
 	});
 
 	afterEach(() => {
@@ -68,7 +67,7 @@ describe('ListCustomObject', () => {
 			queryAllByText,
 			queryByPlaceholderText,
 			queryByText,
-		} = render(<ListCustomObjectsWrapper />);
+		} = render(<ListCustomObjectsWithRouter />);
 
 		await waitForElementToBeRemoved(() =>
 			document.querySelector('span.loading-animation')
@@ -143,7 +142,7 @@ describe('ListCustomObject', () => {
 		);
 
 		const {container, queryAllByText} = render(
-			<ListCustomObjectsWrapper />
+			<ListCustomObjectsWithRouter />
 		);
 
 		await waitForElementToBeRemoved(() =>
@@ -196,7 +195,7 @@ describe('ListCustomObject', () => {
 			.mockImplementation(() => true);
 
 		const {container, queryAllByTestId, queryByText} = render(
-			<ListCustomObjectsWrapper />
+			<ListCustomObjectsWithRouter />
 		);
 
 		await waitForElementToBeRemoved(() =>
@@ -277,7 +276,7 @@ describe('ListCustomObject', () => {
 			.mockResponse(JSON.stringify());
 
 		const {queryAllByTestId, queryByText} = render(
-			<ListCustomObjectsWrapper />
+			<ListCustomObjectsWithRouter />
 		);
 
 		await waitForElementToBeRemoved(() =>
@@ -327,7 +326,11 @@ describe('ListCustomObject', () => {
 	it('renders with data and hit actions', async () => {
 		fetch.mockResponseOnce(JSON.stringify(RESPONSES.ONE_ITEM));
 
-		const {baseElement} = render(<ListCustomObjectsWrapper />);
+		const history = createMemoryHistory();
+
+		const {baseElement} = render(
+			<ListCustomObjectsWithRouter history={history} />
+		);
 
 		expect(history.length).toBe(1);
 		expect(history.location.pathname).toBe('/');
