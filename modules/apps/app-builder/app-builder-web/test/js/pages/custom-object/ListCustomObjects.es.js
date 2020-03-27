@@ -21,7 +21,7 @@ import {HashRouter} from 'react-router-dom';
 import {AppContextProvider} from '../../../../src/main/resources/META-INF/resources/js/AppContext.es';
 import ListCustomObjects from '../../../../src/main/resources/META-INF/resources/js/pages/custom-object/ListCustomObjects.es';
 import * as time from '../../../../src/main/resources/META-INF/resources/js/utils/time.es';
-import * as toasts from '../../../../src/main/resources/META-INF/resources/js/utils/toast.es';
+import * as toast from '../../../../src/main/resources/META-INF/resources/js/utils/toast.es';
 import {RESPONSES} from '../../constants.es';
 
 describe('ListCustomObject', () => {
@@ -46,7 +46,7 @@ describe('ListCustomObject', () => {
 			.spyOn(time, 'fromNow')
 			.mockImplementation(() => 'months ago');
 		spySuccessToast = jest
-			.spyOn(toasts, 'successToast')
+			.spyOn(toast, 'successToast')
 			.mockImplementation();
 	});
 
@@ -60,7 +60,7 @@ describe('ListCustomObject', () => {
 		jest.useRealTimers();
 	});
 
-	it('renders with empty state and create new object with checkbox marked', async () => {
+	it('renders with empty state and create new object with popover checkbox enabled', async () => {
 		fetch
 			.mockResponseOnce(JSON.stringify(RESPONSES.NO_ITEMS))
 			.mockResponseOnce(JSON.stringify({}));
@@ -113,7 +113,7 @@ describe('ListCustomObject', () => {
 		expect(asFragment()).toMatchSnapshot();
 	});
 
-	it('renders with empty state and create new object with checkbox dismarked', async () => {
+	it('renders with empty state and create new object with popver checkbox disabled', async () => {
 		fetch
 			.mockResponseOnce(JSON.stringify(RESPONSES.NO_ITEMS))
 			.mockResponseOnce(JSON.stringify({}));
@@ -163,7 +163,7 @@ describe('ListCustomObject', () => {
 		expect(asFragment()).toMatchSnapshot();
 	});
 
-	it('renders with data and remove item', async () => {
+	it('renders with one item and removes it', async () => {
 		const ONE_ITEM = {
 			...RESPONSES.ONE_ITEM,
 			items: [
@@ -238,7 +238,7 @@ describe('ListCustomObject', () => {
 		expect(asFragment()).toMatchSnapshot();
 	});
 
-	it('renders with data and update item permission', async () => {
+	it('renders with one item and updates its permissions', async () => {
 		const permissionItem = {
 			availableLanguages: ['en-US'],
 			dateCreated: '2020-03-05T20:06:51Z',
