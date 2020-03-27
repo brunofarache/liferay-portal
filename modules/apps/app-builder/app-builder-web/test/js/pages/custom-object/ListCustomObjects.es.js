@@ -20,6 +20,7 @@ import {HashRouter} from 'react-router-dom';
 
 import {AppContextProvider} from '../../../../src/main/resources/META-INF/resources/js/AppContext.es';
 import ListCustomObjects from '../../../../src/main/resources/META-INF/resources/js/pages/custom-object/ListCustomObjects.es';
+import * as time from '../../../../src/main/resources/META-INF/resources/js/utils/time.es';
 import * as toasts from '../../../../src/main/resources/META-INF/resources/js/utils/toast.es';
 import {RESPONSES} from '../../constants.es';
 
@@ -37,9 +38,13 @@ describe('ListCustomObject', () => {
 	);
 
 	let spySuccessToast;
+	let spyFromNow;
 
 	beforeEach(() => {
 		jest.useFakeTimers();
+		spyFromNow = jest
+			.spyOn(time, 'fromNow')
+			.mockImplementation(() => 'months ago');
 		spySuccessToast = jest
 			.spyOn(toasts, 'successToast')
 			.mockImplementation();
@@ -71,6 +76,8 @@ describe('ListCustomObject', () => {
 		await waitForElementToBeRemoved(() =>
 			document.querySelector('span.loading-animation')
 		);
+
+		expect(spyFromNow).not.toHaveBeenCalled();
 
 		expect(
 			queryByText(
@@ -119,6 +126,7 @@ describe('ListCustomObject', () => {
 			document.querySelector('span.loading-animation')
 		);
 
+		expect(spyFromNow).not.toHaveBeenCalled();
 		expect(fetch.mock.calls.length).toEqual(1);
 
 		const continueButton = container.querySelector('.btn-sm.btn-primary');
@@ -160,8 +168,8 @@ describe('ListCustomObject', () => {
 			...RESPONSES.ONE_ITEM,
 			items: [
 				{
-					dateCreated: '2020-03-26T11:26:54.262Z',
-					dateModified: '2020-03-26T11:26:54.262Z',
+					dateCreated: '2020-01-01T00:00:00.262Z',
+					dateModified: '2020-01-01T00:00:00.262Z',
 					id: 1,
 					name: {
 						en_US: 'Item Name',
@@ -186,6 +194,8 @@ describe('ListCustomObject', () => {
 		await waitForElementToBeRemoved(() =>
 			document.querySelector('span.loading-animation')
 		);
+
+		expect(spyFromNow).toHaveBeenCalled();
 
 		expect(
 			queryByText(
@@ -270,6 +280,8 @@ describe('ListCustomObject', () => {
 			document.querySelector('span.loading-animation')
 		);
 
+		expect(spyFromNow).toHaveBeenCalled();
+
 		expect(fetch.mock.calls.length).toBe(1);
 		expect(container.querySelectorAll('tbody tr').length).toBe(1);
 
@@ -326,6 +338,8 @@ describe('ListCustomObject', () => {
 		await waitForElementToBeRemoved(() =>
 			baseElement.querySelector('span.loading-animation')
 		);
+
+		expect(spyFromNow).toHaveBeenCalled();
 
 		const dropDownMenu = baseElement.querySelectorAll('.dropdown-menu');
 		const actions = dropDownMenu[1].querySelectorAll('.dropdown-item');
