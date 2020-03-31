@@ -24,6 +24,20 @@ import * as time from '../../../../src/main/resources/META-INF/resources/js/util
 import * as toast from '../../../../src/main/resources/META-INF/resources/js/utils/toast.es';
 import {RESPONSES} from '../../constants.es';
 
+const ONE_ITEM = {
+	...RESPONSES.ONE_ITEM,
+	items: [
+		{
+			dateCreated: '2020-01-01T00:00:00.262Z',
+			dateModified: '2020-01-01T00:00:00.262Z',
+			id: 1,
+			name: {
+				en_US: 'Item Name',
+			},
+		},
+	],
+};
+
 describe('ListCustomObject', () => {
 	const ListCustomObjectsWithRouter = ({history = createMemoryHistory()}) => (
 		<AppContextProvider value={{}}>
@@ -65,13 +79,9 @@ describe('ListCustomObject', () => {
 			.mockResponseOnce(JSON.stringify(RESPONSES.NO_ITEMS))
 			.mockResponseOnce(JSON.stringify({}));
 
-		const {
-			asFragment,
-			container,
-			queryAllByRole,
-			queryAllByText,
-			queryByText,
-		} = render(<ListCustomObjectsWithRouter />);
+		const {container, queryAllByRole, queryAllByText, queryByText} = render(
+			<ListCustomObjectsWithRouter />
+		);
 
 		await waitForElementToBeRemoved(() =>
 			document.querySelector('span.loading-animation')
@@ -110,7 +120,6 @@ describe('ListCustomObject', () => {
 		fireEvent.submit(form[0]);
 
 		expect(fetch.mock.calls.length).toEqual(2);
-		expect(asFragment()).toMatchSnapshot();
 	});
 
 	it('renders with empty state and create new object with popver checkbox disabled', async () => {
@@ -118,7 +127,7 @@ describe('ListCustomObject', () => {
 			.mockResponseOnce(JSON.stringify(RESPONSES.NO_ITEMS))
 			.mockResponseOnce(JSON.stringify({}));
 
-		const {asFragment, container, queryAllByText} = render(
+		const {container, queryAllByText} = render(
 			<ListCustomObjectsWithRouter />
 		);
 
@@ -160,24 +169,9 @@ describe('ListCustomObject', () => {
 		fireEvent.click(continueButton);
 
 		expect(fetch.mock.calls.length).toEqual(2);
-		expect(asFragment()).toMatchSnapshot();
 	});
 
 	it('renders with one item and removes it', async () => {
-		const ONE_ITEM = {
-			...RESPONSES.ONE_ITEM,
-			items: [
-				{
-					dateCreated: '2020-01-01T00:00:00.262Z',
-					dateModified: '2020-01-01T00:00:00.262Z',
-					id: 1,
-					name: {
-						en_US: 'Item Name',
-					},
-				},
-			],
-		};
-
 		fetch
 			.mockResponseOnce(JSON.stringify(ONE_ITEM))
 			.mockResponseOnce(JSON.stringify({}))
@@ -187,7 +181,7 @@ describe('ListCustomObject', () => {
 			.spyOn(window, 'confirm')
 			.mockImplementation(() => true);
 
-		const {asFragment, container, queryByText} = render(
+		const {container, queryByText} = render(
 			<ListCustomObjectsWithRouter />
 		);
 
@@ -235,7 +229,6 @@ describe('ListCustomObject', () => {
 			)
 		).toBeTruthy();
 		expect(queryByText('there-are-no-custom-objects-yet')).toBeTruthy();
-		expect(asFragment()).toMatchSnapshot();
 	});
 
 	it('renders with one item and updates its permissions', async () => {
@@ -256,7 +249,7 @@ describe('ListCustomObject', () => {
 		};
 
 		fetch
-			.mockResponseOnce(JSON.stringify(RESPONSES.ONE_ITEM))
+			.mockResponseOnce(JSON.stringify(ONE_ITEM))
 			.mockResponseOnce(
 				JSON.stringify({
 					dataDefinitionId: 38408,
@@ -272,7 +265,7 @@ describe('ListCustomObject', () => {
 			.mockResponseOnce(JSON.stringify(permissionResponse))
 			.mockResponse(JSON.stringify({}));
 
-		const {asFragment, container, queryByText} = render(
+		const {queryAllByText, queryByText} = render(
 			<ListCustomObjectsWithRouter />
 		);
 
@@ -283,7 +276,7 @@ describe('ListCustomObject', () => {
 		expect(spyFromNow).toHaveBeenCalled();
 
 		expect(fetch.mock.calls.length).toBe(1);
-		expect(container.querySelectorAll('tbody tr').length).toBe(1);
+		expect(queryAllByText('Item Name').length).toBe(1);
 
 		const permission = queryByText('app-permissions');
 
@@ -320,7 +313,6 @@ describe('ListCustomObject', () => {
 
 		expect(fetch.mock.calls.length).toBe(6);
 		expect(spySuccessToast.mock.calls.length).toBe(1);
-		expect(asFragment()).toMatchSnapshot();
 	});
 
 	it('renders with data and hit actions', async () => {
@@ -328,7 +320,7 @@ describe('ListCustomObject', () => {
 
 		const history = createMemoryHistory();
 
-		const {asFragment, baseElement} = render(
+		const {baseElement} = render(
 			<ListCustomObjectsWithRouter history={history} />
 		);
 
@@ -364,6 +356,17 @@ describe('ListCustomObject', () => {
 
 		expect(history.length).toBe(4);
 		expect(history.location.pathname).toBe('/custom-object/1/apps');
+	});
+
+	it('renders', async () => {
+		fetch.mockResponseOnce(JSON.stringify(ONE_ITEM));
+
+		const {asFragment} = render(<ListCustomObjectsWithRouter />);
+
+		await waitForElementToBeRemoved(() =>
+			document.querySelector('span.loading-animation')
+		);
+
 		expect(asFragment()).toMatchSnapshot();
 	});
 });

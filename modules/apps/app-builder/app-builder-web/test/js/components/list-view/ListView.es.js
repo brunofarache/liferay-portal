@@ -37,7 +37,7 @@ describe('ListView', () => {
 	it('renders with empty state', async () => {
 		fetch.mockResponse(JSON.stringify(RESPONSES.NO_ITEMS));
 
-		const {queryByText} = render(
+		const {queryAllByText, queryByText} = render(
 			<HashRouter>
 				<ListView
 					columns={COLUMNS}
@@ -53,6 +53,8 @@ describe('ListView', () => {
 			document.querySelector('span.loading-animation')
 		);
 
+		expect(queryAllByText(/Item/).length).toBe(0);
+
 		expect(queryByText(EMPTY_STATE.title)).toBeTruthy();
 		expect(queryByText(EMPTY_STATE.description)).toBeTruthy();
 	});
@@ -60,7 +62,7 @@ describe('ListView', () => {
 	it('renders with 1 item', async () => {
 		fetch.mockResponse(JSON.stringify(RESPONSES.ONE_ITEM));
 
-		const {container} = render(
+		const {container, queryAllByText} = render(
 			<HashRouter>
 				<ListView
 					actions={ACTIONS}
@@ -77,7 +79,7 @@ describe('ListView', () => {
 			document.querySelector('span.loading-animation')
 		);
 
-		expect(container.querySelectorAll('tbody tr').length).toBe(1);
+		expect(queryAllByText(/Item/).length).toBe(1);
 		expect(container.querySelectorAll('li.page-item').length).toBe(0);
 	});
 
@@ -101,7 +103,7 @@ describe('ListView', () => {
 			return document.querySelector('span.loading-animation');
 		});
 
-		expect(container.querySelectorAll('tbody tr').length).toBe(20);
+		expect(queryAllByText(/Item/).length).toBe(20);
 		expect(container.querySelectorAll('li.page-item').length).toBe(4);
 		expect(
 			container.querySelector('li.page-item.active').firstElementChild
@@ -114,7 +116,7 @@ describe('ListView', () => {
 		const history = createMemoryHistory();
 		history.push('/test?page=2');
 		fetch.mockResponse(JSON.stringify(RESPONSES.ONE_ITEM));
-		const {container} = render(
+		const {container, queryAllByText} = render(
 			<Router history={history}>
 				<ListView
 					actions={ACTIONS}
@@ -132,7 +134,7 @@ describe('ListView', () => {
 			return document.querySelector('span.loading-animation');
 		});
 
-		expect(container.querySelectorAll('tbody tr').length).toBe(1);
+		expect(queryAllByText(/Item/).length).toBe(1);
 		expect(container.querySelectorAll('li.page-item').length).toBe(0);
 	});
 
