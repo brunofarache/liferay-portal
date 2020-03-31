@@ -65,6 +65,7 @@ const initialState = {
 	fieldTypes: [],
 	focusedCustomObjectField: {},
 	focusedField: {},
+	spritemap: `${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`,
 };
 
 const addCustomObjectField = ({
