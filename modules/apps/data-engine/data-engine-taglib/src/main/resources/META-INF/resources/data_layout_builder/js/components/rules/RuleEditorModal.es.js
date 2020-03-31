@@ -31,19 +31,6 @@ class RuleEditorWrapper extends RuleEditor {
 	}
 }
 
-const createRuleEditor = (ruleEditorRef, ruleEditorProps) => {
-	return new RuleEditorWrapper(
-		{
-			...ruleEditorProps,
-			actions: [],
-			conditions: [],
-			key: 'create',
-			ref: 'RuleEditor',
-		},
-		ruleEditorRef.current
-	);
-};
-
 const RuleEditorModalContent = ({onClose}) => {
 	const ruleEditorRef = useRef();
 	const [ruleEditor, setRuleEditor] = useState(null);
@@ -70,8 +57,11 @@ const RuleEditorModalContent = ({onClose}) => {
 			return;
 		}
 
-		setRuleEditor(
-			createRuleEditor(ruleEditorRef, {
+		const ruleEditorWrapper = new RuleEditorWrapper(
+			{
+				...ruleSettings,
+				actions: [],
+				conditions: [],
 				events: {
 					ruleAdded: rule => {
 						dataLayoutBuilder.dispatch('ruleAdded', rule);
@@ -81,12 +71,16 @@ const RuleEditorModalContent = ({onClose}) => {
 					ruleDeleted: () => {},
 					ruleEdited: () => {},
 				},
+				key: 'create',
 				pages,
+				ref: 'RuleEditor',
 				roles,
 				spritemap,
-				...ruleSettings,
-			})
+			},
+			ruleEditorRef.current
 		);
+
+		setRuleEditor(ruleEditorWrapper);
 	}, [
 		dataLayoutBuilder,
 		onClose,
