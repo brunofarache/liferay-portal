@@ -37,14 +37,8 @@ const createRuleEditor = (ruleEditorRef, ruleEditorProps) => {
 			...ruleEditorProps,
 			actions: [],
 			conditions: [],
-			dataProviderInstanceParameterSettingsURL:
-				'/o/dynamic-data-mapping-form-builder-provider-instance-parameter-settings/',
-			dataProviderInstancesURL:
-				'/o/dynamic-data-mapping-form-builder-data-provider-instances/',
-			functionsURL: '/o/dynamic-data-mapping-form-builder-functions/',
 			key: 'create',
 			ref: 'RuleEditor',
-			spritemap: `${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`,
 		},
 		ruleEditorRef.current
 	);
@@ -57,6 +51,7 @@ const RuleEditorModalContent = ({onClose}) => {
 	const [
 		{
 			config: {ruleSettings},
+			spritemap,
 		},
 	] = useContext(AppContext);
 
@@ -88,6 +83,7 @@ const RuleEditorModalContent = ({onClose}) => {
 				},
 				pages,
 				roles,
+				spritemap,
 				...ruleSettings,
 			})
 		);
@@ -98,6 +94,7 @@ const RuleEditorModalContent = ({onClose}) => {
 		ruleEditor,
 		ruleEditorRef,
 		ruleSettings,
+		spritemap,
 		state,
 	]);
 
