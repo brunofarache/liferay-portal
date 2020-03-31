@@ -152,9 +152,19 @@ public class DataLayoutTaglibUtil {
 				dataLayoutConfigJSONObject.put(
 					"ruleSettings",
 					JSONUtil.put(
+						"dataProviderInstanceParameterSettingsURL",
+						_dataLayoutTaglibUtil.
+							_getDDMDataProviderInstanceParameterSettingsURL()
+					).put(
+						"dataProviderInstancesURL",
+						_dataLayoutTaglibUtil._getDDMDataProviderInstancesURL()
+					).put(
 						"functionsMetadata",
 						_dataLayoutTaglibUtil._getFunctionsMetadataJSONObject(
-							locale)));
+							locale)
+					).put(
+						"functionsURL", _dataLayoutTaglibUtil._getFunctionsURL()
+					));
 			}
 			catch (JSONException jsonException) {
 				_log.error(jsonException, jsonException);
@@ -406,6 +416,16 @@ public class DataLayoutTaglibUtil {
 		return dataRecord.getDataRecordValues();
 	}
 
+	private String _getDDMDataProviderInstanceParameterSettingsURL() {
+		return _ddmFormBuilderSettingsRetrieverHelper.
+			getDDMDataProviderInstanceParameterSettingsURL();
+	}
+
+	private String _getDDMDataProviderInstancesURL() {
+		return _ddmFormBuilderSettingsRetrieverHelper.
+			getDDMDataProviderInstancesURL();
+	}
+
 	private JSONArray _getFieldTypesJSONArray(
 		HttpServletRequest httpServletRequest, Set<String> scopes) {
 
@@ -463,6 +483,10 @@ public class DataLayoutTaglibUtil {
 		return JSONFactoryUtil.createJSONObject(
 			_ddmFormBuilderSettingsRetrieverHelper.
 				getSerializedDDMExpressionFunctionsMetadata(locale));
+	}
+
+	private String _getFunctionsURL() {
+		return _ddmFormBuilderSettingsRetrieverHelper.getDDMFunctionsURL();
 	}
 
 	private boolean _hasJavascriptModule(String name) {
