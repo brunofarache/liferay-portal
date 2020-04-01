@@ -336,10 +336,15 @@ public class DataRecordCollectionResourceImpl
 			LocalizedValueUtil.toLocaleStringMap(description), 0,
 			DDLRecordSetConstants.SCOPE_DATA_ENGINE, serviceContext);
 
-		_resourceLocalService.addModelResources(
-			ddmStructure.getCompanyId(), ddmStructure.getGroupId(),
-			PrincipalThreadLocal.getUserId(), _getResourceName(ddlRecordSet),
-			ddlRecordSet.getPrimaryKey(), serviceContext.getModelPermissions());
+		if (_isDataRecordCollectionPermissionCheckingEnabled(
+				ddlRecordSet.getRecordSetId())) {
+
+			_resourceLocalService.addModelResources(
+				ddmStructure.getCompanyId(), ddmStructure.getGroupId(),
+				PrincipalThreadLocal.getUserId(),
+				_getResourceName(ddlRecordSet), ddlRecordSet.getPrimaryKey(),
+				serviceContext.getModelPermissions());
+		}
 
 		return DataRecordCollectionUtil.toDataRecordCollection(ddlRecordSet);
 	}
