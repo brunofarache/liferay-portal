@@ -20,7 +20,9 @@ const createItems = size => {
 			dateCreated: '2020-03-26T11:26:54.262Z',
 			dateModified: '2020-03-26T11:26:54.262Z',
 			id: i + 1,
-			name: `Item ${i + 1}`,
+			name: {
+				en_US: `Item ${i + 1}`,
+			},
 		});
 	}
 
@@ -33,8 +35,6 @@ export const ACTIONS = [
 		name: 'Delete',
 	},
 ];
-
-export const BODY = item => item;
 
 export const COLUMNS = [
 	{

@@ -21,12 +21,16 @@ import {HashRouter, Router} from 'react-router-dom';
 import ListView from '../../../../src/main/resources/META-INF/resources/js/components/list-view/ListView.es';
 import {
 	ACTIONS,
-	BODY,
 	COLUMNS,
 	EMPTY_STATE,
 	ENDPOINT,
 	RESPONSES,
 } from '../../constants.es';
+
+const BODY = item => ({
+	...item,
+	name: item.name.en_US,
+});
 
 describe('ListView', () => {
 	afterEach(() => {

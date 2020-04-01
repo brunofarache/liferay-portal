@@ -225,7 +225,7 @@ exports[`ListCustomObject renders 1`] = `
                   <a
                     href="#/custom-object/1/form-views"
                   >
-                    Item Name
+                    Item 1
                   </a>
                 </p>
               </td>
