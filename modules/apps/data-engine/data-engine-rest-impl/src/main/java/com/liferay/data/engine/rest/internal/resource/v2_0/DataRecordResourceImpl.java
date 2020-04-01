@@ -14,13 +14,16 @@
 
 package com.liferay.data.engine.rest.internal.resource.v2_0;
 
+import com.liferay.data.engine.content.type.DataDefinitionContentType;
 import com.liferay.data.engine.model.DEDataListView;
 import com.liferay.data.engine.rest.dto.v2_0.DataDefinition;
 import com.liferay.data.engine.rest.dto.v2_0.DataDefinitionField;
 import com.liferay.data.engine.rest.dto.v2_0.DataRecord;
 import com.liferay.data.engine.rest.internal.constants.DataActionKeys;
+import com.liferay.data.engine.rest.internal.content.type.DataDefinitionContentTypeTracker;
 import com.liferay.data.engine.rest.internal.dto.v2_0.util.DataDefinitionUtil;
 import com.liferay.data.engine.rest.internal.odata.entity.v2_0.DataRecordEntityModel;
+import com.liferay.data.engine.rest.internal.security.permission.resource.DataDefinitionModelResourcePermission;
 import com.liferay.data.engine.rest.internal.security.permission.resource.DataRecordCollectionModelResourcePermission;
 import com.liferay.data.engine.rest.internal.storage.DataRecordExporter;
 import com.liferay.data.engine.rest.internal.storage.DataStorageTracker;
@@ -97,11 +100,20 @@ public class DataRecordResourceImpl
 	public void deleteDataRecord(Long dataRecordId) throws Exception {
 		DDLRecord ddlRecord = _ddlRecordLocalService.getDDLRecord(dataRecordId);
 
-		_dataRecordCollectionModelResourcePermission.check(
-			PermissionThreadLocal.getPermissionChecker(),
-			ddlRecord.getRecordSetId(), DataActionKeys.DELETE_DATA_RECORD);
-
 		DDLRecordSet ddlRecordSet = ddlRecord.getRecordSet();
+
+		if (_isDataRecordCollectionPermissionCheckingEnabled(ddlRecord)) {
+			_dataRecordCollectionModelResourcePermission.check(
+				PermissionThreadLocal.getPermissionChecker(),
+				ddlRecordSet.getRecordSetId(),
+				DataActionKeys.DELETE_DATA_RECORD);
+		}
+		else {
+			_dataDefinitionModelResourcePermission.check(
+				PermissionThreadLocal.getPermissionChecker(),
+				ddlRecordSet.getDDMStructureId(),
+				DataActionKeys.DELETE_DATA_RECORD);
+		}
 
 		DDMStructure ddmStructure = ddlRecordSet.getDDMStructure();
 
@@ -131,9 +143,19 @@ public class DataRecordResourceImpl
 	public DataRecord getDataRecord(Long dataRecordId) throws Exception {
 		DDLRecord ddlRecord = _ddlRecordLocalService.getDDLRecord(dataRecordId);
 
-		_dataRecordCollectionModelResourcePermission.check(
-			PermissionThreadLocal.getPermissionChecker(),
-			ddlRecord.getRecordSetId(), DataActionKeys.VIEW_DATA_RECORD);
+		DDLRecordSet ddlRecordSet = ddlRecord.getRecordSet();
+
+		if (_isDataRecordCollectionPermissionCheckingEnabled(ddlRecord)) {
+			_dataRecordCollectionModelResourcePermission.check(
+				PermissionThreadLocal.getPermissionChecker(),
+				ddlRecordSet.getRecordSetId(), DataActionKeys.VIEW_DATA_RECORD);
+		}
+		else {
+			_dataDefinitionModelResourcePermission.check(
+				PermissionThreadLocal.getPermissionChecker(),
+				ddlRecordSet.getDDMStructureId(),
+				DataActionKeys.VIEW_DATA_RECORD);
+		}
 
 		return _toDataRecord(ddlRecord);
 	}
@@ -150,9 +172,20 @@ public class DataRecordResourceImpl
 					"page-size-is-greater-than-x", 250));
 		}
 
-		_dataRecordCollectionModelResourcePermission.check(
-			PermissionThreadLocal.getPermissionChecker(),
-			dataRecordCollectionId, DataActionKeys.EXPORT_DATA_RECORDS);
+		DDLRecordSet ddlRecordSet = _ddlRecordSetLocalService.getRecordSet(
+			dataRecordCollectionId);
+
+		if (_isDataRecordCollectionPermissionCheckingEnabled(ddlRecordSet)) {
+			_dataRecordCollectionModelResourcePermission.check(
+				PermissionThreadLocal.getPermissionChecker(),
+				ddlRecordSet.getRecordSetId(), DataActionKeys.ADD_DATA_RECORD);
+		}
+		else {
+			_dataDefinitionModelResourcePermission.check(
+				PermissionThreadLocal.getPermissionChecker(),
+				ddlRecordSet.getDDMStructureId(),
+				DataActionKeys.EXPORT_DATA_RECORDS);
+		}
 
 		DataRecordExporter dataRecordExporter = new DataRecordExporter(
 			_ddlRecordSetLocalService, _ddmFormFieldTypeServicesTracker,
@@ -179,12 +212,20 @@ public class DataRecordResourceImpl
 					"page-size-is-greater-than-x", 250));
 		}
 
-		_dataRecordCollectionModelResourcePermission.check(
-			PermissionThreadLocal.getPermissionChecker(),
-			dataRecordCollectionId, DataActionKeys.VIEW_DATA_RECORD);
-
 		DDLRecordSet ddlRecordSet = _ddlRecordSetLocalService.getDDLRecordSet(
 			dataRecordCollectionId);
+
+		if (_isDataRecordCollectionPermissionCheckingEnabled(ddlRecordSet)) {
+			_dataRecordCollectionModelResourcePermission.check(
+				PermissionThreadLocal.getPermissionChecker(),
+				dataRecordCollectionId, DataActionKeys.VIEW_DATA_RECORD);
+		}
+		else {
+			_dataDefinitionModelResourcePermission.check(
+				PermissionThreadLocal.getPermissionChecker(),
+				ddlRecordSet.getDDMStructureId(),
+				DataActionKeys.VIEW_DATA_RECORD);
+		}
 
 		return SearchUtil.search(
 			Collections.emptyMap(),
@@ -262,12 +303,20 @@ public class DataRecordResourceImpl
 			Long dataRecordCollectionId, DataRecord dataRecord)
 		throws Exception {
 
-		_dataRecordCollectionModelResourcePermission.check(
-			PermissionThreadLocal.getPermissionChecker(),
-			dataRecordCollectionId, DataActionKeys.ADD_DATA_RECORD);
-
 		DDLRecordSet ddlRecordSet = _ddlRecordSetLocalService.getRecordSet(
 			dataRecordCollectionId);
+
+		if (_isDataRecordCollectionPermissionCheckingEnabled(ddlRecordSet)) {
+			_dataRecordCollectionModelResourcePermission.check(
+				PermissionThreadLocal.getPermissionChecker(),
+				ddlRecordSet.getRecordSetId(), DataActionKeys.ADD_DATA_RECORD);
+		}
+		else {
+			_dataDefinitionModelResourcePermission.check(
+				PermissionThreadLocal.getPermissionChecker(),
+				ddlRecordSet.getDDMStructureId(),
+				DataActionKeys.ADD_DATA_RECORD);
+		}
 
 		dataRecord.setDataRecordCollectionId(dataRecordCollectionId);
 
@@ -311,9 +360,18 @@ public class DataRecordResourceImpl
 
 		DDLRecordSet ddlRecordSet = ddlRecord.getRecordSet();
 
-		_dataRecordCollectionModelResourcePermission.check(
-			PermissionThreadLocal.getPermissionChecker(),
-			ddlRecordSet.getRecordSetId(), DataActionKeys.UPDATE_DATA_RECORD);
+		if (_isDataRecordCollectionPermissionCheckingEnabled(ddlRecordSet)) {
+			_dataRecordCollectionModelResourcePermission.check(
+				PermissionThreadLocal.getPermissionChecker(),
+				ddlRecordSet.getRecordSetId(),
+				DataActionKeys.UPDATE_DATA_RECORD);
+		}
+		else {
+			_dataDefinitionModelResourcePermission.check(
+				PermissionThreadLocal.getPermissionChecker(),
+				ddlRecordSet.getDDMStructureId(),
+				DataActionKeys.UPDATE_DATA_RECORD);
+		}
 
 		dataRecord.setDataRecordCollectionId(ddlRecordSet.getRecordSetId());
 
@@ -444,6 +502,34 @@ public class DataRecordResourceImpl
 		return sb.toString();
 	}
 
+	private boolean _isDataRecordCollectionPermissionCheckingEnabled(
+			DDLRecord ddlRecord)
+		throws Exception {
+
+		return _isDataRecordCollectionPermissionCheckingEnabled(
+			ddlRecord.getRecordSet());
+	}
+
+	private boolean _isDataRecordCollectionPermissionCheckingEnabled(
+			DDLRecordSet ddlRecordSet)
+		throws Exception {
+
+		return _isDataRecordCollectionPermissionCheckingEnabled(
+			ddlRecordSet.getDDMStructure());
+	}
+
+	private boolean _isDataRecordCollectionPermissionCheckingEnabled(
+			DDMStructure ddmStructure)
+		throws Exception {
+
+		DataDefinitionContentType dataDefinitionContentType =
+			_dataDefinitionContentTypeTracker.getDataDefinitionContentType(
+				ddmStructure.getClassNameId());
+
+		return dataDefinitionContentType.
+			isDataRecordCollectionPermissionCheckingEnabled();
+	}
+
 	private DataRecord _toDataRecord(DDLRecord ddlRecord) throws Exception {
 		DDLRecordSet ddlRecordSet = ddlRecord.getRecordSet();
 
@@ -493,6 +579,13 @@ public class DataRecordResourceImpl
 					ArrayUtil.toStringArray(missingFieldNames));
 		}
 	}
+
+	@Reference
+	private DataDefinitionContentTypeTracker _dataDefinitionContentTypeTracker;
+
+	@Reference
+	private DataDefinitionModelResourcePermission
+		_dataDefinitionModelResourcePermission;
 
 	@Reference
 	private DataRecordCollectionModelResourcePermission
