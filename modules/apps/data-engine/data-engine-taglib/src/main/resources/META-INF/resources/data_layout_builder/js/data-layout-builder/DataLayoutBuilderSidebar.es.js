@@ -13,6 +13,7 @@
  */
 
 import ClayDropDown from '@clayui/drop-down';
+import ClayForm from '@clayui/form';
 import ClayIcon from '@clayui/icon';
 import {PagesVisitor} from 'dynamic-data-mapping-form-renderer';
 import React, {
@@ -33,6 +34,7 @@ import Button from '../components/button/Button.es';
 import FieldSets from '../components/field-sets/FieldSets.es';
 import FieldTypeList from '../components/field-types/FieldTypeList.es';
 import RuleList from '../components/rules/RuleList.es';
+import SearchInput from '../components/search-input/SearchInput.es';
 import Sidebar from '../components/sidebar/Sidebar.es';
 import {useSidebarContent} from '../hooks/index.es';
 import isClickOutside from '../utils/clickOutside.es';
@@ -42,12 +44,12 @@ import renderSettingsForm, {
 } from '../utils/renderSettingsForm.es';
 import DataLayoutBuilderContext from './DataLayoutBuilderContext.es';
 
-const DefaultSidebarBody = ({keywords}) => {
+const DefaultSidebarBody = ({keywords, onSearch}) => {
 	const [dataLayoutBuilder] = useContext(DataLayoutBuilderContext);
 
 	const [
 		{
-			config: {allowFieldSets, allowRules},
+			config: {allowFieldSets},
 		},
 	] = useContext(AppContext);
 
@@ -79,11 +81,26 @@ const DefaultSidebarBody = ({keywords}) => {
 		{
 			label: Liferay.Language.get('fields'),
 			render: () => (
-				<FieldTypeList
-					fieldTypes={fieldTypes}
-					keywords={keywords}
-					onDoubleClick={onDoubleClick}
-				/>
+				<>
+					<div className="mb-2">
+						{onSearch && (
+							<ClayForm
+								onSubmit={event => event.preventDefault()}
+							>
+								<SearchInput
+									onChange={searchText =>
+										onSearch(searchText)
+									}
+								/>
+							</ClayForm>
+						)}
+					</div>
+					<FieldTypeList
+						fieldTypes={fieldTypes}
+						keywords={keywords}
+						onDoubleClick={onDoubleClick}
+					/>
+				</>
 			),
 		},
 	];
@@ -92,13 +109,6 @@ const DefaultSidebarBody = ({keywords}) => {
 		tabs.push({
 			label: Liferay.Language.get('fieldsets'),
 			render: () => <FieldSets />,
-		});
-	}
-
-	if (allowRules) {
-		tabs.push({
-			label: Liferay.Language.get('rules'),
-			render: () => <RuleList />,
 		});
 	}
 
@@ -290,8 +300,15 @@ const SettingsSidebarHeader = () => {
 
 export default () => {
 	const [dataLayoutBuilder] = useContext(DataLayoutBuilderContext);
-	const [{focusedCustomObjectField, focusedField}] = useContext(AppContext);
+	const [
+		{
+			config: {allowRules},
+			focusedCustomObjectField,
+			focusedField,
+		},
+	] = useContext(AppContext);
 	const [keywords, setKeywords] = useState('');
+	const [selectedTab, setSelectedTab] = useState(0);
 	const [sidebarClosed, setSidebarClosed] = useState(false);
 
 	useSidebarContent(dataLayoutBuilder.containerRef, sidebarClosed);
@@ -360,13 +377,40 @@ export default () => {
 		Object.keys(focusedCustomObjectField).length > 0;
 	const displaySettings = hasFocusedCustomObjectField || hasFocusedField;
 
+	const mainTabs = [
+		{
+			label: Liferay.Language.get('form'),
+			render: () => (
+				<DefaultSidebarBody
+					closeable={!displaySettings || sidebarClosed}
+					keywords={keywords}
+					onSearch={displaySettings ? false : setKeywords}
+				/>
+			),
+		},
+	];
+
+	if (allowRules) {
+		mainTabs.push({
+			label: Liferay.Language.get('rules'),
+			render: () => <RuleList />,
+		});
+	}
+
+	const onSelectTab = tab => {
+		setSelectedTab(tab);
+		setKeywords('');
+	};
+
 	return (
 		<Sidebar
 			closeable={!displaySettings || sidebarClosed}
 			closed={sidebarClosed}
-			onSearch={displaySettings ? false : setKeywords}
 			onToggle={closed => setSidebarClosed(closed)}
 			ref={sidebarRef}
+			selectedTab={selectedTab}
+			setSelectedTab={onSelectTab}
+			tabs={mainTabs}
 		>
 			<>
 				{displaySettings && <SettingsSidebarHeader />}
@@ -375,7 +419,9 @@ export default () => {
 					{displaySettings ? (
 						<SettingsSidebarBody />
 					) : (
-						<DefaultSidebarBody keywords={keywords} />
+						<Sidebar.TabContent>
+							{mainTabs[selectedTab].render()}
+						</Sidebar.TabContent>
 					)}
 				</Sidebar.Body>
 			</>
