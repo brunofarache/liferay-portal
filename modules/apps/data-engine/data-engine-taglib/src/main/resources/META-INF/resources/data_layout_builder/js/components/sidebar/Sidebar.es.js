@@ -12,13 +12,11 @@
  * details.
  */
 
-import {ClayButtonWithIcon} from '@clayui/button';
-import ClayForm from '@clayui/form';
+import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
 import classNames from 'classnames';
 import React, {useEffect, useState} from 'react';
 
 import Button from '../button/Button.es';
-import SearchInput from '../search-input/SearchInput.es';
 
 const Sidebar = React.forwardRef(
 	(
@@ -27,8 +25,10 @@ const Sidebar = React.forwardRef(
 			className,
 			closeable = true,
 			closed = false,
-			onSearch = null,
 			onToggle = () => {},
+			selectedTab,
+			setSelectedTab = () => {},
+			tabs = [],
 		},
 		ref
 	) => {
@@ -56,17 +56,24 @@ const Sidebar = React.forwardRef(
 					)}
 				>
 					<div className="sidebar sidebar-light">
-						{(closeable || onSearch) && (
-							<ClayForm
-								onSubmit={event => event.preventDefault()}
+						<div className="autofit-col ml-2">
+							<SideBarButtonGroup
+								onTabClick={setSelectedTab}
+								selectedTab={selectedTab}
+								tabs={tabs}
 							>
-								<SidebarSearchInput
-									closeable={closeable}
-									onSearch={onSearch}
-									onToggle={handleToggle}
-								/>
-							</ClayForm>
-						)}
+								<div className="autofit-col ml-2">
+									{closeable && (
+										<ClayButtonWithIcon
+											displayType="secondary"
+											onClick={onToggle}
+											small
+											symbol="angle-right"
+										/>
+									)}
+								</div>
+							</SideBarButtonGroup>
+						</div>
 						{children}
 					</div>
 				</div>
@@ -110,25 +117,30 @@ const SidebarHeader = ({children, className}) => {
 	);
 };
 
-const SidebarSearchInput = ({closeable, onSearch, onToggle}) => (
+const SideBarButtonGroup = ({children, onTabClick, selectedTab, tabs}) => (
 	<SidebarHeader>
 		<div className="autofit-row sidebar-section">
 			<div className="autofit-col autofit-col-expand">
-				{onSearch && (
-					<SearchInput
-						onChange={searchText => onSearch(searchText)}
-					/>
-				)}
+				<ClayButton.Group>
+					{tabs.map(({label}, index) => (
+						<ClayButton
+							className={classNames({
+								active: selectedTab === index,
+							})}
+							displayType="secondary"
+							key={index}
+							onClick={event => {
+								event.preventDefault();
+								onTabClick(index);
+							}}
+							small
+						>
+							{label}
+						</ClayButton>
+					))}
+				</ClayButton.Group>
 			</div>
-			<div className="autofit-col ml-2">
-				{closeable && (
-					<ClayButtonWithIcon
-						displayType="secondary"
-						onClick={onToggle}
-						symbol="angle-right"
-					/>
-				)}
-			</div>
+			{children}
 		</div>
 	</SidebarHeader>
 );
@@ -193,7 +205,6 @@ const SidebarTabContent = ({children}) => {
 Sidebar.Body = SidebarBody;
 Sidebar.Footer = SidebarFooter;
 Sidebar.Header = SidebarHeader;
-Sidebar.SearchInput = SidebarSearchInput;
 Sidebar.Tab = SidebarTab;
 Sidebar.Tabs = SidebarTabs;
 Sidebar.TabContent = SidebarTabContent;
@@ -204,7 +215,6 @@ export {
 	SidebarBody,
 	SidebarFooter,
 	SidebarHeader,
-	SidebarSearchInput,
 	SidebarTab,
 	SidebarTabs,
 	SidebarTabContent,
