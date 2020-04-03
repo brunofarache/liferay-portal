@@ -13,7 +13,6 @@
  */
 
 import ClayDropDown from '@clayui/drop-down';
-import ClayForm from '@clayui/form';
 import ClayIcon from '@clayui/icon';
 import {PagesVisitor} from 'dynamic-data-mapping-form-renderer';
 import React, {
@@ -34,7 +33,7 @@ import Button from '../components/button/Button.es';
 import FieldSets from '../components/field-sets/FieldSets.es';
 import FieldTypeList from '../components/field-types/FieldTypeList.es';
 import RuleList from '../components/rules/RuleList.es';
-import SearchInput from '../components/search-input/SearchInput.es';
+import {SearchInputWithForm} from '../components/search-input/SearchInput.es';
 import Sidebar from '../components/sidebar/Sidebar.es';
 import {useSidebarContent} from '../hooks/index.es';
 import isClickOutside from '../utils/clickOutside.es';
@@ -84,15 +83,9 @@ const DefaultSidebarBody = ({keywords, onSearch}) => {
 				<>
 					<div className="mb-2">
 						{onSearch && (
-							<ClayForm
-								onSubmit={event => event.preventDefault()}
-							>
-								<SearchInput
-									onChange={searchText =>
-										onSearch(searchText)
-									}
-								/>
-							</ClayForm>
+							<SearchInputWithForm
+								onChange={searchText => onSearch(searchText)}
+							/>
 						)}
 					</div>
 					<FieldTypeList
