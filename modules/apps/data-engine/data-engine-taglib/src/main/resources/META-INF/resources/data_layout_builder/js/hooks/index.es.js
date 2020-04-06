@@ -12,8 +12,9 @@
  * details.
  */
 
+import useHeightTransition from './useHeightTransition.es';
 import useKeyDown from './useKeyDown.es';
 import useRequest from './useRequest.es';
 import useSidebarContent from './useSidebarContent.es';
 
-export {useKeyDown, useRequest, useSidebarContent};
+export {useHeightTransition, useKeyDown, useRequest, useSidebarContent};
