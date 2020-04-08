@@ -849,6 +849,8 @@ class Form extends Component {
 			successPageSettings.body[themeDisplay.getLanguageId()] = '';
 		}
 
+		successPageSettings.enabled = true;
+
 		const emptyLocalizableValue = {
 			[themeDisplay.getLanguageId()]: '',
 		};
@@ -872,7 +874,7 @@ class Form extends Component {
 							},
 						],
 						title: '',
-					},
+					}
 				],
 				paginationMode: 'wizard',
 				successPageSettings,
