@@ -20,12 +20,14 @@ import {
 	ADD_DATA_LAYOUT_RULE,
 	DELETE_DATA_DEFINITION_FIELD,
 	DELETE_DATA_LAYOUT_FIELD,
+	DELETE_DATA_LAYOUT_RULE,
 	EDIT_CUSTOM_OBJECT_FIELD,
 	SWITCH_SIDEBAR_PANEL,
 	UPDATE_CONFIG,
 	UPDATE_DATA_DEFINITION,
 	UPDATE_DATA_LAYOUT,
 	UPDATE_DATA_LAYOUT_NAME,
+	UPDATE_DATA_LAYOUT_RULE,
 	UPDATE_EDITING_LANGUAGE_ID,
 	UPDATE_FIELDSETS,
 	UPDATE_FIELD_TYPES,
@@ -224,15 +226,9 @@ const createReducer = dataLayoutBuilder => {
 					dataLayout: {dataRules},
 				} = state;
 
-				if (
-					Object.prototype.hasOwnProperty.call(
-						dataRule,
-						'logical-operator'
-					)
-				) {
-					dataRule['logicalOperator'] = dataRule['logical-operator'];
-					delete dataRule['logical-operator'];
-				}
+				DataLayoutVisitor.normalizeLogicalOperator(dataRule);
+
+				dataRule.ruleId = dataRules.length;
 
 				return {
 					...state,
@@ -261,6 +257,23 @@ const createReducer = dataLayoutBuilder => {
 				return {
 					...state,
 					dataLayout: deleteDataLayoutField(dataLayout, fieldName),
+				};
+			}
+			case DELETE_DATA_LAYOUT_RULE: {
+				const {ruleId} = action.payload;
+
+				const {
+					dataLayout: {dataRules},
+				} = state;
+
+				return {
+					...state,
+					dataLayout: {
+						...state.dataLayout,
+						dataRules: dataRules.filter(
+							rule => rule.ruleId !== ruleId
+						),
+					},
 				};
 			}
 			case EDIT_CUSTOM_OBJECT_FIELD: {
@@ -337,6 +350,31 @@ const createReducer = dataLayoutBuilder => {
 					dataLayout: {
 						...state.dataLayout,
 						name,
+					},
+				};
+			}
+			case UPDATE_DATA_LAYOUT_RULE: {
+				const {dataRule} = action.payload;
+				const {
+					dataLayout: {dataRules},
+				} = state;
+
+				DataLayoutVisitor.normalizeLogicalOperator(dataRule);
+
+				return {
+					...state,
+					dataLayout: {
+						...state.dataLayout,
+						dataRules: dataRules.map(rule => {
+							if (rule.ruleId === dataRule.ruleEditedIndex) {
+								return {
+									...dataRule,
+									ruleId: dataRule.ruleEditedIndex,
+								};
+							}
+
+							return rule;
+						}),
 					},
 				};
 			}
