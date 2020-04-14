@@ -95,6 +95,17 @@ create table DDMFormInstanceRecordVersion (
 	statusDate DATE null
 );
 
+create table DDMFormInstanceReportEntry (
+	mvccVersion LONG default 0 not null,
+	formInstanceReportEntryId LONG not null primary key,
+	groupId LONG,
+	companyId LONG,
+	createDate DATE null,
+	modifiedDate DATE null,
+	formInstanceId LONG,
+	summary VARCHAR(75) null
+);
+
 create table DDMFormInstanceVersion (
 	mvccVersion LONG default 0 not null,
 	formInstanceVersionId LONG not null primary key,
