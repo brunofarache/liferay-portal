@@ -339,10 +339,10 @@ class Form extends Component {
 		return activeNavItem === NAV_ITEMS.RULES && this.isFormBuilderView();
 	}
 
-	isShowEntries() {
-		const {entriesVisible} = this.state;
+	isShowSummary() {
+		const {activeNavItem} = this.state;
 
-		return entriesVisible && this.isFormBuilderView();
+		return activeNavItem === NAV_ITEMS.SUMMARY && this.isFormBuilderView();
 	}
 
 	onAvailableLocalesRemoved({newValue, previousValue}) {
@@ -452,7 +452,7 @@ class Form extends Component {
 						spritemap={spritemap}
 						view={view}
 						visible={
-							!this.isShowEntries() && !this.isShowRuleBuilder()
+							!this.isShowRuleBuilder() && !this.isShowSummary()
 						}
 					/>
 
@@ -466,7 +466,7 @@ class Form extends Component {
 						ref="sidebar"
 						spritemap={spritemap}
 						visible={
-							!this.isShowEntries() && !this.isShowRuleBuilder()
+							!this.isShowRuleBuilder() && !this.isShowSummary()
 						}
 					/>
 				</LayoutProviderTag>
@@ -935,12 +935,13 @@ class Form extends Component {
 		const {
 			defaultLanguageId,
 			editingLanguageId,
+			namespace,
 			published,
 			saved,
 		} = this.props;
 
-		const ddmFormInstanceManagementToolbar = document.querySelector(
-			'#ddmFormInstanceManagementToolbar'
+		const managementToolbar = document.querySelector(
+			`#${namespace}managementToolbar`
 		);
 		const formBasicInfo = document.querySelector('.ddm-form-basic-info');
 		const formBuilderButtons = document.querySelector(
@@ -955,7 +956,7 @@ class Form extends Component {
 		);
 
 		if (show) {
-			ddmFormInstanceManagementToolbar.classList.remove('hide');
+			managementToolbar.classList.remove('hide');
 			formBasicInfo.classList.remove('hide');
 			formBuilderButtons.classList.remove('hide');
 
@@ -979,7 +980,7 @@ class Form extends Component {
 			}
 		}
 		else {
-			ddmFormInstanceManagementToolbar.classList.add('hide');
+			managementToolbar.classList.add('hide');
 			formBasicInfo.classList.add('hide');
 			formBuilderButtons.classList.add('hide');
 
@@ -998,15 +999,17 @@ class Form extends Component {
 	}
 
 	_toggleRulesBuilder(show) {
-		const ddmFormInstanceManagementToolbar = document.querySelector(
-			'#ddmFormInstanceManagementToolbar'
+		const {namespace} = this.props;
+
+		const managementToolbar = document.querySelector(
+			`#${namespace}managementToolbar`
 		);
 
 		if (show) {
-			ddmFormInstanceManagementToolbar.classList.remove('hide');
+			managementToolbar.classList.remove('hide');
 		}
 		else {
-			ddmFormInstanceManagementToolbar.classList.add('hide');
+			managementToolbar.classList.add('hide');
 		}
 
 		if (this.refs.ruleBuilder.isViewMode()) {
@@ -1018,15 +1021,15 @@ class Form extends Component {
 	}
 
 	_toggleSummary(show) {
-		const viewFormInstanceRecords = document.querySelector(
-			'#viewFormInstanceRecords'
-		);
+		const {namespace} = this.props;
+
+		const formSummary = document.querySelector(`#${namespace}formSummary`);
 
 		if (show) {
-			viewFormInstanceRecords.classList.remove('hide');
+			formSummary.classList.remove('hide');
 		}
 		else {
-			viewFormInstanceRecords.classList.add('hide');
+			formSummary.classList.add('hide');
 		}
 	}
 
