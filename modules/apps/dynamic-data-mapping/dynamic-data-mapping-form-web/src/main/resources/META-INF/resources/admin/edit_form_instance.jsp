@@ -21,6 +21,8 @@ String redirect = ParamUtil.getString(request, "redirect");
 
 DDMFormInstance formInstance = ddmFormAdminDisplayContext.getDDMFormInstance();
 
+int entriesCount = 0;
+
 long formInstanceId = BeanParamUtil.getLong(formInstance, request, "formInstanceId");
 long groupId = BeanParamUtil.getLong(formInstance, request, "groupId", scopeGroupId);
 long ddmStructureId = BeanParamUtil.getLong(formInstance, request, "structureId");
@@ -29,6 +31,12 @@ boolean disableCopyButton = false;
 
 if (!ddmFormAdminDisplayContext.isFormPublished() && (formInstance != null)) {
 	disableCopyButton = true;
+}
+
+if (formInstance != null) {
+	DDMFormViewFormInstanceRecordsDisplayContext ddmFormViewFormInstanceRecordsDisplayContext = ddmFormAdminDisplayContext.getFormViewRecordsDisplayContext();
+
+	entriesCount = ddmFormViewFormInstanceRecordsDisplayContext.getTotalItems();
 }
 
 portletDisplay.setShowBackIcon(true);
@@ -53,7 +61,7 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 		navigationItems="<%= ddmFormAdminDisplayContext.getFormBuilderNavigationItems() %>"
 	/>
 
-	<nav class="management-bar management-bar-light navbar navbar-expand-md toolbar-group-field">
+	<nav class="management-bar management-bar-light navbar navbar-expand-md toolbar-group-field" id="ddmFormInstanceManagementToolbar">
 		<div class="autosave-bar container toolbar">
 			<div class="navbar-form navbar-form-autofit navbar-overlay toolbar-group-content">
 				<span class="autosave-feedback management-bar-text" id="<portlet:namespace />autosaveMessage"></span>
@@ -141,6 +149,10 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 
 <liferay-portlet:resourceURL copyCurrentRenderParameters="<%= false %>" id="saveFormInstance" var="autoSaveFormInstanceURL" />
 
+<div class="hide" id="viewFormInstanceRecords">
+	<liferay-util:include page="/admin/list_form_instance_records.jsp" servletContext="<%= application %>" />
+</div>
+
 <aui:script>
 	Liferay.namespace('DDM').FormSettings = {
 		autosaveInterval: <%= ddmFormAdminDisplayContext.getAutosaveInterval() %>,
@@ -190,6 +202,7 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 								'<%= dataProviderInstancesURL %>',
 							defaultLanguageId:
 								'<%= ddmFormAdminDisplayContext.getDefaultLanguageId() %>',
+							entriesCount: <%= entriesCount %>,
 							fieldSetDefinitionURL:
 								'<%= ddmFormAdminDisplayContext.getFieldSetDefinitionURL() %>',
 							fieldSets: <%= ddmFormAdminDisplayContext.getFieldSetsJSONArray() %>,
