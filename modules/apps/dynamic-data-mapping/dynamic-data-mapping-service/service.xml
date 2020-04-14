@@ -257,6 +257,33 @@
 			<finder-column name="status" />
 		</finder>
 	</entity>
+	<entity local-service="true" name="DDMFormInstanceReportEntry" remote-service="false">
+
+		<!-- PK fields -->
+
+		<column name="formInstanceReportEntryId" primary="true" type="long" />
+
+		<!-- Group instance -->
+
+		<column name="groupId" type="long" />
+
+		<!-- Audit fields -->
+
+		<column name="companyId" type="long" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
+
+		<!-- Other fields -->
+
+		<column name="formInstanceId" type="long" />
+		<column name="summary" type="String" />
+
+		<!-- Finder methods -->
+
+		<finder name="FormInstanceId" return-type="DDMFormInstanceReportEntry">
+			<finder-column name="formInstanceId" />
+		</finder>
+	</entity>
 	<entity local-service="true" name="DDMFormInstanceVersion" remote-service="true">
 
 		<!-- PK fields -->
