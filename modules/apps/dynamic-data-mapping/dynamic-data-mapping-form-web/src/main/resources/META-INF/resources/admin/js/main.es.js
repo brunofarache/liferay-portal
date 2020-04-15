@@ -612,6 +612,12 @@ class Form extends Component {
 	}
 
 	syncActiveSummaryNavItem(activeSummaryNavItem) {
+		const {published, saved} = this.props;
+
+		if (!published && !saved) {
+			return;
+		}
+
 		switch (activeSummaryNavItem) {
 			case SUMMARY_NAV_ITEMS.SUMMARY:
 				this._toggleSummaryContainer(false);
@@ -1073,6 +1079,10 @@ class Form extends Component {
 		const {namespace} = this.props;
 
 		const formSummary = document.querySelector(`#${namespace}formSummary`);
+
+		if (!formSummary) {
+			return;
+		}
 
 		if (show) {
 			formSummary.classList.remove('hide');
