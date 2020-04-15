@@ -103,7 +103,7 @@ create table DDMFormInstanceReportEntry (
 	createDate DATE null,
 	modifiedDate DATE null,
 	formInstanceId LONG,
-	summary VARCHAR(75) null
+	summary TEXT null
 );
 
 create table DDMFormInstanceVersion (

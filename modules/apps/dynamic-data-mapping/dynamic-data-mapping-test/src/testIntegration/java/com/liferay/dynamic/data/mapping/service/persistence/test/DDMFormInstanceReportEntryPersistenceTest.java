@@ -222,7 +222,7 @@ public class DDMFormInstanceReportEntryPersistenceTest {
 			"DDMFormInstanceReportEntry", "mvccVersion", true,
 			"formInstanceReportEntryId", true, "groupId", true, "companyId",
 			true, "createDate", true, "modifiedDate", true, "formInstanceId",
-			true, "summary", true);
+			true);
 	}
 
 	@Test

@@ -145,7 +145,9 @@ public class DDMFormInstanceReportEntryCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
 
 		formInstanceReportEntryId = objectInput.readLong();
@@ -157,7 +159,7 @@ public class DDMFormInstanceReportEntryCacheModel
 		modifiedDate = objectInput.readLong();
 
 		formInstanceId = objectInput.readLong();
-		summary = objectInput.readUTF();
+		summary = (String)objectInput.readObject();
 	}
 
 	@Override
@@ -175,10 +177,10 @@ public class DDMFormInstanceReportEntryCacheModel
 		objectOutput.writeLong(formInstanceId);
 
 		if (summary == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(summary);
+			objectOutput.writeObject(summary);
 		}
 	}
 
