@@ -118,7 +118,9 @@
 		<field name="createDate" type="Date" />
 		<field name="modifiedDate" type="Date" />
 		<field name="formInstanceId" type="long" />
-		<field name="summary" type="String" />
+		<field name="summary" type="String">
+			<hint-collection name="CLOB" />
+		</field>
 	</model>
 	<model name="com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion">
 		<field name="mvccVersion" type="long" />
