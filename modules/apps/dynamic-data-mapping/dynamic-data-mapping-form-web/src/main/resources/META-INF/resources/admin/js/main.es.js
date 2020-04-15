@@ -50,6 +50,11 @@ const NAV_ITEMS = {
 	SUMMARY: 2,
 };
 
+const SUMMARY_NAV_ITEMS = {
+	ENTRIES: 1,
+	SUMMARY: 0,
+};
+
 /**
  * Form.
  * @extends Component
@@ -184,6 +189,11 @@ class Form extends Component {
 				'.forms-management-bar li',
 				'click',
 				this._handleFormNavClicked
+			),
+			dom.on(
+				'.form-summary-navigation-bar li',
+				'click',
+				this._handleFormSummaryNavClicked
 			)
 		);
 
@@ -262,6 +272,9 @@ class Form extends Component {
 			this
 		);
 		this._handleFormNavClicked = this._handleFormNavClicked.bind(this);
+		this._handleFormSummaryNavClicked = this._handleFormSummaryNavClicked.bind(
+			this
+		);
 		this._handleNameEditorCopyAndPaste = this._handleNameEditorCopyAndPaste.bind(
 			this
 		);
@@ -590,6 +603,22 @@ class Form extends Component {
 				this._toggleFormBuilder(false);
 				this._toggleRulesBuilder(false);
 				this._toggleSummary(true);
+				this.syncActiveSummaryNavItem(this.state.activeSummaryNavItem);
+				break;
+
+			default:
+				break;
+		}
+	}
+
+	syncActiveSummaryNavItem(activeSummaryNavItem) {
+		switch (activeSummaryNavItem) {
+			case SUMMARY_NAV_ITEMS.SUMMARY:
+				this._toggleSummaryContainer(false);
+				break;
+
+			case SUMMARY_NAV_ITEMS.ENTRIES:
+				this._toggleSummaryContainer(true);
 				break;
 
 			default:
@@ -759,6 +788,24 @@ class Form extends Component {
 		}
 
 		this.syncActiveNavItem(this.state.activeNavItem);
+	}
+
+	_handleFormSummaryNavClicked(event) {
+		const {delegateTarget} = event;
+		const navItem = dom.closest(delegateTarget, '.nav-item');
+		const navItemIndex = Number(navItem.dataset.navItemIndex);
+		const navLink = navItem.querySelector('.nav-link');
+
+		this.setState({
+			activeSummaryNavItem: navItemIndex,
+		});
+
+		document
+			.querySelector('.form-summary-navigation-bar li > a.active')
+			.classList.remove('active');
+		navLink.classList.add('active');
+
+		this.syncActiveSummaryNavItem(this.state.activeSummaryNavItem);
 	}
 
 	_handleNameEditorCopyAndPaste(event) {
@@ -1032,6 +1079,19 @@ class Form extends Component {
 		}
 		else {
 			formSummary.classList.add('hide');
+		}
+	}
+
+	_toggleSummaryContainer(show) {
+		const summaryContainer = document.querySelector(
+			'.ddm-form-summary-container'
+		);
+
+		if (show) {
+			summaryContainer.classList.remove('hide');
+		}
+		else {
+			summaryContainer.classList.add('hide');
 		}
 	}
 
@@ -1310,6 +1370,16 @@ Form.STATE = {
 	 */
 
 	activeNavItem: Config.number().value(NAV_ITEMS.FORM),
+
+	/**
+	 * Current active tab index inside Entries tab.
+	 * @default
+	 * @instance
+	 * @memberof Form
+	 * @type {!number}
+	 */
+
+	activeSummaryNavItem: Config.number().value(SUMMARY_NAV_ITEMS.SUMMARY),
 
 	/**
 	 * Internal mirror of the pages state
