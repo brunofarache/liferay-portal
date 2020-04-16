@@ -20,12 +20,27 @@ import withContextMock from '../../__mock__/withContextMock.es';
 
 const spritemap = 'icons.svg';
 let component;
-let pagesEmpty = null;
-let successPageSettings = null;
+let pagesEmpty;
+let successPageSettings;
+const PageRendererWithContextMock = withContextMock(PageRenderer);
+
+const createPageRenderer = props => {
+	return new PageRendererWithContextMock({
+		editable: true,
+		editingLanguageId: 'en_US',
+		paginationMode: 'wizard',
+		portletNamespace: 'portletNamespace',
+		showSubmitButton: false,
+		spritemap,
+		submitLabel: 'Submit',
+		successPageSettings,
+		view: 'formBuilder',
+		...props,
+	});
+};
 
 describe('PageRenderer', () => {
 	beforeEach(() => {
-		jest.useFakeTimers();
 		pagesEmpty = JSON.parse(JSON.stringify(mockPagesEmpty));
 		successPageSettings = JSON.parse(JSON.stringify(mockSuccessPage));
 
@@ -39,99 +54,52 @@ describe('PageRenderer', () => {
 	});
 
 	it('creates the defaut markup when success page is enabled', () => {
-		const PageRendererWithContextMock = withContextMock(PageRenderer);
-
 		pagesEmpty.push({contentRenderer: 'success'});
 
-		component = new PageRendererWithContextMock({
-			editable: true,
-			editingLanguageId: 'en_US',
+		component = createPageRenderer({
 			page: pagesEmpty[0],
 			pageIndex: 0,
 			pages: pagesEmpty,
-			paginationMode: 'wizard',
-			portletNamespace: 'portletNamespace',
-			showSubmitButton: false,
-			spritemap,
-			submitLabel: 'Submit',
-			successPageSettings,
 			total: 2,
-			view: 'formBuilder',
 		});
 
 		expect(component).toMatchSnapshot();
 	});
 
 	it('creates the defaut markup with button to add success page if success page is disabled', () => {
-		const PageRendererWithContextMock = withContextMock(PageRenderer);
-
-		pagesEmpty.push(pagesEmpty[0]);
 		successPageSettings.enabled = false;
 
-		component = new PageRendererWithContextMock({
-			editable: true,
-			editingLanguageId: 'en_US',
-			page: pagesEmpty[1],
-			pageIndex: 1,
+		component = createPageRenderer({
+			page: pagesEmpty[0],
+			pageIndex: 0,
 			pages: pagesEmpty,
-			paginationMode: 'wizard',
-			portletNamespace: 'portletNamespace',
-			showSubmitButton: false,
-			spritemap,
-			submitLabel: 'Submit',
-			successPageSettings,
-			total: 2,
-			view: 'formBuilder',
+			total: 1,
 		});
 
-		expect(component.refs.successPage).not.toBeNull();
+		expect(component).toMatchSnapshot();
+		expect(component.refs.successPage).not.toBeUndefined();
 	});
 
 	it('shows the new page button on the bottom of each page', () => {
-		const PageRendererWithContextMock = withContextMock(PageRenderer);
-
 		pagesEmpty.push({contentRenderer: 'success'});
 
-		component = new PageRendererWithContextMock({
-			editable: true,
-			editingLanguageId: 'en_US',
+		component = createPageRenderer({
 			page: pagesEmpty[0],
 			pageIndex: 0,
 			pages: pagesEmpty,
-			paginationMode: 'wizard',
-			portletNamespace: 'portletNamespace',
-			showSubmitButton: false,
-			spritemap,
-			submitLabel: 'Submit',
-			successPageSettings,
 			total: 2,
-			view: 'formBuilder',
 		});
 
-		const newPageButton = component.refs.newPage0;
-
-		expect(newPageButton).not.toBeNull();
+		expect(component).toMatchSnapshot();
+		expect(component.refs.newPage0).not.toBeUndefined();
 	});
 
-	it('adds a new page by clicking the New Page button', () => {
-		const PageRendererWithContextMock = withContextMock(PageRenderer);
-
-		pagesEmpty.push({contentRenderer: 'success'});
-
-		component = new PageRendererWithContextMock({
-			editable: true,
-			editingLanguageId: 'en_US',
+	it('propagates pageAdded event after option of remove a page be clicked', () => {
+		component = createPageRenderer({
 			page: pagesEmpty[0],
 			pageIndex: 0,
 			pages: pagesEmpty,
-			paginationMode: 'wizard',
-			portletNamespace: 'portletNamespace',
-			showSubmitButton: false,
-			spritemap,
-			submitLabel: 'Submit',
-			successPageSettings,
-			total: 2,
-			view: 'formBuilder',
+			total: 1,
 		});
 
 		component._handleAddPageClicked();
@@ -141,26 +109,15 @@ describe('PageRenderer', () => {
 		});
 	});
 
-	it('removes a page by clicking on kebab (three dots) menu on the right side of each page', () => {
-		const PageRendererWithContextMock = withContextMock(PageRenderer);
-
+	it('propagates pageDeleted event after option of remove a page be clicked', () => {
 		pagesEmpty.push(pagesEmpty[0]);
 		pagesEmpty.push({contentRenderer: 'success'});
 
-		component = new PageRendererWithContextMock({
-			editable: true,
-			editingLanguageId: 'en_US',
+		component = createPageRenderer({
 			page: pagesEmpty[1],
 			pageIndex: 1,
 			pages: pagesEmpty,
-			paginationMode: 'wizard',
-			portletNamespace: 'portletNamespace',
-			showSubmitButton: false,
-			spritemap,
-			submitLabel: 'Submit',
-			successPageSettings,
 			total: 3,
-			view: 'formBuilder',
 		});
 
 		const data = {
@@ -177,9 +134,7 @@ describe('PageRenderer', () => {
 		);
 	});
 
-	it('removes the success page by clicking on kebab (three dots) menu on the right side of each page', () => {
-		const PageRendererWithContextMock = withContextMock(PageRenderer);
-
+	it('propagates activePageUpdated event after option of remove success page be clicked', () => {
 		pagesEmpty.push(pagesEmpty[0]);
 		pagesEmpty.push({
 			contentRenderer: 'success',
@@ -187,20 +142,11 @@ describe('PageRenderer', () => {
 			successPageSettings,
 		});
 
-		component = new PageRendererWithContextMock({
-			editable: true,
-			editingLanguageId: 'en_US',
+		component = createPageRenderer({
 			page: pagesEmpty[2],
 			pageIndex: 2,
 			pages: pagesEmpty,
-			paginationMode: 'wizard',
-			portletNamespace: 'portletNamespace',
-			showSubmitButton: false,
-			spritemap,
-			submitLabel: 'Submit',
-			successPageSettings,
 			total: 3,
-			view: 'formBuilder',
 		});
 
 		const data = {
@@ -217,26 +163,15 @@ describe('PageRenderer', () => {
 		);
 	});
 
-	it('resets a page by clicking on kebab (three dots) menu on the right side of each page', () => {
-		const PageRendererWithContextMock = withContextMock(PageRenderer);
-
+	it('propagates pageReset event after option of remove reset page be clicked', () => {
 		pagesEmpty.push(pagesEmpty[0]);
 		pagesEmpty.push({contentRenderer: 'success'});
 
-		component = new PageRendererWithContextMock({
-			editable: true,
-			editingLanguageId: 'en_US',
+		component = createPageRenderer({
 			page: pagesEmpty[1],
 			pageIndex: 1,
 			pages: pagesEmpty,
-			paginationMode: 'wizard',
-			portletNamespace: 'portletNamespace',
-			showSubmitButton: false,
-			spritemap,
-			submitLabel: 'Submit',
-			successPageSettings,
 			total: 3,
-			view: 'formBuilder',
 		});
 
 		const data = {
@@ -250,5 +185,31 @@ describe('PageRenderer', () => {
 		expect(component.context.dispatch).toHaveBeenCalledWith('pageReset', {
 			pageIndex: 1,
 		});
+	});
+
+	it('verify if kebab (three dots) menu of actions exist on Success Page', () => {
+		pagesEmpty.push({contentRenderer: 'success'});
+
+		component = createPageRenderer({
+			page: pagesEmpty[1],
+			pageIndex: 1,
+			pages: pagesEmpty,
+			total: 2,
+		});
+
+		expect(component.refs.successPageActions1).not.toBeUndefined();
+	});
+
+	it('verify if kebab (three dots) menu of actions exist on a Page', () => {
+		pagesEmpty.push({contentRenderer: 'success'});
+
+		component = createPageRenderer({
+			page: pagesEmpty[0],
+			pageIndex: 0,
+			pages: pagesEmpty,
+			total: 2,
+		});
+
+		expect(component.refs.pageActions0).not.toBeUndefined();
 	});
 });
