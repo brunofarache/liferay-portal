@@ -38,7 +38,7 @@ describe('FormRenderer', () => {
 		pages = null;
 	});
 
-	it('renders default markup with Success Page ative', () => {
+	it('renders default markup with Success Page enabled', () => {
 		pages.push({contentRenderer: 'success'});
 		component = new FormRenderer({
 			pages,

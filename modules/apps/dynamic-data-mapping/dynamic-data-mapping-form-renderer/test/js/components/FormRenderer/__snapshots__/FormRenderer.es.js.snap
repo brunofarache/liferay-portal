@@ -510,7 +510,7 @@ exports[`FormRenderer renders a layout with pages in mode of list 1`] = `
 </div>
 `;
 
-exports[`FormRenderer renders default markup with Success Page ative 1`] = `
+exports[`FormRenderer renders default markup with Success Page enabled 1`] = `
 <div class="">
   <div class="lfr-ddm-form-container position-relative ddm-user-view-content">
     <div class="horizontal-line"></div>
