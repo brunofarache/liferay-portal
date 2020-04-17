@@ -774,6 +774,7 @@
 		<exception>FormInstanceNotPublished</exception>
 		<exception>FormInstanceRecordExporter</exception>
 		<exception>FormInstanceRecordGroupId</exception>
+		<exception>FormInstanceReportData</exception>
 		<exception>FormInstanceSettingsRedirectURL</exception>
 		<exception>FormInstanceStructureId</exception>
 		<exception>InvalidParentStructure</exception>
