@@ -20,6 +20,17 @@ import withContextMock from '../../__mock__/withContextMock.es';
 
 let component;
 let successPageSettings;
+const SuccessPageWithContextMock = withContextMock(SuccessPage);
+
+const createSuccessPage = props => {
+	return new SuccessPageWithContextMock({
+		contentLabel: 'Content',
+		editingLanguageId: 'en_US',
+		successPageSettings,
+		titleLabel: 'Title',
+		...props,
+	});
+};
 
 describe('SuccessPage', () => {
 	beforeEach(() => {
@@ -37,13 +48,7 @@ describe('SuccessPage', () => {
 	});
 
 	it('renders the component', () => {
-		const SuccessPageWithContextMock = withContextMock(SuccessPage);
-
-		component = new SuccessPageWithContextMock({
-			contentLabel: 'Content',
-			successPageSettings,
-			titleLabel: 'Title',
-		});
+		component = createSuccessPage();
 
 		jest.runAllTimers();
 
@@ -51,12 +56,8 @@ describe('SuccessPage', () => {
 	});
 
 	it('emits event when page title is changed', () => {
-		const SuccessPageWithContextMock = withContextMock(SuccessPage);
+		component = createSuccessPage();
 
-		component = new SuccessPageWithContextMock({
-			editingLanguageId: 'en_US',
-			successPageSettings,
-		});
 		const titleNode = component.element.querySelector(
 			'input[data-setting="title"]'
 		);
@@ -80,12 +81,8 @@ describe('SuccessPage', () => {
 	});
 
 	it('emits event when page body is changed', () => {
-		const SuccessPageWithContextMock = withContextMock(SuccessPage);
+		component = createSuccessPage();
 
-		component = new SuccessPageWithContextMock({
-			editingLanguageId: 'en_US',
-			successPageSettings,
-		});
 		const bodyNode = component.element.querySelector(
 			'input[data-setting="body"]'
 		);
