@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -71,6 +72,11 @@ public interface DDMFormInstanceReportLocalService
 	public DDMFormInstanceReport addDDMFormInstanceReport(
 		DDMFormInstanceReport ddmFormInstanceReport);
 
+	public DDMFormInstanceReport addFormInstanceReport(
+			long formInstanceId, String data, long groupId,
+			ServiceContext serviceContext)
+		throws PortalException;
+
 	/**
 	 * Creates a new ddm form instance report with the primary key. Does not add the ddm form instance report to the database.
 	 *
@@ -108,6 +114,9 @@ public interface DDMFormInstanceReportLocalService
 	public DDMFormInstanceReport deleteDDMFormInstanceReport(
 			long formInstanceReportId)
 		throws PortalException;
+
+	public DDMFormInstanceReport deleteFormInstanceReport(
+		DDMFormInstanceReport ddmFormInstanceReport);
 
 	/**
 	 * @throws PortalException
@@ -225,6 +234,10 @@ public interface DDMFormInstanceReportLocalService
 	public int getDDMFormInstanceReportsCount();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public DDMFormInstanceReport getFormInstanceReport(long formInstanceId)
+		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
 
 	/**
@@ -251,5 +264,10 @@ public interface DDMFormInstanceReportLocalService
 	@Indexable(type = IndexableType.REINDEX)
 	public DDMFormInstanceReport updateDDMFormInstanceReport(
 		DDMFormInstanceReport ddmFormInstanceReport);
+
+	public DDMFormInstanceReport updateFormInstanceReport(
+			String data, long formInstanceReportId,
+			ServiceContext serviceContext)
+		throws PortalException;
 
 }
