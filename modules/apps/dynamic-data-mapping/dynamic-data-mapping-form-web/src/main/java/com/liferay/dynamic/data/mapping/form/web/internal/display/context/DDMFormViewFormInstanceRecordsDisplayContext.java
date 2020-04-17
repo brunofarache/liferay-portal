@@ -38,6 +38,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.PortalPreferences;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletURLUtil;
@@ -53,6 +54,7 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -209,6 +211,37 @@ public class DDMFormViewFormInstanceRecordsDisplayContext {
 					LanguageUtil.get(httpServletRequest, "order-by"));
 			}
 		).build();
+	}
+
+	public String getLastModifiedDate() {
+		OrderByComparator<DDMFormInstanceRecord> orderByComparator =
+			FormInstanceRecordSearch.getDDMFormInstanceRecordOrderByComparator(
+				"modified-date", "desc");
+
+		List<DDMFormInstanceRecord> ddmFormInstanceRecords =
+			_ddmFormInstanceRecordLocalService.getFormInstanceRecords(
+				_ddmFormInstance.getFormInstanceId(),
+				WorkflowConstants.STATUS_ANY, 0, 1, orderByComparator);
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)_renderRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		User user = themeDisplay.getUser();
+
+		Stream<DDMFormInstanceRecord> stream = ddmFormInstanceRecords.stream();
+
+		String relativeTimeDescription = stream.findFirst(
+		).map(
+			DDMFormInstanceRecord::getModifiedDate
+		).map(
+			modifiedDate -> Time.getRelativeTimeDescription(
+				modifiedDate, user.getLocale(), user.getTimeZone())
+		).orElse(
+			StringPool.BLANK
+		).toLowerCase();
+
+		return StringUtil.removeSubstring(
+			relativeTimeDescription, StringPool.PERIOD);
 	}
 
 	public List<NavigationItem> getNavigationItems() {
