@@ -849,6 +849,7 @@ class Form extends Component {
 	_setContext(context) {
 		let {successPageSettings} = context;
 		const {successPage} = context;
+		const {saved} = this.props;
 
 		if (!successPageSettings) {
 			successPageSettings = successPage;
@@ -864,7 +865,9 @@ class Form extends Component {
 			successPageSettings.body[themeDisplay.getLanguageId()] = '';
 		}
 
-		successPageSettings.enabled = true;
+		if (!saved) {
+			successPageSettings.enabled = true;
+		}
 
 		const emptyLocalizableValue = {
 			[themeDisplay.getLanguageId()]: '',
