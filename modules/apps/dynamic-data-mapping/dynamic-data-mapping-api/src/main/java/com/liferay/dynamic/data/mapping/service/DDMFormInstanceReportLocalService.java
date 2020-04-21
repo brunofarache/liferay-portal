@@ -14,6 +14,7 @@
 
 package com.liferay.dynamic.data.mapping.service;
 
+import com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceReport;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
@@ -21,11 +22,13 @@ import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.messaging.async.Async;
 import com.liferay.portal.kernel.model.PersistedModel;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -71,6 +74,10 @@ public interface DDMFormInstanceReportLocalService
 	public DDMFormInstanceReport addDDMFormInstanceReport(
 		DDMFormInstanceReport ddmFormInstanceReport);
 
+	public DDMFormInstanceReport addFormInstanceReport(
+			long formInstanceId, long groupId, ServiceContext serviceContext)
+		throws PortalException;
+
 	/**
 	 * Creates a new ddm form instance report with the primary key. Does not add the ddm form instance report to the database.
 	 *
@@ -107,6 +114,10 @@ public interface DDMFormInstanceReportLocalService
 	@Indexable(type = IndexableType.DELETE)
 	public DDMFormInstanceReport deleteDDMFormInstanceReport(
 			long formInstanceReportId)
+		throws PortalException;
+
+	public DDMFormInstanceReport deleteFormInstanceReport(
+			long ddmFormInstanceId)
 		throws PortalException;
 
 	/**
@@ -225,6 +236,10 @@ public interface DDMFormInstanceReportLocalService
 	public int getDDMFormInstanceReportsCount();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public DDMFormInstanceReport getFormInstanceReport(long formInstanceId)
+		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
 
 	/**
@@ -251,5 +266,11 @@ public interface DDMFormInstanceReportLocalService
 	@Indexable(type = IndexableType.REINDEX)
 	public DDMFormInstanceReport updateDDMFormInstanceReport(
 		DDMFormInstanceReport ddmFormInstanceReport);
+
+	@Async
+	public DDMFormInstanceReport updateFormInstanceReport(
+			DDMFormInstanceRecord ddmFormInstanceRecord,
+			long formInstanceReportId, ServiceContext serviceContext)
+		throws PortalException;
 
 }
