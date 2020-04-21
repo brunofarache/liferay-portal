@@ -29,6 +29,7 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceRecordLocalService;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
+import com.liferay.dynamic.data.mapping.util.comparator.DDMFormInstanceRecordModifiedDateComparator;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemListBuilder;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.NavigationItem;
@@ -214,34 +215,29 @@ public class DDMFormViewFormInstanceRecordsDisplayContext {
 	}
 
 	public String getLastModifiedDate() {
-		OrderByComparator<DDMFormInstanceRecord> orderByComparator =
-			FormInstanceRecordSearch.getDDMFormInstanceRecordOrderByComparator(
-				"modified-date", "desc");
-
-		List<DDMFormInstanceRecord> ddmFormInstanceRecords =
-			_ddmFormInstanceRecordLocalService.getFormInstanceRecords(
-				_ddmFormInstance.getFormInstanceId(),
-				WorkflowConstants.STATUS_ANY, 0, 1, orderByComparator);
-
 		ThemeDisplay themeDisplay = (ThemeDisplay)_renderRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
 		User user = themeDisplay.getUser();
 
+		List<DDMFormInstanceRecord> ddmFormInstanceRecords =
+			_ddmFormInstanceRecordLocalService.getFormInstanceRecords(
+				_ddmFormInstance.getFormInstanceId(),
+				WorkflowConstants.STATUS_ANY, 0, 1,
+				new DDMFormInstanceRecordModifiedDateComparator(false));
+
 		Stream<DDMFormInstanceRecord> stream = ddmFormInstanceRecords.stream();
 
-		String relativeTimeDescription = stream.findFirst(
+		return stream.findFirst(
 		).map(
 			DDMFormInstanceRecord::getModifiedDate
 		).map(
 			modifiedDate -> Time.getRelativeTimeDescription(
-				modifiedDate, user.getLocale(), user.getTimeZone())
+				modifiedDate, user.getLocale(), user.getTimeZone()
+			).toLowerCase()
 		).orElse(
 			StringPool.BLANK
-		).toLowerCase();
-
-		return StringUtil.removeSubstring(
-			relativeTimeDescription, StringPool.PERIOD);
+		);
 	}
 
 	public List<NavigationItem> getNavigationItems() {
