@@ -12,12 +12,19 @@
  * details.
  */
 
-export default {
-	body: {
-		en_US: '',
+export default [
+	{
+		pagination: 'Page 1 of 1',
+		rows: [
+			{
+				columns: [
+					{
+						fields: [],
+						size: 12,
+					},
+				],
+			},
+		],
+		title: 'Untitled name',
 	},
-	enabled: true,
-	title: {
-		en_US: '',
-	},
-};
+];

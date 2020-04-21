@@ -2,14 +2,20 @@
 
 {template .render}
 	{@param pages: ?}
+	{@param? dropdownExpanded: bool}
 	{@param showSubmitButton: bool}
 	{@param spritemap: string}
 	{@param submitLabel: string}
 	{@param total: number}
+	{@param? _handleDropdownItemClicked: any}
+	{@param? _handleAddPageClicked: any}
+	{@param? _handleAddSuccessPageClicked: any}
 	{@param? _handleFieldBlurred: any}
 	{@param? _handleFieldClicked: any}
 	{@param? _handleFieldEdited: any}
 	{@param? _handleFieldFocused: any}
+	{@param? _handleMovePageDownClicked: any}
+	{@param? _handleMovePageUpClicked: any}
 	{@param? activePage: number}
 	{@param? editable: bool}
 	{@param? editingLanguageId: string}
@@ -17,8 +23,13 @@
 	{@param? page: ?}
 	{@param? pageIndex: number}
 	{@param? paginationMode: string}
+	{@param? pageSettingsItems: ?}
+	{@param? pageSuccessSettingsItems: ?}
 	{@param? readOnly: bool}
 	{@param? strings: map<string, string>}
+	{@param? view: string}
+	{@param? viewMode: bool}
+	{@param? successPageSettings: ?}
 
 	{let $contentRenderer kind="text"}
 		{if $page.contentRenderer != null and $page.contentRenderer != ''}
@@ -31,32 +42,184 @@
 			{/if}
 		{elseif $paginationMode != null and $paginationMode == 'single-page'}
 			single_page
+		{elseif $paginationMode == 'wizard' and not $viewMode and $view != 'fieldSets'}
+			multi_pages
 		{else}
 			{$paginationMode}
 		{/if}
 	{/let}
 
-	{delcall PageRenderer.container variant="$contentRenderer"}
-		{param _handleFieldBlurred: $_handleFieldBlurred /}
-		{param _handleFieldClicked: $_handleFieldClicked /}
-		{param _handleFieldEdited: $_handleFieldEdited /}
-		{param _handleFieldFocused: $_handleFieldFocused /}
-		{param activePage: $activePage ?: 0 /}
-		{param contentRenderer: $contentRenderer /}
-		{param editable: $editable /}
-		{param editingLanguageId: $editingLanguageId /}
-		{param empty: $empty /}
-		{param page: $page /}
-		{param pageIndex: $pageIndex ?: 0 /}
-		{param pages: $pages /}
-		{param paginationMode: $paginationMode /}
-		{param readOnly: $readOnly /}
-		{param showSubmitButton: $showSubmitButton /}
-		{param spritemap: $spritemap /}
-		{param strings: $strings /}
-		{param submitLabel: $submitLabel /}
-		{param total: $total /}
-	{/delcall}
+	<div class="page">
+		{delcall PageRenderer.container variant="$contentRenderer"}
+			{param _handleFieldBlurred: $_handleFieldBlurred /}
+			{param _handleFieldClicked: $_handleFieldClicked /}
+			{param _handleFieldEdited: $_handleFieldEdited /}
+			{param _handleFieldFocused: $_handleFieldFocused /}
+			{param activePage: $activePage ?: 0 /}
+			{param contentRenderer: $contentRenderer /}
+			{param editable: $editable /}
+			{param editingLanguageId: $editingLanguageId /}
+			{param empty: $empty /}
+			{param page: $page /}
+			{param pageIndex: $pageIndex ?: 0 /}
+			{param pages: $pages /}
+			{param paginationMode: $paginationMode /}
+			{param readOnly: $readOnly /}
+			{param showSubmitButton: $showSubmitButton /}
+			{param spritemap: $spritemap /}
+			{param strings: $strings /}
+			{param submitLabel: $submitLabel /}
+			{param total: $total /}
+			{param view: $view /}
+			{param viewMode: $viewMode /}
+		{/delcall}
+
+		{if $paginationMode == 'wizard' and not $viewMode and $view != 'fieldSets'}
+			{call .reorderPages}
+				{param _handleMovePageDownClicked: $_handleMovePageDownClicked /}
+				{param _handleMovePageUpClicked: $_handleMovePageUpClicked /}
+				{param pageIndex: $pageIndex ?: 0 /}
+				{param spritemap: $spritemap /}
+				{param strings: $strings /}
+				{param successPageEnabled: $successPageSettings.enabled /}
+				{param total: $total /}
+			{/call}
+
+			{let $pageOptions kind="text"}
+				{isNonnull($strings) ? $strings['page-options'] : ''}
+			{/let}
+			{if $successPageSettings.enabled and $pageIndex == length($pages) - 1}
+				<div class="ddm-paginated-builder-dropdown" data-ddm-success-page-actions="{$pageIndex}">
+					{call ClayActionsDropdown.render}
+						{param items: $pageSuccessSettingsItems /}
+						{param events: [
+							'itemClicked': $_handleDropdownItemClicked
+						] /}
+						{param ref: 'successPageActions' + $pageIndex /}
+						{param expanded: $dropdownExpanded /}
+						{param spritemap: $spritemap /}
+						{param title: $pageOptions /}
+					{/call}
+				</div>
+			{else}
+				<div class="ddm-paginated-builder-dropdown" data-ddm-page-actions="{$pageIndex}">
+					{call ClayActionsDropdown.render}
+						{param items: $pageSettingsItems /}
+						{param events: [
+							'itemClicked': $_handleDropdownItemClicked
+						] /}
+						{param ref: 'pageActions' + $pageIndex /}
+						{param expanded: $dropdownExpanded /}
+						{param spritemap: $spritemap /}
+						{param title: $pageOptions /}
+					{/call}
+				</div>
+			{/if}
+
+			{if $page.contentRenderer != 'success'}
+				<div class="add-page-button-container">
+					<div class="horizontal-line"></div>
+						{call ClayButton.render}
+							{param label kind="text"}
+								{if isNonnull($strings)}
+									{$strings['new-page']}
+								{/if}
+							{/param}
+							{param events: [
+								'click': $_handleAddPageClicked
+							] /}
+							{param elementClasses: 'add-page-button' /}
+							{param ref: 'newPage' + $pageIndex /}
+							{param size: 'sm' /}
+							{param spritemap: $spritemap /}
+							{param style: 'secondary' /}
+						{/call}
+					<div class="horizontal-line"></div>
+				</div>
+
+				{if $pageIndex == length($pages) - 1}
+					<div class="add-page-button-container">
+						<div class="horizontal-line"></div>
+							{call ClayButton.render}
+								{param label kind="text"}
+									{if isNonnull($strings)}
+										{$strings['add-success-page']}
+									{/if}
+								{/param}
+								{param events: [
+									'click': $_handleAddSuccessPageClicked
+								] /}
+								{param elementClasses: 'add-page-button' /}
+								{param ref: 'successPage' /}
+								{param size: 'sm' /}
+								{param spritemap: $spritemap /}
+								{param style: 'secondary' /}
+							{/call}
+						<div class="horizontal-line"></div>
+					</div>
+				{/if}
+			{/if}
+		{/if}
+	</div>
+{/template}
+
+{template .reorderPages}
+	{@param spritemap: string}
+	{@param successPageEnabled: bool}
+	{@param total: number}
+	{@param? _handleMovePageDownClicked: any}
+	{@param? _handleMovePageUpClicked: any}
+	{@param? pageIndex: number}
+	{@param? strings: map<string, string>}
+
+	<div class="ddm-paginated-builder-reorder" data-ddm-reorder-page-actions="{$pageIndex}">
+		{let $movePageDown kind="text"}
+			{isNonnull($strings) ? $strings['move-page-down'] : ''}
+		{/let}
+
+		{let $movePageUp kind="text"}
+			{isNonnull($strings) ? $strings['move-page-up'] : ''}
+		{/let}
+
+		{call ClayTooltip.render}
+			{param autoAlign: true /}
+		{/call}
+
+		{if not ($pageIndex == 0 and $total == 2 and $successPageEnabled) and (($successPageEnabled and $pageIndex < $total - 1))
+			or not $successPageEnabled
+		}
+			{let $lastPage kind="text"}
+				{$successPageEnabled ? $total - 2 : $total - 1}
+			{/let}
+
+			{call ClayButton.render}
+				{param disabled: $pageIndex == 0 /}
+				{param icon: 'angle-up'/}
+				{param events: [
+					'click': $_handleMovePageUpClicked
+				] /}
+				{param elementClasses: 'reorder-page-button' /}
+				{param ref: 'movePageUp' + $pageIndex /}
+				{param size: 'sm' /}
+				{param spritemap: $spritemap /}
+				{param style: 'secondary' /}
+				{param title: $movePageUp /}
+			{/call}
+			{call ClayButton.render}
+				{param disabled: $pageIndex == $lastPage /}
+				{param icon: 'angle-down'/}
+				{param events: [
+					'click': $_handleMovePageDownClicked
+				] /}
+				{param elementClasses: 'reorder-page-button' /}
+				{param ref: 'movePageDown' + $pageIndex /}
+				{param size: 'sm' /}
+				{param spritemap: $spritemap /}
+				{param style: 'secondary' /}
+				{param title: $movePageDown /}
+			{/call}
+		{/if}
+	</div>
 {/template}
 
 {template .page}

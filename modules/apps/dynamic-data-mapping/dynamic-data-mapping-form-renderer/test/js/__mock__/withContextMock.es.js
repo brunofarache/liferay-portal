@@ -12,12 +12,17 @@
  * details.
  */
 
-export default {
-	body: {
-		en_US: '',
-	},
-	enabled: true,
-	title: {
-		en_US: '',
-	},
+const withContextMock = Component => {
+	return class WithContextMock extends Component {
+		context = {
+			dispatch: jest.fn(),
+			store: {
+				props: {
+					editingLanguageId: this.editingLanguageId,
+				},
+			},
+		};
+	};
 };
+
+export default withContextMock;

@@ -13,29 +13,23 @@
  */
 
 import dom from 'metal-dom';
-import JSXComponent from 'metal-jsx';
 
 import SuccessPage from '../../../../src/main/resources/META-INF/resources/js/components/SuccessPage/SuccessPage.es';
 import SuccessPageSettings from '../../__mock__/mockSuccessPage.es';
+import withContextMock from '../../__mock__/withContextMock.es';
 
 let component;
 let successPageSettings;
+const SuccessPageWithContextMock = withContextMock(SuccessPage);
 
-const withStore = context => {
-	return class WithContext extends JSXComponent {
-		getChildContext() {
-			return {
-				store: this,
-				...context,
-			};
-		}
-
-		render() {
-			const SuccessPageTag = SuccessPage;
-
-			return <SuccessPageTag {...this.props} />;
-		}
-	};
+const createSuccessPage = props => {
+	return new SuccessPageWithContextMock({
+		contentLabel: 'Content',
+		editingLanguageId: 'en_US',
+		successPageSettings,
+		titleLabel: 'Title',
+		...props,
+	});
 };
 
 describe('SuccessPage', () => {
@@ -54,13 +48,7 @@ describe('SuccessPage', () => {
 	});
 
 	it('renders the component', () => {
-		const Component = withStore({});
-
-		component = new Component({
-			contentLabel: 'Content',
-			successPageSettings,
-			titleLabel: 'Title',
-		});
+		component = createSuccessPage();
 
 		jest.runAllTimers();
 
@@ -68,14 +56,7 @@ describe('SuccessPage', () => {
 	});
 
 	it('emits event when page title is changed', () => {
-		const dispatch = jest.fn();
-
-		const Component = withStore({dispatch});
-
-		component = new Component({
-			editingLanguageId: 'en_US',
-			successPageSettings: {},
-		});
+		component = createSuccessPage();
 
 		const titleNode = component.element.querySelector(
 			'input[data-setting="title"]'
@@ -84,22 +65,23 @@ describe('SuccessPage', () => {
 		titleNode.value = 'Some title';
 		dom.triggerEvent(titleNode, 'input', {});
 
-		expect(dispatch).toHaveBeenCalledWith('successPageChanged', {
-			title: {
-				en_US: 'Some title',
-			},
-		});
+		expect(component.context.dispatch).toHaveBeenCalledWith(
+			'successPageChanged',
+			{
+				body: {
+					en_US:
+						'your-information-was-successfully-received-thank-you-for-filling-out-the-form',
+				},
+				enabled: true,
+				title: {
+					en_US: 'Some title',
+				},
+			}
+		);
 	});
 
 	it('emits event when page body is changed', () => {
-		const dispatch = jest.fn();
-
-		const Component = withStore({dispatch});
-
-		component = new Component({
-			editingLanguageId: 'en_US',
-			successPageSettings: {},
-		});
+		component = createSuccessPage();
 
 		const bodyNode = component.element.querySelector(
 			'input[data-setting="body"]'
@@ -108,10 +90,17 @@ describe('SuccessPage', () => {
 		bodyNode.value = 'Some description';
 		dom.triggerEvent(bodyNode, 'input', {});
 
-		expect(dispatch).toHaveBeenCalledWith('successPageChanged', {
-			body: {
-				en_US: 'Some description',
-			},
-		});
+		expect(component.context.dispatch).toHaveBeenCalledWith(
+			'successPageChanged',
+			{
+				body: {
+					en_US: 'Some description',
+				},
+				enabled: true,
+				title: {
+					en_US: 'thank-you',
+				},
+			}
+		);
 	});
 });

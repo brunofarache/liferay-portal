@@ -12,12 +12,12 @@
  * details.
  */
 
-export default {
-	body: {
-		en_US: '',
-	},
-	enabled: true,
-	title: {
-		en_US: '',
-	},
+export const setValue = (obj, languageId, prop, val) => {
+	if (!obj[prop]) {
+		obj[prop] = {};
+	}
+
+	obj[prop][languageId] = val;
+
+	return obj;
 };
