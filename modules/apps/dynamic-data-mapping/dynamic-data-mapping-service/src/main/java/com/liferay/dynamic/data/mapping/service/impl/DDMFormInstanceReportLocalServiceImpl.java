@@ -14,11 +14,13 @@
 
 package com.liferay.dynamic.data.mapping.service.impl;
 
+import com.liferay.dynamic.data.mapping.exception.FormInstanceReportDataException;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceReport;
 import com.liferay.dynamic.data.mapping.service.base.DDMFormInstanceReportLocalServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.util.Validator;
 
 import org.osgi.service.component.annotations.Component;
 
@@ -37,6 +39,8 @@ public class DDMFormInstanceReportLocalServiceImpl
 			long formInstanceId, String data, long groupId,
 			ServiceContext serviceContext)
 		throws PortalException {
+
+		validate(data);
 
 		long formInstanceReportId = counterLocalService.increment();
 
@@ -75,6 +79,8 @@ public class DDMFormInstanceReportLocalServiceImpl
 			ServiceContext serviceContext)
 		throws PortalException {
 
+		validate(data);
+
 		DDMFormInstanceReport ddmFormInstanceReport =
 			ddmFormInstanceReportPersistence.findByPrimaryKey(
 				formInstanceReportId);
@@ -85,6 +91,13 @@ public class DDMFormInstanceReportLocalServiceImpl
 		ddmFormInstanceReport.setData(data);
 
 		return ddmFormInstanceReportPersistence.update(ddmFormInstanceReport);
+	}
+
+	protected void validate(String data) throws PortalException {
+		if (Validator.isNull(data)) {
+			throw new FormInstanceReportDataException(
+				"Unable to save formInstanceReport with null data");
+		}
 	}
 
 }
