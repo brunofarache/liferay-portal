@@ -47,7 +47,6 @@ describe('ListTableViews', () => {
 	let spyFromNow;
 
 	beforeEach(() => {
-		jest.useFakeTimers();
 		spyFromNow = jest
 			.spyOn(time, 'fromNow')
 			.mockImplementation(() => 'months ago');
@@ -55,12 +54,7 @@ describe('ListTableViews', () => {
 
 	afterEach(() => {
 		cleanup();
-		jest.clearAllTimers();
 		jest.restoreAllMocks();
-	});
-
-	afterAll(() => {
-		jest.useRealTimers();
 	});
 
 	it('renders', async () => {
