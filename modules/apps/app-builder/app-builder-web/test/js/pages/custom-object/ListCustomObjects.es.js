@@ -313,7 +313,7 @@ describe('ListCustomObjects', () => {
 		expect(spySuccessToast.mock.calls.length).toBe(1);
 	});
 
-	it('renders with data and hit actions', async () => {
+	it('renders with data and click on actions', async () => {
 		fetch.mockResponseOnce(JSON.stringify(RESPONSES.ONE_ITEM));
 
 		const history = createMemoryHistory();

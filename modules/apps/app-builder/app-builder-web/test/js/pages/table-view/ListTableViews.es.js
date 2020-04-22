@@ -29,6 +29,7 @@ describe('ListTableViews', () => {
 			<div className="tools-control-group">
 				<div className="control-menu-level-1-heading" />
 			</div>
+
 			<HashRouter>
 				<ListTableViews
 					history={history}
@@ -78,23 +79,28 @@ describe('ListTableViews', () => {
 		fetch
 			.mockResponseOnce(JSON.stringify(RESPONSES.NO_ITEMS))
 			.mockResponseOnce(JSON.stringify({}));
+
 		const {queryByText} = render(<ListTableViewsWithRouter />);
+
 		await waitForElementToBeRemoved(() =>
 			document.querySelector('span.loading-animation')
 		);
+
 		expect(
 			queryByText(
 				'create-one-or-more-tables-to-display-the-data-held-in-your-data-object'
 			)
 		).toBeTruthy();
+
 		expect(queryByText('there-are-no-table-views-yet')).toBeTruthy();
 		expect(document.querySelector('.nav-item > a').href).toContain(
 			'#/table-views/add'
 		);
+
 		expect(fetch.mock.calls.length).toEqual(1);
 	});
 
-	it('renders with data and hit actions', async () => {
+	it('renders with data and click on actions', async () => {
 		fetch.mockResponseOnce(JSON.stringify(RESPONSES.ONE_ITEM));
 
 		const history = createMemoryHistory();
