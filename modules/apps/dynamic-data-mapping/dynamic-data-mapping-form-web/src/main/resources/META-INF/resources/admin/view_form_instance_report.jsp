@@ -17,8 +17,6 @@
 <%@ include file="/admin/init.jsp" %>
 
 <%
-String redirect = ParamUtil.getString(request, "redirect");
-
 DDMFormViewFormInstanceRecordsDisplayContext ddmFormViewFormInstanceRecordsDisplayContext = ddmFormAdminDisplayContext.getFormViewRecordsDisplayContext();
 
 int totalItems = ddmFormViewFormInstanceRecordsDisplayContext.getTotalItems();
@@ -48,15 +46,29 @@ int totalItems = ddmFormViewFormInstanceRecordsDisplayContext.getTotalItems();
 		</div>
 	</div>
 
-	<liferay-ui:tabs
-		cssClass="navbar-no-collapse navigation-bar-light"
-		names="entries"
-		refresh="<%= false %>"
-	>
-		<liferay-ui:section>
-			<liferay-util:include page="/admin/form_instance_records_search_container.jsp" servletContext="<%= application %>">
-				<liferay-util:param name="redirect" value="<%= redirect %>" />
-			</liferay-util:include>
-		</liferay-ui:section>
-	</liferay-ui:tabs>
+	<nav class="mb-4 navbar navbar-collapse-absolute navbar-expand-md navbar-underline navigation-bar navigation-bar-light">
+		<div class="container-fluid container-fluid-max-xl">
+			<ul class="navbar-nav" id="<portlet:namespace />navTab" role="tablist">
+				<li class="nav-item">
+					<a aria-controls="<portlet:namespace />navEntries" class="active nav-link" data-toggle="liferay-tab" href="#<portlet:namespace />navEntries" id="<portlet:namespace />navEntriesTab" role="tab">
+						<liferay-ui:message key="entries" />
+					</a>
+				</li>
+				<!-- <li class="nav-item">
+					<a aria-controls="<portlet:namespace />navSummary" class="nav-link" data-toggle="liferay-tab" href="#<portlet:namespace />navSummary" id="<portlet:namespace />navSummaryTab" role="tab">
+						<liferay-ui:message key="summary" />
+					</a>
+				</li> -->
+			</ul>
+		</div>
+	</nav>
+
+	<div class="tab-content" id="<portlet:namespace />navTabContents">
+		<div aria-labelledby="<portlet:namespace />navEntriesTab" class="active fade show tab-pane" id="<portlet:namespace />navEntries" role="tabpanel">
+			<liferay-util:include page="/admin/form_instance_records_search_container.jsp" servletContext="<%= application %>" />
+		</div>
+
+		<!-- <div aria-labelledby="<portlet:namespace />navSummaryTab" class="fade tab-pane" id="<portlet:namespace />navSummary" role="tabpanel">
+		</div> -->
+	</div>
 </div>
