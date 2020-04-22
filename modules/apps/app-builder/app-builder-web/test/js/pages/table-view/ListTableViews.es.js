@@ -34,9 +34,9 @@ describe('ListTableViews', () => {
 					history={history}
 					match={{
 						params: {
-							dataDefinitionId: 1234,
+							dataDefinitionId: 1,
 						},
-						url: 'my-url',
+						url: 'table-views',
 					}}
 				/>
 			</HashRouter>
@@ -89,7 +89,7 @@ describe('ListTableViews', () => {
 		).toBeTruthy();
 		expect(queryByText('there-are-no-table-views-yet')).toBeTruthy();
 		expect(document.querySelector('.nav-item > a').href).toContain(
-			'#/my-url/add'
+			'#/table-views/add'
 		);
 		expect(fetch.mock.calls.length).toEqual(1);
 	});
@@ -122,6 +122,6 @@ describe('ListTableViews', () => {
 
 		fireEvent.click(edit);
 		expect(history.length).toBe(2);
-		expect(history.location.pathname).toBe('/my-url/1');
+		expect(history.location.pathname).toBe('/table-views/1');
 	});
 });

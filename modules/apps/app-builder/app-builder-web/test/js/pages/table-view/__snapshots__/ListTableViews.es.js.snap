@@ -157,7 +157,7 @@ exports[`ListTableViews renders 1`] = `
           class="nav-item"
         >
           <a
-            href="#/my-url/add"
+            href="#/table-views/add"
           >
             <button
               class="nav-btn nav-btn-monospaced btn btn-monospaced btn-primary"
@@ -223,7 +223,7 @@ exports[`ListTableViews renders 1`] = `
                   class="table-list-title"
                 >
                   <a
-                    href="#/my-url/1"
+                    href="#/table-views/1"
                   >
                     Item 1
                   </a>
