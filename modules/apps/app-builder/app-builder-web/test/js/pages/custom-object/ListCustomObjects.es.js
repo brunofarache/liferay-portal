@@ -24,7 +24,7 @@ import * as time from '../../../../src/main/resources/META-INF/resources/js/util
 import * as toast from '../../../../src/main/resources/META-INF/resources/js/utils/toast.es';
 import {RESPONSES} from '../../constants.es';
 
-describe('ListCustomObject', () => {
+describe('ListCustomObjects', () => {
 	const ListCustomObjectsWithRouter = ({history = createMemoryHistory()}) => (
 		<AppContextProvider value={{}}>
 			<div className="tools-control-group">
