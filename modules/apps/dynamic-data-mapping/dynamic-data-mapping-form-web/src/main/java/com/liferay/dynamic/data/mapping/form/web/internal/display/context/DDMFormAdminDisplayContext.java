@@ -977,7 +977,7 @@ public class DDMFormAdminDisplayContext {
 			_log.error(portalException, portalException);
 		}
 
-		return ParamUtil.getBoolean(renderRequest, "showReport");
+		return _ddmFormWebConfiguration.showReport();
 	}
 
 	public String serializeSettingsForm(PageContext pageContext)

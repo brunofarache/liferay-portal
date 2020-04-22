@@ -51,4 +51,7 @@ public interface DDMFormWebConfiguration {
 	)
 	public String defaultDisplayView();
 
+	@Meta.AD(deflt = "false", required = false)
+	public boolean showReport();
+
 }
