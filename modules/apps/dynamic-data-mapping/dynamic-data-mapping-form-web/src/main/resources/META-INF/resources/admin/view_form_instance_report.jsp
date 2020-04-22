@@ -54,11 +54,6 @@ int totalItems = ddmFormViewFormInstanceRecordsDisplayContext.getTotalItems();
 						<liferay-ui:message key="entries" />
 					</a>
 				</li>
-				<!-- <li class="nav-item">
-					<a aria-controls="<portlet:namespace />navSummary" class="nav-link" data-toggle="liferay-tab" href="#<portlet:namespace />navSummary" id="<portlet:namespace />navSummaryTab" role="tab">
-						<liferay-ui:message key="summary" />
-					</a>
-				</li> -->
 			</ul>
 		</div>
 	</nav>
@@ -67,8 +62,5 @@ int totalItems = ddmFormViewFormInstanceRecordsDisplayContext.getTotalItems();
 		<div aria-labelledby="<portlet:namespace />navEntriesTab" class="active fade show tab-pane" id="<portlet:namespace />navEntries" role="tabpanel">
 			<liferay-util:include page="/admin/form_instance_records_search_container.jsp" servletContext="<%= application %>" />
 		</div>
-
-		<!-- <div aria-labelledby="<portlet:namespace />navSummaryTab" class="fade tab-pane" id="<portlet:namespace />navSummary" role="tabpanel">
-		</div> -->
 	</div>
 </div>
