@@ -106,10 +106,6 @@ export function normalizeRule(dataRule) {
 		delete dataRule['logical-operator'];
 	}
 
-	if (isNaN(dataRule.ruleEditedIndex)) {
-		delete dataRule.ruleEditedIndex;
-	}
-
 	dataRule = {
 		...dataRule,
 		name: {

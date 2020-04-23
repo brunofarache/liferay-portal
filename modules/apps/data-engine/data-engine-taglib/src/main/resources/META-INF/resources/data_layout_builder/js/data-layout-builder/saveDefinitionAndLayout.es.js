@@ -81,6 +81,11 @@ export default ({
 				[themeDisplay.getLanguageId()]: '',
 			},
 		})),
+		dataRules: dataLayout.dataRules.map(rule => {
+			delete rule.ruleEditedIndex;
+
+			return rule;
+		}),
 		...(params.dataLayout || {}),
 	};
 

@@ -365,8 +365,6 @@ const createReducer = dataLayoutBuilder => {
 						...state.dataLayout,
 						dataRules: dataRules.map((rule, index) => {
 							if (index === dataRule.ruleEditedIndex) {
-								delete dataRule.ruleEditedIndex;
-
 								return dataRule;
 							}
 

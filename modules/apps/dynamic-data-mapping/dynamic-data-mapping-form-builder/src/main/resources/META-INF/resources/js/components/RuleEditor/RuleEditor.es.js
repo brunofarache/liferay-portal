@@ -967,13 +967,18 @@ class RuleEditor extends Component {
 		const conditions = this._removeConditionInternalProperties();
 		const {logicalOperator, ruleEditedIndex} = this;
 
-		this.emit(event, {
+		const rule = {
 			actions,
 			conditions,
 			['logical-operator']: logicalOperator,
-			name,
 			ruleEditedIndex,
-		});
+		}
+
+		if (name) {
+			rule.name = name;
+		}
+
+		this.emit(event, rule);
 	}
 
 	_handleRuleCancelled() {
