@@ -25,7 +25,6 @@ import React, {
 } from 'react';
 
 import AppContext from '../../AppContext.es';
-import {UPDATE_RULE_NAME} from '../../actions.es';
 import DataLayoutBuilderContext from '../../data-layout-builder/DataLayoutBuilderContext.es';
 import {getItem} from '../../utils/client.es';
 
@@ -49,7 +48,6 @@ const RuleEditorModalContent = ({onClose, rule}) => {
 			config: {ruleSettings},
 			spritemap,
 		},
-		dispatch,
 	] = useContext(AppContext);
 
 	const [dataLayoutBuilder] = useContext(DataLayoutBuilderContext);
@@ -60,16 +58,9 @@ const RuleEditorModalContent = ({onClose, rule}) => {
 		roles: [],
 	});
 
-	const onChangeRuleName = useCallback(
-		value => {
-			setRuleName(value);
-			dispatch({
-				payload: value,
-				type: UPDATE_RULE_NAME,
-			});
-		},
-		[dispatch]
-	);
+	const onChangeRuleName = useCallback(value => {
+		setRuleName(value);
+	}, []);
 
 	useEffect(() => {
 		if (rule) {
@@ -181,10 +172,11 @@ const RuleEditorModalContent = ({onClose, rule}) => {
 							{Liferay.Language.get('cancel')}
 						</ClayButton>
 						<ClayButton
+							disabled={!ruleName}
 							onClick={() =>
 								rule
-									? ruleEditor.handleRuleEdited()
-									: ruleEditor.handleRuleAdded()
+									? ruleEditor.handleRuleEdited(ruleName)
+									: ruleEditor.handleRuleAdded(ruleName)
 							}
 						>
 							{Liferay.Language.get('save')}

@@ -100,7 +100,7 @@ export function getIndexesFromFieldName({dataLayoutPages}, fieldName) {
 	return indexes;
 }
 
-export function normalizeRule({dataRule, ruleName}) {
+export function normalizeRule(dataRule) {
 	if (Object.prototype.hasOwnProperty.call(dataRule, 'logical-operator')) {
 		dataRule['logicalOperator'] = dataRule['logical-operator'];
 		delete dataRule['logical-operator'];
@@ -113,7 +113,7 @@ export function normalizeRule({dataRule, ruleName}) {
 	dataRule = {
 		...dataRule,
 		name: {
-			en_US: ruleName,
+			en_US: dataRule.name,
 		},
 	};
 

@@ -35,7 +35,6 @@ import {
 	UPDATE_FOCUSED_FIELD,
 	UPDATE_IDS,
 	UPDATE_PAGES,
-	UPDATE_RULE_NAME,
 } from './actions.es';
 import * as DataLayoutVisitor from './utils/dataLayoutVisitor.es';
 import generateDataDefinitionFieldName from './utils/generateDataDefinitionFieldName.es';
@@ -69,7 +68,6 @@ const initialState = {
 	fieldTypes: [],
 	focusedCustomObjectField: {},
 	focusedField: {},
-	ruleName: '',
 	sidebarOpen: true,
 	sidebarPanelId: 'fields',
 	spritemap: `${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`,
@@ -226,13 +224,9 @@ const createReducer = dataLayoutBuilder => {
 				let {dataRule} = action.payload;
 				const {
 					dataLayout: {dataRules},
-					ruleName,
 				} = state;
 
-				dataRule = DataLayoutVisitor.normalizeRule({
-					dataRule,
-					ruleName,
-				});
+				dataRule = DataLayoutVisitor.normalizeRule(dataRule);
 
 				return {
 					...state,
@@ -240,7 +234,6 @@ const createReducer = dataLayoutBuilder => {
 						...state.dataLayout,
 						dataRules: dataRules.concat(dataRule),
 					},
-					ruleName: '',
 				};
 			}
 			case DELETE_DATA_DEFINITION_FIELD: {
@@ -362,20 +355,16 @@ const createReducer = dataLayoutBuilder => {
 				let {dataRule} = action.payload;
 				const {
 					dataLayout: {dataRules},
-					ruleName,
 				} = state;
 
-				dataRule = DataLayoutVisitor.normalizeRule({
-					dataRule,
-					ruleName,
-				});
+				dataRule = DataLayoutVisitor.normalizeRule(dataRule);
 
 				return {
 					...state,
 					dataLayout: {
 						...state.dataLayout,
-						dataRules: dataRules.map((rule, ruleEditedIndex) => {
-							if (ruleEditedIndex === dataRule.ruleEditedIndex) {
+						dataRules: dataRules.map((rule, index) => {
+							if (index === dataRule.ruleEditedIndex) {
 								delete dataRule.ruleEditedIndex;
 
 								return dataRule;
@@ -384,7 +373,6 @@ const createReducer = dataLayoutBuilder => {
 							return rule;
 						}),
 					},
-					ruleName: '',
 				};
 			}
 			case UPDATE_EDITING_LANGUAGE_ID: {
@@ -470,14 +458,6 @@ const createReducer = dataLayoutBuilder => {
 					...state,
 					dataDefinitionId,
 					dataLayoutId,
-				};
-			}
-			case UPDATE_RULE_NAME: {
-				const ruleName = action.payload;
-
-				return {
-					...state,
-					ruleName,
 				};
 			}
 			case UPDATE_PAGES: {

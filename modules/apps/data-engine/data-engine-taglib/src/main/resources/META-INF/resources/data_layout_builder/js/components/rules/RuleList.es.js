@@ -27,8 +27,12 @@ export default ({keywords, toggleRulesEditorVisibility}) => {
 	] = useContext(AppContext);
 
 	const filtereDataRules = dataRules
-		.map((rule, ruleEditedIndex) => ({...rule, ruleEditedIndex}))
-		.filter(({name}) => new RegExp(keywords, 'ig').test(name));
+		.map((rule, index) => ({...rule, ruleEditedIndex: index}))
+		.filter(({name}) =>
+			new RegExp(keywords, 'ig').test(
+				name[Liferay.ThemeDisplay.getLanguageId()]
+			)
+		);
 
 	return (
 		<>
