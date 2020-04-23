@@ -47,7 +47,7 @@ int totalItems = ddmFormViewFormInstanceRecordsDisplayContext.getTotalItems();
 	</div>
 
 	<clay:navigation-bar
-		elementClasses="view-form-instance-record-navigation-bar"
+		elementClasses="ddm-form-report-tabs"
 		navigationItems='<%=
 			new JSPNavigationItemList(pageContext) {
 				{
@@ -71,7 +71,7 @@ int totalItems = ddmFormViewFormInstanceRecordsDisplayContext.getTotalItems();
 
 <aui:script require="metal-dom/src/dom as dom">
 	dom.delegate(
-		document.querySelector('.view-form-instance-record-navigation-bar'),
+		document.querySelector('.ddm-form-report-tabs'),
 		'click',
 		'li',
 		function(event) {
@@ -80,9 +80,7 @@ int totalItems = ddmFormViewFormInstanceRecordsDisplayContext.getTotalItems();
 			var navLink = navItem.querySelector('.nav-link');
 
 			document
-				.querySelector(
-					'.view-form-instance-record-navigation-bar li > a.active'
-				)
+				.querySelector('.ddm-form-report-tabs li > a.active')
 				.classList.remove('active');
 			navLink.classList.add('active');
 
