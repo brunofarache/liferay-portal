@@ -49,6 +49,17 @@ public class DDMFormInstanceReportLocalServiceWrapper
 			ddmFormInstanceReport);
 	}
 
+	@Override
+	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceReport
+			addFormInstanceReport(
+				com.liferay.dynamic.data.mapping.model.DDMFormInstance
+					ddmFormInstance)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _ddmFormInstanceReportLocalService.addFormInstanceReport(
+			ddmFormInstance);
+	}
+
 	/**
 	 * Creates a new ddm form instance report with the primary key. Does not add the ddm form instance report to the database.
 	 *
@@ -105,6 +116,17 @@ public class DDMFormInstanceReportLocalServiceWrapper
 
 		return _ddmFormInstanceReportLocalService.deleteDDMFormInstanceReport(
 			formInstanceReportId);
+	}
+
+	@Override
+	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceReport
+			deleteFormInstanceReport(
+				com.liferay.dynamic.data.mapping.model.DDMFormInstance
+					ddmFormInstance)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _ddmFormInstanceReportLocalService.deleteFormInstanceReport(
+			ddmFormInstance);
 	}
 
 	/**
@@ -274,6 +296,15 @@ public class DDMFormInstanceReportLocalServiceWrapper
 	}
 
 	@Override
+	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceReport
+			getFormInstanceReport(long formInstanceId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _ddmFormInstanceReportLocalService.getFormInstanceReport(
+			formInstanceId);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery
 		getIndexableActionableDynamicQuery() {
 
@@ -317,6 +348,19 @@ public class DDMFormInstanceReportLocalServiceWrapper
 
 		return _ddmFormInstanceReportLocalService.updateDDMFormInstanceReport(
 			ddmFormInstanceReport);
+	}
+
+	@Override
+	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceReport
+			updateFormInstanceReport(
+				String action,
+				com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord
+					ddmFormInstanceRecord,
+				long formInstanceReportId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _ddmFormInstanceReportLocalService.updateFormInstanceReport(
+			action, ddmFormInstanceRecord, formInstanceReportId);
 	}
 
 	@Override

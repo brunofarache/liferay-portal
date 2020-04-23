@@ -14,6 +14,8 @@
 
 package com.liferay.dynamic.data.mapping.service;
 
+import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
+import com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceReport;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
@@ -71,6 +73,10 @@ public interface DDMFormInstanceReportLocalService
 	public DDMFormInstanceReport addDDMFormInstanceReport(
 		DDMFormInstanceReport ddmFormInstanceReport);
 
+	public DDMFormInstanceReport addFormInstanceReport(
+			DDMFormInstance ddmFormInstance)
+		throws PortalException;
+
 	/**
 	 * Creates a new ddm form instance report with the primary key. Does not add the ddm form instance report to the database.
 	 *
@@ -107,6 +113,10 @@ public interface DDMFormInstanceReportLocalService
 	@Indexable(type = IndexableType.DELETE)
 	public DDMFormInstanceReport deleteDDMFormInstanceReport(
 			long formInstanceReportId)
+		throws PortalException;
+
+	public DDMFormInstanceReport deleteFormInstanceReport(
+			DDMFormInstance ddmFormInstance)
 		throws PortalException;
 
 	/**
@@ -225,6 +235,10 @@ public interface DDMFormInstanceReportLocalService
 	public int getDDMFormInstanceReportsCount();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public DDMFormInstanceReport getFormInstanceReport(long formInstanceId)
+		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
 
 	/**
@@ -251,5 +265,10 @@ public interface DDMFormInstanceReportLocalService
 	@Indexable(type = IndexableType.REINDEX)
 	public DDMFormInstanceReport updateDDMFormInstanceReport(
 		DDMFormInstanceReport ddmFormInstanceReport);
+
+	public DDMFormInstanceReport updateFormInstanceReport(
+			String action, DDMFormInstanceRecord ddmFormInstanceRecord,
+			long formInstanceReportId)
+		throws PortalException;
 
 }
