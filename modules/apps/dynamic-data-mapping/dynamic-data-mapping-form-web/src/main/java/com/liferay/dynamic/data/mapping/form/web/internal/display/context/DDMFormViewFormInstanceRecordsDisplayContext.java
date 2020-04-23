@@ -316,7 +316,7 @@ public class DDMFormViewFormInstanceRecordsDisplayContext {
 		return portletURL;
 	}
 
-	public String getReportModifiedDate() {
+	public String getReportLastModifiedDate() {
 		ThemeDisplay themeDisplay = (ThemeDisplay)_renderRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
@@ -336,8 +336,7 @@ public class DDMFormViewFormInstanceRecordsDisplayContext {
 		).map(
 			modifiedDate -> StringUtil.removeSubstring(
 				Time.getRelativeTimeDescription(
-					modifiedDate, user.getLocale(), user.getTimeZone()
-				),
+					modifiedDate, user.getLocale(), user.getTimeZone()),
 				StringPool.PERIOD)
 		).orElse(
 			StringPool.BLANK
