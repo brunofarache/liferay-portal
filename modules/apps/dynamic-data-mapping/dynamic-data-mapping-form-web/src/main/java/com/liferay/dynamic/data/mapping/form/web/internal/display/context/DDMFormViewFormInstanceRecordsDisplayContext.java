@@ -214,32 +214,6 @@ public class DDMFormViewFormInstanceRecordsDisplayContext {
 		).build();
 	}
 
-	public String getLastModifiedDate() {
-		ThemeDisplay themeDisplay = (ThemeDisplay)_renderRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
-		User user = themeDisplay.getUser();
-
-		List<DDMFormInstanceRecord> ddmFormInstanceRecords =
-			_ddmFormInstanceRecordLocalService.getFormInstanceRecords(
-				_ddmFormInstance.getFormInstanceId(),
-				WorkflowConstants.STATUS_ANY, 0, 1,
-				new DDMFormInstanceRecordModifiedDateComparator(false));
-
-		Stream<DDMFormInstanceRecord> stream = ddmFormInstanceRecords.stream();
-
-		return stream.findFirst(
-		).map(
-			DDMFormInstanceRecord::getModifiedDate
-		).map(
-			modifiedDate -> Time.getRelativeTimeDescription(
-				modifiedDate, user.getLocale(), user.getTimeZone()
-			).toLowerCase()
-		).orElse(
-			StringPool.BLANK
-		);
-	}
-
 	public List<NavigationItem> getNavigationItems() {
 		return NavigationItemListBuilder.add(
 			navigationItem -> {
@@ -340,6 +314,34 @@ public class DDMFormViewFormInstanceRecordsDisplayContext {
 		}
 
 		return portletURL;
+	}
+
+	public String getReportModifiedDate() {
+		ThemeDisplay themeDisplay = (ThemeDisplay)_renderRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		User user = themeDisplay.getUser();
+
+		List<DDMFormInstanceRecord> ddmFormInstanceRecords =
+			_ddmFormInstanceRecordLocalService.getFormInstanceRecords(
+				_ddmFormInstance.getFormInstanceId(),
+				WorkflowConstants.STATUS_ANY, 0, 1,
+				new DDMFormInstanceRecordModifiedDateComparator(false));
+
+		Stream<DDMFormInstanceRecord> stream = ddmFormInstanceRecords.stream();
+
+		return stream.findFirst(
+		).map(
+			DDMFormInstanceRecord::getModifiedDate
+		).map(
+			modifiedDate -> StringUtil.removeSubstring(
+				Time.getRelativeTimeDescription(
+					modifiedDate, user.getLocale(), user.getTimeZone()
+				),
+				StringPool.PERIOD)
+		).orElse(
+			StringPool.BLANK
+		);
 	}
 
 	public SearchContainer<?> getSearch() {

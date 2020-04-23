@@ -35,7 +35,7 @@ int totalItems = ddmFormViewFormInstanceRecordsDisplayContext.getTotalItems();
 				<span class="ddm-form-report-header-subtitle text-truncate">
 					<c:choose>
 						<c:when test="<%= totalItems > 0 %>">
-							<liferay-ui:message arguments="<%= ddmFormViewFormInstanceRecordsDisplayContext.getLastModifiedDate() %>" key="last-entry-submitted-x" />
+							<liferay-ui:message arguments="<%= ddmFormViewFormInstanceRecordsDisplayContext.getReportModifiedDate() %>" key="report-was-updated-x" />
 						</c:when>
 						<c:otherwise>
 							<liferay-ui:message key="there-are-no-entries" />
