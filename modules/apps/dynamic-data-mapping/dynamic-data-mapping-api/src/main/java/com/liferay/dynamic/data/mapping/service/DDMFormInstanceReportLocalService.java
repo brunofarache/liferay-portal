@@ -115,8 +115,7 @@ public interface DDMFormInstanceReportLocalService
 			long formInstanceReportId)
 		throws PortalException;
 
-	public DDMFormInstanceReport deleteFormInstanceReport(
-			DDMFormInstance ddmFormInstance)
+	public DDMFormInstanceReport deleteFormInstanceReport(long formInstanceId)
 		throws PortalException;
 
 	/**

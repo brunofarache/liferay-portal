@@ -120,13 +120,11 @@ public class DDMFormInstanceReportLocalServiceWrapper
 
 	@Override
 	public com.liferay.dynamic.data.mapping.model.DDMFormInstanceReport
-			deleteFormInstanceReport(
-				com.liferay.dynamic.data.mapping.model.DDMFormInstance
-					ddmFormInstance)
+			deleteFormInstanceReport(long formInstanceId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ddmFormInstanceReportLocalService.deleteFormInstanceReport(
-			ddmFormInstance);
+			formInstanceId);
 	}
 
 	/**
