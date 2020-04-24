@@ -49,11 +49,13 @@ import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchContextFactory;
 import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
@@ -62,7 +64,11 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.TimeZone;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -334,10 +340,35 @@ public class DDMFormViewFormInstanceRecordsDisplayContext {
 		).map(
 			DDMFormInstanceRecord::getModifiedDate
 		).map(
-			modifiedDate -> StringUtil.removeSubstring(
-				Time.getRelativeTimeDescription(
-					modifiedDate, user.getLocale(), user.getTimeZone()),
-				StringPool.PERIOD)
+			modifiedDate -> {
+				Locale locale = user.getLocale();
+
+				TimeZone timeZone = user.getTimeZone();
+
+				int daysBetween = DateUtil.getDaysBetween(
+					new Date(modifiedDate.getTime()), new Date(), timeZone);
+
+				String relativeTimeDescription = StringUtil.removeSubstring(
+					Time.getRelativeTimeDescription(
+						modifiedDate, locale, timeZone),
+					StringPool.PERIOD);
+
+				String languageKey = "report-was-last-modified-on-x";
+
+				if (daysBetween < 2) {
+					languageKey = "report-was-last-modified-x";
+
+					relativeTimeDescription = StringUtil.toLowerCase(
+						relativeTimeDescription);
+				}
+
+				ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
+					locale, DDMFormViewFormInstanceRecordsDisplayContext.class);
+
+				return LanguageUtil.format(
+					resourceBundle, languageKey, relativeTimeDescription,
+					false);
+			}
 		).orElse(
 			StringPool.BLANK
 		);
