@@ -975,15 +975,6 @@ public class DDMFormAdminDisplayContext {
 	}
 
 	public boolean isShowReport() {
-		try {
-			if (getDDMFormInstance() == null) {
-				return false;
-			}
-		}
-		catch (PortalException portalException) {
-			_log.error(portalException, portalException);
-		}
-
 		return FFDDMFormWebConfigurationUtil.reportEnabled();
 	}
 
