@@ -972,7 +972,7 @@ class RuleEditor extends Component {
 			conditions,
 			['logical-operator']: logicalOperator,
 			ruleEditedIndex,
-		}
+		};
 
 		if (name) {
 			rule.name = name;

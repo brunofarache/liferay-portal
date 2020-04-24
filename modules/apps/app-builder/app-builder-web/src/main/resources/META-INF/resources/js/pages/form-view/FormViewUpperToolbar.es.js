@@ -67,7 +67,19 @@ export default ({newCustomObject}) => {
 	};
 
 	const onSave = () => {
-		saveFormView(state)
+		const {dataLayout} = state;
+		const newState = {
+			...state,
+			dataLayout: {
+				...dataLayout,
+				dataRules: dataLayout.dataRules.map(rule => {
+					delete rule.ruleEditedIndex;
+
+					return rule;
+				}),
+			},
+		};
+		saveFormView(newState)
 			.then(onSuccess)
 			.catch(error => {
 				onError(error);
