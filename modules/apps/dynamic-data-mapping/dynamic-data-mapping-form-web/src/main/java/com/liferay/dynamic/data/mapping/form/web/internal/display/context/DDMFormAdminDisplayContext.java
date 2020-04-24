@@ -510,8 +510,14 @@ public class DDMFormAdminDisplayContext {
 			navigationItem -> {
 				navigationItem.putData("action", "showReport");
 				navigationItem.setHref(StringPool.BLANK);
-				navigationItem.setLabel(
-					LanguageUtil.get(httpServletRequest, "entries"));
+
+				String label = StringBundler.concat(
+					LanguageUtil.get(httpServletRequest, "entries"),
+					StringPool.SPACE, StringPool.OPEN_PARENTHESIS,
+					getFormViewRecordsDisplayContext().getTotalItems(),
+					StringPool.CLOSE_PARENTHESIS);
+
+				navigationItem.setLabel(label);
 			}
 		).build();
 	}
