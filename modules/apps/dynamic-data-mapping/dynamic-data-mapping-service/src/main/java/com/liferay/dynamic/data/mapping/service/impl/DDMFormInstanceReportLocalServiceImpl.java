@@ -64,24 +64,6 @@ public class DDMFormInstanceReportLocalServiceImpl
 	}
 
 	@Override
-	public DDMFormInstanceReport deleteFormInstanceReport(long formInstanceId)
-		throws PortalException {
-
-		DDMFormInstanceReport ddmFormInstanceReport = getFormInstanceReport(
-			formInstanceId);
-
-		return deleteDDMFormInstanceReport(ddmFormInstanceReport);
-	}
-
-	@Override
-	public DDMFormInstanceReport getFormInstanceReport(long formInstanceId)
-		throws PortalException {
-
-		return ddmFormInstanceReportPersistence.findByFormInstanceId(
-			formInstanceId);
-	}
-
-	@Override
 	public DDMFormInstanceReport updateFormInstanceReport(
 			String action, DDMFormInstanceRecord ddmFormInstanceRecord,
 			long formInstanceReportId)
