@@ -45,40 +45,15 @@ public class DDMFormInstanceRecordVersionModelListener
 				ddmFormInstanceRecordVersion.getFormInstanceRecord();
 
 			DDMFormInstanceReport ddmFormInstanceReport =
-				_ddmFormInstanceReportLocalService.getFormInstanceReport(
+				_ddmFormInstanceReportLocalService.fetchDDMFormInstanceReport(
 					ddmFormInstanceRecord.getFormInstanceId());
+
+			if (ddmFormInstanceRecord == null) {
+				return;
+			}
 
 			_ddmFormInstanceReportLocalService.updateFormInstanceReport(
 				DDMFormInstanceReportConstants.ADD_RECORD,
-				ddmFormInstanceRecord,
-				ddmFormInstanceReport.getFormInstanceReportId());
-		}
-		catch (Exception exception) {
-			_log.error(
-				"Could not update DDMFormInstanceReport for " +
-					"formInstanceRecordId " +
-						ddmFormInstanceRecordVersion.getFormInstanceRecordId(),
-				exception);
-
-			throw new ModelListenerException(exception);
-		}
-	}
-
-	@Override
-	public void onAfterRemove(
-			DDMFormInstanceRecordVersion ddmFormInstanceRecordVersion)
-		throws ModelListenerException {
-
-		try {
-			DDMFormInstanceRecord ddmFormInstanceRecord =
-				ddmFormInstanceRecordVersion.getFormInstanceRecord();
-
-			DDMFormInstanceReport ddmFormInstanceReport =
-				_ddmFormInstanceReportLocalService.getFormInstanceReport(
-					ddmFormInstanceRecord.getFormInstanceId());
-
-			_ddmFormInstanceReportLocalService.updateFormInstanceReport(
-				DDMFormInstanceReportConstants.DELETE_RECORD,
 				ddmFormInstanceRecord,
 				ddmFormInstanceReport.getFormInstanceReportId());
 		}
