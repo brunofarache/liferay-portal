@@ -64,8 +64,18 @@ int totalItems = ddmFormViewFormInstanceRecordsDisplayContext.getTotalItems();
 
 	<hr class="m-0" />
 
-	<div id="<portlet:namespace />entriesTabContent">
-		<liferay-util:include page="/admin/form_instance_records_search_container.jsp" servletContext="<%= application %>" />
+	<div id="hello">
+
+		<%
+		Map<String, Object> data = HashMapBuilder.<String, Object>put(
+			"basePortletURL", "oi"
+		).build();
+		%>
+
+		<react:component
+			data="<%= data %>"
+			module="admin/js/pages/report/index.es"
+		/>
 	</div>
 </div>
 
