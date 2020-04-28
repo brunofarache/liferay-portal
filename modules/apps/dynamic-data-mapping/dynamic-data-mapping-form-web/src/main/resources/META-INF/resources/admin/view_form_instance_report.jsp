@@ -65,7 +65,9 @@ int totalItems = ddmFormViewFormInstanceRecordsDisplayContext.getTotalItems();
 	<hr class="m-0" />
 
 	<div id="<portlet:namespace />entriesTabContent">
-		<liferay-util:include page="/admin/form_instance_records_search_container.jsp" servletContext="<%= application %>" />
+		<liferay-portlet:runtime
+			portletName="com_liferay_hello_world_web_portlet_BuiPortlet"
+		/>
 	</div>
 </div>
 
