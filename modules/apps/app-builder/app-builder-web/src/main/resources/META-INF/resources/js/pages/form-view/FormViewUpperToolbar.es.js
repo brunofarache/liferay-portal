@@ -104,7 +104,7 @@ export default ({newCustomObject}) => {
 		<UpperToolbar>
 			<UpperToolbar.Group>
 				<LocalizableDropdown
-					onChangeLanguageId={languageId =>
+					onChangeLanguageId={(languageId) =>
 						setCurrentLanguageId(languageId)
 					}
 					translatedLanguages={dataLayout.name}
