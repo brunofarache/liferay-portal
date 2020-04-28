@@ -37,7 +37,7 @@ window.Liferay = {
 			sv_SE: 'Swedish (Sweden)',
 			zh_CN: 'Chinese (China)',
 		},
-		get: key => {
+		get: (key) => {
 			if (languageMap[key]) {
 				return languageMap[key];
 			}

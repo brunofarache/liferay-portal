@@ -20,9 +20,9 @@ import React, {useEffect, useState} from 'react';
 
 const DEFAULT_LANGUAGE_ID = Liferay.ThemeDisplay.getLanguageId();
 
-export const formatLabel = label => label.replace('_', '-');
+export const formatLabel = (label) => label.replace('_', '-');
 
-export const formatIcon = label => formatLabel(label).toLowerCase();
+export const formatIcon = (label) => formatLabel(label).toLowerCase();
 
 export const LocalizableDropdownLabel = ({defaultLanguageId, translated}) => {
 	let className = 'label-warning';
@@ -63,7 +63,7 @@ export default ({onChangeLanguageId, translatedLanguages}) => {
 		const availableLanguageIds = Liferay.Language.available;
 
 		setAvailableLanguageIds(
-			Object.keys(availableLanguageIds).map(languageId => ({
+			Object.keys(availableLanguageIds).map((languageId) => ({
 				defaultLanguageId: languageId === DEFAULT_LANGUAGE_ID,
 				languageId,
 				...(translatedLanguages && {
