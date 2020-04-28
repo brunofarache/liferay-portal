@@ -13,9 +13,10 @@
  */
 
 import {DataLayoutBuilderActions} from 'data-engine-taglib';
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 
 import {AppContext} from '../../AppContext.es';
+import LocalizableDropdown from '../../components/localizable/LocalizableDropdown.es';
 import UpperToolbar from '../../components/upper-toolbar/UpperToolbar.es';
 import {errorToast, successToast} from '../../utils/toast.es';
 import FormViewContext from './FormViewContext.es';
@@ -24,6 +25,10 @@ import saveFormView from './saveFormView.es';
 export default ({newCustomObject}) => {
 	const [state, dispatch] = useContext(FormViewContext);
 	const {dataDefinitionId, dataLayout} = state;
+
+	const [languageId, setCurrentLanguageId] = useState(
+		Liferay.ThemeDisplay.getLanguageId()
+	);
 
 	const {basePortletURL} = useContext(AppContext);
 	const listUrl = `${basePortletURL}/#/custom-object/${dataDefinitionId}/form-views`;
@@ -53,7 +58,12 @@ export default ({newCustomObject}) => {
 		const {value} = target;
 
 		dispatch({
-			payload: {name: {en_US: value}},
+			payload: {
+				name: {
+					...dataLayout.name,
+					[languageId]: value,
+				},
+			},
 			type: DataLayoutBuilderActions.UPDATE_DATA_LAYOUT_NAME,
 		});
 	};
@@ -87,11 +97,20 @@ export default ({newCustomObject}) => {
 	};
 
 	const {
-		name: {en_US: dataLayoutName = ''},
+		name: {[languageId]: dataLayoutName = ''},
 	} = dataLayout;
 
 	return (
 		<UpperToolbar>
+			<UpperToolbar.Group>
+				<LocalizableDropdown
+					onChangeLanguageId={languageId =>
+						setCurrentLanguageId(languageId)
+					}
+					translatedLanguages={dataLayout.name}
+				/>
+			</UpperToolbar.Group>
+
 			<UpperToolbar.Input
 				onInput={onInput}
 				onKeyDown={onKeyDown}
