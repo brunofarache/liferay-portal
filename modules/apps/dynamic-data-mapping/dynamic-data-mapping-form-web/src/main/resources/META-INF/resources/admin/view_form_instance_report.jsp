@@ -55,8 +55,15 @@ int totalItems = ddmFormViewFormInstanceRecordsDisplayContext.getTotalItems();
 						navigationItem -> {
 							navigationItem.setActive(true);
 							navigationItem.setHref(StringPool.BLANK);
+							navigationItem.setLabel(LanguageUtil.get(request, "summary"));
+						}
+					);
+					add(
+						navigationItem -> {
+							navigationItem.setHref(StringPool.BLANK);
 							navigationItem.setLabel(LanguageUtil.get(request, "entries"));
-						});
+						}
+					);
 				}
 			}
 		%>'
@@ -64,7 +71,10 @@ int totalItems = ddmFormViewFormInstanceRecordsDisplayContext.getTotalItems();
 
 	<hr class="m-0" />
 
-	<div id="<portlet:namespace />entriesTabContent">
+	<div id="<portlet:namespace />summaryTabContent">
+	</div>
+
+	<div class="hide" id="<portlet:namespace />entriesTabContent">
 		<liferay-util:include page="/admin/form_instance_records_search_container.jsp" servletContext="<%= application %>" />
 	</div>
 </div>
@@ -88,11 +98,17 @@ int totalItems = ddmFormViewFormInstanceRecordsDisplayContext.getTotalItems();
 				'#<portlet:namespace />entriesTabContent'
 			);
 
+			var summaryTabContent = document.querySelector(
+				'#<portlet:namespace />summaryTabContent'
+			);
+
 			if (navItemIndex === 0) {
-				entriesTabContent.classList.remove('hide');
+				entriesTabContent.classList.add('hide');
+				summaryTabContent.classList.remove('hide');
 			}
 			else {
-				entriesTabContent.classList.add('hide');
+				entriesTabContent.classList.remove('hide');
+				summaryTabContent.classList.add('hide');
 			}
 		}
 	);
