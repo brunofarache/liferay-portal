@@ -27,25 +27,23 @@ describe('LocalizableDropdown', () => {
 	});
 
 	it('renders LocalizableDropdown with defaultLanguageId without pass props', () => {
-		const {container} = render(<LocalizableDropdown />);
+		render(<LocalizableDropdown />);
 
 		const defaultLanguageId = 'en-US';
 
 		expect(document.querySelector('.localizable-dropdown')).toBeTruthy();
 		expect(document.querySelector('.localizable-dropdown-ul')).toBeTruthy();
 
-		const btn = document.querySelector('button.dropdown-toggle');
+		const button = document.querySelector('button.dropdown-toggle');
 
-		expect(btn).toBeTruthy();
-		expect(btn.getAttribute('symbol')).toEqual(defaultLanguageId);
-		expect(btn.querySelector('.btn-section').textContent).toEqual(
+		expect(button).toBeTruthy();
+		expect(button.getAttribute('symbol')).toEqual(defaultLanguageId);
+		expect(button.querySelector('.btn-section').textContent).toEqual(
 			defaultLanguageId
 		);
-		expect(btn.querySelector('svg').classList).toContain(
+		expect(button.querySelector('svg').classList).toContain(
 			'lexicon-icon-en-us'
 		);
-
-		expect(container).toMatchSnapshot();
 	});
 
 	it('renders LocalizableDropdown passing translatedLanguages', () => {
@@ -64,7 +62,7 @@ describe('LocalizableDropdown', () => {
 
 		const list = document.querySelectorAll('.localizable-dropdown-ul li');
 
-		const labels = [...list].map(li => ({
+		const labels = [...list].map((li) => ({
 			label: li.querySelector('.label-item').textContent,
 			languageId: li
 				.querySelector('.autofit-section')
@@ -94,7 +92,7 @@ describe('LocalizableDropdown', () => {
 
 		render(
 			<LocalizableDropdown
-				onChangeLanguageId={id => onChangeCallback(id)}
+				onChangeLanguageId={(id) => onChangeCallback(id)}
 			/>
 		);
 
@@ -102,7 +100,7 @@ describe('LocalizableDropdown', () => {
 
 		const button = [...list]
 			.find(
-				li =>
+				(li) =>
 					li
 						.querySelector('.autofit-section')
 						.textContent.replace(/\s/g, '') === 'pt-BR'
@@ -114,6 +112,16 @@ describe('LocalizableDropdown', () => {
 		expect(onChangeCallback.mock.calls.length).toBe(2);
 		expect(onChangeCallback.mock.calls[0][0]).toEqual('en_US');
 		expect(onChangeCallback.mock.calls[1][0]).toEqual('pt_BR');
+	});
+
+	it('renders dropdown menu when clicked', () => {
+		render(<LocalizableDropdown />);
+
+		const button = document.querySelector('.dropdown-toggle');
+		fireEvent.click(button);
+
+		expect(document.body.querySelector('.dropdown-menu')).toBeTruthy();
+		expect(document.body).toMatchSnapshot();
 	});
 });
 
