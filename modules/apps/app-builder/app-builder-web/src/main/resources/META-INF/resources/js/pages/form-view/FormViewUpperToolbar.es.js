@@ -16,7 +16,7 @@ import {DataLayoutBuilderActions} from 'data-engine-taglib';
 import React, {useContext, useState} from 'react';
 
 import {AppContext} from '../../AppContext.es';
-import LocalizableDropdown from '../../components/localizable/LocalizableDropdown.es';
+import TranslationManager from '../../components/translation-manager/TranslationManager.es';
 import UpperToolbar from '../../components/upper-toolbar/UpperToolbar.es';
 import {errorToast, successToast} from '../../utils/toast.es';
 import FormViewContext from './FormViewContext.es';
@@ -103,7 +103,7 @@ export default ({newCustomObject}) => {
 	return (
 		<UpperToolbar>
 			<UpperToolbar.Group>
-				<LocalizableDropdown
+				<TranslationManager
 					editingLanguageId={editingLanguageId}
 					onChangeLanguageId={(languageId) =>
 						setEditingLanguageId(languageId)

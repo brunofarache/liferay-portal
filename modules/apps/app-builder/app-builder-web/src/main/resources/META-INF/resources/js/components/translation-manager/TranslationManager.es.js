@@ -22,7 +22,7 @@ export const formatLabel = (label) => label.replace('_', '-');
 
 export const formatIcon = (label) => formatLabel(label).toLowerCase();
 
-export const TranslatedLabel = ({languageId, translatedLanguageIds}) => {
+export const TranslationManagerLabel = ({languageId, translatedLanguageIds}) => {
 	let className = 'label-warning';
 	let label = Liferay.Language.get('not-translated');
 
@@ -95,7 +95,7 @@ export default ({
 								</span>
 							</span>
 
-							<TranslatedLabel
+							<TranslationManagerLabel
 								languageId={languageId}
 								translatedLanguageIds={translatedLanguageIds}
 							/>
