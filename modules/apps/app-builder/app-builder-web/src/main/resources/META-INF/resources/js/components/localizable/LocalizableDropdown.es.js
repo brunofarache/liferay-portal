@@ -16,23 +16,21 @@ import ClayButton from '@clayui/button';
 import ClayDropDown from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
 import classNames from 'classnames';
-import React, {useEffect, useState} from 'react';
-
-const DEFAULT_LANGUAGE_ID = Liferay.ThemeDisplay.getLanguageId();
+import React, {useState} from 'react';
 
 export const formatLabel = (label) => label.replace('_', '-');
 
 export const formatIcon = (label) => formatLabel(label).toLowerCase();
 
-export const LocalizableDropdownLabel = ({defaultLanguageId, translated}) => {
+export const TranslatedLabel = ({languageId, translatedLanguageIds}) => {
 	let className = 'label-warning';
 	let label = Liferay.Language.get('not-translated');
 
-	if (defaultLanguageId) {
+	if (languageId === Liferay.ThemeDisplay.getLanguageId()) {
 		className = 'label-info';
 		label = Liferay.Language.get('default');
 	}
-	else if (translated) {
+	else if (translatedLanguageIds[languageId]) {
 		className = 'label-success';
 		label = Liferay.Language.get('translated');
 	}
@@ -46,90 +44,65 @@ export const LocalizableDropdownLabel = ({defaultLanguageId, translated}) => {
 	);
 };
 
-export default ({onChangeLanguageId, translatedLanguages}) => {
+export default ({
+	editingLanguageId,
+	onChangeLanguageId,
+	translatedLanguageIds,
+}) => {
 	const [active, setActive] = useState(false);
-	const [availableLanguageIds, setAvailableLanguageIds] = useState([]);
-	const [editingLocalizableId, setEditingLocalizableId] = useState(
-		DEFAULT_LANGUAGE_ID
-	);
-
-	useEffect(() => {
-		if (onChangeLanguageId) {
-			onChangeLanguageId(editingLocalizableId);
-		}
-	}, [editingLocalizableId, onChangeLanguageId]);
-
-	useEffect(() => {
-		const availableLanguageIds = Liferay.Language.available;
-
-		setAvailableLanguageIds(
-			Object.keys(availableLanguageIds).map((languageId) => ({
-				defaultLanguageId: languageId === DEFAULT_LANGUAGE_ID,
-				languageId,
-				...(translatedLanguages && {
-					translated: !!translatedLanguages[languageId],
-				}),
-			}))
-		);
-	}, [translatedLanguages]);
 
 	return (
 		<ClayDropDown
 			active={active}
 			className="localizable-dropdown"
-			onActiveChange={setActive}
+			onActiveChange={(newVal) => setActive(newVal)}
 			trigger={
 				<ClayButton
 					displayType="secondary"
 					small
-					symbol={formatLabel(editingLocalizableId)}
+					symbol={formatLabel(editingLanguageId)}
 				>
 					<span className="inline-item">
-						<ClayIcon symbol={formatIcon(editingLocalizableId)} />
+						<ClayIcon symbol={formatIcon(editingLanguageId)} />
 					</span>
+
 					<span className="btn-section">
-						{formatLabel(editingLocalizableId)}
+						{formatLabel(editingLanguageId)}
 					</span>
 				</ClayButton>
 			}
 		>
-			{!!availableLanguageIds.length && (
-				<ClayDropDown.ItemList className="localizable-dropdown-ul">
-					{availableLanguageIds.map(
-						(
-							{defaultLanguageId, languageId, translated},
-							index
-						) => (
-							<ClayDropDown.Item
-								className="autofit-row"
-								key={index}
-								onClick={() => {
-									setEditingLocalizableId(languageId);
-									setActive(false);
-								}}
-							>
-								<span className="autofit-col autofit-col-expand">
-									<span className="autofit-section">
-										<span className="inline-item inline-item-before">
-											<ClayIcon
-												symbol={formatIcon(languageId)}
-											/>
-										</span>
-
-										{formatLabel(languageId)}
+			<ClayDropDown.ItemList className="localizable-dropdown-ul">
+				{Object.keys(Liferay.Language.available).map(
+					(languageId, index) => (
+						<ClayDropDown.Item
+							className="autofit-row"
+							key={index}
+							onClick={() => {
+								onChangeLanguageId(languageId);
+								setActive(false);
+							}}
+						>
+							<span className="autofit-col autofit-col-expand">
+								<span className="autofit-section">
+									<span className="inline-item inline-item-before">
+										<ClayIcon
+											symbol={formatIcon(languageId)}
+										/>
 									</span>
+
+									{formatLabel(languageId)}
 								</span>
-								{translatedLanguages && (
-									<LocalizableDropdownLabel
-										defaultLanguageId={defaultLanguageId}
-										translated={translated}
-									/>
-								)}
-							</ClayDropDown.Item>
-						)
-					)}
-				</ClayDropDown.ItemList>
-			)}
+							</span>
+
+							<TranslatedLabel
+								languageId={languageId}
+								translatedLanguageIds={translatedLanguageIds}
+							/>
+						</ClayDropDown.Item>
+					)
+				)}
+			</ClayDropDown.ItemList>
 		</ClayDropDown>
 	);
 };
