@@ -72,6 +72,9 @@ int totalItems = ddmFormViewFormInstanceRecordsDisplayContext.getTotalItems();
 	<hr class="m-0" />
 
 	<div id="<portlet:namespace />summaryTabContent">
+		<liferay-portlet:runtime
+			portletName="<%= DDMPortletKeys.DYNAMIC_DATA_MAPPING_FORM_REPORT %>"
+		/>
 	</div>
 
 	<div class="hide" id="<portlet:namespace />entriesTabContent">
