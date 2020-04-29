@@ -19,6 +19,7 @@ import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecordVersion;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceReport;
 import com.liferay.dynamic.data.mapping.model.Value;
+import com.liferay.dynamic.data.mapping.service.DDMFormInstanceRecordVersionLocalService;
 import com.liferay.dynamic.data.mapping.service.base.DDMFormInstanceReportLocalServiceBaseImpl;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
@@ -33,6 +34,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Marcos Martins
@@ -65,8 +67,8 @@ public class DDMFormInstanceReportLocalServiceImpl
 
 	@Override
 	public DDMFormInstanceReport updateFormInstanceReport(
-			DDMFormInstanceRecordVersion ddmFormInstanceRecordVersion,
-			String formInstanceRecordVersionEvent, long formInstanceReportId)
+			long formInstanceReportId, long ddmFormInstanceRecordVersionId,
+			String formInstanceRecordVersionEvent)
 		throws PortalException {
 
 		DDMFormInstanceReport ddmFormInstanceReport =
@@ -75,7 +77,8 @@ public class DDMFormInstanceReportLocalServiceImpl
 
 		ddmFormInstanceReport.setData(
 			_getFormInstanceReportData(
-				ddmFormInstanceRecordVersion, formInstanceRecordVersionEvent));
+				ddmFormInstanceRecordVersionId,
+				formInstanceRecordVersionEvent));
 
 		ddmFormInstanceReport.setModifiedDate(new Date());
 
@@ -83,9 +86,13 @@ public class DDMFormInstanceReportLocalServiceImpl
 	}
 
 	private String _getFormInstanceReportData(
-			DDMFormInstanceRecordVersion ddmFormInstanceRecordVersion,
+			long ddmFormInstanceRecordVersionId,
 			String formInstanceRecordVersionEvent)
 		throws PortalException {
+
+		DDMFormInstanceRecordVersion ddmFormInstanceRecordVersion =
+			_ddmFormInstanceRecordVersionLocalService.
+				getDDMFormInstanceRecordVersion(ddmFormInstanceRecordVersionId);
 
 		DDMFormInstanceReport ddmFormInstanceReport =
 			ddmFormInstanceReportPersistence.findByFormInstanceId(
@@ -138,5 +145,9 @@ public class DDMFormInstanceReportLocalServiceImpl
 
 		return formInstanceReportDataJSONObject.toString();
 	}
+
+	@Reference
+	private DDMFormInstanceRecordVersionLocalService
+		_ddmFormInstanceRecordVersionLocalService;
 
 }
