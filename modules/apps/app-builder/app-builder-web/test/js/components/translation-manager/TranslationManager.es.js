@@ -15,19 +15,19 @@
 import {cleanup, fireEvent, render} from '@testing-library/react';
 import React from 'react';
 
-import LocalizableDropdown, {
-	LocalizableDropdownLabel,
+import TranslationManager, {
+	TranslationManagerLabel,
 	formatIcon,
 	formatLabel,
-} from '../../../../src/main/resources/META-INF/resources/js/components/localizable/LocalizableDropdown.es';
+} from '../../../../src/main/resources/META-INF/resources/js/components/translation-manager/TranslationManager.es';
 
-describe('LocalizableDropdown', () => {
+describe('TranslationManager', () => {
 	afterEach(() => {
 		cleanup();
 	});
 
-	it('renders LocalizableDropdown with defaultLanguageId without pass props', () => {
-		render(<LocalizableDropdown />);
+	it('renders TranslationManager with defaultLanguageId without pass props', () => {
+		render(<TranslationManager />);
 
 		const defaultLanguageId = 'en-US';
 
@@ -46,9 +46,9 @@ describe('LocalizableDropdown', () => {
 		);
 	});
 
-	it('renders LocalizableDropdown passing translatedLanguages', () => {
+	it('renders TranslationManager passing translatedLanguages', () => {
 		render(
-			<LocalizableDropdown
+			<TranslationManager
 				translatedLanguages={{
 					ar_SA: 'لقبي',
 					de_DE: 'mein titel',
@@ -91,7 +91,7 @@ describe('LocalizableDropdown', () => {
 		const onChangeCallback = jest.fn();
 
 		render(
-			<LocalizableDropdown
+			<TranslationManager
 				onChangeLanguageId={(id) => onChangeCallback(id)}
 			/>
 		);
@@ -115,7 +115,7 @@ describe('LocalizableDropdown', () => {
 	});
 
 	it('renders dropdown menu when clicked', () => {
-		render(<LocalizableDropdown />);
+		render(<TranslationManager />);
 
 		const button = document.querySelector('.dropdown-toggle');
 		fireEvent.click(button);
@@ -125,24 +125,24 @@ describe('LocalizableDropdown', () => {
 	});
 });
 
-describe('LocalizableDropdownLabel', () => {
-	it('renders LocalizableDropdownLabel with No Translated label', () => {
-		const {getByText} = render(<LocalizableDropdownLabel />);
+describe('TranslationManagerLabel', () => {
+	it('renders TranslationManagerLabel with No Translated label', () => {
+		const {getByText} = render(<TranslationManagerLabel />);
 
 		expect(document.querySelector('.label.label-warning')).toBeTruthy();
 		expect(getByText('Not Translated')).toBeTruthy();
 	});
 
-	it('renders LocalizableDropdownLabel with Translated label', () => {
-		const {getByText} = render(<LocalizableDropdownLabel translated />);
+	it('renders TranslationManagerLabel with Translated label', () => {
+		const {getByText} = render(<TranslationManagerLabel translated />);
 
 		expect(document.querySelector('.label.label-success')).toBeTruthy();
 		expect(getByText('Translated')).toBeTruthy();
 	});
 
-	it('renders LocalizableDropdownLabel with Default label', () => {
+	it('renders TranslationManagerLabel with Default label', () => {
 		const {getByText} = render(
-			<LocalizableDropdownLabel defaultLanguageId translated />
+			<TranslationManagerLabel defaultLanguageId translated />
 		);
 
 		expect(document.querySelector('.label.label-info')).toBeTruthy();
@@ -150,7 +150,7 @@ describe('LocalizableDropdownLabel', () => {
 	});
 });
 
-describe('LocalizableDropdown Util', () => {
+describe('TranslationManager utilities', () => {
 	it('format string for label', () => {
 		expect(formatLabel('en_US')).toEqual('en-US');
 		expect(formatLabel('pt_BR')).toEqual('pt-BR');
