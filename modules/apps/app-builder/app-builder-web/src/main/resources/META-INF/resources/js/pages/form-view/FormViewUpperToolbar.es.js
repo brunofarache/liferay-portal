@@ -26,7 +26,7 @@ export default ({newCustomObject}) => {
 	const [state, dispatch] = useContext(FormViewContext);
 	const {dataDefinitionId, dataLayout} = state;
 
-	const [languageId, setCurrentLanguageId] = useState(
+	const [editingLanguageId, setEditingLanguageId] = useState(
 		Liferay.ThemeDisplay.getLanguageId()
 	);
 
@@ -61,7 +61,7 @@ export default ({newCustomObject}) => {
 			payload: {
 				name: {
 					...dataLayout.name,
-					[languageId]: value,
+					[editingLanguageId]: value,
 				},
 			},
 			type: DataLayoutBuilderActions.UPDATE_DATA_LAYOUT_NAME,
@@ -97,17 +97,18 @@ export default ({newCustomObject}) => {
 	};
 
 	const {
-		name: {[languageId]: dataLayoutName = ''},
+		name: {[editingLanguageId]: dataLayoutName = ''},
 	} = dataLayout;
 
 	return (
 		<UpperToolbar>
 			<UpperToolbar.Group>
 				<LocalizableDropdown
+					editingLanguageId={editingLanguageId}
 					onChangeLanguageId={(languageId) =>
-						setCurrentLanguageId(languageId)
+						setEditingLanguageId(languageId)
 					}
-					translatedLanguages={dataLayout.name}
+					translatedLanguageIds={dataLayout.name}
 				/>
 			</UpperToolbar.Group>
 
@@ -117,6 +118,7 @@ export default ({newCustomObject}) => {
 				placeholder={Liferay.Language.get('untitled-form-view')}
 				value={dataLayoutName}
 			/>
+
 			<UpperToolbar.Group>
 				<UpperToolbar.Button displayType="secondary" onClick={onCancel}>
 					{Liferay.Language.get('cancel')}
