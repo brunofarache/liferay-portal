@@ -44,6 +44,7 @@ export default ({newCustomObject}) => {
 
 	const onError = (error) => {
 		const {title = ''} = error;
+
 		errorToast(`${title}.`);
 	};
 
@@ -51,6 +52,7 @@ export default ({newCustomObject}) => {
 		successToast(
 			Liferay.Language.get('the-form-view-was-saved-successfully')
 		);
+
 		Liferay.Util.navigate(listUrl);
 	};
 
@@ -89,6 +91,7 @@ export default ({newCustomObject}) => {
 				}),
 			},
 		};
+
 		saveFormView(newState)
 			.then(onSuccess)
 			.catch((error) => {
@@ -96,8 +99,13 @@ export default ({newCustomObject}) => {
 			});
 	};
 
+	const defaultLanguageId = Liferay.ThemeDisplay.getDefaultLanguageId();
+
 	const {
-		name: {[editingLanguageId]: dataLayoutName = ''},
+		name: {
+			[defaultLanguageId]: dataLayoutDefaultName,
+			[editingLanguageId]: dataLayoutEditingName,
+		},
 	} = dataLayout;
 
 	return (
@@ -116,7 +124,7 @@ export default ({newCustomObject}) => {
 				onInput={onInput}
 				onKeyDown={onKeyDown}
 				placeholder={Liferay.Language.get('untitled-form-view')}
-				value={dataLayoutName}
+				value={dataLayoutEditingName}
 			/>
 
 			<UpperToolbar.Group>
@@ -125,7 +133,7 @@ export default ({newCustomObject}) => {
 				</UpperToolbar.Button>
 
 				<UpperToolbar.Button
-					disabled={dataLayoutName.trim() === ''}
+					disabled={!dataLayoutEditingName || !dataLayoutDefaultName}
 					onClick={onSave}
 				>
 					{Liferay.Language.get('save')}
