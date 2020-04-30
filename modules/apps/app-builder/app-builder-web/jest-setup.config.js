@@ -12,12 +12,6 @@
  * details.
  */
 
-const languageMap = {
-	default: 'Default',
-	'not-translated': 'Not Translated',
-	translated: 'Translated',
-};
-
 window.Liferay = {
 	...(window.Liferay || {}),
 	Language: {
@@ -37,16 +31,9 @@ window.Liferay = {
 			sv_SE: 'Swedish (Sweden)',
 			zh_CN: 'Chinese (China)',
 		},
-		get: (key) => {
-			if (languageMap[key]) {
-				return languageMap[key];
-			}
-
-			return key;
-		},
 	},
 	ThemeDisplay: {
 		...(window.Liferay.ThemeDisplay || {}),
-		getLanguageId: () => 'en_US',
+		getDefaultLanguageId: () => 'en_US',
 	},
 };

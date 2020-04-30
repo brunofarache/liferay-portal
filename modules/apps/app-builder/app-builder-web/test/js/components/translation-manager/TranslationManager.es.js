@@ -21,15 +21,37 @@ import TranslationManager, {
 	formatLabel,
 } from '../../../../src/main/resources/META-INF/resources/js/components/translation-manager/TranslationManager.es';
 
+const translatedLanguageIds = {
+	ar_SA: 'لقبي',
+	de_DE: 'mein titel',
+	en_US: 'my title',
+	es_ES: 'mi titulo',
+	fr_FR: 'mon titre',
+	pt_BR: 'meu titulo',
+};
+
+const TranslationManagerWrapper = (props) => (
+	<TranslationManager
+		{...props}
+		editingLanguageId={'en_US'}
+		translatedLanguageIds={translatedLanguageIds}
+	/>
+);
+
+const TranslationManagerLabelWrapper = (props) => (
+	<TranslationManagerLabel
+		{...props}
+		translatedLanguageIds={translatedLanguageIds}
+	/>
+);
+
 describe('TranslationManager', () => {
 	afterEach(() => {
 		cleanup();
 	});
 
-	it('renders TranslationManager with defaultLanguageId without pass props', () => {
-		render(<TranslationManager />);
-
-		const defaultLanguageId = 'en-US';
+	it('renders TranslationManager passing translated languages', () => {
+		render(<TranslationManagerWrapper />);
 
 		expect(document.querySelector('.localizable-dropdown')).toBeTruthy();
 		expect(document.querySelector('.localizable-dropdown-ul')).toBeTruthy();
@@ -37,27 +59,12 @@ describe('TranslationManager', () => {
 		const button = document.querySelector('button.dropdown-toggle');
 
 		expect(button).toBeTruthy();
-		expect(button.getAttribute('symbol')).toEqual(defaultLanguageId);
+		expect(button.getAttribute('symbol')).toEqual('en-US');
 		expect(button.querySelector('.btn-section').textContent).toEqual(
-			defaultLanguageId
+			'en-US'
 		);
 		expect(button.querySelector('svg').classList).toContain(
 			'lexicon-icon-en-us'
-		);
-	});
-
-	it('renders TranslationManager passing translatedLanguages', () => {
-		render(
-			<TranslationManager
-				translatedLanguages={{
-					ar_SA: 'لقبي',
-					de_DE: 'mein titel',
-					en_US: 'my title',
-					es_ES: 'mi titulo',
-					fr_FR: 'mon titre',
-					pt_BR: 'meu titulo',
-				}}
-			/>
 		);
 
 		const list = document.querySelectorAll('.localizable-dropdown-ul li');
@@ -71,19 +78,19 @@ describe('TranslationManager', () => {
 
 		expect(list.length).toBe(13);
 		expect(labels).toEqual([
-			{label: 'Translated', languageId: 'ar-SA'},
-			{label: 'Not Translated', languageId: 'ca-ES'},
-			{label: 'Translated', languageId: 'de-DE'},
-			{label: 'Default', languageId: 'en-US'},
-			{label: 'Translated', languageId: 'es-ES'},
-			{label: 'Not Translated', languageId: 'fi-FI'},
-			{label: 'Translated', languageId: 'fr-FR'},
-			{label: 'Not Translated', languageId: 'hu-HU'},
-			{label: 'Not Translated', languageId: 'ja-JP'},
-			{label: 'Not Translated', languageId: 'nl-NL'},
-			{label: 'Translated', languageId: 'pt-BR'},
-			{label: 'Not Translated', languageId: 'sv-SE'},
-			{label: 'Not Translated', languageId: 'zh-CN'},
+			{label: 'translated', languageId: 'ar-SA'},
+			{label: 'not-translated', languageId: 'ca-ES'},
+			{label: 'translated', languageId: 'de-DE'},
+			{label: 'default', languageId: 'en-US'},
+			{label: 'translated', languageId: 'es-ES'},
+			{label: 'not-translated', languageId: 'fi-FI'},
+			{label: 'translated', languageId: 'fr-FR'},
+			{label: 'not-translated', languageId: 'hu-HU'},
+			{label: 'not-translated', languageId: 'ja-JP'},
+			{label: 'not-translated', languageId: 'nl-NL'},
+			{label: 'translated', languageId: 'pt-BR'},
+			{label: 'not-translated', languageId: 'sv-SE'},
+			{label: 'not-translated', languageId: 'zh-CN'},
 		]);
 	});
 
@@ -91,7 +98,7 @@ describe('TranslationManager', () => {
 		const onChangeCallback = jest.fn();
 
 		render(
-			<TranslationManager
+			<TranslationManagerWrapper
 				onChangeLanguageId={(id) => onChangeCallback(id)}
 			/>
 		);
@@ -109,44 +116,46 @@ describe('TranslationManager', () => {
 
 		fireEvent.click(button);
 
-		expect(onChangeCallback.mock.calls.length).toBe(2);
-		expect(onChangeCallback.mock.calls[0][0]).toEqual('en_US');
-		expect(onChangeCallback.mock.calls[1][0]).toEqual('pt_BR');
+		expect(onChangeCallback.mock.calls.length).toBe(1);
+		expect(onChangeCallback.mock.calls[0][0]).toEqual('pt_BR');
 	});
 
 	it('renders dropdown menu when clicked', () => {
-		render(<TranslationManager />);
+		render(<TranslationManagerWrapper />);
 
 		const button = document.querySelector('.dropdown-toggle');
 		fireEvent.click(button);
 
 		expect(document.body.querySelector('.dropdown-menu')).toBeTruthy();
-		expect(document.body).toMatchSnapshot();
 	});
 });
 
 describe('TranslationManagerLabel', () => {
 	it('renders TranslationManagerLabel with No Translated label', () => {
-		const {getByText} = render(<TranslationManagerLabel />);
+		const {getByText} = render(
+			<TranslationManagerLabelWrapper languageId={'ca-ES'} />
+		);
 
 		expect(document.querySelector('.label.label-warning')).toBeTruthy();
-		expect(getByText('Not Translated')).toBeTruthy();
+		expect(getByText('not-translated')).toBeTruthy();
 	});
 
 	it('renders TranslationManagerLabel with Translated label', () => {
-		const {getByText} = render(<TranslationManagerLabel translated />);
+		const {getByText} = render(
+			<TranslationManagerLabelWrapper languageId={'pt_BR'} />
+		);
 
 		expect(document.querySelector('.label.label-success')).toBeTruthy();
-		expect(getByText('Translated')).toBeTruthy();
+		expect(getByText('translated')).toBeTruthy();
 	});
 
 	it('renders TranslationManagerLabel with Default label', () => {
 		const {getByText} = render(
-			<TranslationManagerLabel defaultLanguageId translated />
+			<TranslationManagerLabelWrapper languageId={'en_US'} />
 		);
 
 		expect(document.querySelector('.label.label-info')).toBeTruthy();
-		expect(getByText('Default')).toBeTruthy();
+		expect(getByText('default')).toBeTruthy();
 	});
 });
 
