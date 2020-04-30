@@ -22,11 +22,14 @@ export const formatLabel = (label) => label.replace('_', '-');
 
 export const formatIcon = (label) => formatLabel(label).toLowerCase();
 
-export const TranslationManagerLabel = ({languageId, translatedLanguageIds}) => {
+export const TranslationManagerLabel = ({
+	languageId,
+	translatedLanguageIds,
+}) => {
 	let className = 'label-warning';
 	let label = Liferay.Language.get('not-translated');
 
-	if (languageId === Liferay.ThemeDisplay.getLanguageId()) {
+	if (languageId === Liferay.ThemeDisplay.getDefaultLanguageId()) {
 		className = 'label-info';
 		label = Liferay.Language.get('default');
 	}
