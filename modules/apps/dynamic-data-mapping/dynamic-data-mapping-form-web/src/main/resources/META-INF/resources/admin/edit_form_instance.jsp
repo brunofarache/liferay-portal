@@ -135,6 +135,10 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 	</div>
 </div>
 
+<liferay-ui:input-permissions
+	modelName="<%= DDMFormInstance.class.getName() %>"
+/>
+
 <portlet:actionURL name="publishFormInstance" var="publishFormInstanceURL">
 	<portlet:param name="mvcRenderCommandName" value="/admin/edit_form_instance" />
 </portlet:actionURL>
