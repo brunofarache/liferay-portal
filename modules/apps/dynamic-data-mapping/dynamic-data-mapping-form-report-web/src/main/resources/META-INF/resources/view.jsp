@@ -17,8 +17,9 @@
 <%@ include file="/init.jsp" %>
 
 <%
-int totalItems = (int)request.getAttribute("totalItems");
-String lastModifiedDate = (String)request.getAttribute("lastModifiedDate");
+DDMFormInstanceReport ddmFormInstanceReport = (DDMFormInstanceReport)request.getAttribute("ddmFormInstanceReport");
+
+int totalItems = ddmFormInstanceReport.getTotalItems();
 %>
 
 <div class="ddm-form-report hide">
@@ -34,7 +35,7 @@ String lastModifiedDate = (String)request.getAttribute("lastModifiedDate");
 				<span class="ddm-form-report-header-subtitle text-truncate">
 					<c:choose>
 						<c:when test="<%= totalItems > 0 %>">
-							<%= lastModifiedDate %>
+							<%= ddmFormInstanceReport.getLastModifiedDate(themeDisplay.getLocale(), themeDisplay.getTimeZone()) %>
 						</c:when>
 						<c:otherwise>
 							<liferay-ui:message key="there-are-no-entries" />
