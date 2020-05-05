@@ -19,6 +19,7 @@ import com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecordVersion;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceReport;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceReportLocalService;
+import com.liferay.dynamic.data.mapping.service.persistence.DDMFormInstanceReportPersistence;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -45,7 +46,7 @@ public class DDMFormInstanceRecordVersionModelListener
 				ddmFormInstanceRecordVersion.getFormInstanceRecord();
 
 			DDMFormInstanceReport ddmFormInstanceReport =
-				_ddmFormInstanceReportLocalService.fetchDDMFormInstanceReport(
+				_ddmFormInstanceReportPersistence.fetchByFormInstanceId(
 					ddmFormInstanceRecord.getFormInstanceId());
 
 			if (ddmFormInstanceReport == null) {
@@ -72,5 +73,8 @@ public class DDMFormInstanceRecordVersionModelListener
 	@Reference
 	private DDMFormInstanceReportLocalService
 		_ddmFormInstanceReportLocalService;
+
+	@Reference
+	private DDMFormInstanceReportPersistence _ddmFormInstanceReportPersistence;
 
 }
