@@ -14,11 +14,11 @@
 
 package com.liferay.dynamic.data.mapping.service.impl;
 
-import com.liferay.dynamic.data.mapping.constants.DDMFormInstanceReportConstants;
+import com.liferay.dynamic.data.mapping.internal.report.DDMFormFieldReportProcessor;
+import com.liferay.dynamic.data.mapping.internal.report.DDMFormFieldReportProcessorFactory;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecordVersion;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceReport;
-import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceRecordVersionLocalService;
 import com.liferay.dynamic.data.mapping.service.base.DDMFormInstanceReportLocalServiceBaseImpl;
 import com.liferay.dynamic.data.mapping.service.persistence.DDMFormInstancePersistence;
@@ -29,10 +29,8 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
-import com.liferay.portal.kernel.util.StringUtil;
 
 import java.util.Date;
-import java.util.Locale;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -105,11 +103,9 @@ public class DDMFormInstanceReportLocalServiceImpl
 		for (DDMFormFieldValue ddmFormFieldValue :
 				ddmFormValues.getDDMFormFieldValues()) {
 
-			JSONObject fieldJSONObject =
-				formInstanceReportDataJSONObject.getJSONObject(
-					ddmFormFieldValue.getName());
+			if (!formInstanceReportDataJSONObject.has(
+					ddmFormFieldValue.getName())) {
 
-			if (fieldJSONObject == null) {
 				formInstanceReportDataJSONObject.put(
 					ddmFormFieldValue.getName(),
 					JSONUtil.put(
@@ -119,25 +115,18 @@ public class DDMFormInstanceReportLocalServiceImpl
 					));
 			}
 
-			if (StringUtil.equals(ddmFormFieldValue.getType(), "radio")) {
-				JSONObject valuesJSONObject = fieldJSONObject.getJSONObject(
-					"values");
+			JSONObject fieldJSONObject =
+				formInstanceReportDataJSONObject.getJSONObject(
+					ddmFormFieldValue.getName());
 
-				Value value = ddmFormFieldValue.getValue();
+			DDMFormFieldReportProcessor ddmFormFieldReportProcessor =
+				DDMFormFieldReportProcessorFactory.getProcessor(
+					ddmFormFieldValue.getType());
 
-				for (Locale availableLocale : value.getAvailableLocales()) {
-					String key = value.getString(availableLocale);
-
-					int count = valuesJSONObject.getInt(key);
-
-					if (DDMFormInstanceReportConstants.EVENT_ADD_RECORD_VERSION.
-							equals(formInstanceReportEvent)) {
-
-						count = count + 1;
-					}
-
-					valuesJSONObject.put(key, count);
-				}
+			if (ddmFormFieldReportProcessor != null) {
+				ddmFormFieldReportProcessor.process(
+					ddmFormFieldValue, fieldJSONObject,
+					formInstanceReportEvent);
 			}
 		}
 
