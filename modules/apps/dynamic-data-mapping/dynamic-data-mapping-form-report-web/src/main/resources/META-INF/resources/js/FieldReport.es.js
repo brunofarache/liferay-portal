@@ -65,7 +65,9 @@ const FieldReport = (props) => {
 									displayType="text"
 									truncate={false}
 								>
-									{entriesNumber + ' entries'}
+									{`${entriesNumber} ${Liferay.Language.get(
+										'entries'
+									)}`}
 								</ClayCard.Description>
 							</div>
 						</ClayCard.AspectRatio>
