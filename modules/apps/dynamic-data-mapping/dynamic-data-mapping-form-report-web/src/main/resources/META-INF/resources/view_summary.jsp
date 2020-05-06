@@ -17,17 +17,20 @@
 <%@ include file="/init.jsp" %>
 
 <%
-DDMFormInstanceReport ddmFormInstanceReportEvent = (DDMFormInstanceReport)request.getAttribute(DDMFormReportWebKeys.REPORT);
+DDMFormInstanceReport ddmFormInstanceReport = ddmFormReportDisplayContext.getReport();
+
+String reportData = StringPool.BLANK;
+
+if (ddmFormInstanceReport != null) {
+	reportData = ddmFormInstanceReport.getData();
+}
+
+Map<String, Object> data = HashMapBuilder.<String, Object>put(
+	"data", reportData
+).build();
 %>
 
-<div id="<portlet:namespace />reports">
-
-	<%
-	Map<String, Object> data = HashMapBuilder.<String, Object>put(
-		"data", ddmFormInstanceReportEvent.getData()
-	).build();
-	%>
-
+<div id="<portlet:namespace />report">
 	<react:component
 		data="<%= data %>"
 		module="js/index.es"
