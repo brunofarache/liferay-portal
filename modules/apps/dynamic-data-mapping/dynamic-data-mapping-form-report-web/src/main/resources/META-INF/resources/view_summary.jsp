@@ -17,16 +17,16 @@
 <%@ include file="/init.jsp" %>
 
 <%
-DDMFormInstanceReport ddmFormInstanceReport = ddmFormReportDisplayContext.getReport();
+DDMFormInstanceReport ddmFormInstanceReport = ddmFormReportDisplayContext.getDDMFormInstanceReport();
 
-String reportData = StringPool.BLANK;
+String ddmFormInstanceReportData = StringPool.BLANK;
 
 if (ddmFormInstanceReport != null) {
-	reportData = ddmFormInstanceReport.getData();
+	ddmFormInstanceReportData = ddmFormInstanceReport.getData();
 }
 
 Map<String, Object> data = HashMapBuilder.<String, Object>put(
-	"data", reportData
+	"data", ddmFormInstanceReportData
 ).build();
 %>
 

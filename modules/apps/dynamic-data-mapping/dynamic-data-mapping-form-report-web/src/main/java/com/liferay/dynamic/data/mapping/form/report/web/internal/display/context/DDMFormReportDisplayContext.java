@@ -52,6 +52,10 @@ public class DDMFormReportDisplayContext {
 		_renderRequest = renderRequest;
 	}
 
+	public DDMFormInstanceReport getDDMFormInstanceReport() {
+		return _ddmFormInstanceReport;
+	}
+
 	public String getLastModifiedDate() {
 		if (_ddmFormInstanceReport == null) {
 			return StringPool.BLANK;
@@ -89,10 +93,6 @@ public class DDMFormReportDisplayContext {
 
 		return LanguageUtil.format(
 			resourceBundle, languageKey, relativeTimeDescription, false);
-	}
-
-	public DDMFormInstanceReport getReport() {
-		return _ddmFormInstanceReport;
 	}
 
 	public int getTotalItems() {
