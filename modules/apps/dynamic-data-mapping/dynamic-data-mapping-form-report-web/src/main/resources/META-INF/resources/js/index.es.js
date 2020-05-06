@@ -14,6 +14,14 @@
 
 import React from 'react';
 
+import App from './App.es';
+
 export default function ({data}) {
-	return <div>{data}</div>;
+	const props = JSON.parse(data);
+
+	return (
+		<div className="form-report">
+			<App {...props} />
+		</div>
+	);
 }
