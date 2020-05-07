@@ -16,12 +16,8 @@ import React from 'react';
 
 import App from './App.es';
 
-export default function ({data}) {
-	const props = JSON.parse(data);
-
-	return (
-		<div className="form-report">
-			<App {...props} />
-		</div>
-	);
-}
+export default ({data}) => (
+	<div className="form-report">
+		<App data={JSON.parse(data)} />
+	</div>
+);

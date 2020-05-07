@@ -16,8 +16,7 @@ import React from 'react';
 
 import Card from './components/Card.es';
 
-export default (props) => {
-	return Object.keys(props).map((item) => (
-		<Card data={props[item]} fieldName={item} key={item} />
+export default ({data}) =>
+	Object.entries(data).map(([fieldName, value], index) => (
+		<Card data={value} fieldName={fieldName} key={index} />
 	));
-};
