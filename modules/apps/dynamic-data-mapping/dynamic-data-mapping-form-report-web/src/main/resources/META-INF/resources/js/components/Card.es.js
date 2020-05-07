@@ -17,8 +17,6 @@ import ClayIcon from '@clayui/icon';
 import {ClayTooltipProvider} from '@clayui/tooltip';
 import React from 'react';
 
-import '../../css/styles.scss';
-
 export default ({children, fieldName, totalEntries, type}) => (
 	<div className="col-md-8">
 		<div className="sheet">

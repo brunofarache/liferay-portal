@@ -18,8 +18,6 @@ import React, {useState} from 'react';
 
 import COLORS from '../../utils/colors.es';
 
-import '../../css/styles.scss';
-
 export default (props) => {
 	const {
 		activeIndex,

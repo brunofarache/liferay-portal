@@ -25,8 +25,6 @@ import {
 import COLORS from '../../utils/colors.es';
 import Legend from './Legend.es';
 
-import '../../css/styles.scss';
-
 const RADIAN = Math.PI / 180;
 
 export default (props) => {
