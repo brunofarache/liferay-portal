@@ -34,7 +34,7 @@ export default (props) => {
 
 	const getComponent = (type) => {
 		if (type == 'radio') {
-			return <PieChart className="chart-area" values={values} />;
+			return <PieChart values={values} />;
 		}
 		else {
 			return <div>ToDo</div>;
