@@ -22,7 +22,7 @@ import {
 	Tooltip,
 } from 'recharts';
 
-import COLORS from '../../utils/colors.es';
+import colors from '../../utils/colors.es';
 import Legend from './Legend.es';
 
 const RADIAN = Math.PI / 180;
@@ -63,11 +63,12 @@ export default ({data, totalEntries}) => {
 						<circle
 							cx="6"
 							cy="6"
-							fill={COLORS[activeIndex]}
+							fill={colors(activeIndex)}
 							r="6"
 							strokeWidth="0"
 						/>
 					</svg>
+
 					<p className="tooltip-label">
 						{`${label}: ${count} ${Liferay.Language.get(
 							'entries'
@@ -92,7 +93,7 @@ export default ({data, totalEntries}) => {
 					cx={cx}
 					cy={cy}
 					endAngle={endAngle}
-					fill={COLORS[activeIndex]}
+					fill={colors(activeIndex)}
 					innerRadius={innerRadius}
 					onMouseOut={onSectorOut}
 					outerRadius={outerRadius + 5}
@@ -148,7 +149,7 @@ export default ({data, totalEntries}) => {
 						paddingAngle={0}
 					>
 						{data.map((_, index) => (
-							<Cell fill={COLORS[index]} key={index} />
+							<Cell fill={colors(index)} key={index} />
 						))}
 					</Pie>
 

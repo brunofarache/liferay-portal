@@ -16,7 +16,7 @@ import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
 import React, {useState} from 'react';
 
-import COLORS from '../../utils/colors.es';
+import colors from '../../utils/colors.es';
 
 export default ({
 	activeIndex,
@@ -61,7 +61,7 @@ export default ({
 								<circle
 									cx="10"
 									cy="10"
-									fill={COLORS[index]}
+									fill={colors(index)}
 									onMouseOut={() =>
 										callbackMouseOutOfLegend()
 									}

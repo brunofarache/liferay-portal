@@ -12,7 +12,7 @@
  * details.
  */
 
-export default [
+const COLORS = [
 	'#4b9fff',
 	'#ffb46e',
 	'#ff5f5f',
@@ -54,3 +54,5 @@ export default [
 	'#feefef',
 	'#393a4a',
 ];
+
+export default (index) => COLORS[index % COLORS.length];
