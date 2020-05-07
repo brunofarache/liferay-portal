@@ -18,12 +18,8 @@ import {ClayTooltipProvider} from '@clayui/tooltip';
 import React from 'react';
 
 import '../../css/styles.scss';
-import PieChart from './PieChart.es';
 
-export default (props) => {
-	const {data, fieldName} = props;
-	const {type, values} = data;
-
+export default ({children, fieldName, type, values}) => {
 	let entriesNumber = 0;
 
 	Object.values(values).forEach((value) => {
@@ -31,15 +27,6 @@ export default (props) => {
 
 		return entriesNumber;
 	});
-
-	const getComponent = (type) => {
-		if (type == 'radio') {
-			return <PieChart values={values} />;
-		}
-		else {
-			return <div>ToDo</div>;
-		}
-	};
 
 	return (
 		<div className="col-md-8">
@@ -71,7 +58,7 @@ export default (props) => {
 								</ClayCard.Description>
 							</div>
 						</ClayCard.AspectRatio>
-						<ClayCard.Body>{getComponent(type)}</ClayCard.Body>
+						<ClayCard.Body>{children}</ClayCard.Body>
 					</ClayCard>
 				</div>
 			</div>

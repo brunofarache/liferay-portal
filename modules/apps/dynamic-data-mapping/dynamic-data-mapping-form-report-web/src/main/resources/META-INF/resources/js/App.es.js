@@ -15,8 +15,28 @@
 import React from 'react';
 
 import Card from './components/Card.es';
+import PieChart from './components/PieChart.es';
 
-export default ({data}) =>
-	Object.entries(data).map(([fieldName, value], index) => (
-		<Card data={value} fieldName={fieldName} key={index} />
-	));
+export default ({data}) => {
+	const chartFactory = (type, values) => {
+		if (type === 'radio') {
+			return <PieChart values={values} />;
+		}
+
+		return null;
+	};
+
+	return Object.entries(data).map(([fieldName, {type, values}], index) => {
+		const chart = chartFactory(type, values);
+
+		if (chart === null) {
+			return null;
+		}
+
+		return (
+			<Card fieldName={fieldName} key={index} type={type} values={values}>
+				{chart}
+			</Card>
+		);
+	});
+};
