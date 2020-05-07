@@ -20,6 +20,28 @@ import colors from '../../utils/colors.es';
 
 const MAX_LABELS = 10;
 
+const Label = ({active, color, index, label, onMouseOut, onMouseOver}) => (
+	<li className={active ? '' : 'dim'} data-item={index}>
+		<svg height="20" width="20">
+			<circle
+				cx="10"
+				cy="10"
+				fill={color}
+				onMouseOut={onMouseOut}
+				onMouseOver={onMouseOver}
+				r="9"
+				strokeWidth="3"
+			/>
+		</svg>
+
+		<text onMouseOut={onMouseOut} onMouseOver={onMouseOver} x="0em" y="1em">
+			<tspan dy="2em" x="2.5em">
+				{label}
+			</tspan>
+		</text>
+	</li>
+);
+
 const ShowAll = ({expand, expanded, labelsLength}) => {
 	if (labelsLength < MAX_LABELS) {
 		return null;
@@ -78,38 +100,18 @@ export default ({activeIndex, labels, onMouseOut, onMouseOver}) => {
 							isShowAllExpanded ? labels.length : MAX_LABELS
 						)
 						.map((label, index) => (
-							<li
-								className={
-									activeIndex != null && activeIndex != index
-										? 'dim'
-										: ''
+							<Label
+								active={
+									activeIndex === null ||
+									activeIndex === index
 								}
-								data-item={index}
+								color={colors(index)}
+								index={index}
 								key={`item-${index}`}
-							>
-								<svg height="20" width="20">
-									<circle
-										cx="10"
-										cy="10"
-										fill={colors(index)}
-										onMouseOut={onMouseOut}
-										onMouseOver={handleOnMouseOver}
-										r="9"
-										strokeWidth="3"
-									/>
-								</svg>
-
-								<text
-									onMouseOut={onMouseOut}
-									onMouseOver={handleOnMouseOver}
-									x="0em"
-									y="1em"
-								>
-									<tspan dy="2em" x="2.5em">
-										{label}
-									</tspan>
-								</text>
-							</li>
+								label={label}
+								onMouseOut={onMouseOut}
+								onMouseOver={handleOnMouseOver}
+							/>
 						))}
 
 					<ShowAll
