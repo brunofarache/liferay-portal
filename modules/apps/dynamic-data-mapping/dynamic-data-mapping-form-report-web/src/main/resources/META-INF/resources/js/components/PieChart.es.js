@@ -34,20 +34,12 @@ export default ({data, totalEntries}) => {
 	const radius = 130;
 	const innerRadius = 80;
 
-	const callbackMouseOutOfLegend = () => {
+	const handleOnMouseOut = () => {
 		setActiveIndex(null);
 	};
 
-	const callBackMouseOverLegend = (dataFromChild) => {
-		setActiveIndex(parseInt(dataFromChild, 10));
-	};
-
-	const onMouseEnter = (_, index) => {
+	const handleOnMouseOver = (index) => {
 		setActiveIndex(index);
-	};
-
-	const onMouseOut = () => {
-		setActiveIndex(null);
 	};
 
 	const ActiveShape = ({
@@ -68,7 +60,7 @@ export default ({data, totalEntries}) => {
 					endAngle={endAngle}
 					fill={colors(activeIndex)}
 					innerRadius={innerRadius}
-					onMouseOut={onMouseOut}
+					onMouseOut={handleOnMouseOut}
 					outerRadius={outerRadius + 5}
 					startAngle={startAngle}
 				/>
@@ -110,7 +102,7 @@ export default ({data, totalEntries}) => {
 						label={Label}
 						labelLine={false}
 						nameKey="label"
-						onMouseEnter={onMouseEnter}
+						onMouseOver={(_, index) => handleOnMouseOver(index)}
 						outerRadius={radius}
 						paddingAngle={0}
 					>
@@ -132,9 +124,9 @@ export default ({data, totalEntries}) => {
 
 			<Legend
 				activeIndex={activeIndex}
-				callbackMouseOutOfLegend={callbackMouseOutOfLegend}
-				callbackMouseOverLegend={callBackMouseOverLegend}
 				labels={data.map(({label}) => label)}
+				onMouseOut={handleOnMouseOut}
+				onMouseOver={handleOnMouseOver}
 			/>
 		</>
 	);

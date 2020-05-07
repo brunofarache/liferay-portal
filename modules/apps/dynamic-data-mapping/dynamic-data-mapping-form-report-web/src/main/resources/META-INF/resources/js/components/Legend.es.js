@@ -18,17 +18,17 @@ import React, {useState} from 'react';
 
 import colors from '../../utils/colors.es';
 
-export default ({
-	activeIndex,
-	callbackMouseOutOfLegend,
-	callbackMouseOverLegend,
-	labels,
-}) => {
+export default ({activeIndex, labels, onMouseOut, onMouseOver}) => {
 	const [showAll, setShowAll] = useState(false);
 	const [showLabel, setShowLabel] = useState(
 		Liferay.Language.get('show-all')
 	);
 	const [showLimit, setShowLimit] = useState(10);
+
+	const handleOnMouseOver = ({currentTarget}) => {
+		const item = currentTarget.closest('li').dataset.item;
+		onMouseOver(parseInt(item, 10));
+	};
 
 	const showMoreItems = () => {
 		setShowAll(!showAll);
@@ -62,28 +62,16 @@ export default ({
 									cx="10"
 									cy="10"
 									fill={colors(index)}
-									onMouseOut={() =>
-										callbackMouseOutOfLegend()
-									}
-									onMouseOver={(e) =>
-										callbackMouseOverLegend(
-											e.currentTarget.closest('li')
-												.dataset.item
-										)
-									}
+									onMouseOut={onMouseOut}
+									onMouseOver={handleOnMouseOver}
 									r="9"
 									strokeWidth="3"
 								/>
 							</svg>
 
 							<text
-								onMouseOut={() => callbackMouseOutOfLegend()}
-								onMouseOver={(e) =>
-									callbackMouseOverLegend(
-										e.currentTarget.closest('li').dataset
-											.item
-									)
-								}
+								onMouseOut={onMouseOut}
+								onMouseOver={handleOnMouseOver}
 								x="0em"
 								y="1em"
 							>
