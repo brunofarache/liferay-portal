@@ -22,15 +22,28 @@ import useDeleteDefinitionField from './useDeleteDefinitionField.es';
 import useDeleteDefinitionFieldModal from './useDeleteDefinitionFieldModal.es';
 
 export default ({children, dataLayoutBuilder}) => {
-	const [{dataDefinition, dataLayout}, dispatch] = useContext(
-		FormViewContext
-	);
+	const [
+		{dataDefinition, dataLayout, editingLanguageId},
+		dispatch,
+	] = useContext(FormViewContext);
 	const deleteDefinitionField = useDeleteDefinitionField({dataLayoutBuilder});
 	const onDeleteDefinitionField = useDeleteDefinitionFieldModal(
 		(fieldName) => {
 			deleteDefinitionField(fieldName);
 		}
 	);
+
+	useEffect(() => {
+		const provider = dataLayoutBuilder.getLayoutProvider();
+
+		provider.props.editingLanguageId = editingLanguageId;
+		provider.props.availableLanguageIds = [
+			...new Set([
+				...provider.props.availableLanguageIds,
+				editingLanguageId,
+			]),
+		];
+	}, [dataLayoutBuilder, editingLanguageId]);
 
 	useEffect(() => {
 		const provider = dataLayoutBuilder.getLayoutProvider();
