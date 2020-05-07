@@ -134,7 +134,7 @@ export default ({data, totalEntries}) => {
 				activeIndex={activeIndex}
 				callbackMouseOutOfLegend={callbackMouseOutOfLegend}
 				callbackMouseOverLegend={callBackMouseOverLegend}
-				items={data}
+				labels={data.map(({label}) => label)}
 			/>
 		</>
 	);

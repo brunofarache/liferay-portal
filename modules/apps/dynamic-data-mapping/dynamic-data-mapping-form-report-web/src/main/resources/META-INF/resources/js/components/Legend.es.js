@@ -22,7 +22,7 @@ export default ({
 	activeIndex,
 	callbackMouseOutOfLegend,
 	callbackMouseOverLegend,
-	items,
+	labels,
 }) => {
 	const [showAll, setShowAll] = useState(false);
 	const [showLabel, setShowLabel] = useState(
@@ -33,11 +33,11 @@ export default ({
 	const showMoreItems = () => {
 		setShowAll(!showAll);
 
-		if (!showAll && items.length >= showLimit) {
+		if (!showAll && labels.length >= showLimit) {
 			setShowLabel(Liferay.Language.get('show-less'));
-			setShowLimit(items.length);
+			setShowLimit(labels.length);
 		}
-		else if (items.length >= showLimit) {
+		else if (labels.length >= showLimit) {
 			setShowLimit(10);
 			setShowLabel(Liferay.Language.get('show-all'));
 		}
@@ -47,7 +47,7 @@ export default ({
 		<div className="legend-container well well-lg">
 			<div className="legend-list">
 				<ul style={{listStyleType: 'none'}}>
-					{items.slice(0, showLimit).map((entry, index) => (
+					{labels.slice(0, showLimit).map((label, index) => (
 						<li
 							className={
 								activeIndex != null && activeIndex != index
@@ -75,6 +75,7 @@ export default ({
 									strokeWidth="3"
 								/>
 							</svg>
+
 							<text
 								onMouseOut={() => callbackMouseOutOfLegend()}
 								onMouseOver={(e) =>
@@ -87,14 +88,15 @@ export default ({
 								y="1em"
 							>
 								<tspan dy="2em" x="2.5em">
-									{entry.label}
+									{label}
 								</tspan>
 							</text>
 						</li>
 					))}
+
 					<div
 						className={
-							items.length < showLimit
+							labels.length < showLimit
 								? 'hide'
 								: 'show-more-action'
 						}
@@ -107,7 +109,8 @@ export default ({
 									fill={'#F0F5FF'}
 									r="9"
 									strokeWidth="3"
-								></circle>
+								/>
+
 								<ClayIcon
 									symbol={
 										!showAll
@@ -117,6 +120,7 @@ export default ({
 								/>
 							</g>
 						</svg>
+
 						<ClayButton
 							className="show-more-button"
 							displayType="unstyled"
