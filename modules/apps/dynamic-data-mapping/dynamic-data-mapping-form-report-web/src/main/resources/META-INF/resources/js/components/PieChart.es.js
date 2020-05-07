@@ -24,6 +24,7 @@ import {
 
 import colors from '../../utils/colors.es';
 import Legend from './Legend.es';
+import TooltipContent from './TooltipContent.es';
 
 const RADIAN = Math.PI / 180;
 
@@ -47,39 +48,6 @@ export default ({data, totalEntries}) => {
 
 	const onSectorOut = () => {
 		setActiveIndex(null);
-	};
-
-	const getPercentage = (count) => {
-		return (100 * count) / totalEntries;
-	};
-
-	const CustomTooltip = ({active, payload}) => {
-		if (active) {
-			const {count, label} = payload[0].payload;
-
-			return (
-				<div className="custom-tooltip">
-					<svg height="12" width="12">
-						<circle
-							cx="6"
-							cy="6"
-							fill={colors(activeIndex)}
-							r="6"
-							strokeWidth="0"
-						/>
-					</svg>
-
-					<p className="tooltip-label">
-						{`${label}: ${count} ${Liferay.Language.get(
-							'entries'
-						).toLowerCase()}`}{' '}
-						<b>({getPercentage(count).toFixed(0)}%)</b>
-					</p>
-				</div>
-			);
-		}
-
-		return null;
 	};
 
 	const renderActiveShape = (props) => {
@@ -153,7 +121,14 @@ export default ({data, totalEntries}) => {
 						))}
 					</Pie>
 
-					<Tooltip content={<CustomTooltip />} />
+					<Tooltip
+						content={
+							<TooltipContent
+								activeIndex={activeIndex}
+								totalEntries={totalEntries}
+							/>
+						}
+					/>
 				</PieChart>
 			</ResponsiveContainer>
 
