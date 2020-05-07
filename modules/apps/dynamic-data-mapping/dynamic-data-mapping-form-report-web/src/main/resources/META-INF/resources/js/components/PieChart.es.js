@@ -30,7 +30,7 @@ const RADIAN = Math.PI / 180;
 
 export default ({data, totalEntries}) => {
 	const [activeIndex, setActiveIndex] = useState(null);
-	const [animationActive, setAnimationActive] = useState(true);
+	const [isAnimationActive, setAnimationActive] = useState(true);
 	const radius = 130;
 	const innerRadius = 80;
 
@@ -42,17 +42,22 @@ export default ({data, totalEntries}) => {
 		setActiveIndex(parseInt(dataFromChild, 10));
 	};
 
-	const onPieEnter = (data, index) => {
+	const onMouseEnter = (_, index) => {
 		setActiveIndex(index);
 	};
 
-	const onSectorOut = () => {
+	const onMouseOut = () => {
 		setActiveIndex(null);
 	};
 
-	const renderActiveShape = (props) => {
-		const {cx, cy, endAngle, innerRadius, outerRadius, startAngle} = props;
-
+	const ActiveShape = ({
+		cx,
+		cy,
+		endAngle,
+		innerRadius,
+		outerRadius,
+		startAngle,
+	}) => {
 		setAnimationActive(false);
 
 		return (
@@ -63,7 +68,7 @@ export default ({data, totalEntries}) => {
 					endAngle={endAngle}
 					fill={colors(activeIndex)}
 					innerRadius={innerRadius}
-					onMouseOut={onSectorOut}
+					onMouseOut={onMouseOut}
 					outerRadius={outerRadius + 5}
 					startAngle={startAngle}
 				/>
@@ -71,14 +76,7 @@ export default ({data, totalEntries}) => {
 		);
 	};
 
-	const renderCustomizedLabel = ({
-		cx,
-		cy,
-		innerRadius,
-		midAngle,
-		outerRadius,
-		percent,
-	}) => {
+	const Label = ({cx, cy, innerRadius, midAngle, outerRadius, percent}) => {
 		const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
 		const x = cx + radius * Math.cos(-midAngle * RADIAN);
 		const y = cy + radius * Math.sin(-midAngle * RADIAN);
@@ -102,17 +100,17 @@ export default ({data, totalEntries}) => {
 				<PieChart>
 					<Pie
 						activeIndex={activeIndex}
-						activeShape={renderActiveShape}
+						activeShape={ActiveShape}
 						cx="50%"
 						cy="50%"
 						data={data}
 						dataKey="count"
 						innerRadius={innerRadius}
-						isAnimationActive={animationActive}
-						label={renderCustomizedLabel}
+						isAnimationActive={isAnimationActive}
+						label={Label}
 						labelLine={false}
 						nameKey="label"
-						onMouseEnter={onPieEnter}
+						onMouseEnter={onMouseEnter}
 						outerRadius={radius}
 						paddingAngle={0}
 					>
