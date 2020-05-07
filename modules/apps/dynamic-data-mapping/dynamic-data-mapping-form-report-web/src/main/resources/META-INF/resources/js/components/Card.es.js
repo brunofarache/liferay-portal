@@ -45,7 +45,7 @@ export default ({children, fieldName, totalEntries, type}) => (
 							>
 								{`${totalEntries} ${Liferay.Language.get(
 									'entries'
-								)}`}
+								).toLowerCase()}`}
 							</ClayCard.Description>
 						</div>
 					</ClayCard.AspectRatio>
