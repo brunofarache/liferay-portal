@@ -30,15 +30,17 @@ export default ({children, fieldName, totalEntries, type}) => (
 								className="aspect-ratio-item aspect-ratio-item-center-left aspect-ratio-item-fluid card-symbol card-type-asset-icon"
 								data-tooltip-align="bottom"
 								data-tooltip-delay={300}
-								title="Single Selection"
+								title={`${type}-field-type-label`}
 							>
 								<ClayIcon symbol={`${type}-button`} />
 							</div>
 						</ClayTooltipProvider>
+
 						<div className="field-info">
 							<ClayCard.Description displayType="title">
 								{fieldName}
 							</ClayCard.Description>
+
 							<ClayCard.Description
 								displayType="text"
 								truncate={false}
@@ -49,6 +51,7 @@ export default ({children, fieldName, totalEntries, type}) => (
 							</ClayCard.Description>
 						</div>
 					</ClayCard.AspectRatio>
+
 					<ClayCard.Body>{children}</ClayCard.Body>
 				</ClayCard>
 			</div>
