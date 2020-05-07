@@ -31,8 +31,6 @@ const RADIAN = Math.PI / 180;
 export default ({data, totalEntries}) => {
 	const [activeIndex, setActiveIndex] = useState(null);
 	const [isAnimationActive, setAnimationActive] = useState(true);
-	const radius = 130;
-	const innerRadius = 80;
 
 	const handleOnMouseOut = () => {
 		setActiveIndex(null);
@@ -97,13 +95,13 @@ export default ({data, totalEntries}) => {
 						cy="50%"
 						data={data}
 						dataKey="count"
-						innerRadius={innerRadius}
+						innerRadius={80}
 						isAnimationActive={isAnimationActive}
 						label={Label}
 						labelLine={false}
 						nameKey="label"
 						onMouseOver={(_, index) => handleOnMouseOver(index)}
-						outerRadius={radius}
+						outerRadius={130}
 						paddingAngle={0}
 					>
 						{data.map((_, index) => (
