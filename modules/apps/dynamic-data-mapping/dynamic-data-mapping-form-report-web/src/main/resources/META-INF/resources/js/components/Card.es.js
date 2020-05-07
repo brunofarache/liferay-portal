@@ -19,49 +19,39 @@ import React from 'react';
 
 import '../../css/styles.scss';
 
-export default ({children, fieldName, type, values}) => {
-	let entriesNumber = 0;
-
-	Object.values(values).forEach((value) => {
-		entriesNumber += value;
-
-		return entriesNumber;
-	});
-
-	return (
-		<div className="col-md-8">
-			<div className="sheet">
-				<div className="col-md-12">
-					<ClayCard displayType="image">
-						<ClayCard.AspectRatio className="card-header card-item-first">
-							<ClayTooltipProvider>
-								<div
-									className="aspect-ratio-item aspect-ratio-item-center-left aspect-ratio-item-fluid card-symbol card-type-asset-icon"
-									data-tooltip-align="bottom"
-									data-tooltip-delay={300}
-									title="Single Selection"
-								>
-									<ClayIcon symbol={`${type}-button`} />
-								</div>
-							</ClayTooltipProvider>
-							<div className="field-info">
-								<ClayCard.Description displayType="title">
-									{fieldName}
-								</ClayCard.Description>
-								<ClayCard.Description
-									displayType="text"
-									truncate={false}
-								>
-									{`${entriesNumber} ${Liferay.Language.get(
-										'entries'
-									)}`}
-								</ClayCard.Description>
+export default ({children, fieldName, totalEntries, type}) => (
+	<div className="col-md-8">
+		<div className="sheet">
+			<div className="col-md-12">
+				<ClayCard displayType="image">
+					<ClayCard.AspectRatio className="card-header card-item-first">
+						<ClayTooltipProvider>
+							<div
+								className="aspect-ratio-item aspect-ratio-item-center-left aspect-ratio-item-fluid card-symbol card-type-asset-icon"
+								data-tooltip-align="bottom"
+								data-tooltip-delay={300}
+								title="Single Selection"
+							>
+								<ClayIcon symbol={`${type}-button`} />
 							</div>
-						</ClayCard.AspectRatio>
-						<ClayCard.Body>{children}</ClayCard.Body>
-					</ClayCard>
-				</div>
+						</ClayTooltipProvider>
+						<div className="field-info">
+							<ClayCard.Description displayType="title">
+								{fieldName}
+							</ClayCard.Description>
+							<ClayCard.Description
+								displayType="text"
+								truncate={false}
+							>
+								{`${totalEntries} ${Liferay.Language.get(
+									'entries'
+								)}`}
+							</ClayCard.Description>
+						</div>
+					</ClayCard.AspectRatio>
+					<ClayCard.Body>{children}</ClayCard.Body>
+				</ClayCard>
 			</div>
 		</div>
-	);
-};
+	</div>
+);

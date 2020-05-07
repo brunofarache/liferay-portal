@@ -26,6 +26,9 @@ export default ({data}) => {
 		return null;
 	};
 
+	const totalEntries = (values) =>
+		Object.values(values).reduce((acc, value) => acc + value, 0);
+
 	return Object.entries(data).map(([fieldName, {type, values}], index) => {
 		const chart = chartFactory(type, values);
 
@@ -34,7 +37,13 @@ export default ({data}) => {
 		}
 
 		return (
-			<Card fieldName={fieldName} key={index} type={type} values={values}>
+			<Card
+				fieldName={fieldName}
+				key={index}
+				totalEntries={totalEntries(values)}
+				type={type}
+				values={values}
+			>
 				{chart}
 			</Card>
 		);
