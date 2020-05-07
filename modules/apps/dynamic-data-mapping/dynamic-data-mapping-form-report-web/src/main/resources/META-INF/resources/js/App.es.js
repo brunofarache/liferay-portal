@@ -18,19 +18,25 @@ import Card from './components/Card.es';
 import PieChart from './components/PieChart.es';
 
 export default ({data}) => {
-	const chartFactory = (type, values) => {
+	const toArray = (values) =>
+		Object.entries(values).map(([label, count]) => ({count, label}));
+
+	const chartFactory = (type, values, totalEntries) => {
 		if (type === 'radio') {
-			return <PieChart values={values} />;
+			return (
+				<PieChart data={toArray(values)} totalEntries={totalEntries} />
+			);
 		}
 
 		return null;
 	};
 
-	const totalEntries = (values) =>
+	const sumTotalEntries = (values) =>
 		Object.values(values).reduce((acc, value) => acc + value, 0);
 
 	return Object.entries(data).map(([fieldName, {type, values}], index) => {
-		const chart = chartFactory(type, values);
+		const totalEntries = sumTotalEntries(values);
+		const chart = chartFactory(type, values, totalEntries);
 
 		if (chart === null) {
 			return null;
@@ -40,7 +46,7 @@ export default ({data}) => {
 			<Card
 				fieldName={fieldName}
 				key={index}
-				totalEntries={totalEntries(values)}
+				totalEntries={totalEntries}
 				type={type}
 				values={values}
 			>

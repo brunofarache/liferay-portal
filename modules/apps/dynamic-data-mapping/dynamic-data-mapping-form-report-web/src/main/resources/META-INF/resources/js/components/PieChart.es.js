@@ -27,13 +27,7 @@ import Legend from './Legend.es';
 
 const RADIAN = Math.PI / 180;
 
-export default (props) => {
-	const {values} = props;
-
-	const data = Object.keys(values).map((entry) => {
-		return {name: entry, value: values[entry]};
-	});
-
+export default ({data, totalEntries}) => {
 	const [activeIndex, setActiveIndex] = useState(null);
 	const [animationActive, setAnimationActive] = useState(true);
 	const radius = 130;
@@ -55,19 +49,13 @@ export default (props) => {
 		setActiveIndex(null);
 	};
 
-	const getPercentage = (value) => {
-		let sum = 0;
-		data.forEach((element) => {
-			sum += element.value;
-		});
-
-		return (100 * value) / sum;
+	const getPercentage = (count) => {
+		return (100 * count) / totalEntries;
 	};
 
 	const CustomTooltip = ({active, payload}) => {
 		if (active) {
-			const name = payload[0].name;
-			const value = payload[0].value;
+			const {count, label} = payload[0].payload;
 
 			return (
 				<div className="custom-tooltip">
@@ -81,8 +69,10 @@ export default (props) => {
 						/>
 					</svg>
 					<p className="tooltip-label">
-						{`${name}: ${value} ${Liferay.Language.get('entries')}`}{' '}
-						<b>({getPercentage(value).toFixed(0)}%)</b>
+						{`${label}: ${count} ${Liferay.Language.get(
+							'entries'
+						).toLowerCase()}`}{' '}
+						<b>({getPercentage(count).toFixed(0)}%)</b>
 					</p>
 				</div>
 			);
@@ -147,23 +137,25 @@ export default (props) => {
 						cx="50%"
 						cy="50%"
 						data={data}
-						dataKey="value"
+						dataKey="count"
 						innerRadius={innerRadius}
 						isAnimationActive={animationActive}
 						label={renderCustomizedLabel}
 						labelLine={false}
-						nameKey={'name'}
+						nameKey="label"
 						onMouseEnter={onPieEnter}
 						outerRadius={radius}
 						paddingAngle={0}
 					>
-						{data.map((entry, index) => (
-							<Cell fill={COLORS[index]} key={entry.name} />
+						{data.map((_, index) => (
+							<Cell fill={COLORS[index]} key={index} />
 						))}
 					</Pie>
+
 					<Tooltip content={<CustomTooltip />} />
 				</PieChart>
 			</ResponsiveContainer>
+
 			<Legend
 				activeIndex={activeIndex}
 				callbackMouseOutOfLegend={callbackMouseOutOfLegend}

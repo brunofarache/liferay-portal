@@ -18,13 +18,12 @@ import React, {useState} from 'react';
 
 import COLORS from '../../utils/colors.es';
 
-export default (props) => {
-	const {
-		activeIndex,
-		callbackMouseOutOfLegend,
-		callbackMouseOverLegend,
-		items,
-	} = props;
+export default ({
+	activeIndex,
+	callbackMouseOutOfLegend,
+	callbackMouseOverLegend,
+	items,
+}) => {
 	const [showAll, setShowAll] = useState(false);
 	const [showLabel, setShowLabel] = useState(
 		Liferay.Language.get('show-all')
@@ -88,7 +87,7 @@ export default (props) => {
 								y="1em"
 							>
 								<tspan dy="2em" x="2.5em">
-									{entry.name}
+									{entry.label}
 								</tspan>
 							</text>
 						</li>
