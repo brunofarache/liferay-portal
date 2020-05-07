@@ -17,10 +17,10 @@ import ClayIcon from '@clayui/icon';
 import {ClayTooltipProvider} from '@clayui/tooltip';
 import React from 'react';
 
-import '../css/styles.scss';
-import SingleSelection from './components/SingleSelection.es';
+import '../../css/styles.scss';
+import PieChart from './PieChart.es';
 
-const FieldReport = (props) => {
+export default (props) => {
 	const {data, fieldName} = props;
 	const {type, values} = data;
 
@@ -34,7 +34,7 @@ const FieldReport = (props) => {
 
 	const getComponent = (type) => {
 		if (type == 'radio') {
-			return <SingleSelection values={values} />;
+			return <PieChart className="chart-area" values={values} />;
 		}
 		else {
 			return <div>ToDo</div>;
@@ -78,5 +78,3 @@ const FieldReport = (props) => {
 		</div>
 	);
 };
-
-export default FieldReport;

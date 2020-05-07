@@ -16,11 +16,11 @@ import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
 import React, {useState} from 'react';
 
-import COLOR_MAP from '../../utils/colors';
+import COLORS from '../../utils/colors.es';
 
 import '../../css/styles.scss';
 
-const CustomLegend = (props) => {
+export default (props) => {
 	const {
 		activeIndex,
 		callbackMouseOutOfLegend,
@@ -64,7 +64,7 @@ const CustomLegend = (props) => {
 								<circle
 									cx="10"
 									cy="10"
-									fill={COLOR_MAP[index]}
+									fill={COLORS[index]}
 									onMouseOut={() =>
 										callbackMouseOutOfLegend()
 									}
@@ -133,5 +133,3 @@ const CustomLegend = (props) => {
 		</div>
 	);
 };
-
-export default CustomLegend;

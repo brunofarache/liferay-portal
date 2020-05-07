@@ -22,14 +22,14 @@ import {
 	Tooltip,
 } from 'recharts';
 
-import COLOR_MAP from '../../utils/colors';
-import CustomLegend from './CustomLegend.es';
+import COLORS from '../../utils/colors.es';
+import Legend from './Legend.es';
 
 import '../../css/styles.scss';
 
 const RADIAN = Math.PI / 180;
 
-const Chart = (props) => {
+export default (props) => {
 	const {values} = props;
 
 	const data = Object.keys(values).map((entry) => {
@@ -77,7 +77,7 @@ const Chart = (props) => {
 						<circle
 							cx="6"
 							cy="6"
-							fill={COLOR_MAP[activeIndex]}
+							fill={COLORS[activeIndex]}
 							r="6"
 							strokeWidth="0"
 						/>
@@ -104,7 +104,7 @@ const Chart = (props) => {
 					cx={cx}
 					cy={cy}
 					endAngle={endAngle}
-					fill={COLOR_MAP[activeIndex]}
+					fill={COLORS[activeIndex]}
 					innerRadius={innerRadius}
 					onMouseOut={onSectorOut}
 					outerRadius={outerRadius + 5}
@@ -160,13 +160,13 @@ const Chart = (props) => {
 						paddingAngle={0}
 					>
 						{data.map((entry, index) => (
-							<Cell fill={COLOR_MAP[index]} key={entry.name} />
+							<Cell fill={COLORS[index]} key={entry.name} />
 						))}
 					</Pie>
 					<Tooltip content={<CustomTooltip />} />
 				</PieChart>
 			</ResponsiveContainer>
-			<CustomLegend
+			<Legend
 				activeIndex={activeIndex}
 				callbackMouseOutOfLegend={callbackMouseOutOfLegend}
 				callbackMouseOverLegend={callBackMouseOverLegend}
@@ -175,13 +175,3 @@ const Chart = (props) => {
 		</>
 	);
 };
-
-const SingleSelection = (props) => {
-	return (
-		<>
-			<Chart {...props} className="chart-area" />
-		</>
-	);
-};
-
-export default SingleSelection;

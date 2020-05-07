@@ -14,10 +14,10 @@
 
 import React from 'react';
 
-import FieldReport from './FieldReport.es';
+import Card from './components/Card.es';
 
 export default (props) => {
-	return Object.keys(props).map((item) => {
-		return <FieldReport data={props[item]} fieldName={item} key={item} />;
-	});
+	return Object.keys(props).map((item) => (
+		<Card data={props[item]} fieldName={item} key={item} />
+	));
 };

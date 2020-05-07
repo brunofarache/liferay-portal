@@ -12,7 +12,7 @@
  * details.
  */
 
-const COLOR_MAP = [
+export default [
 	'#4b9fff',
 	'#ffb46e',
 	'#ff5f5f',
@@ -54,5 +54,3 @@ const COLOR_MAP = [
 	'#feefef',
 	'#393a4a',
 ];
-
-export default COLOR_MAP;
