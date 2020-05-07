@@ -93,7 +93,7 @@ export default ({activeIndex, labels, onMouseOut, onMouseOver}) => {
 	return (
 		<div className="legend-container well well-lg">
 			<div className="legend-list">
-				<ul style={{listStyleType: 'none'}}>
+				<ul>
 					{labels
 						.slice(
 							0,
