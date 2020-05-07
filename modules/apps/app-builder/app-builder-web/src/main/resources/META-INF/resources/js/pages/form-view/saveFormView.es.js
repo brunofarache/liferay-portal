@@ -20,6 +20,8 @@ export default ({
 	dataLayout,
 	dataLayoutId,
 }) => {
+	const defaultLanguageId = Liferay.ThemeDisplay.getDefaultLanguageId();
+
 	const normalizedDataLayout = {
 		...dataLayout,
 		dataLayoutPages: dataLayout.dataLayoutPages.map((dataLayoutPage) => ({
@@ -36,18 +38,107 @@ export default ({
 				})
 			),
 			description: dataLayoutPage.description || {
-				[themeDisplay.getLanguageId()]: '',
+				[defaultLanguageId]: '',
 			},
 			title: dataLayoutPage.title || {
-				[themeDisplay.getLanguageId()]: '',
+				[defaultLanguageId]: '',
 			},
 		})),
+		dataRules: dataLayout.dataRules.map((rule) => {
+			delete rule.ruleEditedIndex;
+
+			return rule;
+		}),
+	};
+
+	const normalizedDataDefinition = {
+		...dataDefinition,
+		dataDefinitionFields: dataDefinition.dataDefinitionFields.map(
+			(field) => {
+				const defaultValueStringFormat = (value) =>
+					dataDefinition.availableLanguageIds.reduce(
+						(accumulator, currentValue) => {
+							accumulator[currentValue] =
+								value[currentValue] || '';
+
+							return accumulator;
+						},
+						{}
+					);
+
+				const defaultValueArrFormat = (value) =>
+					dataDefinition.availableLanguageIds.reduce(
+						(accumulator, currentValue) => {
+							if (
+								value[currentValue] &&
+								value[currentValue].length
+							) {
+								accumulator[currentValue] = value[currentValue];
+							}
+							else {
+								accumulator[currentValue] =
+									value[defaultLanguageId];
+							}
+
+							return accumulator;
+						},
+						{}
+					);
+
+				const normalizeField = (field) => {
+					const {defaultValue, label, tip} = field;
+					const {
+						options,
+						placeholder,
+						tooltip,
+					} = field.customProperties;
+
+					return {
+						...field,
+						...(defaultValue && {
+							defaultValue: Array.isArray(
+								defaultValue[defaultLanguageId]
+							)
+								? defaultValueArrFormat(defaultValue)
+								: defaultValueStringFormat(defaultValue),
+						}),
+						...(label && {label: defaultValueStringFormat(label)}),
+						...(tip && {tip: defaultValueStringFormat(tip)}),
+						customProperties: {
+							...field.customProperties,
+							...(options && {
+								options: defaultValueArrFormat(options),
+							}),
+							...(placeholder && {
+								placeholder: defaultValueStringFormat(
+									placeholder
+								),
+							}),
+							...(tooltip && {
+								tooltip: defaultValueStringFormat(tooltip),
+							}),
+						},
+						nestedDataDefinitionFields: field
+							.nestedDataDefinitionFields.length
+							? field.nestedDataDefinitionFields.map(
+									(nestedField) => ({
+										...nestedField,
+										...normalizeField(nestedField),
+									})
+							  )
+							: [],
+					};
+				};
+
+				return normalizeField(field);
+			}
+		),
 	};
 
 	const updateDefinition = () =>
 		updateItem(
 			`/o/data-engine/v2.0/data-definitions/${dataDefinitionId}`,
-			dataDefinition
+			normalizedDataDefinition
 		);
 
 	if (dataLayoutId) {
