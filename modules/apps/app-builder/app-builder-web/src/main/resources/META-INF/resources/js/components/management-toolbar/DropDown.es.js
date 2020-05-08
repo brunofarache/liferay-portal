@@ -14,7 +14,7 @@
 
 import ClayDropDown from '@clayui/drop-down';
 import {ClayCheckbox, ClayRadio} from '@clayui/form';
-import React, {createRef} from 'react';
+import React from 'react';
 
 export const CheckboxGroup = ({items = [], label, onChange, selected = []}) => {
 	return (
@@ -56,25 +56,18 @@ export const RadioGroup = ({items = [], label, onChange, selected}) => {
 	);
 };
 
-export default ({
-	children,
-	forwardRef = createRef(),
-	footerContent,
-	...otherProps
-}) => {
+export default ({children, footerContent, ...otherProps}) => {
 	return (
 		<ClayDropDown {...otherProps}>
-			<div ref={forwardRef}>
-				<div className={footerContent ? 'inline-scroller' : ''}>
-					<ClayDropDown.ItemList>{children}</ClayDropDown.ItemList>
-				</div>
-
-				{footerContent && (
-					<div className="dropdown-footer dropdown-section pt-3">
-						{footerContent}
-					</div>
-				)}
+			<div className={footerContent ? 'inline-scroller' : ''}>
+				<ClayDropDown.ItemList>{children}</ClayDropDown.ItemList>
 			</div>
+
+			{footerContent && (
+				<div className="dropdown-footer dropdown-section pt-3">
+					{footerContent}
+				</div>
+			)}
 		</ClayDropDown>
 	);
 };
