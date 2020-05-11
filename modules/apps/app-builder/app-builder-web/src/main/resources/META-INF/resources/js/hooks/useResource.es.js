@@ -12,19 +12,24 @@
  * details.
  */
 
+import {usePrevious} from 'frontend-js-react-web';
 import {useEffect, useState} from 'react';
 
 import {request} from '../utils/client.es';
+import {isEqualObjects} from '../utils/utils.es';
 
-export default (endpoint) => {
-	const [state, setState] = useState({
+export default ({endpoint, method, params}) => {
+	const initialState = {
 		error: null,
 		isLoading: true,
 		response: {},
-	});
+	};
+	const [state, setState] = useState(initialState);
 
-	useEffect(() => {
-		request({endpoint})
+	const doFetch = (options) => {
+		setState(initialState);
+
+		request(options)
 			.then((response) => {
 				setState({
 					error: null,
@@ -39,7 +44,18 @@ export default (endpoint) => {
 					response: {},
 				});
 			});
-	}, [endpoint]);
+	};
 
-	return state;
+	const refetch = () => doFetch({endpoint, method, params});
+
+	const previousParams = usePrevious(params);
+
+	useEffect(() => {
+		if (!isEqualObjects(params, previousParams)) {
+			refetch();
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [params]);
+
+	return {refetch, ...state};
 };

@@ -12,15 +12,13 @@
  * details.
  */
 
-import {useResource} from '@clayui/data-provider';
-import {usePrevious} from 'frontend-js-react-web';
-import React, {useCallback, useContext, useEffect, useState} from 'react';
+import React, {useCallback, useContext, useEffect} from 'react';
 import {withRouter} from 'react-router-dom';
 
 import {AppContext} from '../../AppContext.es';
 import useQuery from '../../hooks/useQuery.es';
-import {getURL} from '../../utils/client.es';
-import {isEqualObjects} from '../../utils/utils.es';
+import useResource from '../../hooks/useResource.es';
+import {errorToast} from '../../utils/toast.es';
 import ManagementToolbar from '../management-toolbar/ManagementToolbar.es';
 import ManagementToolbarResultsBar, {
 	getSelectedFilters,
@@ -36,7 +34,7 @@ export default withRouter(
 		columns,
 		emptyState,
 		endpoint,
-		filterConfig = [],
+		filters = [],
 		history,
 		queryParams,
 	}) => {
@@ -55,25 +53,25 @@ export default withRouter(
 			[query, setQuery]
 		);
 
-		const {filters = {}, ...params} = {...query, ...query.filters};
-		const prevParams = usePrevious(params);
+		const params = {...query, ...query.filters};
 
-		const {refetch, resource} = useResource({
-			fetchDelay: 0,
-			fetchOptions: {
-				credentials: 'same-origin',
-				method: 'GET',
-			},
-			link: getURL(endpoint, params),
-			onNetworkStatusChange: (status) => setLoading(status < 4),
+		delete params.filters;
+
+		const {error, isLoading, refetch, response} = useResource({
+			endpoint,
+			params,
 		});
+
+		if (error) {
+			errorToast();
+		}
 
 		let items = [];
 		let totalCount = 0;
 		let totalPages = 1;
 
-		if (resource) {
-			({items = [], totalCount, lastPage: totalPages} = resource);
+		if (response) {
+			({items = [], totalCount, lastPage: totalPages} = response);
 		}
 
 		useEffect(() => {
@@ -81,13 +79,6 @@ export default withRouter(
 				dispatch({page: totalPages, type: 'CHANGE_PAGE'});
 			}
 		}, [dispatch, query.page, totalPages]);
-
-		useEffect(() => {
-			if (prevParams && !isEqualObjects(params, prevParams)) {
-				refetch();
-			}
-			// eslint-disable-next-line react-hooks/exhaustive-deps
-		}, [params, prevParams]);
 
 		let refetchOnActions;
 
@@ -112,9 +103,7 @@ export default withRouter(
 			});
 		}
 
-		const [isLoading, setLoading] = useState(true);
-
-		const selectedFilters = getSelectedFilters(filterConfig, filters);
+		const selectedFilters = getSelectedFilters(filters, query.filters);
 		const isEmpty = totalCount === 0;
 		const isFiltered = selectedFilters.length > 0;
 
@@ -124,12 +113,12 @@ export default withRouter(
 					addButton={addButton}
 					columns={columns}
 					disabled={!isFiltered && !query.keywords && isEmpty}
-					filterConfig={filterConfig}
+					filters={filters}
 					totalCount={totalCount}
 				/>
 
 				<ManagementToolbarResultsBar
-					filterConfig={filterConfig}
+					filters={filters}
 					isLoading={isLoading}
 					totalCount={totalCount}
 				/>

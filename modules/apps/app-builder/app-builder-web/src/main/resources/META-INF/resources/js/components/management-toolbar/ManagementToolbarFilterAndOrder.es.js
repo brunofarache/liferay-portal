@@ -16,12 +16,12 @@ import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
 import ClayManagementToolbar from '@clayui/management-toolbar';
 import classNames from 'classnames';
-import React, {useContext, useEffect, useMemo, useState} from 'react';
+import React, {useContext, useState} from 'react';
 
 import {FILTER_NAMES} from '../../pages/apps/constants.es';
 import Button from '../button/Button.es';
 import SearchContext from '../management-toolbar/SearchContext.es';
-import DropDown, {CheckboxGroup, RadioGroup} from './DropDown.es';
+import DropDown, {CheckboxGroup, ItemsGroup, RadioGroup} from './DropDown.es';
 
 const getSortable = (columns, sort = '') => {
 	if (sort.length) {
@@ -39,107 +39,113 @@ const getSortable = (columns, sort = '') => {
 	return {};
 };
 
-export default ({columns = [], disabled, filterConfig = []}) => {
-	const [{filters = {}, sort}, dispatch] = useContext(SearchContext);
-	const [filtersValues, setFiltersValues] = useState(filters);
-
-	useEffect(() => {
-		setFiltersValues(filters);
-	}, [filters]);
-
+export default ({columns = [], disabled, filters = []}) => {
+	const [{filters: appliedFilters = {}, sort}, dispatch] = useContext(
+		SearchContext
+	);
+	const [localFilters, setLocalFilters] = useState(appliedFilters);
 	const [isDropDownActive, setDropDownActive] = useState(false);
 
-	const sortableColumns = useMemo(
-		() => columns.filter(({sortable}) => sortable),
-		[columns]
-	);
+	const sortableColumns = columns.filter(({sortable}) => sortable);
 
 	const {asc, column} = getSortable(sortableColumns, sort);
 	const [sortColumn, setSortColumn] = useState(column);
 
-	const filterItems = filterConfig.map(
-		({filterItems, filterKey, filterName, multiple}) => {
-			const props = {
-				checked: filtersValues[filterKey],
-				items: filterItems,
-				label: FILTER_NAMES[filterName][1],
-			};
+	const filterItems = filters.map(({items, key, multiple, name}) => {
+		const props = {
+			checked: localFilters[key],
+			items,
+			label: FILTER_NAMES[name][1],
+		};
 
-			if (multiple) {
-				return (
-					<CheckboxGroup
-						{...props}
-						onAdd={(value) => {
-							setFiltersValues((prevFilterValues) => {
-								const values = filtersValues[filterKey] || [];
+		if (multiple) {
+			return (
+				<CheckboxGroup
+					{...props}
+					onAdd={(value) => {
+						setLocalFilters((prevFilters) => {
+							const values = prevFilters[key] || [];
 
-								return {
-									...prevFilterValues,
-									[filterKey]: values.concat(value),
-								};
-							});
-						}}
-						onRemove={(value) => {
-							setFiltersValues((prevFilterValues) => ({
-								...prevFilterValues,
-								[filterKey]: prevFilterValues[filterKey].filter(
-									(currentValue) => currentValue !== value
-								),
-							}));
-						}}
-					/>
-				);
-			}
-			else {
-				return (
-					<RadioGroup
-						{...props}
-						items={[
-							{label: Liferay.Language.get('any')},
-							...props.items,
-						]}
-						onChange={(value) => {
-							setFiltersValues((prevFilterValues) => ({
-								...prevFilterValues,
-								[filterKey]: value,
-							}));
-						}}
-					/>
-				);
-			}
+							return {
+								...prevFilters,
+								[key]: values.concat(value),
+							};
+						});
+					}}
+					onRemove={(value) => {
+						setLocalFilters((prevFilters) => ({
+							...prevFilters,
+							[key]: prevFilters[key].filter(
+								(currentValue) => currentValue !== value
+							),
+						}));
+					}}
+				/>
+			);
 		}
-	);
-
-	const orderByItems = () => {
-		if (sortableColumns.length === 0) {
-			return null;
+		else {
+			return (
+				<RadioGroup
+					{...props}
+					items={[
+						{label: Liferay.Language.get('any')},
+						...props.items,
+					]}
+					onChange={(value) => {
+						setLocalFilters((prevFilters) => ({
+							...prevFilters,
+							[key]: value,
+						}));
+					}}
+				/>
+			);
 		}
-
-		return (
-			<RadioGroup
-				checked={sortColumn}
-				items={sortableColumns.map(({key, value}) => ({
-					label: value,
-					value: key,
-				}))}
-				label={Liferay.Language.get('order-by')}
-				onChange={setSortColumn}
-			/>
-		);
-	};
-
-	const dropDownItems = [...filterItems, orderByItems()];
+	});
 
 	const enableDoneButton = filterItems.length > 0;
 
+	const orderByItems = () => {
+		if (sortableColumns.length === 0) {
+			return [];
+		}
+
+		const props = {
+			checked: sortColumn,
+			items: sortableColumns.map(({key, value}) => ({
+				label: value,
+				value: key,
+			})),
+			label: Liferay.Language.get('order-by'),
+		};
+
+		let item = <RadioGroup {...props} onChange={setSortColumn} />;
+
+		if (!enableDoneButton) {
+			item = (
+				<ItemsGroup
+					{...props}
+					onClick={(newColumn) => {
+						setSortColumn(newColumn);
+						onSortButtonClick(asc, newColumn);
+						setDropDownActive(false);
+					}}
+				/>
+			);
+		}
+
+		return [item];
+	};
+
+	const dropDownItems = [...filterItems, ...orderByItems()];
+
 	const onDropDownActiveChange = (active) => {
 		setDropDownActive(active);
-		setFiltersValues(filters);
+		setLocalFilters(appliedFilters);
 	};
 
 	const onDoneButtonClick = () => {
 		dispatch({
-			filters: filtersValues,
+			filters: localFilters,
 			sort: `${sortColumn}:${asc ? 'asc' : 'desc'}`,
 			type: 'UPDATE_FILTERS_AND_SORT',
 		});
@@ -154,16 +160,9 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 		});
 	};
 
-	useEffect(() => {
-		if (!enableDoneButton) {
-			onDoneButtonClick();
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [sortColumn]);
-
 	return (
 		<>
-			{(columns.length > 0 || filterConfig.length > 0) && (
+			{dropDownItems.length > 0 && (
 				<ClayManagementToolbar.ItemList>
 					<ClayManagementToolbar.Item>
 						<DropDown
@@ -172,7 +171,7 @@ export default ({columns = [], disabled, filterConfig = []}) => {
 								enableDoneButton && (
 									<ClayButton
 										block
-										onClick={() => onDoneButtonClick()}
+										onClick={onDoneButtonClick}
 									>
 										{Liferay.Language.get('done')}
 									</ClayButton>

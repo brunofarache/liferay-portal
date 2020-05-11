@@ -43,6 +43,26 @@ export const CheckboxGroup = ({
 	);
 };
 
+export const ItemsGroup = ({checked, items = [], label, onClick}) => {
+	return (
+		<ClayDropDown.Group header={label}>
+			<ClayDropDown.ItemList>
+				{items.map(({label, value}, index) => (
+					<ClayDropDown.Item
+						active={checked === value}
+						href=""
+						key={index}
+						onClick={() => onClick(value)}
+						value={value}
+					>
+						{label}
+					</ClayDropDown.Item>
+				))}
+			</ClayDropDown.ItemList>
+		</ClayDropDown.Group>
+	);
+};
+
 export const RadioGroup = ({checked, items = [], label, onChange}) => {
 	return (
 		<ClayDropDown.Group header={label}>
@@ -65,9 +85,9 @@ export const RadioGroup = ({checked, items = [], label, onChange}) => {
 export default ({children, footerContent, ...otherProps}) => {
 	return (
 		<ClayDropDown {...otherProps}>
-			<div className={footerContent ? 'inline-scroller' : ''}>
-				<ClayDropDown.ItemList>{children}</ClayDropDown.ItemList>
-			</div>
+			<ClayDropDown.ItemList className="dropdown-fixed-height inline-scroller">
+				{children}
+			</ClayDropDown.ItemList>
 
 			{footerContent && (
 				<div className="dropdown-footer dropdown-section pt-3">

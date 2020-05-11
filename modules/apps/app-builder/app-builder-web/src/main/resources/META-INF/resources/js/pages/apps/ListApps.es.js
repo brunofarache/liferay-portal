@@ -22,8 +22,8 @@ import ListView from '../../components/list-view/ListView.es';
 import useDeployApp from '../../hooks/useDeployApp.es';
 import {confirmDelete} from '../../utils/client.es';
 import {fromNow} from '../../utils/time.es';
+import {concatValues} from '../../utils/utils.es';
 import {DEPLOYMENT_ACTION, DEPLOYMENT_TYPES, STATUSES} from './constants.es';
-import {concatTypes} from './utils.es';
 
 export default ({
 	match: {
@@ -93,30 +93,30 @@ export default ({
 
 	let ENDPOINT = `/o/app-builder/v1.0/apps`;
 
-	const FILTER_CONFIG = [
+	const FILTERS = [
 		{
-			filterItems: [
+			items: [
 				{label: DEPLOYMENT_TYPES.productMenu, value: 'productMenu'},
 				{label: DEPLOYMENT_TYPES.standalone, value: 'standalone'},
 				{label: DEPLOYMENT_TYPES.widget, value: 'widget'},
 			],
-			filterKey: 'deploymentTypes',
-			filterName: 'deployment-type',
+			key: 'deploymentTypes',
 			multiple: true,
+			name: 'deployment-type',
 		},
 		{
-			filterItems: [
+			items: [
 				{label: STATUSES.active, value: 'true'},
 				{label: STATUSES.inactive, value: 'false'},
 			],
-			filterKey: 'active',
-			filterName: 'status',
+			key: 'active',
+			name: 'status',
 		},
 		{
-			filterItems: [{label: Liferay.Language.get('me'), value: userId}],
-			filterKey: 'userIds',
-			filterName: 'author',
+			items: [{label: Liferay.Language.get('me'), value: userId}],
+			key: 'userIds',
 			multiple: true,
+			name: 'author',
 		},
 	];
 
@@ -162,7 +162,7 @@ export default ({
 			columns={COLUMNS}
 			emptyState={EMPTY_STATE}
 			endpoint={ENDPOINT}
-			filterConfig={!dataDefinitionId ? FILTER_CONFIG : []}
+			filters={!dataDefinitionId ? FILTERS : []}
 		>
 			{(item) => ({
 				...item,
@@ -186,8 +186,8 @@ export default ({
 						{STATUSES[item.active ? 'active' : 'inactive']}
 					</ClayLabel>
 				),
-				type: concatTypes(
-					item.appDeployments.map((deployment) => deployment.type)
+				type: concatValues(
+					item.appDeployments.map(({type}) => DEPLOYMENT_TYPES[type])
 				),
 			})}
 		</ListView>

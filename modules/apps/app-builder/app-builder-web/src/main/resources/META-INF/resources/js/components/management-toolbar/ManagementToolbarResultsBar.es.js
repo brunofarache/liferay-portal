@@ -18,10 +18,11 @@ import React, {useContext} from 'react';
 
 import {FILTER_NAMES} from '../../pages/apps/constants.es';
 import lang from '../../utils/lang.es';
+import {concatValues} from '../../utils/utils.es';
 import Button from '../button/Button.es';
 import SearchContext from './SearchContext.es';
 
-const FilterItem = ({filterKey, filterName, filterValue}) => {
+const FilterItem = ({filterKey, name, value}) => {
 	const [, dispatch] = useContext(SearchContext);
 
 	return (
@@ -34,43 +35,45 @@ const FilterItem = ({filterKey, filterName, filterValue}) => {
 				displayType="unstyled"
 			>
 				<span className="label-section">
-					{`${FILTER_NAMES[filterName][0]}: `}
-					<span className="font-weight-normal">{filterValue}</span>
+					{`${FILTER_NAMES[name][0]}: `}
+					<span className="font-weight-normal">{value}</span>
 				</span>
 			</ClayLabel>
 		</ClayResultsBar.Item>
 	);
 };
 
-export const getSelectedFilters = (filterConfig, filters) => {
+export const getSelectedFilters = (filters, appliedFilters) => {
 	const selectedFilters = [];
 
-	Object.keys(filters).forEach((key) => {
-		const {filterItems, filterKey, filterName} = filterConfig.find(
-			({filterKey}) => filterKey === key
-		);
+	Object.keys(appliedFilters).forEach((filterKey) => {
+		const filter = filters.find(({key}) => filterKey === key);
+		const {items = [], key, name} = filter || {};
 
-		const selectedItems = filterItems.filter(({value}) => {
-			return Array.isArray(filters[key])
-				? filters[key].includes(value)
-				: filters[key] === value;
+		const selectedItems = items.filter(({value}) => {
+			return Array.isArray(appliedFilters[key])
+				? appliedFilters[key].includes(value)
+				: appliedFilters[key] === value;
 		});
 
-		const filterValue = selectedItems
-			.map(({label}) => label)
-			.join(', ')
-			.replace(/, ([^,]*)$/, ' and $1');
+		const value = concatValues(selectedItems.map(({label}) => label));
 
-		selectedFilters.push({filterKey, filterName, filterValue});
+		selectedFilters.push({
+			filterKey,
+			name,
+			value,
+		});
 	});
 
 	return selectedFilters;
 };
 
-export default ({filterConfig = [], isLoading, totalCount}) => {
-	const [{filters = {}, keywords}, dispatch] = useContext(SearchContext);
+export default ({filters = [], isLoading, totalCount}) => {
+	const [{filters: appliedFilters = {}, keywords}, dispatch] = useContext(
+		SearchContext
+	);
 
-	const selectedFilters = getSelectedFilters(filterConfig, filters);
+	const selectedFilters = getSelectedFilters(filters, appliedFilters);
 
 	return (
 		<>
