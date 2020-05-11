@@ -17,11 +17,11 @@ import {ClayCheckbox, ClayRadio} from '@clayui/form';
 import React from 'react';
 
 export const CheckboxGroup = ({
+	checked = [],
 	items = [],
 	label,
 	onAdd,
 	onRemove,
-	selected = [],
 }) => {
 	return (
 		<ClayDropDown.Group header={label}>
@@ -30,7 +30,7 @@ export const CheckboxGroup = ({
 					<ClayDropDown.Section key={index}>
 						<ClayCheckbox
 							{...item}
-							checked={selected.includes(value)}
+							checked={checked.includes(value)}
 							onChange={({target: {checked}}) =>
 								checked ? onAdd(value) : onRemove(value)
 							}
@@ -43,7 +43,7 @@ export const CheckboxGroup = ({
 	);
 };
 
-export const RadioGroup = ({items = [], label, onChange, selected}) => {
+export const RadioGroup = ({checked, items = [], label, onChange}) => {
 	return (
 		<ClayDropDown.Group header={label}>
 			<ClayDropDown.ItemList>
@@ -51,7 +51,7 @@ export const RadioGroup = ({items = [], label, onChange, selected}) => {
 					<ClayDropDown.Section key={index}>
 						<ClayRadio
 							{...item}
-							checked={selected === value}
+							checked={checked === value}
 							onChange={() => onChange(value)}
 							value={value}
 						/>
