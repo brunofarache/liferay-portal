@@ -93,34 +93,44 @@ public class DDMFormInstanceReportLocalServiceImpl
 			long formInstanceRecordVersionId, String formInstanceReportEvent)
 		throws PortalException {
 
-		DDMFormInstanceRecordVersion formInstanceRecordVersion =
-			_formInstanceRecordVersionLocalService.
-				getDDMFormInstanceRecordVersion(formInstanceRecordVersionId);
+		try {
+			DDMFormInstanceRecordVersion formInstanceRecordVersion =
+				_formInstanceRecordVersionLocalService.
+					getDDMFormInstanceRecordVersion(
+						formInstanceRecordVersionId);
 
-		DDMFormInstanceReport formInstanceReport =
-			ddmFormInstanceReportPersistence.findByFormInstanceId(
-				formInstanceRecordVersion.getFormInstanceId());
+			DDMFormInstanceReport formInstanceReport =
+				ddmFormInstanceReportPersistence.findByFormInstanceId(
+					formInstanceRecordVersion.getFormInstanceId());
 
-		JSONObject formInstanceReportDataJSONObject =
-			JSONFactoryUtil.createJSONObject(formInstanceReport.getData());
+			JSONObject formInstanceReportDataJSONObject =
+				JSONFactoryUtil.createJSONObject(formInstanceReport.getData());
 
-		DDMFormValues ddmFormValues =
-			formInstanceRecordVersion.getDDMFormValues();
+			DDMFormValues ddmFormValues =
+				formInstanceRecordVersion.getDDMFormValues();
 
-		for (DDMFormFieldValue ddmFormFieldValue :
-				ddmFormValues.getDDMFormFieldValues()) {
+			for (DDMFormFieldValue ddmFormFieldValue :
+					ddmFormValues.getDDMFormFieldValues()) {
 
-			DDMFormFieldTypeReportProcessor ddmFormFieldTypeReportProcessor =
-				_ddmFormFieldTypeReportProcessorTracker.
-					getDDMFormFieldTypeReportProcessor(
-						ddmFormFieldValue.getType());
+				DDMFormFieldTypeReportProcessor
+					ddmFormFieldTypeReportProcessor =
+						_ddmFormFieldTypeReportProcessorTracker.
+							getDDMFormFieldTypeReportProcessor(
+								ddmFormFieldValue.getType());
 
-			if (ddmFormFieldTypeReportProcessor != null) {
-				formInstanceReportDataJSONObject =
-					ddmFormFieldTypeReportProcessor.process(
-						ddmFormFieldValue, formInstanceReportDataJSONObject,
-						formInstanceReportEvent);
+				if (ddmFormFieldTypeReportProcessor != null) {
+					formInstanceReportDataJSONObject =
+						ddmFormFieldTypeReportProcessor.process(
+							ddmFormFieldValue, formInstanceReportDataJSONObject,
+							formInstanceReportEvent);
+				}
 			}
+		}
+		catch (Exception exception) {
+			throw new PortalException(
+				"Unable to process data for form instance record version " +
+					formInstanceRecordVersionId,
+				exception);
 		}
 
 		return formInstanceReportDataJSONObject.toString();
