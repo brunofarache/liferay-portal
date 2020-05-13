@@ -19,14 +19,7 @@ import App from './App.es';
 
 export default ({data, fields}) => {
 	if (!data || data.length === 0) {
-		return (
-			<EmptyState
-				description={Liferay.Language.get(
-					'when-the-form-starts-to-receive-submissions-the-entry-summaries-will-show-up-here'
-				)}
-				title={Liferay.Language.get('there-are-no-entries')}
-			/>
-		);
+		return <EmptyState />;
 	}
 
 	return (

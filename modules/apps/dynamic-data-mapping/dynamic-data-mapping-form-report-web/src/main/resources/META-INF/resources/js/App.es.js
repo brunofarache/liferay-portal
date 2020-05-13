@@ -57,14 +57,7 @@ export default ({data, fields}) => {
 	});
 
 	if (!hasCards) {
-		return (
-			<EmptyState
-				description={Liferay.Language.get(
-					'when-the-form-starts-to-receive-submissions-the-entry-summaries-will-show-up-here'
-				)}
-				title={Liferay.Language.get('there-are-no-entries')}
-			/>
-		);
+		return <EmptyState />;
 	}
 
 	return cards;

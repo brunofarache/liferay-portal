@@ -14,7 +14,12 @@
 
 import React from 'react';
 
-export default ({description, title}) => (
+export default ({
+	description = Liferay.Language.get(
+		'when-the-form-starts-to-receive-submissions-the-entry-summaries-will-show-up-here'
+	),
+	title = Liferay.Language.get('there-are-no-entries'),
+}) => (
 	<div className="empty-message taglib-empty-result-message">
 		<div className="taglib-empty-result-message-header"></div>
 		<div className="sheet-text text-center text-muted">

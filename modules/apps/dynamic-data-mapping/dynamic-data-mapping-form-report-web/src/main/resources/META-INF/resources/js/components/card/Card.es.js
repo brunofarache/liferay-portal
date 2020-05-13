@@ -64,9 +64,6 @@ export default ({children, fieldName, totalEntries, type}) => (
 								description={Liferay.Language.get(
 									'entries-submitted-with-this-field-filled-will-show-up-here'
 								)}
-								title={Liferay.Language.get(
-									'there-are-no-entries'
-								)}
 							/>
 						)}
 					</ClayCard.Body>
