@@ -23,7 +23,7 @@ import useDeleteDefinitionFieldModal from './useDeleteDefinitionFieldModal.es';
 
 export default ({children, dataLayoutBuilder}) => {
 	const [
-		{dataDefinition, dataLayout, editingLanguageId},
+		{dataDefinition, dataLayout, editingLanguageId, focusedField},
 		dispatch,
 	] = useContext(FormViewContext);
 	const deleteDefinitionField = useDeleteDefinitionField({dataLayoutBuilder});
@@ -43,7 +43,14 @@ export default ({children, dataLayoutBuilder}) => {
 				editingLanguageId,
 			]),
 		];
-	}, [dataLayoutBuilder, editingLanguageId]);
+
+		// Fire click event on the provider to update the sidebar with focusedField
+
+		if (Object.keys(focusedField).length) {
+			provider.getEvents().fieldClicked(focusedField);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dataLayoutBuilder, dispatch, editingLanguageId]);
 
 	useEffect(() => {
 		const provider = dataLayoutBuilder.getLayoutProvider();

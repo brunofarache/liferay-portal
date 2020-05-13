@@ -375,16 +375,17 @@ const createReducer = (dataLayoutBuilder) => {
 				};
 			}
 			case UPDATE_EDITING_LANGUAGE_ID: {
+				const {dataDefinition} = state;
+
 				return {
 					...state,
 					dataDefinition: {
-						...state.dataDefinition,
+						...dataDefinition,
 						availableLanguageIds: [
-							...new Set([...state.dataDefinition.availableLanguageIds, action.payload])
+							...new Set([...dataDefinition.availableLanguageIds, action.payload])
 						]
 					},
 					editingLanguageId: action.payload,
-					focusedField: {}
 				};
 			}
 			case UPDATE_FIELD_TYPES: {
