@@ -16,7 +16,7 @@ import React from 'react';
 
 export default ({
 	description = Liferay.Language.get(
-		'when-the-form-starts-to-receive-submissions-the-entry-summaries-will-show-up-here'
+		'the-report-will-show-up-once-the-first-entry-is-submitted'
 	),
 	title = Liferay.Language.get('there-are-no-entries'),
 }) => (
