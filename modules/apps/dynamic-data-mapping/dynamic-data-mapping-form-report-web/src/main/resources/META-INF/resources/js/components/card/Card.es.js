@@ -57,7 +57,18 @@ export default ({children, fieldName, totalEntries, type}) => (
 					</ClayCard.AspectRatio>
 
 					<ClayCard.Body>
-						{totalEntries > 0 ? children : <EmptyState />}
+						{totalEntries > 0 ? (
+							children
+						) : (
+							<EmptyState
+								description={Liferay.Language.get(
+									'entries-submitted-with-this-field-filled-will-show-up-here'
+								)}
+								title={Liferay.Language.get(
+									'there-are-no-entries'
+								)}
+							/>
+						)}
 					</ClayCard.Body>
 				</ClayCard>
 			</div>

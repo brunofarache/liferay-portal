@@ -261,4 +261,28 @@ exports[`index renders 1`] = `
 </DocumentFragment>
 `;
 
-exports[`index renders nothing when there is no data 1`] = `<DocumentFragment />`;
+exports[`index renders nothing when there is no data 1`] = `
+<DocumentFragment>
+  <div
+    class="empty-message taglib-empty-result-message"
+  >
+    <div
+      class="taglib-empty-result-message-header"
+    />
+    <div
+      class="sheet-text text-center text-muted"
+    >
+      <h1
+        class="text-default"
+      >
+        there-are-no-entries
+      </h1>
+      <p
+        class="text-default"
+      >
+        when-the-form-starts-to-receive-submissions-the-entry-summaries-will-show-up-here
+      </p>
+    </div>
+  </div>
+</DocumentFragment>
+`;
