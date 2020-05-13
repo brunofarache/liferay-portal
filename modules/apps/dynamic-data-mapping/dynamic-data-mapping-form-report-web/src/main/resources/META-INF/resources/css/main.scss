@@ -11,6 +11,20 @@ body,
 	width: 100%;
 }
 
+.empty-message {
+	margin-top: 104px;
+
+	h1 {
+		color: #272833;
+		font-size: 18px;
+	}
+
+	p {
+		color: #6b6c7e;
+		font-size: 14px;
+	}
+}
+
 .card {
 	box-shadow: none;
 	margin-bottom: 0;
@@ -31,17 +45,8 @@ body,
 		}
 
 		.empty-message {
+			margin-top: 27px;
 			width: 100%;
-
-			h1 {
-				color: #272833;
-				font-size: 18px;
-			}
-
-			p {
-				color: #6b6c7e;
-				font-size: 14px;
-			}
 		}
 
 		.legend-container {
