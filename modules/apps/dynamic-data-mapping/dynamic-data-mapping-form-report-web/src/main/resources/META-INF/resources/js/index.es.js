@@ -18,7 +18,7 @@ import EmptyState from '../js/components/card/EmptyState.es';
 import App from './App.es';
 
 export default ({data, fields}) => {
-	if (!data) {
+	if (!data || data.length === 0) {
 		return (
 			<EmptyState
 				description={Liferay.Language.get(

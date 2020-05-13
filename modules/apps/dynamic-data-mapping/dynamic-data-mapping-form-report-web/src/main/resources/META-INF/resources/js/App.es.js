@@ -15,6 +15,7 @@
 import React from 'react';
 
 import Card from './components/card/Card.es';
+import EmptyState from './components/card/EmptyState.es';
 import PieChart from './components/chart/pie/PieChart.es';
 import toDataArray, {sumTotalEntries} from './utils/data.es';
 
@@ -28,14 +29,19 @@ const chartFactory = (type, values, totalEntries) => {
 	return null;
 };
 
-export default ({data, fields}) =>
-	fields.map(({name, type}, index) => {
+export default ({data, fields}) => {
+	let hasCards = false;
+
+	const cards = fields.map(({name, type}, index) => {
 		const {values = {}} = data[name] || {};
 		const totalEntries = sumTotalEntries(values);
 		const chart = chartFactory(type, values, totalEntries);
 
 		if (chart === null) {
 			return null;
+		}
+		else {
+			hasCards = true;
 		}
 
 		return (
@@ -49,3 +55,17 @@ export default ({data, fields}) =>
 			</Card>
 		);
 	});
+
+	if (!hasCards) {
+		return (
+			<EmptyState
+				description={Liferay.Language.get(
+					'when-the-form-starts-to-receive-submissions-the-entry-summaries-will-show-up-here'
+				)}
+				title={Liferay.Language.get('there-are-no-entries')}
+			/>
+		);
+	}
+
+	return cards;
+};
