@@ -15,8 +15,8 @@
 import React from 'react';
 
 import Card from './components/card/Card.es';
-import EmptyState from './components/card/EmptyState.es';
 import PieChart from './components/chart/pie/PieChart.es';
+import EmptyState from './components/empty-state/EmptyState.es';
 import toDataArray, {sumTotalEntries} from './utils/data.es';
 
 const chartFactory = (type, values, totalEntries) => {

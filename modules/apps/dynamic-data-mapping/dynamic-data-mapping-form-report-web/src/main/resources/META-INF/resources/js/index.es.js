@@ -14,8 +14,8 @@
 
 import React from 'react';
 
-import EmptyState from '../js/components/card/EmptyState.es';
 import App from './App.es';
+import EmptyState from './components/empty-state/EmptyState.es';
 
 export default ({data, fields}) => {
 	if (!data || data.length === 0) {

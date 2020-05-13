@@ -280,7 +280,7 @@ exports[`index renders nothing when there is no data 1`] = `
       <p
         class="text-default"
       >
-        when-the-form-starts-to-receive-submissions-the-entry-summaries-will-show-up-here
+        the-report-will-show-up-once-the-first-entry-is-submitted
       </p>
     </div>
   </div>

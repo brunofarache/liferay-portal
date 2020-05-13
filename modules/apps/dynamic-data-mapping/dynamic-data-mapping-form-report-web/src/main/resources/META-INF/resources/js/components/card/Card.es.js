@@ -17,7 +17,7 @@ import ClayIcon from '@clayui/icon';
 import {ClayTooltipProvider} from '@clayui/tooltip';
 import React from 'react';
 
-import EmptyState from './EmptyState.es';
+import EmptyState from '../empty-state/EmptyState.es';
 
 export default ({children, fieldName, totalEntries, type}) => (
 	<div className="col-md-8">
