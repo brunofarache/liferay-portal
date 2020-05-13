@@ -43,16 +43,12 @@ public class CheckboxMultipleDDMFormFieldTypeReportProcessorTest
 
 	@Before
 	public void setUp() {
-		JSONFactoryUtil jsonFactoryUtil = new JSONFactoryUtil();
-
-		jsonFactoryUtil.setJSONFactory(new JSONFactoryImpl());
+		_setUpJSONFactoryUtil();
 	}
 
 	@Test
-	public void testProcess1() throws Exception {
-		CheckboxMultipleDDMFormFieldTypeReportProcessor
-			checkboxMultipleDDMFormFieldTypeReportProcessor =
-				new CheckboxMultipleDDMFormFieldTypeReportProcessor();
+	public void testProcessDDMFormInstanceReportWithEmptyData()
+		throws Exception {
 
 		DDMFormFieldValue ddmFormFieldValue = mock(DDMFormFieldValue.class);
 
@@ -64,12 +60,12 @@ public class CheckboxMultipleDDMFormFieldTypeReportProcessorTest
 		when(
 			ddmFormFieldValue.getName()
 		).thenReturn(
-			"fieldName"
+			"field1"
 		);
 
 		Value value = new LocalizedValue();
 
-		value.addString(value.getDefaultLocale(), "[\"test1\"]");
+		value.addString(value.getDefaultLocale(), "[\"option1\"]");
 
 		value.setDefaultLocale(LocaleUtil.US);
 
@@ -79,28 +75,30 @@ public class CheckboxMultipleDDMFormFieldTypeReportProcessorTest
 			value
 		);
 
-		JSONObject jsonObject =
+		CheckboxMultipleDDMFormFieldTypeReportProcessor
+			checkboxMultipleDDMFormFieldTypeReportProcessor =
+				new CheckboxMultipleDDMFormFieldTypeReportProcessor();
+
+		JSONObject processedFormInstanceReportDataJSONObject =
 			checkboxMultipleDDMFormFieldTypeReportProcessor.process(
 				ddmFormFieldValue, JSONFactoryUtil.createJSONObject(),
 				DDMFormInstanceReportConstants.EVENT_ADD_RECORD_VERSION);
 
-		JSONObject fieldJSONObject = jsonObject.getJSONObject("fieldName");
+		JSONObject fieldJSONObject =
+			processedFormInstanceReportDataJSONObject.getJSONObject("field1");
 
-		JSONObject fieldValueJSONObject = fieldJSONObject.getJSONObject(
-			"values");
+		JSONObject valuesJSONObject = fieldJSONObject.getJSONObject("values");
 
 		Assert.assertEquals(
 			DDMFormFieldType.CHECKBOX_MULTIPLE,
 			fieldJSONObject.getString("type"));
 
-		Assert.assertEquals(1, fieldValueJSONObject.getLong("test1"));
+		Assert.assertEquals(1, valuesJSONObject.getLong("option1"));
 	}
 
 	@Test
-	public void testProcess2() throws Exception {
-		CheckboxMultipleDDMFormFieldTypeReportProcessor
-			checkboxMultipleDDMFormFieldTypeReportProcessor =
-				new CheckboxMultipleDDMFormFieldTypeReportProcessor();
+	public void testProcessDDMFormInstanceReportWithExistingData()
+		throws Exception {
 
 		DDMFormFieldValue ddmFormFieldValue = mock(DDMFormFieldValue.class);
 
@@ -109,15 +107,16 @@ public class CheckboxMultipleDDMFormFieldTypeReportProcessorTest
 		).thenReturn(
 			DDMFormFieldType.CHECKBOX_MULTIPLE
 		);
+
 		when(
 			ddmFormFieldValue.getName()
 		).thenReturn(
-			"fieldName"
+			"field1"
 		);
 
 		Value value = new LocalizedValue();
 
-		value.addString(value.getDefaultLocale(), "[\"test1\", \"test2\"]");
+		value.addString(value.getDefaultLocale(), "[\"option1\", \"option2\"]");
 
 		value.setDefaultLocale(LocaleUtil.US);
 
@@ -127,26 +126,37 @@ public class CheckboxMultipleDDMFormFieldTypeReportProcessorTest
 			value
 		);
 
-		JSONObject reportJSONObject = JSONUtil.put(
+		JSONObject formInstanceReportDataJSONObject = JSONUtil.put(
 			ddmFormFieldValue.getName(),
 			JSONUtil.put(
 				"type", DDMFormFieldType.CHECKBOX_MULTIPLE
 			).put(
-				"values", JSONFactoryUtil.createJSONObject("{test1 : 1}")
+				"values", JSONFactoryUtil.createJSONObject("{option1: 1}")
 			));
 
-		JSONObject jsonObject =
+		CheckboxMultipleDDMFormFieldTypeReportProcessor
+			checkboxMultipleDDMFormFieldTypeReportProcessor =
+				new CheckboxMultipleDDMFormFieldTypeReportProcessor();
+
+		JSONObject processedFormInstanceReportDataJSONObject =
 			checkboxMultipleDDMFormFieldTypeReportProcessor.process(
-				ddmFormFieldValue, reportJSONObject,
+				ddmFormFieldValue, formInstanceReportDataJSONObject,
 				DDMFormInstanceReportConstants.EVENT_ADD_RECORD_VERSION);
 
-		JSONObject fieldJSONObject = jsonObject.getJSONObject("fieldName");
+		JSONObject fieldJSONObject =
+			processedFormInstanceReportDataJSONObject.getJSONObject("field1");
 
 		JSONObject fieldValueJSONObject = fieldJSONObject.getJSONObject(
 			"values");
 
-		Assert.assertEquals(2, fieldValueJSONObject.getLong("test1"));
-		Assert.assertEquals(1, fieldValueJSONObject.getLong("test2"));
+		Assert.assertEquals(2, fieldValueJSONObject.getLong("option1"));
+		Assert.assertEquals(1, fieldValueJSONObject.getLong("option2"));
+	}
+
+	private void _setUpJSONFactoryUtil() {
+		JSONFactoryUtil jsonFactoryUtil = new JSONFactoryUtil();
+
+		jsonFactoryUtil.setJSONFactory(new JSONFactoryImpl());
 	}
 
 }
