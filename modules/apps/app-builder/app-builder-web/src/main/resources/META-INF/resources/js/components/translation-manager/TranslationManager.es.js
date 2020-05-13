@@ -62,7 +62,7 @@ export default ({
 			trigger={
 				<ClayButton
 					displayType="secondary"
-					small
+					monospaced
 					symbol={formatLabel(editingLanguageId)}
 				>
 					<span className="inline-item">
