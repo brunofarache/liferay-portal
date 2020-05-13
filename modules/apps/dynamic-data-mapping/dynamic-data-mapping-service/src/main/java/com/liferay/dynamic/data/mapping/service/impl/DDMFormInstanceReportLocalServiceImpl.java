@@ -26,11 +26,17 @@ import com.liferay.dynamic.data.mapping.service.persistence.DDMFormInstancePersi
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -104,47 +110,52 @@ public class DDMFormInstanceReportLocalServiceImpl
 				ddmFormInstanceReportPersistence.findByFormInstanceId(
 					formInstanceRecordVersion.getFormInstanceId());
 
+			if (formInstanceRecordVersion.getStatus() !=
+					WorkflowConstants.STATUS_APPROVED) {
+
+				return formInstanceReport.getData();
+			}
+
 			JSONObject formInstanceReportDataJSONObject =
 				JSONFactoryUtil.createJSONObject(formInstanceReport.getData());
 
-			DDMFormValues ddmFormValues =
-				formInstanceRecordVersion.getDDMFormValues();
+			List<DDMFormInstanceRecordVersion> formInstanceRecordVersions =
+				_formInstanceRecordVersionLocalService.
+					getFormInstanceRecordVersions(
+						formInstanceRecordVersion.getFormInstanceRecordId(),
+						QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 
-			for (DDMFormFieldValue ddmFormFieldValue :
-					ddmFormValues.getDDMFormFieldValues()) {
+			Stream<DDMFormInstanceRecordVersion>
+				formInstanceRecordVersionStream =
+					formInstanceRecordVersions.stream();
 
-				DDMFormFieldTypeReportProcessor
-					ddmFormFieldTypeReportProcessor =
-						_ddmFormFieldTypeReportProcessorTracker.
-							getDDMFormFieldTypeReportProcessor(
-								ddmFormFieldValue.getType());
+			List<DDMFormInstanceRecordVersion>
+				approvedFormInstanceRecordVersions =
+					formInstanceRecordVersionStream.filter(
+						ddmFormInstanceRecordVersion ->
+							ddmFormInstanceRecordVersion.getStatus() ==
+								WorkflowConstants.STATUS_APPROVED
+					).collect(
+						Collectors.toList()
+					);
 
-				if (ddmFormFieldTypeReportProcessor != null) {
-					formInstanceReportDataJSONObject =
-						ddmFormFieldTypeReportProcessor.process(
-							ddmFormFieldValue, formInstanceReportDataJSONObject,
-							formInstanceReportEvent);
-				}
+			Collections.sort(
+				approvedFormInstanceRecordVersions, Collections.reverseOrder());
+
+			if (DDMFormInstanceReportConstants.EVENT_ADD_RECORD_VERSION.equals(
+					formInstanceReportEvent) &&
+				(approvedFormInstanceRecordVersions.size() > 1)) {
+
+				formInstanceReportDataJSONObject = _processData(
+					DDMFormInstanceReportConstants.EVENT_DELETE_RECORD_VERSION,
+					approvedFormInstanceRecordVersions.get(1),
+					formInstanceReportDataJSONObject);
 			}
 
-			int totalItems = formInstanceReportDataJSONObject.getInt(
-				"totalItems");
-
-			if (formInstanceReportEvent.equals(
-					DDMFormInstanceReportConstants.EVENT_ADD_RECORD_VERSION)) {
-
-				totalItems++;
-			}
-			else if (formInstanceReportEvent.equals(
-						DDMFormInstanceReportConstants.
-							EVENT_DELETE_RECORD_VERSION)) {
-
-				totalItems--;
-			}
-
-			formInstanceReportDataJSONObject.put("totalItems", totalItems);
-
-			return formInstanceReportDataJSONObject.toString();
+			return _processData(
+				formInstanceReportEvent, formInstanceRecordVersion,
+				formInstanceReportDataJSONObject
+			).toString();
 		}
 		catch (Exception exception) {
 			throw new PortalException(
@@ -152,6 +163,50 @@ public class DDMFormInstanceReportLocalServiceImpl
 					formInstanceRecordVersionId,
 				exception);
 		}
+	}
+
+	private JSONObject _processData(
+			String formInstanceReportEvent,
+			DDMFormInstanceRecordVersion formInstanceRecordVersion,
+			JSONObject formInstanceReportDataJSONObject)
+		throws Exception {
+
+		DDMFormValues ddmFormValues =
+			formInstanceRecordVersion.getDDMFormValues();
+
+		for (DDMFormFieldValue ddmFormFieldValue :
+				ddmFormValues.getDDMFormFieldValues()) {
+
+			DDMFormFieldTypeReportProcessor ddmFormFieldTypeReportProcessor =
+				_ddmFormFieldTypeReportProcessorTracker.
+					getDDMFormFieldTypeReportProcessor(
+						ddmFormFieldValue.getType());
+
+			if (ddmFormFieldTypeReportProcessor != null) {
+				formInstanceReportDataJSONObject =
+					ddmFormFieldTypeReportProcessor.process(
+						ddmFormFieldValue, formInstanceReportDataJSONObject,
+						formInstanceReportEvent);
+			}
+		}
+
+		int totalItems = formInstanceReportDataJSONObject.getInt("totalItems");
+
+		if (formInstanceReportEvent.equals(
+				DDMFormInstanceReportConstants.EVENT_ADD_RECORD_VERSION)) {
+
+			totalItems++;
+		}
+		else if (formInstanceReportEvent.equals(
+					DDMFormInstanceReportConstants.
+						EVENT_DELETE_RECORD_VERSION)) {
+
+			totalItems--;
+		}
+
+		formInstanceReportDataJSONObject.put("totalItems", totalItems);
+
+		return formInstanceReportDataJSONObject;
 	}
 
 	@Reference
