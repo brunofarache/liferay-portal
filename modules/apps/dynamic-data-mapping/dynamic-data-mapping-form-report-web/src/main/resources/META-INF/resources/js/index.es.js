@@ -14,11 +14,19 @@
 
 import React from 'react';
 
+import EmptyState from '../js/components/card/EmptyState.es';
 import App from './App.es';
 
 export default ({data, fields}) => {
 	if (!data) {
-		return null;
+		return (
+			<EmptyState
+				description={Liferay.Language.get(
+					'when-the-form-starts-to-receive-submissions-the-entry-summaries-will-show-up-here'
+				)}
+				title={Liferay.Language.get('there-are-no-entries')}
+			/>
+		);
 	}
 
 	return (
