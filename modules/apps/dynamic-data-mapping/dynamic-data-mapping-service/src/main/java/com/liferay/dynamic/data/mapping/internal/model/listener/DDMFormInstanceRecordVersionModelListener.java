@@ -18,6 +18,7 @@ import com.liferay.dynamic.data.mapping.constants.DDMFormInstanceReportConstants
 import com.liferay.dynamic.data.mapping.exception.NoSuchFormInstanceReportException;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecordVersion;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceReport;
+import com.liferay.dynamic.data.mapping.service.DDMFormInstanceRecordVersionLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceReportLocalService;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -81,6 +82,37 @@ public class DDMFormInstanceRecordVersionModelListener
 		}
 	}
 
+	@Override
+	public void onBeforeUpdate(
+			DDMFormInstanceRecordVersion ddmFormInstanceRecordVersion)
+		throws ModelListenerException {
+
+		try {
+			if (ddmFormInstanceRecordVersion.getStatus() !=
+					WorkflowConstants.STATUS_APPROVED) {
+
+				return;
+			}
+
+			DDMFormInstanceRecordVersion latestFormInstanceRecordVersion =
+				_ddmFormInstanceRecordVersionLocalService.
+					getLatestFormInstanceRecordVersion(
+						ddmFormInstanceRecordVersion.getFormInstanceRecordId(),
+						WorkflowConstants.STATUS_APPROVED);
+
+			_updateDDMFormInstanceReport(
+				latestFormInstanceRecordVersion,
+				DDMFormInstanceReportConstants.EVENT_DELETE_RECORD_VERSION);
+		}
+		catch (Exception exception) {
+			_log.error(
+				"Unable to update dynamic data mapping form instance report " +
+					"for dynamic data mapping form instance record " +
+						ddmFormInstanceRecordVersion.getFormInstanceRecordId(),
+				exception);
+		}
+	}
+
 	private void _updateDDMFormInstanceReport(
 			DDMFormInstanceRecordVersion ddmFormInstanceRecordVersion,
 			String formInstanceReportEvent)
@@ -110,6 +142,10 @@ public class DDMFormInstanceRecordVersionModelListener
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		DDMFormInstanceRecordVersionModelListener.class);
+
+	@Reference
+	private DDMFormInstanceRecordVersionLocalService
+		_ddmFormInstanceRecordVersionLocalService;
 
 	@Reference
 	private DDMFormInstanceReportLocalService
