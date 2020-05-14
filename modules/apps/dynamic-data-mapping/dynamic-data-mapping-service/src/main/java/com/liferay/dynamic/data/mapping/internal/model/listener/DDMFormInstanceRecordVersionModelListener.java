@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.BaseModelListener;
 import com.liferay.portal.kernel.model.ModelListener;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -37,11 +38,17 @@ public class DDMFormInstanceRecordVersionModelListener
 	extends BaseModelListener<DDMFormInstanceRecordVersion> {
 
 	@Override
-	public void onAfterCreate(
+	public void onAfterUpdate(
 			DDMFormInstanceRecordVersion ddmFormInstanceRecordVersion)
 		throws ModelListenerException {
 
 		try {
+			if (ddmFormInstanceRecordVersion.getStatus() !=
+					WorkflowConstants.STATUS_APPROVED) {
+
+				return;
+			}
+
 			_updateDDMFormInstanceReport(
 				ddmFormInstanceRecordVersion,
 				DDMFormInstanceReportConstants.EVENT_ADD_RECORD_VERSION);
