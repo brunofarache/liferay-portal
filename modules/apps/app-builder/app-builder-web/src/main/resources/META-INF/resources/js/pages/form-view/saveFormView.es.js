@@ -55,7 +55,7 @@ export default ({
 		...dataDefinition,
 		dataDefinitionFields: dataDefinition.dataDefinitionFields.map(
 			(field) => {
-				const defaultValueStringFormat = (value) =>
+				const toArray = (value) =>
 					dataDefinition.availableLanguageIds.reduce(
 						(accumulator, currentValue) => {
 							accumulator[currentValue] =
@@ -66,7 +66,7 @@ export default ({
 						{}
 					);
 
-				const defaultValueArrFormat = (value) =>
+				const toString = (value) =>
 					dataDefinition.availableLanguageIds.reduce(
 						(accumulator, currentValue) => {
 							if (
@@ -99,23 +99,21 @@ export default ({
 							defaultValue: Array.isArray(
 								defaultValue[defaultLanguageId]
 							)
-								? defaultValueArrFormat(defaultValue)
-								: defaultValueStringFormat(defaultValue),
+								? toString(defaultValue)
+								: toArray(defaultValue),
 						}),
-						...(label && {label: defaultValueStringFormat(label)}),
-						...(tip && {tip: defaultValueStringFormat(tip)}),
+						...(label && {label: toArray(label)}),
+						...(tip && {tip: toArray(tip)}),
 						customProperties: {
 							...field.customProperties,
 							...(options && {
-								options: defaultValueArrFormat(options),
+								options: toString(options),
 							}),
 							...(placeholder && {
-								placeholder: defaultValueStringFormat(
-									placeholder
-								),
+								placeholder: toArray(placeholder),
 							}),
 							...(tooltip && {
-								tooltip: defaultValueStringFormat(tooltip),
+								tooltip: toArray(tooltip),
 							}),
 						},
 						nestedDataDefinitionFields: field

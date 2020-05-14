@@ -49,7 +49,7 @@ export const TranslationManagerLabel = ({
 
 export default ({
 	editingLanguageId,
-	onChangeLanguageId,
+	onEditingLanguageIdChange,
 	translatedLanguageIds,
 }) => {
 	const [active, setActive] = useState(false);
@@ -82,7 +82,7 @@ export default ({
 							className="autofit-row"
 							key={index}
 							onClick={() => {
-								onChangeLanguageId(languageId);
+								onEditingLanguageIdChange(languageId);
 								setActive(false);
 							}}
 						>

@@ -35,16 +35,7 @@ export default ({newCustomObject}) => {
 	const {basePortletURL} = useContext(AppContext);
 	const listUrl = `${basePortletURL}/#/custom-object/${dataDefinitionId}/form-views`;
 
-	const onChangeLanguageId = (editingLanguageId) => {
-		setEditingLanguageId(editingLanguageId);
-
-		dispatch({
-			payload: editingLanguageId,
-			type: DataLayoutBuilderActions.UPDATE_EDITING_LANGUAGE_ID,
-		});
-	};
-
-	const onInput = ({target: {value}}) => {
+	const onDataLayoutNameChange = ({target: {value}}) => {
 		dispatch({
 			payload: {
 				name: {
@@ -53,6 +44,15 @@ export default ({newCustomObject}) => {
 				},
 			},
 			type: DataLayoutBuilderActions.UPDATE_DATA_LAYOUT_NAME,
+		});
+	};
+
+	const onEditingLanguageIdChange = (editingLanguageId) => {
+		setEditingLanguageId(editingLanguageId);
+
+		dispatch({
+			payload: editingLanguageId,
+			type: DataLayoutBuilderActions.UPDATE_EDITING_LANGUAGE_ID,
 		});
 	};
 
@@ -105,13 +105,13 @@ export default ({newCustomObject}) => {
 			<UpperToolbar.Group>
 				<TranslationManager
 					editingLanguageId={editingLanguageId}
-					onChangeLanguageId={onChangeLanguageId}
+					onEditingLanguageIdChange={onEditingLanguageIdChange}
 					translatedLanguageIds={dataLayout.name}
 				/>
 			</UpperToolbar.Group>
 
 			<UpperToolbar.Input
-				onInput={onInput}
+				onInput={onDataLayoutNameChange}
 				onKeyDown={onKeyDown}
 				placeholder={Liferay.Language.get('untitled-form-view')}
 				value={dataLayout.name[editingLanguageId]}

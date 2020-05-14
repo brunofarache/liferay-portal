@@ -36,19 +36,21 @@ export default ({children, dataLayoutBuilder}) => {
 	useEffect(() => {
 		const provider = dataLayoutBuilder.getLayoutProvider();
 
-		provider.props.editingLanguageId = editingLanguageId;
-		provider.props.availableLanguageIds = [
-			...new Set([
-				...provider.props.availableLanguageIds,
-				editingLanguageId,
-			]),
-		];
-
-		// Fire click event on the provider to update the sidebar with focusedField
+		provider.props = {
+			...provider.props,
+			availableLanguageIds: [
+				...new Set([
+					...provider.props.availableLanguageIds,
+					editingLanguageId,
+				]),
+			],
+			editingLanguageId,
+		};
 
 		if (Object.keys(focusedField).length) {
 			provider.getEvents().fieldClicked(focusedField);
 		}
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dataLayoutBuilder, dispatch, editingLanguageId]);
 
