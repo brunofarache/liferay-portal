@@ -382,8 +382,11 @@ const createReducer = (dataLayoutBuilder) => {
 					dataDefinition: {
 						...dataDefinition,
 						availableLanguageIds: [
-							...new Set([...dataDefinition.availableLanguageIds, action.payload])
-						]
+							...new Set([
+								...dataDefinition.availableLanguageIds,
+								action.payload,
+							]),
+						],
 					},
 					editingLanguageId: action.payload,
 				};
