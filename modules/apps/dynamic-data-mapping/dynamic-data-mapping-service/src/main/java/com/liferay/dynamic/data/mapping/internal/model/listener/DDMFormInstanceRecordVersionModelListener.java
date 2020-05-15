@@ -94,14 +94,14 @@ public class DDMFormInstanceRecordVersionModelListener
 				return;
 			}
 
-			DDMFormInstanceRecordVersion latestFormInstanceRecordVersion =
+			DDMFormInstanceRecordVersion latestDDMFormInstanceRecordVersion =
 				_ddmFormInstanceRecordVersionLocalService.
 					getLatestFormInstanceRecordVersion(
 						ddmFormInstanceRecordVersion.getFormInstanceRecordId(),
 						WorkflowConstants.STATUS_APPROVED);
 
 			_updateDDMFormInstanceReport(
-				latestFormInstanceRecordVersion,
+				latestDDMFormInstanceRecordVersion,
 				DDMFormInstanceReportConstants.EVENT_DELETE_RECORD_VERSION);
 		}
 		catch (Exception exception) {
