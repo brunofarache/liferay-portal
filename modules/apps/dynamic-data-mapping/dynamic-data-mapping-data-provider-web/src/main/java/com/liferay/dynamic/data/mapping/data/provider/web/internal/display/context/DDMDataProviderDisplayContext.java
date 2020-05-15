@@ -42,6 +42,7 @@ import com.liferay.dynamic.data.mapping.util.DDMFormFactory;
 import com.liferay.dynamic.data.mapping.util.DDMFormLayoutFactory;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemListBuilder;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.NavigationItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.NavigationItemList;
@@ -140,6 +141,20 @@ public class DDMDataProviderDisplayContext {
 				dropdownItem.setQuickAction(true);
 			}
 		).build();
+	}
+
+	public List<DropdownItem> getAddDataProviderDropdownItems() {
+		if (!isShowAddDataProviderButton()) {
+			return null;
+		}
+
+		return new DropdownItemList() {
+			{
+				for (String ddmDataProviderType : getDDMDataProviderTypes()) {
+					add(getCreationMenuDropdownItem(ddmDataProviderType));
+				}
+			}
+		};
 	}
 
 	public String getClearResultsURL() throws PortletException {
