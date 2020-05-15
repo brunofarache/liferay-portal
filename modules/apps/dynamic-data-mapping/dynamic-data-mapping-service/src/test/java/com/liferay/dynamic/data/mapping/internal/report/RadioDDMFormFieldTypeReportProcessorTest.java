@@ -96,6 +96,56 @@ public class RadioDDMFormFieldTypeReportProcessorTest extends PowerMockito {
 	}
 
 	@Test
+	public void testProcessDDMFormInstanceReportWithEmptyFieldValue()
+		throws Exception {
+
+		DDMFormFieldValue ddmFormFieldValue = mock(DDMFormFieldValue.class);
+
+		when(
+			ddmFormFieldValue.getType()
+		).thenReturn(
+			DDMFormFieldType.RADIO
+		);
+
+		when(
+			ddmFormFieldValue.getName()
+		).thenReturn(
+			"field1"
+		);
+
+		Value value = new LocalizedValue();
+
+		value.addString(value.getDefaultLocale(), "");
+
+		value.setDefaultLocale(LocaleUtil.US);
+
+		when(
+			ddmFormFieldValue.getValue()
+		).thenReturn(
+			value
+		);
+
+		RadioDDMFormFieldTypeReportProcessor
+			radioDDMFormFieldTypeReportProcessor =
+				new RadioDDMFormFieldTypeReportProcessor();
+
+		JSONObject processedFormInstanceReportDataJSONObject =
+			radioDDMFormFieldTypeReportProcessor.process(
+				ddmFormFieldValue, JSONFactoryUtil.createJSONObject(),
+				DDMFormInstanceReportConstants.EVENT_ADD_RECORD_VERSION);
+
+		JSONObject fieldJSONObject =
+			processedFormInstanceReportDataJSONObject.getJSONObject("field1");
+
+		JSONObject valuesJSONObject = fieldJSONObject.getJSONObject("values");
+
+		Assert.assertEquals(
+			DDMFormFieldType.RADIO, fieldJSONObject.getString("type"));
+
+		Assert.assertFalse(valuesJSONObject.has(""));
+	}
+
+	@Test
 	public void testProcessDDMFormInstanceReportWithExistingData()
 		throws Exception {
 
