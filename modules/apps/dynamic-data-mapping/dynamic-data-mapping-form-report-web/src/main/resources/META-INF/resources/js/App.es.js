@@ -15,6 +15,7 @@
 import React from 'react';
 
 import Card from './components/card/Card.es';
+import BarChart from './components/chart/bar/BarChart.es';
 import PieChart from './components/chart/pie/PieChart.es';
 import EmptyState from './components/empty-state/EmptyState.es';
 import toDataArray, {sumTotalEntries} from './utils/data.es';
@@ -23,6 +24,11 @@ const chartFactory = (type, values, totalEntries) => {
 	if (type === 'radio') {
 		return (
 			<PieChart data={toDataArray(values)} totalEntries={totalEntries} />
+		);
+	}
+	else if (type === 'checkbox_multiple') {
+		return (
+			<BarChart data={toDataArray(values)} totalEntries={totalEntries} />
 		);
 	}
 
