@@ -52,22 +52,21 @@ public class RadioDDMFormFieldTypeReportProcessorTest extends PowerMockito {
 		DDMFormFieldValue ddmFormFieldValue = mock(DDMFormFieldValue.class);
 
 		when(
-			ddmFormFieldValue.getType()
-		).thenReturn(
-			DDMFormFieldType.RADIO
-		);
-
-		when(
 			ddmFormFieldValue.getName()
 		).thenReturn(
 			"field1"
 		);
 
+		when(
+			ddmFormFieldValue.getType()
+		).thenReturn(
+			DDMFormFieldType.RADIO
+		);
+
 		Value value = new LocalizedValue();
 
-		value.addString(value.getDefaultLocale(), "option1");
-
 		value.setDefaultLocale(LocaleUtil.US);
+		value.addString(value.getDefaultLocale(), "option1");
 
 		when(
 			ddmFormFieldValue.getValue()
@@ -87,25 +86,19 @@ public class RadioDDMFormFieldTypeReportProcessorTest extends PowerMockito {
 		JSONObject fieldJSONObject =
 			processedFormInstanceReportDataJSONObject.getJSONObject("field1");
 
-		JSONObject valuesJSONObject = fieldJSONObject.getJSONObject("values");
-
 		Assert.assertEquals(
 			DDMFormFieldType.RADIO, fieldJSONObject.getString("type"));
+
+		JSONObject valuesJSONObject = fieldJSONObject.getJSONObject("values");
 
 		Assert.assertEquals(1, valuesJSONObject.getLong("option1"));
 	}
 
 	@Test
-	public void testProcessDDMFormInstanceReportWithEmptyFieldValue()
+	public void testProcessDDMFormInstanceReportWithEmptyField()
 		throws Exception {
 
 		DDMFormFieldValue ddmFormFieldValue = mock(DDMFormFieldValue.class);
-
-		when(
-			ddmFormFieldValue.getType()
-		).thenReturn(
-			DDMFormFieldType.RADIO
-		);
 
 		when(
 			ddmFormFieldValue.getName()
@@ -113,11 +106,16 @@ public class RadioDDMFormFieldTypeReportProcessorTest extends PowerMockito {
 			"field1"
 		);
 
+		when(
+			ddmFormFieldValue.getType()
+		).thenReturn(
+			DDMFormFieldType.RADIO
+		);
+
 		Value value = new LocalizedValue();
 
-		value.addString(value.getDefaultLocale(), "");
-
 		value.setDefaultLocale(LocaleUtil.US);
+		value.addString(value.getDefaultLocale(), "");
 
 		when(
 			ddmFormFieldValue.getValue()
@@ -137,10 +135,10 @@ public class RadioDDMFormFieldTypeReportProcessorTest extends PowerMockito {
 		JSONObject fieldJSONObject =
 			processedFormInstanceReportDataJSONObject.getJSONObject("field1");
 
-		JSONObject valuesJSONObject = fieldJSONObject.getJSONObject("values");
-
 		Assert.assertEquals(
 			DDMFormFieldType.RADIO, fieldJSONObject.getString("type"));
+
+		JSONObject valuesJSONObject = fieldJSONObject.getJSONObject("values");
 
 		Assert.assertFalse(valuesJSONObject.has(""));
 	}
@@ -152,21 +150,20 @@ public class RadioDDMFormFieldTypeReportProcessorTest extends PowerMockito {
 		DDMFormFieldValue ddmFormFieldValue = mock(DDMFormFieldValue.class);
 
 		when(
-			ddmFormFieldValue.getType()
-		).thenReturn(
-			DDMFormFieldType.RADIO
-		);
-
-		when(
 			ddmFormFieldValue.getName()
 		).thenReturn(
 			"field1"
 		);
 
+		when(
+			ddmFormFieldValue.getType()
+		).thenReturn(
+			DDMFormFieldType.RADIO
+		);
+
 		Value value = new LocalizedValue();
 
 		value.addString(value.getDefaultLocale(), "option1");
-
 		value.setDefaultLocale(LocaleUtil.US);
 
 		when(
