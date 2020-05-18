@@ -38,70 +38,69 @@ export default ({data, height, totalEntries, width}) => {
 	};
 
 	return (
-		<>
-			<ResponsiveContainer
-				height={height || '99%'}
-				width={width || '99%'}
+		<ResponsiveContainer height={height || '99%'} width={width || '99%'}>
+			<BarChart
+				data={data}
+				layout="vertical"
+				margin={{
+					bottom: 20,
+					left: 20,
+					right: 20,
+					top: 20,
+				}}
 			>
-				<BarChart
-					data={data}
-					layout="vertical"
-					margin={{
-						bottom: 20,
-						left: 20,
-						right: 20,
-						top: 20,
-					}}
-				>
-					<XAxis
-						axisLine={{stroke: '#CDCED9'}}
-						tickLine={false}
-						type="number"
-					/>
-					<YAxis
-						dataKey="label"
-						stroke="#272833"
-						tickLine={false}
-						tickMargin={16}
-						type="category"
-						width={214}
-					/>
-					<Tooltip
-						content={
-							<TooltipContent
-								activeIndex={activeIndex}
-								totalEntries={totalEntries}
-							/>
-						}
-						cursor={{fill: 'transparent'}}
-					/>
-					<Bar
-						barCategoryGap={30}
-						barGap={5}
-						dataKey="count"
-						fill="#4B9BFF"
-						onMouseOut={handleOnMouseOut}
-						onMouseOver={(_, index) => handleOnMouseOver(index)}
-					>
-						{data.map((entry, index) => (
-							<Cell
-								fill={
-									activeIndex == null || activeIndex === index
-										? 'rgba(75,155,255)'
-										: 'rgba(75,155,255, 0.5)'
-								}
-								key={`cell-${index}`}
-							/>
-						))}
-						<LabelList
-							dataKey="count"
-							fill="rgba(255,255,255)"
-							offset={16}
-							position="insideRight"
+				<XAxis
+					axisLine={{stroke: '#CDCED9'}}
+					tickLine={false}
+					type="number"
+				/>
+
+				<YAxis
+					dataKey="label"
+					stroke="#272833"
+					tickLine={false}
+					tickMargin={16}
+					type="category"
+					width={214}
+				/>
+
+				<Tooltip
+					content={
+						<TooltipContent
+							activeIndex={activeIndex}
+							totalEntries={totalEntries}
 						/>
-					</Bar>
-				</BarChart>
-			</ResponsiveContainer>
-		</>
+					}
+					cursor={{fill: 'transparent'}}
+				/>
+
+				<Bar
+					barCategoryGap={30}
+					barGap={5}
+					dataKey="count"
+					fill="#4B9BFF"
+					onMouseOut={handleOnMouseOut}
+					onMouseOver={(_, index) => handleOnMouseOver(index)}
+				>
+					{data.map((_, index) => (
+						<Cell
+							fill={
+								activeIndex == null || activeIndex === index
+									? 'rgba(75, 155, 255)'
+									: 'rgba(75, 155, 255, 0.5)'
+							}
+							key={`cell-${index}`}
+						/>
+					))}
+
+					<LabelList
+						dataKey="count"
+						fill="rgba(255, 255, 255)"
+						offset={16}
+						position="insideRight"
+					/>
+				</Bar>
+			</BarChart>
+		</ResponsiveContainer>
 	);
 };

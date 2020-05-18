@@ -19,20 +19,29 @@ import BarChart from './components/chart/bar/BarChart.es';
 import PieChart from './components/chart/pie/PieChart.es';
 import EmptyState from './components/empty-state/EmptyState.es';
 import toDataArray, {sumTotalEntries} from './utils/data.es';
+import fieldTypes from './utils/fieldTypes.es';
 
 const chartFactory = (type, values, totalEntries) => {
-	if (type === 'radio') {
-		return (
-			<PieChart data={toDataArray(values)} totalEntries={totalEntries} />
-		);
-	}
-	else if (type === 'checkbox_multiple') {
-		return (
-			<BarChart data={toDataArray(values)} totalEntries={totalEntries} />
-		);
-	}
+	switch (type) {
+		case 'checkbox_multiple':
+			return (
+				<BarChart
+					data={toDataArray(values)}
+					totalEntries={totalEntries}
+				/>
+			);
 
-	return null;
+		case 'radio':
+			return (
+				<PieChart
+					data={toDataArray(values)}
+					totalEntries={totalEntries}
+				/>
+			);
+
+		default:
+			return null;
+	}
 };
 
 export default ({data, fields}) => {
@@ -50,13 +59,14 @@ export default ({data, fields}) => {
 			hasCards = true;
 		}
 
+		const field = {
+			name,
+			type,
+			...fieldTypes[type],
+		};
+
 		return (
-			<Card
-				fieldName={name}
-				key={index}
-				totalEntries={totalEntries}
-				type={type}
-			>
+			<Card field={field} key={index} totalEntries={totalEntries}>
 				{chart}
 			</Card>
 		);

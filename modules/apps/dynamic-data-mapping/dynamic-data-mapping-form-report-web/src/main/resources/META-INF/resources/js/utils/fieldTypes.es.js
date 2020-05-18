@@ -12,15 +12,13 @@
  * details.
  */
 
-const fieldIcons = new Map();
-
-fieldIcons.set('radio', {
-	icon: 'radio-button',
-	title: Liferay.Language.get('radio-field-type-label'),
-});
-fieldIcons.set('checkbox_multiple', {
-	icon: 'check-circle',
-	title: Liferay.Language.get('checkbox-multiple-field-type-label'),
-});
-
-export default fieldIcons;
+export default {
+	checkbox_multiple: {
+		icon: 'check-circle',
+		title: Liferay.Language.get('checkbox-multiple-field-type-label'),
+	},
+	radio: {
+		icon: 'radio-button',
+		title: Liferay.Language.get('radio-field-type-label'),
+	},
+};
