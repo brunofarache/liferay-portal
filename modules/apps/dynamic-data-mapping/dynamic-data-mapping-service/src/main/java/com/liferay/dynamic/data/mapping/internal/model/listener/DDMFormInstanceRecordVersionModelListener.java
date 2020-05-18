@@ -20,6 +20,7 @@ import com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecordVersion;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceReport;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceRecordVersionLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceReportLocalService;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
@@ -55,11 +56,17 @@ public class DDMFormInstanceRecordVersionModelListener
 				DDMFormInstanceReportConstants.EVENT_ADD_RECORD_VERSION);
 		}
 		catch (Exception exception) {
-			_log.error(
-				"Unable to update dynamic data mapping form instance report " +
-					"for dynamic data mapping form instance record " +
-						ddmFormInstanceRecordVersion.getFormInstanceRecordId(),
-				exception);
+			if (_log.isWarnEnabled()) {
+				StringBundler sb = new StringBundler(4);
+
+				sb.append("Unable to update dynamic data mapping form ");
+				sb.append("instance report for dynamic data mapping form ");
+				sb.append("instance record ");
+				sb.append(
+					ddmFormInstanceRecordVersion.getFormInstanceRecordId());
+
+				_log.warn(sb.toString(), exception);
+			}
 		}
 	}
 
@@ -74,11 +81,17 @@ public class DDMFormInstanceRecordVersionModelListener
 				DDMFormInstanceReportConstants.EVENT_DELETE_RECORD_VERSION);
 		}
 		catch (Exception exception) {
-			_log.error(
-				"Unable to update dynamic data mapping form instance report " +
-					"for dynamic data mapping form instance record " +
-						ddmFormInstanceRecordVersion.getFormInstanceRecordId(),
-				exception);
+			if (_log.isWarnEnabled()) {
+				StringBundler sb = new StringBundler(4);
+
+				sb.append("Unable to update dynamic data mapping form ");
+				sb.append("instance report for dynamic data mapping form ");
+				sb.append("instance record ");
+				sb.append(
+					ddmFormInstanceRecordVersion.getFormInstanceRecordId());
+
+				_log.warn(sb.toString(), exception);
+			}
 		}
 	}
 
@@ -105,11 +118,17 @@ public class DDMFormInstanceRecordVersionModelListener
 				DDMFormInstanceReportConstants.EVENT_DELETE_RECORD_VERSION);
 		}
 		catch (Exception exception) {
-			_log.error(
-				"Unable to update dynamic data mapping form instance report " +
-					"for dynamic data mapping form instance record " +
-						ddmFormInstanceRecordVersion.getFormInstanceRecordId(),
-				exception);
+			if (_log.isWarnEnabled()) {
+				StringBundler sb = new StringBundler(4);
+
+				sb.append("Unable to update dynamic data mapping form ");
+				sb.append("instance report for dynamic data mapping form ");
+				sb.append("instance record ");
+				sb.append(
+					ddmFormInstanceRecordVersion.getFormInstanceRecordId());
+
+				_log.warn(sb.toString(), exception);
+			}
 		}
 	}
 
