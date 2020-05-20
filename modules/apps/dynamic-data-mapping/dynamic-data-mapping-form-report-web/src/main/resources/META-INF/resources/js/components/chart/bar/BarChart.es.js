@@ -24,6 +24,7 @@ import {
 	YAxis,
 } from 'recharts';
 
+import {namedColors} from '../../../utils/colors.es';
 import TooltipContent from '../TooltipContent.es';
 
 export default ({data, height, totalEntries, width}) => {
@@ -50,14 +51,14 @@ export default ({data, height, totalEntries, width}) => {
 				}}
 			>
 				<XAxis
-					axisLine={{stroke: '#CDCED9'}}
+					axisLine={{stroke: namedColors.gray}}
 					tickLine={false}
 					type="number"
 				/>
 
 				<YAxis
 					dataKey="label"
-					stroke="#272833"
+					stroke={namedColors.dark}
 					tickLine={false}
 					tickMargin={16}
 					type="category"
@@ -78,7 +79,7 @@ export default ({data, height, totalEntries, width}) => {
 					barCategoryGap={30}
 					barGap={5}
 					dataKey="count"
-					fill="#4B9BFF"
+					fill={namedColors.blue}
 					onMouseOut={handleOnMouseOut}
 					onMouseOver={(_, index) => handleOnMouseOver(index)}
 				>
@@ -86,8 +87,8 @@ export default ({data, height, totalEntries, width}) => {
 						<Cell
 							fill={
 								activeIndex == null || activeIndex === index
-									? 'rgba(75, 155, 255)'
-									: 'rgba(75, 155, 255, 0.5)'
+									? namedColors.blue
+									: namedColors.blueDim
 							}
 							key={`cell-${index}`}
 						/>
@@ -95,7 +96,7 @@ export default ({data, height, totalEntries, width}) => {
 
 					<LabelList
 						dataKey="count"
-						fill="rgba(255, 255, 255)"
+						fill={namedColors.white}
 						offset={16}
 						position="insideRight"
 					/>
