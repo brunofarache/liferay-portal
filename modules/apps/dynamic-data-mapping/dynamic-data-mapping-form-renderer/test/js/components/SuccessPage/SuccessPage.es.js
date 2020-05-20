@@ -22,7 +22,7 @@ let component;
 let successPageSettings;
 const SuccessPageWithContextMock = withContextMock(SuccessPage);
 
-const createSuccessPage = props => {
+const createSuccessPage = (props) => {
 	return new SuccessPageWithContextMock({
 		contentLabel: 'Content',
 		editingLanguageId: 'en_US',
