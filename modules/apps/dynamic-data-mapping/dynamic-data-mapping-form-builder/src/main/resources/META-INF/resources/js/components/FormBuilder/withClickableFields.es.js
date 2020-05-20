@@ -12,6 +12,7 @@
  * details.
  */
 
+import dom from 'metal-dom';
 import {EventHandler} from 'metal-events';
 import Component from 'metal-jsx';
 
@@ -44,9 +45,15 @@ const withClickableFields = (ChildComponent) => {
 			const {dispatch} = this.context;
 			const {fieldName} = delegateTarget.dataset;
 
+			const activePage = parseInt(
+				dom.closest(event.delegateTarget, '[data-ddm-page]').dataset
+					.ddmPage,
+				10
+			);
+
 			event.stopPropagation();
 
-			dispatch('fieldClicked', {fieldName});
+			dispatch('fieldClicked', {activePage, fieldName});
 		}
 	}
 
