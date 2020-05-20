@@ -24,7 +24,7 @@ let pagesEmpty;
 let successPageSettings;
 const PageRendererWithContextMock = withContextMock(PageRenderer);
 
-const createPageRenderer = props => {
+const createPageRenderer = (props) => {
 	return new PageRendererWithContextMock({
 		editable: true,
 		editingLanguageId: 'en_US',
