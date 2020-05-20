@@ -10,7 +10,6 @@ exports[`FormRenderer does not render the layout with the field empty in non-edi
           <h5 class="pagination"> </h5>
           <div class="active ddm-form-page lfr-ddm-form-page" data-ddm-page="0">
             <h3 class="lfr-ddm-form-page-title">Untitled name</h3>
-            <h4 class="lfr-ddm-form-page-description"></h4>
             <div class="position-relative row">
               <div class="col-md-3 col-ddm" data-ddm-field-row="0" data-ddm-field-page="0" data-ddm-field-column="0">
                 <div class="ddm-field" data-field-name="radio"></div>
@@ -74,7 +73,6 @@ exports[`FormRenderer renders a layout in editable mode 1`] = `
           <h5 class="pagination"> </h5>
           <div class="active ddm-form-page lfr-ddm-form-page" data-ddm-page="0">
             <h3 class="lfr-ddm-form-page-title">Untitled name</h3>
-            <h4 class="lfr-ddm-form-page-description"></h4>
             <div class="placeholder row">
               <div class="col col-ddm col-empty col-md-12" data-ddm-field-row="0" data-ddm-field-page="0">
                 <div class="ddm-target"></div>
@@ -206,9 +204,8 @@ exports[`FormRenderer renders a layout in pagination mode 1`] = `
       <div class="ddm-form-page-container paginated">
         <div class="fade tab-pane active show" role="tabpanel">
           <div class="form-builder-layout">
-            <div class="active ddm-form-page lfr-ddm-form-page">
+            <div class="active ddm-form-page lfr-ddm-form-page" data-ddm-page="0">
               <h3 class="lfr-ddm-form-page-title">Untitled name</h3>
-              <h4 class="lfr-ddm-form-page-description"></h4>
               <div class="position-relative row">
                 <div class="col-md-3 col-ddm" data-ddm-field-row="0" data-ddm-field-page="0" data-ddm-field-column="0">
                   <div class="ddm-field" data-field-name="radio"></div>
@@ -239,7 +236,9 @@ exports[`FormRenderer renders a layout in pagination mode 1`] = `
         <ul class="ddm-pagination justify-content-center pagination">
           <li class="page-item active disabled" data-page-index="0"><a class="page-link" href="javascript:;">1</a></li>
         </ul>
-        <div class="lfr-ddm-form-pagination-controls"><button class="btn btn-primary float-right lfr-ddm-form-submit" type="submit">submit</button></div>
+        <div class="lfr-ddm-form-pagination-controls"><button class="btn btn-primary float-right lfr-ddm-form-submit" type="submit">submit</button>
+          <div class="ddm-btn-cancel float-right"><a class="btn btn-cancel btn-secondary">cancel</a></div>
+        </div>
       </div>
     </div>
   </div>
@@ -256,7 +255,6 @@ exports[`FormRenderer renders a layout in wizard mode 1`] = `
           <h5 class="pagination"> </h5>
           <div class="active ddm-form-page lfr-ddm-form-page" data-ddm-page="0">
             <h3 class="lfr-ddm-form-page-title">Untitled name</h3>
-            <h4 class="lfr-ddm-form-page-description"></h4>
             <div class="position-relative row">
               <div class="col-md-3 col-ddm" data-ddm-field-row="0" data-ddm-field-page="0" data-ddm-field-column="0">
                 <div class="ddm-field" data-field-name="radio"></div>
@@ -317,7 +315,6 @@ exports[`FormRenderer renders a layout with an empty field only in editable mode
           <h5 class="pagination"> </h5>
           <div class="active ddm-form-page lfr-ddm-form-page" data-ddm-page="0">
             <h3 class="lfr-ddm-form-page-title">Untitled name</h3>
-            <h4 class="lfr-ddm-form-page-description"></h4>
             <div class="placeholder row">
               <div class="col col-ddm col-empty col-md-12" data-ddm-field-row="0" data-ddm-field-page="0">
                 <div class="ddm-target"></div>
@@ -459,7 +456,6 @@ exports[`FormRenderer renders a layout with pages in mode of list 1`] = `
           <h5 class="pagination"> </h5>
           <div class="active ddm-form-page lfr-ddm-form-page" data-ddm-page="0">
             <h3 class="lfr-ddm-form-page-title">Untitled name</h3>
-            <h4 class="lfr-ddm-form-page-description"></h4>
             <div class="position-relative row">
               <div class="col-md-3 col-ddm" data-ddm-field-row="0" data-ddm-field-page="0" data-ddm-field-column="0">
                 <div class="ddm-field" data-field-name="radio"></div>
@@ -520,7 +516,6 @@ exports[`FormRenderer renders default markup with Success Page enabled 1`] = `
           <h5 class="pagination"> </h5>
           <div class="active ddm-form-page lfr-ddm-form-page" data-ddm-page="0">
             <h3 class="lfr-ddm-form-page-title">Untitled name</h3>
-            <h4 class="lfr-ddm-form-page-description"></h4>
             <div class="position-relative row">
               <div class="col-md-3 col-ddm" data-ddm-field-row="0" data-ddm-field-page="0" data-ddm-field-column="0">
                 <div class="ddm-field" data-field-name="radio"></div>
