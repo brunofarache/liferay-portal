@@ -7,7 +7,6 @@ exports[`PageRenderer creates the defaut markup when success page is enabled 1`]
       <h5 class="pagination"> Page 1 of 1 </h5>
       <div class="active ddm-form-page lfr-ddm-form-page" data-ddm-page="0">
         <h3 class="lfr-ddm-form-page-title">Untitled name</h3>
-        <h4 class="lfr-ddm-form-page-description"></h4>
         <div class="row">
           <div class="col col-ddm col-empty col-md-12 last-col lfr-initial-col mt-5 mb-4" data-ddm-field-column="0" data-ddm-field-page="0" data-ddm-field-row="0">
             <div class="ddm-empty-page ddm-target">
@@ -42,7 +41,6 @@ exports[`PageRenderer creates the defaut markup with button to add success page 
       <h5 class="pagination"> Page 1 of 1 </h5>
       <div class="active ddm-form-page lfr-ddm-form-page" data-ddm-page="0">
         <h3 class="lfr-ddm-form-page-title">Untitled name</h3>
-        <h4 class="lfr-ddm-form-page-description"></h4>
         <div class="row">
           <div class="col col-ddm col-empty col-md-12 last-col lfr-initial-col mt-5 mb-4" data-ddm-field-column="0" data-ddm-field-page="0" data-ddm-field-row="0">
             <div class="ddm-empty-page ddm-target">
@@ -81,7 +79,6 @@ exports[`PageRenderer shows the new page button on the bottom of each page 1`] =
       <h5 class="pagination"> Page 1 of 1 </h5>
       <div class="active ddm-form-page lfr-ddm-form-page" data-ddm-page="0">
         <h3 class="lfr-ddm-form-page-title">Untitled name</h3>
-        <h4 class="lfr-ddm-form-page-description"></h4>
         <div class="row">
           <div class="col col-ddm col-empty col-md-12 last-col lfr-initial-col mt-5 mb-4" data-ddm-field-column="0" data-ddm-field-page="0" data-ddm-field-row="0">
             <div class="ddm-empty-page ddm-target">
