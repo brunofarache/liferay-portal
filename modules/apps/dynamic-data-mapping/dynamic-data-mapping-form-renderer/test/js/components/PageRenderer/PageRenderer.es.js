@@ -57,9 +57,11 @@ describe('PageRenderer', () => {
 		pagesEmpty.push({contentRenderer: 'success'});
 
 		component = createPageRenderer({
+			cancelLabel: 'cancel',
 			page: pagesEmpty[0],
 			pageIndex: 0,
 			pages: pagesEmpty,
+			showCancelButton: true,
 			total: 2,
 		});
 
@@ -70,9 +72,11 @@ describe('PageRenderer', () => {
 		successPageSettings.enabled = false;
 
 		component = createPageRenderer({
+			cancelLabel: 'cancel',
 			page: pagesEmpty[0],
 			pageIndex: 0,
 			pages: pagesEmpty,
+			showCancelButton: true,
 			total: 1,
 		});
 
@@ -84,9 +88,11 @@ describe('PageRenderer', () => {
 		pagesEmpty.push({contentRenderer: 'success'});
 
 		component = createPageRenderer({
+			cancelLabel: 'cancel',
 			page: pagesEmpty[0],
 			pageIndex: 0,
 			pages: pagesEmpty,
+			showCancelButton: true,
 			total: 2,
 		});
 
@@ -96,9 +102,11 @@ describe('PageRenderer', () => {
 
 	it('propagates pageAdded event after option of remove a page be clicked', () => {
 		component = createPageRenderer({
+			cancelLabel: 'cancel',
 			page: pagesEmpty[0],
 			pageIndex: 0,
 			pages: pagesEmpty,
+			showCancelButton: true,
 			total: 1,
 		});
 
@@ -114,9 +122,11 @@ describe('PageRenderer', () => {
 		pagesEmpty.push({contentRenderer: 'success'});
 
 		component = createPageRenderer({
+			cancelLabel: 'cancel',
 			page: pagesEmpty[1],
 			pageIndex: 1,
 			pages: pagesEmpty,
+			showCancelButton: true,
 			total: 3,
 		});
 
@@ -143,9 +153,11 @@ describe('PageRenderer', () => {
 		});
 
 		component = createPageRenderer({
+			cancelLabel: 'cancel',
 			page: pagesEmpty[2],
 			pageIndex: 2,
 			pages: pagesEmpty,
+			showCancelButton: true,
 			total: 3,
 		});
 
@@ -168,9 +180,11 @@ describe('PageRenderer', () => {
 		pagesEmpty.push({contentRenderer: 'success'});
 
 		component = createPageRenderer({
+			cancelLabel: 'cancel',
 			page: pagesEmpty[1],
 			pageIndex: 1,
 			pages: pagesEmpty,
+			showCancelButton: true,
 			total: 3,
 		});
 
@@ -191,9 +205,11 @@ describe('PageRenderer', () => {
 		pagesEmpty.push({contentRenderer: 'success'});
 
 		component = createPageRenderer({
+			cancelLabel: 'cancel',
 			page: pagesEmpty[1],
 			pageIndex: 1,
 			pages: pagesEmpty,
+			showCancelButton: true,
 			total: 2,
 		});
 
@@ -204,9 +220,11 @@ describe('PageRenderer', () => {
 		pagesEmpty.push({contentRenderer: 'success'});
 
 		component = createPageRenderer({
+			cancelLabel: 'cancel',
 			page: pagesEmpty[0],
 			pageIndex: 0,
 			pages: pagesEmpty,
+			showCancelButton: true,
 			total: 2,
 		});
 
