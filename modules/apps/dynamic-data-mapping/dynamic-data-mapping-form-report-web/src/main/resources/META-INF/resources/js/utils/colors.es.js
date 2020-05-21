@@ -55,14 +55,14 @@ const COLORS = [
 	'#393a4a',
 ];
 
-const namedColors = {
+const NAMED_COLORS = {
 	blue: 'rgba(75, 155, 255)',
-	blueDim: 'rgba(75, 155, 255, 0.5)',
-	dark: '#272833',
-	gray: '#CDCED9',
-	white: '#FFFFFF',
+	blueDark: '#272833',
+	blueLight: 'rgba(75, 155, 255, 0.5)',
+	gray: '#cdced9',
+	white: '#ffffff',
 };
 
-export {namedColors};
+export {NAMED_COLORS};
 
 export default (index) => COLORS[index % COLORS.length];

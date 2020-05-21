@@ -24,8 +24,10 @@ import {
 	YAxis,
 } from 'recharts';
 
-import {namedColors} from '../../../utils/colors.es';
+import {NAMED_COLORS} from '../../../utils/colors.es';
 import TooltipContent from '../TooltipContent.es';
+
+const {blue, blueDark, blueLight, gray, white} = NAMED_COLORS;
 
 export default ({data, height, totalEntries, width}) => {
 	const [activeIndex, setActiveIndex] = useState(null);
@@ -51,14 +53,14 @@ export default ({data, height, totalEntries, width}) => {
 				}}
 			>
 				<XAxis
-					axisLine={{stroke: namedColors.gray}}
+					axisLine={{stroke: gray}}
 					tickLine={false}
 					type="number"
 				/>
 
 				<YAxis
 					dataKey="label"
-					stroke={namedColors.dark}
+					stroke={blueDark}
 					tickLine={false}
 					tickMargin={16}
 					type="category"
@@ -79,7 +81,7 @@ export default ({data, height, totalEntries, width}) => {
 					barCategoryGap={30}
 					barGap={5}
 					dataKey="count"
-					fill={namedColors.blue}
+					fill={blue}
 					onMouseOut={handleOnMouseOut}
 					onMouseOver={(_, index) => handleOnMouseOver(index)}
 				>
@@ -87,8 +89,8 @@ export default ({data, height, totalEntries, width}) => {
 						<Cell
 							fill={
 								activeIndex == null || activeIndex === index
-									? namedColors.blue
-									: namedColors.blueDim
+									? blue
+									: blueLight
 							}
 							key={`cell-${index}`}
 						/>
@@ -96,7 +98,7 @@ export default ({data, height, totalEntries, width}) => {
 
 					<LabelList
 						dataKey="count"
-						fill={namedColors.white}
+						fill={white}
 						offset={16}
 						position="insideRight"
 					/>
