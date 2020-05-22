@@ -39,6 +39,14 @@ const chartFactory = (type, values, totalEntries) => {
 				/>
 			);
 
+		case 'select':
+			return (
+				<PieChart
+					data={toDataArray(values)}
+					totalEntries={totalEntries}
+				/>
+			);
+
 		default:
 			return null;
 	}
