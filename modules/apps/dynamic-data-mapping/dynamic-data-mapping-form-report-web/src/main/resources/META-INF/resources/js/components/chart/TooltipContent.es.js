@@ -42,7 +42,7 @@ export default ({active, activeIndex, payload, totalEntries}) => {
 				{`${label}: ${count} ${Liferay.Language.get(
 					'entries'
 				).toLowerCase()}`}{' '}
-				<b>{roundPercentage(getPercentage(count))}</b>
+				<b>({roundPercentage(getPercentage(count))})</b>
 			</p>
 		</div>
 	);
