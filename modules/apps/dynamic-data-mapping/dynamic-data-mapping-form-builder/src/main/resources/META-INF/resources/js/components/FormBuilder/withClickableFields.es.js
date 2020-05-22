@@ -44,14 +44,18 @@ const withClickableFields = (ChildComponent) => {
 			const {delegateTarget} = event;
 			const {dispatch} = this.context;
 			const {fieldName} = delegateTarget.dataset;
-
-			const activePage = parseInt(
-				dom.closest(event.delegateTarget, '[data-ddm-page]').dataset
-					.ddmPage,
-				10
-			);
+			let {activePage} = this.context.store.state;
 
 			event.stopPropagation();
+			if (
+				!event.delegateTarget.children[1].hasAttribute('aria-grabbed')
+			) {
+				activePage = parseInt(
+					dom.closest(event.delegateTarget, '[data-ddm-page]').dataset
+						.ddmPage,
+					10
+				);
+			}
 
 			dispatch('fieldClicked', {activePage, fieldName});
 		}
