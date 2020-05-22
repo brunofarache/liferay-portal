@@ -32,13 +32,6 @@ const chartFactory = (type, values, totalEntries) => {
 			);
 
 		case 'radio':
-			return (
-				<PieChart
-					data={toDataArray(values)}
-					totalEntries={totalEntries}
-				/>
-			);
-
 		case 'select':
 			return (
 				<PieChart
