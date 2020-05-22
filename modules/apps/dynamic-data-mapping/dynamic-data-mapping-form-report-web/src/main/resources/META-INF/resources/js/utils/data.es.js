@@ -12,6 +12,14 @@
  * details.
  */
 
+const decimalAdjustToFloor = (value) => {
+	value = value.toString().split('e');
+	value = Math.floor(+(value[0] + 'e' + (value[1] ? +value[1] + 1 : 1)));
+	value = value.toString().split('e');
+
+	return +(value[0] + 'e' + (value[1] ? +value[1] - 1 : -1));
+};
+
 const sumTotalEntries = (values) =>
 	Object.values(values).reduce((acc, value) => acc + value, 0);
 
@@ -21,4 +29,4 @@ const toDataArray = (values) =>
 		.sort((a, b) => (a.count > b.count ? -1 : b.count > a.count ? 1 : 0));
 
 export default toDataArray;
-export {sumTotalEntries};
+export {sumTotalEntries, decimalAdjustToFloor};
