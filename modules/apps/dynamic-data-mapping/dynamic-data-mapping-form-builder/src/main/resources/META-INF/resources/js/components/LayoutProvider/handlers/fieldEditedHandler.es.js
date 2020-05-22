@@ -88,7 +88,7 @@ export const updatePages = (props, pages, previousFieldName, newField) => {
 };
 
 export const updateState = (props, state, propertyName, propertyValue) => {
-	const {focusedField, pages, rules} = state;
+	const {activePage, focusedField, pages, rules} = state;
 	const {fieldName: previousFocusedFieldName} = focusedField;
 	const newFocusedField = updateField(
 		props,
@@ -105,6 +105,7 @@ export const updateState = (props, state, propertyName, propertyValue) => {
 	);
 
 	return {
+		activePage,
 		focusedField: newFocusedField,
 		pages: newPages,
 		rules: updateRulesReferences(
