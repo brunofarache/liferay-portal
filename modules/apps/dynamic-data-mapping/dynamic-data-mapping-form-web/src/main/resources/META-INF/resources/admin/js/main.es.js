@@ -38,7 +38,7 @@ import {Config} from 'metal-state';
 
 import PreviewButton from './components/PreviewButton/PreviewButton.es';
 import PublishButton from './components/PublishButton/PublishButton.es';
-import ShareFormPopover from './components/ShareFormPopover/ShareFormPopover.es';
+import ShareFormModal from './components/ShareFormModal/ShareFormModal.es';
 import AutoSave from './util/AutoSave.es';
 import FormURL from './util/FormURL.es';
 import Notifications from './util/Notifications.es';
@@ -395,17 +395,20 @@ class Form extends Component {
 			dataProviderInstancesURL,
 			defaultLanguageId,
 			editingLanguageId,
+			emailAddressesURL,
 			fieldSetDefinitionURL,
 			fieldSets,
 			fieldTypes,
 			functionsMetadata,
 			functionsURL,
 			groupId,
+			localizedName,
 			namespace,
 			published,
 			redirectURL,
 			rolesURL,
 			rules,
+			shareFormInstanceURL,
 			spritemap,
 			view,
 		} = this.props;
@@ -545,17 +548,17 @@ class Form extends Component {
 						spritemap={spritemap}
 						title={Liferay.Language.get('leave-form')}
 					/>
+					{published && (
+						<ShareFormModal
+							emailAddressesURL={emailAddressesURL}
+							localizedName={localizedName}
+							portletNamespace={namespace}
+							shareFormInstanceURL={shareFormInstanceURL}
+							spritemap={spritemap}
+							url={this._createFormURL()}
+						/>
+					)}
 				</div>
-				{published && (
-					<ShareFormPopover
-						alignElement={document.querySelector(
-							'.share-form-icon'
-						)}
-						spritemap={spritemap}
-						url={this._createFormURL()}
-						visible={false}
-					/>
-				)}
 			</div>
 		);
 	}
@@ -1144,6 +1147,15 @@ Form.PROPS = {
 	 * @default undefined
 	 * @instance
 	 * @memberof Form
+	 * @type {!string}
+	 */
+
+	emailAddressesURL: Config.string(),
+
+	/**
+	 * @default undefined
+	 * @instance
+	 * @memberof Form
 	 * @type {?string}
 	 */
 
@@ -1276,6 +1288,15 @@ Form.PROPS = {
 	 */
 
 	saved: Config.bool(),
+
+	/**
+	 * @default undefined
+	 * @instance
+	 * @memberof Form
+	 * @type {!string}
+	 */
+
+	shareFormInstanceURL: Config.string(),
 
 	/**
 	 * Whether to show an alert telling the user about the result of the
