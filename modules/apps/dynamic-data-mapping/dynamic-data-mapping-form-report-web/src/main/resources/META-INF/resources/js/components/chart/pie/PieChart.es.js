@@ -23,7 +23,7 @@ import {
 } from 'recharts';
 
 import colors from '../../../utils/colors.es';
-import {decimalAdjustToFloor} from '../../../utils/data.es';
+import {roundPercentage} from '../../../utils/data.es';
 import Legend from '../Legend.es';
 import TooltipContent from '../TooltipContent.es';
 
@@ -80,7 +80,7 @@ export default ({data, height, totalEntries, width}) => {
 				x={x}
 				y={y}
 			>
-				{`${decimalAdjustToFloor(percent * 100)}%`}
+				{roundPercentage(percent * 100)}
 			</text>
 		);
 	};
