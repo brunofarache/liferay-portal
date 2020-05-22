@@ -80,7 +80,7 @@ export default ({data, height, totalEntries, width}) => {
 				x={x}
 				y={y}
 			>
-				{roundPercentage(percent * 100)}
+				{roundPercentage(percent)}
 			</text>
 		);
 	};

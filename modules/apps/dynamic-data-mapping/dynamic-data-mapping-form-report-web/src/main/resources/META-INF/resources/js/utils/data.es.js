@@ -12,7 +12,7 @@
  * details.
  */
 
-const roundPercentage = (value) => `${Math.trunc(value * 10) / 10}%`;
+const roundPercentage = (value) => `${Math.trunc(value * 1000) / 10}%`;
 
 const sumTotalEntries = (values) =>
 	Object.values(values).reduce((acc, value) => acc + value, 0);

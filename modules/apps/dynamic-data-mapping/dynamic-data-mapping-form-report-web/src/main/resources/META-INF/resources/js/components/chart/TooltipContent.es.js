@@ -18,7 +18,7 @@ import colors from '../../utils/colors.es';
 import {roundPercentage} from '../../utils/data.es';
 
 export default ({active, activeIndex, payload, totalEntries}) => {
-	const getPercentage = (count) => (100 * count) / totalEntries;
+	const getPercentage = (count) => count / totalEntries;
 
 	if (!active) {
 		return null;
