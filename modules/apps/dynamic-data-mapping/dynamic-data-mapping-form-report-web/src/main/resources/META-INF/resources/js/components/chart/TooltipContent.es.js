@@ -15,6 +15,7 @@
 import React from 'react';
 
 import colors from '../../utils/colors.es';
+import {decimalAdjustToFloor} from '../../utils/data.es';
 
 export default ({active, activeIndex, payload, totalEntries}) => {
 	const getPercentage = (count) => (100 * count) / totalEntries;
@@ -41,7 +42,7 @@ export default ({active, activeIndex, payload, totalEntries}) => {
 				{`${label}: ${count} ${Liferay.Language.get(
 					'entries'
 				).toLowerCase()}`}{' '}
-				<b>({getPercentage(count).toFixed(0)}%)</b>
+				<b>({decimalAdjustToFloor(getPercentage(count))}%)</b>
 			</p>
 		</div>
 	);
