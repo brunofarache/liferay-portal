@@ -25,13 +25,13 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceLocalServiceUtil;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceRecordLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceRecordLocalServiceUtil;
-import com.liferay.dynamic.data.mapping.service.DDMFormInstanceReportLocalService;
 import com.liferay.dynamic.data.mapping.service.persistence.DDMFormInstanceReportPersistence;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.storage.StorageType;
 import com.liferay.dynamic.data.mapping.test.util.DDMFormTestUtil;
 import com.liferay.dynamic.data.mapping.test.util.DDMFormValuesTestUtil;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -65,15 +65,11 @@ public class DDMFormInstanceReportLocalServiceTest
 
 	@BeforeClass
 	public static void setUpClass() {
-		Class<?> formInstanceClass = DDMFormInstance.class;
-
-		_classNameId = PortalUtil.getClassNameId(formInstanceClass.getName());
+		_classNameId = PortalUtil.getClassNameId(DDMFormInstance.class);
 	}
 
 	@Test
-	public void testAddFormInstanceReportWhenAddFormInstance()
-		throws Exception {
-
+	public void testAddFormInstanceReport() throws Exception {
 		DDMStructure ddmStructure = addStructure(
 			0, _classNameId, null, "Test Structure", null,
 			read("ddm-structure-radio-field.xsd"), StorageType.JSON.getValue(),
@@ -81,15 +77,12 @@ public class DDMFormInstanceReportLocalServiceTest
 
 		DDMForm ddmForm = DDMFormTestUtil.createDDMForm("radio");
 
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(
-				group, TestPropsValues.getUserId());
-
 		_ddmFormInstance = DDMFormInstanceLocalServiceUtil.addFormInstance(
 			ddmStructure.getUserId(), ddmStructure.getGroupId(),
 			ddmStructure.getStructureId(), ddmStructure.getNameMap(),
 			ddmStructure.getNameMap(),
-			DDMFormValuesTestUtil.createDDMFormValues(ddmForm), serviceContext);
+			DDMFormValuesTestUtil.createDDMFormValues(ddmForm),
+			getServiceContext());
 
 		DDMFormInstanceReport ddmFormInstanceReport =
 			_ddmFormInstanceReportPersistence.findByFormInstanceId(
@@ -99,15 +92,9 @@ public class DDMFormInstanceReportLocalServiceTest
 	}
 
 	@Test
-	public void testUpdateFormInstanceReportWhenAddFormInstanceRecord()
-		throws Exception {
-
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(
-				group, TestPropsValues.getUserId());
-
+	public void testUpdateFormInstanceReport() throws Exception {
 		DDMFormInstanceRecord ddmFormInstanceRecord =
-			_createDDMFormInstanceRecord(serviceContext);
+			createDDMFormInstanceRecord();
 
 		DDMFormInstanceReport ddmFormInstanceReport =
 			_ddmFormInstanceReportPersistence.findByFormInstanceId(
@@ -132,12 +119,8 @@ public class DDMFormInstanceReportLocalServiceTest
 	public void testUpdateFormInstanceReportWhenDeleteFormInstanceRecord()
 		throws Exception {
 
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(
-				group, TestPropsValues.getUserId());
-
 		DDMFormInstanceRecord ddmFormInstanceRecord =
-			_createDDMFormInstanceRecord(serviceContext);
+			createDDMFormInstanceRecord();
 
 		_ddmFormInstanceRecordLocalService.deleteDDMFormInstanceRecord(
 			ddmFormInstanceRecord);
@@ -165,12 +148,8 @@ public class DDMFormInstanceReportLocalServiceTest
 	public void testUpdateFormInstanceReportWhenUpdateFormInstanceRecord()
 		throws Exception {
 
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(
-				group, TestPropsValues.getUserId());
-
 		DDMFormInstanceRecord ddmFormInstanceRecord =
-			_createDDMFormInstanceRecord(serviceContext);
+			createDDMFormInstanceRecord();
 
 		DDMFormValues ddmFormValues = ddmFormInstanceRecord.getDDMFormValues();
 
@@ -193,7 +172,7 @@ public class DDMFormInstanceReportLocalServiceTest
 		_ddmFormInstanceRecordLocalService.updateFormInstanceRecord(
 			TestPropsValues.getUserId(),
 			ddmFormInstanceRecord.getFormInstanceRecordId(), false,
-			newDDMFormValues, serviceContext);
+			newDDMFormValues, getServiceContext());
 
 		DDMFormInstanceReport ddmFormInstanceReport =
 			_ddmFormInstanceReportPersistence.findByFormInstanceId(
@@ -215,8 +194,7 @@ public class DDMFormInstanceReportLocalServiceTest
 		Assert.assertEquals(1, radioFieldValuesJSONObject.getInt("value 2"));
 	}
 
-	private DDMFormInstanceRecord _createDDMFormInstanceRecord(
-			ServiceContext serviceContext)
+	protected DDMFormInstanceRecord createDDMFormInstanceRecord()
 		throws Exception {
 
 		DDMStructure ddmStructure = addStructure(
@@ -240,6 +218,8 @@ public class DDMFormInstanceReportLocalServiceTest
 
 		ddmFormValues.addDDMFormFieldValue(ddmFormFieldValue);
 
+		ServiceContext serviceContext = getServiceContext();
+
 		_ddmFormInstance = DDMFormInstanceLocalServiceUtil.addFormInstance(
 			ddmStructure.getUserId(), ddmStructure.getGroupId(),
 			ddmStructure.getStructureId(), ddmStructure.getNameMap(),
@@ -251,6 +231,11 @@ public class DDMFormInstanceReportLocalServiceTest
 			serviceContext);
 	}
 
+	protected ServiceContext getServiceContext() throws PortalException {
+		return ServiceContextTestUtil.getServiceContext(
+			group, TestPropsValues.getUserId());
+	}
+
 	private static long _classNameId;
 
 	@DeleteAfterTestRun
@@ -259,10 +244,6 @@ public class DDMFormInstanceReportLocalServiceTest
 	@Inject
 	private DDMFormInstanceRecordLocalService
 		_ddmFormInstanceRecordLocalService;
-
-	@Inject
-	private DDMFormInstanceReportLocalService
-		_ddmFormInstanceReportLocalService;
 
 	@Inject
 	private DDMFormInstanceReportPersistence _ddmFormInstanceReportPersistence;
