@@ -38,7 +38,7 @@ public class CheckboxMultipleDDMFormFieldTypeReportProcessor
 
 	@Override
 	protected JSONObject doProcess(
-			DDMFormFieldValue ddmFormFieldValue,
+			DDMFormFieldValue ddmFormFieldValue, long formInstanceRecordId,
 			JSONObject formInstanceReportDataJSONObject,
 			String formInstanceReportEvent)
 		throws Exception {
