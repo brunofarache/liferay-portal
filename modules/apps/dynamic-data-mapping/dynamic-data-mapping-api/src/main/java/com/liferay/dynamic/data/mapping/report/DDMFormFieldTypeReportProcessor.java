@@ -22,9 +22,28 @@ import com.liferay.portal.kernel.json.JSONObject;
  */
 public interface DDMFormFieldTypeReportProcessor {
 
-	public JSONObject process(
+	public default JSONObject process(
 			DDMFormFieldValue ddmFormFieldValue, JSONObject fieldJSONObject,
 			long formInstanceRecordId, String formInstanceReportEvent)
-		throws Exception;
+		throws Exception {
+
+		throw new IllegalStateException(
+			"DDMFormFieldTypeReportProcessor must implement the " +
+				"process(DDMFormFieldValue, JSONObject, long, String) method");
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #process(DDMFormFieldValue, JSONObject, long, String)}
+	 */
+	@Deprecated
+	public default JSONObject process(
+			DDMFormFieldValue ddmFormFieldValue,
+			JSONObject formInstanceReportDataJSONObject,
+			String formInstanceReportEvent)
+		throws Exception {
+
+		return process(ddmFormFieldValue, null, 0, formInstanceReportEvent);
+	}
 
 }
