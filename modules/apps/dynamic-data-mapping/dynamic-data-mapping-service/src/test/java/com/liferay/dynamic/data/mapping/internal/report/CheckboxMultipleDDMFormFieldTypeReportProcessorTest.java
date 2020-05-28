@@ -47,6 +47,54 @@ public class CheckboxMultipleDDMFormFieldTypeReportProcessorTest
 	}
 
 	@Test
+	public void testProcessDDMFormInstanceReportOnDelete() throws Exception {
+		DDMFormFieldValue ddmFormFieldValue = mock(DDMFormFieldValue.class);
+
+		when(
+			ddmFormFieldValue.getName()
+		).thenReturn(
+			"field1"
+		);
+
+		when(
+			ddmFormFieldValue.getType()
+		).thenReturn(
+			DDMFormFieldType.CHECKBOX_MULTIPLE
+		);
+
+		Value value = new LocalizedValue();
+
+		value.addString(value.getDefaultLocale(), "[\"option1\"]");
+		value.setDefaultLocale(LocaleUtil.US);
+
+		when(
+			ddmFormFieldValue.getValue()
+		).thenReturn(
+			value
+		);
+
+		JSONObject fieldJSONObject = JSONUtil.put(
+			"type", DDMFormFieldType.CHECKBOX_MULTIPLE
+		).put(
+			"values", JSONUtil.put("option1", 1)
+		);
+
+		CheckboxMultipleDDMFormFieldTypeReportProcessor
+			checkboxMultipleDDMFormFieldTypeReportProcessor =
+				new CheckboxMultipleDDMFormFieldTypeReportProcessor();
+
+		JSONObject processedFieldJSONObject =
+			checkboxMultipleDDMFormFieldTypeReportProcessor.process(
+				ddmFormFieldValue, fieldJSONObject, 0,
+				DDMFormInstanceReportConstants.EVENT_DELETE_RECORD_VERSION);
+
+		JSONObject valuesJSONObject = processedFieldJSONObject.getJSONObject(
+			"values");
+
+		Assert.assertEquals(0, valuesJSONObject.getLong("option1"));
+	}
+
+	@Test
 	public void testProcessDDMFormInstanceReportWithEmptyData()
 		throws Exception {
 
