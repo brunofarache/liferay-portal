@@ -23,9 +23,8 @@ import com.liferay.portal.kernel.json.JSONObject;
 public interface DDMFormFieldTypeReportProcessor {
 
 	public JSONObject process(
-			DDMFormFieldValue ddmFormFieldValue,
-			JSONObject formInstanceReportDataJSONObject,
-			String formInstanceReportEvent)
+			DDMFormFieldValue ddmFormFieldValue, JSONObject fieldJSONObject,
+			long formInstanceRecordId, String formInstanceReportEvent)
 		throws Exception;
 
 }
