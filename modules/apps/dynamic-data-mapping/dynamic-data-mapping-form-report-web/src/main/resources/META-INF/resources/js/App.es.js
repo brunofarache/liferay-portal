@@ -21,12 +21,12 @@ import EmptyState from './components/empty-state/EmptyState.es';
 import toDataArray, {sumTotalEntries} from './utils/data.es';
 import fieldTypes from './utils/fieldTypes.es';
 
-const chartFactory = (type, values, totalEntries) => {
+const chartFactory = (options, type, values, totalEntries) => {
 	switch (type) {
 		case 'checkbox_multiple':
 			return (
 				<BarChart
-					data={toDataArray(values)}
+					data={toDataArray(options, values)}
 					totalEntries={totalEntries}
 				/>
 			);
@@ -35,7 +35,7 @@ const chartFactory = (type, values, totalEntries) => {
 		case 'select':
 			return (
 				<PieChart
-					data={toDataArray(values)}
+					data={toDataArray(options, values)}
 					totalEntries={totalEntries}
 				/>
 			);
