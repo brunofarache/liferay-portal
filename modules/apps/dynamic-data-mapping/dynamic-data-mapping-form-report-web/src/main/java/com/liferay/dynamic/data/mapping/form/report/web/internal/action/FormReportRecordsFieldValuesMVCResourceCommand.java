@@ -18,6 +18,7 @@ import com.liferay.dynamic.data.mapping.constants.DDMPortletKeys;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord;
 import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceRecordService;
+import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.util.comparator.DDMFormInstanceRecordModifiedDateComparator;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -35,7 +36,7 @@ import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.Map;
 
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
@@ -53,11 +54,11 @@ import org.osgi.service.component.annotations.Reference;
 	immediate = true,
 	property = {
 		"javax.portlet.name=" + DDMPortletKeys.DYNAMIC_DATA_MAPPING_FORM_REPORT,
-		"mvc.command.name=/getFormRecordsField"
+		"mvc.command.name=/form-report/get_records_field_values"
 	},
 	service = MVCResourceCommand.class
 )
-public class FormInstanceRecordsFieldValueMVCResourceCommand
+public class FormReportRecordsFieldValuesMVCResourceCommand
 	extends BaseMVCResourceCommand {
 
 	@Override
@@ -103,33 +104,34 @@ public class FormInstanceRecordsFieldValueMVCResourceCommand
 		int start = ParamUtil.getInteger(
 			httpServletRequest, "start", QueryUtil.ALL_POS);
 
+		int end = start + _DEFAULT_DELTA;
+
 		List<DDMFormInstanceRecord> formInstanceRecords =
 			_ddmFormInstanceRecordService.getFormInstanceRecords(
-				formInstanceId, WorkflowConstants.STATUS_APPROVED, start,
-				QueryUtil.ALL_POS,
+				formInstanceId, WorkflowConstants.STATUS_APPROVED, start, end,
 				new DDMFormInstanceRecordModifiedDateComparator(false));
 
 		for (DDMFormInstanceRecord formInstanceRecord : formInstanceRecords) {
 			DDMFormValues ddmFormValues = formInstanceRecord.getDDMFormValues();
 
-			Stream.of(
-				ddmFormValues.getDDMFormFieldValuesMap(
-				).get(
-					fieldName
-				)
-			).forEach(
-				ddmFormFieldValues -> ddmFormFieldValues.forEach(
-					ddmFormFieldValue -> {
-						Value value = ddmFormFieldValue.getValue();
+			Map<String, List<DDMFormFieldValue>> ddmFormFieldValuesMap =
+				ddmFormValues.getDDMFormFieldValuesMap();
 
-						jsonArray.put(
-							value.getString(value.getDefaultLocale()));
-					})
-			);
+			List<DDMFormFieldValue> ddmFormFieldValues =
+				ddmFormFieldValuesMap.get(fieldName);
+
+			ddmFormFieldValues.forEach(
+				ddmFormFieldValue -> {
+					Value value = ddmFormFieldValue.getValue();
+
+					jsonArray.put(value.getString(value.getDefaultLocale()));
+				});
 		}
 
 		return jsonArray;
 	}
+
+	private static final int _DEFAULT_DELTA = 20;
 
 	@Reference
 	private DDMFormInstanceRecordService _ddmFormInstanceRecordService;

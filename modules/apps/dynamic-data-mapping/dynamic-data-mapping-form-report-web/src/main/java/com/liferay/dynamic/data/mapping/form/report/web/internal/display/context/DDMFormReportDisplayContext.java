@@ -84,10 +84,10 @@ public class DDMFormReportDisplayContext {
 		return fieldsJSONArray;
 	}
 
-	public String getFormInstanceRecordsFieldValueURL() {
+	public String getFormReportRecordsFieldValuesURL() {
 		ResourceURL resourceURL = _renderResponse.createResourceURL();
 
-		resourceURL.setResourceID("/getFormRecordsField");
+		resourceURL.setResourceID("/form-report/get_records_field_values");
 
 		return resourceURL.toString();
 	}

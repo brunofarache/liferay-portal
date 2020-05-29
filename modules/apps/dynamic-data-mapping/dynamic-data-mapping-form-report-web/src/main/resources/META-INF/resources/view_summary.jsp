@@ -34,7 +34,7 @@ if (ddmFormInstanceReport != null) {
 			).put(
 				"fields", ddmFormReportDisplayContext.getFieldsJSONArray()
 			).put(
-				"formInstanceRecordsFieldValueURL", ddmFormReportDisplayContext.getFormInstanceRecordsFieldValueURL()
+				"formReportRecordsFieldValuesURL", ddmFormReportDisplayContext.getFormReportRecordsFieldValuesURL()
 			).build() %>'
 		module="js/index.es"
 	/>
