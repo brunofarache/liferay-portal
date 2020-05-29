@@ -47,7 +47,9 @@ public class CheckboxMultipleDDMFormFieldTypeReportProcessorTest
 	}
 
 	@Test
-	public void testProcessDDMFormInstanceReportOnDelete() throws Exception {
+	public void testProcessDDMFormInstanceReportOnDeleteEvent()
+		throws Exception {
+
 		DDMFormFieldValue ddmFormFieldValue = mock(DDMFormFieldValue.class);
 
 		when(
