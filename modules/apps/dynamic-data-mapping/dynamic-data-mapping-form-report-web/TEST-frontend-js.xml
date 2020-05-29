@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+<testsuite errors="0" failures="0" hostname="" id="0" name="Jest" package="dynamic-data-mapping.dynamic-data-mapping-form-report-web" skipped="0" tests="13" time="0" timestamp="1590784324164">
+	<testcase classname="dynamic-data-mapping.dynamic-data-mapping-form-report-web.test.js.utils" name="toDataArray sorts array from the highest to lower count values " time="0.004">
+	</testcase>
+	<testcase classname="dynamic-data-mapping.dynamic-data-mapping-form-report-web.test.js.components.chart" name="Tooltip renders label, number of entries and percentage" time="0.026">
+	</testcase>
+	<testcase classname="dynamic-data-mapping.dynamic-data-mapping-form-report-web.test.js.components.chart" name="Legend dims all labels except one that is being hovered" time="0.028">
+	</testcase>
+	<testcase classname="dynamic-data-mapping.dynamic-data-mapping-form-report-web.test.js.components.chart" name="Legend displays showAll button when there are more than 10 items" time="0.024">
+	</testcase>
+	<testcase classname="dynamic-data-mapping.dynamic-data-mapping-form-report-web.test.js.components.chart" name="Legend displays showLess button when showAll button is clicked" time="0.027">
+	</testcase>
+	<testcase classname="dynamic-data-mapping.dynamic-data-mapping-form-report-web.test.js.components.card" name="Card shows number of entries in the header" time="0.033">
+	</testcase>
+	<testcase classname="dynamic-data-mapping.dynamic-data-mapping-form-report-web.test.js.components.card" name="Card shows &quot;there are not entries&quot; when totalEntries is zero" time="0.011">
+	</testcase>
+	<testcase classname="dynamic-data-mapping.dynamic-data-mapping-form-report-web.test.js.components" name="App renders a card for each field" time="0.056">
+	</testcase>
+	<testcase classname="dynamic-data-mapping.dynamic-data-mapping-form-report-web.test.js.components.chart.pie" name="PieChart renders" time="0.055">
+	</testcase>
+	<testcase classname="dynamic-data-mapping.dynamic-data-mapping-form-report-web.test.js.components.chart.pie" name="PieChart expands a sector with the percentage label when mouse is over" time="0.036">
+	</testcase>
+	<testcase classname="dynamic-data-mapping.dynamic-data-mapping-form-report-web.test.js.components.chart.pie" name="PieChart resets a sector when mouse is out" time="0.032">
+	</testcase>
+	<testcase classname="dynamic-data-mapping.dynamic-data-mapping-form-report-web.test.js.components" name="index renders" time="0.049">
+	</testcase>
+	<testcase classname="dynamic-data-mapping.dynamic-data-mapping-form-report-web.test.js.components" name="index renders nothing when there is no data" time="0.003">
+	</testcase>
+</testsuite>
