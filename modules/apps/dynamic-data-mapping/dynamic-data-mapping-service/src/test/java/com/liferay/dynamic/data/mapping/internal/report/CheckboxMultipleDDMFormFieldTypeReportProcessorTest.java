@@ -44,6 +44,9 @@ public class CheckboxMultipleDDMFormFieldTypeReportProcessorTest
 	@Before
 	public void setUp() {
 		_setUpJSONFactoryUtil();
+
+		_checkboxMultipleDDMFormFieldTypeReportProcessor =
+			new CheckboxMultipleDDMFormFieldTypeReportProcessor();
 	}
 
 	@Test
@@ -81,12 +84,8 @@ public class CheckboxMultipleDDMFormFieldTypeReportProcessorTest
 			"values", JSONUtil.put("option1", 1)
 		);
 
-		CheckboxMultipleDDMFormFieldTypeReportProcessor
-			checkboxMultipleDDMFormFieldTypeReportProcessor =
-				new CheckboxMultipleDDMFormFieldTypeReportProcessor();
-
 		JSONObject processedFieldJSONObject =
-			checkboxMultipleDDMFormFieldTypeReportProcessor.process(
+			_checkboxMultipleDDMFormFieldTypeReportProcessor.process(
 				ddmFormFieldValue, fieldJSONObject, 0,
 				DDMFormInstanceReportConstants.EVENT_DELETE_RECORD_VERSION);
 
@@ -125,12 +124,8 @@ public class CheckboxMultipleDDMFormFieldTypeReportProcessorTest
 			value
 		);
 
-		CheckboxMultipleDDMFormFieldTypeReportProcessor
-			checkboxMultipleDDMFormFieldTypeReportProcessor =
-				new CheckboxMultipleDDMFormFieldTypeReportProcessor();
-
 		JSONObject processedFieldJSONObject =
-			checkboxMultipleDDMFormFieldTypeReportProcessor.process(
+			_checkboxMultipleDDMFormFieldTypeReportProcessor.process(
 				ddmFormFieldValue,
 				JSONUtil.put(
 					"type", DDMFormFieldType.CHECKBOX_MULTIPLE
@@ -178,12 +173,8 @@ public class CheckboxMultipleDDMFormFieldTypeReportProcessorTest
 			value
 		);
 
-		CheckboxMultipleDDMFormFieldTypeReportProcessor
-			checkboxMultipleDDMFormFieldTypeReportProcessor =
-				new CheckboxMultipleDDMFormFieldTypeReportProcessor();
-
 		JSONObject processedFieldJSONObject =
-			checkboxMultipleDDMFormFieldTypeReportProcessor.process(
+			_checkboxMultipleDDMFormFieldTypeReportProcessor.process(
 				ddmFormFieldValue,
 				JSONUtil.put(
 					"type", DDMFormFieldType.CHECKBOX_MULTIPLE
@@ -204,5 +195,8 @@ public class CheckboxMultipleDDMFormFieldTypeReportProcessorTest
 
 		jsonFactoryUtil.setJSONFactory(new JSONFactoryImpl());
 	}
+
+	private CheckboxMultipleDDMFormFieldTypeReportProcessor
+		_checkboxMultipleDDMFormFieldTypeReportProcessor;
 
 }

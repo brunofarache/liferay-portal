@@ -56,6 +56,12 @@ public class TextDDMFormFieldTypeReportProcessorTest extends PowerMockito {
 	@Before
 	public void setUp() {
 		_setUpJSONFactoryUtil();
+
+		_textDDMFormFieldTypeReportProcessor =
+			new TextDDMFormFieldTypeReportProcessor();
+
+		_textDDMFormFieldTypeReportProcessor.ddmFormInstanceRecordLocalService =
+			_ddmFormInstanceRecordLocalService;
 	}
 
 	@Test
@@ -109,15 +115,8 @@ public class TextDDMFormFieldTypeReportProcessorTest extends PowerMockito {
 			5
 		);
 
-		TextDDMFormFieldTypeReportProcessor
-			textDDMFormFieldTypeReportProcessor =
-				new TextDDMFormFieldTypeReportProcessor();
-
-		textDDMFormFieldTypeReportProcessor.ddmFormInstanceRecordLocalService =
-			_ddmFormInstanceRecordLocalService;
-
 		JSONObject processedFieldJSONObject =
-			textDDMFormFieldTypeReportProcessor.process(
+			_textDDMFormFieldTypeReportProcessor.process(
 				ddmFormFieldValue,
 				JSONUtil.put(
 					"type", DDMFormFieldType.TEXT
@@ -216,15 +215,8 @@ public class TextDDMFormFieldTypeReportProcessorTest extends PowerMockito {
 			formInstanceRecords
 		);
 
-		TextDDMFormFieldTypeReportProcessor
-			textDDMFormFieldTypeReportProcessor =
-				new TextDDMFormFieldTypeReportProcessor();
-
-		textDDMFormFieldTypeReportProcessor.ddmFormInstanceRecordLocalService =
-			_ddmFormInstanceRecordLocalService;
-
 		JSONObject processedFieldJSONObject =
-			textDDMFormFieldTypeReportProcessor.process(
+			_textDDMFormFieldTypeReportProcessor.process(
 				ddmFormFieldValue, JSONUtil.put("type", DDMFormFieldType.TEXT),
 				3, DDMFormInstanceReportConstants.EVENT_DELETE_RECORD_VERSION);
 
@@ -290,15 +282,8 @@ public class TextDDMFormFieldTypeReportProcessorTest extends PowerMockito {
 			1
 		);
 
-		TextDDMFormFieldTypeReportProcessor
-			textDDMFormFieldTypeReportProcessor =
-				new TextDDMFormFieldTypeReportProcessor();
-
-		textDDMFormFieldTypeReportProcessor.ddmFormInstanceRecordLocalService =
-			_ddmFormInstanceRecordLocalService;
-
 		JSONObject processedFieldJSONObject =
-			textDDMFormFieldTypeReportProcessor.process(
+			_textDDMFormFieldTypeReportProcessor.process(
 				ddmFormFieldValue,
 				JSONUtil.put(
 					"type", DDMFormFieldType.TEXT
@@ -369,15 +354,8 @@ public class TextDDMFormFieldTypeReportProcessorTest extends PowerMockito {
 			2
 		);
 
-		TextDDMFormFieldTypeReportProcessor
-			textDDMFormFieldTypeReportProcessor =
-				new TextDDMFormFieldTypeReportProcessor();
-
-		textDDMFormFieldTypeReportProcessor.ddmFormInstanceRecordLocalService =
-			_ddmFormInstanceRecordLocalService;
-
 		JSONObject processedFieldJSONObject =
-			textDDMFormFieldTypeReportProcessor.process(
+			_textDDMFormFieldTypeReportProcessor.process(
 				ddmFormFieldValue,
 				JSONUtil.put(
 					"type", DDMFormFieldType.TEXT
@@ -458,15 +436,8 @@ public class TextDDMFormFieldTypeReportProcessorTest extends PowerMockito {
 			6
 		);
 
-		TextDDMFormFieldTypeReportProcessor
-			textDDMFormFieldTypeReportProcessor =
-				new TextDDMFormFieldTypeReportProcessor();
-
-		textDDMFormFieldTypeReportProcessor.ddmFormInstanceRecordLocalService =
-			_ddmFormInstanceRecordLocalService;
-
 		JSONObject processedFieldJSONObject =
-			textDDMFormFieldTypeReportProcessor.process(
+			_textDDMFormFieldTypeReportProcessor.process(
 				ddmFormFieldValue,
 				JSONUtil.put(
 					"type", DDMFormFieldType.TEXT
@@ -563,5 +534,8 @@ public class TextDDMFormFieldTypeReportProcessorTest extends PowerMockito {
 	@Mock
 	private DDMFormInstanceRecordLocalService
 		_ddmFormInstanceRecordLocalService;
+
+	private TextDDMFormFieldTypeReportProcessor
+		_textDDMFormFieldTypeReportProcessor;
 
 }
