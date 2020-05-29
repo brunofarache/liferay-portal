@@ -80,7 +80,7 @@ public class DDMFormReportDisplayContext {
 				).put(
 					"name", ddmFormField.getName()
 				).put(
-					"options", _getOptions(ddmFormField)
+					"options", _getFieldOptions(ddmFormField)
 				).put(
 					"type", ddmFormField.getType()
 				)));
@@ -137,18 +137,18 @@ public class DDMFormReportDisplayContext {
 		return jsonObject.getInt("totalItems");
 	}
 
-	private JSONObject _getOptions(DDMFormField ddmFormField) {
+	private JSONObject _getFieldOptions(DDMFormField ddmFormField) {
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
-		DDMFormFieldOptions formFieldOptions =
+		DDMFormFieldOptions ddmFormFieldOptions =
 			ddmFormField.getDDMFormFieldOptions();
 
-		Set<String> optionsValues = formFieldOptions.getOptionsValues();
+		Set<String> optionsValues = ddmFormFieldOptions.getOptionsValues();
 
 		optionsValues.forEach(
 			optionValue -> jsonObject.put(
 				optionValue,
-				_getValue(formFieldOptions.getOptionLabels(optionValue))));
+				_getValue(ddmFormFieldOptions.getOptionLabels(optionValue))));
 
 		return jsonObject;
 	}
