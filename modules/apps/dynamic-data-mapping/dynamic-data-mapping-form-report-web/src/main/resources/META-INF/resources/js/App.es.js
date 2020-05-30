@@ -76,9 +76,24 @@ export default ({data, fields}) => {
 		};
 
 		return (
-			<Card field={field} key={index} totalEntries={totalEntries}>
-				{chart}
-			</Card>
+			<>
+				<Card field={field} key={index} totalEntries={totalEntries}>
+					{chart}
+				</Card>
+
+				{type == 'text' && open ? (
+					<Sidebar
+						field={field}
+						onClick={onClick}
+						open={open}
+						portletNamespace={portletNamespace}
+						totalEntries={totalEntries}
+						url={url}
+					/>
+				) : (
+					''
+				)}
+			</>
 		);
 	});
 
