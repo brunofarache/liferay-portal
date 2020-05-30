@@ -40,6 +40,15 @@ const chartFactory = (options, type, values, totalEntries) => {
 				/>
 			);
 
+		case 'text':
+			return (
+				<List
+					data={toArray(values)}
+					onClick={onClick}
+					totalEntries={totalEntries}
+				/>
+			);
+
 		default:
 			return null;
 	}
