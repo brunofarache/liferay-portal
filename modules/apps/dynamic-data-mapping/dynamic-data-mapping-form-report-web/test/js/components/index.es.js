@@ -24,6 +24,7 @@ const props = {
 		{name: 'field2', type: 'radio'},
 		{name: 'field3', type: 'radio'},
 	],
+	url: 'http://localhost:8080/',
 };
 
 describe('index', () => {
