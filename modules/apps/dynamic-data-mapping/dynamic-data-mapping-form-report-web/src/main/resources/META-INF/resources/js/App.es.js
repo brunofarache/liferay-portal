@@ -23,11 +23,7 @@ import Sidebar from './components/sidebar/Sidebar.es';
 import toDataArray, {sumTotalEntries, toArray} from './utils/data.es';
 import fieldTypes from './utils/fieldTypes.es';
 
-<<<<<<< HEAD
-const chartFactory = (options, type, values, totalEntries) => {
-=======
-const chartFactory = (type, values, totalEntries, onClick) => {
->>>>>>> LPS-114294 Add new arameters
+const chartFactory = (options, type, values, totalEntries, onClick) => {
 	switch (type) {
 		case 'checkbox_multiple':
 			return (
