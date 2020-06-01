@@ -58,7 +58,7 @@ import org.osgi.service.component.annotations.Reference;
 	},
 	service = MVCResourceCommand.class
 )
-public class FormReportRecordsFieldValuesMVCResourceCommand
+public class GetFormRecordsFieldValuesMVCResourceCommand
 	extends BaseMVCResourceCommand {
 
 	@Override
