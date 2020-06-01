@@ -15,33 +15,28 @@
 import {cleanup, render} from '@testing-library/react';
 import React from 'react';
 
-import Index from '../../../src/main/resources/META-INF/resources/js/index.es';
+import List from '../../../../src/main/resources/META-INF/resources/js/components/list/List.es';
 
 const props = {
-	data: JSON.stringify('{field1: {values: {option1: 1}, type:"radio"}'),
-	fields: [
-		{
-			label: 'Field 1',
-			name: 'field1',
-			options: {option1: 'Option 1'},
-			type: 'radio',
-		},
-		{label: 'Field 2', name: 'field2', type: 'radio'},
-		{label: 'Field 3', name: 'field3', type: 'radio'},
-	],
-	url: 'http://localhost:8080/',
+	data: ['label1', 'label2', 'label3', 'label4', 'label5'],
+	onClick: () => {},
+	totalEntries: 5,
 };
 
-describe('index', () => {
+describe('List', () => {
 	afterEach(cleanup);
 
 	it('renders', () => {
-		const {asFragment} = render(<Index {...props} />);
+		const {asFragment} = render(<List {...props} />);
+
 		expect(asFragment()).toMatchSnapshot();
 	});
 
-	it('renders nothing when there is no data', () => {
-		const {asFragment} = render(<Index {...props} data={null} />);
-		expect(asFragment()).toMatchSnapshot();
+	it('shows a button to see all entries when there are more than 5 entries', () => {
+		const {container} = render(<List {...props} totalEntries={6} />);
+
+		expect(container.querySelector('button').innerHTML).toBe(
+			'see-all-entries'
+		);
 	});
 });

@@ -1,0 +1,96 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Sidebar renders loading animation while requisition is loading 1`] = `
+<DocumentFragment>
+  <div
+    class="sidebar-container "
+  >
+    <div
+      class="sidebar sidebar-light"
+    >
+      <nav
+        class="component-tbar tbar"
+      >
+        <div
+          class="container-fluid"
+        >
+          <ul
+            class="tbar-nav"
+          >
+            <li
+              class="tbar-item"
+            >
+              <div
+                class="icon"
+              >
+                <svg
+                  class="lexicon-icon lexicon-icon-text"
+                  role="presentation"
+                >
+                  <use
+                    xlink:href="#text"
+                  />
+                </svg>
+              </div>
+            </li>
+            <li
+              class="tbar-item tbar-item-expand"
+            >
+              <div
+                class="tbar-section"
+              >
+                <div
+                  class="field-info"
+                >
+                  <p
+                    class="title"
+                  >
+                    fieldName
+                  </p>
+                  <p
+                    class="description"
+                  >
+                    5 entries
+                  </p>
+                </div>
+              </div>
+            </li>
+            <li
+              class="tbar-item"
+            >
+              <button
+                class="btn btn-unstyled"
+                type="button"
+              >
+                <svg
+                  class="lexicon-icon lexicon-icon-times-small close-button"
+                  role="presentation"
+                >
+                  <use
+                    xlink:href="#times-small"
+                  />
+                </svg>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </nav>
+      <div
+        class="sidebar-body"
+      >
+        <div
+          class="align-items-center d-flex loading-wrapper"
+        >
+          <span
+            aria-hidden="true"
+            class="loading-animation"
+          />
+        </div>
+        <ul
+          class="entries-list"
+        />
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;

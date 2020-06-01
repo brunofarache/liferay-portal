@@ -12,29 +12,26 @@
  * details.
  */
 
+import ClayButton from '@clayui/button';
 import React from 'react';
 
-import App from './App.es';
-import EmptyState from './components/empty-state/EmptyState.es';
-
-export default ({
-	data,
-	fields,
-	formReportRecordsFieldValuesURL,
-	portletNamespace,
-}) => {
-	if (!data || data.length === 0) {
-		return <EmptyState />;
-	}
-
+export default ({data, onClick, totalEntries}) => {
 	return (
-		<div className="form-report">
-			<App
-				data={JSON.parse(data)}
-				fields={fields}
-				portletNamespace={portletNamespace}
-				url={formReportRecordsFieldValuesURL}
-			/>
-		</div>
+		<ul className="entries-list">
+			{Array.isArray(data) &&
+				data.map((field, index) => {
+					return <li key={index}>{field}</li>;
+				})}
+
+			{totalEntries > 5 ? (
+				<li key={'see-more'}>
+					<ClayButton displayType="link" onClick={onClick}>
+						{Liferay.Language.get('see-all-entries')}
+					</ClayButton>
+				</li>
+			) : (
+				''
+			)}
+		</ul>
 	);
 };

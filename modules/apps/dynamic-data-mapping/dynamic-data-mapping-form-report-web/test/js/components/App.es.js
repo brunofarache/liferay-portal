@@ -49,6 +49,7 @@ const props = {
 		},
 		{label: 'Field 3', name: 'field3', type: 'radio'},
 	],
+	url: 'http://localhost:8080',
 };
 
 describe('App', () => {

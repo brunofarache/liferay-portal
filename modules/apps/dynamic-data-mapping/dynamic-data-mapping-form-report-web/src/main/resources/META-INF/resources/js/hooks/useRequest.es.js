@@ -12,29 +12,34 @@
  * details.
  */
 
-import React from 'react';
+import {useEffect, useState} from 'react';
 
-import App from './App.es';
-import EmptyState from './components/empty-state/EmptyState.es';
+import {request} from '../utils/client.es';
 
-export default ({
-	data,
-	fields,
-	formReportRecordsFieldValuesURL,
-	portletNamespace,
-}) => {
-	if (!data || data.length === 0) {
-		return <EmptyState />;
-	}
+export default (endpoint) => {
+	const [state, setState] = useState({
+		error: null,
+		isLoading: true,
+		response: {},
+	});
 
-	return (
-		<div className="form-report">
-			<App
-				data={JSON.parse(data)}
-				fields={fields}
-				portletNamespace={portletNamespace}
-				url={formReportRecordsFieldValuesURL}
-			/>
-		</div>
-	);
+	useEffect(() => {
+		request({endpoint})
+			.then((response) => {
+				setState({
+					error: null,
+					isLoading: false,
+					response,
+				});
+			})
+			.catch((error) => {
+				setState({
+					error,
+					isLoading: false,
+					response: {},
+				});
+			});
+	}, [endpoint]);
+
+	return state;
 };
