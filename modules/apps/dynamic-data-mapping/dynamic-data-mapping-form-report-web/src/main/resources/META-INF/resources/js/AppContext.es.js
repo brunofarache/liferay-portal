@@ -12,20 +12,20 @@
  * details.
  */
 
-import React from 'react';
+import React, {createContext} from 'react';
 
-import App from './App.es';
-import EmptyState from './components/empty-state/EmptyState.es';
+const AppContext = createContext({});
 
-export default (props) => {
-	const {data} = props;
-	if (!data || data.length === 0) {
-		return <EmptyState />;
-	}
-
+const AppContextProvider = ({children, ...context}) => {
 	return (
-		<div className="form-report">
-			<App {...props} />
-		</div>
+		<AppContext.Provider
+			value={{
+				...context,
+			}}
+		>
+			{children}
+		</AppContext.Provider>
 	);
 };
+
+export {AppContext, AppContextProvider};
