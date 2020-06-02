@@ -14,7 +14,7 @@
 
 import React, {useContext} from 'react';
 
-import {AppContext} from '../../AppContext.es';
+import {AppContext} from './AppContext.es';
 import Card from './components/card/Card.es';
 import BarChart from './components/chart/bar/BarChart.es';
 import PieChart from './components/chart/pie/PieChart.es';

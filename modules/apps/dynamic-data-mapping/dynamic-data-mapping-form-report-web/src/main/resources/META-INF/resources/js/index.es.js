@@ -19,6 +19,7 @@ import EmptyState from './components/empty-state/EmptyState.es';
 
 export default (props) => {
 	const {data} = props;
+
 	if (!data || data.length === 0) {
 		return <EmptyState />;
 	}
