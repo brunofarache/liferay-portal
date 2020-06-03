@@ -61,7 +61,7 @@ const chartFactory = (options, name, type, values, totalEntries, onClick) => {
 export default ({data, fields}) => {
 	let hasCards = false;
 
-	const [fieldClicked, setFieldClicked] = useState(false);
+	const [fieldClicked, setFieldClicked] = useState(null);
 
 	const cards = fields.map(({label, name, options, type}, index) => {
 		const {values = {}, totalEntries = sumTotalEntries(values)} =
