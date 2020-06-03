@@ -14,25 +14,16 @@
 
 import React from 'react';
 
-import {AppContextProvider} from './AppContext.es';
 import CardList from './components/card/CardList.es';
 import Sidebar from './components/sidebar/Sidebar.es';
 import {SidebarContextProvider} from './components/sidebar/SidebarContext.es';
 
-export default ({
-	data,
-	fields,
-	formReportRecordsFieldValuesURL,
-	portletNamespace,
-}) => (
-	<AppContextProvider
+export default ({data, fields, formReportRecordsFieldValuesURL}) => (
+	<SidebarContextProvider
 		formReportRecordsFieldValuesURL={formReportRecordsFieldValuesURL}
-		portletNamespace={portletNamespace}
 	>
-		<SidebarContextProvider>
-			<CardList data={data} fields={fields} />
+		<CardList data={data} fields={fields} />
 
-			<Sidebar />
-		</SidebarContextProvider>
-	</AppContextProvider>
+		<Sidebar />
+	</SidebarContextProvider>
 );

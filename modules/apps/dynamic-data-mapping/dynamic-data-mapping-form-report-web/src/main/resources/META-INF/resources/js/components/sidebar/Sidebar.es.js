@@ -17,35 +17,32 @@ import ClayIcon from '@clayui/icon';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
 import React, {useContext} from 'react';
 
-import {AppContext} from '../../AppContext.es';
 import useRequest from '../../hooks/useRequest.es';
 import List from '../list/List.es';
 import {SidebarContext} from './SidebarContext.es';
 
 export default () => {
 	const {
-		field: {icon, name: fieldName},
+		field,
+		formReportRecordsFieldValuesURL,
 		isOpen,
 		toggleSidebar,
 		totalEntries,
 	} = useContext(SidebarContext);
 
-	const {formReportRecordsFieldValuesURL, portletNamespace} = useContext(
-		AppContext
-	);
+	let endpoint = null;
 
-	const path = formReportRecordsFieldValuesURL.replace(
-		'http://localhost:8080',
-		''
-	);
+	if (field !== null) {
+		endpoint = `${formReportRecordsFieldValuesURL}&_fieldName=${field.name}`;
+	}
 
-	const {isLoading, response: data = []} = useRequest(
-		`${path}&_${portletNamespace}_fieldName=${fieldName}`
-	);
+	const {isLoading, response: data = []} = useRequest(endpoint);
 
 	if (!isOpen) {
 		return null;
 	}
+
+	const {icon, name: fieldName} = field;
 
 	return (
 		<div className="open sidebar-container">
