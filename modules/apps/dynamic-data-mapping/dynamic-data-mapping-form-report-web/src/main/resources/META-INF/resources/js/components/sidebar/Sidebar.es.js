@@ -26,14 +26,18 @@ export default () => {
 		field,
 		formReportRecordsFieldValuesURL,
 		isOpen,
+		portletNamespace,
 		toggleSidebar,
 		totalEntries,
 	} = useContext(SidebarContext);
 
 	let endpoint = null;
 
-	if (field !== null) {
-		endpoint = `${formReportRecordsFieldValuesURL}&_fieldName=${field.name}`;
+	if (field !== null && field !== undefined) {
+		endpoint = `${formReportRecordsFieldValuesURL}&${portletNamespace}fieldName=${field.name}`;
+	}
+	else {
+		return null;
 	}
 
 	const {isLoading, response: data = []} = useRequest(endpoint);
