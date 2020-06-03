@@ -62,7 +62,7 @@ export default ({data, fields}) => {
 
 	const cards = fields.map((field, index) => {
 		const {values = {}, totalEntries = sumTotalEntries(values)} =
-			data[name] || {};
+			data[field.name] || {};
 
 		field = {
 			...field,
