@@ -14,14 +14,14 @@
 
 import React, {useState} from 'react';
 
-import Card from './components/card/Card.es';
-import BarChart from './components/chart/bar/BarChart.es';
-import PieChart from './components/chart/pie/PieChart.es';
-import EmptyState from './components/empty-state/EmptyState.es';
-import List from './components/list/List.es';
-import Sidebar from './components/sidebar/Sidebar.es';
-import toDataArray, {sumTotalEntries, toArray} from './utils/data.es';
-import fieldTypes from './utils/fieldTypes.es';
+import toDataArray, {sumTotalEntries, toArray} from '../../utils/data.es';
+import fieldTypes from '../../utils/fieldTypes.es';
+import BarChart from '../chart/bar/BarChart.es';
+import PieChart from '../chart/pie/PieChart.es';
+import EmptyState from '../empty-state/EmptyState.es';
+import List from '../list/List.es';
+import Sidebar from '../sidebar/Sidebar.es';
+import Card from './Card.es';
 
 const chartFactory = (options, name, type, values, totalEntries, onClick) => {
 	switch (type) {
@@ -106,9 +106,7 @@ export default ({data, fields}) => {
 						onClick={onClick}
 						totalEntries={totalEntries}
 					/>
-				) : (
-					''
-				)}
+				) : null}
 			</>
 		);
 	});

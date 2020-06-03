@@ -15,14 +15,18 @@
 import React from 'react';
 
 import {AppContextProvider} from './AppContext.es';
-import Cards from './Cards.es';
+import CardList from './components/card/CardList.es';
 
-export default (props) => {
-	const {data, fields} = props;
-
-	return (
-		<AppContextProvider {...props}>
-			<Cards data={data} fields={fields} />
-		</AppContextProvider>
-	);
-};
+export default ({
+	data,
+	fields,
+	formReportRecordsFieldValuesURL,
+	portletNamespace,
+}) => (
+	<AppContextProvider
+		formReportRecordsFieldValuesURL={formReportRecordsFieldValuesURL}
+		portletNamespace={portletNamespace}
+	>
+		<CardList data={data} fields={fields} />
+	</AppContextProvider>
+);

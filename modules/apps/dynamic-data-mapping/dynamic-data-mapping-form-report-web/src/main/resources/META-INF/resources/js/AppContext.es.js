@@ -16,14 +16,16 @@ import React, {createContext} from 'react';
 
 const AppContext = createContext({});
 
-const AppContextProvider = ({children, ...context}) => {
-	const {formReportRecordsFieldValuesURL, portletNamespace} = context;
-
+const AppContextProvider = ({
+	children,
+	formReportRecordsFieldValuesURL,
+	portletNamespace,
+}) => {
 	return (
 		<AppContext.Provider
 			value={{
+				formReportRecordsFieldValuesURL,
 				portletNamespace,
-				url: formReportRecordsFieldValuesURL,
 			}}
 		>
 			{children}
