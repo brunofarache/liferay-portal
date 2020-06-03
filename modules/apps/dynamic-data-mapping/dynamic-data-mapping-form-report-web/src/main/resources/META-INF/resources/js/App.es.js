@@ -22,7 +22,7 @@ export default (props) => {
 
 	return (
 		<AppContextProvider {...props}>
-			<Cards data={JSON.parse(data)} fields={fields} />
+			<Cards data={data} fields={fields} />
 		</AppContextProvider>
 	);
 };
