@@ -12,7 +12,7 @@
  * details.
  */
 
-import React, {useState} from 'react';
+import React from 'react';
 
 import toDataArray, {sumTotalEntries, toArray} from '../../utils/data.es';
 import fieldTypes from '../../utils/fieldTypes.es';
@@ -20,10 +20,11 @@ import BarChart from '../chart/bar/BarChart.es';
 import PieChart from '../chart/pie/PieChart.es';
 import EmptyState from '../empty-state/EmptyState.es';
 import List from '../list/List.es';
-import Sidebar from '../sidebar/Sidebar.es';
 import Card from './Card.es';
 
-const chartFactory = (options, name, type, values, totalEntries, onClick) => {
+const chartFactory = (field, values, totalEntries) => {
+	const {options, type} = field;
+
 	switch (type) {
 		case 'checkbox_multiple':
 			return (
@@ -46,9 +47,7 @@ const chartFactory = (options, name, type, values, totalEntries, onClick) => {
 			return (
 				<List
 					data={toArray(values)}
-					onClick={() => {
-						onClick(name);
-					}}
+					field={field}
 					totalEntries={totalEntries}
 				/>
 			);
@@ -61,24 +60,16 @@ const chartFactory = (options, name, type, values, totalEntries, onClick) => {
 export default ({data, fields}) => {
 	let hasCards = false;
 
-	const [fieldClicked, setFieldClicked] = useState(null);
-
-	const cards = fields.map(({label, name, options, type}, index) => {
+	const cards = fields.map((field, index) => {
 		const {values = {}, totalEntries = sumTotalEntries(values)} =
 			data[name] || {};
 
-		const onClick = (e) => {
-			setFieldClicked(e);
+		field = {
+			...field,
+			...fieldTypes[field.type],
 		};
 
-		const chart = chartFactory(
-			options,
-			name,
-			type,
-			values,
-			totalEntries,
-			onClick
-		);
+		const chart = chartFactory(field, values, totalEntries);
 
 		if (chart === null) {
 			return null;
@@ -87,27 +78,10 @@ export default ({data, fields}) => {
 			hasCards = true;
 		}
 
-		const field = {
-			label,
-			name,
-			type,
-			...fieldTypes[type],
-		};
-
 		return (
-			<>
-				<Card field={field} key={index} totalEntries={totalEntries}>
-					{chart}
-				</Card>
-
-				{type == 'text' && fieldClicked == name ? (
-					<Sidebar
-						field={field}
-						onClick={onClick}
-						totalEntries={totalEntries}
-					/>
-				) : null}
-			</>
+			<Card field={field} key={index} totalEntries={totalEntries}>
+				{chart}
+			</Card>
 		);
 	});
 

@@ -20,8 +20,16 @@ import React, {useContext} from 'react';
 import {AppContext} from '../../AppContext.es';
 import useRequest from '../../hooks/useRequest.es';
 import List from '../list/List.es';
+import {SidebarContext} from './SidebarContext.es';
 
-export default ({field: {icon, name: fieldName}, onClick, totalEntries}) => {
+export default () => {
+	const {
+		field: {icon, name: fieldName},
+		isOpen,
+		toggleSidebar,
+		totalEntries,
+	} = useContext(SidebarContext);
+
 	const {formReportRecordsFieldValuesURL, portletNamespace} = useContext(
 		AppContext
 	);
@@ -31,9 +39,13 @@ export default ({field: {icon, name: fieldName}, onClick, totalEntries}) => {
 		''
 	);
 
-	const {isLoading, response: values = []} = useRequest(
+	const {isLoading, response: data = []} = useRequest(
 		`${path}&_${portletNamespace}_fieldName=${fieldName}`
 	);
+
+	if (!isOpen) {
+		return null;
+	}
 
 	return (
 		<div className="open sidebar-container">
@@ -65,7 +77,7 @@ export default ({field: {icon, name: fieldName}, onClick, totalEntries}) => {
 							<li className="tbar-item">
 								<ClayButton
 									displayType="unstyled"
-									onClick={onClick}
+									onClick={() => toggleSidebar()}
 								>
 									<ClayIcon
 										className="close-button"
@@ -84,7 +96,7 @@ export default ({field: {icon, name: fieldName}, onClick, totalEntries}) => {
 						</div>
 					)}
 
-					<List data={values}></List>
+					<List data={data}></List>
 				</div>
 			</div>
 		</div>
