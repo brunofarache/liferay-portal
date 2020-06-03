@@ -16,7 +16,10 @@ import React, {createContext, useState} from 'react';
 
 const SidebarContext = createContext({});
 
-const SidebarContextProvider = ({children}) => {
+const SidebarContextProvider = ({
+	children,
+	formReportRecordsFieldValuesURL,
+}) => {
 	const [sidebarState, setSidebarState] = useState({
 		field: null,
 		isOpen: false,
@@ -31,11 +34,13 @@ const SidebarContextProvider = ({children}) => {
 		}));
 	};
 
-	const {field, isOpen, totalEntries} = sidebarState;
-
 	return (
 		<SidebarContext.Provider
-			value={{field, isOpen, toggleSidebar, totalEntries}}
+			value={{
+				...sidebarState,
+				formReportRecordsFieldValuesURL,
+				toggleSidebar,
+			}}
 		>
 			{children}
 		</SidebarContext.Provider>

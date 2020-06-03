@@ -24,6 +24,10 @@ export default (endpoint) => {
 	});
 
 	useEffect(() => {
+		if (endpoint === null) {
+			return;
+		}
+
 		request({endpoint})
 			.then((response) => {
 				setState({
