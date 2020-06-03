@@ -17,16 +17,14 @@ import React from 'react';
 import App from './App.es';
 import EmptyState from './components/empty-state/EmptyState.es';
 
-export default (props) => {
-	const {data} = props;
-
+export default ({data, ...restProps}) => {
 	if (!data || data.length === 0) {
 		return <EmptyState />;
 	}
 
 	return (
 		<div className="form-report">
-			<App {...props} data={JSON.parse(data)} />
+			<App {...restProps} data={JSON.parse(data)} />
 		</div>
 	);
 };

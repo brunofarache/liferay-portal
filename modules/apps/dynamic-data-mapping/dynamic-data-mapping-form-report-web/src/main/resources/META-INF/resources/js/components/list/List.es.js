@@ -15,21 +15,17 @@
 import ClayButton from '@clayui/button';
 import React from 'react';
 
-export default ({data, onClick, totalEntries}) => {
-	const totalNotEmpty = data.length;
+export default ({data, onClick, totalEntries}) => (
+	<ul className="entries-list">
+		{Array.isArray(data) &&
+			data.map((field, index) => <li key={index}>{field}</li>)}
 
-	return (
-		<ul className="entries-list">
-			{Array.isArray(data) &&
-				data.map((field, index) => <li key={index}>{field}</li>)}
-
-			{totalNotEmpty == 5 && totalEntries > 5 ? (
-				<li key={'see-more'}>
-					<ClayButton displayType="link" onClick={onClick}>
-						{Liferay.Language.get('see-all-entries')}
-					</ClayButton>
-				</li>
-			) : null}
-		</ul>
-	);
-};
+		{data.length == 5 && totalEntries > 5 ? (
+			<li key={'see-more'}>
+				<ClayButton displayType="link" onClick={onClick}>
+					{Liferay.Language.get('see-all-entries')}
+				</ClayButton>
+			</li>
+		) : null}
+	</ul>
+);

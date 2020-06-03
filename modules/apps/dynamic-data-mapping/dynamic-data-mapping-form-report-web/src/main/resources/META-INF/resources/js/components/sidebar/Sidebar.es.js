@@ -21,12 +21,18 @@ import {AppContext} from '../../AppContext.es';
 import useRequest from '../../hooks/useRequest.es';
 import List from '../list/List.es';
 
-export default ({field: {icon, name}, onClick, totalEntries}) => {
-	const {portletNamespace, url} = useContext(AppContext);
+export default ({field: {icon, name: fieldName}, onClick, totalEntries}) => {
+	const {formReportRecordsFieldValuesURL, portletNamespace} = useContext(
+		AppContext
+	);
 
-	const path = url.replace('http://localhost:8080', '');
+	const path = formReportRecordsFieldValuesURL.replace(
+		'http://localhost:8080',
+		''
+	);
+
 	const {isLoading, response: values = []} = useRequest(
-		`${path}&_${portletNamespace}_fieldName=${name}`
+		`${path}&_${portletNamespace}_fieldName=${fieldName}`
 	);
 
 	return (
@@ -40,10 +46,11 @@ export default ({field: {icon, name}, onClick, totalEntries}) => {
 									<ClayIcon symbol={icon} />
 								</div>
 							</li>
+
 							<li className="tbar-item tbar-item-expand">
 								<div className="tbar-section">
 									<div className="field-info">
-										<p className="title">{name}</p>
+										<p className="title">{fieldName}</p>
 
 										<p className="description">
 											{totalEntries}{' '}
@@ -54,6 +61,7 @@ export default ({field: {icon, name}, onClick, totalEntries}) => {
 									</div>
 								</div>
 							</li>
+
 							<li className="tbar-item">
 								<ClayButton
 									displayType="unstyled"
@@ -68,12 +76,14 @@ export default ({field: {icon, name}, onClick, totalEntries}) => {
 						</ul>
 					</div>
 				</nav>
+
 				<div className="sidebar-body">
 					{isLoading && (
 						<div className="align-items-center d-flex loading-wrapper">
 							<ClayLoadingIndicator />
 						</div>
 					)}
+
 					<List data={values}></List>
 				</div>
 			</div>
