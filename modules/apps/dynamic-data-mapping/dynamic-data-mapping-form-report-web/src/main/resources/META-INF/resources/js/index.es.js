@@ -26,7 +26,7 @@ export default (props) => {
 
 	return (
 		<div className="form-report">
-			<App {...props} />
+			<App {...props} data={JSON.parse(data)} />
 		</div>
 	);
 };
