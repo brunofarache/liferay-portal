@@ -39,9 +39,12 @@ export default ({active, activeIndex, payload, totalEntries}) => {
 			</svg>
 
 			<p className="tooltip-label">
-				{`${label}: ${count} ${Liferay.Language.get(
+				{`${label}: ${count} `}
+				{count == 1 ? `${Liferay.Language.get(
+					'entry'
+				).toLowerCase()} ` : `${Liferay.Language.get(
 					'entries'
-				).toLowerCase()}`}{' '}
+				).toLowerCase()} `}
 				<b>({roundPercentage(getPercentage(count))})</b>
 			</p>
 		</div>

@@ -31,9 +31,9 @@ int totalItems = ddmFormReportDisplayContext.getTotalItems();
 						<c:when test="<%= totalItems == 1 %>">
 							<liferay-ui:message arguments="<%= totalItems %>" key="x-entry" />
 						</c:when>
-						<c:when test="<%= totalItems > 1 %>">
+						<c:otherwise>
 							<liferay-ui:message arguments="<%= totalItems %>" key="x-entries" />
-						</c:when>
+						</c:otherwise>
 					</c:choose>
 				</span>
 			</clay:content-row>
