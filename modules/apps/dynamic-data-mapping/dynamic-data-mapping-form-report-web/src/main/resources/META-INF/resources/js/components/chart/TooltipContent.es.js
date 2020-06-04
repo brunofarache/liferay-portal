@@ -17,7 +17,7 @@ import React from 'react';
 import colors from '../../utils/colors.es';
 import {roundPercentage} from '../../utils/data.es';
 
-export default ({active, activeIndex, payload, totalEntries}) => {
+export default ({active, activeIndex, hideBullet = false, payload, totalEntries}) => {
 	const getPercentage = (count) => count / totalEntries;
 
 	if (!active) {
@@ -28,15 +28,16 @@ export default ({active, activeIndex, payload, totalEntries}) => {
 
 	return (
 		<div className="custom-tooltip">
-			<svg height="12" width="12">
-				<circle
-					cx="6"
-					cy="6"
-					fill={colors(activeIndex)}
-					r="6"
-					strokeWidth="0"
-				/>
-			</svg>
+			{!hideBullet ?
+				<svg height="12" width="12">
+					<circle
+						cx="6"
+						cy="6"
+						fill={colors(activeIndex)}
+						r="6"
+						strokeWidth="0"
+					/>
+				</svg> : null}
 
 			<p className="tooltip-label">
 				{`${label}: ${count} `}
