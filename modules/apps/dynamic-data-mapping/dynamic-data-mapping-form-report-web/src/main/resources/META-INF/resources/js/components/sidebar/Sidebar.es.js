@@ -34,7 +34,10 @@ export default () => {
 	let endpoint = null;
 
 	if (field !== null && field !== undefined) {
-		endpoint = `${formReportRecordsFieldValuesURL}&${portletNamespace}fieldName=${field.name}`;
+		const {origin} = new URL(formReportRecordsFieldValuesURL);
+		const path = formReportRecordsFieldValuesURL.replace(origin, '');
+
+		endpoint = `${path}&${portletNamespace}fieldName=${field.name}`;
 	}
 	else {
 		return null;
