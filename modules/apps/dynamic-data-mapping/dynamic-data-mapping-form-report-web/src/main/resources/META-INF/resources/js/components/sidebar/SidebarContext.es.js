@@ -19,7 +19,7 @@ const SidebarContext = createContext({});
 const SidebarContextProvider = ({
 	children,
 	formReportRecordsFieldValuesURL,
-	portletNamespace
+	portletNamespace,
 }) => {
 	const [sidebarState, setSidebarState] = useState({
 		field: null,

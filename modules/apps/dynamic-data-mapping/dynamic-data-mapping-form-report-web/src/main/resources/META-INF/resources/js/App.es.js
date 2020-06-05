@@ -18,7 +18,12 @@ import CardList from './components/card/CardList.es';
 import Sidebar from './components/sidebar/Sidebar.es';
 import {SidebarContextProvider} from './components/sidebar/SidebarContext.es';
 
-export default ({data, fields, formReportRecordsFieldValuesURL, portletNamespace}) => (
+export default ({
+	data,
+	fields,
+	formReportRecordsFieldValuesURL,
+	portletNamespace,
+}) => (
 	<SidebarContextProvider
 		formReportRecordsFieldValuesURL={formReportRecordsFieldValuesURL}
 		portletNamespace={portletNamespace}

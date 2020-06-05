@@ -46,14 +46,16 @@ export default ({children, field: {icon, label, title}, totalEntries}) => (
 								truncate={false}
 							>
 								{totalEntries > 0
-									? totalEntries == 1 ? (`${totalEntries} ${Liferay.Language.get(
-										'entry'
-									).toLowerCase()}`) : (`${totalEntries} ${Liferay.Language.get(
-										'entries'
-									).toLowerCase()}`)
+									? totalEntries == 1
+										? `${totalEntries} ${Liferay.Language.get(
+												'entry'
+										  ).toLowerCase()}`
+										: `${totalEntries} ${Liferay.Language.get(
+												'entries'
+										  ).toLowerCase()}`
 									: Liferay.Language.get(
 											'there-are-no-entries'
-									)}
+									  )}
 							</ClayCard.Description>
 						</div>
 					</ClayCard.AspectRatio>

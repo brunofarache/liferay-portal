@@ -43,21 +43,20 @@ const chartFactory = (field, values, totalEntries) => {
 				/>
 			);
 
-		case 'text':
-			{
-				if (Array.isArray(values)) {
-					return (
-						<List
-							data={toArray(values)}
-							field={field}
-							totalEntries={totalEntries}
-						/>
-					);
-				}
-				else {
-					return '';
-				}
+		case 'text': {
+			if (Array.isArray(values)) {
+				return (
+					<List
+						data={toArray(values)}
+						field={field}
+						totalEntries={totalEntries}
+					/>
+				);
 			}
+			else {
+				return '';
+			}
+		}
 
 		default:
 			return null;

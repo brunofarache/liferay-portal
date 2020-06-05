@@ -27,7 +27,7 @@ describe('List', () => {
 	afterEach(cleanup);
 
 	it('renders', () => {
-		const {asFragment, container, getAllByRole,findAllByRole} = render(<List {...props} />);
+		const {asFragment, container} = render(<List {...props} />);
 
 		const li = container.querySelectorAll('li');
 
