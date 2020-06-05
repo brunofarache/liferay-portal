@@ -33,7 +33,7 @@ export default () => {
 
 	let endpoint = null;
 
-	if (field !== null && field !== undefined) {
+	if (field) {
 		const {origin} = new URL(formReportRecordsFieldValuesURL);
 		const path = formReportRecordsFieldValuesURL.replace(origin, '');
 
