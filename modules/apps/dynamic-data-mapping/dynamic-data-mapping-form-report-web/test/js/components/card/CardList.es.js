@@ -22,7 +22,7 @@ const props = {
 		field1: {
 			totalEntries: 1,
 			type: 'text',
-			values: [{formInstanceRecordId: 36766, value: 'name'}],
+			values: [{formInstanceRecordId: 1, value: 'name'}],
 		},
 		field2: {
 			totalEntries: 1,
@@ -78,6 +78,7 @@ describe('CardList', () => {
 
 	it('shows the card of each field', () => {
 		const {getByText} = render(<CardList {...props} />);
+
 		expect(getByText('Field 1')).toBeTruthy();
 		expect(getByText('Field 2')).toBeTruthy();
 		expect(getByText('Field 3')).toBeTruthy();
