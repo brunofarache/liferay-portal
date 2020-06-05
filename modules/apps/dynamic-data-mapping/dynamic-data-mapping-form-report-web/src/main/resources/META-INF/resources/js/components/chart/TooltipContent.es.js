@@ -20,8 +20,8 @@ import {roundPercentage} from '../../utils/data.es';
 export default ({
 	active,
 	activeIndex,
-	hideBullet = false,
 	payload,
+	showBullet = true,
 	totalEntries,
 }) => {
 	const getPercentage = (count) => count / totalEntries;
@@ -34,7 +34,7 @@ export default ({
 
 	return (
 		<div className="custom-tooltip">
-			{!hideBullet ? (
+			{showBullet ? (
 				<svg height="12" width="12">
 					<circle
 						cx="6"
