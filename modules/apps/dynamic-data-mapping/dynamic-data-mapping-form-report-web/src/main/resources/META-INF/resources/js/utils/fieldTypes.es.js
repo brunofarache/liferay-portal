@@ -17,6 +17,10 @@ export default {
 		icon: 'check-circle',
 		title: Liferay.Language.get('checkbox-multiple-field-type-label'),
 	},
+	numeric: {
+		icon: 'integer',
+		title: Liferay.Language.get('numeric-field-type-label'),
+	},
 	radio: {
 		icon: 'radio-button',
 		title: Liferay.Language.get('radio-field-type-label'),
