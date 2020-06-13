@@ -34,6 +34,21 @@ const chartFactory = (field, values, totalEntries) => {
 				/>
 			);
 
+		case 'numeric': {
+			if (Array.isArray(values)) {
+				return (
+					<List
+						data={toArray(values)}
+						field={field}
+						totalEntries={totalEntries}
+					/>
+				);
+			}
+			else {
+				return '';
+			}
+		}
+
 		case 'radio':
 		case 'select':
 			return (
