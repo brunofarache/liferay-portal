@@ -68,9 +68,11 @@ export default ({data, fields}) => {
 	let hasCards = false;
 
 	const cards = fields.map((field, index) => {
-		const {values = {}, totalEntries = sumTotalEntries(values)} =
-			data[field.name] || {};
-
+		const {
+			values = {},
+			summary = {},
+			totalEntries = sumTotalEntries(values),
+		} = data[field.name] || {};
 		field = {
 			...field,
 			...fieldTypes[field.type],
@@ -86,7 +88,12 @@ export default ({data, fields}) => {
 		}
 
 		return (
-			<Card field={field} key={index} totalEntries={totalEntries}>
+			<Card
+				field={field}
+				key={index}
+				summary={summary}
+				totalEntries={totalEntries}
+			>
 				{chart}
 			</Card>
 		);
