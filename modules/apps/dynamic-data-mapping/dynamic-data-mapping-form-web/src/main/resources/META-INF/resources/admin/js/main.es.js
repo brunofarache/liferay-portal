@@ -839,21 +839,20 @@ class Form extends Component {
 		let {successPageSettings} = context;
 		const {successPage} = context;
 
-		if (!successPageSettings) {
+		if (!successPageSettings && this.isFormBuilderView()) {
 			successPageSettings = successPage;
+			successPageSettings.enabled = true;
 		}
 
-		if (core.isString(successPageSettings.title)) {
+		if (successPageSettings && core.isString(successPageSettings.title)) {
 			successPageSettings.title = {};
 			successPageSettings.title[themeDisplay.getLanguageId()] = '';
 		}
 
-		if (core.isString(successPageSettings.body)) {
+		if (successPageSettings && core.isString(successPageSettings.body)) {
 			successPageSettings.body = {};
 			successPageSettings.body[themeDisplay.getLanguageId()] = '';
 		}
-
-		successPageSettings.enabled = true;
 
 		const emptyLocalizableValue = {
 			[themeDisplay.getLanguageId()]: '',
