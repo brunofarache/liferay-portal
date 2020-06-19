@@ -15,7 +15,6 @@
 package com.liferay.dynamic.data.mapping.service.impl;
 
 import com.liferay.dynamic.data.mapping.constants.DDMFormInstanceReportConstants;
-import com.liferay.dynamic.data.mapping.internal.petra.executor.DDMFormInstanceReportPortalExecutor;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecordVersion;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceReport;
@@ -85,11 +84,9 @@ public class DDMFormInstanceReportLocalServiceImpl
 		String formInstanceReportEvent) {
 
 		try {
-			_ddmFormInstanceReportPortalExecutor.execute(
-				() ->
-					ddmFormInstanceReportLocalService.updateFormInstanceReport(
-						formInstanceReportId, formInstanceRecordVersionId,
-						formInstanceReportEvent));
+			ddmFormInstanceReportLocalService.updateFormInstanceReport(
+				formInstanceReportId, formInstanceRecordVersionId,
+				formInstanceReportEvent);
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
@@ -218,9 +215,5 @@ public class DDMFormInstanceReportLocalServiceImpl
 	@Reference
 	private DDMFormInstanceRecordVersionLocalService
 		_ddmFormInstanceRecordVersionLocalService;
-
-	@Reference
-	private DDMFormInstanceReportPortalExecutor
-		_ddmFormInstanceReportPortalExecutor;
 
 }
