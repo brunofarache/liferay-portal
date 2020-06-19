@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.BaseModelListener;
 import com.liferay.portal.kernel.model.ModelListener;
+import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -67,11 +68,17 @@ public class DDMFormInstanceModelListener
 					getFormInstanceReportByFormInstanceId(
 						ddmFormInstance.getFormInstanceId());
 
-			_ddmFormInstanceReportPortalExecutor.execute(
-				() ->
-					_ddmFormInstanceReportLocalService.
-						deleteDDMFormInstanceReport(
-							ddmFormInstanceReport.getFormInstanceReportId()));
+			TransactionCommitCallbackUtil.registerCallback(
+				() -> {
+					_ddmFormInstanceReportPortalExecutor.execute(
+						() ->
+							_ddmFormInstanceReportLocalService.
+								deleteDDMFormInstanceReport(
+									ddmFormInstanceReport.
+										getFormInstanceReportId()));
+
+					return null;
+				});
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
