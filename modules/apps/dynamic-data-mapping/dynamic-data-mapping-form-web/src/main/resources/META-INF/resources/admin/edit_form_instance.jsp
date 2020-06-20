@@ -70,7 +70,7 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 							</button>
 						</c:when>
 						<c:otherwise>
-							<button class="btn btn-secondary btn-sm lfr-ddm-share-url-button share-form-icon" data-original-title="<liferay-ui:message key="share" />" id="<portlet:namespace />publishIcon" type="button">
+							<button class="btn btn-secondary btn-sm lfr-ddm-share-url-button share-form-icon" id="<portlet:namespace />publishIcon" type="button">
 								<%= LanguageUtil.get(request, "share") %>
 							</button>
 						</c:otherwise>
